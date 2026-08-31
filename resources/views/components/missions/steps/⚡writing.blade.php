@@ -46,7 +46,10 @@ new class extends Component
 };
 ?>
 
-@php $writing = $run->mission->stepContent('writing'); @endphp
+@php
+    $writing = $run->mission->stepContent('writing');
+    $vocabularyWords = $run->selectedVocabularyWords();
+@endphp
 
 <div class="space-y-4">
     <x-hook :text="$writing['hook'] ?? null" />
@@ -63,11 +66,27 @@ new class extends Component
         </div>
     </div>
 
-    <div class="flex flex-wrap gap-2">
-        @foreach ($writing['try_to_use'] ?? [] as $word)
-            <span class="rounded border border-neutral-300 px-2 py-0.5 text-xs dark:border-neutral-700">{{ $word }}</span>
-        @endforeach
-    </div>
+    @if (count($vocabularyWords))
+        <div>
+            <p class="text-xs font-semibold text-neutral-500 uppercase">Words you picked — try to use some</p>
+            <div class="mt-1 flex flex-wrap gap-1.5">
+                @foreach ($vocabularyWords as $word)
+                    <span class="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">{{ $word }}</span>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    @if (count($writing['try_to_use'] ?? []))
+        <div>
+            <p class="text-xs font-semibold text-neutral-500 uppercase">Connectors that help</p>
+            <div class="mt-1 flex flex-wrap gap-1.5">
+                @foreach ($writing['try_to_use'] as $word)
+                    <span class="rounded border border-neutral-300 px-2 py-0.5 text-xs dark:border-neutral-700">{{ $word }}</span>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <textarea
         wire:model.live="text"

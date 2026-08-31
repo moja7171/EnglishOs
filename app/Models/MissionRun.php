@@ -108,6 +108,23 @@ class MissionRun extends Model
     }
 
     /**
+     * The exact vocabulary words the learner picked in Vocabulary Builder —
+     * the thread later steps (Writing suggestions, Active Recall, the Final
+     * Challenge's grading) pull from so the words actually studied get
+     * reused and reviewed, not just practiced once and forgotten. Empty
+     * array if Vocabulary Builder hasn't been completed yet. This pattern
+     * is the standard for every future mission, not just M01 — see
+     * EOS-009 §7 step 02.
+     */
+    public function selectedVocabularyWords(): array
+    {
+        $evidence = $this->latestEvidence('vocabulary_builder');
+        $data = json_decode($evidence?->content_ref ?? '{}', true);
+
+        return $data['selected_words'] ?? [];
+    }
+
+    /**
      * The 1-5 comfort score the learner gave themselves at Mission Brief,
      * before starting — null if they haven't reached/answered it yet.
      */

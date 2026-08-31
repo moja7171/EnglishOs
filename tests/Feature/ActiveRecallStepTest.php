@@ -74,4 +74,32 @@ class ActiveRecallStepTest extends TestCase
 
         $this->assertSame('error_log', $run->fresh()->currentStepKey());
     }
+
+    public function test_the_expressions_section_is_sized_to_what_the_learner_actually_picked(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'selected_words' => ['wake up', 'get up', 'have a shower'], // 3, not the seeded 5
+                'examples' => [],
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->assertSee('you picked 3')
+            ->assertSet('answers.expressions', ['', '', '']);
+    }
+
+    public function test_the_expressions_section_falls_back_to_the_seeded_default_without_a_selection(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->assertSee('5 expressions I learned')
+            ->assertSet('answers.expressions', ['', '', '', '', '']);
+    }
 }

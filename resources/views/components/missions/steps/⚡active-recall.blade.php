@@ -24,9 +24,34 @@ new class extends Component
         }
     }
 
+    /**
+     * The "expressions" section is sized and labelled against what the
+     * learner actually picked in Vocabulary Builder (capped at 10, so a
+     * learner who picked far more than 8 doesn't face an unreasonably long
+     * recall list) — testing real memory of their own choices, not a
+     * generic fixed count. Falls back to the seeded default if, somehow,
+     * no vocabulary selection is on record yet.
+     */
     private function sections(): array
     {
-        return $this->run->mission->stepContent('active_recall')['sections'] ?? [];
+        $sections = $this->run->mission->stepContent('active_recall')['sections'] ?? [];
+        $selected = $this->run->selectedVocabularyWords();
+
+        if (! $selected) {
+            return $sections;
+        }
+
+        $count = min(count($selected), 10);
+
+        return collect($sections)
+            ->map(fn (array $section) => $section['key'] === 'expressions'
+                ? [
+                    ...$section,
+                    'count' => $count,
+                    'label' => "Expressions I learned (you picked {$count} — how many can you recall without looking?)",
+                ]
+                : $section)
+            ->all();
     }
 
     public function save(): void

@@ -95,6 +95,50 @@ class AiConversation2StepTest extends TestCase
         $this->assertSame('active_recall', $run->fresh()->currentStepKey());
     }
 
+    public function test_final_challenge_grading_is_grounded_in_the_learners_own_selected_words(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'selected_words' => ['wake up', 'have a shower', 'do the housework'],
+                'examples' => [],
+            ]),
+        ]);
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')
+                ->times(3)
+                ->andReturn('answer 1', 'answer 2', 'final answer');
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(2)->andReturn('a follow-up question');
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function (array $messages, ?string $systemPrompt) {
+                    return str_contains($systemPrompt, 'wake up')
+                        && str_contains($systemPrompt, 'have a shower')
+                        && str_contains($systemPrompt, 'do the housework')
+                        && str_contains($systemPrompt, 'target vocabulary words');
+                })
+                ->andReturn(json_encode([
+                    'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => true],
+                    'note' => 'Great use of your target words.',
+                ]));
+        });
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $component->set('audioFile', UploadedFile::fake()->create('r1.webm', 100, 'audio/webm'))->call('submitRoundAnswer');
+        $component->set('audioFile', UploadedFile::fake()->create('r2.webm', 100, 'audio/webm'))->call('submitRoundAnswer');
+        $component->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
+            ->call('submitFinalChallenge')
+            ->assertSet('checklist.5+ vocabulary expressions', true);
+    }
+
     public function test_shows_its_hook_alongside_the_alpine_recorder_widget(): void
     {
         $learner = User::factory()->create();

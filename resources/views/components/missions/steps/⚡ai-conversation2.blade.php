@@ -115,13 +115,25 @@ new class extends Component
 
             $requirementList = collect($this->requirements)->map(fn ($r) => "\"{$r}\"")->implode(', ');
 
+            // Grounds "5+ vocabulary expressions" in the learner's own
+            // Vocabulary Builder selection instead of a vague general
+            // judgment — this is the same thread every mission's Final
+            // Challenge should pull from (see EOS-009 §7 step 02).
+            $vocabularyWords = $this->run->selectedVocabularyWords();
+            $vocabularyContext = $vocabularyWords
+                ? " The learner's target vocabulary words for this mission were: "
+                    .collect($vocabularyWords)->map(fn ($w) => "\"{$w}\"")->implode(', ').'. For any requirement '
+                    .'about vocabulary expressions, count specifically how many of these words (or a natural '
+                    .'form of them) appear in the transcript — do not judge vocabulary in general.'
+                : '';
+
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Transcript: \"{$this->finalTranscript}\""]],
                 systemPrompt: 'You are an English teacher checking a B1 learner\'s 3-minute speaking challenge transcript '
-                    ."against a requirements checklist. For each of these requirements: [{$requirementList}], decide if the "
-                    .'transcript satisfies it. Reply with ONLY valid JSON, no markdown fences: {"requirements": '
-                    .'{"<requirement label exactly as given>": true or false, ...}, "note": "one short encouraging '
-                    .'sentence about their overall performance"}'
+                    ."against a requirements checklist.{$vocabularyContext} For each of these requirements: "
+                    ."[{$requirementList}], decide if the transcript satisfies it. Reply with ONLY valid JSON, no "
+                    .'markdown fences: {"requirements": {"<requirement label exactly as given>": true or false, '
+                    .'...}, "note": "one short encouraging sentence about their overall performance"}'
             );
 
             $data = json_decode(trim($raw), true);

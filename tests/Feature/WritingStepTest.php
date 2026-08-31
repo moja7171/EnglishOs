@@ -79,4 +79,25 @@ class WritingStepTest extends TestCase
             ->set('text', "  one   two\nthree  ")
             ->assertSet('wordCount', 3);
     }
+
+    public function test_the_learners_own_selected_vocabulary_shows_as_suggestions(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'selected_words' => ['wake up', 'have a shower', 'do the housework'],
+                'examples' => [],
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->assertSee('wake up')
+            ->assertSee('have a shower')
+            ->assertSee('do the housework')
+            ->assertSee('Words you picked');
+    }
 }
