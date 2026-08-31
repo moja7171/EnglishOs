@@ -273,14 +273,7 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
-                            <div wire:loading wire:target="checkGist({{ $index }})" class="mt-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900">
-                                <span class="flex gap-1">
-                                    <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 0ms"></span>
-                                    <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 200ms"></span>
-                                    <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 400ms"></span>
-                                </span>
-                                <p class="text-sm text-neutral-500">AI is thinking…</p>
-                            </div>
+                            <x-ai-thinking wire:loading wire:target="checkGist({{ $index }})" class="mt-2" />
                         @endunless
 
                         <div x-show="!dismissed['{{ $key }}']" x-transition.opacity.duration.300ms>
@@ -369,14 +362,7 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
-                            <div wire:loading wire:target="checkExpression({{ $index }})" class="mt-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900">
-                                <span class="flex gap-1">
-                                    <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 0ms"></span>
-                                    <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 200ms"></span>
-                                    <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 400ms"></span>
-                                </span>
-                                <p class="text-sm text-neutral-500">AI is thinking…</p>
-                            </div>
+                            <x-ai-thinking wire:loading wire:target="checkExpression({{ $index }})" class="mt-2" />
                         @endunless
 
                         <div x-show="!dismissed['{{ $key }}']" x-transition.opacity.duration.300ms>
