@@ -47,6 +47,22 @@ class ListeningStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
+    public function test_the_custom_audio_player_renders_with_skip_and_seek_controls(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringContainsString('http://localhost/storage/missions/m01/mornings.mp3', $html);
+        $this->assertStringContainsString('skip(-10)', $html);
+        $this->assertStringContainsString('skip(10)', $html);
+        $this->assertStringContainsString('togglePlay()', $html);
+        // A native range input, not a custom click-math div — gives real
+        // keyboard (arrow key) and click/drag seeking for free.
+        $this->assertStringContainsString('type="range"', $html);
+        $this->assertStringContainsString('download', $html);
+    }
+
     public function test_all_three_gist_points_are_required(): void
     {
         $run = $this->makeRun();

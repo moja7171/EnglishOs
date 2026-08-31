@@ -232,11 +232,9 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">{{ $listening['source'] ?? 'Listening' }}</p>
-        @if (! empty($listening['audio_url']))
-            <audio controls preload="none" class="mt-2 w-full">
-                <source src="{{ $listening['audio_url'] }}" type="audio/mpeg">
-            </audio>
-        @endif
+        <div class="mt-2">
+            <x-audio-player :url="$listening['audio_url'] ?? null" />
+        </div>
     </div>
 
     @if ($completed)
