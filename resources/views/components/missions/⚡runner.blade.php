@@ -40,6 +40,7 @@ new class extends Component
             'activation' => 'missions.steps.activation',
             'ai_conversation_1' => 'missions.steps.ai-conversation1',
             'ai_feedback_1' => 'missions.steps.ai-feedback1',
+            'writing' => 'missions.steps.writing',
         ];
     }
 
