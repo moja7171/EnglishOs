@@ -60,7 +60,7 @@ new class extends Component
             'content_ref' => json_encode($result),
         ]);
 
-        $this->redirect(route('missions.show', $this->run->mission));
+        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 };
 ?>

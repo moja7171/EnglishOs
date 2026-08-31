@@ -56,7 +56,7 @@ new class extends Component
             ]),
         ]);
 
-        $this->redirect(route('missions.show', $this->run->mission));
+        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 };
 ?>

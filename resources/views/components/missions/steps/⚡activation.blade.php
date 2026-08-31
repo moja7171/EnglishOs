@@ -68,7 +68,7 @@ new class extends Component
             'content_ref' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
         ]);
 
-        $this->redirect(route('missions.show', $mission));
+        $this->redirect(route('missions.show', $mission), navigate: true);
     }
 };
 ?>

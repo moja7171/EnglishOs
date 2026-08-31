@@ -148,7 +148,7 @@ new class extends Component
             'content_ref' => $filled->toJson(),
         ]);
 
-        $this->redirect(route('missions.show', $this->run->mission));
+        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 };
 ?>

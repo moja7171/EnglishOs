@@ -155,7 +155,7 @@ new class extends Component
 
         $this->run->update(['status' => $this->status, 'completed_at' => now()]);
 
-        $this->redirect(route('missions.show', $this->run->mission));
+        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 };
 ?>
