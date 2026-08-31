@@ -12,7 +12,10 @@ new class extends Component
 
     public bool $readOnly = false;
 
-    /** @var array<int, string> keyed by word index */
+    /** @var array<int, string> ordered phrases the learner picked from the story — capped at 8 */
+    public array $selectedWords = [];
+
+    /** @var array<int, string> keyed by index, parallel to $selectedWords */
     public array $examples = [];
 
     /** @var array<string, array{severity: string, hint: string}> keyed by word */
@@ -27,22 +30,63 @@ new class extends Component
             return;
         }
 
-        $evidence = $this->run->latestEvidence('vocabulary_builder');
-        $saved = collect(json_decode($evidence?->content_ref ?? '[]', true))->keyBy('word');
+        $data = json_decode($this->run->latestEvidence('vocabulary_builder')?->content_ref ?? '{}', true);
+        $this->selectedWords = $data['selected_words'] ?? [];
 
-        foreach ($this->run->mission->stepContent('vocabulary_builder')['vocabulary'] ?? [] as $index => $item) {
-            $this->examples[$index] = $saved[$item['word']]['example'] ?? '';
+        $saved = collect($data['examples'] ?? [])->keyBy('word');
+
+        foreach ($this->selectedWords as $index => $word) {
+            $this->examples[$index] = $saved[$word]['example'] ?? '';
         }
     }
 
     /**
-     * Checks one word/sentence pair on demand — the learner opts in per
-     * input; nothing is approved or rejected until they click it.
+     * Toggles one word from the story in or out of the learner's set —
+     * picking is capped at 8, but deselecting always works so they can
+     * swap a choice before continuing to practice.
      */
+    public function toggleWord(string $phrase): void
+    {
+        if (($key = array_search($phrase, $this->selectedWords, true)) !== false) {
+            array_splice($this->selectedWords, $key, 1);
+
+            return;
+        }
+
+        if (count($this->selectedWords) >= 8) {
+            return;
+        }
+
+        $this->selectedWords[] = $phrase;
+    }
+
+    /**
+     * Splits the seeded story text on **word** markers into an ordered list
+     * of plain-text and selectable-phrase segments, so the template can
+     * render inline clickable words without knowing the marker syntax.
+     */
+    public function storySegments(): array
+    {
+        $story = $this->run->mission->stepContent('vocabulary_builder')['story'] ?? '';
+        $parts = preg_split('/\*\*(.+?)\*\*/', $story, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        return collect($parts)
+            ->map(fn ($part, $i) => $i % 2 === 0 ? ['type' => 'text', 'value' => $part] : ['type' => 'word', 'value' => $part])
+            ->filter(fn ($segment) => $segment['value'] !== '')
+            ->values()
+            ->all();
+    }
+
+    public function wordMeaning(string $phrase): string
+    {
+        $storyWords = collect($this->run->mission->stepContent('vocabulary_builder')['story_words'] ?? []);
+
+        return $storyWords->firstWhere('phrase', $phrase)['meaning'] ?? '';
+    }
+
     public function checkOne(int $index): void
     {
-        $vocabulary = $this->run->mission->stepContent('vocabulary_builder')['vocabulary'] ?? [];
-        $word = $vocabulary[$index]['word'] ?? null;
+        $word = $this->selectedWords[$index] ?? null;
         $example = trim($this->examples[$index] ?? '');
 
         if (! $word || $example === '') {
@@ -82,12 +126,10 @@ new class extends Component
 
     public function save(): void
     {
-        $vocabulary = $this->run->mission->stepContent('vocabulary_builder')['vocabulary'] ?? [];
-
         $filled = collect($this->examples)
             ->filter(fn ($example) => trim((string) $example) !== '')
             ->map(fn ($example, $index) => [
-                'word' => $vocabulary[$index]['word'] ?? null,
+                'word' => $this->selectedWords[$index] ?? null,
                 'example' => trim($example),
             ])
             ->values();
@@ -127,7 +169,10 @@ new class extends Component
             'mission_run_id' => $this->run->id,
             'phase' => 'vocabulary_builder',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => $filled->toJson(),
+            'content_ref' => json_encode([
+                'selected_words' => $this->selectedWords,
+                'examples' => $filled->values(),
+            ]),
         ]);
 
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
@@ -136,166 +181,193 @@ new class extends Component
 ?>
 
 @php
-    $vocabulary = $run->mission->stepContent('vocabulary_builder')['vocabulary'] ?? [];
-    $initialFilled = collect($vocabulary)->map(fn ($item, $i) => trim($examples[$i] ?? '') !== '')->values();
+    $storySegments = $this->storySegments();
+    $initialFilled = collect($selectedWords)->map(fn ($word, $i) => trim($examples[$i] ?? '') !== '')->values();
 @endphp
 
 <div
     class="space-y-6"
     x-data="{
-        phase: '{{ $readOnly ? 'practice' : 'lesson' }}',
+        phase: '{{ $readOnly ? 'practice' : 'story' }}',
+        showStoryAgain: false,
         filled: {{ $initialFilled->toJson() }},
         dismissed: {},
         get filledCount() { return this.filled.filter(Boolean).length },
         get progressMessage() {
-            const n = this.filledCount, total = {{ count($vocabulary) }};
+            const n = this.filledCount;
             if (n === 0) return 'Pick a word below and write your first example.';
             if (n === 1) return 'Nice start — keep going!';
             if (n === 2) return 'One more and you\'re ready to continue!';
-            if (n < total) return 'Ready to continue — want one more for bonus practice?';
+            if (n < 8) return 'Ready to continue — want one more for bonus practice?';
             return 'All done — great work!';
         },
     }"
 >
     <x-hook :text="$run->mission->stepContent('vocabulary_builder')['hook'] ?? null" />
 
-    <div
-        class="space-y-4"
-        @unless ($readOnly) x-show="phase === 'lesson'" x-cloak @endunless
-    >
+    @unless ($readOnly)
+        <div x-show="phase === 'story'" x-cloak class="space-y-4">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Read the story, then pick 8 words to practice</p>
+                <p class="mt-1 text-sm text-neutral-500">Tap any highlighted word to select it — {{ count($selectedWords) }} of 8 chosen.</p>
+            </div>
+
+            <p class="rounded border border-neutral-300 p-3 text-sm leading-relaxed dark:border-neutral-700">
+                @foreach ($storySegments as $segment)
+                    @if ($segment['type'] === 'text')
+                        {{ $segment['value'] }}
+                    @else
+                        @php $isSelected = in_array($segment['value'], $selectedWords, true); @endphp
+                        <button
+                            type="button"
+                            wire:click="toggleWord('{{ addslashes($segment['value']) }}')"
+                            wire:loading.attr="disabled"
+                            wire:target="toggleWord"
+                            title="{{ $this->wordMeaning($segment['value']) }}"
+                            @disabled(! $isSelected && count($selectedWords) >= 8)
+                            class="cursor-pointer rounded px-1 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 {{ $isSelected ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900' : 'bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700' }}"
+                        >{{ $segment['value'] }}</button>
+                    @endif
+                @endforeach
+            </p>
+
+            @if (count($selectedWords) === 8)
+                <button
+                    type="button"
+                    x-on:click="phase = 'practice'"
+                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                >Continue with these 8 words &#8250;</button>
+            @endif
+        </div>
+    @endunless
+
+    <div x-show="phase === 'practice'" @unless ($readOnly) x-cloak @endunless class="space-y-6">
         <div>
-            <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Lesson — read this first</p>
-            <p class="mt-1 text-sm text-neutral-500">Each expression below with its meaning and an example, so you know how it's actually used before you write your own.</p>
+            <button
+                type="button"
+                x-on:click="showStoryAgain = !showStoryAgain"
+                class="cursor-pointer text-xs text-neutral-500 underline"
+            >
+                <span x-show="!showStoryAgain">&#9656; Show the story again</span>
+                <span x-show="showStoryAgain" x-cloak>&#9662; Hide the story</span>
+            </button>
+            <p x-show="showStoryAgain" x-cloak class="mt-2 rounded border border-neutral-200 p-3 text-sm leading-relaxed text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+                @foreach ($storySegments as $segment)
+                    @if ($segment['type'] === 'text')
+                        {{ $segment['value'] }}
+                    @else
+                        <span @class(['font-semibold text-neutral-900 dark:text-white' => in_array($segment['value'], $selectedWords, true)])>{{ $segment['value'] }}</span>
+                    @endif
+                @endforeach
+            </p>
         </div>
 
-        <div class="space-y-3">
-            @foreach ($vocabulary as $item)
+        <div>
+            <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Choose expressions you'll really use</p>
+            <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
+            @unless ($readOnly)
+                <div class="mt-2">
+                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                        <div
+                            class="h-full rounded-full transition-all duration-300"
+                            :class="filledCount >= 3 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
+                            :style="`width: ${Math.min(filledCount, 3) / 3 * 100}%`"
+                        ></div>
+                    </div>
+                    <p
+                        class="mt-1.5 text-xs font-semibold transition-colors"
+                        :class="filledCount >= 3 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
+                        x-text="progressMessage"
+                    ></p>
+                </div>
+            @endunless
+        </div>
+
+        <div wire:loading.class="pointer-events-none" wire:target="checkOne,save" class="space-y-4">
+            @foreach ($selectedWords as $index => $word)
+                @php $itemFeedback = $feedback[$word] ?? null; @endphp
                 <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
-                    <p class="text-sm font-bold">{{ $item['word'] }}</p>
-                    <p class="text-xs text-neutral-500">{{ $item['meaning'] }}</p>
-                    @if (! empty($item['example']))
-                        <p class="mt-1 text-sm text-neutral-700 italic dark:text-neutral-300">"{{ $item['example'] }}"</p>
-                    @endif
+                    <p class="text-sm font-bold">{{ $word }}</p>
+                    <p class="text-xs text-neutral-500">{{ $this->wordMeaning($word) }}</p>
+                    @unless ($readOnly)
+                        <p x-show="filledCount >= 3 && !filled[{{ $index }}]" class="text-[11px] text-neutral-400 italic">optional — bonus practice</p>
+                    @endunless
+
+                    <div class="mt-2 flex items-center gap-2">
+                        <input
+                            type="text"
+                            wire:model="examples.{{ $index }}"
+                            x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
+                            placeholder="My example…"
+                            @readonly($readOnly)
+                            wire:loading.attr="disabled"
+                            wire:target="checkOne,save"
+                            class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
+                        >
+                        <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
+                        @unless ($readOnly)
+                            <button
+                                type="button"
+                                x-on:click="dismissed[{{ $index }}] = true; $wire.checkOne({{ $index }}).then(() => { dismissed[{{ $index }}] = false })"
+                                wire:loading.attr="disabled"
+                                wire:target="checkOne,save"
+                                class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                            >
+                                <span wire:loading.remove wire:target="checkOne({{ $index }})">Check</span>
+                                <span wire:loading wire:target="checkOne({{ $index }})">Checking…</span>
+                            </button>
+                        @endunless
+                    </div>
+
+                    @unless ($readOnly)
+                        <div wire:loading wire:target="checkOne({{ $index }}), save" class="mt-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900">
+                            <span class="flex gap-1">
+                                <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 0ms"></span>
+                                <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 200ms"></span>
+                                <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 400ms"></span>
+                            </span>
+                            <p class="text-sm text-neutral-500">AI is thinking…</p>
+                        </div>
+                    @endunless
+
+                    {{-- Fades out the moment the learner edits this input again — a stale
+                         verdict for text that no longer exists would only mislead them. --}}
+                    <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
+                        @if ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'major')
+                            <div class="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-900 dark:bg-red-950">
+                                <p class="text-sm text-red-700 dark:text-red-400">{{ $itemFeedback['hint'] }}</p>
+                            </div>
+                        @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'minor')
+                            <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900 dark:bg-amber-950">
+                                <p class="text-sm text-amber-700 dark:text-amber-400">{{ $itemFeedback['hint'] }}</p>
+                            </div>
+                        @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'none')
+                            <div class="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 dark:border-green-900 dark:bg-green-950">
+                                <p class="text-sm text-green-700 dark:text-green-400">Looks good</p>
+                            </div>
+                        @endif
+                        @if ($checkErrors[$word] ?? null)
+                            <p class="mt-1 text-xs text-red-600">{{ $checkErrors[$word] }}</p>
+                        @endif
+                    </div>
                 </div>
             @endforeach
         </div>
 
+        @error('examples')
+            <p class="text-sm text-red-600">{{ $message }}</p>
+        @enderror
+
         @unless ($readOnly)
             <button
-                type="button"
-                x-on:click="phase = 'practice'"
-                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-            >Start practice &#8250;</button>
+                x-on:click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
+                wire:loading.attr="disabled"
+                wire:target="checkOne,save"
+                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            >
+                <span wire:loading.remove wire:target="save">Continue</span>
+                <span wire:loading wire:target="save">Checking your sentences…</span>
+            </button>
         @endunless
-    </div>
-
-    <div x-show="phase === 'practice'" @unless ($readOnly) x-cloak @endunless class="space-y-6">
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Choose expressions you'll really use</p>
-        <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
-        @unless ($readOnly)
-            <div class="mt-2">
-                <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
-                    <div
-                        class="h-full rounded-full transition-all duration-300"
-                        :class="filledCount >= 3 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
-                        :style="`width: ${Math.min(filledCount, 3) / 3 * 100}%`"
-                    ></div>
-                </div>
-                <p
-                    class="mt-1.5 text-xs font-semibold transition-colors"
-                    :class="filledCount >= 3 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
-                    x-text="progressMessage"
-                ></p>
-            </div>
-        @endunless
-    </div>
-
-    <div wire:loading.class="pointer-events-none" wire:target="checkOne,save" class="space-y-4">
-        @foreach ($vocabulary as $index => $item)
-            @php $itemFeedback = $feedback[$item['word']] ?? null; @endphp
-            <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
-                <p class="text-sm font-bold">{{ $item['word'] }}</p>
-                <p class="text-xs text-neutral-500">{{ $item['meaning'] }}</p>
-                @unless ($readOnly)
-                    <p x-show="filledCount >= 3 && !filled[{{ $index }}]" class="text-[11px] text-neutral-400 italic">optional — bonus practice</p>
-                @endunless
-
-                <div class="mt-2 flex items-center gap-2">
-                    <input
-                        type="text"
-                        wire:model="examples.{{ $index }}"
-                        x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
-                        placeholder="My example…"
-                        @readonly($readOnly)
-                        wire:loading.attr="disabled"
-                        wire:target="checkOne,save"
-                        class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
-                    >
-                    <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
-                    @unless ($readOnly)
-                        <button
-                            type="button"
-                            x-on:click="dismissed[{{ $index }}] = true; $wire.checkOne({{ $index }}).then(() => { dismissed[{{ $index }}] = false })"
-                            wire:loading.attr="disabled"
-                            wire:target="checkOne,save"
-                            class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-                        >
-                            <span wire:loading.remove wire:target="checkOne({{ $index }})">Check</span>
-                            <span wire:loading wire:target="checkOne({{ $index }})">Checking…</span>
-                        </button>
-                    @endunless
-                </div>
-
-                @unless ($readOnly)
-                    <div wire:loading wire:target="checkOne({{ $index }}), save" class="mt-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900">
-                        <span class="flex gap-1">
-                            <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 0ms"></span>
-                            <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 200ms"></span>
-                            <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 400ms"></span>
-                        </span>
-                        <p class="text-sm text-neutral-500">AI is thinking…</p>
-                    </div>
-                @endunless
-
-                {{-- Fades out the moment the learner edits this input again — a stale
-                     verdict for text that no longer exists would only mislead them. --}}
-                <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
-                    @if ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'major')
-                        <div class="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-900 dark:bg-red-950">
-                            <p class="text-sm text-red-700 dark:text-red-400">{{ $itemFeedback['hint'] }}</p>
-                        </div>
-                    @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'minor')
-                        <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900 dark:bg-amber-950">
-                            <p class="text-sm text-amber-700 dark:text-amber-400">{{ $itemFeedback['hint'] }}</p>
-                        </div>
-                    @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'none')
-                        <div class="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 dark:border-green-900 dark:bg-green-950">
-                            <p class="text-sm text-green-700 dark:text-green-400">Looks good</p>
-                        </div>
-                    @endif
-                    @if ($checkErrors[$item['word']] ?? null)
-                        <p class="mt-1 text-xs text-red-600">{{ $checkErrors[$item['word']] }}</p>
-                    @endif
-                </div>
-            </div>
-        @endforeach
-    </div>
-
-    @error('examples')
-        <p class="text-sm text-red-600">{{ $message }}</p>
-    @enderror
-
-    @unless ($readOnly)
-        <button
-            x-on:click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
-            wire:loading.attr="disabled"
-            wire:target="checkOne,save"
-            class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-        >
-            <span wire:loading.remove wire:target="save">Continue</span>
-            <span wire:loading wire:target="save">Checking your sentences…</span>
-        </button>
-    @endunless
     </div>
 </div>

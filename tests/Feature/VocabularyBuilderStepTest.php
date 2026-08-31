@@ -15,6 +15,12 @@ class VocabularyBuilderStepTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** The 10 candidate phrases marked in the fixture story, in story order. */
+    private const STORY_WORDS = [
+        'wake up', 'routine', 'get up', 'commute', 'relax',
+        'cook dinner', 'go to bed', 'day off', 'sleep in', 'wind down',
+    ];
+
     private function makeMissionAndRun(): array
     {
         $learner = User::factory()->create();
@@ -30,11 +36,21 @@ class VocabularyBuilderStepTest extends TestCase
                         ['key' => 'mission_brief'],
                         [
                             'key' => 'vocabulary_builder',
-                            'vocabulary' => [
-                                ['word' => 'routine', 'meaning' => 'the usual things you do', 'example' => 'I have a simple morning routine.'],
-                                ['word' => 'commute', 'meaning' => 'travel to work'],
-                                ['word' => 'day off', 'meaning' => 'a day when you don\'t work'],
-                                ['word' => 'wind down', 'meaning' => 'to relax before sleep'],
+                            'story' => 'I usually **wake up** early and follow my **routine**. I **get up**, '
+                                .'then **commute** to work. In the evening I like to **relax**, sometimes I '
+                                .'**cook dinner**, and later I **go to bed**. On my **day off** I **sleep in** '
+                                .'and just **wind down**.',
+                            'story_words' => [
+                                ['phrase' => 'wake up', 'meaning' => 'to stop sleeping'],
+                                ['phrase' => 'routine', 'meaning' => 'the usual things you do'],
+                                ['phrase' => 'get up', 'meaning' => 'to get out of bed'],
+                                ['phrase' => 'commute', 'meaning' => 'to travel to work'],
+                                ['phrase' => 'relax', 'meaning' => 'to rest'],
+                                ['phrase' => 'cook dinner', 'meaning' => 'to prepare the evening meal'],
+                                ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep'],
+                                ['phrase' => 'day off', 'meaning' => 'a day when you don\'t work'],
+                                ['phrase' => 'sleep in', 'meaning' => 'to sleep later than usual'],
+                                ['phrase' => 'wind down', 'meaning' => 'to relax before sleep'],
                             ],
                         ],
                         ['key' => 'listening'],
@@ -54,18 +70,72 @@ class VocabularyBuilderStepTest extends TestCase
         return [$learner, $mission, MissionRun::findOrStart($learner, $mission)];
     }
 
-    public function test_the_lesson_screen_shows_before_practice_and_can_be_dismissed(): void
+    /** The first 8 of the 10 story words — leaves 2 spare to test the "extra word" behaviour. */
+    private function firstEight(): array
+    {
+        return array_slice(self::STORY_WORDS, 0, 8);
+    }
+
+    private function selectEight($component)
+    {
+        foreach ($this->firstEight() as $word) {
+            $component->call('toggleWord', $word);
+        }
+
+        return $component;
+    }
+
+    public function test_the_story_shows_with_selectable_words_and_a_live_counter(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
         $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
 
-        $this->assertStringContainsString("phase: 'lesson'", $html);
-        $this->assertStringContainsString('I have a simple morning routine.', $html);
-        $this->assertStringContainsString("phase = 'practice'", $html);
+        $this->assertStringContainsString('0 of 8 chosen', $html);
+        foreach (self::STORY_WORDS as $word) {
+            $this->assertStringContainsString("toggleWord('{$word}')", $html);
+        }
     }
 
-    public function test_read_only_mode_still_shows_the_lesson_alongside_the_saved_answers(): void
+    public function test_selecting_8_words_reveals_the_continue_button(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->assertSet('selectedWords', $this->firstEight())
+            ->assertSee('Continue with these 8 words');
+    }
+
+    public function test_selecting_a_9th_word_does_nothing_once_8_are_chosen(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->call('toggleWord', 'sleep in'); // the 9th word — not part of the first 8
+
+        $component->assertSet('selectedWords', $this->firstEight());
+    }
+
+    public function test_deselecting_a_word_frees_up_a_slot_for_another(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->call('toggleWord', 'wake up') // deselect the first
+            ->assertSet('selectedWords', array_slice(self::STORY_WORDS, 1, 7))
+            ->call('toggleWord', 'sleep in') // pick the spare 9th word instead
+            ->assertSet('selectedWords', [...array_slice(self::STORY_WORDS, 1, 7), 'sleep in']);
+    }
+
+    public function test_read_only_mode_skips_selection_but_shows_the_story_as_reference(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
@@ -74,26 +144,29 @@ class VocabularyBuilderStepTest extends TestCase
             'phase' => 'vocabulary_builder',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                ['word' => 'commute', 'example' => 'I commute by bus.'],
-                ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+                'selected_words' => $this->firstEight(),
+                'examples' => [
+                    ['word' => 'commute', 'example' => 'I commute by bus.'],
+                    ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+                ],
             ]),
         ]);
 
         $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])->html();
 
-        // Lesson content is visible (no toggle needed — nothing to gate
-        // behind a click when there's no further editing to do) alongside
-        // the saved review answers, but the "Start practice" action is gone.
         $this->assertStringContainsString("phase: 'practice'", $html);
-        $this->assertStringContainsString('I have a simple morning routine.', $html);
-        $this->assertStringNotContainsString('Start practice', $html);
+        $this->assertStringContainsString('follow my', $html); // story text present as reference
+        $this->assertStringNotContainsString('Continue with these 8 words', $html);
     }
 
     public function test_at_least_three_examples_are_required(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
             ->set('examples.0', 'I have a morning routine.')
             ->set('examples.1', 'I commute by bus.')
             ->call('save')
@@ -110,7 +183,10 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
             ->set('examples.0', 'I have a morning routine.')
             ->set('examples.1', 'I commute by bus.')
             ->set('examples.2', 'Sunday is my day off.')
@@ -119,7 +195,10 @@ class VocabularyBuilderStepTest extends TestCase
 
         $evidence = Evidence::where('phase', 'vocabulary_builder')->first();
         $this->assertNotNull($evidence);
-        $this->assertCount(3, json_decode($evidence->content_ref, true));
+
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertSame($this->firstEight(), $content['selected_words']);
+        $this->assertCount(3, $content['examples']);
 
         $this->assertSame('listening', $run->fresh()->currentStepKey());
     }
@@ -141,10 +220,13 @@ class VocabularyBuilderStepTest extends TestCase
                 ->ordered();
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
             ->set('examples.0', 'I have a morning routine.')
-            ->set('examples.1', 'travel to work')
-            ->set('examples.2', 'Sunday is my day off.')
+            ->set('examples.1', 'travel to work') // examples.1 corresponds to "routine"; examples.3 to "commute"
+            ->set('examples.3', 'a personal sentence')
             ->call('save')
             ->assertHasErrors(['examples'])
             ->assertSee('Describe your own actual commute.');
@@ -165,10 +247,13 @@ class VocabularyBuilderStepTest extends TestCase
                 ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
             ->set('examples.0', 'I have a morning routine.')
-            ->set('examples.1', 'I commute work.')
-            ->set('examples.2', 'Sunday is my day off.')
+            ->set('examples.1', 'I have my own routine.')
+            ->set('examples.2', 'I get up early.')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
     }
@@ -183,11 +268,14 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.0', 'I have a morning routine.')
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
-            ->set('examples.1', 'I commute by bus.')
-            ->set('examples.2', 'Sunday is my day off.')
+            ->set('examples.1', 'I have a morning routine.')
+            ->set('examples.2', 'I get up straight away.')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
     }
@@ -199,7 +287,7 @@ class VocabularyBuilderStepTest extends TestCase
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
                 ->once()
-                ->andReturn(json_encode(['severity' => 'major', 'hint' => 'Describe your own actual commute.']))
+                ->andReturn(json_encode(['severity' => 'major', 'hint' => 'Write your own sentence.']))
                 ->ordered();
             // The word-0 recheck (text changed since the manual check) plus
             // the other two still-unchecked words.
@@ -209,12 +297,15 @@ class VocabularyBuilderStepTest extends TestCase
                 ->ordered();
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.0', 'to travel to work or school regularly')
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'to stop sleeping')
             ->call('checkOne', 0)
-            ->set('examples.0', 'I have a morning routine.') // edited after the check
-            ->set('examples.1', 'I commute by bus.')
-            ->set('examples.2', 'Sunday is my day off.')
+            ->set('examples.0', 'I usually wake up around 7.') // edited after the check
+            ->set('examples.1', 'I have a morning routine.')
+            ->set('examples.2', 'I get up straight away.')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
     }
@@ -229,11 +320,14 @@ class VocabularyBuilderStepTest extends TestCase
                 ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.0', 'I have a morning routine.')
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
-            ->assertSet('feedback.routine.severity', 'none')
-            ->assertSet('feedback.commute', null);
+            ->assertSet('feedback.wake up.severity', 'none')
+            ->assertSet('feedback.routine', null);
 
         $this->assertDatabaseCount('evidences', 1); // checking never saves anything
     }
@@ -249,9 +343,12 @@ class VocabularyBuilderStepTest extends TestCase
             ]));
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.1', 'to travel to work or school regularly')
-            ->call('checkOne', 1)
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.3', 'to travel to work') // index 3 = "commute"
+            ->call('checkOne', 3)
             ->assertSee('can you describe your own actual commute?');
     }
 
@@ -261,9 +358,10 @@ class VocabularyBuilderStepTest extends TestCase
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->call('checkOne', 0)
-            ->assertSet('feedback', []);
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->call('checkOne', 0)->assertSet('feedback', []);
     }
 
     public function test_a_failed_check_shows_an_error_for_just_that_input(): void
@@ -274,11 +372,14 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('service unavailable'));
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.0', 'I have a morning routine.')
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
-            ->assertSet('checkErrors.routine', fn ($error) => str_contains($error, 'service unavailable'))
-            ->assertSet('examples.0', 'I have a morning routine.'); // input preserved
+            ->assertSet('checkErrors.wake up', fn ($error) => str_contains($error, 'service unavailable'))
+            ->assertSet('examples.0', 'I usually wake up around 7.'); // input preserved
     }
 
     public function test_a_connection_failure_shows_a_friendly_retry_message_not_a_raw_error(): void
@@ -291,10 +392,13 @@ class VocabularyBuilderStepTest extends TestCase
             );
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.0', 'I have a morning routine.')
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
-            ->assertSet('checkErrors.routine', "Couldn't reach the AI service — please try again.")
+            ->assertSet('checkErrors.wake up', "Couldn't reach the AI service — please try again.")
             ->assertDontSee('cURL error');
     }
 
@@ -306,26 +410,30 @@ class VocabularyBuilderStepTest extends TestCase
             'mission_run_id' => $run->id,
             'phase' => 'vocabulary_builder',
             'type' => Evidence::TYPE_TEXT,
-            // Only 2 of the 4 words were filled — mirrors the real "3+ filled" save format.
+            // Only 2 of the 8 selected words were filled — mirrors the real "3+ filled" save format.
             'content_ref' => json_encode([
-                ['word' => 'commute', 'example' => 'I commute by bus.'],
-                ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+                'selected_words' => $this->firstEight(),
+                'examples' => [
+                    ['word' => 'commute', 'example' => 'I commute by bus.'],
+                    ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+                ],
             ]),
         ]);
 
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])
-            ->assertSet('examples.0', '') // routine — not filled
-            ->assertSet('examples.1', 'I commute by bus.')
-            ->assertSet('examples.2', 'Sunday is my day off.')
-            ->assertSet('examples.3', '') // wind down — not filled
-            ->assertDontSee('Continue');
+            ->assertSet('examples.0', '') // wake up — not filled
+            ->assertSet('examples.3', 'I commute by bus.') // commute is index 3
+            ->assertSet('examples.7', 'Sunday is my day off.') // day off is index 7
+            ->assertDontSee('Continue with these 8 words');
     }
 
     public function test_checking_a_word_blocks_every_other_input_and_shows_a_checking_indicator(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+        $html = $component->html();
 
         // Every input, every Check button, the results wrapper, and Continue
         // all share the same wire:target (checkOne OR save) so ANY in-flight
@@ -334,7 +442,7 @@ class VocabularyBuilderStepTest extends TestCase
         // wrapper and Continue. The "AI is thinking" indicator itself is
         // scoped per-word (checkOne(0), checkOne(1)…) so it appears only on
         // the card actually being checked.
-        $expected = 2 * count($run->mission->stepContent('vocabulary_builder')['vocabulary']) + 2;
+        $expected = 2 * count($this->firstEight()) + 2;
         $this->assertSame($expected, substr_count($html, 'wire:target="checkOne,save"'));
         $this->assertStringContainsString('AI is thinking', $html);
     }
@@ -350,9 +458,12 @@ class VocabularyBuilderStepTest extends TestCase
             ]));
         });
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.1', 'to travel to work or school regularly')
-            ->call('checkOne', 1)
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.3', 'to travel to work')
+            ->call('checkOne', 3)
             ->assertSeeHtml('bg-red-50')
             ->assertSee('Can you describe your own actual commute?');
     }
@@ -361,7 +472,9 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+        $html = $component->html();
 
         // A stale verdict must fade the instant the learner edits that word's
         // input again — wired client-side (Alpine), so this only checks the
@@ -374,7 +487,9 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+        $html = $component->html();
 
         // Regression guard: dismissing must happen on click (so a previous
         // word's verdict disappears immediately), and un-dismissing only
@@ -394,12 +509,14 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+        $html = $component->html();
 
         // Client-side (Alpine) — every word card carries a bonus-practice hint
         // that only shows once filledCount >= 3 AND that specific word is
         // still empty; presence in markup is all that's checkable here.
-        $this->assertSame(4, substr_count($html, 'optional — bonus practice'));
+        $this->assertSame(8, substr_count($html, 'optional — bonus practice'));
         $this->assertStringContainsString('filledCount >= 3 && !filled[0]', $html);
     }
 
@@ -420,9 +537,12 @@ class VocabularyBuilderStepTest extends TestCase
             'phase' => 'vocabulary_builder',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                ['word' => 'routine', 'example' => 'I have a morning routine.'],
-                ['word' => 'commute', 'example' => 'I commute by bus.'],
-                ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+                'selected_words' => $this->firstEight(),
+                'examples' => [
+                    ['word' => 'wake up', 'example' => 'I usually wake up around 7.'],
+                    ['word' => 'routine', 'example' => 'I have a morning routine.'],
+                    ['word' => 'commute', 'example' => 'I commute by bus.'],
+                ],
             ]),
         ]);
 

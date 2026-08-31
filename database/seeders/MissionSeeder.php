@@ -51,16 +51,29 @@ class MissionSeeder extends Seeder
                                 'label' => 'Vocabulary Builder',
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
                                 // Word selection follows English Vocabulary in Use (Unit 16, "Daily
-                                // routines") — same topic coverage as the real book. Every meaning and
-                                // example sentence below is written fresh for this app, not copied from
-                                // it (see EOS-009 §14: content stays original, licensing/piracy risk).
-                                'vocabulary' => [
-                                    ['word' => 'wake up', 'meaning' => 'to stop sleeping and become conscious', 'example' => 'I usually wake up before my alarm goes off.'],
-                                    ['word' => 'get up', 'meaning' => 'to get out of bed after waking up', 'example' => "I don't get up straight away — I check my phone first."],
-                                    ['word' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'example' => 'I always have a shower in the morning, never at night.'],
-                                    ['word' => 'do the housework', 'meaning' => 'to clean and tidy your home', 'example' => 'We do the housework together every Saturday morning.'],
-                                    ['word' => 'go out', 'meaning' => 'to leave home to do something for fun', 'example' => 'On Fridays I usually go out with friends after work.'],
-                                    ['word' => 'stay in', 'meaning' => "to spend your evening at home instead of going out", 'example' => "When I'm tired, I'd rather stay in and watch a film."],
+                                // routines") — same topic coverage as the real book. The story and every
+                                // meaning below are written fresh for this app, not copied from it (see
+                                // EOS-009 §14: content stays original, licensing/piracy risk).
+                                'story' => 'On weekdays, I **wake up** at half past six, but I never **get up** '
+                                    .'straight away — I check my phone first. After I **have a shower**, I '
+                                    .'**feed** the cat before rushing out the door. I usually **have a light '
+                                    .'lunch** at my desk, just a sandwich. In the evenings, I sometimes **go '
+                                    .'out** with friends and **eat out** somewhere new, but most nights I\'d '
+                                    .'rather **stay in** and **do the housework** instead — someone has to do '
+                                    .'it! If I **have a late night**, I know I\'ll be tired the next morning. '
+                                    .'Finally, I **go to bed** around eleven, ready to do it all again tomorrow.',
+                                'story_words' => [
+                                    ['phrase' => 'wake up', 'meaning' => 'to stop sleeping and become conscious'],
+                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up'],
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water'],
+                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal'],
+                                    ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday'],
+                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home'],
+                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out'],
+                                    ['phrase' => 'do the housework', 'meaning' => 'to clean and tidy your home'],
+                                    ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual'],
+                                    ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep'],
                                 ],
                             ],
                             [
