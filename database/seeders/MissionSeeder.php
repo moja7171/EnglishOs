@@ -120,7 +120,26 @@ class MissionSeeder extends Seeder
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
-                            'ai_conversation_2',
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'AI Conversation #2 — Final Challenge',
+                                // Real rounds + requirements from Mission01.pdf "Speaking Session 02".
+                                'rounds' => [
+                                    'Describe your typical weekday, with no preparation.',
+                                    'Compare your weekday with your weekend.',
+                                    'What part of your routine do you enjoy most?',
+                                ],
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your daily life.',
+                                'requirements' => [
+                                    'Present Simple',
+                                    '5+ vocabulary expressions',
+                                    '3+ frequency expressions',
+                                    'Reasons / details',
+                                    '1+ BBC expression',
+                                    'Talks about a weekday',
+                                    'Talks about the weekend',
+                                ],
+                            ],
                             'active_recall',
                             'error_log',
                             'mission_result',
