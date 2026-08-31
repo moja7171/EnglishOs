@@ -66,22 +66,22 @@ new class extends Component
                 [['role' => 'user', 'text' => "Word: \"{$word}\" — Sentence: \"{$example}\""]],
                 systemPrompt: 'You are a supportive English writing assistant helping a B1 learner practice new '
                     .'vocabulary. Judge whether the learner used the word correctly, naturally, and as a genuine '
-                    .'personal sentence (not just repeating the dictionary definition). Also check: the spelling of '
-                    .'every word (the target word included); that the sentence starts with a capital letter and '
-                    .'ends with proper punctuation (. ? or !); that the target word is used in the right '
-                    .'grammatical form (e.g. not a noun used as a verb); and that the sentence has real detail, not '
-                    .'just 2-3 bare words. Reply with ONLY valid JSON, no markdown fences, shaped exactly like: '
-                    .'{"severity": "major" or "minor" or "none", "hint": "..."}. Use "major" only for real problems: '
-                    .'the word is missing or used with the wrong meaning, the sentence just repeats the definition, '
-                    .'or it is not real English. Use "minor" for small slips: spelling mistakes, a missing capital '
-                    .'letter or end punctuation, a wrong word form, a too-bare sentence, or article/preposition/'
-                    .'tense mistakes — things that do not block understanding. Use "none" when it is good. For a '
-                    .'grammar, meaning, wording, or bare-sentence problem, the hint must be a short guiding question '
-                    .'or nudge that helps the learner fix it themselves — never write the corrected sentence for '
-                    .'them. EXCEPTION: if the issue is a spelling mistake, a missing/wrong capital letter, or '
-                    .'missing end punctuation, say directly what the fix is — that is a fact, not the answer to the '
-                    .'exercise. Phrase a spelling fix explicitly, e.g. \'"wrok" should be spelled "work".\' Keep the '
-                    .'hint to ONE short, simple sentence, no more than 12 words, plain everyday words — no jargon.'
+                    .'personal sentence (not just repeating the dictionary definition). A short, minimal sentence is '
+                    .'completely fine — do not ask for more detail. Also check: the spelling of every word (the '
+                    .'target word included); that the sentence starts with a capital letter and ends with proper '
+                    .'punctuation (. ? or !); and that the target word is used in the right grammatical form (e.g. '
+                    .'not a noun used as a verb). Reply with ONLY valid JSON, no markdown fences, shaped exactly '
+                    .'like: {"severity": "major" or "minor" or "none", "hint": "..."}. Use "major" only for real '
+                    .'problems: the word is missing or used with the wrong meaning, the sentence just repeats the '
+                    .'definition, or it is not real English. Use "minor" for small slips: spelling mistakes, a '
+                    .'missing capital letter or end punctuation, a wrong word form, or article/preposition/tense '
+                    .'mistakes — things that do not block understanding. Use "none" when it is good. For a grammar, '
+                    .'meaning, or wording problem, the hint must be a short guiding question or nudge that helps the '
+                    .'learner fix it themselves — never write the corrected sentence for them. EXCEPTION: if the '
+                    .'issue is a spelling mistake, a missing/wrong capital letter, or missing end punctuation, say '
+                    .'directly what the fix is — that is a fact, not the answer to the exercise. Phrase a spelling '
+                    .'fix explicitly, e.g. \'"wrok" should be spelled "work".\' Keep the hint to ONE short, simple '
+                    .'sentence, no more than 12 words, plain everyday words — no jargon.'
             );
 
             $data = json_decode(trim($raw), true);
@@ -222,8 +222,7 @@ new class extends Component
                     @unless ($readOnly)
                         <button
                             type="button"
-                            wire:click="checkOne({{ $index }})"
-                            x-on:click="dismissed[{{ $index }}] = false"
+                            x-on:click="dismissed[{{ $index }}] = true; $wire.checkOne({{ $index }}).then(() => { dismissed[{{ $index }}] = false })"
                             wire:loading.attr="disabled"
                             wire:target="checkOne,save"
                             class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
@@ -275,8 +274,7 @@ new class extends Component
 
     @unless ($readOnly)
         <button
-            wire:click="save"
-            x-on:click="dismissed = {}"
+            x-on:click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
             wire:loading.attr="disabled"
             wire:target="checkOne,save"
             class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"

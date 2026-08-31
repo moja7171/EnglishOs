@@ -332,8 +332,27 @@ class VocabularyBuilderStepTest extends TestCase
         // input again — wired client-side (Alpine), so this only checks the
         // markup is present; the actual show/hide can't be exercised here.
         $this->assertStringContainsString("dismissed[0] = true", $html);
-        $this->assertStringContainsString("dismissed[0] = false", $html);
         $this->assertStringContainsString('x-show="!dismissed[0]"', $html);
+    }
+
+    public function test_clicking_check_hides_the_stale_result_until_the_fresh_one_lands(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+
+        // Regression guard: dismissing must happen on click (so a previous
+        // word's verdict disappears immediately), and un-dismissing only
+        // inside the $wire.checkOne(...).then() callback — i.e. after the
+        // fresh result has actually landed — never eagerly on click, which
+        // would flash the OLD stale verdict back up during the request.
+        $this->assertStringContainsString(
+            'dismissed[0] = true; $wire.checkOne(0).then(() => { dismissed[0] = false })',
+            $html
+        );
+        // Driven entirely through $wire from Alpine now — a separate
+        // wire:click="checkOne(0)" would double-fire the request.
+        $this->assertStringNotContainsString('wire:click="checkOne(0)"', $html);
     }
 
     public function test_unfilled_words_are_wired_as_bonus_practice_once_the_minimum_is_met(): void
