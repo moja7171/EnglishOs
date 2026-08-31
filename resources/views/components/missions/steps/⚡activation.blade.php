@@ -120,6 +120,8 @@ new class extends Component
         return m + ':' + s;
     },
 }">
+    <x-hook :text="$activation['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Write 5 personal sentences</p>
         <p class="text-xs text-neutral-500">{{ $activation['task'] ?? '' }}</p>

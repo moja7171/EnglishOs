@@ -49,6 +49,8 @@ new class extends Component
 @php $writing = $run->mission->stepContent('writing'); @endphp
 
 <div class="space-y-4">
+    <x-hook :text="$writing['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Writing</p>
         <h2 class="text-lg font-bold">{{ $writing['title'] ?? 'Writing' }}</h2>

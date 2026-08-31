@@ -58,6 +58,8 @@ new class extends Component
 ?>
 
 <div class="space-y-6">
+    <x-hook :text="$run->mission->stepContent('vocabulary_builder')['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Choose expressions you'll really use</p>
         <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words.</p>

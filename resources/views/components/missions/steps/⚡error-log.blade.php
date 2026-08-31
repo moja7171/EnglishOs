@@ -145,6 +145,8 @@ new class extends Component
 ?>
 
 <div class="space-y-6">
+    <x-hook :text="$run->mission->stepContent('error_log')['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Error Log</p>
         <p class="text-xs text-neutral-500">Correct your most common mistakes with a new example.</p>

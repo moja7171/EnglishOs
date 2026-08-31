@@ -161,6 +161,8 @@ new class extends Component
 ?>
 
 <div class="space-y-6">
+    <x-hook :text="$run->mission->stepContent('mission_result')['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Mission Result</p>
     </div>

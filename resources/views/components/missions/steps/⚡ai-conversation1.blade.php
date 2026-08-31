@@ -133,6 +133,8 @@ new class extends Component
         },
     }"
 >
+    <x-hook :text="$run->mission->stepContent('ai_conversation_1')['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">AI Conversation #1</p>
         <p class="text-xs text-neutral-500">Answer each question out loud. The AI Instructor will ask one follow-up.</p>

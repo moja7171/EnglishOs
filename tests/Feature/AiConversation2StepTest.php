@@ -94,4 +94,31 @@ class AiConversation2StepTest extends TestCase
 
         $this->assertSame('active_recall', $run->fresh()->currentStepKey());
     }
+
+    public function test_shows_its_hook_alongside_the_alpine_recorder_widget(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'mission',
+                    'steps' => [[
+                        'key' => 'ai_conversation_2',
+                        'hook' => "This one's harder on purpose.",
+                        'rounds' => ['Describe your typical weekday.'],
+                        'final_prompt' => 'Speak for 3 minutes.',
+                        'requirements' => ['Present Simple'],
+                    ]],
+                ],
+            ],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
+            ->assertSee("This one's harder on purpose.");
+    }
 }

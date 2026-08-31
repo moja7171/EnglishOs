@@ -193,6 +193,8 @@ new class extends Component
         },
     }"
 >
+    <x-hook :text="$run->mission->stepContent('ai_conversation_2')['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">AI Conversation #2 — Final Challenge</p>
         <p class="text-xs text-neutral-500">This session should be harder than the first one.</p>

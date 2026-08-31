@@ -110,6 +110,8 @@ new class extends Component
 ?>
 
 <div class="space-y-6">
+    <x-hook :text="$run->mission->stepContent('ai_feedback_1')['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">AI Feedback #1</p>
         <p class="text-xs text-neutral-500">A quick review of your conversation from the AI Instructor.</p>

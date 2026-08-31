@@ -49,6 +49,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'vocabulary_builder',
                                 'label' => 'Vocabulary Builder',
+                                'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
                                 // Original wordlist — not sourced from English Vocabulary in Use.
                                 'vocabulary' => [
                                     ['word' => 'routine', 'meaning' => 'the usual things you do, in the usual order'],
@@ -62,6 +63,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
+                                'hook' => 'Neil and Georgie are chatting about their mornings right now — how much can you catch without reading along?',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
                                 'audio_url' => $audioUrl,
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
@@ -77,6 +79,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
+                                'hook' => "Every \"I usually...\" you get right here is one less pause when you're speaking for real.",
                                 'focus' => 'Present Simple + Adverbs of Frequency',
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
@@ -90,6 +93,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'activation',
                                 'label' => 'Activation',
+                                'hook' => "Say it once here, alone — it'll come out easier when someone's actually listening.",
                                 'task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
                             ],
                         ],
@@ -102,6 +106,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
+                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
                                 // Real interview questions from Mission01.pdf "Speaking Session 01".
                                 'interview_questions' => [
                                     'What time do you usually wake up?',
@@ -112,10 +117,15 @@ class MissionSeeder extends Seeder
                                     'What do you usually do in the evening?',
                                 ],
                             ],
-                            'ai_feedback_1',
+                            [
+                                'key' => 'ai_feedback_1',
+                                'label' => 'AI Feedback #1',
+                                'hook' => 'A second pair of ears just heard everything you said — here\'s what stood out.',
+                            ],
                             [
                                 'key' => 'writing',
                                 'label' => 'Writing',
+                                'hook' => 'Putting it on paper often reveals what you actually think about your own day.',
                                 'title' => 'A typical day in my life',
                                 'prompts' => ['Morning', 'Work / Study', 'Afternoon', 'Evening', 'Free Time', 'Weekend'],
                                 'try_to_use' => ['usually', 'normally', 'often', 'sometimes', 'rarely', 'after that', 'then'],
@@ -125,6 +135,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
                                 // Real rounds + requirements from Mission01.pdf "Speaking Session 02".
                                 'rounds' => [
                                     'Describe your typical weekday, with no preparation.',
@@ -145,6 +156,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'active_recall',
                                 'label' => 'Active Recall',
+                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
                                 'instruction' => 'Without looking at the previous pages.',
                                 'sections' => [
                                     ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
@@ -152,10 +164,15 @@ class MissionSeeder extends Seeder
                                     ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
                                 ],
                             ],
-                            'error_log',
+                            [
+                                'key' => 'error_log',
+                                'label' => 'Error Log',
+                                'hook' => 'Mistakes are proof you tried something new. Let\'s fix a few, for good.',
+                            ],
                             [
                                 'key' => 'mission_result',
                                 'label' => 'Mission Result',
+                                'hook' => 'You started this mission with a number — let\'s see how far it moved.',
                                 // Real structure from Mission01.pdf page 12 "Mission complete".
                                 'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
                                 'reflection_questions' => [

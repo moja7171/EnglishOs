@@ -61,11 +61,7 @@ new class extends Component
         <span class="ml-1">· {{ count($totalSteps) }} short steps</span>
     </div>
 
-    @if (! empty($brief['hook']))
-        <div class="rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
-            <p class="text-sm italic text-neutral-800 dark:text-neutral-200">{{ $brief['hook'] }}</p>
-        </div>
-    @endif
+    <x-hook :text="$brief['hook'] ?? null" />
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Before you start</p>

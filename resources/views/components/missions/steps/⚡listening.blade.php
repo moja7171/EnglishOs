@@ -64,6 +64,8 @@ new class extends Component
 @php $listening = $run->mission->stepContent('listening'); @endphp
 
 <div class="space-y-6">
+    <x-hook :text="$listening['hook'] ?? null" />
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">{{ $listening['source'] ?? 'Listening' }}</p>
         @if (! empty($listening['audio_url']))

@@ -79,6 +79,8 @@ new class extends Component
 @php $grammar = $run->mission->stepContent('grammar_in_context'); @endphp
 
 <div class="space-y-6">
+    <x-hook :text="$grammar['hook'] ?? null" />
+
     <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">{{ $grammar['focus'] ?? 'Grammar' }}</p>
 
     <div>
