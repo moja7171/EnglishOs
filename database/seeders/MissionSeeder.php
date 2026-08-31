@@ -68,6 +68,12 @@ class MissionSeeder extends Seeder
                                 'audio_url' => $audioUrl,
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
                                 'target_phrases' => ['get up', 'sleep in', 'oversleep', 'skip breakfast', 'morning person'],
+                                // A faithful summary of the real transcript — used to ground the AI check in
+                                // what was actually said, so an off-topic answer can be caught as irrelevant.
+                                'topic_summary' => 'Neil and Georgie talk about their morning routines: whether '
+                                    .'they like to get up early or sleep in, whether they eat breakfast or '
+                                    .'sometimes skip it, whether they ever oversleep, whether they exercise in '
+                                    .'the morning, and how Neil checks the weather before choosing his clothes.',
                             ],
                         ],
                     ],
