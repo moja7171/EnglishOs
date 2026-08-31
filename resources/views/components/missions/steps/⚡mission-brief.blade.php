@@ -37,16 +37,41 @@ new class extends Component
 };
 ?>
 
+@php
+    $brief = $run->mission->stepContent('mission_brief');
+    $phases = $run->mission->phases ?? [];
+    $totalSteps = $run->mission->stepKeys();
+@endphp
+
 <div class="space-y-6">
     <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
         <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ $run->mission->outcome }}</p>
     </div>
 
+    {{-- Roadmap: a short, visible journey rather than an open-ended form --}}
+    <div class="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500">
+        @foreach ($phases as $phase)
+            <span class="rounded-full border border-neutral-300 px-2.5 py-1 dark:border-neutral-700">
+                {{ $phase['label'] ?? ucfirst($phase['phase'] ?? '') }}
+            </span>
+            @if (! $loop->last)
+                <span>→</span>
+            @endif
+        @endforeach
+        <span class="ml-1">· {{ count($totalSteps) }} short steps</span>
+    </div>
+
+    @if (! empty($brief['hook']))
+        <div class="rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
+            <p class="text-sm italic text-neutral-800 dark:text-neutral-200">{{ $brief['hook'] }}</p>
+        </div>
+    @endif
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Before you start</p>
         <p class="mt-1 text-sm text-neutral-500">Answer out loud, with no preparation.</p>
         <ul class="mt-3 space-y-2">
-            @foreach ($run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [] as $question)
+            @foreach ($brief['warm_up_questions'] ?? [] as $question)
                 <li class="rounded border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700">
                     {{ $question }}
                 </li>
@@ -59,6 +84,7 @@ new class extends Component
         <p class="text-sm text-neutral-600 dark:text-neutral-400">
             How comfortable am I talking about this topic right now?
         </p>
+        <p class="text-xs text-neutral-400">We'll compare this to your score at the end of the mission.</p>
         <div class="mt-2 flex gap-2">
             @foreach (range(1, 5) as $value)
                 <button

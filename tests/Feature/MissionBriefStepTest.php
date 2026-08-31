@@ -91,4 +91,20 @@ class MissionBriefStepTest extends TestCase
             ->assertSet('score', 4)
             ->assertDontSee('Continue');
     }
+
+    public function test_shows_the_real_hook_and_a_roadmap_of_the_mission_phases(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->assertSee('new coworker turns to you and asks')
+            ->assertSee('Foundation')
+            ->assertSee('Build')
+            ->assertSee('Mission')
+            ->assertSee('We\'ll compare this to your score at the end of the mission.', false);
+    }
 }

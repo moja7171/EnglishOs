@@ -37,6 +37,8 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'mission_brief',
                                 'label' => 'Mission Brief',
+                                'hook' => "Imagine a new coworker turns to you and asks: \"So, what's your day usually "
+                                    .'like?" Could you answer right now, without stopping to think?',
                                 'warm_up_questions' => [
                                     'What time do you usually wake up?',
                                     'What do you usually do in the morning?',
