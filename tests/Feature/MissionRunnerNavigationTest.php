@@ -148,4 +148,116 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSeeHtml('bg-neutral-900') // the "4" button rendered as chosen
             ->assertDontSee('Continue');
     }
+
+    public function test_a_fresh_run_shows_the_day_overview_with_all_three_days(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        MissionRun::findOrStart($learner, $mission);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission])
+            ->assertSet('showOverview', true)
+            ->assertSee('Day 1')
+            ->assertSee('Day 2')
+            ->assertSee('Day 3')
+            ->assertSee('Continue') // Day 1's entry button, not started yet
+            ->assertDontSee('Completed');
+    }
+
+    public function test_mid_day_bare_visit_skips_the_overview_and_goes_to_the_step(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission])
+            ->assertSet('showOverview', false)
+            ->assertSet('activeStepKey', 'vocabulary_builder');
+    }
+
+    public function test_finishing_a_day_shows_the_overview_again_with_that_day_marked_done(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        foreach (['mission_brief', 'vocabulary_builder', 'listening'] as $key) {
+            Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => $key,
+                'type' => Evidence::TYPE_TEXT,
+                'content_ref' => 'done',
+            ]);
+        }
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission])
+            ->assertSet('showOverview', true)
+            ->assertSee('Completed') // Day 1
+            ->assertSee('Review'); // Day 1's entry button now offers review
+    }
+
+    public function test_next_and_previous_never_cross_a_day_boundary(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        foreach (['mission_brief', 'vocabulary_builder', 'listening'] as $key) {
+            Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => $key,
+                'type' => Evidence::TYPE_TEXT,
+                'content_ref' => 'done',
+            ]);
+        }
+
+        $this->actingAs($learner);
+
+        // "listening" is the last step of Day 1 — even though grammar_in_context
+        // (Day 2) is the actual next mission-wide step, Next must not offer it.
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'listening'])
+            ->assertSet('nextStepKey', null);
+    }
+
+    public function test_the_overview_pseudo_step_always_forces_the_overview_even_mid_day(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertSet('showOverview', true);
+    }
 }

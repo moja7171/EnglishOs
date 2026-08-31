@@ -22,4 +22,34 @@ class MissionHookContentTest extends TestCase
             $this->assertNotEmpty($hook, "Step \"{$key}\" is missing a hook.");
         }
     }
+
+    /**
+     * Matches the exact page order in document/M01/Mission01.pdf (page 2's
+     * "3-Day Plan" + pages 06-12): Active Recall and Error Log are pages
+     * 09-10, both *before* the Final Challenge on page 11 — not after it.
+     */
+    public function test_m01_step_order_matches_the_real_3_day_plan(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+
+        $this->assertSame([
+            // Day 1 · Individual (pages 01-03)
+            'mission_brief',
+            'vocabulary_builder',
+            'listening',
+            // Day 2 · Individual (pages 04-05)
+            'grammar_in_context',
+            'activation',
+            // Day 3 · Partner/AI (pages 06-12)
+            'ai_conversation_1',
+            'ai_feedback_1',
+            'writing',
+            'active_recall',
+            'error_log',
+            'ai_conversation_2',
+            'mission_result',
+        ], $mission->stepKeys());
+    }
 }

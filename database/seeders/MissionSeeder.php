@@ -133,6 +133,22 @@ class MissionSeeder extends Seeder
                                 'max_words' => 150,
                             ],
                             [
+                                'key' => 'active_recall',
+                                'label' => 'Active Recall',
+                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
+                                'instruction' => 'Without looking at the previous pages.',
+                                'sections' => [
+                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
+                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
+                                    ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'Error Log',
+                                'hook' => 'Mistakes are proof you tried something new. Let\'s fix a few, for good.',
+                            ],
+                            [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
@@ -152,22 +168,6 @@ class MissionSeeder extends Seeder
                                     'Talks about a weekday',
                                     'Talks about the weekend',
                                 ],
-                            ],
-                            [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
-                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
-                                    ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
-                                ],
-                            ],
-                            [
-                                'key' => 'error_log',
-                                'label' => 'Error Log',
-                                'hook' => 'Mistakes are proof you tried something new. Let\'s fix a few, for good.',
                             ],
                             [
                                 'key' => 'mission_result',

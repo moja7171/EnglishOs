@@ -139,6 +139,77 @@ class MissionRun extends Model
     }
 
     /**
+     * The mission's phases ("Day 1", "Day 2", "Day 3") with this run's
+     * progress folded in — used for the mission overview screen. Dates are
+     * derived from real Evidence timestamps, never assigned or enforced:
+     * EOS-004 §9 is explicit that progress is based on learning, not the
+     * calendar, so a day unlocks the moment the previous one's Evidence is
+     * complete, whatever the actual date is.
+     *
+     * @return list<array{phase: string, label: string, stepKeys: list<string>, startedAt: ?\Illuminate\Support\Carbon, completedAt: ?\Illuminate\Support\Carbon, done: bool, current: bool, locked: bool}>
+     */
+    public function dayProgress(): array
+    {
+        $recorded = $this->evidence()->pluck('phase')->all();
+        $currentKey = $this->currentStepKey();
+        $reachedCurrent = false;
+        $days = [];
+
+        foreach ($this->mission->phases ?? [] as $phase) {
+            $stepKeys = collect($phase['steps'] ?? [])
+                ->map(fn ($step) => is_array($step) ? $step['key'] : $step)
+                ->all();
+
+            $dayEvidence = $this->evidence()->whereIn('phase', $stepKeys)->orderBy('created_at')->get();
+            $done = collect($stepKeys)->every(fn ($key) => in_array($key, $recorded, true));
+            $isCurrent = ! $done && ! $reachedCurrent && in_array($currentKey, $stepKeys, true);
+
+            if ($isCurrent) {
+                $reachedCurrent = true;
+            }
+
+            $days[] = [
+                'phase' => $phase['phase'],
+                'label' => $phase['label'] ?? ucfirst($phase['phase']),
+                'stepKeys' => $stepKeys,
+                'startedAt' => $dayEvidence->first()?->created_at,
+                'completedAt' => $done ? $dayEvidence->last()?->created_at : null,
+                'done' => $done,
+                'current' => $isCurrent,
+                'locked' => ! $done && ! $isCurrent,
+            ];
+        }
+
+        return $days;
+    }
+
+    /**
+     * True when the learner's current step is the very first step of its
+     * day — i.e. they haven't actually entered the day yet, just arrived
+     * at the mission. Drives the "show the day overview, not the form"
+     * default on a bare mission visit.
+     */
+    public function isAtTheStartOfAFreshDay(): bool
+    {
+        $currentKey = $this->currentStepKey();
+
+        if ($currentKey === null) {
+            return false;
+        }
+
+        foreach ($this->mission->phases ?? [] as $phase) {
+            $firstStep = $phase['steps'][0] ?? null;
+            $firstStepKey = is_array($firstStep) ? $firstStep['key'] : $firstStep;
+
+            if ($firstStepKey === $currentKey) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Finds the learner's run for this mission — whatever its status — or
      * starts a new one. Keying only on learner+mission (not status) matters:
      * once a run is complete, revisiting the mission must show that same
