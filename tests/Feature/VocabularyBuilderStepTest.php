@@ -71,6 +71,10 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
             ->set('examples.0', 'I have a morning routine.')
             ->set('examples.1', 'I commute by bus.')
@@ -85,16 +89,96 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertSame('listening', $run->fresh()->currentStepKey());
     }
 
-    public function test_continue_never_calls_gemini_and_ignores_any_unchecked_input(): void
+    public function test_continue_checks_every_unchecked_filled_sentence_and_blocks_on_a_major_issue(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        // Even a copied definition sails through Continue — it was never checked.
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+        // A copied definition sailed through Continue in the old flow — now
+        // Continue checks it itself and must block on the "major" verdict.
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->twice()
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']))
+                ->ordered();
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn(json_encode(['severity' => 'major', 'hint' => 'Describe your own actual commute.']))
+                ->ordered();
+        });
 
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
             ->set('examples.0', 'I have a morning routine.')
             ->set('examples.1', 'travel to work')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save')
+            ->assertHasErrors(['examples'])
+            ->assertSee('Describe your own actual commute.');
+
+        $this->assertDatabaseCount('evidences', 1); // only the mission_brief one from setup — blocked before save
+    }
+
+    public function test_continue_proceeds_when_every_filled_sentence_is_minor_or_none(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn(json_encode(['severity' => 'minor', 'hint' => 'Try "I commute to work."']));
+            $mock->shouldReceive('chat')
+                ->twice()
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('examples.0', 'I have a morning routine.')
+            ->set('examples.1', 'I commute work.')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save')
+            ->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_continue_does_not_recheck_a_sentence_already_checked_against_the_same_text(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            // Exactly 3 calls total: the manual checkOne(0), plus one each
+            // for the two still-unchecked words — never a 4th for word 0.
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('examples.0', 'I have a morning routine.')
+            ->call('checkOne', 0)
+            ->set('examples.1', 'I commute by bus.')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save')
+            ->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_continue_rechecks_a_sentence_edited_since_its_last_check(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn(json_encode(['severity' => 'major', 'hint' => 'Describe your own actual commute.']))
+                ->ordered();
+            // The word-0 recheck (text changed since the manual check) plus
+            // the other two still-unchecked words.
+            $mock->shouldReceive('chat')
+                ->times(3)
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']))
+                ->ordered();
+        });
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('examples.0', 'to travel to work or school regularly')
+            ->call('checkOne', 0)
+            ->set('examples.0', 'I have a morning routine.') // edited after the check
+            ->set('examples.1', 'I commute by bus.')
             ->set('examples.2', 'Sunday is my day off.')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
@@ -209,13 +293,14 @@ class VocabularyBuilderStepTest extends TestCase
         $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
 
         // Every input, every Check button, the results wrapper, and Continue
-        // all share the same unparameterised wire:target so ANY in-flight
-        // checkOne call blocks clicks on all of them at once — 2 per word
-        // (input + button) plus the results wrapper and Continue. The "AI is
-        // thinking" indicator itself is scoped per-word (checkOne(0),
-        // checkOne(1)…) so it appears only on the card actually being checked.
+        // all share the same wire:target (checkOne OR save) so ANY in-flight
+        // checkOne call — or Continue's own bulk check — blocks clicks on all
+        // of them at once: 2 per word (input + button) plus the results
+        // wrapper and Continue. The "AI is thinking" indicator itself is
+        // scoped per-word (checkOne(0), checkOne(1)…) so it appears only on
+        // the card actually being checked.
         $expected = 2 * count($run->mission->stepContent('vocabulary_builder')['vocabulary']) + 2;
-        $this->assertSame($expected, substr_count($html, 'wire:target="checkOne"'));
+        $this->assertSame($expected, substr_count($html, 'wire:target="checkOne,save"'));
         $this->assertStringContainsString('AI is thinking', $html);
     }
 

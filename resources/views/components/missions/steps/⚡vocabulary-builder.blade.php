@@ -49,6 +49,16 @@ new class extends Component
             return;
         }
 
+        $this->runCheck($word, $example);
+    }
+
+    /**
+     * Asks Gemini to judge one word/sentence pair, storing the verdict
+     * (tagged with the exact text it applies to, so a later edit doesn't
+     * leave a stale "major"/"none" verdict attached to different text).
+     */
+    private function runCheck(string $word, string $example): void
+    {
         unset($this->checkErrors[$word]);
 
         try {
@@ -72,7 +82,7 @@ new class extends Component
                 throw new RuntimeException('Unexpected AI response format.');
             }
 
-            $this->feedback[$word] = $data;
+            $this->feedback[$word] = $data + ['checkedText' => $example];
         } catch (ConnectionException) {
             $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
         } catch (\Throwable $e) {
@@ -94,6 +104,31 @@ new class extends Component
 
         if ($filled->count() < 3) {
             $this->addError('examples', 'Write at least 3 personal examples before continuing.');
+
+            return;
+        }
+
+        // Every filled sentence needs a fresh Gemini verdict before Continue
+        // is allowed through — reuse an existing one only if it was checked
+        // against this exact text (an edit since the last check invalidates it).
+        foreach ($filled as $item) {
+            if (! $item['word']) {
+                continue;
+            }
+
+            $alreadyChecked = ($this->feedback[$item['word']]['checkedText'] ?? null) === $item['example'];
+
+            if (! $alreadyChecked) {
+                $this->runCheck($item['word'], $item['example']);
+            }
+        }
+
+        $hasMajorIssue = $filled->contains(
+            fn ($item) => $item['word'] && ($this->feedback[$item['word']]['severity'] ?? null) === 'major'
+        );
+
+        if ($hasMajorIssue) {
+            $this->addError('examples', 'Fix the highlighted sentence before continuing.');
 
             return;
         }
@@ -135,7 +170,7 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Choose expressions you'll really use</p>
-        <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check any one with the AI assistant if you want a second opinion.</p>
+        <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
         @unless ($readOnly)
             <div class="mt-2">
                 <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
@@ -154,7 +189,7 @@ new class extends Component
         @endunless
     </div>
 
-    <div wire:loading.class="pointer-events-none" wire:target="checkOne" class="space-y-4">
+    <div wire:loading.class="pointer-events-none" wire:target="checkOne,save" class="space-y-4">
         @foreach ($vocabulary as $index => $item)
             @php $itemFeedback = $feedback[$item['word']] ?? null; @endphp
             <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
@@ -172,7 +207,7 @@ new class extends Component
                         placeholder="My example…"
                         @readonly($readOnly)
                         wire:loading.attr="disabled"
-                        wire:target="checkOne"
+                        wire:target="checkOne,save"
                         class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                     >
                     <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
@@ -182,7 +217,7 @@ new class extends Component
                             wire:click="checkOne({{ $index }})"
                             x-on:click="dismissed[{{ $index }}] = false"
                             wire:loading.attr="disabled"
-                            wire:target="checkOne"
+                            wire:target="checkOne,save"
                             class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
                         >
                             <span wire:loading.remove wire:target="checkOne({{ $index }})">Check</span>
@@ -192,7 +227,7 @@ new class extends Component
                 </div>
 
                 @unless ($readOnly)
-                    <div wire:loading wire:target="checkOne({{ $index }})" class="mt-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900">
+                    <div wire:loading wire:target="checkOne({{ $index }}), save" class="mt-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900">
                         <span class="flex gap-1">
                             <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 0ms"></span>
                             <span class="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutral-400" style="animation-delay: 200ms"></span>
@@ -233,11 +268,13 @@ new class extends Component
     @unless ($readOnly)
         <button
             wire:click="save"
+            x-on:click="dismissed = {}"
             wire:loading.attr="disabled"
-            wire:target="checkOne"
+            wire:target="checkOne,save"
             class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
-            Continue
+            <span wire:loading.remove wire:target="save">Continue</span>
+            <span wire:loading wire:target="save">Checking your sentences…</span>
         </button>
     @endunless
 </div>
