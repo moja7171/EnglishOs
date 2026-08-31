@@ -8,7 +8,13 @@ use Illuminate\Database\Seeder;
 class MissionSeeder extends Seeder
 {
     /**
-     * Seeds M01, matching the phase/step map in EOS-009 §7.
+     * Seeds M01 with its real content from document/M01/ (Mission01.pdf,
+     * BBC Learning English "Real Easy English — Mornings"), matching the
+     * phase/step map in EOS-009 §7.
+     *
+     * Vocabulary content is written fresh, not sourced from the Cambridge
+     * textbooks in document/ — see EOS-009 §14 (open question) and
+     * Principle 5: the app must not depend on licensed paper resources.
      */
     public function run(): void
     {
@@ -23,13 +29,61 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Foundation',
                         'mode' => 'solo',
-                        'steps' => ['mission_brief', 'vocabulary_builder', 'listening'],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Mission Brief',
+                                'warm_up_questions' => [
+                                    'What time do you usually wake up?',
+                                    'What do you usually do in the morning?',
+                                    'What do you do after work/class?',
+                                    'What do you usually do at weekends?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder',
+                                'label' => 'Vocabulary Builder',
+                                // Original wordlist — not sourced from English Vocabulary in Use.
+                                'vocabulary' => [
+                                    ['word' => 'routine', 'meaning' => 'the usual things you do, in the usual order'],
+                                    ['word' => 'get ready', 'meaning' => 'to prepare yourself to leave the house'],
+                                    ['word' => 'commute', 'meaning' => 'to travel to work or school regularly'],
+                                    ['word' => 'rush hour', 'meaning' => 'the busiest time of day for traffic'],
+                                    ['word' => 'day off', 'meaning' => 'a day when you don\'t work'],
+                                    ['word' => 'wind down', 'meaning' => 'to relax before going to sleep'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
+                                'asset_ref' => 'document/M01/BBC Learning English - Real Easy English Talking about mornings.mp3',
+                                'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
+                                'target_phrases' => ['get up', 'sleep in', 'oversleep', 'skip breakfast', 'morning person'],
+                            ],
+                        ],
                     ],
                     [
                         'phase' => 'build',
                         'label' => 'Build',
                         'mode' => 'solo',
-                        'steps' => ['grammar_in_context', 'activation'],
+                        'steps' => [
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar in Context',
+                                'focus' => 'Present Simple + Adverbs of Frequency',
+                                'quick_check' => [
+                                    ['wrong' => 'She go to work at eight.', 'correct' => 'She goes to work at eight.'],
+                                    ['wrong' => "I doesn't exercise every day.", 'correct' => "I don't exercise every day."],
+                                    ['wrong' => 'He usually wake up late.', 'correct' => 'He usually wakes up late.'],
+                                ],
+                            ],
+                            [
+                                'key' => 'activation',
+                                'label' => 'Activation',
+                                'task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
+                            ],
+                        ],
                     ],
                     [
                         'phase' => 'mission',
