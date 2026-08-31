@@ -26,3 +26,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Third-party copyrighted reference textbooks — local team reference only,
+# never distributed via this repo. See document/Requirements/ EOS-009 §14.
+/document/English_Vocabulary_in_Use.pdf
+/document/Intermediate_Grammar_in_Use.pdf
