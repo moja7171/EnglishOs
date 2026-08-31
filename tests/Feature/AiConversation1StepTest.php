@@ -98,6 +98,31 @@ class AiConversation1StepTest extends TestCase
         $this->assertDatabaseCount('evidences', 0);
     }
 
+    public function test_a_low_starting_confidence_makes_the_followup_prompt_warmer(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun(questionCount: 1);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '1',
+        ]);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->withArgs(fn ($_messages, $systemPrompt) => str_contains($systemPrompt, 'extra warm and encouraging'))
+                ->once()
+                ->andReturn('Do you always wake up at the same time?');
+        });
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
+            ->call('submitAnswer');
+    }
+
     public function test_read_only_mode_reloads_the_transcript_without_calling_groq_or_gemini(): void
     {
         $run = $this->makeRun(questionCount: 2);

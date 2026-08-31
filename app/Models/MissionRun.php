@@ -108,6 +108,37 @@ class MissionRun extends Model
     }
 
     /**
+     * The 1-5 comfort score the learner gave themselves at Mission Brief,
+     * before starting — null if they haven't reached/answered it yet.
+     */
+    public function startingConfidence(): ?int
+    {
+        $evidence = $this->latestEvidence('mission_brief');
+
+        return $evidence ? (int) $evidence->content_ref : null;
+    }
+
+    /**
+     * Extra guidance appended to AI Instructor conversation prompts so the
+     * tone adapts to how confident the learner said they felt — never
+     * gating or skipping anything (Article 3, Evidence Before Progress:
+     * only real Evidence decides progress), just how warm or how much the
+     * AI pushes in follow-up questions (EOS-000 Principle 7: the system
+     * should adapt itself to the learner without lowering quality).
+     */
+    public function aiToneGuidance(): string
+    {
+        return match (true) {
+            $this->startingConfidence() === null => '',
+            $this->startingConfidence() <= 2 => ' The learner rated their starting confidence on this topic low '
+                .'(1-2 out of 5) — be extra warm and encouraging, and keep your follow-up simple and easy to answer.',
+            $this->startingConfidence() >= 4 => ' The learner rated their starting confidence on this topic high '
+                .'(4-5 out of 5) — you can make your follow-up a little more challenging or probing.',
+            default => '',
+        };
+    }
+
+    /**
      * Finds the learner's run for this mission — whatever its status — or
      * starts a new one. Keying only on learner+mission (not status) matters:
      * once a run is complete, revisiting the mission must show that same

@@ -89,6 +89,7 @@ new class extends Component
                 systemPrompt: 'You are a friendly English conversation partner. Given the prompt and the '
                     .'learner\'s transcribed spoken response, reply with exactly ONE short, natural reaction or '
                     .'follow-up question (max 15 words) that shows you listened — no preamble, no quotation marks.'
+                    .$this->run->aiToneGuidance()
             ));
 
             $this->turns[] = ['prompt' => $this->currentRoundPrompt, 'answer' => $answer, 'followup' => $followup];

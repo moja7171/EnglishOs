@@ -66,6 +66,7 @@ new class extends Component
                     ."life. Given the question you asked and the learner's transcribed spoken answer, reply with exactly "
                     .'ONE short, natural follow-up question (max 15 words) that shows you listened — no preamble, no '
                     .'quotation marks, just the question.'
+                    .$this->run->aiToneGuidance()
             ));
 
             $this->turns[] = [
