@@ -75,4 +75,22 @@ class Mission extends Model
 
         return str($stepKey)->replace('_', ' ')->title()->toString();
     }
+
+    /**
+     * The full authored step definition for a step key (questions,
+     * vocabulary, quick-check items, etc.), or an empty array for a
+     * plain-string step that has no content of its own yet.
+     */
+    public function stepContent(string $stepKey): array
+    {
+        foreach ($this->phases ?? [] as $phase) {
+            foreach ($phase['steps'] ?? [] as $step) {
+                if (is_array($step) && ($step['key'] ?? null) === $stepKey) {
+                    return $step;
+                }
+            }
+        }
+
+        return [];
+    }
 }

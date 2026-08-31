@@ -25,6 +25,22 @@ new class extends Component
     {
         return $this->run->currentStepKey();
     }
+
+    /**
+     * Step keys with a real screen built. Anything else falls back to a
+     * "not built yet" placeholder — see EOS-009 §7 for the full list.
+     */
+    protected function stepComponents(): array
+    {
+        return [
+            'mission_brief' => 'missions.steps.mission-brief',
+        ];
+    }
+
+    public function getStepComponentProperty(): ?string
+    {
+        return $this->stepComponents()[$this->currentStepKey] ?? null;
+    }
 };
 ?>
 
@@ -41,14 +57,21 @@ new class extends Component
             $position = array_search($this->currentStepKey, $stepKeys, true) + 1;
             $phase = $mission->phaseFor($this->currentStepKey);
         @endphp
-        <article class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+        <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
             <p class="font-mono text-xs text-neutral-500">
                 {{ $phase['label'] ?? ucfirst($phase['phase'] ?? '') }} ·
                 Step {{ $position }} of {{ count($stepKeys) }}
             </p>
             <h2 class="text-lg font-bold">{{ $mission->stepLabel($this->currentStepKey) }}</h2>
-            <p class="mt-2 text-sm text-neutral-500">Step screen not built yet — coming in Epic 2.</p>
-        </article>
+
+            @if ($this->stepComponent)
+                <div class="mt-4">
+                    @livewire($this->stepComponent, ['run' => $run], key($run->id.'-'.$this->currentStepKey))
+                </div>
+            @else
+                <p class="mt-2 text-sm text-neutral-500">Step screen not built yet.</p>
+            @endif
+        </div>
     @else
         <article class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
             <h2 class="text-lg font-bold">All steps have evidence</h2>

@@ -1,0 +1,70 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Evidence;
+use App\Models\Mission;
+use App\Models\MissionRun;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class MissionBriefStepTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_saving_a_score_records_evidence_and_advances_the_run(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'foundation',
+                    'steps' => [
+                        ['key' => 'mission_brief', 'warm_up_questions' => ['What time do you wake up?']],
+                        ['key' => 'vocabulary_builder'],
+                    ],
+                ],
+            ],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->set('score', 3)
+            ->call('save')
+            ->assertRedirect(route('missions.show', $mission));
+
+        $this->assertDatabaseHas('evidences', [
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $this->assertSame('vocabulary_builder', $run->fresh()->currentStepKey());
+    }
+
+    public function test_score_is_required_before_saving(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->call('save')
+            ->assertHasErrors(['score' => 'required']);
+
+        $this->assertDatabaseCount('evidences', 0);
+    }
+}
