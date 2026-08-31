@@ -76,6 +76,9 @@ class MissionSeeder extends Seeder
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
                                 'focus' => 'Present Simple + Adverbs of Frequency',
+                                'frequency_starters' => [
+                                    'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
+                                ],
                                 'quick_check' => [
                                     ['wrong' => 'She go to work at eight.', 'correct' => 'She goes to work at eight.'],
                                     ['wrong' => "I doesn't exercise every day.", 'correct' => "I don't exercise every day."],
