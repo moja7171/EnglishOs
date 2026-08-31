@@ -37,6 +37,7 @@ new class extends Component
             'vocabulary_builder' => 'missions.steps.vocabulary-builder',
             'listening' => 'missions.steps.listening',
             'grammar_in_context' => 'missions.steps.grammar-in-context',
+            'activation' => 'missions.steps.activation',
         ];
     }
 
