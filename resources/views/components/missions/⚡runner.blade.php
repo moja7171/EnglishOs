@@ -2,7 +2,6 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
-use App\Models\User;
 use Livewire\Component;
 
 new class extends Component
@@ -14,11 +13,7 @@ new class extends Component
     public function mount(Mission $mission): void
     {
         $this->mission = $mission;
-
-        // TODO: replace with the authenticated learner once auth exists.
-        $learner = User::first();
-
-        $this->run = MissionRun::findOrStart($learner, $mission);
+        $this->run = MissionRun::findOrStart(auth()->user(), $mission);
     }
 
     public function getCurrentStepKeyProperty(): ?string

@@ -8,6 +8,16 @@
     @livewireStyles
 </head>
 <body class="bg-neutral-50 text-neutral-900 antialiased dark:bg-neutral-900 dark:text-neutral-100">
+    @auth
+        <div class="mx-auto flex max-w-2xl items-center justify-between px-6 pt-4 text-xs text-neutral-500">
+            <span>{{ auth()->user()->name }}</span>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="underline">Sign out</button>
+            </form>
+        </div>
+    @endauth
+
     {{ $slot }}
     @livewireScripts
 </body>
