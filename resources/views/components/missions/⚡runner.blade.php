@@ -146,6 +146,29 @@ new class extends Component
     {
         return $this->stepComponents()[$this->activeStepKey] ?? null;
     }
+
+    /**
+     * A small visual cue for what kind of activity a step is — matched by
+     * key prefix so it keeps working for future missions' ai_conversation_3
+     * etc. without a new lookup entry each time.
+     */
+    public function stepIcon(string $key): string
+    {
+        return match (true) {
+            $key === 'mission_brief' => '🎯',
+            $key === 'vocabulary_builder' => '📖',
+            $key === 'listening' => '🎧',
+            $key === 'grammar_in_context' => '✏️',
+            $key === 'activation' => '🎙️',
+            str_starts_with($key, 'ai_conversation') => '💬',
+            str_starts_with($key, 'ai_feedback') => '💡',
+            $key === 'writing' => '✍️',
+            $key === 'active_recall' => '🧠',
+            $key === 'error_log' => '🔍',
+            $key === 'mission_result' => '🏁',
+            default => '📌',
+        };
+    }
 };
 ?>
 
@@ -197,8 +220,8 @@ new class extends Component
         @endphp
         <a href="{{ route('missions.show', [$mission, 'overview']) }}" wire:navigate class="text-xs text-neutral-500 underline">‹ All days</a>
 
-        {{-- Mini stepper, scoped to this day only --}}
-        <nav class="flex flex-wrap gap-1.5">
+        {{-- Vertical checklist, scoped to this day only --}}
+        <nav class="space-y-1">
             @foreach ($daySteps as $key)
                 @php
                     $done = $key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true);
@@ -209,17 +232,25 @@ new class extends Component
                     <a
                         href="{{ route('missions.show', [$mission, $key]) }}"
                         wire:navigate
-                        title="{{ $mission->stepLabel($key) }}"
-                        class="flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold
-                            {{ $active ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900' : '' }}
-                            {{ ! $active && $done ? 'border-green-600 text-green-600' : '' }}
-                            {{ ! $active && ! $done ? 'border-neutral-300 text-neutral-500 dark:border-neutral-700' : '' }}"
-                    >{{ $done && ! $active ? '✓' : $loop->iteration }}</a>
+                        class="flex items-center gap-3 rounded-lg border px-3 py-2 text-sm
+                            {{ $active ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900' : 'border-neutral-200 dark:border-neutral-800' }}
+                            {{ ! $active && $done ? 'text-green-600' : '' }}
+                            {{ ! $active && ! $done ? 'text-neutral-600 dark:text-neutral-400' : '' }}"
+                    >
+                        <span class="text-base leading-none">{{ $this->stepIcon($key) }}</span>
+                        <span class="flex-1 {{ $active ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
+                        @if ($done && ! $active)
+                            <span class="text-xs">✓</span>
+                        @endif
+                    </a>
                 @else
                     <span
-                        title="Not reached yet"
-                        class="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 text-xs text-neutral-300 dark:border-neutral-800 dark:text-neutral-700"
-                    >{{ $loop->iteration }}</span>
+                        class="flex items-center gap-3 rounded-lg border border-neutral-100 px-3 py-2 text-sm text-neutral-300 dark:border-neutral-900 dark:text-neutral-700"
+                    >
+                        <span class="text-base leading-none opacity-40">{{ $this->stepIcon($key) }}</span>
+                        <span class="flex-1">{{ $mission->stepLabel($key) }}</span>
+                        <span class="text-xs">🔒</span>
+                    </span>
                 @endif
             @endforeach
         </nav>

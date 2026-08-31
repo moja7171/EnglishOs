@@ -260,4 +260,25 @@ class MissionRunnerNavigationTest extends TestCase
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
             ->assertSet('showOverview', true);
     }
+
+    public function test_the_within_day_checklist_shows_real_step_labels_not_just_numbers(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        MissionRun::findOrStart($learner, $mission);
+
+        $this->actingAs($learner);
+
+        // On Day 1's first step, all three of that day's real labels should
+        // already be visible (icon + text), not hidden behind a numbered dot.
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
+            ->assertSee('Mission Brief')
+            ->assertSee('Vocabulary Builder')
+            ->assertSee('Listening')
+            // Day 3's steps must stay invisible-as-content on Day 1 — the
+            // checklist only ever lists the active day's own steps.
+            ->assertDontSee('Mission Result');
+    }
 }
