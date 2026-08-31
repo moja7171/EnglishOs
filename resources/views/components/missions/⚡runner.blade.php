@@ -38,6 +38,7 @@ new class extends Component
             'listening' => 'missions.steps.listening',
             'grammar_in_context' => 'missions.steps.grammar-in-context',
             'activation' => 'missions.steps.activation',
+            'ai_conversation_1' => 'missions.steps.ai-conversation1',
         ];
     }
 

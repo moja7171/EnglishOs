@@ -97,7 +97,19 @@ class MissionSeeder extends Seeder
                         'label' => 'Mission',
                         'mode' => 'ai',
                         'steps' => [
-                            'ai_conversation_1',
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'AI Conversation #1',
+                                // Real interview questions from Mission01.pdf "Speaking Session 01".
+                                'interview_questions' => [
+                                    'What time do you usually wake up?',
+                                    'What do you normally do in the morning?',
+                                    'What is the busiest part of your day?',
+                                    'What do you usually do after work/class?',
+                                    'How often do you exercise?',
+                                    'What do you usually do in the evening?',
+                                ],
+                            ],
                             'ai_feedback_1',
                             'writing',
                             'ai_conversation_2',
