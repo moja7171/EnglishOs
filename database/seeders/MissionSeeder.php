@@ -50,14 +50,17 @@ class MissionSeeder extends Seeder
                                 'key' => 'vocabulary_builder',
                                 'label' => 'Vocabulary Builder',
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
-                                // Original wordlist — not sourced from English Vocabulary in Use.
+                                // Word selection follows English Vocabulary in Use (Unit 16, "Daily
+                                // routines") — same topic coverage as the real book. Every meaning and
+                                // example sentence below is written fresh for this app, not copied from
+                                // it (see EOS-009 §14: content stays original, licensing/piracy risk).
                                 'vocabulary' => [
-                                    ['word' => 'routine', 'meaning' => 'the usual things you do, in the usual order'],
-                                    ['word' => 'get ready', 'meaning' => 'to prepare yourself to leave the house'],
-                                    ['word' => 'commute', 'meaning' => 'to travel to work or school regularly'],
-                                    ['word' => 'rush hour', 'meaning' => 'the busiest time of day for traffic'],
-                                    ['word' => 'day off', 'meaning' => 'a day when you don\'t work'],
-                                    ['word' => 'wind down', 'meaning' => 'to relax before going to sleep'],
+                                    ['word' => 'wake up', 'meaning' => 'to stop sleeping and become conscious', 'example' => 'I usually wake up before my alarm goes off.'],
+                                    ['word' => 'get up', 'meaning' => 'to get out of bed after waking up', 'example' => "I don't get up straight away — I check my phone first."],
+                                    ['word' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'example' => 'I always have a shower in the morning, never at night.'],
+                                    ['word' => 'do the housework', 'meaning' => 'to clean and tidy your home', 'example' => 'We do the housework together every Saturday morning.'],
+                                    ['word' => 'go out', 'meaning' => 'to leave home to do something for fun', 'example' => 'On Fridays I usually go out with friends after work.'],
+                                    ['word' => 'stay in', 'meaning' => "to spend your evening at home instead of going out", 'example' => "When I'm tired, I'd rather stay in and watch a film."],
                                 ],
                             ],
                             [

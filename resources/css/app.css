@@ -8,6 +8,12 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+/* Alpine's x-cloak needs this rule to actually hide anything before Alpine
+   initializes — without it, the attribute alone does nothing. */
+[x-cloak] {
+    display: none !important;
+}
+
 /* A gentle typing-dot pulse for AI "thinking" indicators — Tailwind's
    built-in animate-bounce arcs too high/hard for small dots. */
 @keyframes typing-dot {

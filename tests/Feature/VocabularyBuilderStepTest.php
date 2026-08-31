@@ -31,7 +31,7 @@ class VocabularyBuilderStepTest extends TestCase
                         [
                             'key' => 'vocabulary_builder',
                             'vocabulary' => [
-                                ['word' => 'routine', 'meaning' => 'the usual things you do'],
+                                ['word' => 'routine', 'meaning' => 'the usual things you do', 'example' => 'I have a simple morning routine.'],
                                 ['word' => 'commute', 'meaning' => 'travel to work'],
                                 ['word' => 'day off', 'meaning' => 'a day when you don\'t work'],
                                 ['word' => 'wind down', 'meaning' => 'to relax before sleep'],
@@ -52,6 +52,41 @@ class VocabularyBuilderStepTest extends TestCase
         ]);
 
         return [$learner, $mission, MissionRun::findOrStart($learner, $mission)];
+    }
+
+    public function test_the_lesson_screen_shows_before_practice_and_can_be_dismissed(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+
+        $this->assertStringContainsString("phase: 'lesson'", $html);
+        $this->assertStringContainsString('I have a simple morning routine.', $html);
+        $this->assertStringContainsString("phase = 'practice'", $html);
+    }
+
+    public function test_read_only_mode_still_shows_the_lesson_alongside_the_saved_answers(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                ['word' => 'commute', 'example' => 'I commute by bus.'],
+                ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+            ]),
+        ]);
+
+        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])->html();
+
+        // Lesson content is visible (no toggle needed — nothing to gate
+        // behind a click when there's no further editing to do) alongside
+        // the saved review answers, but the "Start practice" action is gone.
+        $this->assertStringContainsString("phase: 'practice'", $html);
+        $this->assertStringContainsString('I have a simple morning routine.', $html);
+        $this->assertStringNotContainsString('Start practice', $html);
     }
 
     public function test_at_least_three_examples_are_required(): void

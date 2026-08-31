@@ -143,6 +143,7 @@ new class extends Component
 <div
     class="space-y-6"
     x-data="{
+        phase: '{{ $readOnly ? 'practice' : 'lesson' }}',
         filled: {{ $initialFilled->toJson() }},
         dismissed: {},
         get filledCount() { return this.filled.filter(Boolean).length },
@@ -158,6 +159,37 @@ new class extends Component
 >
     <x-hook :text="$run->mission->stepContent('vocabulary_builder')['hook'] ?? null" />
 
+    <div
+        class="space-y-4"
+        @unless ($readOnly) x-show="phase === 'lesson'" x-cloak @endunless
+    >
+        <div>
+            <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Lesson — read this first</p>
+            <p class="mt-1 text-sm text-neutral-500">Each expression below with its meaning and an example, so you know how it's actually used before you write your own.</p>
+        </div>
+
+        <div class="space-y-3">
+            @foreach ($vocabulary as $item)
+                <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
+                    <p class="text-sm font-bold">{{ $item['word'] }}</p>
+                    <p class="text-xs text-neutral-500">{{ $item['meaning'] }}</p>
+                    @if (! empty($item['example']))
+                        <p class="mt-1 text-sm text-neutral-700 italic dark:text-neutral-300">"{{ $item['example'] }}"</p>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
+        @unless ($readOnly)
+            <button
+                type="button"
+                x-on:click="phase = 'practice'"
+                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            >Start practice &#8250;</button>
+        @endunless
+    </div>
+
+    <div x-show="phase === 'practice'" @unless ($readOnly) x-cloak @endunless class="space-y-6">
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Choose expressions you'll really use</p>
         <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
@@ -265,4 +297,5 @@ new class extends Component
             <span wire:loading wire:target="save">Checking your sentences…</span>
         </button>
     @endunless
+    </div>
 </div>
