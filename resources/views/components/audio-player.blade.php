@@ -7,10 +7,18 @@
             playing: false,
             currentTime: 0,
             duration: 0,
+            dragging: false,
             init() {
                 const audio = this.$refs.audio;
+                const seek = this.$refs.seek;
                 audio.addEventListener('loadedmetadata', () => this.duration = audio.duration);
-                audio.addEventListener('timeupdate', () => this.currentTime = audio.currentTime);
+                audio.addEventListener('timeupdate', () => {
+                    this.currentTime = audio.currentTime;
+                    // Imperative, not an Alpine :value binding — a reactive
+                    // binding fighting the browser's own drag position is
+                    // what caused seeking to snap back to 0.
+                    if (! this.dragging) seek.value = audio.currentTime;
+                });
                 audio.addEventListener('play', () => this.playing = true);
                 audio.addEventListener('pause', () => this.playing = false);
                 audio.addEventListener('ended', () => this.playing = false);
@@ -20,10 +28,16 @@
             togglePlay() { this.playing ? this.$refs.audio.pause() : this.$refs.audio.play() },
             skip(seconds) {
                 const audio = this.$refs.audio;
-                const max = this.duration || audio.duration || Infinity;
-                audio.currentTime = Math.min(Math.max(audio.currentTime + seconds, 0), max);
+                const max = audio.duration || this.duration || Infinity;
+                const time = Math.min(Math.max(audio.currentTime + seconds, 0), max);
+                audio.currentTime = time;
+                this.currentTime = time;
+                this.$refs.seek.value = time;
             },
-            seekTo(value) { this.currentTime = value; this.$refs.audio.currentTime = value },
+            seekTo(value) {
+                this.currentTime = value;
+                this.$refs.audio.currentTime = value;
+            },
             formatTime(t) {
                 if (!t || isNaN(t)) return '0:00';
                 const m = Math.floor(t / 60);
@@ -32,7 +46,7 @@
             },
         }"
     >
-        <audio x-ref="audio" preload="metadata" class="hidden">
+        <audio x-ref="audio" preload="auto" class="hidden">
             <source src="{{ $url }}" type="audio/mpeg">
         </audio>
 
@@ -62,10 +76,13 @@
 
             <input
                 type="range"
+                x-ref="seek"
                 min="0"
                 step="1"
                 :max="duration || 0"
-                :value="currentTime"
+                value="0"
+                x-on:pointerdown="dragging = true"
+                x-on:pointerup="dragging = false"
                 x-on:input="seekTo($event.target.valueAsNumber)"
                 class="h-1.5 flex-1 cursor-pointer accent-neutral-900 dark:accent-white"
             >
