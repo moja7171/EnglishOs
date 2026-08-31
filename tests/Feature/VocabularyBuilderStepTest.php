@@ -185,6 +185,39 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertDontSee('Continue');
     }
 
+    public function test_checking_a_word_blocks_every_other_input_and_shows_a_checking_indicator(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+
+        // Every input, every Check button, the results list, the loading
+        // banner, and Continue all share the same unparameterised wire:target
+        // so ANY in-flight checkOne call disables all of them at once — 2 per
+        // word (input + button) plus the banner, results wrapper, and Continue.
+        $expected = 2 * count($run->mission->stepContent('vocabulary_builder')['vocabulary']) + 3;
+        $this->assertSame($expected, substr_count($html, 'wire:target="checkOne"'));
+        $this->assertStringContainsString('Checking your sentence', $html);
+    }
+
+    public function test_feedback_renders_inside_a_severity_coloured_box(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'severity' => 'major',
+                'hint' => 'Can you describe your own actual commute?',
+            ]));
+        });
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('examples.1', 'to travel to work or school regularly')
+            ->call('checkOne', 1)
+            ->assertSeeHtml('bg-red-50')
+            ->assertSee('Can you describe your own actual commute?');
+    }
+
     public function test_the_progress_counter_shows_in_edit_mode_but_not_in_review(): void
     {
         [, , $run] = $this->makeMissionAndRun();

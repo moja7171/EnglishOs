@@ -61,7 +61,8 @@ new class extends Component
                     .'meaning, the sentence just repeats the definition, or it is not real English. Use "minor" for '
                     .'small slips (article, preposition, tense) that do not block understanding. Use "none" when it '
                     .'is good. For "major" or "minor", the hint must be a short guiding question or nudge that helps '
-                    .'the learner fix it themselves — never write the corrected sentence for them.'
+                    .'the learner fix it themselves — never write the corrected sentence for them. Keep the hint to '
+                    .'ONE short, simple sentence, no more than 12 words, plain everyday words — no jargon.'
             );
 
             $data = json_decode(trim($raw), true);
@@ -124,7 +125,14 @@ new class extends Component
         @endunless
     </div>
 
-    <div class="space-y-4">
+    @unless ($readOnly)
+        <div wire:loading wire:target="checkOne" class="flex items-center gap-2 rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+            <span class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-neutral-400 border-t-transparent"></span>
+            Checking your sentence…
+        </div>
+    @endunless
+
+    <div wire:loading.class="pointer-events-none opacity-60" wire:target="checkOne" class="space-y-4 transition-opacity">
         @foreach ($vocabulary as $index => $item)
             @php $itemFeedback = $feedback[$item['word']] ?? null; @endphp
             <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
@@ -138,6 +146,8 @@ new class extends Component
                         x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''"
                         placeholder="My example…"
                         @readonly($readOnly)
+                        wire:loading.attr="disabled"
+                        wire:target="checkOne"
                         class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
                     <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
@@ -146,21 +156,30 @@ new class extends Component
                             type="button"
                             wire:click="checkOne({{ $index }})"
                             wire:loading.attr="disabled"
-                            wire:target="checkOne({{ $index }})"
+                            wire:target="checkOne"
                             class="shrink-0 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
                         >
                             <span wire:loading.remove wire:target="checkOne({{ $index }})">Check</span>
-                            <span wire:loading wire:target="checkOne({{ $index }})">…</span>
+                            <span wire:loading wire:target="checkOne({{ $index }})">Checking…</span>
                         </button>
                     @endunless
                 </div>
 
                 @if ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'major')
-                    <p class="mt-1 text-xs text-red-600">⚠ {{ $itemFeedback['hint'] }}</p>
+                    <div class="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-900 dark:bg-red-950">
+                        <span class="shrink-0">⚠️</span>
+                        <p class="text-sm text-red-700 dark:text-red-400">{{ $itemFeedback['hint'] }}</p>
+                    </div>
                 @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'minor')
-                    <p class="mt-1 text-xs text-amber-600">💡 {{ $itemFeedback['hint'] }}</p>
+                    <div class="mt-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900 dark:bg-amber-950">
+                        <span class="shrink-0">💡</span>
+                        <p class="text-sm text-amber-700 dark:text-amber-400">{{ $itemFeedback['hint'] }}</p>
+                    </div>
                 @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'none')
-                    <p class="mt-1 text-xs text-green-600">✓ Looks good</p>
+                    <div class="mt-2 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 dark:border-green-900 dark:bg-green-950">
+                        <span class="shrink-0">✓</span>
+                        <p class="text-sm text-green-700 dark:text-green-400">Looks good</p>
+                    </div>
                 @endif
                 @if ($checkErrors[$item['word']] ?? null)
                     <p class="mt-1 text-xs text-red-600">{{ $checkErrors[$item['word']] }}</p>
@@ -176,7 +195,9 @@ new class extends Component
     @unless ($readOnly)
         <button
             wire:click="save"
-            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            wire:loading.attr="disabled"
+            wire:target="checkOne"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900 disabled:opacity-50"
         >
             Continue
         </button>
