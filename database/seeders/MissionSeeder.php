@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Mission;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class MissionSeeder extends Seeder
 {
@@ -18,6 +20,8 @@ class MissionSeeder extends Seeder
      */
     public function run(): void
     {
+        $audioUrl = $this->publishMissionAsset('M01', 'BBC Learning English - Real Easy English Talking about mornings.mp3');
+
         Mission::updateOrCreate(
             ['code' => 'M01'],
             [
@@ -57,7 +61,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
-                                'asset_ref' => 'document/M01/BBC Learning English - Real Easy English Talking about mornings.mp3',
+                                'audio_url' => $audioUrl,
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
                                 'target_phrases' => ['get up', 'sleep in', 'oversleep', 'skip breakfast', 'morning person'],
                             ],
@@ -102,5 +106,22 @@ class MissionSeeder extends Seeder
                 ],
             ]
         );
+    }
+
+    /**
+     * Copies a mission's real asset from document/{code}/ (source of truth,
+     * kept out of the public disk's git history) into the public storage
+     * disk, and returns its public URL. Future missions reuse this by
+     * dropping their own document/M0X/ folder — see EOS-009 §7.
+     */
+    private function publishMissionAsset(string $missionCode, string $filename): string
+    {
+        $source = base_path("document/{$missionCode}/{$filename}");
+        $relative = 'missions/'.strtolower($missionCode).'/'.$filename;
+
+        File::ensureDirectoryExists(dirname(storage_path("app/public/{$relative}")));
+        File::copy($source, storage_path("app/public/{$relative}"));
+
+        return Storage::disk('public')->url($relative);
     }
 }

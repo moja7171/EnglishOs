@@ -21,11 +21,12 @@ new class extends Component
     </header>
 
     @forelse ($this->missions as $mission)
-        <article class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+        <a href="{{ route('missions.show', $mission) }}"
+           class="block rounded-lg border border-neutral-300 p-4 hover:border-neutral-400 dark:border-neutral-700 dark:hover:border-neutral-500">
             <p class="font-mono text-xs text-neutral-500">{{ $mission->code }} · {{ $mission->module }}</p>
             <h2 class="text-lg font-bold">{{ $mission->title }}</h2>
             <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{{ $mission->outcome }}</p>
-        </article>
+        </a>
     @empty
         <p class="text-sm text-neutral-500">
             No missions seeded yet. Run <code class="font-mono">php artisan db:seed</code>.

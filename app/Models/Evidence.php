@@ -13,6 +13,10 @@ class Evidence extends Model
 {
     use HasFactory;
 
+    // "evidence" is uncountable, so Eloquent's pluralized-table guess
+    // ("evidence") is wrong — the migration created "evidences".
+    protected $table = 'evidences';
+
     public const TYPE_AUDIO = 'audio';
 
     public const TYPE_TEXT = 'text';

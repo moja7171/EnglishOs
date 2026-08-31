@@ -78,4 +78,37 @@ class MissionRun extends Model
     {
         return $this->hasOne(Reflection::class);
     }
+
+    /**
+     * The next step key the learner must complete, in mission order.
+     * Null once every step has recorded Evidence (EOS-003 §7: no
+     * skipping ahead without Evidence for the current step).
+     */
+    public function currentStepKey(): ?string
+    {
+        $recorded = $this->evidence()->pluck('phase')->all();
+
+        foreach ($this->mission->stepKeys() as $key) {
+            if (! in_array($key, $recorded, true)) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds the learner's in-progress run for this mission, or starts one.
+     */
+    public static function findOrStart(User $learner, Mission $mission): self
+    {
+        return static::firstOrCreate(
+            [
+                'learner_id' => $learner->id,
+                'mission_id' => $mission->id,
+                'status' => self::STATUS_IN_PROGRESS,
+            ],
+            ['started_at' => now()]
+        );
+    }
 }
