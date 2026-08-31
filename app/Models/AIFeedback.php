@@ -12,6 +12,10 @@ class AIFeedback extends Model
 {
     use HasFactory;
 
+    // Consecutive capitals ("AIFeedback") snake-case to "a_i_feedback" —
+    // the migration created "ai_feedbacks". Same class of bug as Evidence.
+    protected $table = 'ai_feedbacks';
+
     /**
      * @return BelongsTo<Evidence, $this>
      */

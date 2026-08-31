@@ -39,6 +39,7 @@ new class extends Component
             'grammar_in_context' => 'missions.steps.grammar-in-context',
             'activation' => 'missions.steps.activation',
             'ai_conversation_1' => 'missions.steps.ai-conversation1',
+            'ai_feedback_1' => 'missions.steps.ai-feedback1',
         ];
     }
 
