@@ -12,12 +12,14 @@ use RuntimeException;
  */
 class GeminiClient
 {
-    public function __construct(
-        private readonly string $apiKey = '',
-        private readonly string $model = 'gemini-2.5-flash',
-    ) {
-        $this->apiKey = $apiKey !== '' ? $apiKey : (string) config('services.gemini.key');
-        $this->model = $model !== 'gemini-2.5-flash' ? $model : (string) config('services.gemini.model', 'gemini-2.5-flash');
+    private readonly string $apiKey;
+
+    private readonly string $model;
+
+    public function __construct(?string $apiKey = null, ?string $model = null)
+    {
+        $this->apiKey = $apiKey ?? (string) config('services.gemini.key');
+        $this->model = $model ?? (string) config('services.gemini.model', 'gemini-3.5-flash-lite');
     }
 
     /**

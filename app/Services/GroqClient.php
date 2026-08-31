@@ -11,14 +11,14 @@ use RuntimeException;
  */
 class GroqClient
 {
-    public function __construct(
-        private readonly string $apiKey = '',
-        private readonly string $whisperModel = 'whisper-large-v3-turbo',
-    ) {
-        $this->apiKey = $apiKey !== '' ? $apiKey : (string) config('services.groq.key');
-        $this->whisperModel = $whisperModel !== 'whisper-large-v3-turbo'
-            ? $whisperModel
-            : (string) config('services.groq.whisper_model', 'whisper-large-v3-turbo');
+    private readonly string $apiKey;
+
+    private readonly string $whisperModel;
+
+    public function __construct(?string $apiKey = null, ?string $whisperModel = null)
+    {
+        $this->apiKey = $apiKey ?? (string) config('services.groq.key');
+        $this->whisperModel = $whisperModel ?? (string) config('services.groq.whisper_model', 'whisper-large-v3-turbo');
     }
 
     /**

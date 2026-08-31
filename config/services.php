@@ -39,7 +39,7 @@ return [
     // mission result decisions) — EOS-009 §8.
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
-        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
     ],
 
     // Speech-to-text for recorded Evidence audio — EOS-009 §11.
