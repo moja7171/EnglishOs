@@ -12,6 +12,13 @@ new class extends Component
 
     public bool $readOnly = false;
 
+    /**
+     * True once Continue has passed every check and Evidence is saved —
+     * the step then shows a recap of the target expressions before the
+     * learner actually navigates on, instead of jumping away immediately.
+     */
+    public bool $completed = false;
+
     /** @var array<int, string> */
     public array $gistPoints = ['', '', ''];
 
@@ -195,16 +202,31 @@ new class extends Component
             ]),
         ]);
 
+        // Progress is already saved — this only decides what the learner sees
+        // next: the language recap, which they dismiss with proceed() below.
+        $this->completed = true;
+    }
+
+    public function proceed(): void
+    {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 };
 ?>
 
-@php $listening = $run->mission->stepContent('listening'); @endphp
+@php
+    $listening = $run->mission->stepContent('listening');
+    $targetPhrases = $listening['target_phrases'] ?? [];
+    $initialGistFilled = collect($gistPoints)->map(fn ($p) => trim($p) !== '')->values();
+@endphp
 
 <div
     class="space-y-6"
-    x-data="{ dismissed: {} }"
+    x-data="{
+        dismissed: {},
+        gistFilled: {{ $initialGistFilled->toJson() }},
+        get gistDone() { return this.gistFilled.filter(Boolean).length === 3 },
+    }"
 >
     <x-hook :text="$listening['hook'] ?? null" />
 
@@ -217,6 +239,28 @@ new class extends Component
         @endif
     </div>
 
+    @if ($completed)
+        <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-green-600 uppercase">✓ Listening complete</p>
+                <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Here's the language from today's episode — take a second look before moving on.</p>
+            </div>
+            <dl class="space-y-2">
+                @foreach ($targetPhrases as $item)
+                    <div>
+                        <dt class="text-sm font-bold">{{ $item['phrase'] }}</dt>
+                        <dd class="text-xs text-neutral-500">{{ $item['meaning'] }}</dd>
+                    </div>
+                @endforeach
+            </dl>
+            <button
+                wire:click="proceed"
+                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            >
+                Continue
+            </button>
+        </div>
+    @else
     <div wire:loading.class="pointer-events-none" wire:target="checkGist,checkExpression,save">
         <div>
             <p class="text-sm font-semibold">First listening — gist</p>
@@ -233,7 +277,7 @@ new class extends Component
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
                                 wire:target="checkGist,checkExpression,save"
-                                x-on:input="dismissed['{{ $key }}'] = true"
+                                x-on:input="dismissed['{{ $key }}'] = true; gistFilled[{{ $index }}] = $el.value.trim() !== ''"
                                 class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                             >
                             @unless ($readOnly)
@@ -287,9 +331,35 @@ new class extends Component
             @enderror
         </div>
 
-        <div class="mt-6">
+        <div
+            class="mt-6 transition-opacity duration-300"
+            @unless ($readOnly)
+                :class="gistDone ? '' : 'pointer-events-none opacity-40'"
+            @endunless
+        >
             <p class="text-sm font-semibold">Second listening — useful expressions</p>
             <p class="text-xs text-neutral-500">Write a full sentence using each expression you heard.</p>
+            @unless ($readOnly)
+                <p x-show="!gistDone" class="mt-1 text-xs text-neutral-400">🔒 Finish the first listening above to unlock this.</p>
+                @if (count($targetPhrases))
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                        @foreach ($targetPhrases as $item)
+                            <button
+                                type="button"
+                                title="{{ $item['meaning'] }}"
+                                x-on:click="
+                                    let idx = $wire.expressionsHeard.findIndex(v => !v || v.trim() === '');
+                                    if (idx === -1) idx = 0;
+                                    dismissed['expr_' + idx] = true;
+                                    $wire.set('expressionsHeard.' + idx, '{{ ucfirst($item['phrase']) }}');
+                                    $nextTick(() => $refs['expr_input_' + idx]?.focus());
+                                "
+                                class="cursor-pointer rounded-full border border-neutral-300 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                            >{{ $item['phrase'] }}</button>
+                        @endforeach
+                    </div>
+                @endif
+            @endunless
             <div class="mt-2 space-y-2">
                 @foreach ($expressionsHeard as $index => $expression)
                     @php $key = "expr_{$index}"; $itemFeedback = $feedback[$key] ?? null; @endphp
@@ -297,6 +367,7 @@ new class extends Component
                         <div class="flex items-center gap-2">
                             <input
                                 type="text"
+                                x-ref="expr_input_{{ $index }}"
                                 wire:model="expressionsHeard.{{ $index }}"
                                 placeholder="Sentence {{ $index + 1 }}…"
                                 @readonly($readOnly)
@@ -369,4 +440,5 @@ new class extends Component
             <span wire:loading wire:target="save">Checking your sentences…</span>
         </button>
     @endunless
+    @endif
 </div>

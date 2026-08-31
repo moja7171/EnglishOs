@@ -33,6 +33,10 @@ class ListeningStepTest extends TestCase
                             'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
                             'topic_summary' => 'Neil and Georgie talk about their morning routines: get up '
                                 .'early or sleep in, breakfast habits, oversleep, exercise, checking the weather.',
+                            'target_phrases' => [
+                                ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual'],
+                                ['phrase' => 'morning person', 'meaning' => 'someone with lots of energy in the morning'],
+                            ],
                         ],
                         ['key' => 'grammar_in_context'],
                     ],
@@ -69,6 +73,9 @@ class ListeningStepTest extends TestCase
             ->set('gistPoints.2', 'They mention breakfast habits.')
             ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
             ->call('save')
+            ->assertSet('completed', true) // shows the language recap first
+            ->assertOk()
+            ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
         $evidence = Evidence::where('phase', 'listening')->first();
@@ -80,6 +87,51 @@ class ListeningStepTest extends TestCase
         $this->assertArrayNotHasKey('expression_to_use', $content);
 
         $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
+    }
+
+    public function test_completing_the_step_shows_a_language_recap_before_proceeding(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->call('save')
+            ->assertSee('sleep in')
+            ->assertSee('to stay in bed and sleep later than usual')
+            ->assertSee('morning person')
+            // The edit form (with its own "Continue" wording) is replaced by
+            // the recap, not shown alongside it.
+            ->assertDontSee('Checking your sentences');
+
+        // Nothing has navigated away yet — evidence is saved, but the
+        // learner is still looking at the recap until they click through.
+        $this->assertDatabaseCount('evidences', 1);
+    }
+
+    public function test_the_second_listening_section_is_gated_behind_the_three_gist_points(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringContainsString('Finish the first listening above to unlock this.', $html);
+        $this->assertStringContainsString("gistDone ? '' : 'pointer-events-none opacity-40'", $html);
+    }
+
+    public function test_clicking_a_target_phrase_chip_is_wired_to_fill_the_first_empty_expression_input(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringContainsString("\$wire.expressionsHeard.findIndex", $html);
+        $this->assertStringContainsString("\$wire.set('expressionsHeard.' + idx, 'Sleep in')", $html);
     }
 
     public function test_continue_checks_every_unchecked_filled_sentence_and_blocks_on_a_major_issue(): void

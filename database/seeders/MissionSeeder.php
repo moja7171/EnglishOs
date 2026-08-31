@@ -67,7 +67,15 @@ class MissionSeeder extends Seeder
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
                                 'audio_url' => $audioUrl,
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
-                                'target_phrases' => ['get up', 'sleep in', 'oversleep', 'skip breakfast', 'morning person'],
+                                // The exact 5 expressions, with the meanings Neil & Georgie themselves
+                                // gave in the podcast's own end-of-episode recap (page 5 of the transcript).
+                                'target_phrases' => [
+                                    ['phrase' => 'get up', 'meaning' => 'to stand up and leave your bed'],
+                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual'],
+                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident'],
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do'],
+                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day'],
+                                ],
                                 // A faithful summary of the real transcript — used to ground the AI check in
                                 // what was actually said, so an off-topic answer can be caught as irrelevant.
                                 'topic_summary' => 'Neil and Georgie talk about their morning routines: whether '
