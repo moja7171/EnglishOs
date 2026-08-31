@@ -43,6 +43,7 @@ new class extends Component
             'writing' => 'missions.steps.writing',
             'ai_conversation_2' => 'missions.steps.ai-conversation2',
             'active_recall' => 'missions.steps.active-recall',
+            'error_log' => 'missions.steps.error-log',
         ];
     }
 
