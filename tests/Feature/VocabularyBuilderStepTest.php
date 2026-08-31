@@ -67,17 +67,9 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertDatabaseCount('evidences', 1); // only the mission_brief one from setup
     }
 
-    public function test_three_good_examples_pass_the_ai_check_and_advance_the_run(): void
+    public function test_three_examples_save_evidence_and_advance_the_run(): void
     {
         [, , $run] = $this->makeMissionAndRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                ['word' => 'routine', 'severity' => 'none', 'hint' => ''],
-                ['word' => 'commute', 'severity' => 'none', 'hint' => ''],
-                ['word' => 'day off', 'severity' => 'none', 'hint' => ''],
-            ]));
-        });
 
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
             ->set('examples.0', 'I have a morning routine.')
@@ -93,57 +85,69 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertSame('listening', $run->fresh()->currentStepKey());
     }
 
-    public function test_a_minor_issue_shows_a_hint_but_still_advances_the_run(): void
+    public function test_continue_never_calls_gemini_and_ignores_any_unchecked_input(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        // Even a copied definition sails through Continue — it was never checked.
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('examples.0', 'I have a morning routine.')
+            ->set('examples.1', 'travel to work')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save')
+            ->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_checking_one_input_does_not_touch_the_others_and_nothing_is_saved(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('examples.0', 'I have a morning routine.')
+            ->call('checkOne', 0)
+            ->assertSet('feedback.routine.severity', 'none')
+            ->assertSet('feedback.commute', null);
+
+        $this->assertDatabaseCount('evidences', 1); // checking never saves anything
+    }
+
+    public function test_checking_a_copied_definition_shows_a_guiding_hint_not_the_answer(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                ['word' => 'routine', 'severity' => 'minor', 'hint' => 'Try adding "my" before routine.'],
-                ['word' => 'commute', 'severity' => 'none', 'hint' => ''],
-                ['word' => 'day off', 'severity' => 'none', 'hint' => ''],
+                'severity' => 'major',
+                'hint' => 'This just repeats the definition — can you describe your own actual commute?',
             ]));
         });
 
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.0', 'I have morning routine.')
-            ->set('examples.1', 'I commute by bus.')
-            ->set('examples.2', 'Sunday is my day off.')
-            ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
-
-        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'vocabulary_builder']);
+            ->set('examples.1', 'to travel to work or school regularly')
+            ->call('checkOne', 1)
+            ->assertSee('can you describe your own actual commute?');
     }
 
-    public function test_a_major_issue_blocks_saving_and_shows_a_guiding_hint_not_the_answer(): void
+    public function test_checking_an_empty_input_does_nothing(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                ['word' => 'routine', 'severity' => 'none', 'hint' => ''],
-                [
-                    'word' => 'commute',
-                    'severity' => 'major',
-                    'hint' => 'This just repeats the definition — can you describe your own actual commute?',
-                ],
-                ['word' => 'day off', 'severity' => 'none', 'hint' => ''],
-            ]));
-        });
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
-        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->set('examples.0', 'I have a morning routine.')
-            ->set('examples.1', 'to travel to work or school regularly')
-            ->set('examples.2', 'Sunday is my day off.')
-            ->call('save');
-
-        $component->assertSee('can you describe your own actual commute?');
-
-        $this->assertDatabaseCount('evidences', 1); // only mission_brief from setup — nothing saved
-        $this->assertSame('vocabulary_builder', $run->fresh()->currentStepKey());
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->call('checkOne', 0)
+            ->assertSet('feedback', []);
     }
 
-    public function test_a_failed_ai_check_shows_an_error_without_losing_the_learners_input(): void
+    public function test_a_failed_check_shows_an_error_for_just_that_input(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
@@ -153,13 +157,9 @@ class VocabularyBuilderStepTest extends TestCase
 
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
             ->set('examples.0', 'I have a morning routine.')
-            ->set('examples.1', 'I commute by bus.')
-            ->set('examples.2', 'Sunday is my day off.')
-            ->call('save')
-            ->assertSet('error', fn ($error) => str_contains($error, 'service unavailable'))
+            ->call('checkOne', 0)
+            ->assertSet('checkErrors.routine', fn ($error) => str_contains($error, 'service unavailable'))
             ->assertSet('examples.0', 'I have a morning routine.'); // input preserved
-
-        $this->assertDatabaseCount('evidences', 1);
     }
 
     public function test_read_only_mode_maps_saved_examples_back_to_the_right_word(): void
