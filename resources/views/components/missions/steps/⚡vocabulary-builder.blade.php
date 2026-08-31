@@ -12,7 +12,14 @@ new class extends Component
 
     public bool $readOnly = false;
 
-    /** @var array<int, string> ordered phrases the learner picked from the story — capped at 8 */
+    /**
+     * True once the learner has moved into practice at least once — after
+     * this, picking a word can only ever add, never remove, so an already
+     * -written example is never silently destroyed.
+     */
+    public bool $practiceStarted = false;
+
+    /** @var array<int, string> ordered phrases the learner picked from the story — at least 8, no upper limit */
     public array $selectedWords = [];
 
     /** @var array<int, string> keyed by index, parallel to $selectedWords */
@@ -41,39 +48,52 @@ new class extends Component
     }
 
     /**
-     * Toggles one word from the story in or out of the learner's set —
-     * picking is capped at 8, but deselecting always works so they can
-     * swap a choice before continuing to practice.
+     * Toggles one word from the story in or out of the learner's set. There
+     * is no upper limit — only a minimum of 8 to unlock Continue. Once
+     * practice has started, deselecting is disabled (only adding is still
+     * allowed) so an already-written example can never be silently lost.
      */
     public function toggleWord(string $phrase): void
     {
-        if (($key = array_search($phrase, $this->selectedWords, true)) !== false) {
-            array_splice($this->selectedWords, $key, 1);
+        $key = array_search($phrase, $this->selectedWords, true);
 
-            return;
-        }
+        if ($key !== false) {
+            if (! $this->practiceStarted) {
+                array_splice($this->selectedWords, $key, 1);
+            }
 
-        if (count($this->selectedWords) >= 8) {
             return;
         }
 
         $this->selectedWords[] = $phrase;
     }
 
-    /**
-     * Splits the seeded story text on **word** markers into an ordered list
-     * of plain-text and selectable-phrase segments, so the template can
-     * render inline clickable words without knowing the marker syntax.
-     */
-    public function storySegments(): array
+    public function startPractice(): void
     {
-        $story = $this->run->mission->stepContent('vocabulary_builder')['story'] ?? '';
-        $parts = preg_split('/\*\*(.+?)\*\*/', $story, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $this->practiceStarted = true;
+    }
 
-        return collect($parts)
-            ->map(fn ($part, $i) => $i % 2 === 0 ? ['type' => 'text', 'value' => $part] : ['type' => 'word', 'value' => $part])
-            ->filter(fn ($segment) => $segment['value'] !== '')
-            ->values()
+    /**
+     * Splits the seeded story (one entry per real-book sub-topic) on
+     * **word** markers into ordered plain-text/selectable-phrase segments
+     * per paragraph, so the template can render inline clickable words
+     * without knowing the marker syntax.
+     */
+    public function storyParagraphs(): array
+    {
+        $paragraphs = $this->run->mission->stepContent('vocabulary_builder')['story'] ?? [];
+
+        return collect($paragraphs)
+            ->map(function (array $paragraph) {
+                $parts = preg_split('/\*\*(.+?)\*\*/', $paragraph['text'], -1, PREG_SPLIT_DELIM_CAPTURE);
+
+                $segments = collect($parts)
+                    ->map(fn ($part, $i) => $i % 2 === 0 ? ['type' => 'text', 'value' => $part] : ['type' => 'word', 'value' => $part])
+                    ->filter(fn ($segment) => $segment['value'] !== '')
+                    ->values();
+
+                return ['heading' => $paragraph['heading'], 'segments' => $segments];
+            })
             ->all();
     }
 
@@ -181,14 +201,14 @@ new class extends Component
 ?>
 
 @php
-    $storySegments = $this->storySegments();
+    $storyParagraphs = $this->storyParagraphs();
     $initialFilled = collect($selectedWords)->map(fn ($word, $i) => trim($examples[$i] ?? '') !== '')->values();
 @endphp
 
 <div
     class="space-y-6"
     x-data="{
-        phase: '{{ $readOnly ? 'practice' : 'story' }}',
+        phase: '{{ $readOnly || $practiceStarted ? 'practice' : 'story' }}',
         showStoryAgain: false,
         filled: {{ $initialFilled->toJson() }},
         dismissed: {},
@@ -198,45 +218,43 @@ new class extends Component
             if (n === 0) return 'Pick a word below and write your first example.';
             if (n === 1) return 'Nice start — keep going!';
             if (n === 2) return 'One more and you\'re ready to continue!';
-            if (n < 8) return 'Ready to continue — want one more for bonus practice?';
-            return 'All done — great work!';
+            return 'Ready to continue — write more if you like!';
         },
     }"
 >
     <x-hook :text="$run->mission->stepContent('vocabulary_builder')['hook'] ?? null" />
 
+    @php $selectedCount = count($selectedWords); @endphp
+
     @unless ($readOnly)
         <div x-show="phase === 'story'" x-cloak class="space-y-4">
             <div>
-                <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Read the story, then pick 8 words to practice</p>
-                <p class="mt-1 text-sm text-neutral-500">Tap any highlighted word to select it — {{ count($selectedWords) }} of 8 chosen.</p>
+                <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Read the story, then pick at least 8 words to practice</p>
+                <p class="mt-1 text-sm text-neutral-500">Tap any highlighted word below to select it.</p>
+                <div class="mt-2">
+                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                        <div
+                            class="h-full rounded-full transition-all duration-300 {{ $selectedCount >= 8 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white' }}"
+                            style="width: {{ min($selectedCount, 8) / 8 * 100 }}%"
+                        ></div>
+                    </div>
+                    <p class="mt-1.5 text-xs font-semibold {{ $selectedCount >= 8 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400' }}">
+                        {{ min($selectedCount, 8) }} of 8 selected{{ $selectedCount > 8 ? ' (+'.($selectedCount - 8).' bonus)' : '' }}
+                    </p>
+                </div>
             </div>
 
-            <p class="rounded border border-neutral-300 p-3 text-sm leading-relaxed dark:border-neutral-700">
-                @foreach ($storySegments as $segment)
-                    @if ($segment['type'] === 'text')
-                        {{ $segment['value'] }}
-                    @else
-                        @php $isSelected = in_array($segment['value'], $selectedWords, true); @endphp
-                        <button
-                            type="button"
-                            wire:click="toggleWord('{{ addslashes($segment['value']) }}')"
-                            wire:loading.attr="disabled"
-                            wire:target="toggleWord"
-                            title="{{ $this->wordMeaning($segment['value']) }}"
-                            @disabled(! $isSelected && count($selectedWords) >= 8)
-                            class="cursor-pointer rounded px-1 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 {{ $isSelected ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900' : 'bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700' }}"
-                        >{{ $segment['value'] }}</button>
-                    @endif
-                @endforeach
-            </p>
+            <div class="rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
+                @include('missions.steps.partials.vocabulary-story', ['storyParagraphs' => $storyParagraphs, 'selectedWords' => $selectedWords, 'component' => $this, 'readOnly' => $readOnly])
+            </div>
 
-            @if (count($selectedWords) === 8)
+            @if ($selectedCount >= 8)
                 <button
                     type="button"
+                    wire:click="startPractice"
                     x-on:click="phase = 'practice'"
                     class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-                >Continue with these 8 words &#8250;</button>
+                >Continue with these {{ $selectedCount }} words &#8250;</button>
             @endif
         </div>
     @endunless
@@ -246,20 +264,17 @@ new class extends Component
             <button
                 type="button"
                 x-on:click="showStoryAgain = !showStoryAgain"
-                class="cursor-pointer text-xs text-neutral-500 underline"
+                class="cursor-pointer text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-2"
             >
                 <span x-show="!showStoryAgain">&#9656; Show the story again</span>
                 <span x-show="showStoryAgain" x-cloak>&#9662; Hide the story</span>
             </button>
-            <p x-show="showStoryAgain" x-cloak class="mt-2 rounded border border-neutral-200 p-3 text-sm leading-relaxed text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
-                @foreach ($storySegments as $segment)
-                    @if ($segment['type'] === 'text')
-                        {{ $segment['value'] }}
-                    @else
-                        <span @class(['font-semibold text-neutral-900 dark:text-white' => in_array($segment['value'], $selectedWords, true)])>{{ $segment['value'] }}</span>
-                    @endif
-                @endforeach
-            </p>
+            <div x-show="showStoryAgain" x-cloak class="mt-2 rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
+                @unless ($readOnly)
+                    <p class="text-xs text-neutral-500">Tap any word not yet highlighted to add it to your practice list below.</p>
+                @endunless
+                @include('missions.steps.partials.vocabulary-story', ['storyParagraphs' => $storyParagraphs, 'selectedWords' => $selectedWords, 'component' => $this, 'readOnly' => $readOnly])
+            </div>
         </div>
 
         <div>

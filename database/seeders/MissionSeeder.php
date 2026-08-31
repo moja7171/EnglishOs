@@ -50,30 +50,88 @@ class MissionSeeder extends Seeder
                                 'key' => 'vocabulary_builder',
                                 'label' => 'Vocabulary Builder',
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
-                                // Word selection follows English Vocabulary in Use (Unit 16, "Daily
-                                // routines") — same topic coverage as the real book. The story and every
-                                // meaning below are written fresh for this app, not copied from it (see
-                                // EOS-009 §14: content stays original, licensing/piracy risk).
-                                'story' => 'On weekdays, I **wake up** at half past six, but I never **get up** '
-                                    .'straight away — I check my phone first. After I **have a shower**, I '
-                                    .'**feed** the cat before rushing out the door. I usually **have a light '
-                                    .'lunch** at my desk, just a sandwich. In the evenings, I sometimes **go '
-                                    .'out** with friends and **eat out** somewhere new, but most nights I\'d '
-                                    .'rather **stay in** and **do the housework** instead — someone has to do '
-                                    .'it! If I **have a late night**, I know I\'ll be tired the next morning. '
-                                    .'Finally, I **go to bed** around eleven, ready to do it all again tomorrow.',
+                                // Word selection follows every sub-topic of English Vocabulary in Use
+                                // Unit 16, "Daily routines" (Sleep / Food / Bathroom routines / Housework
+                                // / Spare time — the book's own 5 sections). The story and every meaning
+                                // below are written fresh for this app, not copied from it (see EOS-009
+                                // §14: content stays original, licensing/piracy risk).
+                                'story' => [
+                                    [
+                                        'heading' => 'Sleep',
+                                        'text' => 'During the week, I **wake up** at half past six and '
+                                            .'**get up** straight away. I usually **go to bed** around '
+                                            .'eleven and **go to sleep** quickly, but sometimes I '
+                                            .'**have a late night** if I\'m out with friends. At weekends '
+                                            .'I like to **have a sleep** in the afternoon instead.',
+                                    ],
+                                    [
+                                        'heading' => 'Food',
+                                        'text' => 'For breakfast I usually have **cereal**, then at work I '
+                                            .'**have a light lunch** — just a sandwich and a **snack** in '
+                                            .'the afternoon. If I\'m tired, I sometimes **don\'t bother** '
+                                            .'cooking and order a **takeaway** instead. Before I leave, I '
+                                            .'always **feed** the cat.',
+                                    ],
+                                    [
+                                        'heading' => 'Bathroom routines',
+                                        'text' => 'In the morning I **have a shower**, but on busy days I '
+                                            .'just **have a wash** instead. I always **clean my teeth** '
+                                            .'before breakfast, and in the evening my sister **puts on** '
+                                            .'her make-up before going out. On lazy Sundays, I sometimes '
+                                            .'**have a bath** instead of a shower.',
+                                    ],
+                                    [
+                                        'heading' => 'Housework',
+                                        'text' => '**Fortunately**, we have a **cleaner** who helps with '
+                                            .'most of the **housework**. I still do some of the '
+                                            .'**ironing** myself, and every Saturday we **do the '
+                                            .'shopping** together. Nobody enjoys **doing the washing**, '
+                                            .'but somebody has to do it!',
+                                    ],
+                                    [
+                                        'heading' => 'Spare time',
+                                        'text' => 'Most weekdays I **stay in** and relax, but at the '
+                                            .'weekend I like to **go out** with friends. We often '
+                                            .'**eat out** at a new restaurant, and sometimes people '
+                                            .'**come round** to my place instead. My best friend calls me '
+                                            .'**once a week** just to **chat**.',
+                                    ],
+                                ],
                                 'story_words' => [
+                                    // Sleep
                                     ['phrase' => 'wake up', 'meaning' => 'to stop sleeping and become conscious'],
                                     ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up'],
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water'],
-                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal'],
+                                    ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep'],
+                                    ['phrase' => 'go to sleep', 'meaning' => 'to start sleeping'],
+                                    ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual'],
+                                    ['phrase' => 'have a sleep', 'meaning' => 'to rest for a short period during the day'],
+                                    // Food
+                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk'],
                                     ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals'],
+                                    ['phrase' => "don't bother", 'meaning' => "to not do something because it's too much effort"],
+                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home'],
+                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal'],
+                                    // Bathroom routines
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water'],
+                                    ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body'],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth'],
+                                    ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face'],
+                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water'],
+                                    // Housework
+                                    ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck'],
+                                    ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home'],
+                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy'],
+                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth'],
+                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need'],
+                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes'],
+                                    // Spare time
+                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out'],
                                     ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun'],
                                     ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home'],
-                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out'],
-                                    ['phrase' => 'do the housework', 'meaning' => 'to clean and tidy your home'],
-                                    ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual'],
-                                    ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep'],
+                                    ['phrase' => 'come round', 'meaning' => 'to visit someone at their home'],
+                                    ['phrase' => 'once a week', 'meaning' => 'happening one time every week'],
+                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation'],
                                 ],
                             ],
                             [

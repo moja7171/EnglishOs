@@ -36,10 +36,19 @@ class VocabularyBuilderStepTest extends TestCase
                         ['key' => 'mission_brief'],
                         [
                             'key' => 'vocabulary_builder',
-                            'story' => 'I usually **wake up** early and follow my **routine**. I **get up**, '
-                                .'then **commute** to work. In the evening I like to **relax**, sometimes I '
-                                .'**cook dinner**, and later I **go to bed**. On my **day off** I **sleep in** '
-                                .'and just **wind down**.',
+                            'story' => [
+                                [
+                                    'heading' => 'Morning',
+                                    'text' => 'I usually **wake up** early and follow my **routine**. I '
+                                        .'**get up**, then **commute** to work. In the evening I like to '
+                                        .'**relax**.',
+                                ],
+                                [
+                                    'heading' => 'Evening',
+                                    'text' => 'Sometimes I **cook dinner**, and later I **go to bed**. On '
+                                        .'my **day off** I **sleep in** and just **wind down**.',
+                                ],
+                            ],
                             'story_words' => [
                                 ['phrase' => 'wake up', 'meaning' => 'to stop sleeping'],
                                 ['phrase' => 'routine', 'meaning' => 'the usual things you do'],
@@ -91,7 +100,7 @@ class VocabularyBuilderStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
 
-        $this->assertStringContainsString('0 of 8 chosen', $html);
+        $this->assertStringContainsString('0 of 8 selected', $html);
         foreach (self::STORY_WORDS as $word) {
             $this->assertStringContainsString("toggleWord('{$word}')", $html);
         }
@@ -109,16 +118,17 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Continue with these 8 words');
     }
 
-    public function test_selecting_a_9th_word_does_nothing_once_8_are_chosen(): void
+    public function test_selecting_a_9th_word_adds_it_there_is_no_upper_limit(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
         $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
         $this->selectEight($component);
 
-        $component->call('toggleWord', 'sleep in'); // the 9th word — not part of the first 8
-
-        $component->assertSet('selectedWords', $this->firstEight());
+        $component
+            ->call('toggleWord', 'sleep in') // the 9th word — not part of the first 8
+            ->assertSet('selectedWords', [...$this->firstEight(), 'sleep in'])
+            ->assertSee('Continue with these 9 words');
     }
 
     public function test_deselecting_a_word_frees_up_a_slot_for_another(): void
@@ -133,6 +143,32 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSet('selectedWords', array_slice(self::STORY_WORDS, 1, 7))
             ->call('toggleWord', 'sleep in') // pick the spare 9th word instead
             ->assertSet('selectedWords', [...array_slice(self::STORY_WORDS, 1, 7), 'sleep in']);
+    }
+
+    public function test_deselecting_is_disabled_once_practice_has_started(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->call('startPractice')
+            ->call('toggleWord', 'wake up') // attempt to deselect — must be a no-op now
+            ->assertSet('selectedWords', $this->firstEight());
+    }
+
+    public function test_new_words_can_still_be_added_after_practice_has_started(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->call('startPractice')
+            ->call('toggleWord', 'sleep in') // adding is still allowed — only removal is locked
+            ->assertSet('selectedWords', [...$this->firstEight(), 'sleep in']);
     }
 
     public function test_read_only_mode_skips_selection_but_shows_the_story_as_reference(): void
@@ -157,6 +193,9 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertStringContainsString("phase: 'practice'", $html);
         $this->assertStringContainsString('follow my', $html); // story text present as reference
         $this->assertStringNotContainsString('Continue with these 8 words', $html);
+        // Words render as plain highlighted text in review — clicking must
+        // never be able to change what was actually submitted.
+        $this->assertStringNotContainsString('wire:click="toggleWord', $html);
     }
 
     public function test_at_least_three_examples_are_required(): void
