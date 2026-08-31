@@ -14,8 +14,8 @@ Route::middleware('auth')->group(function () {
         return view('home');
     });
 
-    Route::get('/missions/{mission:code}', function (Mission $mission) {
-        return view('mission-runner', compact('mission'));
+    Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
+        return view('mission-runner', compact('mission', 'step'));
     })->name('missions.show');
 
     Route::post('/logout', function () {

@@ -98,7 +98,10 @@ class MissionRun extends Model
     }
 
     /**
-     * Finds the learner's in-progress run for this mission, or starts one.
+     * Finds the learner's run for this mission — whatever its status — or
+     * starts a new one. Keying only on learner+mission (not status) matters:
+     * once a run is complete, revisiting the mission must show that same
+     * completed run, not silently spawn a fresh empty one.
      */
     public static function findOrStart(User $learner, Mission $mission): self
     {
@@ -106,9 +109,8 @@ class MissionRun extends Model
             [
                 'learner_id' => $learner->id,
                 'mission_id' => $mission->id,
-                'status' => self::STATUS_IN_PROGRESS,
             ],
-            ['started_at' => now()]
+            ['status' => self::STATUS_IN_PROGRESS, 'started_at' => now()]
         );
     }
 }

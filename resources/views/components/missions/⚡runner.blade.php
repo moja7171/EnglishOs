@@ -10,15 +10,79 @@ new class extends Component
 
     public MissionRun $run;
 
-    public function mount(Mission $mission): void
+    public ?string $viewStep = null;
+
+    public function mount(Mission $mission, ?string $step = null): void
     {
         $this->mission = $mission;
         $this->run = MissionRun::findOrStart(auth()->user(), $mission);
+        $this->viewStep = $step;
     }
 
     public function getCurrentStepKeyProperty(): ?string
     {
         return $this->run->currentStepKey();
+    }
+
+    public function getStepKeysProperty(): array
+    {
+        return $this->mission->stepKeys();
+    }
+
+    /**
+     * Steps the learner has already reached — done steps plus the current
+     * one. Evidence Before Progress (EOS-003 §7) still applies: you can
+     * look back at any of these, but never jump ahead of the current step.
+     */
+    public function getReachableStepKeysProperty(): array
+    {
+        if ($this->currentStepKey === null) {
+            return $this->stepKeys;
+        }
+
+        $currentIndex = array_search($this->currentStepKey, $this->stepKeys, true);
+
+        return array_slice($this->stepKeys, 0, $currentIndex + 1);
+    }
+
+    /**
+     * The step actually being displayed: the requested ?step=, if it's
+     * somewhere the learner has already reached, otherwise the current step.
+     */
+    public function getActiveStepKeyProperty(): ?string
+    {
+        if ($this->viewStep && in_array($this->viewStep, $this->reachableStepKeys, true)) {
+            return $this->viewStep;
+        }
+
+        // Null here means the mission is fully complete and no specific
+        // step was requested — the view falls back to the completion card.
+        return $this->currentStepKey;
+    }
+
+    public function getIsReviewingProperty(): bool
+    {
+        return $this->activeStepKey !== $this->currentStepKey;
+    }
+
+    public function getPreviousStepKeyProperty(): ?string
+    {
+        $index = array_search($this->activeStepKey, $this->stepKeys, true);
+
+        return $index > 0 ? $this->stepKeys[$index - 1] : null;
+    }
+
+    public function getNextStepKeyProperty(): ?string
+    {
+        $index = array_search($this->activeStepKey, $this->stepKeys, true);
+        $next = $this->stepKeys[$index + 1] ?? null;
+
+        return $next && in_array($next, $this->reachableStepKeys, true) ? $next : null;
+    }
+
+    public function evidenceFor(string $key)
+    {
+        return $this->run->evidence()->where('phase', $key)->get();
     }
 
     /**
@@ -45,7 +109,7 @@ new class extends Component
 
     public function getStepComponentProperty(): ?string
     {
-        return $this->stepComponents()[$this->currentStepKey] ?? null;
+        return $this->stepComponents()[$this->activeStepKey] ?? null;
     }
 };
 ?>
@@ -57,25 +121,90 @@ new class extends Component
         <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{{ $mission->outcome }}</p>
     </header>
 
-    @if ($this->currentStepKey)
+    {{-- Wizard stepper --}}
+    <nav class="flex flex-wrap gap-1.5">
+        @foreach ($this->stepKeys as $key)
+            @php
+                $done = $key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true);
+                $active = $key === $this->activeStepKey;
+                $reachable = in_array($key, $this->reachableStepKeys, true);
+            @endphp
+            @if ($reachable)
+                <a
+                    href="{{ route('missions.show', [$mission, $key]) }}"
+                    wire:navigate
+                    title="{{ $mission->stepLabel($key) }}"
+                    class="flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold
+                        {{ $active ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900' : '' }}
+                        {{ ! $active && $done ? 'border-green-600 text-green-600' : '' }}
+                        {{ ! $active && ! $done ? 'border-neutral-300 text-neutral-500 dark:border-neutral-700' : '' }}"
+                >{{ $done && ! $active ? '✓' : $loop->iteration }}</a>
+            @else
+                <span
+                    title="Not reached yet"
+                    class="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 text-xs text-neutral-300 dark:border-neutral-800 dark:text-neutral-700"
+                >{{ $loop->iteration }}</span>
+            @endif
+        @endforeach
+    </nav>
+
+    @if ($this->activeStepKey)
         @php
-            $stepKeys = $mission->stepKeys();
-            $position = array_search($this->currentStepKey, $stepKeys, true) + 1;
-            $phase = $mission->phaseFor($this->currentStepKey);
+            $position = array_search($this->activeStepKey, $this->stepKeys, true) + 1;
+            $phase = $mission->phaseFor($this->activeStepKey);
         @endphp
         <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
-            <p class="font-mono text-xs text-neutral-500">
-                {{ $phase['label'] ?? ucfirst($phase['phase'] ?? '') }} ·
-                Step {{ $position }} of {{ count($stepKeys) }}
-            </p>
-            <h2 class="text-lg font-bold">{{ $mission->stepLabel($this->currentStepKey) }}</h2>
+            <div class="flex items-center justify-between">
+                <p class="font-mono text-xs text-neutral-500">
+                    {{ $phase['label'] ?? ucfirst($phase['phase'] ?? '') }} ·
+                    Step {{ $position }} of {{ count($this->stepKeys) }}
+                </p>
+                @if ($this->isReviewing)
+                    <span class="rounded bg-neutral-200 px-2 py-0.5 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+                        Reviewing a completed step
+                    </span>
+                @endif
+            </div>
+            <h2 class="text-lg font-bold">{{ $mission->stepLabel($this->activeStepKey) }}</h2>
 
-            @if ($this->stepComponent)
+            @if ($this->isReviewing)
+                <div class="mt-4 space-y-3">
+                    @foreach ($this->evidenceFor($this->activeStepKey) as $evidence)
+                        @php $decoded = json_decode($evidence->content_ref, true); @endphp
+                        <div class="rounded border border-neutral-200 p-3 text-sm dark:border-neutral-800">
+                            <p class="mb-1 font-mono text-[10px] uppercase text-neutral-400">{{ $evidence->type }}</p>
+                            @if ($evidence->type === 'audio')
+                                <audio controls preload="none" class="w-full">
+                                    <source src="{{ $evidence->content_ref }}">
+                                </audio>
+                            @elseif (is_array($decoded))
+                                <pre class="overflow-x-auto whitespace-pre-wrap text-xs">{{ json_encode($decoded, JSON_PRETTY_PRINT) }}</pre>
+                            @else
+                                <p class="whitespace-pre-wrap">{{ $evidence->content_ref }}</p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @elseif ($this->stepComponent)
                 <div class="mt-4">
-                    @livewire($this->stepComponent, ['run' => $run], key($run->id.'-'.$this->currentStepKey))
+                    @livewire($this->stepComponent, ['run' => $run], key($run->id.'-'.$this->activeStepKey))
                 </div>
             @else
                 <p class="mt-2 text-sm text-neutral-500">Step screen not built yet.</p>
+            @endif
+        </div>
+
+        <div class="flex items-center justify-between text-sm">
+            @if ($this->previousStepKey)
+                <a href="{{ route('missions.show', [$mission, $this->previousStepKey]) }}" wire:navigate class="underline">‹ Previous</a>
+            @else
+                <span></span>
+            @endif
+
+            @if ($this->nextStepKey)
+                <a href="{{ route('missions.show', [$mission, $this->nextStepKey]) }}" wire:navigate class="underline">Next ›</a>
+            @elseif ($this->isReviewing)
+                <a href="{{ route('missions.show', $mission) }}" wire:navigate class="underline">Back to current step ›</a>
             @endif
         </div>
     @else
