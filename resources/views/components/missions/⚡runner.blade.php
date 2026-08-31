@@ -44,6 +44,7 @@ new class extends Component
             'ai_conversation_2' => 'missions.steps.ai-conversation2',
             'active_recall' => 'missions.steps.active-recall',
             'error_log' => 'missions.steps.error-log',
+            'mission_result' => 'missions.steps.mission-result',
         ];
     }
 
@@ -83,9 +84,12 @@ new class extends Component
             @endif
         </div>
     @else
-        <article class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
-            <h2 class="text-lg font-bold">All steps have evidence</h2>
-            <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Mission Result screen not built yet.</p>
+        <article class="rounded-lg border-2 border-neutral-900 p-4 dark:border-white">
+            <p class="text-xs font-semibold uppercase tracking-wide
+                {{ $run->status === 'complete' ? 'text-green-600' : ($run->status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
+                Mission {{ str($run->status)->replace('_', ' ')->title() }}
+            </p>
+            <h2 class="mt-1 text-lg font-bold">{{ $mission->title }} — done</h2>
         </article>
     @endif
 </div>
