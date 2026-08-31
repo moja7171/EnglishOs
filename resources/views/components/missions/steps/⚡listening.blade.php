@@ -2,7 +2,7 @@
 
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\GeminiClient;
+use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Livewire\Component;
 
@@ -90,52 +90,32 @@ new class extends Component
     }
 
     /**
-     * Shared Gemini check for every free-text field on this step — same
-     * rules as the Vocabulary Builder's check (spelling, capitalization,
-     * punctuation, word form; guiding hints only, except a mechanical fix
-     * which is stated directly), generalized with a per-field context
-     * instead of a single target word. Verdict is tagged with the exact
-     * text it applies to, so a later edit doesn't leave a stale verdict
-     * attached to different text.
+     * Asks the shared SentenceChecker to judge one field, generalized with
+     * a per-field context instead of a single target word, plus a
+     * topic-relevance judgment grounded in the real transcript summary.
+     * Verdict is tagged with the exact text it applies to, so a later edit
+     * doesn't leave a stale verdict attached to different text. See
+     * EOS-009 §8 "الگوی چک جمله" for the shared rules.
      */
     private function runCheck(string $key, string $context, string $text): void
     {
         unset($this->checkErrors[$key]);
 
         try {
-            $raw = app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
-                systemPrompt: 'You are a supportive English writing assistant helping a B1 learner practice '
-                    .'listening comprehension and vocabulary. Judge whether what the learner wrote is a genuine, '
-                    .'natural, complete English sentence about the SAME GENERAL TOPIC as the listening (not just a '
-                    .'bare word or fragment, and not about a completely different topic). This is a coarse topic '
-                    .'check only — do NOT fact-check specific details against the topic summary (who said what, '
-                    .'exact opinions, etc.); the summary is background, not a source to grade accuracy against. A '
-                    .'short, minimal sentence is completely fine — do not ask for more detail. Also check: the '
-                    .'spelling of every word; that the sentence starts with a capital letter and ends with proper '
-                    .'punctuation (. ? or !); and that any word is used in the right grammatical form (e.g. not a '
-                    .'noun used as a verb). Reply with ONLY valid JSON, no markdown fences, shaped exactly like: '
-                    .'{"severity": "major" or "minor" or "none", "hint": "..."}. Use "major" only for real '
-                    .'problems: it is just a bare word or fragment (not a real sentence), it is about a completely '
-                    .'different topic than the listening, or it is not real English. Use "minor" for small slips: '
-                    .'spelling mistakes, a missing capital letter or end punctuation, a wrong word form, or '
-                    .'article/preposition/tense mistakes — things that do not block understanding. Use "none" for '
-                    .'anything that is on-topic and correctly formed, even if a small detail is debatable. Never '
-                    .'claim the learner\'s facts are wrong — you were not given the full listening, only a short '
-                    .'summary. For a grammar, meaning, or wording problem, the hint must be a short guiding '
-                    .'question or nudge that helps the learner fix it themselves — never write the corrected '
-                    .'sentence for them. EXCEPTION: if the issue is a spelling mistake, a missing/wrong capital '
-                    .'letter, or missing end punctuation, say directly what the fix is — that is a fact, not the '
-                    .'answer to the exercise. Phrase a spelling fix explicitly, e.g. \'"wrok" should be spelled '
-                    .'"work".\' Keep the hint to ONE short, simple sentence, no more than 12 words, plain everyday '
-                    .'words — no jargon.'
+            $data = app(SentenceChecker::class)->check(
+                judgment: 'Judge whether what the learner wrote is a genuine, natural, complete English '
+                    .'sentence about the SAME GENERAL TOPIC as the listening (not just a bare word or fragment, '
+                    .'and not about a completely different topic). This is a coarse topic check only — do NOT '
+                    .'fact-check specific details against the topic summary (who said what, exact opinions, '
+                    .'etc.); the summary is background, not a source to grade accuracy against.',
+                majorCriteria: 'it is just a bare word or fragment (not a real sentence), it is about a '
+                    .'completely different topic than the listening',
+                context: $context,
+                text: $text,
+                extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small detail '
+                    .'is debatable — never claim the learner\'s facts are wrong, since you were only given a '
+                    .'short summary, not the full listening.',
             );
-
-            $data = json_decode(trim($raw), true);
-
-            if (! is_array($data) || ! isset($data['severity'])) {
-                throw new RuntimeException('Unexpected AI response format.');
-            }
 
             $this->feedback[$key] = $data + ['checkedText' => $text];
         } catch (ConnectionException) {

@@ -2,7 +2,7 @@
 
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\GeminiClient;
+use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Livewire\Component;
 
@@ -53,42 +53,24 @@ new class extends Component
     }
 
     /**
-     * Asks Gemini to judge one word/sentence pair, storing the verdict
-     * (tagged with the exact text it applies to, so a later edit doesn't
-     * leave a stale "major"/"none" verdict attached to different text).
+     * Asks the shared SentenceChecker to judge one word/sentence pair,
+     * storing the verdict (tagged with the exact text it applies to, so a
+     * later edit doesn't leave a stale "major"/"none" verdict attached to
+     * different text). See EOS-009 §8 "الگوی چک جمله" for the shared rules.
      */
     private function runCheck(string $word, string $example): void
     {
         unset($this->checkErrors[$word]);
 
         try {
-            $raw = app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => "Word: \"{$word}\" — Sentence: \"{$example}\""]],
-                systemPrompt: 'You are a supportive English writing assistant helping a B1 learner practice new '
-                    .'vocabulary. Judge whether the learner used the word correctly, naturally, and as a genuine '
-                    .'personal sentence (not just repeating the dictionary definition). A short, minimal sentence is '
-                    .'completely fine — do not ask for more detail. Also check: the spelling of every word (the '
-                    .'target word included); that the sentence starts with a capital letter and ends with proper '
-                    .'punctuation (. ? or !); and that the target word is used in the right grammatical form (e.g. '
-                    .'not a noun used as a verb). Reply with ONLY valid JSON, no markdown fences, shaped exactly '
-                    .'like: {"severity": "major" or "minor" or "none", "hint": "..."}. Use "major" only for real '
-                    .'problems: the word is missing or used with the wrong meaning, the sentence just repeats the '
-                    .'definition, or it is not real English. Use "minor" for small slips: spelling mistakes, a '
-                    .'missing capital letter or end punctuation, a wrong word form, or article/preposition/tense '
-                    .'mistakes — things that do not block understanding. Use "none" when it is good. For a grammar, '
-                    .'meaning, or wording problem, the hint must be a short guiding question or nudge that helps the '
-                    .'learner fix it themselves — never write the corrected sentence for them. EXCEPTION: if the '
-                    .'issue is a spelling mistake, a missing/wrong capital letter, or missing end punctuation, say '
-                    .'directly what the fix is — that is a fact, not the answer to the exercise. Phrase a spelling '
-                    .'fix explicitly, e.g. \'"wrok" should be spelled "work".\' Keep the hint to ONE short, simple '
-                    .'sentence, no more than 12 words, plain everyday words — no jargon.'
+            $data = app(SentenceChecker::class)->check(
+                judgment: 'Judge whether the learner used the target word correctly, naturally, and as a '
+                    .'genuine personal sentence (not just repeating the dictionary definition).',
+                majorCriteria: 'the word is missing or used with the wrong meaning, the sentence just repeats '
+                    .'the definition',
+                context: "a personal sentence using the word \"{$word}\"",
+                text: $example,
             );
-
-            $data = json_decode(trim($raw), true);
-
-            if (! is_array($data) || ! isset($data['severity'])) {
-                throw new RuntimeException('Unexpected AI response format.');
-            }
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
         } catch (ConnectionException) {
