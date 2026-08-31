@@ -34,6 +34,7 @@ new class extends Component
     {
         return [
             'mission_brief' => 'missions.steps.mission-brief',
+            'vocabulary_builder' => 'missions.steps.vocabulary-builder',
         ];
     }
 
