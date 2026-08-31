@@ -140,7 +140,16 @@ class MissionSeeder extends Seeder
                                     'Talks about the weekend',
                                 ],
                             ],
-                            'active_recall',
+                            [
+                                'key' => 'active_recall',
+                                'label' => 'Active Recall',
+                                'instruction' => 'Without looking at the previous pages.',
+                                'sections' => [
+                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
+                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
+                                    ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
+                                ],
+                            ],
                             'error_log',
                             'mission_result',
                         ],

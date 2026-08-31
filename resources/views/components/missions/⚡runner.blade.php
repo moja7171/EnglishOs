@@ -42,6 +42,7 @@ new class extends Component
             'ai_feedback_1' => 'missions.steps.ai-feedback1',
             'writing' => 'missions.steps.writing',
             'ai_conversation_2' => 'missions.steps.ai-conversation2',
+            'active_recall' => 'missions.steps.active-recall',
         ];
     }
 
