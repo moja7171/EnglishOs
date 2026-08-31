@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    // AI Instructor LLM (conversation, feedback, error extraction,
+    // mission result decisions) — EOS-009 §8.
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+    ],
+
+    // Speech-to-text for recorded Evidence audio — EOS-009 §11.
+    'groq' => [
+        'key' => env('GROQ_API_KEY'),
+        'whisper_model' => env('GROQ_WHISPER_MODEL', 'whisper-large-v3-turbo'),
+    ],
+
 ];
