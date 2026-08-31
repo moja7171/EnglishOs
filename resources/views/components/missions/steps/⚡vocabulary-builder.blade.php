@@ -106,16 +106,26 @@ new class extends Component
 };
 ?>
 
-<div class="space-y-6">
+@php
+    $vocabulary = $run->mission->stepContent('vocabulary_builder')['vocabulary'] ?? [];
+    $initialFilled = collect($vocabulary)->map(fn ($item, $i) => trim($examples[$i] ?? '') !== '')->values();
+@endphp
+
+<div class="space-y-6" x-data="{ filled: {{ $initialFilled->toJson() }} }">
     <x-hook :text="$run->mission->stepContent('vocabulary_builder')['hook'] ?? null" />
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Choose expressions you'll really use</p>
         <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check any one with the AI assistant if you want a second opinion.</p>
+        @unless ($readOnly)
+            <p class="mt-1 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                <span x-text="filled.filter(Boolean).length"></span> of {{ count($vocabulary) }} written · at least 3 required
+            </p>
+        @endunless
     </div>
 
     <div class="space-y-4">
-        @foreach ($run->mission->stepContent('vocabulary_builder')['vocabulary'] ?? [] as $index => $item)
+        @foreach ($vocabulary as $index => $item)
             @php $itemFeedback = $feedback[$item['word']] ?? null; @endphp
             <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
                 <p class="text-sm font-bold">{{ $item['word'] }}</p>
@@ -125,10 +135,12 @@ new class extends Component
                     <input
                         type="text"
                         wire:model="examples.{{ $index }}"
+                        x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''"
                         placeholder="My example…"
                         @readonly($readOnly)
                         class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
+                    <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
                     @unless ($readOnly)
                         <button
                             type="button"

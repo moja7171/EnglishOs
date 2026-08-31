@@ -184,4 +184,26 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSet('examples.3', '') // wind down — not filled
             ->assertDontSee('Continue');
     }
+
+    public function test_the_progress_counter_shows_in_edit_mode_but_not_in_review(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->assertSee('of 4 written');
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                ['word' => 'routine', 'example' => 'I have a morning routine.'],
+                ['word' => 'commute', 'example' => 'I commute by bus.'],
+                ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])
+            ->assertDontSee('of 4 written');
+    }
 }
