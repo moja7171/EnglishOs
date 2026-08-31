@@ -162,6 +162,23 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSet('examples.0', 'I have a morning routine.'); // input preserved
     }
 
+    public function test_a_connection_failure_shows_a_friendly_retry_message_not_a_raw_error(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(
+                new \Illuminate\Http\Client\ConnectionException('cURL error 7: Failed to connect() to host')
+            );
+        });
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('examples.0', 'I have a morning routine.')
+            ->call('checkOne', 0)
+            ->assertSet('checkErrors.routine', "Couldn't reach the AI service — please try again.")
+            ->assertDontSee('cURL error');
+    }
+
     public function test_read_only_mode_maps_saved_examples_back_to_the_right_word(): void
     {
         [, , $run] = $this->makeMissionAndRun();
@@ -191,13 +208,15 @@ class VocabularyBuilderStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
 
-        // Every input, every Check button, the results list, the loading
-        // banner, and Continue all share the same unparameterised wire:target
-        // so ANY in-flight checkOne call disables all of them at once — 2 per
-        // word (input + button) plus the banner, results wrapper, and Continue.
-        $expected = 2 * count($run->mission->stepContent('vocabulary_builder')['vocabulary']) + 3;
+        // Every input, every Check button, the results wrapper, and Continue
+        // all share the same unparameterised wire:target so ANY in-flight
+        // checkOne call blocks clicks on all of them at once — 2 per word
+        // (input + button) plus the results wrapper and Continue. The "AI is
+        // thinking" indicator itself is scoped per-word (checkOne(0),
+        // checkOne(1)…) so it appears only on the card actually being checked.
+        $expected = 2 * count($run->mission->stepContent('vocabulary_builder')['vocabulary']) + 2;
         $this->assertSame($expected, substr_count($html, 'wire:target="checkOne"'));
-        $this->assertStringContainsString('Checking your sentence', $html);
+        $this->assertStringContainsString('AI is thinking', $html);
     }
 
     public function test_feedback_renders_inside_a_severity_coloured_box(): void
@@ -218,12 +237,44 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Can you describe your own actual commute?');
     }
 
-    public function test_the_progress_counter_shows_in_edit_mode_but_not_in_review(): void
+    public function test_editing_a_checked_input_is_wired_to_dismiss_its_old_feedback(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
+        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+
+        // A stale verdict must fade the instant the learner edits that word's
+        // input again — wired client-side (Alpine), so this only checks the
+        // markup is present; the actual show/hide can't be exercised here.
+        $this->assertStringContainsString("dismissed[0] = true", $html);
+        $this->assertStringContainsString("dismissed[0] = false", $html);
+        $this->assertStringContainsString('x-show="!dismissed[0]"', $html);
+    }
+
+    public function test_unfilled_words_are_wired_as_bonus_practice_once_the_minimum_is_met(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])->html();
+
+        // Client-side (Alpine) — every word card carries a bonus-practice hint
+        // that only shows once filledCount >= 3 AND that specific word is
+        // still empty; presence in markup is all that's checkable here.
+        $this->assertSame(4, substr_count($html, 'optional — bonus practice'));
+        $this->assertStringContainsString('filledCount >= 3 && !filled[0]', $html);
+    }
+
+    public function test_the_progress_bar_and_message_show_in_edit_mode_but_not_in_review(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        // The progress message text itself is client-rendered (x-text), so it
+        // always exists inside the component's inline x-data JS regardless of
+        // $readOnly — not a meaningful signal here. The bar/message wrapper's
+        // markup, scoped inside @unless($readOnly), is what actually differs.
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->assertSee('of 4 written');
+            ->assertSeeHtml('h-1.5 w-full overflow-hidden rounded-full')
+            ->assertSeeHtml('filledCount >= 3');
 
         Evidence::create([
             'mission_run_id' => $run->id,
@@ -237,6 +288,7 @@ class VocabularyBuilderStepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])
-            ->assertDontSee('of 4 written');
+            ->assertDontSeeHtml('h-1.5 w-full overflow-hidden rounded-full')
+            ->assertDontSeeHtml('filledCount >= 3');
     }
 }

@@ -7,3 +7,20 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* A gentle typing-dot pulse for AI "thinking" indicators — Tailwind's
+   built-in animate-bounce arcs too high/hard for small dots. */
+@keyframes typing-dot {
+    0%, 60%, 100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+}
+
+.animate-typing-dot {
+    animation: typing-dot 1.2s ease-in-out infinite;
+}
