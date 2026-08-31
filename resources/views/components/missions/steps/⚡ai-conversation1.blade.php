@@ -143,11 +143,7 @@ new class extends Component
     @if (count($turns))
         <div class="space-y-3">
             @foreach ($turns as $turn)
-                <div class="rounded border border-neutral-300 p-3 text-sm dark:border-neutral-700">
-                    <p class="font-semibold">{{ $turn['question'] }}</p>
-                    <p class="mt-1 text-neutral-600 dark:text-neutral-400">You: {{ $turn['answer'] }}</p>
-                    <p class="mt-1 text-neutral-500 italic">AI Instructor: {{ $turn['followup'] }}</p>
-                </div>
+                <x-conversation-turn :prompt="$turn['question']" :answer="$turn['answer']" :followup="$turn['followup']" />
             @endforeach
         </div>
     @endif

@@ -232,15 +232,17 @@ new class extends Component
                 <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Read the story, then pick at least 8 words to practice</p>
                 <p class="mt-1 text-sm text-neutral-500">Tap any highlighted word below to select it.</p>
                 <div class="mt-2">
-                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                    <x-progress-bar>
                         <div
                             class="h-full rounded-full transition-all duration-300 {{ $selectedCount >= 8 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white' }}"
                             style="width: {{ min($selectedCount, 8) / 8 * 100 }}%"
                         ></div>
-                    </div>
-                    <p class="mt-1.5 text-xs font-semibold {{ $selectedCount >= 8 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400' }}">
-                        {{ min($selectedCount, 8) }} of 8 selected{{ $selectedCount > 8 ? ' (+'.($selectedCount - 8).' bonus)' : '' }}
-                    </p>
+                        <x-slot:label>
+                            <p class="text-xs font-semibold {{ $selectedCount >= 8 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400' }}">
+                                {{ min($selectedCount, 8) }} of 8 selected{{ $selectedCount > 8 ? ' (+'.($selectedCount - 8).' bonus)' : '' }}
+                            </p>
+                        </x-slot:label>
+                    </x-progress-bar>
                 </div>
             </div>
 
@@ -282,18 +284,20 @@ new class extends Component
             <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
                 <div class="mt-2">
-                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                    <x-progress-bar>
                         <div
                             class="h-full rounded-full transition-all duration-300"
                             :class="filledCount >= 3 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
                             :style="`width: ${Math.min(filledCount, 3) / 3 * 100}%`"
                         ></div>
-                    </div>
-                    <p
-                        class="mt-1.5 text-xs font-semibold transition-colors"
-                        :class="filledCount >= 3 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
-                        x-text="progressMessage"
-                    ></p>
+                        <x-slot:label>
+                            <p
+                                class="text-xs font-semibold transition-colors"
+                                :class="filledCount >= 3 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
+                                x-text="progressMessage"
+                            ></p>
+                        </x-slot:label>
+                    </x-progress-bar>
                 </div>
             @endunless
         </div>
@@ -321,16 +325,7 @@ new class extends Component
                         >
                         <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
                         @unless ($readOnly)
-                            <button
-                                type="button"
-                                x-on:click="dismissed[{{ $index }}] = true; $wire.checkOne({{ $index }}).then(() => { dismissed[{{ $index }}] = false })"
-                                wire:loading.attr="disabled"
-                                wire:target="checkOne,save"
-                                class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-                            >
-                                <span wire:loading.remove wire:target="checkOne({{ $index }})">Check</span>
-                                <span wire:loading wire:target="checkOne({{ $index }})">Checking…</span>
-                            </button>
+                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,save" />
                         @endunless
                     </div>
 
@@ -341,22 +336,7 @@ new class extends Component
                     {{-- Fades out the moment the learner edits this input again — a stale
                          verdict for text that no longer exists would only mislead them. --}}
                     <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
-                        @if ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'major')
-                            <div class="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-900 dark:bg-red-950">
-                                <p class="text-sm text-red-700 dark:text-red-400">{{ $itemFeedback['hint'] }}</p>
-                            </div>
-                        @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'minor')
-                            <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900 dark:bg-amber-950">
-                                <p class="text-sm text-amber-700 dark:text-amber-400">{{ $itemFeedback['hint'] }}</p>
-                            </div>
-                        @elseif ($itemFeedback && ($itemFeedback['severity'] ?? 'none') === 'none')
-                            <div class="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 dark:border-green-900 dark:bg-green-950">
-                                <p class="text-sm text-green-700 dark:text-green-400">Looks good</p>
-                            </div>
-                        @endif
-                        @if ($checkErrors[$word] ?? null)
-                            <p class="mt-1 text-xs text-red-600">{{ $checkErrors[$word] }}</p>
-                        @endif
+                        <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$word] ?? null" />
                     </div>
                 </div>
             @endforeach
@@ -367,15 +347,11 @@ new class extends Component
         @enderror
 
         @unless ($readOnly)
-            <button
-                x-on:click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
-                wire:loading.attr="disabled"
-                wire:target="checkOne,save"
-                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-            >
-                <span wire:loading.remove wire:target="save">Continue</span>
-                <span wire:loading wire:target="save">Checking your sentences…</span>
-            </button>
+            <x-continue-button
+                on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
+                wire-target="checkOne,save"
+                loading-label="Checking your sentences…"
+            />
         @endunless
     </div>
 </div>

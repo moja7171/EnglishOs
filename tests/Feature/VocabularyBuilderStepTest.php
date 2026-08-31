@@ -536,7 +536,7 @@ class VocabularyBuilderStepTest extends TestCase
         // fresh result has actually landed — never eagerly on click, which
         // would flash the OLD stale verdict back up during the request.
         $this->assertStringContainsString(
-            'dismissed[0] = true; $wire.checkOne(0).then(() => { dismissed[0] = false })',
+            "dismissed['0'] = true; \$wire.checkOne(0).then(() => { dismissed['0'] = false })",
             $html
         );
         // Driven entirely through $wire from Alpine now — a separate
