@@ -117,4 +117,31 @@ class ErrorLogStepTest extends TestCase
         $this->assertDatabaseCount('error_log_items', 0);
         $this->assertSame('mission_result', $run->fresh()->currentStepKey());
     }
+
+    public function test_read_only_mode_loads_from_error_log_items_without_calling_gemini(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        ErrorLogItem::create([
+            'mission_run_id' => $run->id,
+            'error' => 'She go to work.',
+            'correction' => 'She goes to work.',
+            'new_example' => 'She goes to work every day.',
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'error_log',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([['error' => 'She go to work.', 'correction' => 'She goes to work.']]),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run, 'readOnly' => true])
+            ->assertSet('mistakes', [['error' => 'She go to work.', 'correction' => 'She goes to work.']])
+            ->assertSet('newExamples', ['She goes to work every day.'])
+            ->assertDontSee('Continue');
+    }
 }

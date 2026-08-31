@@ -106,4 +106,29 @@ class AiFeedback1StepTest extends TestCase
 
         $this->assertDatabaseCount('evidences', 1); // only the conversation evidence from setup
     }
+
+    public function test_read_only_mode_loads_saved_feedback_without_calling_gemini(): void
+    {
+        $run = $this->makeRunWithConversation();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_feedback_1',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'strength' => 'Saved strength.',
+                'expression' => 'wake up',
+                'correction' => 'Saved correction.',
+            ]),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.ai-feedback1', ['run' => $run, 'readOnly' => true])
+            ->assertSet('strength', 'Saved strength.')
+            ->assertSet('correction', 'Saved correction.')
+            ->assertDontSee('Continue');
+    }
 }

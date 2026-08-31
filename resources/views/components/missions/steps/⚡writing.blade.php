@@ -8,7 +8,16 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     public string $text = '';
+
+    public function mount(): void
+    {
+        if ($this->readOnly) {
+            $this->text = $this->run->latestEvidence('writing')?->content_ref ?? '';
+        }
+    }
 
     public function getWordCountProperty(): int
     {
@@ -62,6 +71,7 @@ new class extends Component
         wire:model.live="text"
         rows="10"
         placeholder="Start writing…"
+        @readonly($readOnly)
         class="w-full rounded border border-neutral-300 bg-transparent p-3 text-sm dark:border-neutral-700"
     ></textarea>
 
@@ -75,10 +85,12 @@ new class extends Component
         <p class="text-sm text-red-600">{{ $message }}</p>
     @enderror
 
-    <button
-        wire:click="save"
-        class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-    >
-        Continue
-    </button>
+    @unless ($readOnly)
+        <button
+            wire:click="save"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        >
+            Continue
+        </button>
+    @endunless
 </div>

@@ -8,13 +8,19 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     /** @var array<string, array<int, string>> */
     public array $answers = [];
 
     public function mount(): void
     {
+        $saved = $this->readOnly
+            ? json_decode($this->run->latestEvidence('active_recall')?->content_ref ?? '{}', true)
+            : [];
+
         foreach ($this->sections() as $section) {
-            $this->answers[$section['key']] = array_fill(0, $section['count'], '');
+            $this->answers[$section['key']] = array_pad($saved[$section['key']] ?? [], $section['count'], '');
         }
     }
 
@@ -74,6 +80,7 @@ new class extends Component
                         type="text"
                         wire:model="answers.{{ $section['key'] }}.{{ $i }}"
                         placeholder="{{ $i + 1 }}."
+                        @readonly($readOnly)
                         class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
                 @endfor
@@ -85,10 +92,12 @@ new class extends Component
         <p class="text-sm text-red-600">{{ $message }}</p>
     @enderror
 
-    <button
-        wire:click="save"
-        class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-    >
-        Continue
-    </button>
+    @unless ($readOnly)
+        <button
+            wire:click="save"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        >
+            Continue
+        </button>
+    @endunless
 </div>

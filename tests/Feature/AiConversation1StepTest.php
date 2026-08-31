@@ -97,4 +97,28 @@ class AiConversation1StepTest extends TestCase
 
         $this->assertDatabaseCount('evidences', 0);
     }
+
+    public function test_read_only_mode_reloads_the_transcript_without_calling_groq_or_gemini(): void
+    {
+        $run = $this->makeRun(questionCount: 2);
+
+        $turns = [
+            ['question' => 'What time do you usually wake up?', 'answer' => 'Seven.', 'followup' => 'Every day?'],
+            ['question' => 'What do you normally do in the morning?', 'answer' => 'Breakfast.', 'followup' => 'What do you eat?'],
+        ];
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_1',
+            'type' => Evidence::TYPE_TRANSCRIPT,
+            'content_ref' => json_encode($turns),
+        ]);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldNotReceive('transcribe'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run, 'readOnly' => true])
+            ->assertSet('turns', $turns)
+            ->assertSet('currentQuestion', null) // no more questions -> record UI is hidden
+            ->assertDontSee('● Record');
+    }
 }

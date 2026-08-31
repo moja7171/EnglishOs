@@ -98,6 +98,16 @@ class MissionRun extends Model
     }
 
     /**
+     * The most recent Evidence row for a given step, if any. Step
+     * components use this to reload what the learner already submitted
+     * when reviewing a completed step in read-only mode.
+     */
+    public function latestEvidence(string $phase): ?Evidence
+    {
+        return $this->evidence()->where('phase', $phase)->latest()->first();
+    }
+
+    /**
      * Finds the learner's run for this mission — whatever its status — or
      * starts a new one. Keying only on learner+mission (not status) matters:
      * once a run is complete, revisiting the mission must show that same

@@ -93,4 +93,25 @@ class MissionResultStepTest extends TestCase
         $this->assertNotNull($run->completed_at);
         $this->assertNull($run->currentStepKey());
     }
+
+    public function test_read_only_mode_loads_the_saved_decision_without_calling_gemini(): void
+    {
+        $run = $this->makeRun();
+
+        SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
+        Reflection::create(['mission_run_id' => $run->id, 'answers' => ['became_easier' => 'Talking about my routine.']]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_result',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['status' => 'complete', 'reason' => 'Saved reason.']),
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
+            ->assertSet('status', 'complete')
+            ->assertSet('reason', 'Saved reason.')
+            ->assertDontSee('Finish Mission');
+    }
 }

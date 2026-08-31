@@ -11,6 +11,8 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     /** @var array<string, array{before: int|null, after: int|null}> */
     public array $scores = [];
 
@@ -33,6 +35,20 @@ new class extends Component
 
         foreach (array_keys($this->questions()) as $key) {
             $this->reflection[$key] = '';
+        }
+
+        if ($this->readOnly) {
+            $data = json_decode($this->run->latestEvidence('mission_result')?->content_ref ?? '{}', true);
+            $this->status = $data['status'] ?? null;
+            $this->reason = $data['reason'] ?? null;
+
+            foreach ($this->run->selfAssessments as $assessment) {
+                $this->scores[$assessment->skill] = ['before' => $assessment->before, 'after' => $assessment->after];
+            }
+
+            if ($reflection = $this->run->reflection) {
+                $this->reflection = $reflection->answers;
+            }
         }
     }
 
@@ -210,11 +226,13 @@ new class extends Component
             <p class="mt-2 text-sm">{{ $reason }}</p>
         </div>
 
-        <button
-            wire:click="finish"
-            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-        >
-            Finish Mission
-        </button>
+        @unless ($readOnly)
+            <button
+                wire:click="finish"
+                class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            >
+                Finish Mission
+            </button>
+        @endunless
     @endif
 </div>

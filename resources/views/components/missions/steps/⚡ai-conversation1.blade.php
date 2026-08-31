@@ -14,6 +14,8 @@ new class extends Component
 
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     public int $round = 0;
 
     /** @var array<int, array{question: string, answer: string, followup: string}> */
@@ -24,6 +26,16 @@ new class extends Component
     public bool $processing = false;
 
     public ?string $error = null;
+
+    public function mount(): void
+    {
+        if (! $this->readOnly) {
+            return;
+        }
+
+        $this->turns = json_decode($this->run->latestEvidence('ai_conversation_1')?->content_ref ?? '[]', true);
+        $this->round = count($this->turns);
+    }
 
     public function getQuestionsProperty(): array
     {

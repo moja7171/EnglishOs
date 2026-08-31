@@ -10,6 +10,8 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     /** @var array<int, array{error: string, correction: string}> */
     public array $mistakes = [];
 
@@ -22,6 +24,14 @@ new class extends Component
 
     public function mount(): void
     {
+        if ($this->readOnly) {
+            $items = $this->run->errorLogItems;
+            $this->mistakes = $items->map(fn ($i) => ['error' => $i->error, 'correction' => $i->correction])->all();
+            $this->newExamples = $items->pluck('new_example')->all();
+
+            return;
+        }
+
         $this->generate();
     }
 
@@ -151,9 +161,11 @@ new class extends Component
         <div class="rounded border border-neutral-300 p-3 text-sm dark:border-neutral-700">
             No recurring mistakes found — nice work!
         </div>
-        <button wire:click="save" class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
-            Continue
-        </button>
+        @unless ($readOnly)
+            <button wire:click="save" class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
+                Continue
+            </button>
+        @endunless
     @else
         <div class="space-y-4">
             @foreach ($mistakes as $i => $item)
@@ -164,6 +176,7 @@ new class extends Component
                         type="text"
                         wire:model="newExamples.{{ $i }}"
                         placeholder="Write a new sentence using the correct form…"
+                        @readonly($readOnly)
                         class="mt-2 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
                 </div>
@@ -174,8 +187,10 @@ new class extends Component
             <p class="text-sm text-red-600">{{ $message }}</p>
         @enderror
 
-        <button wire:click="save" class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
-            Continue
-        </button>
+        @unless ($readOnly)
+            <button wire:click="save" class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
+                Continue
+            </button>
+        @endunless
     @endif
 </div>

@@ -8,8 +8,24 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     /** @var array<int, string> keyed by word index */
     public array $examples = [];
+
+    public function mount(): void
+    {
+        if (! $this->readOnly) {
+            return;
+        }
+
+        $evidence = $this->run->latestEvidence('vocabulary_builder');
+        $saved = collect(json_decode($evidence?->content_ref ?? '[]', true))->keyBy('word');
+
+        foreach ($this->run->mission->stepContent('vocabulary_builder')['vocabulary'] ?? [] as $index => $item) {
+            $this->examples[$index] = $saved[$item['word']]['example'] ?? '';
+        }
+    }
 
     public function save(): void
     {
@@ -56,6 +72,7 @@ new class extends Component
                     type="text"
                     wire:model="examples.{{ $index }}"
                     placeholder="My example…"
+                    @readonly($readOnly)
                     class="mt-2 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                 >
             </div>
@@ -66,10 +83,12 @@ new class extends Component
         <p class="text-sm text-red-600">{{ $message }}</p>
     @enderror
 
-    <button
-        wire:click="save"
-        class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-    >
-        Continue
-    </button>
+    @unless ($readOnly)
+        <button
+            wire:click="save"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        >
+            Continue
+        </button>
+    @endunless
 </div>

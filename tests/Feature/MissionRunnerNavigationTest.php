@@ -123,4 +123,29 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSet('activeStepKey', 'listening')
             ->assertSet('isReviewing', true);
     }
+
+    public function test_reviewing_a_real_seeded_step_shows_the_same_layout_with_the_saved_answer(): void
+    {
+        $this->seed(\Database\Seeders\MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '4',
+        ]);
+
+        $this->actingAs($learner);
+
+        // Real seeded warm-up question text AND the saved score both render
+        // through the exact same mission-brief component the live step uses.
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
+            ->assertSee('What time do you usually wake up?')
+            ->assertSeeHtml('bg-neutral-900') // the "4" button rendered as chosen
+            ->assertDontSee('Continue');
+    }
 }

@@ -8,6 +8,8 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     /** @var array<int, string> */
     public array $gistPoints = ['', '', ''];
 
@@ -17,6 +19,20 @@ new class extends Component
     public string $expressionMissed = '';
 
     public string $expressionToUse = '';
+
+    public function mount(): void
+    {
+        if (! $this->readOnly) {
+            return;
+        }
+
+        $data = json_decode($this->run->latestEvidence('listening')?->content_ref ?? '{}', true);
+
+        $this->gistPoints = array_pad($data['gist_points'] ?? [], 3, '');
+        $this->expressionsHeard = array_pad($data['expressions_heard'] ?? [], 3, '');
+        $this->expressionMissed = $data['expression_missed'] ?? '';
+        $this->expressionToUse = $data['expression_to_use'] ?? '';
+    }
 
     public function save(): void
     {
@@ -66,6 +82,7 @@ new class extends Component
                     type="text"
                     wire:model="gistPoints.{{ $index }}"
                     placeholder="{{ $index + 1 }}."
+                    @readonly($readOnly)
                     class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                 >
             @endforeach
@@ -84,6 +101,7 @@ new class extends Component
                     type="text"
                     wire:model="expressionsHeard.{{ $index }}"
                     placeholder="{{ $index + 1 }}."
+                    @readonly($readOnly)
                     class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                 >
             @endforeach
@@ -96,6 +114,7 @@ new class extends Component
             <input
                 type="text"
                 wire:model="expressionMissed"
+                @readonly($readOnly)
                 class="mt-2 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
             >
         </div>
@@ -104,15 +123,18 @@ new class extends Component
             <input
                 type="text"
                 wire:model="expressionToUse"
+                @readonly($readOnly)
                 class="mt-2 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
             >
         </div>
     </div>
 
-    <button
-        wire:click="save"
-        class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-    >
-        Continue
-    </button>
+    @unless ($readOnly)
+        <button
+            wire:click="save"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        >
+            Continue
+        </button>
+    @endunless
 </div>

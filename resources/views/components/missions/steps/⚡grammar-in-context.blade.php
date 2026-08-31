@@ -8,11 +8,30 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     /** @var array<int, string> */
     public array $frequencySentences = [];
 
     /** @var array<int, string> */
     public array $corrections = [];
+
+    public function mount(): void
+    {
+        if (! $this->readOnly) {
+            return;
+        }
+
+        $data = json_decode($this->run->latestEvidence('grammar_in_context')?->content_ref ?? '{}', true);
+        $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
+        $savedSentences = collect($data['frequency_sentences'] ?? [])->keyBy('starter');
+
+        foreach ($starters as $index => $starter) {
+            $this->frequencySentences[$index] = $savedSentences[$starter]['completion'] ?? '';
+        }
+
+        $this->corrections = collect($data['corrections'] ?? [])->pluck('my_correction')->all();
+    }
 
     public function save(): void
     {
@@ -72,6 +91,7 @@ new class extends Component
                     <input
                         type="text"
                         wire:model="frequencySentences.{{ $index }}"
+                        @readonly($readOnly)
                         class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
                 </div>
@@ -93,6 +113,7 @@ new class extends Component
                         type="text"
                         wire:model="corrections.{{ $index }}"
                         placeholder="Correct it…"
+                        @readonly($readOnly)
                         class="mt-1 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
                 </div>
@@ -103,10 +124,12 @@ new class extends Component
         @enderror
     </div>
 
-    <button
-        wire:click="save"
-        class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-    >
-        Continue
-    </button>
+    @unless ($readOnly)
+        <button
+            wire:click="save"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        >
+            Continue
+        </button>
+    @endunless
 </div>

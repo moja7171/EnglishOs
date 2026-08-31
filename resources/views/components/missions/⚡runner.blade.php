@@ -80,11 +80,6 @@ new class extends Component
         return $next && in_array($next, $this->reachableStepKeys, true) ? $next : null;
     }
 
-    public function evidenceFor(string $key)
-    {
-        return $this->run->evidence()->where('phase', $key)->get();
-    }
-
     /**
      * Step keys with a real screen built. Anything else falls back to a
      * "not built yet" placeholder — see EOS-009 §7 for the full list.
@@ -167,27 +162,9 @@ new class extends Component
             </div>
             <h2 class="text-lg font-bold">{{ $mission->stepLabel($this->activeStepKey) }}</h2>
 
-            @if ($this->isReviewing)
-                <div class="mt-4 space-y-3">
-                    @foreach ($this->evidenceFor($this->activeStepKey) as $evidence)
-                        @php $decoded = json_decode($evidence->content_ref, true); @endphp
-                        <div class="rounded border border-neutral-200 p-3 text-sm dark:border-neutral-800">
-                            <p class="mb-1 font-mono text-[10px] uppercase text-neutral-400">{{ $evidence->type }}</p>
-                            @if ($evidence->type === 'audio')
-                                <audio controls preload="none" class="w-full">
-                                    <source src="{{ $evidence->content_ref }}">
-                                </audio>
-                            @elseif (is_array($decoded))
-                                <pre class="overflow-x-auto whitespace-pre-wrap text-xs">{{ json_encode($decoded, JSON_PRETTY_PRINT) }}</pre>
-                            @else
-                                <p class="whitespace-pre-wrap">{{ $evidence->content_ref }}</p>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            @elseif ($this->stepComponent)
+            @if ($this->stepComponent)
                 <div class="mt-4">
-                    @livewire($this->stepComponent, ['run' => $run], key($run->id.'-'.$this->activeStepKey))
+                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing], key($run->id.'-'.$this->activeStepKey.'-'.($this->isReviewing ? 'ro' : 'live')))
                 </div>
             @else
                 <p class="mt-2 text-sm text-neutral-500">Step screen not built yet.</p>

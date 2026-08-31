@@ -67,4 +67,28 @@ class MissionBriefStepTest extends TestCase
 
         $this->assertDatabaseCount('evidences', 0);
     }
+
+    public function test_read_only_mode_preloads_the_saved_score_and_hides_continue(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '4',
+        ]);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run, 'readOnly' => true])
+            ->assertSet('score', 4)
+            ->assertDontSee('Continue');
+    }
 }

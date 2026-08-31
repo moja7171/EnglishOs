@@ -14,6 +14,8 @@ new class extends Component
 
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     public int $roundIndex = 0;
 
     /** @var array<int, array{prompt: string, answer: string, followup: string}> */
@@ -31,6 +33,20 @@ new class extends Component
     public bool $processing = false;
 
     public ?string $error = null;
+
+    public function mount(): void
+    {
+        if (! $this->readOnly) {
+            return;
+        }
+
+        $data = json_decode($this->run->latestEvidence('ai_conversation_2')?->content_ref ?? '{}', true);
+        $this->turns = $data['rounds'] ?? [];
+        $this->roundIndex = count($this->rounds);
+        $this->finalTranscript = $data['final_transcript'] ?? null;
+        $this->checklist = $data['requirements'] ?? null;
+        $this->checklistNote = $data['note'] ?? null;
+    }
 
     public function getRoundsProperty(): array
     {
@@ -236,10 +252,12 @@ new class extends Component
             </div>
             <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ $checklistNote }}</p>
 
-            <button wire:click="finishConversation"
-                class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
-                Continue
-            </button>
+            @unless ($readOnly)
+                <button wire:click="finishConversation"
+                    class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
+                    Continue
+                </button>
+            @endunless
         </div>
     @endif
 

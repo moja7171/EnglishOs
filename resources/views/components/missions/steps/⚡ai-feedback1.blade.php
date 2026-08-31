@@ -10,6 +10,8 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     public ?string $strength = null;
 
     public ?string $expression = null;
@@ -22,6 +24,15 @@ new class extends Component
 
     public function mount(): void
     {
+        if ($this->readOnly) {
+            $data = json_decode($this->run->latestEvidence('ai_feedback_1')?->content_ref ?? '{}', true);
+            $this->strength = $data['strength'] ?? null;
+            $this->expression = $data['expression'] ?? null;
+            $this->correction = $data['correction'] ?? null;
+
+            return;
+        }
+
         $this->generate();
     }
 
@@ -127,11 +138,13 @@ new class extends Component
             </div>
         </div>
 
-        <button
-            wire:click="continueMission"
-            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-        >
-            Continue
-        </button>
+        @unless ($readOnly)
+            <button
+                wire:click="continueMission"
+                class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            >
+                Continue
+            </button>
+        @endunless
     @endif
 </div>

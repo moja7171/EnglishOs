@@ -8,7 +8,16 @@ new class extends Component
 {
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     public ?int $score = null;
+
+    public function mount(): void
+    {
+        if ($this->readOnly && $evidence = $this->run->latestEvidence('mission_brief')) {
+            $this->score = (int) $evidence->content_ref;
+        }
+    }
 
     public function save(): void
     {
@@ -54,6 +63,7 @@ new class extends Component
             @foreach (range(1, 5) as $value)
                 <button
                     type="button"
+                    @disabled($readOnly)
                     wire:click="$set('score', {{ $value }})"
                     @class([
                         'h-10 w-10 rounded-full border text-sm font-semibold',
@@ -68,10 +78,12 @@ new class extends Component
         @enderror
     </div>
 
-    <button
-        wire:click="save"
-        class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-    >
-        Continue
-    </button>
+    @unless ($readOnly)
+        <button
+            wire:click="save"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        >
+            Continue
+        </button>
+    @endunless
 </div>

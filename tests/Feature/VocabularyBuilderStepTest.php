@@ -83,4 +83,27 @@ class VocabularyBuilderStepTest extends TestCase
 
         $this->assertSame('listening', $run->fresh()->currentStepKey());
     }
+
+    public function test_read_only_mode_maps_saved_examples_back_to_the_right_word(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            // Only 2 of the 4 words were filled — mirrors the real "3+ filled" save format.
+            'content_ref' => json_encode([
+                ['word' => 'commute', 'example' => 'I commute by bus.'],
+                ['word' => 'day off', 'example' => 'Sunday is my day off.'],
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])
+            ->assertSet('examples.0', '') // routine — not filled
+            ->assertSet('examples.1', 'I commute by bus.')
+            ->assertSet('examples.2', 'Sunday is my day off.')
+            ->assertSet('examples.3', '') // wind down — not filled
+            ->assertDontSee('Continue');
+    }
 }

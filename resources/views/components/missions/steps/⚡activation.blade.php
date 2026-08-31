@@ -12,10 +12,27 @@ new class extends Component
 
     public MissionRun $run;
 
+    public bool $readOnly = false;
+
     /** @var array<int, string> */
     public array $sentences = ['', '', '', '', ''];
 
     public ?UploadedFile $audioFile = null;
+
+    public ?string $savedAudioUrl = null;
+
+    public function mount(): void
+    {
+        if (! $this->readOnly) {
+            return;
+        }
+
+        $textEvidence = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_TEXT)->latest()->first();
+        $this->sentences = array_pad(json_decode($textEvidence?->content_ref ?? '[]', true), 5, '');
+
+        $audioEvidence = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
+        $this->savedAudioUrl = $audioEvidence?->content_ref;
+    }
 
     public function save(): void
     {
@@ -112,6 +129,7 @@ new class extends Component
                     type="text"
                     wire:model="sentences.{{ $index }}"
                     placeholder="{{ $index + 1 }}."
+                    @readonly($readOnly)
                     class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                 >
             @endforeach
@@ -123,37 +141,48 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Solo speaking — 2 minutes</p>
-        <p class="text-xs text-neutral-500">Talk about your daily life without reading. Record when you're ready.</p>
 
-        <div class="mt-3 flex items-center gap-3">
-            <button
-                type="button"
-                x-show="!recording && !uploaded"
-                x-on:click="startRecording"
-                class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white"
-            >● Record</button>
+        @if ($readOnly)
+            @if ($savedAudioUrl)
+                <audio controls preload="none" class="mt-2 w-full">
+                    <source src="{{ $savedAudioUrl }}">
+                </audio>
+            @endif
+        @else
+            <p class="text-xs text-neutral-500">Talk about your daily life without reading. Record when you're ready.</p>
 
-            <button
-                type="button"
-                x-show="recording"
-                x-on:click="stopRecording"
-                class="rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-            >■ Stop (<span x-text="formattedTime"></span>)</button>
+            <div class="mt-3 flex items-center gap-3">
+                <button
+                    type="button"
+                    x-show="!recording && !uploaded"
+                    x-on:click="startRecording"
+                    class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+                >● Record</button>
 
-            <span x-show="uploading" class="text-sm text-neutral-500">Uploading…</span>
-            <span x-show="uploaded" class="text-sm text-green-600">✓ Recording saved</span>
-        </div>
+                <button
+                    type="button"
+                    x-show="recording"
+                    x-on:click="stopRecording"
+                    class="rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+                >■ Stop (<span x-text="formattedTime"></span>)</button>
 
-        <p x-show="error" x-text="error" class="mt-2 text-sm text-red-600"></p>
-        @error('audioFile')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-        @enderror
+                <span x-show="uploading" class="text-sm text-neutral-500">Uploading…</span>
+                <span x-show="uploaded" class="text-sm text-green-600">✓ Recording saved</span>
+            </div>
+
+            <p x-show="error" x-text="error" class="mt-2 text-sm text-red-600"></p>
+            @error('audioFile')
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        @endif
     </div>
 
-    <button
-        wire:click="save"
-        class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
-    >
-        Continue
-    </button>
+    @unless ($readOnly)
+        <button
+            wire:click="save"
+            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        >
+            Continue
+        </button>
+    @endunless
 </div>
