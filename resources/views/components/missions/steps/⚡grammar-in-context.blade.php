@@ -216,6 +216,10 @@ new class extends Component
 
     @unless ($readOnly)
         <div x-show="phase === 'lesson'" x-cloak class="space-y-4">
+            @if (! empty($lesson['intro']))
+                <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ $lesson['intro'] }}</p>
+            @endif
+
             <div>
                 <x-progress-bar>
                     <div

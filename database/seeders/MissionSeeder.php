@@ -170,6 +170,9 @@ class MissionSeeder extends Seeder
                                 'hook' => "Every \"I usually...\" you get right here is one less pause when you're speaking for real.",
                                 'focus' => 'Present Simple + Adverbs of Frequency',
                                 'lesson' => [
+                                    'intro' => "We'll cover three things here: how the verb form changes for "
+                                        .'he / she / it, how to ask and answer with do / does, and where words '
+                                        .'like always, usually, and never go in a sentence.',
                                     'conjugation_examples' => [
                                         ['base' => 'I wake up early.', 'third_person' => 'She wakes up early.'],
                                         ['base' => 'I go to work by bus.', 'third_person' => 'He goes to work by bus.'],
