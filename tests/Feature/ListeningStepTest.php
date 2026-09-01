@@ -241,4 +241,62 @@ class ListeningStepTest extends TestCase
             ->assertSet('expressionsHeard.0', 'I like to sleep in.')
             ->assertDontSee('Continue');
     }
+
+    public function test_three_failed_gist_checks_offer_to_reveal_the_correction(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+        });
+
+        $component = Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'attempt one');
+
+        $component->call('checkGist', 0);
+        $component->call('checkGist', 0);
+        $component->call('checkGist', 0)->assertSet('offerReveal.gist_0', true);
+    }
+
+    public function test_accepting_the_gist_reveal_writes_the_ai_correction(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+            $mock->shouldReceive('chat')->once()->andReturn('They talk about their morning routines.');
+        });
+
+        $component = Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'bad fragment');
+
+        $component->call('checkGist', 0);
+        $component->call('checkGist', 0);
+        $component->call('checkGist', 0)->assertSet('offerReveal.gist_0', true);
+
+        $component->call('revealGist', 0)
+            ->assertSet('gistPoints.0', 'They talk about their morning routines.')
+            ->assertSet('feedback.gist_0.severity', 'none')
+            ->assertSet('offerReveal.gist_0', null);
+    }
+
+    public function test_declining_the_expression_reveal_resets_the_attempt_count(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+        });
+
+        $component = Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('expressionsHeard.0', 'attempt one');
+
+        $component->call('checkExpression', 0);
+        $component->call('checkExpression', 0);
+        $component->call('checkExpression', 0)->assertSet('offerReveal.expr_0', true);
+
+        $component->call('declineExpression', 0)
+            ->assertSet('offerReveal.expr_0', null)
+            ->assertSet('checkAttempts.expr_0', 0);
+    }
 }

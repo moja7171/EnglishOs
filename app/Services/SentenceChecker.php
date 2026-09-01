@@ -55,6 +55,28 @@ class SentenceChecker
         return $data;
     }
 
+    /**
+     * Directly rewrites the learner's sentence into a correct, natural
+     * version — the one deliberate exception to "never write it for them"
+     * (see check()'s system prompt above). Only meant to be offered after
+     * the learner has genuinely tried a field several times and is stuck;
+     * see EOS-009 §8 for the standard 3-attempts-then-offer pattern.
+     *
+     * @param  string  $context  What this text is meant to be, same as check().
+     * @param  string  $text  The learner's actual (still imperfect) sentence.
+     */
+    public function correct(string $context, string $text): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
+            systemPrompt: 'You are a supportive English writing assistant helping a B1 learner who has tried '
+                .'several times and is stuck. Rewrite their sentence into a correct, natural version — fixing '
+                .'grammar, spelling, word choice, and tense — while keeping their original personal meaning as '
+                .'much as possible. Reply with ONLY the corrected sentence, no quotation marks, no explanation, '
+                .'nothing else.'
+        ));
+    }
+
     private function systemPrompt(string $judgment, string $majorCriteria, ?string $extraGuidance): string
     {
         $prompt = 'You are a supportive English writing assistant helping a B1 learner. '.$judgment.' A short, '

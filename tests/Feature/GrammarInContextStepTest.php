@@ -201,6 +201,94 @@ class GrammarInContextStepTest extends TestCase
         $this->assertStringContainsString("phase: 'practice'", $component->html());
     }
 
+    public function test_three_failed_frequency_sentence_checks_offer_to_reveal_the_correction(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+        });
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'attempt one')
+            ->call('checkOne', 0)
+            ->assertSet('offerReveal.0', null);
+
+        $component->call('checkOne', 0)->assertSet('offerReveal.0', null);
+        $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
+    }
+
+    public function test_accepting_the_reveal_writes_the_ai_correction_into_the_sentence(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+            $mock->shouldReceive('chat')->once()->andReturn('I usually wake up at seven.');
+        });
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually woked up.');
+
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
+
+        $component->call('revealCorrection', 0)
+            ->assertSet('frequencySentences.0', 'I usually wake up at seven.')
+            ->assertSet('feedback.0.severity', 'none')
+            ->assertSet('offerReveal.0', null)
+            ->assertSet('checkAttempts.0', null);
+    }
+
+    public function test_declining_the_reveal_resets_the_attempt_count_and_can_be_offered_again(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(6)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+        });
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'attempt one');
+
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
+
+        $component->call('declineReveal', 0)
+            ->assertSet('offerReveal.0', null)
+            ->assertSet('checkAttempts.0', 0);
+
+        // Declining doesn't end the offer forever — 3 more failed attempts
+        // brings it back.
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
+    }
+
+    public function test_three_failed_quick_check_attempts_offer_to_reveal_the_correction_without_ai(): void
+    {
+        $run = $this->makeRun();
+
+        // No GeminiClient mock — Quick Check's known-answer reveal never calls it.
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('corrections.0', 'She go to work.');
+
+        $component->call('checkCorrection', 0);
+        $component->call('checkCorrection', 0);
+        $component->call('checkCorrection', 0)->assertSet('offerReveal.qc_0', true);
+
+        $component->call('revealQuickCheckCorrection', 0)
+            ->assertSet('corrections.0', 'She goes to work.')
+            ->assertSet('correctionFeedback.0.severity', 'none')
+            ->assertSet('offerReveal.qc_0', null);
+    }
+
     public function test_a_request_exception_does_not_leak_the_raw_response_body(): void
     {
         $run = $this->makeRun();

@@ -475,14 +475,15 @@ class VocabularyBuilderStepTest extends TestCase
         $html = $component->html();
 
         // Every input, every Check button, the results wrapper, and Continue
-        // all share the same wire:target (checkOne OR save) so ANY in-flight
-        // checkOne call — or Continue's own bulk check — blocks clicks on all
-        // of them at once: 2 per word (input + button) plus the results
-        // wrapper and Continue. The "AI is thinking" indicator itself is
-        // scoped per-word (checkOne(0), checkOne(1)…) so it appears only on
-        // the card actually being checked.
+        // all share the same wire:target (checkOne, revealCorrection,
+        // declineReveal, or save) so ANY in-flight checkOne call — or
+        // Continue's own bulk check — blocks clicks on all of them at once:
+        // 2 per word (input + button) plus the results wrapper and Continue.
+        // The "AI is thinking" indicator itself is scoped per-word
+        // (checkOne(0), checkOne(1)…) so it appears only on the card
+        // actually being checked.
         $expected = 2 * count($this->firstEight()) + 2;
-        $this->assertSame($expected, substr_count($html, 'wire:target="checkOne,save"'));
+        $this->assertSame($expected, substr_count($html, 'wire:target="checkOne,revealCorrection,declineReveal,save"'));
         $this->assertStringContainsString('AI is thinking', $html);
     }
 
@@ -588,5 +589,66 @@ class VocabularyBuilderStepTest extends TestCase
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])
             ->assertDontSeeHtml('h-1.5 w-full overflow-hidden rounded-full')
             ->assertDontSeeHtml('filledCount >= 3');
+    }
+
+    public function test_three_failed_checks_on_a_word_offer_to_reveal_the_correction(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->set('examples.0', 'attempt one');
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0)->assertSet('offerReveal.wake up', true);
+    }
+
+    public function test_accepting_the_reveal_writes_the_ai_correction_into_the_example(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+            $mock->shouldReceive('chat')->once()->andReturn('I usually wake up early.');
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->set('examples.0', 'wake up bad sentence');
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0)->assertSet('offerReveal.wake up', true);
+
+        $component->call('revealCorrection', 0)
+            ->assertSet('examples.0', 'I usually wake up early.')
+            ->assertSet('feedback.wake up.severity', 'none')
+            ->assertSet('offerReveal.wake up', null);
+    }
+
+    public function test_declining_the_reveal_resets_the_attempt_count(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->set('examples.0', 'attempt one');
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0)->assertSet('offerReveal.wake up', true);
+
+        $component->call('declineReveal', 0)
+            ->assertSet('offerReveal.wake up', null)
+            ->assertSet('checkAttempts.wake up', 0);
     }
 }

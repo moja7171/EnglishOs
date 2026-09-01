@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\SentenceChecker;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksCheckAttempts;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -119,6 +122,7 @@ new class extends Component
             );
 
             $this->feedback[$key] = $data + ['checkedText' => $text];
+            $this->trackCheckAttempt($key, $data['severity']);
         } catch (ConnectionException|RequestException) {
             // RequestException's message carries the raw HTTP response body
             // (which can be an arbitrarily large error page, not a clean
@@ -127,6 +131,64 @@ new class extends Component
         } catch (\Throwable $e) {
             $this->checkErrors[$key] = "Couldn't check this one: {$e->getMessage()}";
         }
+    }
+
+    /**
+     * After 3 failed attempts on the same field, the learner can ask the AI
+     * to just write the corrected sentence — see TracksCheckAttempts.
+     */
+    public function revealGist(int $index): void
+    {
+        $text = trim($this->gistPoints[$index] ?? '');
+
+        if ($text === '') {
+            return;
+        }
+
+        $key = "gist_{$index}";
+
+        $this->revealCorrectionFor(
+            key: $key,
+            context: $this->gistContext(),
+            text: $text,
+            errorBagKey: $key,
+            onCorrected: function (string $corrected) use ($index, $key) {
+                $this->gistPoints[$index] = $corrected;
+                $this->feedback[$key] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
+            },
+        );
+    }
+
+    public function declineGist(int $index): void
+    {
+        $this->declineCheckReveal("gist_{$index}");
+    }
+
+    public function revealExpression(int $index): void
+    {
+        $text = trim($this->expressionsHeard[$index] ?? '');
+
+        if ($text === '') {
+            return;
+        }
+
+        $key = "expr_{$index}";
+
+        $this->revealCorrectionFor(
+            key: $key,
+            context: $this->expressionContext(),
+            text: $text,
+            errorBagKey: $key,
+            onCorrected: function (string $corrected) use ($index, $key) {
+                $this->expressionsHeard[$index] = $corrected;
+                $this->feedback[$key] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
+            },
+        );
+    }
+
+    public function declineExpression(int $index): void
+    {
+        $this->declineCheckReveal("expr_{$index}");
     }
 
     public function save(): void
@@ -243,7 +305,7 @@ new class extends Component
             </button>
         </div>
     @else
-    <div wire:loading.class="pointer-events-none" wire:target="checkGist,checkExpression,save">
+    <div wire:loading.class="pointer-events-none" wire:target="checkGist,checkExpression,revealGist,declineGist,revealExpression,declineExpression,save">
         <div>
             <p class="text-sm font-semibold">First listening — gist</p>
             <p class="text-xs text-neutral-500">Listen without the transcript. What is the conversation about? Write 3 full sentences about what you understood. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
@@ -258,22 +320,32 @@ new class extends Component
                                 placeholder="Sentence {{ $index + 1 }}…"
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
-                                wire:target="checkGist,checkExpression,save"
+                                wire:target="checkGist,revealGist,declineGist,save"
                                 x-on:input="dismissed['{{ $key }}'] = true; gistFilled[{{ $index }}] = $el.value.trim() !== ''"
                                 class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                             >
                             @unless ($readOnly)
-                                <x-check-button method="checkGist" :index="$index" key-prefix="gist_" wire-target="checkGist,checkExpression,save" />
+                                <x-check-button method="checkGist" :index="$index" key-prefix="gist_" wire-target="checkGist,revealGist,declineGist,save" />
                             @endunless
                         </div>
 
                         @unless ($readOnly)
-                            <x-ai-thinking wire:loading wire:target="checkGist({{ $index }})" class="mt-2" />
+                            <x-ai-thinking wire:loading wire:target="checkGist({{ $index }}), revealGist({{ $index }})" class="mt-2" />
                         @endunless
 
                         <div x-show="!dismissed['{{ $key }}']" x-transition.opacity.duration.300ms>
                             <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$key] ?? null" />
                         </div>
+
+                        @unless ($readOnly)
+                            <x-reveal-offer
+                                :show="$offerReveal[$key] ?? false"
+                                reveal-method="revealGist"
+                                decline-method="declineGist"
+                                :index="$index"
+                                wire-target="checkGist,revealGist,declineGist,save"
+                            />
+                        @endunless
                     </div>
                 @endforeach
             </div>
@@ -323,22 +395,32 @@ new class extends Component
                                 placeholder="Sentence {{ $index + 1 }}…"
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
-                                wire:target="checkGist,checkExpression,save"
+                                wire:target="checkExpression,revealExpression,declineExpression,save"
                                 x-on:input="dismissed['{{ $key }}'] = true"
                                 class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                             >
                             @unless ($readOnly)
-                                <x-check-button method="checkExpression" :index="$index" key-prefix="expr_" wire-target="checkGist,checkExpression,save" />
+                                <x-check-button method="checkExpression" :index="$index" key-prefix="expr_" wire-target="checkExpression,revealExpression,declineExpression,save" />
                             @endunless
                         </div>
 
                         @unless ($readOnly)
-                            <x-ai-thinking wire:loading wire:target="checkExpression({{ $index }})" class="mt-2" />
+                            <x-ai-thinking wire:loading wire:target="checkExpression({{ $index }}), revealExpression({{ $index }})" class="mt-2" />
                         @endunless
 
                         <div x-show="!dismissed['{{ $key }}']" x-transition.opacity.duration.300ms>
                             <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$key] ?? null" />
                         </div>
+
+                        @unless ($readOnly)
+                            <x-reveal-offer
+                                :show="$offerReveal[$key] ?? false"
+                                reveal-method="revealExpression"
+                                decline-method="declineExpression"
+                                :index="$index"
+                                wire-target="checkExpression,revealExpression,declineExpression,save"
+                            />
+                        @endunless
                     </div>
                 @endforeach
             </div>
@@ -352,7 +434,7 @@ new class extends Component
     @unless ($readOnly)
         <x-continue-button
             on-click="['gist_0','gist_1','gist_2','expr_0','expr_1','expr_2'].forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
-            wire-target="checkGist,checkExpression,save"
+            wire-target="checkGist,checkExpression,revealGist,declineGist,revealExpression,declineExpression,save"
             loading-label="Checking your sentences…"
         />
     @endunless

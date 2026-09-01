@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\SentenceChecker;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksCheckAttempts;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -138,6 +141,7 @@ new class extends Component
             );
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
+            $this->trackCheckAttempt($word, $data['severity']);
         } catch (ConnectionException|RequestException) {
             // RequestException's message carries the raw HTTP response body
             // (which can be an arbitrarily large error page, not a clean
@@ -145,6 +149,40 @@ new class extends Component
             $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
         } catch (\Throwable $e) {
             $this->checkErrors[$word] = "Couldn't check this one: {$e->getMessage()}";
+        }
+    }
+
+    /**
+     * After 3 failed attempts on the same word, the learner can ask the AI
+     * to just write the corrected sentence — see TracksCheckAttempts.
+     */
+    public function revealCorrection(int $index): void
+    {
+        $word = $this->selectedWords[$index] ?? null;
+        $example = trim($this->examples[$index] ?? '');
+
+        if (! $word || $example === '') {
+            return;
+        }
+
+        $this->revealCorrectionFor(
+            key: $word,
+            context: "a personal sentence using the word \"{$word}\"",
+            text: $example,
+            errorBagKey: $word,
+            onCorrected: function (string $corrected) use ($word, $index) {
+                $this->examples[$index] = $corrected;
+                $this->feedback[$word] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
+            },
+        );
+    }
+
+    public function declineReveal(int $index): void
+    {
+        $word = $this->selectedWords[$index] ?? null;
+
+        if ($word) {
+            $this->declineCheckReveal($word);
         }
     }
 
@@ -306,7 +344,7 @@ new class extends Component
             @endunless
         </div>
 
-        <div wire:loading.class="pointer-events-none" wire:target="checkOne,save" class="space-y-4">
+        <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="space-y-4">
             @foreach ($selectedWords as $index => $word)
                 @php $itemFeedback = $feedback[$word] ?? null; @endphp
                 <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
@@ -324,17 +362,17 @@ new class extends Component
                             placeholder="My example…"
                             @readonly($readOnly)
                             wire:loading.attr="disabled"
-                            wire:target="checkOne,save"
+                            wire:target="checkOne,revealCorrection,declineReveal,save"
                             class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                         >
                         <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
                         @unless ($readOnly)
-                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,save" />
+                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
                         @endunless
                     </div>
 
                     @unless ($readOnly)
-                        <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), save" class="mt-2" />
+                        <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
                     @endunless
 
                     {{-- Fades out the moment the learner edits this input again — a stale
@@ -342,6 +380,16 @@ new class extends Component
                     <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
                         <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$word] ?? null" />
                     </div>
+
+                    @unless ($readOnly)
+                        <x-reveal-offer
+                            :show="$offerReveal[$word] ?? false"
+                            reveal-method="revealCorrection"
+                            decline-method="declineReveal"
+                            :index="$index"
+                            wire-target="checkOne,revealCorrection,declineReveal,save"
+                        />
+                    @endunless
                 </div>
             @endforeach
         </div>
@@ -353,7 +401,7 @@ new class extends Component
         @unless ($readOnly)
             <x-continue-button
                 on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
-                wire-target="checkOne,save"
+                wire-target="checkOne,revealCorrection,declineReveal,save"
                 loading-label="Checking your sentences…"
             />
         @endunless

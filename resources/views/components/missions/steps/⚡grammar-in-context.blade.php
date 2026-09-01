@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\SentenceChecker;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksCheckAttempts;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -92,6 +95,7 @@ new class extends Component
             );
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
+            $this->trackCheckAttempt($index, $data['severity']);
         } catch (ConnectionException|RequestException) {
             // RequestException's message carries the raw HTTP response body
             // (which can be an arbitrarily large error page, not a clean
@@ -100,6 +104,37 @@ new class extends Component
         } catch (\Throwable $e) {
             $this->checkErrors[$index] = "Couldn't check this one: {$e->getMessage()}";
         }
+    }
+
+    /**
+     * After 3 failed attempts on the same sentence, the learner can ask the
+     * AI to just write the corrected version — see TracksCheckAttempts.
+     */
+    public function revealCorrection(int $index): void
+    {
+        $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
+        $starter = $starters[$index] ?? null;
+        $sentence = trim($this->frequencySentences[$index] ?? '');
+
+        if (! $starter || $sentence === '') {
+            return;
+        }
+
+        $this->revealCorrectionFor(
+            key: $index,
+            context: "a personal sentence that starts with \"{$starter}\" and continues in the present simple tense",
+            text: $sentence,
+            errorBagKey: $index,
+            onCorrected: function (string $corrected) use ($index) {
+                $this->frequencySentences[$index] = $corrected;
+                $this->feedback[$index] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
+            },
+        );
+    }
+
+    public function declineReveal(int $index): void
+    {
+        $this->declineCheckReveal($index);
     }
 
     /**
@@ -117,9 +152,35 @@ new class extends Component
             return;
         }
 
-        $this->correctionFeedback[$index] = $this->normalize($mine) === $this->normalize($item['correct'])
+        $isCorrect = $this->normalize($mine) === $this->normalize($item['correct']);
+
+        $this->correctionFeedback[$index] = $isCorrect
             ? ['severity' => 'none', 'hint' => '']
             : ['severity' => 'minor', 'hint' => 'Not quite right yet — check the verb form for this subject.'];
+
+        $this->trackCheckAttempt("qc_{$index}", $isCorrect ? 'none' : 'minor');
+    }
+
+    /**
+     * Quick Check's correct answer is already known server-side, so
+     * revealing it needs no AI call — just show it directly.
+     */
+    public function revealQuickCheckCorrection(int $index): void
+    {
+        $item = ($this->run->mission->stepContent('grammar_in_context')['quick_check'] ?? [])[$index] ?? null;
+
+        if (! $item) {
+            return;
+        }
+
+        $this->corrections[$index] = $item['correct'];
+        $this->correctionFeedback[$index] = ['severity' => 'none', 'hint' => ''];
+        $this->clearCheckAttempt("qc_{$index}");
+    }
+
+    public function declineQuickCheckReveal(int $index): void
+    {
+        $this->declineCheckReveal("qc_{$index}");
     }
 
     private function normalize(string $text): string
@@ -185,6 +246,8 @@ new class extends Component
             $this->correctionFeedback[$i] = $isCorrect
                 ? ['severity' => 'none', 'hint' => '']
                 : ['severity' => 'minor', 'hint' => 'Not quite right yet — check the verb form for this subject.'];
+
+            $this->trackCheckAttempt("qc_{$i}", $isCorrect ? 'none' : 'minor');
 
             return [
                 'wrong' => $item['wrong'],
@@ -383,7 +446,7 @@ new class extends Component
                 </div>
             @endunless
 
-            <div wire:loading.class="pointer-events-none" wire:target="checkOne,save" class="mt-2 space-y-3">
+            <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="mt-2 space-y-3">
                 @foreach ($grammar['frequency_starters'] ?? [] as $index => $starter)
                     @php $itemFeedback = $feedback[$index] ?? null; @endphp
                     <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
@@ -395,22 +458,32 @@ new class extends Component
                                 x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed['freq{{ $index }}'] = true"
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
-                                wire:target="checkOne,save"
+                                wire:target="checkOne,revealCorrection,declineReveal,save"
                                 class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                             >
                             <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
                             @unless ($readOnly)
-                                <x-check-button method="checkOne" :index="$index" key-prefix="freq" wire-target="checkOne,save" />
+                                <x-check-button method="checkOne" :index="$index" key-prefix="freq" wire-target="checkOne,revealCorrection,declineReveal,save" />
                             @endunless
                         </div>
 
                         @unless ($readOnly)
-                            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), save" class="mt-2" />
+                            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
                         @endunless
 
                         <div x-show="!dismissed['freq{{ $index }}']" x-transition.opacity.duration.300ms>
                             <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$index] ?? null" />
                         </div>
+
+                        @unless ($readOnly)
+                            <x-reveal-offer
+                                :show="$offerReveal[$index] ?? false"
+                                reveal-method="revealCorrection"
+                                decline-method="declineReveal"
+                                :index="$index"
+                                wire-target="checkOne,revealCorrection,declineReveal,save"
+                            />
+                        @endunless
                     </div>
                 @endforeach
             </div>
@@ -422,7 +495,7 @@ new class extends Component
         <div>
             <p class="text-sm font-semibold">Quick check</p>
             <p class="text-xs text-neutral-500">Correct these sentences.</p>
-            <div wire:loading.class="pointer-events-none" wire:target="checkCorrection,save" class="mt-2 space-y-3">
+            <div wire:loading.class="pointer-events-none" wire:target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save" class="mt-2 space-y-3">
                 @foreach ($grammar['quick_check'] ?? [] as $index => $item)
                     @php $correctionItemFeedback = $correctionFeedback[$index] ?? null; @endphp
                     <div>
@@ -435,17 +508,27 @@ new class extends Component
                                 x-on:input="dismissed['qc{{ $index }}'] = true"
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
-                                wire:target="checkCorrection,save"
+                                wire:target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save"
                                 class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                             >
                             @unless ($readOnly)
-                                <x-check-button method="checkCorrection" :index="$index" key-prefix="qc" wire-target="checkCorrection,save" />
+                                <x-check-button method="checkCorrection" :index="$index" key-prefix="qc" wire-target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save" />
                             @endunless
                         </div>
 
                         <div x-show="!dismissed['qc{{ $index }}']" x-transition.opacity.duration.300ms>
                             <x-severity-feedback :feedback="$correctionItemFeedback" />
                         </div>
+
+                        @unless ($readOnly)
+                            <x-reveal-offer
+                                :show="$offerReveal['qc_'.$index] ?? false"
+                                reveal-method="revealQuickCheckCorrection"
+                                decline-method="declineQuickCheckReveal"
+                                :index="$index"
+                                wire-target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save"
+                            />
+                        @endunless
                     </div>
                 @endforeach
             </div>
@@ -457,7 +540,7 @@ new class extends Component
         @unless ($readOnly)
             <x-continue-button
                 on-click="filled.forEach((_, i) => dismissed['freq' + i] = true); Object.keys(dismissed).filter(k => k.startsWith('qc')).forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
-                wire-target="checkOne,checkCorrection,save"
+                wire-target="checkOne,checkCorrection,revealCorrection,declineReveal,revealQuickCheckCorrection,declineQuickCheckReveal,save"
                 loading-label="Checking your sentences…"
             />
         @endunless
