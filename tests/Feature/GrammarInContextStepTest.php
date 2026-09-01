@@ -40,8 +40,9 @@ class GrammarInContextStepTest extends TestCase
                                 'negative_example_does' => "He doesn't work on Sundays.",
                                 'frequency_scale' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never'],
                                 'word_order_examples' => [
-                                    ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.'],
+                                    ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.', 'adverb' => 'always'],
                                 ],
+                                'bridge_note' => "You'll use this next in Activation.",
                             ],
                             'frequency_starters' => ['I usually', 'I often', 'I sometimes', 'I rarely'],
                             'quick_check' => [
@@ -155,6 +156,31 @@ class GrammarInContextStepTest extends TestCase
             ->set('corrections.0', 'She go to work.')
             ->call('checkCorrection', 0)
             ->assertSet('correctionFeedback.0.severity', 'minor');
+    }
+
+    public function test_the_lesson_highlights_the_adverb_and_shows_the_bridge_note(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertSeeHtml('<strong class="text-neutral-900 underline decoration-2 underline-offset-2 dark:text-white">always</strong>')
+            ->assertSee("You'll use this next in Activation.");
+    }
+
+    public function test_the_practice_section_tips_the_learner_to_reuse_their_selected_vocabulary(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['selected_words' => ['wake up', 'have a shower', 'go to bed']]),
+        ]);
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertSee('Tip: try using one of your words from earlier')
+            ->assertSee('wake up, have a shower, go to bed');
     }
 
     public function test_reviewing_a_completed_step_reloads_saved_sentences_and_corrections(): void

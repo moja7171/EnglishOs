@@ -184,10 +184,11 @@ class MissionSeeder extends Seeder
                                     'negative_example_does' => "He doesn't work on Sundays.",
                                     'frequency_scale' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never'],
                                     'word_order_examples' => [
-                                        ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.'],
-                                        ['rule' => 'With am/is/are → the adverb goes after it', 'example' => "I'm usually tired in the morning."],
-                                        ['rule' => 'Two-word verb → the adverb goes after the first word', 'example' => "I don't usually work at night."],
+                                        ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.', 'adverb' => 'always'],
+                                        ['rule' => 'With am/is/are → the adverb goes after it', 'example' => "I'm usually tired in the morning.", 'adverb' => 'usually'],
+                                        ['rule' => 'Two-word verb → the adverb goes after the first word', 'example' => "I don't usually work at night.", 'adverb' => 'usually'],
                                     ],
+                                    'bridge_note' => "You'll put this straight to use next — in Activation, when you talk about your real daily routine out loud.",
                                 ],
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',

@@ -110,6 +110,21 @@ new class extends Component
         return trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
     }
 
+    /**
+     * Wraps the first occurrence of the adverb in an example sentence with
+     * a highlight so its position in the sentence — the whole point of the
+     * word-order rule — is visible at a glance, not just stated in prose.
+     */
+    public function highlightAdverb(string $example, string $adverb): string
+    {
+        return preg_replace(
+            '/\b'.preg_quote($adverb, '/').'\b/',
+            '<strong class="text-neutral-900 underline decoration-2 underline-offset-2 dark:text-white">$0</strong>',
+            e($example),
+            1
+        );
+    }
+
     public function save(): void
     {
         $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
@@ -277,10 +292,14 @@ new class extends Component
                     @foreach ($lesson['word_order_examples'] ?? [] as $rule)
                         <div class="rounded border border-neutral-200 p-2 text-sm dark:border-neutral-800">
                             <p class="text-xs text-neutral-500">{{ $rule['rule'] }}</p>
-                            <p class="font-semibold">{{ $rule['example'] }}</p>
+                            <p class="font-semibold">{!! $this->highlightAdverb($rule['example'], $rule['adverb'] ?? '') !!}</p>
                         </div>
                     @endforeach
                 </div>
+
+                @if (! empty($lesson['bridge_note']))
+                    <p class="mt-3 text-xs text-neutral-500 italic">{{ $lesson['bridge_note'] }}</p>
+                @endif
             </div>
 
             <div class="flex items-center justify-between">
@@ -322,6 +341,12 @@ new class extends Component
             <p class="text-sm font-semibold">Make it personal</p>
             <p class="text-xs text-neutral-500">Finish at least 3 sentences about your own life. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
+                @php $vocabularyWords = $run->selectedVocabularyWords(); @endphp
+                @if ($vocabularyWords)
+                    <p class="mt-1 text-xs text-neutral-400 italic">
+                        Tip: try using one of your words from earlier — {{ collect($vocabularyWords)->take(4)->implode(', ') }}{{ count($vocabularyWords) > 4 ? ', …' : '' }}
+                    </p>
+                @endif
                 <div class="mt-2">
                     <x-progress-bar>
                         <div
