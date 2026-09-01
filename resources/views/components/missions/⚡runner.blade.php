@@ -213,6 +213,11 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-6 p-6" data-mood="{{ $mission->moodKey() }}">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
+        All missions
+    </a>
+
     <div class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-8 text-white sm:p-9">
         <div class="pointer-events-none absolute -top-24 -right-10 -z-10 h-72 w-72 rounded-full bg-dawn opacity-40 blur-3xl"></div>
         <div class="pointer-events-none absolute -bottom-28 -left-10 -z-10 h-60 w-60 rounded-full bg-dusk opacity-30 blur-3xl"></div>

@@ -12,7 +12,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('home');
-    });
+    })->name('home');
 
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
         return view('mission-runner', compact('mission', 'step'));
