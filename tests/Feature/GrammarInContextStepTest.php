@@ -198,7 +198,7 @@ class GrammarInContextStepTest extends TestCase
             ->assertSee("You'll use this next in Activation.");
     }
 
-    public function test_the_practice_section_tips_the_learner_to_reuse_their_selected_vocabulary(): void
+    public function test_the_practice_section_offers_clickable_vocabulary_chips(): void
     {
         $run = $this->makeRun();
 
@@ -210,8 +210,12 @@ class GrammarInContextStepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->assertSee('Tip: try using one of your words from earlier')
-            ->assertSee('wake up, have a shower, go to bed');
+            ->assertSee('Tap a word to drop it into your next sentence')
+            ->assertSee('wake up')
+            ->assertSee('have a shower')
+            ->assertSee('go to bed')
+            ->assertSeeHtml('$wire.frequencySentences.findIndex')
+            ->assertSeeHtml("\$wire.set('frequencySentences.' + idx, 'Wake up')");
     }
 
     public function test_starting_practice_is_persisted_so_a_later_render_still_shows_practice(): void

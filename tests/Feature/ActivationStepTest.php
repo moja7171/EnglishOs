@@ -192,7 +192,7 @@ class ActivationStepTest extends TestCase
             ->assertSee('Write something first.');
     }
 
-    public function test_the_practice_section_tips_the_learner_to_reuse_their_selected_vocabulary(): void
+    public function test_the_practice_section_offers_clickable_vocabulary_chips(): void
     {
         $run = $this->makeRun();
 
@@ -204,8 +204,12 @@ class ActivationStepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.activation', ['run' => $run])
-            ->assertSee('Tip: try using some of your words from earlier')
-            ->assertSee('wake up, have a shower, go to bed');
+            ->assertSee('Tap a word to drop it into your next sentence')
+            ->assertSee('wake up')
+            ->assertSee('have a shower')
+            ->assertSee('go to bed')
+            ->assertSeeHtml('$wire.sentences.findIndex')
+            ->assertSeeHtml("\$wire.set('sentences.' + idx, 'Wake up')");
     }
 
     public function test_three_failed_checks_on_a_sentence_offer_to_reveal_the_correction(): void

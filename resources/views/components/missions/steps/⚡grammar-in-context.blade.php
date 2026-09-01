@@ -451,9 +451,17 @@ new class extends Component
             @unless ($readOnly)
                 @php $vocabularyWords = $run->selectedVocabularyWords(); @endphp
                 @if ($vocabularyWords)
-                    <p class="mt-1 text-xs text-neutral-400 italic">
-                        Tip: try using one of your words from earlier — {{ collect($vocabularyWords)->take(4)->implode(', ') }}{{ count($vocabularyWords) > 4 ? ', …' : '' }}
-                    </p>
+                    <div class="mt-2">
+                        <p class="text-xs text-neutral-500">Tap a word to drop it into your next sentence:</p>
+                        <div class="mt-1">
+                            <x-vocabulary-chips
+                                :words="$vocabularyWords"
+                                field="frequencySentences"
+                                ref-prefix="freq_input_"
+                                on-insert="filled[idx] = true; dismissed['freq' + idx] = true;"
+                            />
+                        </div>
+                    </div>
                 @endif
                 <div class="mt-2">
                     <x-progress-bar>
@@ -481,6 +489,7 @@ new class extends Component
                             <span class="shrink-0 text-sm text-neutral-500">{{ $starter }}</span>
                             <input
                                 type="text"
+                                x-ref="freq_input_{{ $index }}"
                                 wire:model="frequencySentences.{{ $index }}"
                                 x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed['freq{{ $index }}'] = true"
                                 @unless ($readOnly)

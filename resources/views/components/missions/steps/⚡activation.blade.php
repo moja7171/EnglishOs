@@ -328,10 +328,18 @@ new class extends Component
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Write 5 personal sentences</p>
         <p class="text-xs text-neutral-500">{{ $activation['task'] ?? '' }}</p>
-        @if ($vocabularyWords)
-            <p class="mt-1 text-xs text-neutral-400 italic">
-                Tip: try using some of your words from earlier — {{ collect($vocabularyWords)->take(4)->implode(', ') }}{{ count($vocabularyWords) > 4 ? ', …' : '' }}
-            </p>
+        @if ($vocabularyWords && ! $readOnly)
+            <div class="mt-2">
+                <p class="text-xs text-neutral-500">Tap a word to drop it into your next sentence:</p>
+                <div class="mt-1">
+                    <x-vocabulary-chips
+                        :words="$vocabularyWords"
+                        field="sentences"
+                        ref-prefix="sentence_input_"
+                        on-insert="filled[idx] = true; dismissed[idx] = true;"
+                    />
+                </div>
+            </div>
         @endif
 
         @unless ($readOnly)
@@ -360,6 +368,7 @@ new class extends Component
                     <div class="flex items-center gap-2">
                         <input
                             type="text"
+                            x-ref="sentence_input_{{ $index }}"
                             wire:model="sentences.{{ $index }}"
                             placeholder="{{ $index + 1 }}."
                             x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
