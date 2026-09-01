@@ -71,13 +71,19 @@ class AiConversation1StepTest extends TestCase
         $component
             ->set('audioFile', UploadedFile::fake()->create('answer2.webm', 100, 'audio/webm'))
             ->call('submitAnswer')
-            ->assertRedirect(route('missions.show', $run->mission));
+            ->assertSet('completed', true)
+            ->assertSee('AI Conversation #1 complete')
+            ->assertSee('How do you get to work?'); // the final follow-up must still be visible
 
         $evidence = Evidence::where('phase', 'ai_conversation_1')->first();
         $this->assertNotNull($evidence);
         $this->assertCount(2, json_decode($evidence->content_ref, true));
 
+        // Evidence is already saved — currentStepKey has already advanced,
+        // the recap is just a courtesy screen before navigating away.
         $this->assertSame('ai_feedback_1', $run->fresh()->currentStepKey());
+
+        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
     }
 
     public function test_a_failed_ai_call_shows_an_error_without_losing_progress(): void
@@ -145,5 +151,33 @@ class AiConversation1StepTest extends TestCase
             ->assertSet('turns', $turns)
             ->assertSet('currentQuestion', null) // no more questions -> record UI is hidden
             ->assertDontSee('● Record');
+    }
+
+    public function test_shows_a_progress_bar_and_the_selected_vocabulary(): void
+    {
+        $run = $this->makeRun(questionCount: 2);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['selected_words' => ['wake up', 'have a shower']]),
+        ]);
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSee('Question 1 of 2')
+            ->assertSeeHtml('h-1.5 w-full overflow-hidden rounded-full')
+            ->assertSee('Words you picked')
+            ->assertSee('wake up')
+            ->assertSee('have a shower');
+    }
+
+    public function test_shows_the_shared_thinking_indicator_while_submitting(): void
+    {
+        $run = $this->makeRun(questionCount: 2);
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSeeHtml('wire:target="submitAnswer"')
+            ->assertSee('Transcribing and thinking of a follow-up…');
     }
 }

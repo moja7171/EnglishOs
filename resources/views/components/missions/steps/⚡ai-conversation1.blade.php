@@ -27,6 +27,15 @@ new class extends Component
 
     public ?string $error = null;
 
+    /**
+     * True once every question has been answered and Evidence is saved —
+     * the step then shows a completion recap (including the final
+     * follow-up, which would otherwise never be seen) before the learner
+     * dismisses it with proceed() below, instead of navigating away the
+     * instant the last answer lands.
+     */
+    public bool $completed = false;
+
     public function mount(): void
     {
         if (! $this->readOnly) {
@@ -97,10 +106,20 @@ new class extends Component
             'content_ref' => json_encode($this->turns),
         ]);
 
+        // Progress is already saved — this only decides what the learner
+        // sees next: the recap (including the final follow-up), which they
+        // dismiss with proceed() below.
+        $this->completed = true;
+    }
+
+    public function proceed(): void
+    {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 };
 ?>
+
+@php $vocabularyWords = $run->selectedVocabularyWords(); @endphp
 
 <div class="space-y-6">
     <x-hook :text="$run->mission->stepContent('ai_conversation_1')['hook'] ?? null" />
@@ -110,6 +129,24 @@ new class extends Component
         <p class="text-xs text-neutral-500">Answer each question out loud. The AI Instructor will ask one follow-up.</p>
     </div>
 
+    @if (! $readOnly && ! $completed)
+        <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some when you answer" />
+
+        <div>
+            <x-progress-bar>
+                <div
+                    class="h-full rounded-full bg-neutral-900 transition-all duration-300 dark:bg-white"
+                    style="width: {{ count($this->questions) ? $round / count($this->questions) * 100 : 0 }}%"
+                ></div>
+                <x-slot:label>
+                    <p class="text-xs font-semibold text-neutral-500">
+                        Question {{ min($round + 1, count($this->questions)) }} of {{ count($this->questions) }}
+                    </p>
+                </x-slot:label>
+            </x-progress-bar>
+        </div>
+    @endif
+
     @if (count($turns))
         <div class="space-y-3">
             @foreach ($turns as $turn)
@@ -118,7 +155,20 @@ new class extends Component
         </div>
     @endif
 
-    @if ($this->currentQuestion)
+    @if ($completed)
+        <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-green-600 uppercase">✓ AI Conversation #1 complete</p>
+                <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Nicely done — take a look back at the conversation above before you move on.</p>
+            </div>
+            <button
+                wire:click="proceed"
+                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            >
+                Continue
+            </button>
+        </div>
+    @elseif ($this->currentQuestion)
         <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
             <p class="text-xs text-neutral-500">Question {{ $round + 1 }} of {{ count($this->questions) }}</p>
             <p class="mt-1 text-lg font-bold">{{ $this->currentQuestion }}</p>
@@ -132,9 +182,7 @@ new class extends Component
                 />
             </div>
 
-            <p wire:loading wire:target="submitAnswer" class="mt-3 text-sm text-neutral-500">
-                Transcribing and thinking of a follow-up…
-            </p>
+            <x-ai-thinking wire:loading wire:target="submitAnswer" label="Transcribing and thinking of a follow-up…" class="mt-3" />
 
             @error('audioFile')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

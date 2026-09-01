@@ -77,16 +77,7 @@ new class extends Component
         </div>
     </div>
 
-    @if (count($vocabularyWords))
-        <div>
-            <p class="text-xs font-semibold text-neutral-500 uppercase">Words you picked — try to use some</p>
-            <div class="mt-1 flex flex-wrap gap-1.5">
-                @foreach ($vocabularyWords as $word)
-                    <span class="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">{{ $word }}</span>
-                @endforeach
-            </div>
-        </div>
-    @endif
+    <x-vocabulary-pills :words="$vocabularyWords" />
 
     @if (count($writing['try_to_use'] ?? []))
         <div>
