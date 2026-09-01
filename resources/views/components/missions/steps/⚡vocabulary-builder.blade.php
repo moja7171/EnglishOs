@@ -4,6 +4,7 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Livewire\Component;
 
 new class extends Component
@@ -137,7 +138,10 @@ new class extends Component
             );
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
-        } catch (ConnectionException) {
+        } catch (ConnectionException|RequestException) {
+            // RequestException's message carries the raw HTTP response body
+            // (which can be an arbitrarily large error page, not a clean
+            // API message) — never show that to the learner.
             $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
         } catch (\Throwable $e) {
             $this->checkErrors[$word] = "Couldn't check this one: {$e->getMessage()}";

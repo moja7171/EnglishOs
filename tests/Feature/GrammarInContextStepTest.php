@@ -7,7 +7,10 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
+use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -181,6 +184,37 @@ class GrammarInContextStepTest extends TestCase
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
             ->assertSee('Tip: try using one of your words from earlier')
             ->assertSee('wake up, have a shower, go to bed');
+    }
+
+    public function test_starting_practice_is_persisted_so_a_later_render_still_shows_practice(): void
+    {
+        $run = $this->makeRun();
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->call('startPractice')
+            ->assertSet('practiceStarted', true);
+
+        // A later Livewire round-trip (e.g. clicking Check) re-renders the
+        // component — the Alpine x-data init string must still say
+        // 'practice', not 'lesson', or the UI would silently jump back to
+        // the start of the lesson on every check.
+        $this->assertStringContainsString("phase: 'practice'", $component->html());
+    }
+
+    public function test_a_request_exception_does_not_leak_the_raw_response_body(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(new RequestException(
+                new Response(new Psr7Response(403, [], '<!DOCTYPE html><html>blocked by network</html>'))
+            ));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->call('checkOne', 0)
+            ->assertSet('checkErrors.0', "Couldn't reach the AI service — please try again.");
     }
 
     public function test_reviewing_a_completed_step_reloads_saved_sentences_and_corrections(): void

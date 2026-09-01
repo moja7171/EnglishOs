@@ -4,6 +4,7 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Livewire\Component;
 
 new class extends Component
@@ -11,6 +12,14 @@ new class extends Component
     public MissionRun $run;
 
     public bool $readOnly = false;
+
+    /**
+     * True once the learner has moved into practice — kept server-side (not
+     * just in Alpine's x-data) because a Livewire re-render can re-run the
+     * x-data init expression, and without this it would snap back to
+     * 'lesson' every time, e.g. after clicking Check.
+     */
+    public bool $practiceStarted = false;
 
     /** @var array<int, string> */
     public array $frequencySentences = [];
@@ -42,6 +51,11 @@ new class extends Component
         }
 
         $this->corrections = collect($data['corrections'] ?? [])->pluck('my_correction')->all();
+    }
+
+    public function startPractice(): void
+    {
+        $this->practiceStarted = true;
     }
 
     public function checkOne(int $index): void
@@ -78,7 +92,10 @@ new class extends Component
             );
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
-        } catch (ConnectionException) {
+        } catch (ConnectionException|RequestException) {
+            // RequestException's message carries the raw HTTP response body
+            // (which can be an arbitrarily large error page, not a clean
+            // API message) — never show that to the learner.
             $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
         } catch (\Throwable $e) {
             $this->checkErrors[$index] = "Couldn't check this one: {$e->getMessage()}";
@@ -210,7 +227,7 @@ new class extends Component
 <div
     class="space-y-6"
     x-data="{
-        phase: '{{ $readOnly ? 'practice' : 'lesson' }}',
+        phase: '{{ $readOnly || $practiceStarted ? 'practice' : 'lesson' }}',
         lessonStep: 0,
         lessonSections: {{ count($lessonSections) }},
         filled: {{ $initialFilled->toJson() }},
@@ -321,6 +338,7 @@ new class extends Component
                 <button
                     type="button"
                     x-show="lessonStep === lessonSections - 1"
+                    wire:click="startPractice"
                     x-on:click="phase = 'practice'"
                     class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                 >Start practice &#8250;</button>
