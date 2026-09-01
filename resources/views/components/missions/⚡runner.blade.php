@@ -267,6 +267,8 @@ new class extends Component
                                 <span class="text-xs font-semibold text-success dark:text-success-dark">Completed {{ $day['completedAt']->format('M j') }}</span>
                             @elseif ($day['startedAt'])
                                 <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Started {{ $day['startedAt']->format('M j') }}</span>
+                            @elseif ($day['estimatedMinutes'])
+                                <span class="shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark">~{{ Mission::formatDuration($day['estimatedMinutes']) }}</span>
                             @endif
                         </div>
                         <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
@@ -324,6 +326,9 @@ new class extends Component
                     >
                         @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
                         <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
+                        @if ($duration = $mission->stepDuration($key))
+                            <span class="shrink-0 text-xs {{ $active ? 'text-white/80' : 'opacity-70' }}">~{{ Mission::formatDuration($duration) }}</span>
+                        @endif
                         @if ($done && ! $active)
                             @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
                         @endif
@@ -334,6 +339,9 @@ new class extends Component
                     >
                         @svg($this->stepIcon($key), 'h-4 w-4 shrink-0 opacity-40')
                         <span class="flex-1">{{ $mission->stepLabel($key) }}</span>
+                        @if ($duration = $mission->stepDuration($key))
+                            <span class="shrink-0 text-xs">~{{ Mission::formatDuration($duration) }}</span>
+                        @endif
                         @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
                     </span>
                 @endif

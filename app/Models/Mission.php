@@ -110,4 +110,43 @@ class Mission extends Model
             default => 'daily-life',
         };
     }
+
+    /**
+     * A rough authored time estimate for one step, in minutes — lets the
+     * learner see how much a day/mission actually costs before starting,
+     * instead of an opaque step count. Authored per-step in the seeder
+     * (judgment call per step's real content), not derived automatically.
+     * 0 for a step with no estimate yet.
+     */
+    public function stepDuration(string $stepKey): int
+    {
+        return (int) ($this->stepContent($stepKey)['duration_minutes'] ?? 0);
+    }
+
+    /**
+     * The whole mission's estimated time, in minutes — the sum of every
+     * step's stepDuration().
+     */
+    public function totalDurationMinutes(): int
+    {
+        return collect($this->stepKeys())->sum(fn ($key) => $this->stepDuration($key));
+    }
+
+    /**
+     * Formats a minute count the way a learner would say it out loud —
+     * "8 min" under an hour, "1h 50m" (or just "2h" on the nose) once it
+     * crosses 60. Shared by every place that shows a duration so they all
+     * read the same way.
+     */
+    public static function formatDuration(int $minutes): string
+    {
+        if ($minutes < 60) {
+            return "{$minutes} min";
+        }
+
+        $hours = intdiv($minutes, 60);
+        $remainder = $minutes % 60;
+
+        return $remainder === 0 ? "{$hours}h" : "{$hours}h {$remainder}m";
+    }
 }

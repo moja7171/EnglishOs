@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Evidence;
+use App\Models\Mission;
 use App\Models\MissionRun;
 use Livewire\Component;
 
@@ -58,7 +59,7 @@ new class extends Component
                 <span>@svg('heroicon-o-chevron-right', 'inline h-3 w-3')</span>
             @endif
         @endforeach
-        <span class="ml-1">· {{ count($totalSteps) }} short steps</span>
+        <span class="ml-1">· {{ count($totalSteps) }} short steps · ~{{ Mission::formatDuration($run->mission->totalDurationMinutes()) }} total</span>
     </div>
 
     <x-hook :text="$brief['hook'] ?? null" />

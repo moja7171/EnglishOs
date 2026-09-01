@@ -37,6 +37,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'mission_brief',
                                 'label' => 'Mission Brief',
+                                'duration_minutes' => 5,
                                 'hook' => "Imagine a new coworker turns to you and asks: \"So, what's your day usually "
                                     .'like?" Could you answer right now, without stopping to think?',
                                 'warm_up_questions' => [
@@ -49,6 +50,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'vocabulary_builder',
                                 'label' => 'Vocabulary Builder',
+                                'duration_minutes' => 15,
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
                                 // Word selection follows every sub-topic of English Vocabulary in Use
                                 // Unit 16, "Daily routines" (Sleep / Food / Bathroom routines / Housework
@@ -137,6 +139,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
+                                'duration_minutes' => 15,
                                 'hook' => 'Neil and Georgie are chatting about their mornings right now — how much can you catch without reading along?',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
                                 'audio_url' => $audioUrl,
@@ -167,6 +170,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
+                                'duration_minutes' => 12,
                                 'hook' => "Every \"I usually...\" you get right here is one less pause when you're speaking for real.",
                                 'focus' => 'Present Simple + Adverbs of Frequency',
                                 'lesson' => [
@@ -202,6 +206,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'activation',
                                 'label' => 'Activation',
+                                'duration_minutes' => 12,
                                 'hook' => "Say it once here, alone — it'll come out easier when someone's actually listening.",
                                 'task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
                             ],
@@ -220,6 +225,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
+                                'duration_minutes' => 10,
                                 'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
                                 // Real interview questions from Mission01.pdf "Speaking Session 01".
                                 'interview_questions' => [
@@ -234,11 +240,13 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_feedback_1',
                                 'label' => 'AI Feedback #1',
+                                'duration_minutes' => 3,
                                 'hook' => 'A second pair of ears just heard everything you said — here\'s what stood out.',
                             ],
                             [
                                 'key' => 'writing',
                                 'label' => 'Writing',
+                                'duration_minutes' => 12,
                                 'hook' => 'Putting it on paper often reveals what you actually think about your own day.',
                                 'title' => 'A typical day in my life',
                                 'prompts' => ['Morning', 'Work / Study', 'Afternoon', 'Evening', 'Free Time', 'Weekend'],
@@ -261,6 +269,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'active_recall',
                                 'label' => 'Active Recall',
+                                'duration_minutes' => 8,
                                 'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
                                 'instruction' => 'Without looking at the previous pages.',
                                 'sections' => [
@@ -272,11 +281,13 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'error_log',
                                 'label' => 'Error Log',
+                                'duration_minutes' => 6,
                                 'hook' => 'Mistakes are proof you tried something new. Let\'s fix a few, for good.',
                             ],
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
+                                'duration_minutes' => 10,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
                                 // Real rounds + requirements from Mission01.pdf "Speaking Session 02".
                                 'rounds' => [
@@ -298,6 +309,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'mission_result',
                                 'label' => 'Mission Result',
+                                'duration_minutes' => 5,
                                 'hook' => 'You started this mission with a number — let\'s see how far it moved.',
                                 // Real structure from Mission01.pdf page 12 "Mission complete".
                                 'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],

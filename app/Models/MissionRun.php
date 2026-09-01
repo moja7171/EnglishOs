@@ -173,7 +173,7 @@ class MissionRun extends Model
      * calendar, so a day unlocks the moment the previous one's Evidence is
      * complete, whatever the actual date is.
      *
-     * @return list<array{phase: string, label: string, stepKeys: list<string>, startedAt: ?Carbon, completedAt: ?Carbon, done: bool, current: bool, locked: bool}>
+     * @return list<array{phase: string, label: string, stepKeys: list<string>, estimatedMinutes: int, startedAt: ?Carbon, completedAt: ?Carbon, done: bool, current: bool, locked: bool}>
      */
     public function dayProgress(): array
     {
@@ -199,6 +199,7 @@ class MissionRun extends Model
                 'phase' => $phase['phase'],
                 'label' => $phase['label'] ?? ucfirst($phase['phase']),
                 'stepKeys' => $stepKeys,
+                'estimatedMinutes' => collect($stepKeys)->sum(fn ($key) => $this->mission->stepDuration($key)),
                 'startedAt' => $dayEvidence->first()?->created_at,
                 'completedAt' => $done ? $dayEvidence->last()?->created_at : null,
                 'done' => $done,
