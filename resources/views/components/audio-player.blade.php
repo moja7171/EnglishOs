@@ -1,4 +1,10 @@
-@props(['url'])
+{{--
+    @param string|null $onEnded Raw Alpine statement(s) run whenever playback
+        reaches the end — e.g. onEnded="$dispatch('audio-ended')" so a
+        parent listening for that event (bubbles up the DOM) can count real
+        completed listens, not just play clicks.
+--}}
+@props(['url', 'onEnded' => null])
 
 @if (! empty($url))
     <div
@@ -8,6 +14,7 @@
             currentTime: 0,
             duration: 0,
             dragging: false,
+            speed: 1,
             init() {
                 const audio = this.$refs.audio;
                 const seek = this.$refs.seek;
@@ -21,11 +28,16 @@
                 });
                 audio.addEventListener('play', () => this.playing = true);
                 audio.addEventListener('pause', () => this.playing = false);
-                audio.addEventListener('ended', () => this.playing = false);
+                audio.addEventListener('ended', () => { this.playing = false; {{ $onEnded }} });
                 // Metadata may already have loaded before this listener was attached.
                 if (audio.readyState >= 1) this.duration = audio.duration;
             },
             togglePlay() { this.playing ? this.$refs.audio.pause() : this.$refs.audio.play() },
+            cycleSpeed() {
+                const speeds = [0.75, 1, 1.25];
+                this.speed = speeds[(speeds.indexOf(this.speed) + 1) % speeds.length];
+                this.$refs.audio.playbackRate = this.speed;
+            },
             skip(seconds) {
                 const audio = this.$refs.audio;
                 const max = audio.duration || this.duration || Infinity;
@@ -88,6 +100,14 @@
             >
 
             <span class="w-9 shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark" x-text="formatTime(duration)"></span>
+
+            <button
+                type="button"
+                x-on:click="cycleSpeed()"
+                title="Playback speed"
+                class="inline-flex w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line px-2 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                x-text="speed + 'x'"
+            ></button>
 
             <a
                 href="{{ $url }}"

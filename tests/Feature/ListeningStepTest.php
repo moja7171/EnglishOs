@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -146,7 +147,7 @@ class ListeningStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
 
-        $this->assertStringContainsString("\$wire.expressionsHeard.findIndex", $html);
+        $this->assertStringContainsString('$wire.expressionsHeard.findIndex', $html);
         $this->assertStringContainsString("\$wire.set('expressionsHeard.' + idx, 'Sleep in')", $html);
     }
 
@@ -211,7 +212,7 @@ class ListeningStepTest extends TestCase
 
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->once()->andThrow(
-                new \Illuminate\Http\Client\ConnectionException('cURL error 7: Failed to connect() to host')
+                new ConnectionException('cURL error 7: Failed to connect() to host')
             );
         });
 
@@ -364,5 +365,223 @@ class ListeningStepTest extends TestCase
         Livewire::test('missions.steps.listening', ['run' => $run])
             ->assertSeeHtml('h-1.5 w-full overflow-hidden rounded-full')
             ->assertSeeHtml('of 3 written');
+    }
+
+    private function makeRunWithTranscript(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'foundation',
+                    'steps' => [
+                        [
+                            'key' => 'listening',
+                            'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
+                            'transcript' => [
+                                ['speaker' => 'Neil', 'text' => 'Hello and welcome.'],
+                                ['speaker' => 'Georgie', 'text' => "And I'm Georgie."],
+                            ],
+                        ],
+                        ['key' => 'grammar_in_context'],
+                    ],
+                ],
+            ],
+        ]);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_the_transcript_is_gated_behind_two_listens_by_default(): void
+    {
+        $run = $this->makeRunWithTranscript();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        // Locked message + the real Alpine wiring that counts real completed
+        // plays (the "ended" event), not just clicks — must be present.
+        $this->assertStringContainsString('listenCount', $html);
+        $this->assertStringContainsString('Math.min(listenCount, 2)}/2 times', $html);
+        $this->assertStringContainsString('dispatch(&#039;audio-ended&#039;)', $html);
+        // The transcript text is server-rendered either way (client-side
+        // x-show hides it) so it can appear instantly once unlocked.
+        $this->assertStringContainsString('Hello and welcome.', $html);
+    }
+
+    public function test_the_transcript_is_never_gated_when_reviewing_a_completed_step(): void
+    {
+        $run = $this->makeRunWithTranscript();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run, 'readOnly' => true])->html();
+
+        $this->assertStringNotContainsString('times to unlock the transcript', $html);
+        $this->assertStringContainsString('Show transcript', $html);
+    }
+
+    public function test_no_transcript_section_renders_when_the_mission_has_no_transcript_authored(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringNotContainsString('unlock the transcript', $html);
+        $this->assertStringNotContainsString('Show transcript', $html);
+    }
+
+    private function makeRunWithDetailAndGapFill(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'foundation',
+                    'steps' => [
+                        [
+                            'key' => 'listening',
+                            'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
+                            'target_phrases' => [
+                                ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'gap_before' => 'I like to ', 'gap_after' => ' at weekends.'],
+                            ],
+                            'detail_question' => [
+                                'question' => 'What time did Neil need to get up to catch his flight?',
+                                'accepted' => ['3am', '3 am', 'three am'],
+                            ],
+                        ],
+                        ['key' => 'grammar_in_context'],
+                    ],
+                ],
+            ],
+        ]);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_the_detail_question_is_required_and_blocks_continue_when_empty(): void
+    {
+        $run = $this->makeRunWithDetailAndGapFill();
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->call('save')
+            ->assertHasErrors(['detailAnswer']);
+
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_a_wrong_detail_answer_blocks_continue(): void
+    {
+        $run = $this->makeRunWithDetailAndGapFill();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->set('detailAnswer', 'Nine in the morning')
+            ->call('save')
+            ->assertHasErrors(['sentences']);
+
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_a_correct_detail_answer_saves_and_advances(): void
+    {
+        $run = $this->makeRunWithDetailAndGapFill();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->set('detailAnswer', 'He needed to get up at 3am.')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('completed', true);
+
+        $evidence = Evidence::where('phase', 'listening')->first();
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertSame('He needed to get up at 3am.', $content['detail_answer']);
+    }
+
+    public function test_gap_fill_is_optional_and_never_blocks_continue(): void
+    {
+        $run = $this->makeRunWithDetailAndGapFill();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->set('detailAnswer', '3am')
+            // gapFillAnswers left entirely empty on purpose.
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('completed', true);
+    }
+
+    public function test_gap_fill_check_gives_non_blocking_feedback(): void
+    {
+        $run = $this->makeRunWithDetailAndGapFill();
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gapFillAnswers.0', 'sleep in')
+            ->call('checkGapFill', 0)
+            ->assertSet('gapFillFeedback.0.severity', 'none');
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gapFillAnswers.0', 'wake up late')
+            ->call('checkGapFill', 0)
+            ->assertSet('gapFillFeedback.0.severity', 'minor');
+    }
+
+    public function test_selecting_a_shadow_line_clears_any_previous_recording(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [[
+                    'key' => 'listening',
+                    'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
+                    'shadow_lines' => ['Do you like to get up early or sleep in?', 'Are you a morning person?'],
+                ]],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->assertSee('Line 1')
+            ->assertSee('Line 2')
+            ->call('selectShadowLine', 1)
+            ->assertSet('activeShadowLine', 1)
+            ->assertSet('shadowRecording', null)
+            ->assertSee('Are you a morning person?');
     }
 }

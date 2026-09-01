@@ -139,19 +139,98 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
-                                'duration_minutes' => 15,
+                                // Was 15, then 18 for the transcript review; now 20 for the required
+                                // Third listening detail question (gap-fill + shadowing are optional
+                                // bonus practice, not counted as required time).
+                                'duration_minutes' => 20,
                                 'hook' => 'Neil and Georgie are chatting about their mornings right now — how much can you catch without reading along?',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
                                 'audio_url' => $audioUrl,
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
+                                // Full real transcript (BBC Learning English, "Real Easy English:
+                                // Mornings", 2025) — shown in-app only after the learner has genuinely
+                                // listened twice (see ⚡listening.blade.php), so it's a check, not a
+                                // shortcut around the actual listening practice.
+                                'transcript' => [
+                                    ['speaker' => 'Neil', 'text' => "Hello and welcome to Real Easy English, the podcast where we have real conversations in easy English to help you learn. I'm Neil."],
+                                    ['speaker' => 'Georgie', 'text' => "And I'm Georgie. You can read along with this podcast on our website where you can also find a free worksheet."],
+                                    ['speaker' => 'Neil', 'text' => 'So, Georgie, how are you today?'],
+                                    ['speaker' => 'Georgie', 'text' => "I'm very well, thank you. How are you?"],
+                                    ['speaker' => 'Neil', 'text' => "I'm well, thank you very much."],
+                                    ['speaker' => 'Georgie', 'text' => 'Good.'],
+                                    ['speaker' => 'Neil', 'text' => 'What are we talking about today?'],
+                                    ['speaker' => 'Georgie', 'text' => 'Today we are talking about our morning routines. That is what we usually do in the mornings before work.'],
+                                    ['speaker' => 'Neil', 'text' => "OK, let's get started."],
+                                    ['speaker' => 'Georgie', 'text' => 'So, Neil, do you like to get up early or do you prefer to sleep in?'],
+                                    ['speaker' => 'Neil', 'text' => "It depends if I have had enough sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about you?"],
+                                    ['speaker' => 'Georgie', 'text' => "Well, I like the mornings sometimes because I feel like it's quieter. Not many people are up. I also feel like my brain works better in the mornings, so that helps. But I do like sleeping in sometimes, especially at the weekends."],
+                                    ['speaker' => 'Neil', 'text' => "So, Georgie, you said that your brain works best in the morning. Does that mean that you're a morning person?"],
+                                    ['speaker' => 'Georgie', 'text' => "Yes, I think it does. I'm a morning person. That means someone that has a lot of energy at the start of the day."],
+                                    ['speaker' => 'Neil', 'text' => 'Georgie, do you eat breakfast?'],
+                                    ['speaker' => 'Georgie', 'text' => "That also depends. And I have a different breakfast routine depending if I'm working in the office or at home. So if I'm in the office, and you know this, I usually have a pastry or a croissant in the morning and a banana if I'm feeling good. But if I'm at home, I usually have eggs a bit later, around ten. What about you?"],
+                                    ['speaker' => 'Neil', 'text' => 'I always have breakfast before I leave the house.'],
+                                    ['speaker' => 'Georgie', 'text' => 'Wow.'],
+                                    ['speaker' => 'Neil', 'text' => "Otherwise I'm very grumpy. So, at the moment I am having egg on toast for breakfast and then marmalade on toast as well. But not together."],
+                                    ['speaker' => 'Georgie', 'text' => 'So, you said you always have breakfast. You never skip breakfast?'],
+                                    ['speaker' => 'Neil', 'text' => "Never. Unless there's a very, very good reason."],
+                                    ['speaker' => 'Georgie', 'text' => 'OK.'],
+                                    ['speaker' => 'Neil', 'text' => 'Like, I think the last time I skipped breakfast, I needed to get up at 3am to catch a flight.'],
+                                    ['speaker' => 'Georgie', 'text' => "Yes. It's very strange to wake up at that time. It changes your routine, doesn't it? Because you don't feel hungry then."],
+                                    ['speaker' => 'Neil', 'text' => 'So how about you, Georgie? Do you skip breakfast?'],
+                                    ['speaker' => 'Georgie', 'text' => "Sometimes I skip breakfast, because when I wake up, I'm not hungry. So, if I don't eat breakfast straight away, I sometimes forget to eat breakfast, but then I have an early lunch."],
+                                    ['speaker' => 'Neil', 'text' => 'Right.'],
+                                    ['speaker' => 'Georgie', 'text' => "So, Neil, you said that it's hard to get up when you haven't slept well. Does that mean you oversleep, you sleep too long?"],
+                                    ['speaker' => 'Neil', 'text' => 'No. Unfortunately, I never oversleep. In fact, I usually wake up before my alarm. Do you oversleep?'],
+                                    ['speaker' => 'Georgie', 'text' => "Well, I usually wake up with my alarm. I never wake up before my alarm. So sometimes if I don't set my alarm, I oversleep. That actually happened this week. But it was OK because I woke up in time for work. I didn't oversleep that much."],
+                                    ['speaker' => 'Neil', 'text' => "Right. Have you ever overslept so much that you've missed work or missed the start of the working day?"],
+                                    ['speaker' => 'Georgie', 'text' => 'Never work. But yes, to a flight. That was one of the most stressful mornings I\'ve had.'],
+                                    ['speaker' => 'Neil', 'text' => 'Is there anything else, Georgie, that you do in the morning regularly?'],
+                                    ['speaker' => 'Georgie', 'text' => 'Well, regularly maybe not. But sometimes if I feel motivated, I manage to do some exercise in the mornings, either running, or actually, this morning I did a Pilates workout. What about you, Neil?'],
+                                    ['speaker' => 'Neil', 'text' => "No, I can't exercise until later because my body doesn't enjoy that – especially running. All of my joints hurt."],
+                                    ['speaker' => 'Georgie', 'text' => 'So what do you do in the mornings?'],
+                                    ['speaker' => 'Neil', 'text' => "I like to know what the weather's going to be like. So I check the forecast and I choose my clothes so that I'm wearing the right thing for the type of weather."],
+                                    ['speaker' => 'Georgie', 'text' => 'That\'s very sensible.'],
+                                    ['speaker' => 'Neil', 'text' => 'Especially in the United Kingdom because the weather can be different every day.'],
+                                    ['speaker' => 'Georgie', 'text' => "That's very true. Make sure you've got your umbrella."],
+                                    ['speaker' => 'Neil', 'text' => 'Or not.'],
+                                    ['speaker' => 'Georgie', 'text' => "OK, let's recap the language we heard during the conversation."],
+                                    ['speaker' => 'Neil', 'text' => 'We heard a few ways to talk about what time we sleep until. We heard sleep in, which means staying in bed and sleeping later than we usually do. And we also heard oversleep, which means sleeping longer than you should accidentally.'],
+                                    ['speaker' => 'Georgie', 'text' => 'We had get up, which is a phrasal verb we use to say stand up and leave your bed.'],
+                                    ['speaker' => 'Neil', 'text' => "And we heard a morning person. Like you, Georgie, you're a morning person. A morning person is someone who likes the mornings, has lots of energy at the start of the day. I'm not really a morning person."],
+                                    ['speaker' => 'Georgie', 'text' => 'We had skip, not do something that you usually do or should do. For example, sometimes I forget to eat in the morning, so I skip breakfast and have an early lunch instead.'],
+                                    ['speaker' => 'Neil', 'text' => "That's it for this episode of Real Easy English. You can test what you've learned with our worksheet on our website. Find the link in the notes and go there."],
+                                    ['speaker' => 'Georgie', 'text' => "And if you want to learn more language to talk about your morning routine, I've made a video all about phrasal verbs for your morning routine. You can also find it at bbclearningenglish.com."],
+                                    ['speaker' => 'Neil', 'text' => "And next time we'll talk about our evening routines, what we get up to in the evenings."],
+                                    ['speaker' => 'Georgie', 'text' => 'See you next time.'],
+                                    ['speaker' => 'Neil', 'text' => 'Goodbye.'],
+                                ],
                                 // The exact 5 expressions, with the meanings Neil & Georgie themselves
                                 // gave in the podcast's own end-of-episode recap (page 5 of the transcript).
+                                // gap_before/gap_after are real, single-blank sentences lifted straight
+                                // from the transcript — the Third listening gap-fill exercise below.
                                 'target_phrases' => [
-                                    ['phrase' => 'get up', 'meaning' => 'to stand up and leave your bed'],
-                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual'],
-                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident'],
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do'],
-                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day'],
+                                    [
+                                        'phrase' => 'get up', 'meaning' => 'to stand up and leave your bed',
+                                        'gap_before' => "It depends if I have had enough sleep. If I've had enough sleep, I can ",
+                                        'gap_after' => ' early.',
+                                    ],
+                                    [
+                                        'phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual',
+                                        'gap_before' => "If I haven't, I want to ", 'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident',
+                                        'gap_before' => 'In fact, I usually wake up before my alarm. Do you ', 'gap_after' => '?',
+                                    ],
+                                    [
+                                        'phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do',
+                                        'gap_before' => 'So, you said you always have breakfast. You never ', 'gap_after' => '?',
+                                    ],
+                                    [
+                                        'phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day',
+                                        'gap_before' => "Yes, I think it does. I'm a ",
+                                        'gap_after' => '. That means someone that has a lot of energy at the start of the day.',
+                                    ],
                                 ],
                                 // A faithful summary of the real transcript — used to ground the AI check in
                                 // what was actually said, so an off-topic answer can be caught as irrelevant.
@@ -159,6 +238,18 @@ class MissionSeeder extends Seeder
                                     .'they like to get up early or sleep in, whether they eat breakfast or '
                                     .'sometimes skip it, whether they ever oversleep, whether they exercise in '
                                     .'the morning, and how Neil checks the weather before choosing his clothes.',
+                                // Third listening — a detail question with one real, checkable fact (not
+                                // just "on topic" like gist/expressions), and 3 curated real lines to
+                                // shadow (repeat out loud with the audio) once the transcript is unlocked.
+                                'detail_question' => [
+                                    'question' => 'What time did Neil need to get up to catch his flight, the last time he skipped breakfast?',
+                                    'accepted' => ['3am', '3 am', '3 a.m.', '3a.m.', 'three am', 'three a.m.', 'three o\'clock', '3 oclock', '3 o\'clock'],
+                                ],
+                                'shadow_lines' => [
+                                    'So, Neil, do you like to get up early or do you prefer to sleep in?',
+                                    "Yes, I think it does. I'm a morning person. That means someone that has a lot of energy at the start of the day.",
+                                    "Sometimes I skip breakfast, because when I wake up, I'm not hungry.",
+                                ],
                             ],
                         ],
                     ],
