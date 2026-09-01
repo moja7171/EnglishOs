@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         User::firstOrCreate(
             ['email' => 'test@example.com'],
-            User::factory()->raw(['name' => 'Test User'])
+            User::factory()->raw(['name' => 'Test User', 'email' => 'test@example.com'])
         );
 
         $this->call(MissionSeeder::class);
