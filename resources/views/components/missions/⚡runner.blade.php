@@ -78,9 +78,18 @@ new class extends Component
         return $this->currentStepKey;
     }
 
+    /**
+     * A step is being reviewed (read-only) when it already has recorded
+     * Evidence — not merely when it isn't the literal current step. Under
+     * normal locking the two are identical (reachableStepKeys only ever
+     * contains done steps + the current one), but if that ever changes —
+     * e.g. a future or not-yet-done step becomes reachable some other way —
+     * it must still render as live/editable, not as an inert "already
+     * reviewed" shell.
+     */
     public function getIsReviewingProperty(): bool
     {
-        return $this->activeStepKey !== $this->currentStepKey;
+        return $this->activeStepKey !== null && $this->run->latestEvidence($this->activeStepKey) !== null;
     }
 
     /**

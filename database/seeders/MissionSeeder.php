@@ -169,6 +169,23 @@ class MissionSeeder extends Seeder
                                 'label' => 'Grammar in Context',
                                 'hook' => "Every \"I usually...\" you get right here is one less pause when you're speaking for real.",
                                 'focus' => 'Present Simple + Adverbs of Frequency',
+                                'lesson' => [
+                                    'conjugation_examples' => [
+                                        ['base' => 'I wake up early.', 'third_person' => 'She wakes up early.'],
+                                        ['base' => 'I go to work by bus.', 'third_person' => 'He goes to work by bus.'],
+                                        ['base' => 'I have breakfast at eight.', 'third_person' => 'She has breakfast at eight.'],
+                                    ],
+                                    'question_example' => 'Do you usually wake up early?',
+                                    'question_example_does' => 'Does she work on Saturdays?',
+                                    'negative_example' => "I don't usually wake up before seven.",
+                                    'negative_example_does' => "He doesn't work on Sundays.",
+                                    'frequency_scale' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never'],
+                                    'word_order_examples' => [
+                                        ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.'],
+                                        ['rule' => 'With am/is/are → the adverb goes after it', 'example' => "I'm usually tired in the morning."],
+                                        ['rule' => 'Two-word verb → the adverb goes after the first word', 'example' => "I don't usually work at night."],
+                                    ],
+                                ],
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
                                 ],

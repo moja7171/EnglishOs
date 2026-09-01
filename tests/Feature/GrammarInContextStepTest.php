@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -29,6 +30,19 @@ class GrammarInContextStepTest extends TestCase
                         [
                             'key' => 'grammar_in_context',
                             'focus' => 'Present Simple + Adverbs of Frequency',
+                            'lesson' => [
+                                'conjugation_examples' => [
+                                    ['base' => 'I wake up early.', 'third_person' => 'She wakes up early.'],
+                                ],
+                                'question_example' => 'Do you usually wake up early?',
+                                'question_example_does' => 'Does she work on Saturdays?',
+                                'negative_example' => "I don't usually wake up before seven.",
+                                'negative_example_does' => "He doesn't work on Sundays.",
+                                'frequency_scale' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never'],
+                                'word_order_examples' => [
+                                    ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.'],
+                                ],
+                            ],
                             'frequency_starters' => ['I usually', 'I often', 'I sometimes', 'I rarely'],
                             'quick_check' => [
                                 ['wrong' => 'She go to work.', 'correct' => 'She goes to work.'],
@@ -44,7 +58,7 @@ class GrammarInContextStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
-    public function test_requires_three_sentences_and_all_corrections(): void
+    public function test_requires_three_sentences_before_continuing(): void
     {
         $run = $this->makeRun();
 
@@ -53,11 +67,48 @@ class GrammarInContextStepTest extends TestCase
             ->call('save')
             ->assertHasErrors(['frequencySentences']);
 
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_a_major_ai_verdict_on_a_frequency_sentence_blocks_continue(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn(json_encode(['severity' => 'major', 'hint' => 'That is not the present simple tense.']))
+                ->ordered();
+            $mock->shouldReceive('chat')
+                ->twice()
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']))
+                ->ordered();
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I woke up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->call('save')
+            ->assertHasErrors(['frequencySentences']);
+
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_incorrect_quick_check_corrections_block_continue(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
             ->set('frequencySentences.0', 'I usually wake up at 7.')
             ->set('frequencySentences.1', 'I often cook dinner.')
             ->set('frequencySentences.2', 'I sometimes exercise.')
-            ->set('corrections.0', 'She goes to work.')
+            ->set('corrections.0', 'She go to work.') // still wrong — repeats the error
+            ->set('corrections.1', 'He wakes up late.')
             ->call('save')
             ->assertHasErrors(['corrections']);
 
@@ -67,6 +118,10 @@ class GrammarInContextStepTest extends TestCase
     public function test_valid_submission_records_evidence_and_advances_the_run(): void
     {
         $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
             ->set('frequencySentences.0', 'I usually wake up at 7.')
@@ -82,7 +137,46 @@ class GrammarInContextStepTest extends TestCase
 
         $this->assertCount(3, $content['frequency_sentences']);
         $this->assertSame('She goes to work.', $content['corrections'][0]['my_correction']);
+        $this->assertTrue($content['corrections'][0]['is_correct']);
 
         $this->assertSame('activation', $run->fresh()->currentStepKey());
+    }
+
+    public function test_checking_a_correction_gives_local_feedback_without_calling_the_ai(): void
+    {
+        $run = $this->makeRun();
+
+        // No GeminiClient mock at all — checkCorrection must never call it.
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('corrections.0', 'She go to work.')
+            ->call('checkCorrection', 0)
+            ->assertSet('correctionFeedback.0.severity', 'minor');
+    }
+
+    public function test_reviewing_a_completed_step_reloads_saved_sentences_and_corrections(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'grammar_in_context',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'frequency_sentences' => [
+                    ['starter' => 'I usually', 'completion' => 'I usually wake up at 7.'],
+                ],
+                'corrections' => [
+                    ['wrong' => 'She go to work.', 'my_correction' => 'She goes to work.', 'correct' => 'She goes to work.', 'is_correct' => true],
+                ],
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run, 'readOnly' => true])
+            ->assertSet('frequencySentences.0', 'I usually wake up at 7.')
+            ->assertSet('corrections.0', 'She goes to work.');
     }
 }
