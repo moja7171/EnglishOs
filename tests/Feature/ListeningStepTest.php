@@ -356,4 +356,13 @@ class ListeningStepTest extends TestCase
             ->call('save')
             ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:listening:");
     }
+
+    public function test_the_gist_section_shows_a_fill_progress_bar(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->assertSeeHtml('h-1.5 w-full overflow-hidden rounded-full')
+            ->assertSeeHtml('of 3 written');
+    }
 }

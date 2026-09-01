@@ -324,6 +324,24 @@ new class extends Component
         <div>
             <p class="text-sm font-semibold">First listening — gist</p>
             <p class="text-xs text-neutral-500">Listen without the transcript. What is the conversation about? Write 3 full sentences about what you understood. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
+            @unless ($readOnly)
+                <div class="mt-2">
+                    <x-progress-bar>
+                        <div
+                            class="h-full rounded-full transition-all duration-300"
+                            :class="gistDone ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
+                            :style="`width: ${gistFilled.filter(Boolean).length / 3 * 100}%`"
+                        ></div>
+                        <x-slot:label>
+                            <p
+                                class="text-xs font-semibold transition-colors"
+                                :class="gistDone ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
+                                x-text="`${gistFilled.filter(Boolean).length} of 3 written`"
+                            ></p>
+                        </x-slot:label>
+                    </x-progress-bar>
+                </div>
+            @endunless
             <div class="mt-2 space-y-2">
                 @foreach ($gistPoints as $index => $point)
                     @php $key = "gist_{$index}"; $itemFeedback = $feedback[$key] ?? null; @endphp
