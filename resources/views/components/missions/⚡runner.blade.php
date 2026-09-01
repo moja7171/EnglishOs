@@ -33,9 +33,17 @@ new class extends Component
      * Steps the learner has already reached — done steps plus the current
      * one. Evidence Before Progress (EOS-003 §7) still applies: you can
      * look back at any of these, but never jump ahead of the current step.
+     *
+     * TEMPORARY — testing only: MissionRun::TESTING_UNLOCK_ALL_STEPS
+     * bypasses this entirely while true. Revert it there (single source
+     * of truth — also used by dayProgress()'s 'locked' flag below).
      */
     public function getReachableStepKeysProperty(): array
     {
+        if (MissionRun::TESTING_UNLOCK_ALL_STEPS) {
+            return $this->stepKeys;
+        }
+
         if ($this->currentStepKey === null) {
             return $this->stepKeys;
         }
@@ -106,6 +114,26 @@ new class extends Component
         foreach ($this->run->dayProgress() as $day) {
             if (in_array($this->activeStepKey, $day['stepKeys'], true)) {
                 return $day;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 0-based position of the active day among all of the mission's days —
+     * shown at the top of the page ("Day 2 · Build") so the learner always
+     * knows where they are without having to scroll into the step list.
+     */
+    public function getActiveDayIndexProperty(): ?int
+    {
+        if (! $this->activeStepKey) {
+            return null;
+        }
+
+        foreach ($this->run->dayProgress() as $index => $day) {
+            if (in_array($this->activeStepKey, $day['stepKeys'], true)) {
+                return $index;
             }
         }
 
@@ -193,7 +221,11 @@ new class extends Component
         <div class="space-y-3">
             @foreach ($run->dayProgress() as $index => $day)
                 @php
-                    $entryStep = $day['done'] ? $day['stepKeys'][0] : ($day['current'] ? $this->currentStepKey : null);
+                    $entryStep = $day['done']
+                        ? $day['stepKeys'][0]
+                        : ($day['current']
+                            ? $this->currentStepKey
+                            : (MissionRun::TESTING_UNLOCK_ALL_STEPS ? $day['stepKeys'][0] : null));
                 @endphp
                 <div class="rounded-lg border p-4
                     {{ $day['current'] ? 'border-neutral-900 dark:border-white' : 'border-neutral-300 dark:border-neutral-700' }}
@@ -227,7 +259,18 @@ new class extends Component
             $daySteps = $this->activeDay['stepKeys'] ?? [];
             $position = array_search($this->activeStepKey, $daySteps, true) + 1;
         @endphp
-        <a href="{{ route('missions.show', [$mission, 'overview']) }}" wire:navigate class="text-xs text-neutral-500 underline">‹ All days</a>
+        <div class="flex items-center justify-between">
+            <a
+                href="{{ route('missions.show', [$mission, 'overview']) }}"
+                wire:navigate
+                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            >
+                <span aria-hidden="true">‹</span> All Days
+            </a>
+            <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                Day {{ $this->activeDayIndex + 1 }} · {{ $this->activeDay['label'] ?? '' }}
+            </p>
+        </div>
 
         {{-- Vertical checklist, scoped to this day only --}}
         <nav class="space-y-1">
@@ -267,7 +310,7 @@ new class extends Component
         <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
             <div class="flex items-center justify-between">
                 <p class="font-mono text-xs text-neutral-500">
-                    {{ $this->activeDay['label'] ?? '' }} · Step {{ $position }} of {{ count($daySteps) }}
+                    Step {{ $position }} of {{ count($daySteps) }}
                 </p>
                 @if ($this->isReviewing)
                     <span class="rounded bg-neutral-200 px-2 py-0.5 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
@@ -288,15 +331,33 @@ new class extends Component
 
         <div class="flex items-center justify-between text-sm">
             @if ($this->previousStepKey)
-                <a href="{{ route('missions.show', [$mission, $this->previousStepKey]) }}" wire:navigate class="underline">‹ Previous</a>
+                <a
+                    href="{{ route('missions.show', [$mission, $this->previousStepKey]) }}"
+                    wire:navigate
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                >
+                    <span aria-hidden="true">‹</span> Previous
+                </a>
             @else
                 <span></span>
             @endif
 
             @if ($this->nextStepKey)
-                <a href="{{ route('missions.show', [$mission, $this->nextStepKey]) }}" wire:navigate class="underline">Next ›</a>
+                <a
+                    href="{{ route('missions.show', [$mission, $this->nextStepKey]) }}"
+                    wire:navigate
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                >
+                    Next <span aria-hidden="true">›</span>
+                </a>
             @elseif ($this->isReviewing)
-                <a href="{{ route('missions.show', [$mission, 'overview']) }}" wire:navigate class="underline">Back to all days ›</a>
+                <a
+                    href="{{ route('missions.show', [$mission, 'overview']) }}"
+                    wire:navigate
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                >
+                    Back to all days <span aria-hidden="true">›</span>
+                </a>
             @endif
         </div>
     @else

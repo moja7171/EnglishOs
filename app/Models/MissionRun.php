@@ -23,6 +23,15 @@ class MissionRun extends Model
 
     public const STATUS_RETRY_EVIDENCE = 'retry_evidence';
 
+    /**
+     * TEMPORARY — testing only. Must be reverted (set back to false) before
+     * this is left as-is — it bypasses Evidence Before Progress (EOS-003
+     * §7 / Article 3) by marking every day unlocked in dayProgress(),
+     * regardless of actual Evidence. Kept in sync with the matching flag
+     * in ⚡runner.blade.php.
+     */
+    public const TESTING_UNLOCK_ALL_STEPS = true;
+
     protected function casts(): array
     {
         return [
@@ -193,7 +202,7 @@ class MissionRun extends Model
                 'completedAt' => $done ? $dayEvidence->last()?->created_at : null,
                 'done' => $done,
                 'current' => $isCurrent,
-                'locked' => ! $done && ! $isCurrent,
+                'locked' => ! $done && ! $isCurrent && ! self::TESTING_UNLOCK_ALL_STEPS,
             ];
         }
 
