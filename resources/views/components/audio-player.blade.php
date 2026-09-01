@@ -54,23 +54,23 @@
             <button
                 type="button"
                 x-on:click="skip(-10)"
-                class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-            >&#8249;&#8249; 10s</button>
+                class="inline-flex shrink-0 cursor-pointer items-center gap-0.5 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+            >@svg('heroicon-o-backward', 'h-3.5 w-3.5') 10s</button>
 
             <button
                 type="button"
                 x-on:click="togglePlay()"
-                class="shrink-0 cursor-pointer rounded bg-neutral-900 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded bg-neutral-900 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
-                <span x-show="!playing">Play</span>
-                <span x-show="playing" x-cloak>Pause</span>
+                <span x-show="!playing" class="inline-flex items-center gap-1">@svg('heroicon-s-play', 'h-3.5 w-3.5') Play</span>
+                <span x-show="playing" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-s-pause', 'h-3.5 w-3.5') Pause</span>
             </button>
 
             <button
                 type="button"
                 x-on:click="skip(10)"
-                class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-            >10s &#8250;&#8250;</button>
+                class="inline-flex shrink-0 cursor-pointer items-center gap-0.5 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+            >10s @svg('heroicon-o-forward', 'h-3.5 w-3.5')</button>
 
             <span class="w-9 shrink-0 text-right text-xs text-neutral-500" x-text="formatTime(currentTime)"></span>
 
@@ -92,8 +92,8 @@
             <a
                 href="{{ $url }}"
                 download
-                class="shrink-0 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-            >Download</a>
+                class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+            >@svg('heroicon-o-arrow-down-tray', 'h-3.5 w-3.5') Download</a>
         </div>
     </div>
 @endif

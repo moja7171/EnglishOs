@@ -12,10 +12,10 @@
                     @php $isSelected = in_array($segment['value'], $selectedWords, true); @endphp
                     @if ($readOnly ?? false)
                         <span @class([
-                            'rounded-full px-2 py-0.5 font-semibold' => true,
+                            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold' => true,
                             'bg-green-600 text-white' => $isSelected,
                             'text-neutral-400' => ! $isSelected,
-                        ])>{{ $isSelected ? '✓ ' : '' }}{{ $segment['value'] }}</span>
+                        ])>@if ($isSelected) @svg('heroicon-o-check', 'h-3 w-3') @endif{{ $segment['value'] }}</span>
                     @else
                         <button
                             type="button"
@@ -24,11 +24,11 @@
                             wire:target="toggleWord"
                             title="{{ $component->wordMeaning($segment['value']) }}"
                             @class([
-                                'cursor-pointer rounded-full px-2 py-0.5 font-semibold shadow-sm transition-all duration-150 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100' => true,
+                                'inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 font-semibold shadow-sm transition-all duration-150 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100' => true,
                                 'bg-green-600 text-white hover:bg-green-500' => $isSelected,
                                 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700' => ! $isSelected,
                             ])
-                        >{{ $isSelected ? '✓ ' : '' }}{{ $segment['value'] }}</button>
+                        >@if ($isSelected) @svg('heroicon-o-check', 'h-3 w-3') @endif{{ $segment['value'] }}</button>
                     @endif
                 @endif
             @endforeach

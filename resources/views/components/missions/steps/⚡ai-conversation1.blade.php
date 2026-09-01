@@ -158,7 +158,10 @@ new class extends Component
     @if ($completed)
         <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
             <div>
-                <p class="text-xs font-semibold tracking-wide text-green-600 uppercase">✓ AI Conversation #1 complete</p>
+                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-green-600 uppercase">
+                    @svg('heroicon-o-check-circle', 'h-4 w-4')
+                    AI Conversation #1 complete
+                </p>
                 <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Nicely done — take a look back at the conversation above before you move on.</p>
             </div>
             <button

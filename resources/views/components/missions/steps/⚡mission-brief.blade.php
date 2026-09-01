@@ -55,7 +55,7 @@ new class extends Component
                 {{ $phase['label'] ?? ucfirst($phase['phase'] ?? '') }}
             </span>
             @if (! $loop->last)
-                <span>→</span>
+                <span>@svg('heroicon-o-chevron-right', 'inline h-3 w-3')</span>
             @endif
         @endforeach
         <span class="ml-1">· {{ count($totalSteps) }} short steps</span>

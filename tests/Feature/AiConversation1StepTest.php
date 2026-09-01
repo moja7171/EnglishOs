@@ -150,7 +150,7 @@ class AiConversation1StepTest extends TestCase
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run, 'readOnly' => true])
             ->assertSet('turns', $turns)
             ->assertSet('currentQuestion', null) // no more questions -> record UI is hidden
-            ->assertDontSee('● Record');
+            ->assertDontSee('Record');
     }
 
     public function test_shows_a_progress_bar_and_the_selected_vocabulary(): void

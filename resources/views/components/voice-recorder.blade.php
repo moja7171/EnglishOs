@@ -70,18 +70,21 @@
             x-show="!recording"
             x-on:click="startRecording"
             :disabled="uploading"
-            class="cursor-pointer rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:pointer-events-none disabled:opacity-50"
-        >● Record</button>
+            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:pointer-events-none disabled:opacity-50"
+        >@svg('heroicon-s-microphone', 'h-4 w-4') Record</button>
 
         <button
             type="button"
             x-show="recording"
             x-on:click="stopRecording"
-            class="cursor-pointer rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-        >■ Stop (<span x-text="formattedTime"></span>)</button>
+            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+        >@svg('heroicon-s-stop-circle', 'h-4 w-4') Stop (<span x-text="formattedTime"></span>)</button>
 
         <span x-show="uploading" class="text-sm text-neutral-500">Uploading…</span>
-        <span x-show="!uploading && !recording && {{ $file ? 'true' : 'false' }}" class="text-sm text-green-600">✓ Recording saved</span>
+        <span x-show="!uploading && !recording && {{ $file ? 'true' : 'false' }}" class="inline-flex items-center gap-1 text-sm text-green-600">
+            @svg('heroicon-o-check-circle', 'h-4 w-4')
+            Recording saved
+        </span>
     </div>
 
     <p x-show="error" x-text="error" class="mt-2 text-sm text-red-600"></p>

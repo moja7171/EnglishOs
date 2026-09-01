@@ -315,8 +315,8 @@ new class extends Component
                     type="button"
                     wire:click="startPractice"
                     x-on:click="phase = 'practice'"
-                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-                >Continue with these {{ $selectedCount }} words &#8250;</button>
+                    class="inline-flex cursor-pointer items-center gap-1 rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                >Continue with these {{ $selectedCount }} words @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
             @endif
         </div>
     @endunless
@@ -326,10 +326,10 @@ new class extends Component
             <button
                 type="button"
                 x-on:click="showStoryAgain = !showStoryAgain"
-                class="cursor-pointer text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-2"
+                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-2"
             >
-                <span x-show="!showStoryAgain">&#9656; Show the story again</span>
-                <span x-show="showStoryAgain" x-cloak>&#9662; Hide the story</span>
+                <span x-show="!showStoryAgain" class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-right', 'h-3 w-3') Show the story again</span>
+                <span x-show="showStoryAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the story</span>
             </button>
             <div x-show="showStoryAgain" x-cloak class="mt-2 rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
                 @unless ($readOnly)
@@ -386,7 +386,7 @@ new class extends Component
                             wire:target="checkOne,revealCorrection,declineReveal,save"
                             class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                         >
-                        <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
+                        <x-filled-check show="filled[{{ $index }}]" />
                         @unless ($readOnly)
                             <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
                         @endunless

@@ -187,23 +187,26 @@ new class extends Component
     /**
      * A small visual cue for what kind of activity a step is — matched by
      * key prefix so it keeps working for future missions' ai_conversation_3
-     * etc. without a new lookup entry each time.
+     * etc. without a new lookup entry each time. Returns a Heroicons name
+     * (see resources/views/components — the app's icon catalog is
+     * Heroicons throughout, via blade-ui-kit/blade-heroicons) for use with
+     * the @svg() Blade directive, e.g. @svg($this->stepIcon($key), '...').
      */
     public function stepIcon(string $key): string
     {
         return match (true) {
-            $key === 'mission_brief' => '🎯',
-            $key === 'vocabulary_builder' => '📖',
-            $key === 'listening' => '🎧',
-            $key === 'grammar_in_context' => '✏️',
-            $key === 'activation' => '🎙️',
-            str_starts_with($key, 'ai_conversation') => '💬',
-            str_starts_with($key, 'ai_feedback') => '💡',
-            $key === 'writing' => '✍️',
-            $key === 'active_recall' => '🧠',
-            $key === 'error_log' => '🔍',
-            $key === 'mission_result' => '🏁',
-            default => '📌',
+            $key === 'mission_brief' => 'heroicon-o-rocket-launch',
+            $key === 'vocabulary_builder' => 'heroicon-o-book-open',
+            $key === 'listening' => 'heroicon-o-speaker-wave',
+            $key === 'grammar_in_context' => 'heroicon-o-pencil',
+            $key === 'activation' => 'heroicon-o-microphone',
+            str_starts_with($key, 'ai_conversation') => 'heroicon-o-chat-bubble-left-right',
+            str_starts_with($key, 'ai_feedback') => 'heroicon-o-light-bulb',
+            $key === 'writing' => 'heroicon-o-pencil-square',
+            $key === 'active_recall' => 'heroicon-o-arrow-path',
+            $key === 'error_log' => 'heroicon-o-magnifying-glass',
+            $key === 'mission_result' => 'heroicon-o-flag',
+            default => 'heroicon-o-map-pin',
         };
     }
 };
@@ -235,7 +238,10 @@ new class extends Component
                             Day {{ $index + 1 }} · {{ $day['label'] }}
                         </p>
                         @if ($day['done'])
-                            <span class="text-xs text-green-600">✓ Completed {{ $day['completedAt']->format('M j') }}</span>
+                            <span class="inline-flex items-center gap-1 text-xs text-green-600">
+                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5')
+                                Completed {{ $day['completedAt']->format('M j') }}
+                            </span>
                         @elseif ($day['startedAt'])
                             <span class="text-xs text-neutral-500">Started {{ $day['startedAt']->format('M j') }}</span>
                         @endif
@@ -265,7 +271,8 @@ new class extends Component
                 wire:navigate
                 class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
             >
-                <span aria-hidden="true">‹</span> All Days
+                @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
+                All Days
             </a>
             <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 Day {{ $this->activeDayIndex + 1 }} · {{ $this->activeDay['label'] ?? '' }}
@@ -289,19 +296,19 @@ new class extends Component
                             {{ ! $active && $done ? 'text-green-600' : '' }}
                             {{ ! $active && ! $done ? 'text-neutral-600 dark:text-neutral-400' : '' }}"
                     >
-                        <span class="text-base leading-none">{{ $this->stepIcon($key) }}</span>
+                        @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
                         <span class="flex-1 {{ $active ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
                         @if ($done && ! $active)
-                            <span class="text-xs">✓</span>
+                            @svg('heroicon-o-check-circle', 'h-4 w-4 shrink-0')
                         @endif
                     </a>
                 @else
                     <span
                         class="flex items-center gap-3 rounded-lg border border-neutral-100 px-3 py-2 text-sm text-neutral-300 dark:border-neutral-900 dark:text-neutral-700"
                     >
-                        <span class="text-base leading-none opacity-40">{{ $this->stepIcon($key) }}</span>
+                        @svg($this->stepIcon($key), 'h-4 w-4 shrink-0 opacity-40')
                         <span class="flex-1">{{ $mission->stepLabel($key) }}</span>
-                        <span class="text-xs">🔒</span>
+                        @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
                     </span>
                 @endif
             @endforeach
@@ -336,7 +343,8 @@ new class extends Component
                     wire:navigate
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                 >
-                    <span aria-hidden="true">‹</span> Previous
+                    @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
+                    Previous
                 </a>
             @else
                 <span></span>
@@ -348,7 +356,8 @@ new class extends Component
                     wire:navigate
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                 >
-                    Next <span aria-hidden="true">›</span>
+                    Next
+                    @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
                 </a>
             @elseif ($this->isReviewing)
                 <a
@@ -356,7 +365,8 @@ new class extends Component
                     wire:navigate
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                 >
-                    Back to all days <span aria-hidden="true">›</span>
+                    Back to all days
+                    @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
                 </a>
             @endif
         </div>

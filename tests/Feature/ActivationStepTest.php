@@ -261,7 +261,7 @@ class ActivationStepTest extends TestCase
         Livewire::test('missions.steps.activation', ['run' => $run])
             ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
             ->assertSee('Listen back')
-            ->assertSee('✓ Recording saved');
+            ->assertSee('Recording saved');
     }
 
     public function test_read_only_mode_plays_back_the_saved_recording_with_the_shared_audio_player(): void

@@ -392,7 +392,7 @@ new class extends Component
                 <div class="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
                     @foreach ($lesson['frequency_scale'] ?? [] as $word)
                         <span class="rounded-full border border-neutral-300 px-2 py-0.5 dark:border-neutral-700">{{ $word }}</span>
-                        @if (! $loop->last) <span class="text-neutral-400">→</span> @endif
+                        @if (! $loop->last) <span class="text-neutral-400">@svg('heroicon-o-chevron-right', 'inline h-3 w-3')</span> @endif
                     @endforeach
                 </div>
                 <div class="mt-3 space-y-2">
@@ -414,24 +414,24 @@ new class extends Component
                     type="button"
                     x-show="lessonStep > 0"
                     x-on:click="lessonStep--"
-                    class="cursor-pointer text-sm text-neutral-500 underline"
-                >&#8249; Back</button>
+                    class="inline-flex cursor-pointer items-center gap-1 text-sm text-neutral-500 underline"
+                >@svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Back</button>
                 <span x-show="lessonStep === 0"></span>
 
                 <button
                     type="button"
                     x-show="lessonStep < lessonSections - 1"
                     x-on:click="lessonStep++"
-                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-                >Next &#8250;</button>
+                    class="inline-flex cursor-pointer items-center gap-1 rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                >Next @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
 
                 <button
                     type="button"
                     x-show="lessonStep === lessonSections - 1"
                     wire:click="startPractice"
                     x-on:click="phase = 'practice'"
-                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-                >Start practice &#8250;</button>
+                    class="inline-flex cursor-pointer items-center gap-1 rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                >Start practice @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
             </div>
         </div>
     @endunless
@@ -441,8 +441,8 @@ new class extends Component
             <button
                 type="button"
                 x-on:click="phase = 'lesson'; lessonStep = 0"
-                class="cursor-pointer text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-2"
-            >&#9656; Review the lesson again</button>
+                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-2"
+            >@svg('heroicon-o-chevron-right', 'h-3 w-3') Review the lesson again</button>
         @endunless
 
         <div>
@@ -500,7 +500,7 @@ new class extends Component
                                 wire:target="checkOne,revealCorrection,declineReveal,save"
                                 class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                             >
-                            <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
+                            <x-filled-check show="filled[{{ $index }}]" />
                             @unless ($readOnly)
                                 <x-check-button method="checkOne" :index="$index" key-prefix="freq" wire-target="checkOne,revealCorrection,declineReveal,save" />
                             @endunless

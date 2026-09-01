@@ -301,7 +301,10 @@ new class extends Component
     @if ($completed)
         <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
             <div>
-                <p class="text-xs font-semibold tracking-wide text-green-600 uppercase">✓ Listening complete</p>
+                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-green-600 uppercase">
+                    @svg('heroicon-o-check-circle', 'h-4 w-4')
+                    Listening complete
+                </p>
                 <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Here's the language from today's episode — take a second look before moving on.</p>
             </div>
             <dl class="space-y-2">
@@ -400,7 +403,10 @@ new class extends Component
             <p class="text-sm font-semibold">Second listening — useful expressions</p>
             <p class="text-xs text-neutral-500">Write a full sentence using each expression you heard.</p>
             @unless ($readOnly)
-                <p x-show="!gistDone" class="mt-1 text-xs text-neutral-400">🔒 Finish the first listening above to unlock this.</p>
+                <p x-show="!gistDone" class="mt-1 flex items-center gap-1 text-xs text-neutral-400">
+                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
+                    Finish the first listening above to unlock this.
+                </p>
                 @if (count($targetPhrases))
                     <div class="mt-2 flex flex-wrap gap-1.5">
                         @foreach ($targetPhrases as $item)

@@ -293,7 +293,10 @@ new class extends Component
     @if ($completed || ($readOnly && ($transcript || $reflection)))
         <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
             <div>
-                <p class="text-xs font-semibold tracking-wide text-green-600 uppercase">✓ Activation complete</p>
+                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-green-600 uppercase">
+                    @svg('heroicon-o-check-circle', 'h-4 w-4')
+                    Activation complete
+                </p>
                 @if ($reflection)
                     <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Here's a quick recap of your recording.</p>
                 @endif
@@ -302,7 +305,10 @@ new class extends Component
             @if ($reflection)
                 <div class="space-y-2 rounded-lg border-2 border-neutral-900 bg-neutral-50 p-3 dark:border-white dark:bg-neutral-900" dir="rtl">
                     <p class="text-sm text-neutral-800 dark:text-neutral-200">{{ $reflection['highlight'] }}</p>
-                    <p class="text-sm text-neutral-600 dark:text-neutral-400">💡 {{ $reflection['tip'] }}</p>
+                    <p class="flex items-start gap-1.5 text-sm text-neutral-600 dark:text-neutral-400">
+                        @svg('heroicon-o-light-bulb', 'h-4 w-4 shrink-0 mt-0.5')
+                        {{ $reflection['tip'] }}
+                    </p>
                 </div>
             @endif
 
@@ -380,7 +386,7 @@ new class extends Component
                             wire:target="checkOne,revealCorrection,declineReveal,save"
                             class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
                         >
-                        <span x-show="filled[{{ $index }}]" class="shrink-0 text-sm text-green-600">✓</span>
+                        <x-filled-check show="filled[{{ $index }}]" />
                         @unless ($readOnly)
                             <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
                         @endunless

@@ -230,7 +230,11 @@ new class extends Component
             <div class="grid gap-2 sm:grid-cols-2">
                 @foreach ($this->requirements as $requirement)
                     <div class="flex items-center gap-2 text-sm">
-                        <span>{{ ($checklist[$requirement] ?? false) ? '✅' : '⬜️' }}</span>
+                        @if ($checklist[$requirement] ?? false)
+                            <span class="shrink-0 text-green-600">@svg('heroicon-o-check-circle', 'h-4 w-4')</span>
+                        @else
+                            <span class="inline-block h-4 w-4 shrink-0 rounded-full border-2 border-neutral-300 dark:border-neutral-700"></span>
+                        @endif
                         <span>{{ $requirement }}</span>
                     </div>
                 @endforeach
