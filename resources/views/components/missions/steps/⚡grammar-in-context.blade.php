@@ -409,25 +409,35 @@ new class extends Component
                 @endif
             </div>
 
-            <div class="flex items-center justify-between">
-                <button
-                    type="button"
-                    x-show="lessonStep > 0"
-                    x-on:click="lessonStep--"
-                    class="inline-flex cursor-pointer items-center gap-1 text-sm text-ink-faint underline dark:text-ink-faint-dark"
-                >@svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Back</button>
-                <span x-show="lessonStep === 0"></span>
+            {{-- Deliberately styled as one small grouped pill (muted, ink-soft)
+                 rather than the app's bold filled-pill "Next" language used
+                 for moving between mission steps at the bottom of the page —
+                 this only pages through this lesson's 3 slides, and looking
+                 different from that is what keeps the two from being
+                 confused with each other. "Start practice" is the real,
+                 prominent commitment, so it keeps the app's normal
+                 primary-button treatment. --}}
+            <div class="flex items-center justify-between gap-2">
+                <div class="inline-flex items-center gap-1 rounded-full border border-line bg-surface-sunken p-1 dark:border-line-dark dark:bg-surface-sunken-dark">
+                    <button
+                        type="button"
+                        x-on:click="lessonStep--"
+                        :disabled="lessonStep === 0"
+                        class="inline-flex cursor-pointer items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface disabled:pointer-events-none disabled:opacity-30 dark:text-ink-soft-dark dark:hover:bg-surface-dark"
+                    >@svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Back</button>
 
-                <button
-                    type="button"
-                    x-show="lessonStep < lessonSections - 1"
-                    x-on:click="lessonStep++"
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
-                >Next @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
+                    <button
+                        type="button"
+                        x-show="lessonStep < lessonSections - 1"
+                        x-on:click="lessonStep++"
+                        class="inline-flex cursor-pointer items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface dark:text-ink-soft-dark dark:hover:bg-surface-dark"
+                    >Next @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
+                </div>
 
                 <button
                     type="button"
                     x-show="lessonStep === lessonSections - 1"
+                    x-cloak
                     wire:click="startPractice"
                     x-on:click="phase = 'practice'"
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
