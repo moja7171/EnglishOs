@@ -591,6 +591,22 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertDontSeeHtml('filledCount >= 3');
     }
 
+    public function test_clicking_check_on_an_empty_example_shows_an_error(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->call('checkOne', 0)
+            ->assertSet('checkErrors.wake up', 'Write something first.')
+            ->assertSee('Write something first.');
+    }
+
     public function test_three_failed_checks_on_a_word_offer_to_reveal_the_correction(): void
     {
         [, , $run] = $this->makeMissionAndRun();

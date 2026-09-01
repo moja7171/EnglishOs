@@ -242,6 +242,34 @@ class ListeningStepTest extends TestCase
             ->assertDontSee('Continue');
     }
 
+    public function test_clicking_check_on_an_empty_gist_point_shows_an_error(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->call('checkGist', 0)
+            ->assertSet('checkErrors.gist_0', 'Write something first.')
+            ->assertSee('Write something first.');
+    }
+
+    public function test_clicking_check_on_an_empty_expression_shows_an_error(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->call('checkExpression', 0)
+            ->assertSet('checkErrors.expr_0', 'Write something first.')
+            ->assertSee('Write something first.');
+    }
+
     public function test_three_failed_gist_checks_offer_to_reveal_the_correction(): void
     {
         $run = $this->makeRun();

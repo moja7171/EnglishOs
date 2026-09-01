@@ -62,6 +62,34 @@ class GrammarInContextStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
+    public function test_clicking_check_on_an_empty_frequency_sentence_shows_an_error(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->call('checkOne', 0)
+            ->assertSet('checkErrors.0', 'Write something first.')
+            ->assertSee('Write something first.');
+    }
+
+    public function test_clicking_check_on_an_empty_correction_shows_an_error(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->call('checkCorrection', 0)
+            ->assertSet('checkErrors.qc_0', 'Write something first.')
+            ->assertSee('Write something first.');
+    }
+
     public function test_requires_three_sentences_before_continuing(): void
     {
         $run = $this->makeRun();

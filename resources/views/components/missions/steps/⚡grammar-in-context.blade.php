@@ -65,9 +65,16 @@ new class extends Component
     {
         $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
         $starter = $starters[$index] ?? null;
+
+        if (! $starter) {
+            return;
+        }
+
         $sentence = trim($this->frequencySentences[$index] ?? '');
 
-        if (! $starter || $sentence === '') {
+        if ($sentence === '') {
+            $this->checkErrors[$index] = 'Write something first.';
+
             return;
         }
 
@@ -146,11 +153,20 @@ new class extends Component
     public function checkCorrection(int $index): void
     {
         $item = ($this->run->mission->stepContent('grammar_in_context')['quick_check'] ?? [])[$index] ?? null;
-        $mine = trim($this->corrections[$index] ?? '');
 
-        if (! $item || $mine === '') {
+        if (! $item) {
             return;
         }
+
+        $mine = trim($this->corrections[$index] ?? '');
+
+        if ($mine === '') {
+            $this->checkErrors["qc_{$index}"] = 'Write something first.';
+
+            return;
+        }
+
+        unset($this->checkErrors["qc_{$index}"]);
 
         $isCorrect = $this->normalize($mine) === $this->normalize($item['correct']);
 
@@ -518,7 +534,7 @@ new class extends Component
                         </div>
 
                         <div x-show="!dismissed['qc{{ $index }}']" x-transition.opacity.duration.300ms>
-                            <x-severity-feedback :feedback="$correctionItemFeedback" />
+                            <x-severity-feedback :feedback="$correctionItemFeedback" :error="$checkErrors['qc_'.$index] ?? null" />
                         </div>
 
                         @unless ($readOnly)

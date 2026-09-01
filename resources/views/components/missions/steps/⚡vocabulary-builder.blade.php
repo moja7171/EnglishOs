@@ -111,9 +111,16 @@ new class extends Component
     public function checkOne(int $index): void
     {
         $word = $this->selectedWords[$index] ?? null;
+
+        if (! $word) {
+            return;
+        }
+
         $example = trim($this->examples[$index] ?? '');
 
-        if (! $word || $example === '') {
+        if ($example === '') {
+            $this->checkErrors[$word] = 'Write something first.';
+
             return;
         }
 

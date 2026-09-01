@@ -52,6 +52,8 @@ new class extends Component
         $text = trim($this->gistPoints[$index] ?? '');
 
         if ($text === '') {
+            $this->checkErrors["gist_{$index}"] = 'Write something first.';
+
             return;
         }
 
@@ -63,6 +65,8 @@ new class extends Component
         $text = trim($this->expressionsHeard[$index] ?? '');
 
         if ($text === '') {
+            $this->checkErrors["expr_{$index}"] = 'Write something first.';
+
             return;
         }
 
