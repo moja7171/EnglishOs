@@ -416,6 +416,27 @@ new class extends Component
     $draftPrefix = $this->draftPrefix();
     $listensRequired = 2;
     $checkTargets = 'checkGist,checkExpression,checkDetailAnswer,checkGapFill,revealGist,declineGist,revealExpression,declineExpression,save';
+
+    // One focused sub-step per phase instead of stacking everything into
+    // one long scroll (see EOS-009 §8's shared <x-substep-nav>). The
+    // transcript stays outside this pager — it's tied to listenCount, not
+    // to any one exercise, so it should stay visible no matter which
+    // sub-step is active.
+    $hasDetailQuestion = (bool) $detailQuestion;
+    $gistIndex = 0;
+    $exprIndex = 1;
+    $detailIndex = $hasDetailQuestion ? 2 : null;
+    $wrapupIndex = $hasDetailQuestion ? 3 : 2;
+    $totalSubsteps = $wrapupIndex + 1;
+    $initialDetailFilled = trim($detailAnswer) !== '';
+    $nextDisabledParts = [
+        "(activeSubstep === {$gistIndex} && !gistDone)",
+        "(activeSubstep === {$exprIndex} && !expressionsDone)",
+    ];
+    if ($hasDetailQuestion) {
+        $nextDisabledParts[] = "(activeSubstep === {$detailIndex} && !detailFilled)";
+    }
+    $nextDisabledExpr = implode(' || ', $nextDisabledParts);
 @endphp
 
 <div
@@ -426,6 +447,8 @@ new class extends Component
         get gistDone() { return this.gistFilled.filter(Boolean).length === 3 },
         expressionsFilled: {{ $initialExpressionsFilled->toJson() }},
         get expressionsDone() { return this.expressionsFilled.filter(Boolean).length === 3 },
+        detailFilled: {{ $initialDetailFilled ? 'true' : 'false' }},
+        activeSubstep: 0,
         listenCount: 0,
         showTranscript: false,
         get transcriptUnlocked() { return this.listenCount >= {{ $listensRequired }} },
@@ -514,7 +537,22 @@ new class extends Component
         </div>
     @else
     <div wire:loading.class="pointer-events-none" wire:target="{{ $checkTargets }}">
-        <div>
+        <div class="mb-4">
+            <x-progress-bar>
+                <div
+                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                    :style="`width: ${(activeSubstep + 1) / {{ $totalSubsteps }} * 100}%`"
+                ></div>
+                <x-slot:label>
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                        Part <span x-text="activeSubstep + 1"></span> of {{ $totalSubsteps }}
+                    </p>
+                </x-slot:label>
+            </x-progress-bar>
+        </div>
+
+        {{-- Sub-step: First listening — gist --}}
+        <div x-show="activeSubstep === {{ $gistIndex }}" x-cloak>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — gist</p>
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen without the transcript. What is the conversation about? Write 3 full sentences about what you understood. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
@@ -582,21 +620,19 @@ new class extends Component
             @error('gistPoints')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
+            @unless ($readOnly)
+                <p x-show="!gistDone" class="mt-2 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
+                    Write all 3 to move on.
+                </p>
+            @endunless
         </div>
 
-        <div
-            class="mt-6 transition-opacity duration-300"
-            @unless ($readOnly)
-                :class="gistDone ? '' : 'pointer-events-none opacity-40'"
-            @endunless
-        >
+        {{-- Sub-step: Second listening — expressions --}}
+        <div x-show="activeSubstep === {{ $exprIndex }}" x-cloak>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening — useful expressions</p>
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a full sentence using each expression you heard.</p>
             @unless ($readOnly)
-                <p x-show="!gistDone" class="mt-1 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
-                    Finish the first listening above to unlock this.
-                </p>
                 @if (count($targetPhrases))
                     <div class="mt-2 flex flex-wrap gap-1.5">
                         @foreach ($targetPhrases as $item)
@@ -662,23 +698,19 @@ new class extends Component
                     </div>
                 @endforeach
             </div>
+            @unless ($readOnly)
+                <p x-show="!expressionsDone" class="mt-2 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
+                    Write all 3 to move on.
+                </p>
+            @endunless
         </div>
 
-        @if ($detailQuestion)
-            <div
-                class="mt-6 transition-opacity duration-300"
-                @unless ($readOnly)
-                    :class="expressionsDone ? '' : 'pointer-events-none opacity-40'"
-                @endunless
-            >
+        @if ($hasDetailQuestion)
+            {{-- Sub-step: Third listening — a detail --}}
+            <div x-show="activeSubstep === {{ $detailIndex }}" x-cloak>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Third listening — a detail</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $detailQuestion['question'] }}</p>
-                @unless ($readOnly)
-                    <p x-show="!expressionsDone" class="mt-1 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                        @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
-                        Finish the second listening above to unlock this.
-                    </p>
-                @endunless
 
                 <div class="mt-2">
                     <div class="flex items-center gap-2">
@@ -692,7 +724,7 @@ new class extends Component
                             @readonly($readOnly)
                             wire:loading.attr="disabled"
                             wire:target="{{ $checkTargets }}"
-                            x-on:input="dismissed['detail_0'] = true"
+                            x-on:input="dismissed['detail_0'] = true; detailFilled = $el.value.trim() !== ''"
                             class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                         >
                         @unless ($readOnly)
@@ -707,86 +739,99 @@ new class extends Component
                 @error('detailAnswer')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-            </div>
-        @endif
-
-        @if (count($targetPhrases) && collect($targetPhrases)->contains(fn ($p) => isset($p['gap_before'])))
-            <div
-                class="mt-6 transition-opacity duration-300"
                 @unless ($readOnly)
-                    :class="expressionsDone ? '' : 'pointer-events-none opacity-40'"
+                    <p x-show="!detailFilled" class="mt-2 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                        @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
+                        Answer to move on.
+                    </p>
                 @endunless
-            >
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — fill the gap</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional — real lines from the conversation, from memory. Doesn't affect Continue.</p>
-
-                <div class="mt-2 space-y-3">
-                    @foreach ($targetPhrases as $index => $item)
-                        @php $gapKey = "gap_{$index}"; $gapFeedback = $gapFillFeedback[$index] ?? null; @endphp
-                        <div>
-                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                                {{ $item['gap_before'] ?? '' }}<input
-                                    type="text"
-                                    wire:model="gapFillAnswers.{{ $index }}"
-                                    placeholder="…"
-                                    @readonly($readOnly)
-                                    wire:loading.attr="disabled"
-                                    wire:target="{{ $checkTargets }}"
-                                    x-on:input="dismissed['{{ $gapKey }}'] = true"
-                                    class="inline w-28 border-b border-line bg-transparent px-1 text-center text-ink disabled:opacity-50 focus:border-accent focus:outline-none dark:border-line-dark dark:text-ink-dark dark:focus:border-accent-dark"
-                                >{{ $item['gap_after'] ?? '' }}
-                                @unless ($readOnly)
-                                    <x-check-button method="checkGapFill" :index="$index" key-prefix="gap_" wire-target="{{ $checkTargets }}" />
-                                @endunless
-                            </p>
-                            <div x-show="!dismissed['{{ $gapKey }}']" x-transition.opacity.duration.300ms>
-                                <x-severity-feedback :feedback="$gapFeedback" :error="$checkErrors[$gapKey] ?? null" />
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
             </div>
         @endif
-    </div>
 
-    @error('sentences')
-        <p class="text-sm text-red-600">{{ $message }}</p>
-    @enderror
+        {{-- Sub-step: Wrap-up — transcript recap, bonus practice, Continue --}}
+        <div x-show="activeSubstep === {{ $wrapupIndex }}" x-cloak>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Wrap-up</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">A couple of optional extras, then you're done with this episode.</p>
 
-    @unless ($readOnly)
-        <x-continue-button
-            on-click="['gist_0','gist_1','gist_2','expr_0','expr_1','expr_2','detail_0'].forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
-            wire-target="{{ $checkTargets }}"
-            loading-label="Checking your sentences…"
-        />
-    @endunless
+            @if (count($targetPhrases) && collect($targetPhrases)->contains(fn ($p) => isset($p['gap_before'])))
+                <div class="mt-4">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — fill the gap</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional — real lines from the conversation, from memory. Doesn't affect Continue.</p>
 
-    @if (count($shadowLines))
-        <div class="mt-6 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — shadow a line</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional. Pick a real line and repeat it out loud along with the audio — pure pronunciation practice, nothing here is graded or saved.</p>
-
-            <div class="mt-2 flex flex-wrap gap-1.5">
-                @foreach ($shadowLines as $index => $line)
-                    <button
-                        type="button"
-                        wire:click="selectShadowLine({{ $index }})"
-                        @class([
-                            'cursor-pointer rounded-full border px-2.5 py-1 text-xs transition-colors',
-                            'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $activeShadowLine === $index,
-                            'border-line text-ink-soft hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark' => $activeShadowLine !== $index,
-                        ])
-                    >Line {{ $index + 1 }}</button>
-                @endforeach
-            </div>
-
-            @if ($activeShadowLine !== null)
-                <p class="mt-3 text-sm text-ink dark:text-ink-dark">"{{ $shadowLines[$activeShadowLine] }}"</p>
-                <div class="mt-2" wire:key="shadow-recorder-{{ $activeShadowLine }}">
-                    <x-voice-recorder field="shadowRecording" :file="$shadowRecording" file-name="shadow.webm" />
+                    <div class="mt-2 space-y-3">
+                        @foreach ($targetPhrases as $index => $item)
+                            @php $gapKey = "gap_{$index}"; $gapFeedback = $gapFillFeedback[$index] ?? null; @endphp
+                            <div>
+                                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                                    {{ $item['gap_before'] ?? '' }}<input
+                                        type="text"
+                                        wire:model="gapFillAnswers.{{ $index }}"
+                                        placeholder="…"
+                                        @readonly($readOnly)
+                                        wire:loading.attr="disabled"
+                                        wire:target="{{ $checkTargets }}"
+                                        x-on:input="dismissed['{{ $gapKey }}'] = true"
+                                        class="inline w-28 border-b border-line bg-transparent px-1 text-center text-ink disabled:opacity-50 focus:border-accent focus:outline-none dark:border-line-dark dark:text-ink-dark dark:focus:border-accent-dark"
+                                    >{{ $item['gap_after'] ?? '' }}
+                                    @unless ($readOnly)
+                                        <x-check-button method="checkGapFill" :index="$index" key-prefix="gap_" wire-target="{{ $checkTargets }}" />
+                                    @endunless
+                                </p>
+                                <div x-show="!dismissed['{{ $gapKey }}']" x-transition.opacity.duration.300ms>
+                                    <x-severity-feedback :feedback="$gapFeedback" :error="$checkErrors[$gapKey] ?? null" />
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
+
+            @if (count($shadowLines))
+                <div class="mt-4 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — shadow a line</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional. Pick a real line and repeat it out loud along with the audio — pure pronunciation practice, nothing here is graded or saved.</p>
+
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                        @foreach ($shadowLines as $index => $line)
+                            <button
+                                type="button"
+                                wire:click="selectShadowLine({{ $index }})"
+                                @class([
+                                    'cursor-pointer rounded-full border px-2.5 py-1 text-xs transition-colors',
+                                    'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $activeShadowLine === $index,
+                                    'border-line text-ink-soft hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark' => $activeShadowLine !== $index,
+                                ])
+                            >Line {{ $index + 1 }}</button>
+                        @endforeach
+                    </div>
+
+                    @if ($activeShadowLine !== null)
+                        <p class="mt-3 text-sm text-ink dark:text-ink-dark">"{{ $shadowLines[$activeShadowLine] }}"</p>
+                        <div class="mt-2" wire:key="shadow-recorder-{{ $activeShadowLine }}">
+                            <x-voice-recorder field="shadowRecording" :file="$shadowRecording" file-name="shadow.webm" />
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            @error('sentences')
+                <p class="mt-4 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+
+            @unless ($readOnly)
+                <div class="mt-4">
+                    <x-continue-button
+                        on-click="['gist_0','gist_1','gist_2','expr_0','expr_1','expr_2','detail_0'].forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
+                        wire-target="{{ $checkTargets }}"
+                        loading-label="Checking your sentences…"
+                    />
+                </div>
+            @endunless
         </div>
-    @endif
+    </div>
+
+    <div class="mt-4">
+        <x-substep-nav index-var="activeSubstep" :total="$totalSubsteps" :next-disabled="$nextDisabledExpr" />
+    </div>
     @endif
 </div>

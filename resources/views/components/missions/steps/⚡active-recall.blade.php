@@ -338,6 +338,7 @@ new class extends Component
 @php
     $draftPrefix = $this->draftPrefix();
     $sections = $this->sections();
+    $sectionsCount = count($sections);
     $initialFilled = collect($sections)->mapWithKeys(fn ($section) => [
         $section['key'] => collect($this->answers[$section['key']] ?? [])->map(fn ($a) => trim((string) $a) !== '')->values(),
     ]);
@@ -348,6 +349,7 @@ new class extends Component
     x-data="{
         filled: {{ $initialFilled->toJson() }},
         dismissed: {},
+        activeSection: 0,
         countFilled(section) { return (this.filled[section] || []).filter(Boolean).length },
     }"
 >
@@ -393,8 +395,22 @@ new class extends Component
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->run->mission->stepContent('active_recall')['instruction'] ?? '' }}</p>
         </div>
 
+        <div class="mb-2">
+            <x-progress-bar>
+                <div
+                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                    :style="`width: ${(activeSection + 1) / {{ $sectionsCount }} * 100}%`"
+                ></div>
+                <x-slot:label>
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                        Part <span x-text="activeSection + 1"></span> of {{ $sectionsCount }}
+                    </p>
+                </x-slot:label>
+            </x-progress-bar>
+        </div>
+
         @foreach ($sections as $section)
-            <div>
+            <div x-show="activeSection === {{ $loop->index }}" x-cloak>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $section['label'] }}</p>
 
                 @unless ($readOnly)
@@ -476,16 +492,22 @@ new class extends Component
             </div>
         @endforeach
 
-        @error('answers')
-            <p class="text-sm text-red-600">{{ $message }}</p>
-        @enderror
+        <div x-show="activeSection === {{ $sectionsCount - 1 }}" x-cloak>
+            @error('answers')
+                <p class="text-sm text-red-600">{{ $message }}</p>
+            @enderror
 
-        @unless ($readOnly)
-            <x-continue-button
-                on-click="Object.keys(dismissed).forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
-                wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save"
-                loading-label="Checking your answers…"
-            />
-        @endunless
+            @unless ($readOnly)
+                <x-continue-button
+                    on-click="Object.keys(dismissed).forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
+                    wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save"
+                    loading-label="Checking your answers…"
+                />
+            @endunless
+        </div>
+
+        <div class="mt-4">
+            <x-substep-nav index-var="activeSection" :total="$sectionsCount" />
+        </div>
     @endunless
 </div>

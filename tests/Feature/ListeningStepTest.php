@@ -137,8 +137,12 @@ class ListeningStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
 
-        $this->assertStringContainsString('Finish the first listening above to unlock this.', $html);
-        $this->assertStringContainsString("gistDone ? '' : 'pointer-events-none opacity-40'", $html);
+        // Sub-step wizard: Next is disabled until gistDone, with a hint
+        // explaining why, instead of the old stacked/opacity-locked section.
+        // "&&" renders HTML-entity-escaped inside the attribute (harmless —
+        // browsers decode it before Alpine ever sees it).
+        $this->assertStringContainsString('Write all 3 to move on.', $html);
+        $this->assertStringContainsString('activeSubstep === 0 &amp;&amp; !gistDone', $html);
     }
 
     public function test_clicking_a_target_phrase_chip_is_wired_to_fill_the_first_empty_expression_input(): void

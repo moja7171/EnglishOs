@@ -286,6 +286,7 @@ new class extends Component
 <div class="space-y-6" x-data="{
     filled: {{ $initialFilled->toJson() }},
     dismissed: {},
+    activeSection: 0,
     get filledCount() { return this.filled.filter(Boolean).length },
 }">
     <x-hook :text="$activation['hook'] ?? null" />
@@ -331,7 +332,21 @@ new class extends Component
     @endif
 
     @unless ($completed)
-    <div>
+    <div class="mb-2">
+        <x-progress-bar>
+            <div
+                class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                :style="`width: ${(activeSection + 1) / 2 * 100}%`"
+            ></div>
+            <x-slot:label>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                    Part <span x-text="activeSection + 1"></span> of 2
+                </p>
+            </x-slot:label>
+        </x-progress-bar>
+    </div>
+
+    <div x-show="activeSection === 0" x-cloak>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Write 5 personal sentences</p>
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $activation['task'] ?? '' }}</p>
         @if ($vocabularyWords && ! $readOnly)
@@ -418,7 +433,7 @@ new class extends Component
         @enderror
     </div>
 
-    <div>
+    <div x-show="activeSection === 1" x-cloak>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Solo speaking — 2 minutes</p>
 
         @if ($readOnly)
@@ -436,14 +451,20 @@ new class extends Component
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         @endif
+
+        @unless ($readOnly)
+            <div class="mt-4">
+                <x-continue-button
+                    on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
+                    wire-target="checkOne,revealCorrection,declineReveal,save"
+                    loading-label="Checking your sentences and preparing your recap…"
+                />
+            </div>
+        @endunless
     </div>
 
-    @unless ($readOnly)
-        <x-continue-button
-            on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
-            wire-target="checkOne,revealCorrection,declineReveal,save"
-            loading-label="Checking your sentences and preparing your recap…"
-        />
-    @endunless
+    <div class="mt-4">
+        <x-substep-nav index-var="activeSection" :total="2" />
+    </div>
     @endunless
 </div>

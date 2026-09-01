@@ -172,7 +172,7 @@ new class extends Component
 
 @php $draftPrefix = $this->draftPrefix(); @endphp
 
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ activeSection: 0 }">
     <x-hook :text="$run->mission->stepContent('mission_result')['hook'] ?? null" />
 
     <div>
@@ -180,7 +180,21 @@ new class extends Component
     </div>
 
     @if (! $status)
-        <div>
+        <div class="mb-2">
+            <x-progress-bar>
+                <div
+                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                    :style="`width: ${(activeSection + 1) / 2 * 100}%`"
+                ></div>
+                <x-slot:label>
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                        Part <span x-text="activeSection + 1"></span> of 2
+                    </p>
+                </x-slot:label>
+            </x-progress-bar>
+        </div>
+
+        <div x-show="activeSection === 0" x-cloak>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Final self-assessment</p>
             <div class="mt-2 space-y-2">
                 @foreach ($this->skills() as $skill)
@@ -206,34 +220,40 @@ new class extends Component
             @enderror
         </div>
 
-        <div class="space-y-3">
-            @foreach ($this->questions() as $key => $label)
-                <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $label }}</p>
-                    <input
-                        type="text"
-                        wire:model="reflection.{{ $key }}"
-                        @unless ($readOnly)
-                            x-draft="{ key: '{{ $draftPrefix }}reflection.{{ $key }}', field: 'reflection.{{ $key }}' }"
-                        @endunless
-                        class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                    >
-                </div>
-            @endforeach
+        <div x-show="activeSection === 1" x-cloak>
+            <div class="space-y-3">
+                @foreach ($this->questions() as $key => $label)
+                    <div>
+                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $label }}</p>
+                        <input
+                            type="text"
+                            wire:model="reflection.{{ $key }}"
+                            @unless ($readOnly)
+                                x-draft="{ key: '{{ $draftPrefix }}reflection.{{ $key }}', field: 'reflection.{{ $key }}' }"
+                            @endunless
+                            class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+                        >
+                    </div>
+                @endforeach
+            </div>
+
+            @if ($error)
+                <p class="mt-2 text-sm text-red-600">{{ $error }}</p>
+            @endif
+
+            <button
+                wire:click="getResult"
+                wire:loading.attr="disabled"
+                class="mt-4 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+            >
+                <span wire:loading.remove wire:target="getResult">Get My Result</span>
+                <span wire:loading wire:target="getResult">Reviewing your mission…</span>
+            </button>
         </div>
 
-        @if ($error)
-            <p class="text-sm text-red-600">{{ $error }}</p>
-        @endif
-
-        <button
-            wire:click="getResult"
-            wire:loading.attr="disabled"
-            class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-        >
-            <span wire:loading.remove wire:target="getResult">Get My Result</span>
-            <span wire:loading wire:target="getResult">Reviewing your mission…</span>
-        </button>
+        <div class="mt-4">
+            <x-substep-nav index-var="activeSection" :total="2" />
+        </div>
     @else
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <p class="text-xs font-semibold uppercase tracking-wide
