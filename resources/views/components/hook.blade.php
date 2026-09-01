@@ -1,7 +1,5 @@
 @props(['text'])
 
 @if (! empty($text))
-    <div class="rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
-        <p class="text-sm italic text-neutral-800 dark:text-neutral-200">{{ $text }}</p>
-    </div>
+    <p class="border-l-2 border-accent/40 pl-3 text-sm text-ink-soft italic dark:border-accent-dark/40 dark:text-ink-soft-dark">{{ $text }}</p>
 @endif

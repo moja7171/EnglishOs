@@ -32,26 +32,26 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-sm space-y-6 p-6">
-    <h1 class="text-2xl font-extrabold">Sign in</h1>
+    <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Sign in</h1>
 
     <div class="space-y-3">
         <div>
-            <label class="text-xs font-semibold uppercase text-neutral-500">Email</label>
+            <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Email</label>
             <input
                 type="email"
                 wire:model="email"
-                class="mt-1 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
+                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
             @error('email')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
         <div>
-            <label class="text-xs font-semibold uppercase text-neutral-500">Password</label>
+            <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Password</label>
             <input
                 type="password"
                 wire:model="password"
-                class="mt-1 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
+                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
             @error('password')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -61,10 +61,10 @@ new class extends Component
 
     <button
         wire:click="login"
-        class="w-full rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+        class="w-full cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
     >
         Sign in
     </button>
 
-    <p class="text-sm text-neutral-500">No account? <a href="/register" class="underline">Register</a></p>
+    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No account? <a href="/register" class="underline">Register</a></p>
 </div>

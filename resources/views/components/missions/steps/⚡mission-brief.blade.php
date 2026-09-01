@@ -44,14 +44,14 @@ new class extends Component
 @endphp
 
 <div class="space-y-6">
-    <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
-        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ $run->mission->outcome }}</p>
+    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <p class="font-display text-sm font-semibold text-ink dark:text-ink-dark">{{ $run->mission->outcome }}</p>
     </div>
 
     {{-- Roadmap: a short, visible journey rather than an open-ended form --}}
-    <div class="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500">
+    <div class="flex flex-wrap items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
         @foreach ($phases as $phase)
-            <span class="rounded-full border border-neutral-300 px-2.5 py-1 dark:border-neutral-700">
+            <span class="rounded-full border border-line px-2.5 py-1 dark:border-line-dark">
                 {{ $phase['label'] ?? ucfirst($phase['phase'] ?? '') }}
             </span>
             @if (! $loop->last)
@@ -64,11 +64,11 @@ new class extends Component
     <x-hook :text="$brief['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Before you start</p>
-        <p class="mt-1 text-sm text-neutral-500">Answer out loud, with no preparation.</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Before you start</p>
+        <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Answer out loud, with no preparation.</p>
         <ul class="mt-3 space-y-2">
             @foreach ($brief['warm_up_questions'] ?? [] as $question)
-                <li class="rounded border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700">
+                <li class="rounded-xl border border-line px-3 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
                     {{ $question }}
                 </li>
             @endforeach
@@ -76,11 +76,11 @@ new class extends Component
     </div>
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Starting score</p>
-        <p class="text-sm text-neutral-600 dark:text-neutral-400">
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Starting score</p>
+        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
             How comfortable am I talking about this topic right now?
         </p>
-        <p class="text-xs text-neutral-400">We'll compare this to your score at the end of the mission.</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">We'll compare this to your score at the end of the mission.</p>
         <div class="mt-2 flex gap-2">
             @foreach (range(1, 5) as $value)
                 <button
@@ -88,9 +88,9 @@ new class extends Component
                     @disabled($readOnly)
                     wire:click="$set('score', {{ $value }})"
                     @class([
-                        'h-10 w-10 rounded-full border text-sm font-semibold',
-                        'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900' => $score === $value,
-                        'border-neutral-300 dark:border-neutral-700' => $score !== $value,
+                        'h-10 w-10 cursor-pointer rounded-full border text-sm font-semibold transition-colors',
+                        'border-ink bg-ink text-ground dark:border-ink-dark dark:bg-ink-dark dark:text-ground-dark' => $score === $value,
+                        'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark' => $score !== $value,
                     ])
                 >{{ $value }}</button>
             @endforeach
@@ -103,7 +103,7 @@ new class extends Component
     @unless ($readOnly)
         <button
             wire:click="save"
-            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
         >
             Continue
         </button>

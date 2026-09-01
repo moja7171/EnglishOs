@@ -289,16 +289,16 @@ new class extends Component
     @unless ($readOnly)
         <div x-show="phase === 'story'" x-cloak class="space-y-4">
             <div>
-                <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Read the story, then pick at least 8 words to practice</p>
-                <p class="mt-1 text-sm text-neutral-500">Tap any highlighted word below to select it.</p>
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Read the story, then pick at least 8 words to practice</p>
+                <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Tap any highlighted word below to select it.</p>
                 <div class="mt-2">
                     <x-progress-bar>
                         <div
-                            class="h-full rounded-full transition-all duration-300 {{ $selectedCount >= 8 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white' }}"
+                            class="h-full rounded-full transition-all duration-300 {{ $selectedCount >= 8 ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark' }}"
                             style="width: {{ min($selectedCount, 8) / 8 * 100 }}%"
                         ></div>
                         <x-slot:label>
-                            <p class="text-xs font-semibold {{ $selectedCount >= 8 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400' }}">
+                            <p class="text-xs font-semibold {{ $selectedCount >= 8 ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark' }}">
                                 {{ min($selectedCount, 8) }} of 8 selected{{ $selectedCount > 8 ? ' (+'.($selectedCount - 8).' bonus)' : '' }}
                             </p>
                         </x-slot:label>
@@ -306,7 +306,7 @@ new class extends Component
                 </div>
             </div>
 
-            <div class="rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
+            <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
                 @include('missions.steps.partials.vocabulary-story', ['storyParagraphs' => $storyParagraphs, 'selectedWords' => $selectedWords, 'component' => $this, 'readOnly' => $readOnly])
             </div>
 
@@ -315,7 +315,7 @@ new class extends Component
                     type="button"
                     wire:click="startPractice"
                     x-on:click="phase = 'practice'"
-                    class="inline-flex cursor-pointer items-center gap-1 rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                 >Continue with these {{ $selectedCount }} words @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
             @endif
         </div>
@@ -326,34 +326,34 @@ new class extends Component
             <button
                 type="button"
                 x-on:click="showStoryAgain = !showStoryAgain"
-                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-neutral-500 underline decoration-dotted underline-offset-2"
+                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
             >
                 <span x-show="!showStoryAgain" class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-right', 'h-3 w-3') Show the story again</span>
                 <span x-show="showStoryAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the story</span>
             </button>
-            <div x-show="showStoryAgain" x-cloak class="mt-2 rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
+            <div x-show="showStoryAgain" x-cloak class="mt-2 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
                 @unless ($readOnly)
-                    <p class="text-xs text-neutral-500">Tap any word not yet highlighted to add it to your practice list below.</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Tap any word not yet highlighted to add it to your practice list below.</p>
                 @endunless
                 @include('missions.steps.partials.vocabulary-story', ['storyParagraphs' => $storyParagraphs, 'selectedWords' => $selectedWords, 'component' => $this, 'readOnly' => $readOnly])
             </div>
         </div>
 
         <div>
-            <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Choose expressions you'll really use</p>
-            <p class="mt-1 text-sm text-neutral-500">Write at least 3 personal examples using these words. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Choose expressions you'll really use</p>
+            <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Write at least 3 personal examples using these words. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
                 <div class="mt-2">
                     <x-progress-bar>
                         <div
                             class="h-full rounded-full transition-all duration-300"
-                            :class="filledCount >= 3 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
+                            :class="filledCount >= 3 ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
                             :style="`width: ${Math.min(filledCount, 3) / 3 * 100}%`"
                         ></div>
                         <x-slot:label>
                             <p
                                 class="text-xs font-semibold transition-colors"
-                                :class="filledCount >= 3 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
+                                :class="filledCount >= 3 ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
                                 x-text="progressMessage"
                             ></p>
                         </x-slot:label>
@@ -365,11 +365,11 @@ new class extends Component
         <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="space-y-4">
             @foreach ($selectedWords as $index => $word)
                 @php $itemFeedback = $feedback[$word] ?? null; @endphp
-                <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
-                    <p class="text-sm font-bold">{{ $word }}</p>
-                    <p class="text-xs text-neutral-500">{{ $this->wordMeaning($word) }}</p>
+                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                    <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->wordMeaning($word) }}</p>
                     @unless ($readOnly)
-                        <p x-show="filledCount >= 3 && !filled[{{ $index }}]" class="text-[11px] text-neutral-400 italic">optional — bonus practice</p>
+                        <p x-show="filledCount >= 3 && !filled[{{ $index }}]" class="text-[11px] text-ink-faint italic dark:text-ink-faint-dark">optional — bonus practice</p>
                     @endunless
 
                     <div class="mt-2 flex items-center gap-2">
@@ -384,7 +384,7 @@ new class extends Component
                             @readonly($readOnly)
                             wire:loading.attr="disabled"
                             wire:target="checkOne,revealCorrection,declineReveal,save"
-                            class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
+                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                         >
                         <x-filled-check show="filled[{{ $index }}]" />
                         @unless ($readOnly)

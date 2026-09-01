@@ -3,7 +3,7 @@
      class/:class and style/:style) and an optional label, since some
      progress bars here are server-rendered and others are Alpine-reactive. --}}
 <div>
-    <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+    <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark">
         {{ $slot }}
     </div>
     @isset($label)

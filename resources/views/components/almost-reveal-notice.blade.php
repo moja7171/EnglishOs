@@ -4,5 +4,5 @@
 @props(['show'])
 
 @if ($show)
-    <p class="mt-2 text-xs text-neutral-400 italic">One more try — after that I can write the correct one for you if you'd like.</p>
+    <p class="mt-2 text-xs text-ink-faint italic dark:text-ink-faint-dark">One more try — after that I can write the correct one for you if you'd like.</p>
 @endif

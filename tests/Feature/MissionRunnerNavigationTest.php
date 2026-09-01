@@ -145,7 +145,7 @@ class MissionRunnerNavigationTest extends TestCase
         // through the exact same mission-brief component the live step uses.
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
             ->assertSee('What time do you usually wake up?')
-            ->assertSeeHtml('bg-neutral-900') // the "4" button rendered as chosen
+            ->assertSeeHtml('bg-ink') // the "4" button rendered as chosen
             ->assertDontSee('Continue');
     }
 

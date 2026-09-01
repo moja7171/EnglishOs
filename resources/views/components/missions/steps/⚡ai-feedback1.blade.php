@@ -113,37 +113,37 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent('ai_feedback_1')['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">AI Feedback #1</p>
-        <p class="text-xs text-neutral-500">A quick review of your conversation from the AI Instructor.</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Feedback #1</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">A quick review of your conversation from the AI Instructor.</p>
     </div>
 
     @if ($loading)
-        <p class="text-sm text-neutral-500">Reading your answers…</p>
+        <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Reading your answers…</p>
     @elseif ($error)
-        <div class="rounded border border-red-300 p-3 text-sm text-red-600">
+        <div class="rounded-xl border border-red-300 p-3 text-sm text-red-600">
             {{ $error }}
             <button wire:click="generate" class="mt-2 block underline">Try again</button>
         </div>
     @else
         <div class="space-y-3">
-            <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
-                <p class="text-xs font-semibold text-green-600 uppercase">One thing you did well</p>
-                <p class="mt-1 text-sm">{{ $strength }}</p>
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
+                <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $strength }}</p>
             </div>
-            <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
-                <p class="text-xs font-semibold text-neutral-500 uppercase">A good expression you used</p>
-                <p class="mt-1 text-sm">{{ $expression }}</p>
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good expression you used</p>
+                <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $expression }}</p>
             </div>
-            <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                 <p class="text-xs font-semibold text-amber-600 uppercase">One thing to improve</p>
-                <p class="mt-1 text-sm">{{ $correction }}</p>
+                <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $correction }}</p>
             </div>
         </div>
 
         @unless ($readOnly)
             <button
                 wire:click="continueMission"
-                class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+                class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
             >
                 Continue
             </button>

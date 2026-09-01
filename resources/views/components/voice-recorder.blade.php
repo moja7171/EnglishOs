@@ -70,18 +70,18 @@
             x-show="!recording"
             x-on:click="startRecording"
             :disabled="uploading"
-            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:pointer-events-none disabled:opacity-50"
+            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
         >@svg('heroicon-s-microphone', 'h-4 w-4') Record</button>
 
         <button
             type="button"
             x-show="recording"
             x-on:click="stopRecording"
-            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
         >@svg('heroicon-s-stop-circle', 'h-4 w-4') Stop (<span x-text="formattedTime"></span>)</button>
 
-        <span x-show="uploading" class="text-sm text-neutral-500">Uploading…</span>
-        <span x-show="!uploading && !recording && {{ $file ? 'true' : 'false' }}" class="inline-flex items-center gap-1 text-sm text-green-600">
+        <span x-show="uploading" class="text-sm text-ink-faint dark:text-ink-faint-dark">Uploading…</span>
+        <span x-show="!uploading && !recording && {{ $file ? 'true' : 'false' }}" class="inline-flex items-center gap-1 text-sm text-success dark:text-success-dark">
             @svg('heroicon-o-check-circle', 'h-4 w-4')
             Recording saved
         </span>
@@ -91,7 +91,7 @@
 
     @if ($file)
         <div class="mt-3">
-            <p class="text-xs text-neutral-500">Listen back — not happy with it? Just record again.</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen back — not happy with it? Just record again.</p>
             <div class="mt-1">
                 <x-audio-player :url="$file->temporaryUrl()" />
             </div>

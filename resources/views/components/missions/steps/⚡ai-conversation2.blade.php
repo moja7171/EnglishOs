@@ -178,8 +178,8 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent('ai_conversation_2')['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">AI Conversation #2 — Final Challenge</p>
-        <p class="text-xs text-neutral-500">This session should be harder than the first one.</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Conversation #2 — Final Challenge</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">This session should be harder than the first one.</p>
     </div>
 
     @if (count($turns))
@@ -191,9 +191,9 @@ new class extends Component
     @endif
 
     @if (! $this->inFinalStage)
-        <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
-            <p class="text-xs text-neutral-500">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
-            <p class="mt-1 text-lg font-bold">{{ $this->currentRoundPrompt }}</p>
+        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
+            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentRoundPrompt }}</p>
 
             <div class="mt-3" wire:key="recorder-round-{{ $roundIndex }}" wire:loading.remove wire:target="submitRoundAnswer">
                 <x-voice-recorder
@@ -204,12 +204,12 @@ new class extends Component
                 />
             </div>
 
-            <p wire:loading wire:target="submitRoundAnswer" class="mt-3 text-sm text-neutral-500">Transcribing…</p>
+            <p wire:loading wire:target="submitRoundAnswer" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
         </div>
     @elseif (! $checklist)
-        <div class="rounded-lg border-2 border-neutral-900 bg-neutral-50 p-4 dark:border-white dark:bg-neutral-900">
-            <p class="text-xs text-neutral-500">Final Challenge · Topic: My Daily Life</p>
-            <p class="mt-1 text-lg font-bold">{{ $this->finalPrompt }}</p>
+        <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Final Challenge · Topic: My Daily Life</p>
+            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->finalPrompt }}</p>
 
             <div class="mt-3" wire:loading.remove wire:target="submitFinalChallenge">
                 <x-voice-recorder
@@ -220,30 +220,30 @@ new class extends Component
                 />
             </div>
 
-            <p wire:loading wire:target="submitFinalChallenge" class="mt-3 text-sm text-neutral-500">
+            <p wire:loading wire:target="submitFinalChallenge" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">
                 Checking your answer against the requirements…
             </p>
         </div>
     @else
         <div class="space-y-3">
-            <p class="text-sm font-semibold">Requirements</p>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Requirements</p>
             <div class="grid gap-2 sm:grid-cols-2">
                 @foreach ($this->requirements as $requirement)
-                    <div class="flex items-center gap-2 text-sm">
+                    <div class="flex items-center gap-2 text-sm text-ink dark:text-ink-dark">
                         @if ($checklist[$requirement] ?? false)
-                            <span class="shrink-0 text-green-600">@svg('heroicon-o-check-circle', 'h-4 w-4')</span>
+                            <span class="shrink-0 text-success dark:text-success-dark">@svg('heroicon-o-check-circle', 'h-4 w-4')</span>
                         @else
-                            <span class="inline-block h-4 w-4 shrink-0 rounded-full border-2 border-neutral-300 dark:border-neutral-700"></span>
+                            <span class="inline-block h-4 w-4 shrink-0 rounded-full border-2 border-line dark:border-line-dark"></span>
                         @endif
                         <span>{{ $requirement }}</span>
                     </div>
                 @endforeach
             </div>
-            <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ $checklistNote }}</p>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $checklistNote }}</p>
 
             @unless ($readOnly)
                 <button wire:click="finishConversation"
-                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200">
+                    class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark">
                     Continue
                 </button>
             @endunless

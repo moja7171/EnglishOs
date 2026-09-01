@@ -7,7 +7,7 @@
     x-on:click="dismissed['{{ $dismissedKey }}'] = true; $wire.{{ $method }}({{ $index }}).then(() => { dismissed['{{ $dismissedKey }}'] = false })"
     wire:loading.attr="disabled"
     wire:target="{{ $wireTarget }}"
-    class="shrink-0 cursor-pointer rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+    class="shrink-0 cursor-pointer rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
 >
     <span wire:loading.remove wire:target="{{ $method }}({{ $index }})">Check</span>
     <span wire:loading wire:target="{{ $method }}({{ $index }})">Checking…</span>

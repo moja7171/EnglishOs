@@ -6,6 +6,6 @@
 --}}
 @props(['show'])
 
-<span x-show="{{ $show }}" class="inline-flex shrink-0 text-green-600">
+<span x-show="{{ $show }}" class="inline-flex shrink-0 text-success dark:text-success-dark">
     @svg('heroicon-o-check-circle', 'h-4 w-4')
 </span>

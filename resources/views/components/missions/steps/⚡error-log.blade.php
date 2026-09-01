@@ -148,38 +148,38 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent('error_log')['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Error Log</p>
-        <p class="text-xs text-neutral-500">Correct your most common mistakes with a new example.</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Error Log</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Correct your most common mistakes with a new example.</p>
     </div>
 
     @if ($loading)
-        <p class="text-sm text-neutral-500">Reviewing everything you said and wrote…</p>
+        <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Reviewing everything you said and wrote…</p>
     @elseif ($error)
-        <div class="rounded border border-red-300 p-3 text-sm text-red-600">
+        <div class="rounded-xl border border-red-300 p-3 text-sm text-red-600">
             {{ $error }}
             <button wire:click="generate" class="mt-2 block underline">Try again</button>
         </div>
     @elseif (empty($mistakes))
-        <div class="rounded border border-neutral-300 p-3 text-sm dark:border-neutral-700">
+        <div class="rounded-xl border border-line p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
             No recurring mistakes found — nice work!
         </div>
         @unless ($readOnly)
-            <button wire:click="save" class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
+            <button wire:click="save" class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark">
                 Continue
             </button>
         @endunless
     @else
         <div class="space-y-4">
             @foreach ($mistakes as $i => $item)
-                <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
+                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                     <p class="text-sm text-red-600 line-through decoration-red-500">{{ $item['error'] }}</p>
-                    <p class="mt-1 text-sm text-green-600">{{ $item['correction'] }}</p>
+                    <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $item['correction'] }}</p>
                     <input
                         type="text"
                         wire:model="newExamples.{{ $i }}"
                         placeholder="Write a new sentence using the correct form…"
                         @readonly($readOnly)
-                        class="mt-2 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
+                        class="mt-2 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
                     >
                 </div>
             @endforeach
@@ -190,7 +190,7 @@ new class extends Component
         @enderror
 
         @unless ($readOnly)
-            <button wire:click="save" class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
+            <button wire:click="save" class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark">
                 Continue
             </button>
         @endunless

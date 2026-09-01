@@ -291,21 +291,21 @@ new class extends Component
     <x-hook :text="$activation['hook'] ?? null" />
 
     @if ($completed || ($readOnly && ($transcript || $reflection)))
-        <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-green-600 uppercase">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
                     Activation complete
                 </p>
                 @if ($reflection)
-                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Here's a quick recap of your recording.</p>
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's a quick recap of your recording.</p>
                 @endif
             </div>
 
             @if ($reflection)
-                <div class="space-y-2 rounded-lg border-2 border-neutral-900 bg-neutral-50 p-3 dark:border-white dark:bg-neutral-900" dir="rtl">
-                    <p class="text-sm text-neutral-800 dark:text-neutral-200">{{ $reflection['highlight'] }}</p>
-                    <p class="flex items-start gap-1.5 text-sm text-neutral-600 dark:text-neutral-400">
+                <div class="space-y-2 rounded-2xl border border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark" dir="rtl">
+                    <p class="text-sm text-ink dark:text-ink-dark">{{ $reflection['highlight'] }}</p>
+                    <p class="flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
                         @svg('heroicon-o-light-bulb', 'h-4 w-4 shrink-0 mt-0.5')
                         {{ $reflection['tip'] }}
                     </p>
@@ -314,15 +314,15 @@ new class extends Component
 
             @if ($transcript)
                 <div>
-                    <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">What you said</p>
-                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{{ $transcript }}</p>
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $transcript }}</p>
                 </div>
             @endif
 
             @unless ($readOnly)
                 <button
                     wire:click="proceed"
-                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                    class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                 >
                     Continue
                 </button>
@@ -332,11 +332,11 @@ new class extends Component
 
     @unless ($completed)
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Write 5 personal sentences</p>
-        <p class="text-xs text-neutral-500">{{ $activation['task'] ?? '' }}</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Write 5 personal sentences</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $activation['task'] ?? '' }}</p>
         @if ($vocabularyWords && ! $readOnly)
             <div class="mt-2">
-                <p class="text-xs text-neutral-500">Tap a word to drop it into your next sentence:</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Tap a word to drop it into your next sentence:</p>
                 <div class="mt-1">
                     <x-vocabulary-chips
                         :words="$vocabularyWords"
@@ -353,13 +353,13 @@ new class extends Component
                 <x-progress-bar>
                     <div
                         class="h-full rounded-full transition-all duration-300"
-                        :class="filledCount >= 5 ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
+                        :class="filledCount >= 5 ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
                         :style="`width: ${Math.min(filledCount, 5) / 5 * 100}%`"
                     ></div>
                     <x-slot:label>
                         <p
                             class="text-xs font-semibold transition-colors"
-                            :class="filledCount >= 5 ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
+                            :class="filledCount >= 5 ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
                             x-text="`${Math.min(filledCount, 5)} of 5 written`"
                         ></p>
                     </x-slot:label>
@@ -370,7 +370,7 @@ new class extends Component
         <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="mt-2 space-y-3">
             @foreach ($sentences as $index => $sentence)
                 @php $itemFeedback = $feedback[$index] ?? null; @endphp
-                <div class="rounded border border-neutral-300 p-3 dark:border-neutral-700">
+                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                     <div class="flex items-center gap-2">
                         <input
                             type="text"
@@ -384,7 +384,7 @@ new class extends Component
                             @readonly($readOnly)
                             wire:loading.attr="disabled"
                             wire:target="checkOne,revealCorrection,declineReveal,save"
-                            class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
+                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                         >
                         <x-filled-check show="filled[{{ $index }}]" />
                         @unless ($readOnly)
@@ -419,14 +419,14 @@ new class extends Component
     </div>
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Solo speaking — 2 minutes</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Solo speaking — 2 minutes</p>
 
         @if ($readOnly)
             <div class="mt-2">
                 <x-audio-player :url="$savedAudioUrl" />
             </div>
         @else
-            <p class="text-xs text-neutral-500">Talk about your daily life without reading. Record when you're ready.</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Talk about your daily life without reading. Record when you're ready.</p>
 
             <div class="mt-3">
                 <x-voice-recorder field="audioFile" :file="$audioFile" file-name="activation-speaking.webm" />

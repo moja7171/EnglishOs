@@ -2,7 +2,7 @@
 
 @if (! empty($url))
     <div
-        class="rounded-lg border border-neutral-300 p-3 dark:border-neutral-700"
+        class="rounded-xl border border-line p-3 dark:border-line-dark"
         x-data="{
             playing: false,
             currentTime: 0,
@@ -54,13 +54,13 @@
             <button
                 type="button"
                 x-on:click="skip(-10)"
-                class="inline-flex shrink-0 cursor-pointer items-center gap-0.5 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                class="inline-flex shrink-0 cursor-pointer items-center gap-0.5 rounded-full border border-line px-2 py-1 text-xs text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >@svg('heroicon-o-backward', 'h-3.5 w-3.5') 10s</button>
 
             <button
                 type="button"
                 x-on:click="togglePlay()"
-                class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded bg-neutral-900 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-ink px-3 py-1 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
             >
                 <span x-show="!playing" class="inline-flex items-center gap-1">@svg('heroicon-s-play', 'h-3.5 w-3.5') Play</span>
                 <span x-show="playing" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-s-pause', 'h-3.5 w-3.5') Pause</span>
@@ -69,10 +69,10 @@
             <button
                 type="button"
                 x-on:click="skip(10)"
-                class="inline-flex shrink-0 cursor-pointer items-center gap-0.5 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                class="inline-flex shrink-0 cursor-pointer items-center gap-0.5 rounded-full border border-line px-2 py-1 text-xs text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >10s @svg('heroicon-o-forward', 'h-3.5 w-3.5')</button>
 
-            <span class="w-9 shrink-0 text-right text-xs text-neutral-500" x-text="formatTime(currentTime)"></span>
+            <span class="w-9 shrink-0 text-right text-xs text-ink-faint dark:text-ink-faint-dark" x-text="formatTime(currentTime)"></span>
 
             <input
                 type="range"
@@ -84,15 +84,15 @@
                 x-on:pointerdown="dragging = true"
                 x-on:pointerup="dragging = false"
                 x-on:input="seekTo($event.target.valueAsNumber)"
-                class="h-1.5 flex-1 cursor-pointer accent-neutral-900 dark:accent-white"
+                class="h-1.5 flex-1 cursor-pointer accent-accent"
             >
 
-            <span class="w-9 shrink-0 text-xs text-neutral-500" x-text="formatTime(duration)"></span>
+            <span class="w-9 shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark" x-text="formatTime(duration)"></span>
 
             <a
                 href="{{ $url }}"
                 download
-                class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded border border-neutral-300 px-2 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-line px-2 py-1 text-xs text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >@svg('heroicon-o-arrow-down-tray', 'h-3.5 w-3.5') Download</a>
         </div>
     </div>

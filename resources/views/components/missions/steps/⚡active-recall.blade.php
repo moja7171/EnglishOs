@@ -354,24 +354,24 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent('active_recall')['hook'] ?? null" />
 
     @if ($completed || ($readOnly && $recallResult))
-        <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-green-600 uppercase">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
                     Active Recall complete
                 </p>
                 @if ($recallResult && $recallResult['total'] > 0)
-                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
                         You correctly recalled {{ $recallResult['correct'] }} of {{ $recallResult['total'] }} of your own words.
                     </p>
                 @endif
                 @if ($listeningFactsResult && $listeningFactsResult['total'] > 0)
-                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
                         {{ $listeningFactsResult['good'] }} of {{ $listeningFactsResult['total'] }} things you recalled about the listening were clear and on-topic.
                     </p>
                 @endif
                 @if ($presentSimpleResult && $presentSimpleResult['total'] > 0)
-                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
                         {{ $presentSimpleResult['good'] }} of {{ $presentSimpleResult['total'] }} sentences correctly used the present simple.
                     </p>
                 @endif
@@ -379,7 +379,7 @@ new class extends Component
             @unless ($readOnly)
                 <button
                     wire:click="proceed"
-                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                    class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                 >
                     Continue
                 </button>
@@ -389,26 +389,26 @@ new class extends Component
 
     @unless ($completed)
         <div>
-            <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Active Recall</p>
-            <p class="text-xs text-neutral-500">{{ $this->run->mission->stepContent('active_recall')['instruction'] ?? '' }}</p>
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Active Recall</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->run->mission->stepContent('active_recall')['instruction'] ?? '' }}</p>
         </div>
 
         @foreach ($sections as $section)
             <div>
-                <p class="text-sm font-semibold">{{ $section['label'] }}</p>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $section['label'] }}</p>
 
                 @unless ($readOnly)
                     <div class="mt-2">
                         <x-progress-bar>
                             <div
                                 class="h-full rounded-full transition-all duration-300"
-                                :class="countFilled('{{ $section['key'] }}') >= {{ $section['count'] }} ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
+                                :class="countFilled('{{ $section['key'] }}') >= {{ $section['count'] }} ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
                                 :style="`width: ${Math.min(countFilled('{{ $section['key'] }}'), {{ $section['count'] }}) / {{ $section['count'] }} * 100}%`"
                             ></div>
                             <x-slot:label>
                                 <p
                                     class="text-xs font-semibold transition-colors"
-                                    :class="countFilled('{{ $section['key'] }}') >= {{ $section['count'] }} ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
+                                    :class="countFilled('{{ $section['key'] }}') >= {{ $section['count'] }} ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
                                     x-text="`${Math.min(countFilled('{{ $section['key'] }}'), {{ $section['count'] }})} of {{ $section['count'] }} written`"
                                 ></p>
                             </x-slot:label>
@@ -453,7 +453,7 @@ new class extends Component
                                     @readonly($readOnly)
                                     wire:loading.attr="disabled"
                                     wire:target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save"
-                                    class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
+                                    class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                                 >
                                 <x-filled-check show="filled['{{ $section['key'] }}'][{{ $i }}]" />
                                 @if ($checkMethod && ! $readOnly)

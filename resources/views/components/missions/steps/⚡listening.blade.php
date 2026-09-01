@@ -292,32 +292,32 @@ new class extends Component
     <x-hook :text="$listening['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">{{ $listening['source'] ?? 'Listening' }}</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>
         <div class="mt-2">
             <x-audio-player :url="$listening['audio_url'] ?? null" />
         </div>
     </div>
 
     @if ($completed)
-        <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-green-600 uppercase">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
                     Listening complete
                 </p>
-                <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Here's the language from today's episode — take a second look before moving on.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's the language from today's episode — take a second look before moving on.</p>
             </div>
             <dl class="space-y-2">
                 @foreach ($targetPhrases as $item)
                     <div>
-                        <dt class="text-sm font-bold">{{ $item['phrase'] }}</dt>
-                        <dd class="text-xs text-neutral-500">{{ $item['meaning'] }}</dd>
+                        <dt class="text-sm font-bold text-ink dark:text-ink-dark">{{ $item['phrase'] }}</dt>
+                        <dd class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</dd>
                     </div>
                 @endforeach
             </dl>
             <button
                 wire:click="proceed"
-                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
             >
                 Continue
             </button>
@@ -325,20 +325,20 @@ new class extends Component
     @else
     <div wire:loading.class="pointer-events-none" wire:target="checkGist,checkExpression,revealGist,declineGist,revealExpression,declineExpression,save">
         <div>
-            <p class="text-sm font-semibold">First listening — gist</p>
-            <p class="text-xs text-neutral-500">Listen without the transcript. What is the conversation about? Write 3 full sentences about what you understood. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — gist</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen without the transcript. What is the conversation about? Write 3 full sentences about what you understood. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
                 <div class="mt-2">
                     <x-progress-bar>
                         <div
                             class="h-full rounded-full transition-all duration-300"
-                            :class="gistDone ? 'bg-green-600' : 'bg-neutral-900 dark:bg-white'"
+                            :class="gistDone ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
                             :style="`width: ${gistFilled.filter(Boolean).length / 3 * 100}%`"
                         ></div>
                         <x-slot:label>
                             <p
                                 class="text-xs font-semibold transition-colors"
-                                :class="gistDone ? 'text-green-600' : 'text-neutral-600 dark:text-neutral-400'"
+                                :class="gistDone ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
                                 x-text="`${gistFilled.filter(Boolean).length} of 3 written`"
                             ></p>
                         </x-slot:label>
@@ -361,7 +361,7 @@ new class extends Component
                                 wire:loading.attr="disabled"
                                 wire:target="checkGist,revealGist,declineGist,save"
                                 x-on:input="dismissed['{{ $key }}'] = true; gistFilled[{{ $index }}] = $el.value.trim() !== ''"
-                                class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
+                                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                             >
                             @unless ($readOnly)
                                 <x-check-button method="checkGist" :index="$index" key-prefix="gist_" wire-target="checkGist,revealGist,declineGist,save" />
@@ -400,10 +400,10 @@ new class extends Component
                 :class="gistDone ? '' : 'pointer-events-none opacity-40'"
             @endunless
         >
-            <p class="text-sm font-semibold">Second listening — useful expressions</p>
-            <p class="text-xs text-neutral-500">Write a full sentence using each expression you heard.</p>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening — useful expressions</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a full sentence using each expression you heard.</p>
             @unless ($readOnly)
-                <p x-show="!gistDone" class="mt-1 flex items-center gap-1 text-xs text-neutral-400">
+                <p x-show="!gistDone" class="mt-1 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
                     @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
                     Finish the first listening above to unlock this.
                 </p>
@@ -420,7 +420,7 @@ new class extends Component
                                     $wire.set('expressionsHeard.' + idx, '{{ ucfirst($item['phrase']) }}');
                                     $nextTick(() => $refs['expr_input_' + idx]?.focus());
                                 "
-                                class="cursor-pointer rounded-full border border-neutral-300 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                                class="cursor-pointer rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                             >{{ $item['phrase'] }}</button>
                         @endforeach
                     </div>
@@ -443,7 +443,7 @@ new class extends Component
                                 wire:loading.attr="disabled"
                                 wire:target="checkExpression,revealExpression,declineExpression,save"
                                 x-on:input="dismissed['{{ $key }}'] = true"
-                                class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm disabled:opacity-50 dark:border-neutral-700"
+                                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                             >
                             @unless ($readOnly)
                                 <x-check-button method="checkExpression" :index="$index" key-prefix="expr_" wire-target="checkExpression,revealExpression,declineExpression,save" />

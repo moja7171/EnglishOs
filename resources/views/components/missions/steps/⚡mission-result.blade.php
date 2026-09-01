@@ -176,24 +176,24 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent('mission_result')['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Mission Result</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Mission Result</p>
     </div>
 
     @if (! $status)
         <div>
-            <p class="text-sm font-semibold">Final self-assessment</p>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Final self-assessment</p>
             <div class="mt-2 space-y-2">
                 @foreach ($this->skills() as $skill)
-                    <div class="flex items-center justify-between gap-3 rounded border border-neutral-300 p-2 text-sm dark:border-neutral-700">
+                    <div class="flex items-center justify-between gap-3 rounded-xl border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
                         <span class="w-24">{{ $skill }}</span>
                         <span class="flex items-center gap-2">
-                            <span class="text-xs text-neutral-500">Before</span>
-                            <select wire:model="scores.{{ $skill }}.before" class="rounded border border-neutral-300 bg-transparent px-1 dark:border-neutral-700">
+                            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Before</span>
+                            <select wire:model="scores.{{ $skill }}.before" class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
                                 <option value="">–</option>
                                 @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
                             </select>
-                            <span class="text-xs text-neutral-500">After</span>
-                            <select wire:model="scores.{{ $skill }}.after" class="rounded border border-neutral-300 bg-transparent px-1 dark:border-neutral-700">
+                            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">After</span>
+                            <select wire:model="scores.{{ $skill }}.after" class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
                                 <option value="">–</option>
                                 @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
                             </select>
@@ -209,14 +209,14 @@ new class extends Component
         <div class="space-y-3">
             @foreach ($this->questions() as $key => $label)
                 <div>
-                    <p class="text-sm font-semibold">{{ $label }}</p>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $label }}</p>
                     <input
                         type="text"
                         wire:model="reflection.{{ $key }}"
                         @unless ($readOnly)
                             x-draft="{ key: '{{ $draftPrefix }}reflection.{{ $key }}', field: 'reflection.{{ $key }}' }"
                         @endunless
-                        class="mt-1 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
+                        class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
                     >
                 </div>
             @endforeach
@@ -229,24 +229,24 @@ new class extends Component
         <button
             wire:click="getResult"
             wire:loading.attr="disabled"
-            class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:pointer-events-none disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 disabled:pointer-events-none disabled:opacity-50 dark:bg-ink-dark dark:text-ground-dark"
         >
             <span wire:loading.remove wire:target="getResult">Get My Result</span>
             <span wire:loading wire:target="getResult">Reviewing your mission…</span>
         </button>
     @else
-        <div class="rounded-lg border-2 border-neutral-900 p-4 dark:border-white">
+        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <p class="text-xs font-semibold uppercase tracking-wide
-                {{ $status === 'complete' ? 'text-green-600' : ($status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
+                {{ $status === 'complete' ? 'text-success dark:text-success-dark' : ($status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
                 {{ str($status)->replace('_', ' ')->title() }}
             </p>
-            <p class="mt-2 text-sm">{{ $reason }}</p>
+            <p class="mt-2 text-sm text-ink dark:text-ink-dark">{{ $reason }}</p>
         </div>
 
         @unless ($readOnly)
             <button
                 wire:click="finish"
-                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
             >
                 Finish Mission
             </button>

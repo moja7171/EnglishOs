@@ -93,4 +93,21 @@ class Mission extends Model
 
         return [];
     }
+
+    /**
+     * The visual "mood" this mission renders with — the one thing that
+     * varies per mission in the app's hybrid design system (shared
+     * typography/layout/components everywhere, only the accent hue shifts
+     * to match each mission's own subject). Drives the `data-mood`
+     * attribute consumed by the mood tokens in resources/css/app.css. New
+     * missions default to the app's base identity (M01's "daily-life"
+     * coral) until they earn their own entry here — see EOS-009 §8.
+     */
+    public function moodKey(): string
+    {
+        return match ($this->code) {
+            'M02' => 'connection',
+            default => 'daily-life',
+        };
+    }
 }

@@ -8,10 +8,10 @@
 
 @if (count($words))
     <div>
-        <p class="text-xs font-semibold text-neutral-500 uppercase">{{ $label }}</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $label }}</p>
         <div class="mt-1 flex flex-wrap gap-1.5">
             @foreach ($words as $word)
-                <span class="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">{{ $word }}</span>
+                <span class="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $word }}</span>
             @endforeach
         </div>
     </div>

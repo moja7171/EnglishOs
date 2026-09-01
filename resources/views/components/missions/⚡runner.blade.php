@@ -212,16 +212,23 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
-    <header class="border-b border-neutral-300 pb-4 dark:border-neutral-700">
-        <p class="font-mono text-xs tracking-widest text-neutral-500 uppercase">{{ $mission->code }}</p>
-        <h1 class="text-2xl font-extrabold">{{ $mission->title }}</h1>
-        <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{{ $mission->outcome }}</p>
-    </header>
+<div class="mx-auto max-w-2xl space-y-6 p-6" data-mood="{{ $mission->moodKey() }}">
+    <div class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-8 text-white sm:p-9">
+        <div class="pointer-events-none absolute -top-24 -right-10 -z-10 h-72 w-72 rounded-full bg-dawn opacity-40 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-28 -left-10 -z-10 h-60 w-60 rounded-full bg-dusk opacity-30 blur-3xl"></div>
+        <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-white/70 uppercase">
+            <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
+            {{ $mission->code }}
+        </p>
+        <h1 class="mt-3 max-w-[16ch] font-display text-3xl font-semibold text-balance">{{ $mission->title }}</h1>
+        <p class="mt-2 max-w-[46ch] text-sm text-white/75">{{ $mission->outcome }}</p>
+    </div>
 
     @if ($this->showOverview && $this->currentStepKey !== null)
-        {{-- 3-day mission overview --}}
-        <div class="space-y-3">
+        {{-- 3-day mission overview, styled as a journey path --}}
+        <div class="relative pl-11">
+            <div class="absolute top-5 bottom-5 left-[18px] w-0.5 bg-line dark:bg-line-dark"></div>
+
             @foreach ($run->dayProgress() as $index => $day)
                 @php
                     $entryStep = $day['done']
@@ -230,33 +237,45 @@ new class extends Component
                             ? $this->currentStepKey
                             : (MissionRun::TESTING_UNLOCK_ALL_STEPS ? $day['stepKeys'][0] : null));
                 @endphp
-                <div class="rounded-lg border p-4
-                    {{ $day['current'] ? 'border-neutral-900 dark:border-white' : 'border-neutral-300 dark:border-neutral-700' }}
-                    {{ $day['locked'] ? 'opacity-50' : '' }}">
-                    <div class="flex items-center justify-between">
-                        <p class="font-mono text-xs uppercase tracking-wide text-neutral-500">
-                            Day {{ $index + 1 }} · {{ $day['label'] }}
-                        </p>
+                <div class="relative mb-3.5">
+                    <div class="absolute top-3.5 -left-11 flex h-9 w-9 items-center justify-center rounded-full border-2 font-display text-sm font-semibold
+                        {{ $day['done']
+                            ? 'border-success bg-success text-white dark:border-success-dark dark:bg-success-dark'
+                            : ($day['current']
+                                ? 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark'
+                                : 'border-line bg-ground text-ink-faint dark:border-line-dark dark:bg-ground-dark dark:text-ink-faint-dark') }}">
                         @if ($day['done'])
-                            <span class="inline-flex items-center gap-1 text-xs text-green-600">
-                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5')
-                                Completed {{ $day['completedAt']->format('M j') }}
-                            </span>
-                        @elseif ($day['startedAt'])
-                            <span class="text-xs text-neutral-500">Started {{ $day['startedAt']->format('M j') }}</span>
+                            @svg('heroicon-o-check', 'h-4 w-4')
+                        @else
+                            {{ $index + 1 }}
                         @endif
                     </div>
-                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                        {{ collect($day['stepKeys'])->map(fn ($k) => $mission->stepLabel($k))->implode(' · ') }}
-                    </p>
 
-                    @if ($entryStep)
-                        <a
-                            href="{{ route('missions.show', [$mission, $entryStep]) }}"
-                            wire:navigate
-                            class="mt-3 inline-block rounded bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white dark:bg-white dark:text-neutral-900"
-                        >{{ $day['done'] ? 'Review' : 'Continue' }}</a>
-                    @endif
+                    <div class="rounded-2xl border bg-surface p-4.5 dark:bg-surface-dark
+                        {{ $day['current'] ? 'border-accent dark:border-accent-dark' : 'border-line dark:border-line-dark' }}
+                        {{ $day['locked'] ? 'opacity-55' : '' }}">
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
+                                Day {{ $index + 1 }} · {{ $day['label'] }}
+                            </p>
+                            @if ($day['done'])
+                                <span class="text-xs font-semibold text-success dark:text-success-dark">Completed {{ $day['completedAt']->format('M j') }}</span>
+                            @elseif ($day['startedAt'])
+                                <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Started {{ $day['startedAt']->format('M j') }}</span>
+                            @endif
+                        </div>
+                        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
+                            {{ collect($day['stepKeys'])->map(fn ($k) => $mission->stepLabel($k))->implode(' · ') }}
+                        </p>
+
+                        @if ($entryStep)
+                            <a
+                                href="{{ route('missions.show', [$mission, $entryStep]) }}"
+                                wire:navigate
+                                class="mt-3 inline-flex cursor-pointer items-center gap-1 text-xs font-bold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark"
+                            >{{ $day['done'] ? 'Review' : 'Continue' }} @svg('heroicon-o-chevron-right', 'h-3 w-3')</a>
+                        @endif
+                    </div>
                 </div>
             @endforeach
         </div>
@@ -269,12 +288,12 @@ new class extends Component
             <a
                 href="{{ route('missions.show', [$mission, 'overview']) }}"
                 wire:navigate
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >
                 @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
                 All Days
             </a>
-            <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
                 Day {{ $this->activeDayIndex + 1 }} · {{ $this->activeDay['label'] ?? '' }}
             </p>
         </div>
@@ -291,10 +310,10 @@ new class extends Component
                     <a
                         href="{{ route('missions.show', [$mission, $key]) }}"
                         wire:navigate
-                        class="flex items-center gap-3 rounded-lg border px-3 py-2 text-sm
-                            {{ $active ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900' : 'border-neutral-200 dark:border-neutral-800' }}
-                            {{ ! $active && $done ? 'text-green-600' : '' }}
-                            {{ ! $active && ! $done ? 'text-neutral-600 dark:text-neutral-400' : '' }}"
+                        class="flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm transition-colors
+                            {{ $active ? 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' : 'border-line dark:border-line-dark' }}
+                            {{ ! $active && $done ? 'text-success dark:text-success-dark' : '' }}
+                            {{ ! $active && ! $done ? 'text-ink-soft dark:text-ink-soft-dark' : '' }}"
                     >
                         @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
                         <span class="flex-1 {{ $active ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
@@ -304,7 +323,7 @@ new class extends Component
                     </a>
                 @else
                     <span
-                        class="flex items-center gap-3 rounded-lg border border-neutral-100 px-3 py-2 text-sm text-neutral-300 dark:border-neutral-900 dark:text-neutral-700"
+                        class="flex items-center gap-3 rounded-xl border border-line/60 px-3.5 py-2.5 text-sm text-ink-faint/70 dark:border-line-dark/60 dark:text-ink-faint-dark/70"
                     >
                         @svg($this->stepIcon($key), 'h-4 w-4 shrink-0 opacity-40')
                         <span class="flex-1">{{ $mission->stepLabel($key) }}</span>
@@ -314,25 +333,25 @@ new class extends Component
             @endforeach
         </nav>
 
-        <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+        <div class="rounded-2xl border border-line bg-surface p-5 dark:border-line-dark dark:bg-surface-dark">
             <div class="flex items-center justify-between">
-                <p class="font-mono text-xs text-neutral-500">
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                     Step {{ $position }} of {{ count($daySteps) }}
                 </p>
                 @if ($this->isReviewing)
-                    <span class="rounded bg-neutral-200 px-2 py-0.5 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+                    <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
                         Reviewing a completed step
                     </span>
                 @endif
             </div>
-            <h2 class="text-lg font-bold">{{ $mission->stepLabel($this->activeStepKey) }}</h2>
+            <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->stepLabel($this->activeStepKey) }}</h2>
 
             @if ($this->stepComponent)
                 <div class="mt-4">
                     @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing], key($run->id.'-'.$this->activeStepKey.'-'.($this->isReviewing ? 'ro' : 'live')))
                 </div>
             @else
-                <p class="mt-2 text-sm text-neutral-500">Step screen not built yet.</p>
+                <p class="mt-2 text-sm text-ink-faint dark:text-ink-faint-dark">Step screen not built yet.</p>
             @endif
         </div>
 
@@ -341,7 +360,7 @@ new class extends Component
                 <a
                     href="{{ route('missions.show', [$mission, $this->previousStepKey]) }}"
                     wire:navigate
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                 >
                     @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
                     Previous
@@ -354,7 +373,7 @@ new class extends Component
                 <a
                     href="{{ route('missions.show', [$mission, $this->nextStepKey]) }}"
                     wire:navigate
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                 >
                     Next
                     @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
@@ -363,7 +382,7 @@ new class extends Component
                 <a
                     href="{{ route('missions.show', [$mission, 'overview']) }}"
                     wire:navigate
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                 >
                     Back to all days
                     @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
@@ -371,12 +390,12 @@ new class extends Component
             @endif
         </div>
     @else
-        <article class="rounded-lg border-2 border-neutral-900 p-4 dark:border-white">
-            <p class="text-xs font-semibold uppercase tracking-wide
-                {{ $run->status === 'complete' ? 'text-green-600' : ($run->status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
+        <article class="rounded-2xl border-2 border-ink p-5 dark:border-ink-dark">
+            <p class="text-xs font-semibold tracking-wide uppercase
+                {{ $run->status === 'complete' ? 'text-success dark:text-success-dark' : ($run->status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
                 Mission {{ str($run->status)->replace('_', ' ')->title() }}
             </p>
-            <h2 class="mt-1 text-lg font-bold">{{ $mission->title }} — done</h2>
+            <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->title }} — done</h2>
         </article>
     @endif
 </div>

@@ -125,8 +125,8 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent('ai_conversation_1')['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">AI Conversation #1</p>
-        <p class="text-xs text-neutral-500">Answer each question out loud. The AI Instructor will ask one follow-up.</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Conversation #1</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Answer each question out loud. The AI Instructor will ask one follow-up.</p>
     </div>
 
     @if (! $readOnly && ! $completed)
@@ -135,11 +135,11 @@ new class extends Component
         <div>
             <x-progress-bar>
                 <div
-                    class="h-full rounded-full bg-neutral-900 transition-all duration-300 dark:bg-white"
+                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
                     style="width: {{ count($this->questions) ? $round / count($this->questions) * 100 : 0 }}%"
                 ></div>
                 <x-slot:label>
-                    <p class="text-xs font-semibold text-neutral-500">
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                         Question {{ min($round + 1, count($this->questions)) }} of {{ count($this->questions) }}
                     </p>
                 </x-slot:label>
@@ -156,25 +156,25 @@ new class extends Component
     @endif
 
     @if ($completed)
-        <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-green-600 uppercase">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
                     AI Conversation #1 complete
                 </p>
-                <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Nicely done — take a look back at the conversation above before you move on.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Nicely done — take a look back at the conversation above before you move on.</p>
             </div>
             <button
                 wire:click="proceed"
-                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
             >
                 Continue
             </button>
         </div>
     @elseif ($this->currentQuestion)
-        <div class="rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
-            <p class="text-xs text-neutral-500">Question {{ $round + 1 }} of {{ count($this->questions) }}</p>
-            <p class="mt-1 text-lg font-bold">{{ $this->currentQuestion }}</p>
+        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $round + 1 }} of {{ count($this->questions) }}</p>
+            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentQuestion }}</p>
 
             <div class="mt-3" wire:key="recorder-{{ $round }}" wire:loading.remove wire:target="submitAnswer">
                 <x-voice-recorder

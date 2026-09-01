@@ -4,8 +4,69 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+    /* "A Day, Well Spent" — the app's design direction: grounded in the
+       mission's own subject (a day, lived well) rather than a generic
+       palette. Each color below has a matching "-dark" pair used via the
+       existing dark: convention (e.g. bg-ground dark:bg-ground-dark),
+       since Tailwind can't auto-invert a custom color. */
+    --color-ground: #f6f5fb;
+    --color-ground-dark: #15132a;
+    --color-surface: #ffffff;
+    --color-surface-dark: #1e1c38;
+    --color-surface-sunken: #efeef8;
+    --color-surface-sunken-dark: #191733;
+
+    --color-ink: #1d1b3a;
+    --color-ink-dark: #f2f1fb;
+    --color-ink-soft: #57547e;
+    --color-ink-soft-dark: #b9b6db;
+    --color-ink-faint: #8f8cb0;
+    --color-ink-faint-dark: #7a77a0;
+
+    --color-line: #e2e0f0;
+    --color-line-dark: #322f57;
+
+    --color-accent: #ff6b4a;
+    --color-accent-dark: #ff8163;
+    --color-accent-soft: #ffe4da;
+    --color-accent-soft-dark: #3a2233;
+    --color-accent-ink: #a8391c;
+    --color-accent-ink-dark: #ffb49c;
+
+    --color-success: #1fa98a;
+    --color-success-dark: #4cceb0;
+    --color-success-soft: #d9f3ec;
+    --color-success-soft-dark: #163a34;
+
+    --color-dawn: #ffb17a;
+    --color-dusk: #8b7ce0;
+
+    /* Fixed, deliberately theme-independent — a signature dark "night
+       sky" surface for the mission hero, same in light and dark mode. */
+    --color-hero: #211d3f;
+    --color-hero-2: #322d5c;
+}
+
+/* Hybrid per-mission theming (EOS-009 §8): one shared system everywhere —
+   layout, typography, components, the hero surface — with only the accent
+   hue shifting to match each mission's own subject. The base :root palette
+   above *is* the "daily-life" mood (M01); a mission opts into a different
+   mood by rendering with data-mood="..." on its outer wrapper (see
+   Mission::moodKey()), which overrides just the accent + hero-glow tokens
+   here. Add a new mood block the same way when a mission earns one. */
+[data-mood='connection'] {
+    --color-accent: #2fa6a6;
+    --color-accent-dark: #4fc4c4;
+    --color-accent-soft: #d9f2f0;
+    --color-accent-soft-dark: #163634;
+    --color-accent-ink: #0f6b6b;
+    --color-accent-ink-dark: #8fe0dc;
+    --color-dawn: #6fd9c7;
+    --color-dusk: #4a8fbf;
 }
 
 /* Alpine's x-cloak needs this rule to actually hide anything before Alpine

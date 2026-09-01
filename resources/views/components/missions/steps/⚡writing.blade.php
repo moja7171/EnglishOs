@@ -66,11 +66,11 @@ new class extends Component
     <x-hook :text="$writing['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Writing</p>
-        <h2 class="text-lg font-bold">{{ $writing['title'] ?? 'Writing' }}</h2>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Writing</p>
+        <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $writing['title'] ?? 'Writing' }}</h2>
     </div>
 
-    <div class="flex flex-wrap gap-4 text-xs text-neutral-500">
+    <div class="flex flex-wrap gap-4 text-xs text-ink-faint dark:text-ink-faint-dark">
         <div>
             <span class="font-semibold uppercase">Write about:</span>
             {{ implode(' · ', $writing['prompts'] ?? []) }}
@@ -81,10 +81,10 @@ new class extends Component
 
     @if (count($writing['try_to_use'] ?? []))
         <div>
-            <p class="text-xs font-semibold text-neutral-500 uppercase">Connectors that help</p>
+            <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Connectors that help</p>
             <div class="mt-1 flex flex-wrap gap-1.5">
                 @foreach ($writing['try_to_use'] as $word)
-                    <span class="rounded border border-neutral-300 px-2 py-0.5 text-xs dark:border-neutral-700">{{ $word }}</span>
+                    <span class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">{{ $word }}</span>
                 @endforeach
             </div>
         </div>
@@ -98,11 +98,11 @@ new class extends Component
             x-draft="{ key: '{{ $draftPrefix }}text', field: 'text' }"
         @endunless
         @readonly($readOnly)
-        class="w-full rounded border border-neutral-300 bg-transparent p-3 text-sm dark:border-neutral-700"
+        class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
     ></textarea>
 
     <div class="flex items-center justify-between text-xs">
-        <span class="{{ $this->wordCount >= ($writing['min_words'] ?? 100) ? 'text-green-600' : 'text-neutral-500' }}">
+        <span class="{{ $this->wordCount >= ($writing['min_words'] ?? 100) ? 'text-success dark:text-success-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">
             {{ $this->wordCount }} words (target {{ $writing['min_words'] ?? 100 }}–{{ $writing['max_words'] ?? 150 }})
         </span>
     </div>
@@ -114,7 +114,7 @@ new class extends Component
     @unless ($readOnly)
         <button
             wire:click="save"
-            class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
         >
             Continue
         </button>

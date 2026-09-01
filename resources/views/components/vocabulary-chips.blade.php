@@ -28,7 +28,7 @@
                         $nextTick(() => $refs['{{ $refPrefix }}' + idx]?.focus());
                     @endif
                 "
-                class="cursor-pointer rounded-full border border-neutral-300 px-2.5 py-1 text-xs text-neutral-600 transition-colors hover:border-neutral-400 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                class="cursor-pointer rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >{{ $word }}</button>
         @endforeach
     </div>

@@ -194,7 +194,7 @@ class GrammarInContextStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->assertSeeHtml('<strong class="text-neutral-900 underline decoration-2 underline-offset-2 dark:text-white">always</strong>')
+            ->assertSeeHtml('<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">always</strong>')
             ->assertSee("You'll use this next in Activation.");
     }
 
