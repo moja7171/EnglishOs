@@ -150,7 +150,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertDontSee('Continue');
     }
 
-    public function test_a_fresh_run_shows_the_day_overview_with_all_three_days(): void
+    public function test_a_fresh_run_shows_the_day_overview_with_all_four_days(): void
     {
         $this->seed(MissionSeeder::class);
 
@@ -165,6 +165,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSee('Day 1')
             ->assertSee('Day 2')
             ->assertSee('Day 3')
+            ->assertSee('Day 4')
             ->assertSee('Continue') // Day 1's entry button, not started yet
             ->assertDontSee('Completed');
     }
@@ -278,7 +279,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSee('Mission Brief')
             ->assertSee('Vocabulary Builder')
             ->assertSee('Listening')
-            // Day 3's steps must stay invisible-as-content on Day 1 — the
+            // A later day's steps must stay invisible-as-content on Day 1 — the
             // checklist only ever lists the active day's own steps.
             ->assertDontSee('Mission Result');
     }

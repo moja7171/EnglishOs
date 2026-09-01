@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Mission;
+use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,7 +13,7 @@ class MissionHookContentTest extends TestCase
 
     public function test_every_m01_step_has_a_non_empty_hook(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $mission = Mission::where('code', 'M01')->firstOrFail();
 
@@ -27,10 +28,13 @@ class MissionHookContentTest extends TestCase
      * Matches the exact page order in document/M01/Mission01.pdf (page 2's
      * "3-Day Plan" + pages 06-12): Active Recall and Error Log are pages
      * 09-10, both *before* the Final Challenge on page 11 — not after it.
+     * The app itself splits the book's single Partner/AI day into two
+     * balanced phases (Practice, then Challenge — see MissionSeeder), but
+     * the underlying step order still matches the book exactly.
      */
     public function test_m01_step_order_matches_the_real_3_day_plan(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $mission = Mission::where('code', 'M01')->firstOrFail();
 
@@ -42,7 +46,7 @@ class MissionHookContentTest extends TestCase
             // Day 2 · Individual (pages 04-05)
             'grammar_in_context',
             'activation',
-            // Day 3 · Partner/AI (pages 06-12)
+            // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge
             'ai_conversation_1',
             'ai_feedback_1',
             'writing',

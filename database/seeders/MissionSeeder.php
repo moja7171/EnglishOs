@@ -208,8 +208,13 @@ class MissionSeeder extends Seeder
                         ],
                     ],
                     [
-                        'phase' => 'mission',
-                        'label' => 'Mission',
+                        // Split from the original single "Mission" phase (2026-09) —
+                        // 7 steps there vs. 3/2 on the two solo days made Day 3 nearly
+                        // 3.5x heavier than Day 2. This is the first half of that same
+                        // AI Instructor mission: the first conversation, its feedback,
+                        // and the writing task — a natural "practice session" cluster.
+                        'phase' => 'practice',
+                        'label' => 'Practice',
                         'mode' => 'ai',
                         'steps' => [
                             [
@@ -241,6 +246,18 @@ class MissionSeeder extends Seeder
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
+                        ],
+                    ],
+                    [
+                        // Second half of the original "Mission" phase: review what
+                        // stuck, fix recurring mistakes, THEN the harder final
+                        // conversation (error_log deliberately stays before
+                        // ai_conversation_2 so corrections get applied in the
+                        // Final Challenge, not just logged), then the result.
+                        'phase' => 'challenge',
+                        'label' => 'Challenge',
+                        'mode' => 'ai',
+                        'steps' => [
                             [
                                 'key' => 'active_recall',
                                 'label' => 'Active Recall',

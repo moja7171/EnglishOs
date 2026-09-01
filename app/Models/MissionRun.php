@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 #[Fillable(['learner_id', 'mission_id', 'status', 'started_at', 'completed_at'])]
 class MissionRun extends Model
@@ -165,14 +166,14 @@ class MissionRun extends Model
     }
 
     /**
-     * The mission's phases ("Day 1", "Day 2", "Day 3") with this run's
+     * The mission's phases ("Day 1", "Day 2", ...) with this run's
      * progress folded in — used for the mission overview screen. Dates are
      * derived from real Evidence timestamps, never assigned or enforced:
      * EOS-004 §9 is explicit that progress is based on learning, not the
      * calendar, so a day unlocks the moment the previous one's Evidence is
      * complete, whatever the actual date is.
      *
-     * @return list<array{phase: string, label: string, stepKeys: list<string>, startedAt: ?\Illuminate\Support\Carbon, completedAt: ?\Illuminate\Support\Carbon, done: bool, current: bool, locked: bool}>
+     * @return list<array{phase: string, label: string, stepKeys: list<string>, startedAt: ?Carbon, completedAt: ?Carbon, done: bool, current: bool, locked: bool}>
      */
     public function dayProgress(): array
     {

@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -94,7 +95,7 @@ class MissionBriefStepTest extends TestCase
 
     public function test_shows_the_real_hook_and_a_roadmap_of_the_mission_phases(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();
@@ -104,7 +105,8 @@ class MissionBriefStepTest extends TestCase
             ->assertSee('new coworker turns to you and asks')
             ->assertSee('Foundation')
             ->assertSee('Build')
-            ->assertSee('Mission')
+            ->assertSee('Practice')
+            ->assertSee('Challenge')
             ->assertSee('We\'ll compare this to your score at the end of the mission.', false);
     }
 }

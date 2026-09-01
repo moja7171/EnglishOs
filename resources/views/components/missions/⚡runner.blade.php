@@ -54,7 +54,7 @@ new class extends Component
     }
 
     /**
-     * Show the 3-day overview instead of a step form when: the learner
+     * Show the day overview instead of a step form when: the learner
      * explicitly asked for it (?step=overview), the mission is fully done,
      * or they've just arrived at a day they haven't started yet. Mid-day,
      * a bare visit goes straight to the current step — only the boundary
@@ -230,7 +230,7 @@ new class extends Component
     </div>
 
     @if ($this->showOverview && $this->currentStepKey !== null)
-        {{-- 3-day mission overview, styled as a journey path --}}
+        {{-- Mission overview, styled as a journey path --}}
         <div class="relative pl-11">
             <div class="absolute top-5 bottom-5 left-[18px] w-0.5 bg-line dark:bg-line-dark"></div>
 
