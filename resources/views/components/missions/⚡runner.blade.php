@@ -316,14 +316,16 @@ new class extends Component
                         href="{{ route('missions.show', [$mission, $key]) }}"
                         wire:navigate
                         class="flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm transition-colors
-                            {{ $active ? 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' : 'border-line dark:border-line-dark' }}
-                            {{ ! $active && $done ? 'text-success dark:text-success-dark' : '' }}
-                            {{ ! $active && ! $done ? 'text-ink-soft dark:text-ink-soft-dark' : '' }}"
+                            {{ match (true) {
+                                $active => 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark',
+                                $done => 'border-success/30 bg-success-soft text-success dark:border-success-dark/30 dark:bg-success-soft-dark dark:text-success-dark',
+                                default => 'border-line text-ink-soft dark:border-line-dark dark:text-ink-soft-dark',
+                            } }}"
                     >
                         @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
-                        <span class="flex-1 {{ $active ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
+                        <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
                         @if ($done && ! $active)
-                            @svg('heroicon-o-check-circle', 'h-4 w-4 shrink-0')
+                            @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
                         @endif
                     </a>
                 @else

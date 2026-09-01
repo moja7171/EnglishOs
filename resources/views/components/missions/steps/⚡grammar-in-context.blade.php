@@ -440,7 +440,7 @@ new class extends Component
                     x-cloak
                     wire:click="startPractice"
                     x-on:click="phase = 'practice'"
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
                 >Start practice @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
             </div>
         </div>

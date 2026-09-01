@@ -157,14 +157,17 @@ new class extends Component
     @elseif ($error)
         <div class="rounded-xl border border-red-300 p-3 text-sm text-red-600">
             {{ $error }}
-            <button wire:click="generate" class="mt-2 block underline">Try again</button>
+            <button
+                wire:click="generate"
+                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:border-red-800 dark:hover:bg-red-950"
+            >Try again</button>
         </div>
     @elseif (empty($mistakes))
         <div class="rounded-xl border border-line p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
             No recurring mistakes found — nice work!
         </div>
         @unless ($readOnly)
-            <button wire:click="save" class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark">
+            <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
                 Continue
             </button>
         @endunless
@@ -190,7 +193,7 @@ new class extends Component
         @enderror
 
         @unless ($readOnly)
-            <button wire:click="save" class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark">
+            <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
                 Continue
             </button>
         @endunless

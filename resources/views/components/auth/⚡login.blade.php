@@ -61,7 +61,7 @@ new class extends Component
 
     <button
         wire:click="login"
-        class="w-full cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
+        class="w-full cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
     >
         Sign in
     </button>

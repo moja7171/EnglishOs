@@ -89,7 +89,7 @@ new class extends Component
                     wire:click="$set('score', {{ $value }})"
                     @class([
                         'h-10 w-10 cursor-pointer rounded-full border text-sm font-semibold transition-colors',
-                        'border-ink bg-ink text-ground dark:border-ink-dark dark:bg-ink-dark dark:text-ground-dark' => $score === $value,
+                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $score === $value,
                         'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark' => $score !== $value,
                     ])
                 >{{ $value }}</button>
@@ -103,7 +103,7 @@ new class extends Component
     @unless ($readOnly)
         <button
             wire:click="save"
-            class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
+            class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
         >
             Continue
         </button>

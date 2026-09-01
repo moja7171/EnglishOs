@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -126,7 +127,7 @@ class MissionRunnerNavigationTest extends TestCase
 
     public function test_reviewing_a_real_seeded_step_shows_the_same_layout_with_the_saved_answer(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();
@@ -145,13 +146,13 @@ class MissionRunnerNavigationTest extends TestCase
         // through the exact same mission-brief component the live step uses.
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
             ->assertSee('What time do you usually wake up?')
-            ->assertSeeHtml('bg-ink') // the "4" button rendered as chosen
+            ->assertSeeHtml('bg-accent') // the "4" button rendered as chosen
             ->assertDontSee('Continue');
     }
 
     public function test_a_fresh_run_shows_the_day_overview_with_all_three_days(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();
@@ -170,7 +171,7 @@ class MissionRunnerNavigationTest extends TestCase
 
     public function test_mid_day_bare_visit_skips_the_overview_and_goes_to_the_step(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();
@@ -192,7 +193,7 @@ class MissionRunnerNavigationTest extends TestCase
 
     public function test_finishing_a_day_shows_the_overview_again_with_that_day_marked_done(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();
@@ -217,7 +218,7 @@ class MissionRunnerNavigationTest extends TestCase
 
     public function test_next_and_previous_never_cross_a_day_boundary(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();
@@ -242,7 +243,7 @@ class MissionRunnerNavigationTest extends TestCase
 
     public function test_the_overview_pseudo_step_always_forces_the_overview_even_mid_day(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();
@@ -263,7 +264,7 @@ class MissionRunnerNavigationTest extends TestCase
 
     public function test_the_within_day_checklist_shows_real_step_labels_not_just_numbers(): void
     {
-        $this->seed(\Database\Seeders\MissionSeeder::class);
+        $this->seed(MissionSeeder::class);
 
         $learner = User::factory()->create();
         $mission = Mission::where('code', 'M01')->firstOrFail();

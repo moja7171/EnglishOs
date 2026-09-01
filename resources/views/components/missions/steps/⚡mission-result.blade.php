@@ -229,7 +229,7 @@ new class extends Component
         <button
             wire:click="getResult"
             wire:loading.attr="disabled"
-            class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 disabled:pointer-events-none disabled:opacity-50 dark:bg-ink-dark dark:text-ground-dark"
+            class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
         >
             <span wire:loading.remove wire:target="getResult">Get My Result</span>
             <span wire:loading wire:target="getResult">Reviewing your mission…</span>
@@ -246,7 +246,7 @@ new class extends Component
         @unless ($readOnly)
             <button
                 wire:click="finish"
-                class="cursor-pointer rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
+                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
             >
                 Finish Mission
             </button>
