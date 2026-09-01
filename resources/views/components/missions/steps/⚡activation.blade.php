@@ -3,6 +3,8 @@
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -32,6 +34,24 @@ new class extends Component
 
     public ?string $savedAudioUrl = null;
 
+    /**
+     * The Groq transcript of the recording and a short, non-blocking
+     * Persian reflection on it — purely informational, never gates
+     * progress (Evidence is already saved by the time these are computed).
+     * Null if generation failed or hasn't run yet.
+     */
+    public ?string $transcript = null;
+
+    /** @var array{highlight: string, tip: string}|null */
+    public ?array $reflection = null;
+
+    /**
+     * True once Continue has passed every check and Evidence is saved —
+     * the step then shows the transcript + reflection recap before the
+     * learner actually navigates on, instead of jumping away immediately.
+     */
+    public bool $completed = false;
+
     public function mount(): void
     {
         if (! $this->readOnly) {
@@ -39,7 +59,10 @@ new class extends Component
         }
 
         $textEvidence = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_TEXT)->latest()->first();
-        $this->sentences = array_pad(json_decode($textEvidence?->content_ref ?? '[]', true), 5, '');
+        $data = json_decode($textEvidence?->content_ref ?? '{}', true);
+        $this->sentences = array_pad($data['sentences'] ?? [], 5, '');
+        $this->transcript = $data['transcript'] ?? null;
+        $this->reflection = $data['reflection'] ?? null;
 
         $audioEvidence = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
         $this->savedAudioUrl = $audioEvidence?->content_ref;
@@ -160,14 +183,20 @@ new class extends Component
 
         $mission = $this->run->mission;
 
+        $path = $this->audioFile->store('missions/'.strtolower($mission->code).'/evidence', 'public');
+
+        $this->transcribeAndReflect();
+
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'activation',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => $filledSentences->pluck('text')->values()->toJson(),
+            'content_ref' => json_encode([
+                'sentences' => $filledSentences->pluck('text')->values(),
+                'transcript' => $this->transcript,
+                'reflection' => $this->reflection,
+            ]),
         ]);
-
-        $path = $this->audioFile->store('missions/'.strtolower($mission->code).'/evidence', 'public');
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
@@ -176,7 +205,73 @@ new class extends Component
             'content_ref' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
         ]);
 
-        $this->redirect(route('missions.show', $mission), navigate: true);
+        // Progress is already saved — this only decides what the learner sees
+        // next: the transcript + reflection recap, which they dismiss with
+        // proceed() below. A failed transcription/reflection never blocks
+        // this — it's purely informational, not a requirement.
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
+        $this->completed = true;
+    }
+
+    /**
+     * Transcribes the recording and asks Gemini for a short, warm, non-
+     * blocking reflection in Persian — never a grade, never gates progress.
+     * This is the one deliberate exception to the app's English-only AI
+     * output rule, at the learner's explicit request (see EOS-009 §8).
+     * Failure here is silent by design: $transcript/$reflection just stay
+     * null and the recap simply omits them.
+     */
+    private function transcribeAndReflect(): void
+    {
+        try {
+            $this->transcript = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+
+            if ($this->transcript === '') {
+                return;
+            }
+
+            $vocabularyWords = $this->run->selectedVocabularyWords();
+            $vocabularyContext = $vocabularyWords
+                ? ' The learner\'s target vocabulary words for this mission were: '
+                    .collect($vocabularyWords)->map(fn ($w) => "\"{$w}\"")->implode(', ')
+                    .'. If any of these appear naturally in the transcript, you can mention that warmly.'
+                : '';
+
+            $raw = app(GeminiClient::class)->chat(
+                [['role' => 'user', 'text' => "Transcript: \"{$this->transcript}\""]],
+                systemPrompt: 'You are a supportive English speaking coach. The learner just recorded about 2 '
+                    .'minutes of solo speaking in English about their daily life — this is low-pressure fluency '
+                    .'practice, not a graded test.'.$vocabularyContext.' Given the transcript, write a short, '
+                    .'warm, simple reflection in PERSIAN (Farsi) — never English, and never grade it or use '
+                    .'severity labels. Reply with ONLY valid JSON, no markdown fences: {"highlight": "...", '
+                    .'"tip": "..."} — "highlight" is one short encouraging sentence in Persian about something '
+                    .'they did well; "tip" is one short, gentle, actionable suggestion in Persian for next time. '
+                    .'Keep both simple, plain Persian, no jargon, no English words mixed in unless quoting a '
+                    .'specific English word or phrase they actually said.'
+            );
+
+            $data = json_decode(trim($raw), true);
+
+            if (is_array($data) && isset($data['highlight'], $data['tip'])) {
+                $this->reflection = ['highlight' => $data['highlight'], 'tip' => $data['tip']];
+            }
+        } catch (\Throwable) {
+            // Silent by design — see method docblock.
+        }
+    }
+
+    public function proceed(): void
+    {
+        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Must match the prefix embedded in the Blade template's x-draft
+     * attributes exactly — both build it the same way from the run id.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:activation:";
     }
 };
 ?>
@@ -185,58 +280,51 @@ new class extends Component
     $activation = $run->mission->stepContent('activation');
     $vocabularyWords = $run->selectedVocabularyWords();
     $initialFilled = collect($sentences)->map(fn ($s) => trim((string) $s) !== '')->values();
+    $draftPrefix = $this->draftPrefix();
 @endphp
 
 <div class="space-y-6" x-data="{
-    recording: false,
-    seconds: 0,
-    timer: null,
-    mediaRecorder: null,
-    chunks: [],
-    uploading: false,
-    uploaded: false,
-    error: null,
     filled: {{ $initialFilled->toJson() }},
     dismissed: {},
     get filledCount() { return this.filled.filter(Boolean).length },
-    async startRecording() {
-        this.error = null;
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            this.chunks = [];
-            this.mediaRecorder = new MediaRecorder(stream);
-            this.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) this.chunks.push(e.data); };
-            this.mediaRecorder.onstop = () => {
-                stream.getTracks().forEach((t) => t.stop());
-                const blob = new Blob(this.chunks, { type: 'audio/webm' });
-                const file = new File([blob], 'activation-speaking.webm', { type: 'audio/webm' });
-                this.uploading = true;
-                this.$wire.upload('audioFile', file,
-                    () => { this.uploading = false; this.uploaded = true; },
-                    () => { this.uploading = false; this.error = 'Upload failed. Please try again.'; }
-                );
-            };
-            this.mediaRecorder.start();
-            this.recording = true;
-            this.seconds = 0;
-            this.timer = setInterval(() => { this.seconds++; }, 1000);
-        } catch (e) {
-            this.error = 'Microphone access was denied or is unavailable.';
-        }
-    },
-    stopRecording() {
-        this.mediaRecorder.stop();
-        this.recording = false;
-        clearInterval(this.timer);
-    },
-    get formattedTime() {
-        const m = Math.floor(this.seconds / 60).toString().padStart(2, '0');
-        const s = (this.seconds % 60).toString().padStart(2, '0');
-        return m + ':' + s;
-    },
 }">
     <x-hook :text="$activation['hook'] ?? null" />
 
+    @if ($completed || ($readOnly && ($transcript || $reflection)))
+        <div class="space-y-4 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-green-600 uppercase">✓ Activation complete</p>
+                @if ($reflection)
+                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Here's a quick recap of your recording.</p>
+                @endif
+            </div>
+
+            @if ($reflection)
+                <div class="space-y-2 rounded-lg border-2 border-neutral-900 bg-neutral-50 p-3 dark:border-white dark:bg-neutral-900" dir="rtl">
+                    <p class="text-sm text-neutral-800 dark:text-neutral-200">{{ $reflection['highlight'] }}</p>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">💡 {{ $reflection['tip'] }}</p>
+                </div>
+            @endif
+
+            @if ($transcript)
+                <div>
+                    <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">What you said</p>
+                    <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{{ $transcript }}</p>
+                </div>
+            @endif
+
+            @unless ($readOnly)
+                <button
+                    wire:click="proceed"
+                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                >
+                    Continue
+                </button>
+            @endunless
+        </div>
+    @endif
+
+    @unless ($completed)
     <div>
         <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Write 5 personal sentences</p>
         <p class="text-xs text-neutral-500">{{ $activation['task'] ?? '' }}</p>
@@ -275,6 +363,9 @@ new class extends Component
                             wire:model="sentences.{{ $index }}"
                             placeholder="{{ $index + 1 }}."
                             x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
+                            @unless ($readOnly)
+                                x-draft="{ key: '{{ $draftPrefix }}sentences.{{ $index }}', field: 'sentences.{{ $index }}' }"
+                            @endunless
                             @readonly($readOnly)
                             wire:loading.attr="disabled"
                             wire:target="checkOne,revealCorrection,declineReveal,save"
@@ -322,26 +413,10 @@ new class extends Component
         @else
             <p class="text-xs text-neutral-500">Talk about your daily life without reading. Record when you're ready.</p>
 
-            <div class="mt-3 flex items-center gap-3">
-                <button
-                    type="button"
-                    x-show="!recording && !uploaded"
-                    x-on:click="startRecording"
-                    class="cursor-pointer rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
-                >● Record</button>
-
-                <button
-                    type="button"
-                    x-show="recording"
-                    x-on:click="stopRecording"
-                    class="cursor-pointer rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-                >■ Stop (<span x-text="formattedTime"></span>)</button>
-
-                <span x-show="uploading" class="text-sm text-neutral-500">Uploading…</span>
-                <span x-show="uploaded" class="text-sm text-green-600">✓ Recording saved</span>
+            <div class="mt-3">
+                <x-voice-recorder field="audioFile" :file="$audioFile" file-name="activation-speaking.webm" />
             </div>
 
-            <p x-show="error" x-text="error" class="mt-2 text-sm text-red-600"></p>
             @error('audioFile')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
@@ -352,7 +427,8 @@ new class extends Component
         <x-continue-button
             on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
             wire-target="checkOne,revealCorrection,declineReveal,save"
-            loading-label="Checking your sentences…"
+            loading-label="Checking your sentences and preparing your recap…"
         />
+    @endunless
     @endunless
 </div>

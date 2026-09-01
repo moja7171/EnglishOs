@@ -85,10 +85,22 @@ new class extends Component
             'content_ref' => json_encode($result),
         ]);
 
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Must match the prefix embedded in the Blade template's x-draft
+     * attributes exactly — both build it the same way from the run id.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:active_recall:";
     }
 };
 ?>
+
+@php $draftPrefix = $this->draftPrefix(); @endphp
 
 <div class="space-y-6">
     <x-hook :text="$run->mission->stepContent('active_recall')['hook'] ?? null" />
@@ -107,6 +119,9 @@ new class extends Component
                         type="text"
                         wire:model="answers.{{ $section['key'] }}.{{ $i }}"
                         placeholder="{{ $i + 1 }}."
+                        @unless ($readOnly)
+                            x-draft="{ key: '{{ $draftPrefix }}answers.{{ $section['key'] }}.{{ $i }}', field: 'answers.{{ $section['key'] }}.{{ $i }}' }"
+                        @endunless
                         @readonly($readOnly)
                         class="w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
@@ -122,7 +137,7 @@ new class extends Component
     @unless ($readOnly)
         <button
             wire:click="save"
-            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
             Continue
         </button>

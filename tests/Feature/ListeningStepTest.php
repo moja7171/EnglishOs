@@ -330,4 +330,30 @@ class ListeningStepTest extends TestCase
             ->assertSet('offerReveal.expr_0', null)
             ->assertSet('checkAttempts.expr_0', 0);
     }
+
+    public function test_gist_and_expression_inputs_carry_a_draft_key_scoped_to_the_run(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->assertSeeHtml("eos-draft:{$run->id}:listening:gistPoints.0")
+            ->assertSeeHtml("eos-draft:{$run->id}:listening:expressionsHeard.0");
+    }
+
+    public function test_a_successful_save_dispatches_a_clear_draft_event(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->call('save')
+            ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:listening:");
+    }
 }

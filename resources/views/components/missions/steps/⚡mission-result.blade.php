@@ -155,10 +155,22 @@ new class extends Component
 
         $this->run->update(['status' => $this->status, 'completed_at' => now()]);
 
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Must match the prefix embedded in the Blade template's x-draft
+     * attributes exactly — both build it the same way from the run id.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:mission_result:";
     }
 };
 ?>
+
+@php $draftPrefix = $this->draftPrefix(); @endphp
 
 <div class="space-y-6">
     <x-hook :text="$run->mission->stepContent('mission_result')['hook'] ?? null" />
@@ -201,6 +213,9 @@ new class extends Component
                     <input
                         type="text"
                         wire:model="reflection.{{ $key }}"
+                        @unless ($readOnly)
+                            x-draft="{ key: '{{ $draftPrefix }}reflection.{{ $key }}', field: 'reflection.{{ $key }}' }"
+                        @endunless
                         class="mt-1 w-full rounded border border-neutral-300 bg-transparent px-2 py-1 text-sm dark:border-neutral-700"
                     >
                 </div>
@@ -214,7 +229,7 @@ new class extends Component
         <button
             wire:click="getResult"
             wire:loading.attr="disabled"
-            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 disabled:pointer-events-none disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
             <span wire:loading.remove wire:target="getResult">Get My Result</span>
             <span wire:loading wire:target="getResult">Reviewing your mission…</span>
@@ -231,7 +246,7 @@ new class extends Component
         @unless ($readOnly)
             <button
                 wire:click="finish"
-                class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+                class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
                 Finish Mission
             </button>

@@ -244,7 +244,17 @@ new class extends Component
             ]),
         ]);
 
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Must match the prefix embedded in the Blade template's x-draft
+     * attributes exactly — both build it the same way from the run id.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:vocabulary_builder:";
     }
 };
 ?>
@@ -252,6 +262,7 @@ new class extends Component
 @php
     $storyParagraphs = $this->storyParagraphs();
     $initialFilled = collect($selectedWords)->map(fn ($word, $i) => trim($examples[$i] ?? '') !== '')->values();
+    $draftPrefix = $this->draftPrefix();
 @endphp
 
 <div
@@ -367,6 +378,9 @@ new class extends Component
                             wire:model="examples.{{ $index }}"
                             x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
                             placeholder="My example…"
+                            @unless ($readOnly)
+                                x-draft="{ key: '{{ $draftPrefix }}examples.{{ $index }}', field: 'examples.{{ $index }}' }"
+                            @endunless
                             @readonly($readOnly)
                             wire:loading.attr="disabled"
                             wire:target="checkOne,revealCorrection,declineReveal,save"

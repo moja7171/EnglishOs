@@ -670,4 +670,33 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSet('offerReveal.wake up', null)
             ->assertSet('checkAttempts.wake up', 0);
     }
+
+    public function test_example_inputs_carry_a_draft_key_scoped_to_the_run(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->assertSeeHtml("eos-draft:{$run->id}:vocabulary_builder:examples.0");
+    }
+
+    public function test_a_successful_save_dispatches_a_clear_draft_event(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I have a morning routine.')
+            ->set('examples.1', 'I commute by bus.')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save')
+            ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:vocabulary_builder:");
+    }
 }

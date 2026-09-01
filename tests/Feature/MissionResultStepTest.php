@@ -114,4 +114,34 @@ class MissionResultStepTest extends TestCase
             ->assertSet('reason', 'Saved reason.')
             ->assertDontSee('Finish Mission');
     }
+
+    public function test_reflection_inputs_carry_a_draft_key_scoped_to_the_run(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->assertSeeHtml("eos-draft:{$run->id}:mission_result:reflection.became_easier");
+    }
+
+    public function test_finishing_the_mission_dispatches_a_clear_draft_event(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'status' => 'complete',
+                'reason' => 'You clearly improved and met the mission outcome.',
+            ]));
+        });
+
+        $component = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'Talking about my routine.')
+            ->set('reflection.still_difficult', 'Past tense.')
+            ->call('getResult');
+
+        $component->call('finish')
+            ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:mission_result:");
+    }
 }

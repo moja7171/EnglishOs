@@ -254,12 +254,22 @@ new class extends Component
 
         // Progress is already saved — this only decides what the learner sees
         // next: the language recap, which they dismiss with proceed() below.
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
     }
 
     public function proceed(): void
     {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Must match the prefix embedded in the Blade template's x-draft
+     * attributes exactly — both build it the same way from the run id.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:listening:";
     }
 };
 ?>
@@ -268,6 +278,7 @@ new class extends Component
     $listening = $run->mission->stepContent('listening');
     $targetPhrases = $listening['target_phrases'] ?? [];
     $initialGistFilled = collect($gistPoints)->map(fn ($p) => trim($p) !== '')->values();
+    $draftPrefix = $this->draftPrefix();
 @endphp
 
 <div
@@ -322,6 +333,9 @@ new class extends Component
                                 type="text"
                                 wire:model="gistPoints.{{ $index }}"
                                 placeholder="Sentence {{ $index + 1 }}…"
+                                @unless ($readOnly)
+                                    x-draft="{ key: '{{ $draftPrefix }}gistPoints.{{ $index }}', field: 'gistPoints.{{ $index }}' }"
+                                @endunless
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
                                 wire:target="checkGist,revealGist,declineGist,save"
@@ -398,6 +412,9 @@ new class extends Component
                                 x-ref="expr_input_{{ $index }}"
                                 wire:model="expressionsHeard.{{ $index }}"
                                 placeholder="Sentence {{ $index + 1 }}…"
+                                @unless ($readOnly)
+                                    x-draft="{ key: '{{ $draftPrefix }}expressionsHeard.{{ $index }}', field: 'expressionsHeard.{{ $index }}' }"
+                                @endunless
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
                                 wire:target="checkExpression,revealExpression,declineExpression,save"

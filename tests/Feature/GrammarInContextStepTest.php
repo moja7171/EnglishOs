@@ -360,4 +360,31 @@ class GrammarInContextStepTest extends TestCase
             ->assertSet('frequencySentences.0', 'I usually wake up at 7.')
             ->assertSet('corrections.0', 'She goes to work.');
     }
+
+    public function test_sentence_and_correction_inputs_carry_a_draft_key_scoped_to_the_run(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertSeeHtml("eos-draft:{$run->id}:grammar_in_context:frequencySentences.0")
+            ->assertSeeHtml("eos-draft:{$run->id}:grammar_in_context:corrections.0");
+    }
+
+    public function test_a_successful_save_dispatches_a_clear_draft_event(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->set('corrections.0', 'She goes to work.')
+            ->set('corrections.1', 'He wakes up late.')
+            ->call('save')
+            ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:grammar_in_context:");
+    }
 }

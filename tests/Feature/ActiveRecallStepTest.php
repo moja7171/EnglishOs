@@ -102,4 +102,24 @@ class ActiveRecallStepTest extends TestCase
             ->assertSee('5 expressions I learned')
             ->assertSet('answers.expressions', ['', '', '', '', '']);
     }
+
+    public function test_answer_inputs_carry_a_draft_key_scoped_to_the_run(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->assertSeeHtml("eos-draft:{$run->id}:active_recall:answers.expressions.0");
+    }
+
+    public function test_a_successful_save_dispatches_a_clear_draft_event(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'get up')
+            ->set('answers.expressions.1', 'sleep in')
+            ->set('answers.listening_facts.0', 'They talked about morning routines.')
+            ->call('save')
+            ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:active_recall:");
+    }
 }

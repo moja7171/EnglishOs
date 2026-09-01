@@ -291,7 +291,17 @@ new class extends Component
             ]),
         ]);
 
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Must match the prefix embedded in the Blade template's x-draft
+     * attributes exactly — both build it the same way from the run id.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:grammar_in_context:";
     }
 };
 ?>
@@ -301,6 +311,7 @@ new class extends Component
     $lesson = $grammar['lesson'] ?? [];
     $lessonSections = ['conjugation', 'questions', 'frequency'];
     $initialFilled = collect($frequencySentences)->map(fn ($s) => trim((string) $s) !== '')->values();
+    $draftPrefix = $this->draftPrefix();
 @endphp
 
 <div
@@ -472,6 +483,9 @@ new class extends Component
                                 type="text"
                                 wire:model="frequencySentences.{{ $index }}"
                                 x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed['freq{{ $index }}'] = true"
+                                @unless ($readOnly)
+                                    x-draft="{ key: '{{ $draftPrefix }}frequencySentences.{{ $index }}', field: 'frequencySentences.{{ $index }}' }"
+                                @endunless
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
                                 wire:target="checkOne,revealCorrection,declineReveal,save"
@@ -523,6 +537,9 @@ new class extends Component
                                 wire:model="corrections.{{ $index }}"
                                 placeholder="Correct it…"
                                 x-on:input="dismissed['qc{{ $index }}'] = true"
+                                @unless ($readOnly)
+                                    x-draft="{ key: '{{ $draftPrefix }}corrections.{{ $index }}', field: 'corrections.{{ $index }}' }"
+                                @endunless
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
                                 wire:target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save"

@@ -41,7 +41,17 @@ new class extends Component
             'content_ref' => $this->text,
         ]);
 
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Must match the prefix embedded in the Blade template's x-draft
+     * attribute exactly — both build it the same way from the run id.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:writing:";
     }
 };
 ?>
@@ -49,6 +59,7 @@ new class extends Component
 @php
     $writing = $run->mission->stepContent('writing');
     $vocabularyWords = $run->selectedVocabularyWords();
+    $draftPrefix = $this->draftPrefix();
 @endphp
 
 <div class="space-y-4">
@@ -92,6 +103,9 @@ new class extends Component
         wire:model.live="text"
         rows="10"
         placeholder="Start writing…"
+        @unless ($readOnly)
+            x-draft="{ key: '{{ $draftPrefix }}text', field: 'text' }"
+        @endunless
         @readonly($readOnly)
         class="w-full rounded border border-neutral-300 bg-transparent p-3 text-sm dark:border-neutral-700"
     ></textarea>
@@ -109,7 +123,7 @@ new class extends Component
     @unless ($readOnly)
         <button
             wire:click="save"
-            class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
             Continue
         </button>

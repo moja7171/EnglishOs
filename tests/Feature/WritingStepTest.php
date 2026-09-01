@@ -100,4 +100,22 @@ class WritingStepTest extends TestCase
             ->assertSee('do the housework')
             ->assertSee('Words you picked');
     }
+
+    public function test_the_text_field_carries_a_draft_key_scoped_to_the_run(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->assertSeeHtml("eos-draft:{$run->id}:writing:text");
+    }
+
+    public function test_a_successful_save_dispatches_a_clear_draft_event(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->set('text', 'I usually wake up early and then have breakfast.')
+            ->call('save')
+            ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:writing:");
+    }
 }

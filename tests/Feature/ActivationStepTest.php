@@ -7,6 +7,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -68,11 +69,67 @@ class ActivationStepTest extends TestCase
             ->assertHasErrors(['sentences']);
     }
 
-    public function test_valid_submission_stores_both_evidence_rows_and_advances_the_run(): void
+    public function test_valid_submission_stores_both_evidence_rows_and_shows_the_recap(): void
     {
         Storage::fake('public');
         $run = $this->makeRun();
 
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')->once()->andReturn('I usually wake up at seven and have breakfast.');
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->times(5)
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']))
+                ->ordered();
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn(json_encode(['highlight' => 'خیلی روان صحبت کردی.', 'tip' => 'دفعه‌ی بعد یه جزئیات بیشتر اضافه کن.']))
+                ->ordered();
+        });
+
+        $component = Livewire::test('missions.steps.activation', ['run' => $run])
+            ->set('sentences.0', 'I usually wake up at 7.')
+            ->set('sentences.1', 'I have breakfast at 8.')
+            ->set('sentences.2', 'I go to work by bus.')
+            ->set('sentences.3', 'I exercise in the evening.')
+            ->set('sentences.4', 'I go to bed at 11.')
+            ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('save')
+            ->assertSet('completed', true)
+            ->assertSet('transcript', 'I usually wake up at seven and have breakfast.')
+            ->assertSet('reflection.highlight', 'خیلی روان صحبت کردی.')
+            ->assertSee('خیلی روان صحبت کردی.');
+
+        $this->assertDatabaseCount('evidences', 2);
+        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'activation', 'type' => Evidence::TYPE_TEXT]);
+        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'activation', 'type' => Evidence::TYPE_AUDIO]);
+
+        $textEvidence = Evidence::where('phase', 'activation')->where('type', Evidence::TYPE_TEXT)->first();
+        $content = json_decode($textEvidence->content_ref, true);
+        $this->assertCount(5, $content['sentences']);
+        $this->assertSame('I usually wake up at seven and have breakfast.', $content['transcript']);
+        $this->assertSame('خیلی روان صحبت کردی.', $content['reflection']['highlight']);
+
+        $audioEvidence = Evidence::where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->first();
+        $this->assertStringContainsString('missions/m01/evidence/', $audioEvidence->content_ref);
+
+        // Evidence is already saved, so the run has already advanced — the
+        // recap is just a courtesy screen before navigating away, matching
+        // Listening's completed-screen pattern.
+        $this->assertSame('ai_conversation_1', $run->fresh()->currentStepKey());
+
+        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_a_failed_transcription_does_not_block_the_recap(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('Groq is down.'));
+        });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
@@ -85,16 +142,11 @@ class ActivationStepTest extends TestCase
             ->set('sentences.4', 'I go to bed at 11.')
             ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
             ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
+            ->assertSet('completed', true)
+            ->assertSet('transcript', null)
+            ->assertSet('reflection', null);
 
         $this->assertDatabaseCount('evidences', 2);
-        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'activation', 'type' => Evidence::TYPE_TEXT]);
-        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'activation', 'type' => Evidence::TYPE_AUDIO]);
-
-        $audioEvidence = Evidence::where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->first();
-        $this->assertStringContainsString('missions/m01/evidence/', $audioEvidence->content_ref);
-
-        $this->assertSame('ai_conversation_1', $run->fresh()->currentStepKey());
     }
 
     public function test_a_major_ai_verdict_on_a_sentence_blocks_continue(): void
@@ -197,6 +249,17 @@ class ActivationStepTest extends TestCase
             ->assertSet('offerReveal.0', null);
     }
 
+    public function test_uploading_a_recording_shows_playback_before_continuing(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->assertSee('Listen back')
+            ->assertSee('✓ Recording saved');
+    }
+
     public function test_read_only_mode_plays_back_the_saved_recording_with_the_shared_audio_player(): void
     {
         Storage::fake('public');
@@ -206,7 +269,7 @@ class ActivationStepTest extends TestCase
             'mission_run_id' => $run->id,
             'phase' => 'activation',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['I usually wake up at 7.']),
+            'content_ref' => json_encode(['sentences' => ['I usually wake up at 7.']]),
         ]);
         Evidence::create([
             'mission_run_id' => $run->id,
@@ -216,7 +279,97 @@ class ActivationStepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.activation', ['run' => $run, 'readOnly' => true])
+            ->assertSet('sentences.0', 'I usually wake up at 7.')
             ->assertSeeHtml('http://localhost/storage/missions/m01/evidence/speaking.webm')
             ->assertDontSeeHtml('<audio controls');
+    }
+
+    public function test_read_only_mode_shows_the_saved_transcript_and_reflection(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'sentences' => ['I usually wake up at 7.'],
+                'transcript' => 'I usually wake up at seven and have breakfast.',
+                'reflection' => ['highlight' => 'خیلی روان صحبت کردی.', 'tip' => 'دفعه‌ی بعد یه جزئیات بیشتر اضافه کن.'],
+            ]),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'http://localhost/storage/missions/m01/evidence/speaking.webm',
+        ]);
+
+        Livewire::test('missions.steps.activation', ['run' => $run, 'readOnly' => true])
+            ->assertSee('I usually wake up at seven and have breakfast.')
+            ->assertSee('خیلی روان صحبت کردی.')
+            ->assertSee('دفعه‌ی بعد یه جزئیات بیشتر اضافه کن.')
+            ->assertDontSee('Continue');
+    }
+
+    public function test_sentence_inputs_carry_a_draft_key_scoped_to_the_run(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->assertSeeHtml("eos-draft:{$run->id}:activation:sentences.0");
+    }
+
+    public function test_read_only_mode_does_not_wire_up_draft_persistence(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['sentences' => ['I usually wake up at 7.']]),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'http://localhost/storage/missions/m01/evidence/speaking.webm',
+        ]);
+
+        Livewire::test('missions.steps.activation', ['run' => $run, 'readOnly' => true])
+            ->assertDontSeeHtml('x-draft');
+    }
+
+    public function test_a_successful_save_dispatches_a_clear_draft_event(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')->once()->andReturn('I usually wake up at seven.');
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->times(5)
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']))
+                ->ordered();
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn(json_encode(['highlight' => 'خوب بود.', 'tip' => 'ادامه بده.']))
+                ->ordered();
+        });
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->set('sentences.0', 'I usually wake up at 7.')
+            ->set('sentences.1', 'I have breakfast at 8.')
+            ->set('sentences.2', 'I go to work by bus.')
+            ->set('sentences.3', 'I exercise in the evening.')
+            ->set('sentences.4', 'I go to bed at 11.')
+            ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('save')
+            ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:activation:");
     }
 }
