@@ -254,8 +254,11 @@ class ListeningStepTest extends TestCase
             ->set('gistPoints.0', 'attempt one');
 
         $component->call('checkGist', 0);
-        $component->call('checkGist', 0);
-        $component->call('checkGist', 0)->assertSet('offerReveal.gist_0', true);
+        $component->call('checkGist', 0)
+            ->assertSee('One more try — after that I can write the correct one for you');
+        $component->call('checkGist', 0)
+            ->assertSet('offerReveal.gist_0', true)
+            ->assertDontSee('One more try — after that I can write the correct one for you');
     }
 
     public function test_accepting_the_gist_reveal_writes_the_ai_correction(): void

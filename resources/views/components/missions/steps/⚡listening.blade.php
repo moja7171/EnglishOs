@@ -338,6 +338,7 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
+                            <x-almost-reveal-notice :show="($checkAttempts[$key] ?? 0) === 2" />
                             <x-reveal-offer
                                 :show="$offerReveal[$key] ?? false"
                                 reveal-method="revealGist"
@@ -413,6 +414,7 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
+                            <x-almost-reveal-notice :show="($checkAttempts[$key] ?? 0) === 2" />
                             <x-reveal-offer
                                 :show="$offerReveal[$key] ?? false"
                                 reveal-method="revealExpression"

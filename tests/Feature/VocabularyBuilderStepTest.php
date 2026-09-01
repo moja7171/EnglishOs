@@ -604,8 +604,11 @@ class VocabularyBuilderStepTest extends TestCase
 
         $component->set('examples.0', 'attempt one');
         $component->call('checkOne', 0);
-        $component->call('checkOne', 0);
-        $component->call('checkOne', 0)->assertSet('offerReveal.wake up', true);
+        $component->call('checkOne', 0)
+            ->assertSee('One more try — after that I can write the correct one for you');
+        $component->call('checkOne', 0)
+            ->assertSet('offerReveal.wake up', true)
+            ->assertDontSee('One more try — after that I can write the correct one for you');
     }
 
     public function test_accepting_the_reveal_writes_the_ai_correction_into_the_example(): void

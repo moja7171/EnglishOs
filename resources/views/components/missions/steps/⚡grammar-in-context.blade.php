@@ -476,6 +476,7 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
+                            <x-almost-reveal-notice :show="($checkAttempts[$index] ?? 0) === 2" />
                             <x-reveal-offer
                                 :show="$offerReveal[$index] ?? false"
                                 reveal-method="revealCorrection"
@@ -521,6 +522,7 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
+                            <x-almost-reveal-notice :show="($checkAttempts['qc_'.$index] ?? 0) === 2" />
                             <x-reveal-offer
                                 :show="$offerReveal['qc_'.$index] ?? false"
                                 reveal-method="revealQuickCheckCorrection"

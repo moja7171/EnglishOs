@@ -382,6 +382,7 @@ new class extends Component
                     </div>
 
                     @unless ($readOnly)
+                        <x-almost-reveal-notice :show="($checkAttempts[$word] ?? 0) === 2" />
                         <x-reveal-offer
                             :show="$offerReveal[$word] ?? false"
                             reveal-method="revealCorrection"

@@ -214,8 +214,13 @@ class GrammarInContextStepTest extends TestCase
             ->call('checkOne', 0)
             ->assertSet('offerReveal.0', null);
 
-        $component->call('checkOne', 0)->assertSet('offerReveal.0', null);
-        $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
+        $component->call('checkOne', 0)
+            ->assertSet('offerReveal.0', null)
+            ->assertSee('One more try — after that I can write the correct one for you');
+
+        $component->call('checkOne', 0)
+            ->assertSet('offerReveal.0', true)
+            ->assertDontSee('One more try — after that I can write the correct one for you');
     }
 
     public function test_accepting_the_reveal_writes_the_ai_correction_into_the_sentence(): void
