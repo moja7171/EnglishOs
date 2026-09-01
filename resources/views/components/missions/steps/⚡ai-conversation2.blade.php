@@ -174,37 +174,7 @@ new class extends Component
 };
 ?>
 
-<div
-    class="space-y-6"
-    x-data="{
-        recording: false,
-        seconds: 0,
-        timer: null,
-        mediaRecorder: null,
-        chunks: [],
-        async startRecording(action) {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            this.chunks = [];
-            this.mediaRecorder = new MediaRecorder(stream);
-            this.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) this.chunks.push(e.data); };
-            this.mediaRecorder.onstop = () => {
-                stream.getTracks().forEach((t) => t.stop());
-                const blob = new Blob(this.chunks, { type: 'audio/webm' });
-                const file = new File([blob], 'answer.webm', { type: 'audio/webm' });
-                this.$wire.upload('audioFile', file, () => this.$wire.call(action));
-            };
-            this.mediaRecorder.start();
-            this.recording = true;
-            this.seconds = 0;
-            this.timer = setInterval(() => { this.seconds++; }, 1000);
-        },
-        stopRecording() {
-            this.mediaRecorder.stop();
-            this.recording = false;
-            clearInterval(this.timer);
-        },
-    }"
->
+<div class="space-y-6">
     <x-hook :text="$run->mission->stepContent('ai_conversation_2')['hook'] ?? null" />
 
     <div>
@@ -225,11 +195,13 @@ new class extends Component
             <p class="text-xs text-neutral-500">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
             <p class="mt-1 text-lg font-bold">{{ $this->currentRoundPrompt }}</p>
 
-            <div class="mt-3 flex items-center gap-3" wire:loading.remove wire:target="submitRoundAnswer">
-                <button type="button" x-show="!recording" x-on:click="startRecording('submitRoundAnswer')"
-                    class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white">● Record</button>
-                <button type="button" x-show="recording" x-on:click="stopRecording"
-                    class="rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">■ Stop (<span x-text="seconds"></span>s)</button>
+            <div class="mt-3" wire:key="recorder-round-{{ $roundIndex }}" wire:loading.remove wire:target="submitRoundAnswer">
+                <x-voice-recorder
+                    field="audioFile"
+                    :file="$audioFile"
+                    on-recorded="submitRoundAnswer"
+                    file-name="answer.webm"
+                />
             </div>
 
             <p wire:loading wire:target="submitRoundAnswer" class="mt-3 text-sm text-neutral-500">Transcribing…</p>
@@ -239,11 +211,13 @@ new class extends Component
             <p class="text-xs text-neutral-500">Final Challenge · Topic: My Daily Life</p>
             <p class="mt-1 text-lg font-bold">{{ $this->finalPrompt }}</p>
 
-            <div class="mt-3 flex items-center gap-3" wire:loading.remove wire:target="submitFinalChallenge">
-                <button type="button" x-show="!recording" x-on:click="startRecording('submitFinalChallenge')"
-                    class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white">● Record</button>
-                <button type="button" x-show="recording" x-on:click="stopRecording"
-                    class="rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">■ Stop (<span x-text="seconds"></span>s)</button>
+            <div class="mt-3" wire:loading.remove wire:target="submitFinalChallenge">
+                <x-voice-recorder
+                    field="audioFile"
+                    :file="$audioFile"
+                    on-recorded="submitFinalChallenge"
+                    file-name="answer.webm"
+                />
             </div>
 
             <p wire:loading wire:target="submitFinalChallenge" class="mt-3 text-sm text-neutral-500">
@@ -265,7 +239,7 @@ new class extends Component
 
             @unless ($readOnly)
                 <button wire:click="finishConversation"
-                    class="rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900">
+                    class="cursor-pointer rounded bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200">
                     Continue
                 </button>
             @endunless
