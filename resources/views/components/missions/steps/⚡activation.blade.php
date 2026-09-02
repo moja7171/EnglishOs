@@ -220,11 +220,18 @@ new class extends Component
      * output rule, at the learner's explicit request (see EOS-009 §8).
      * Failure here is silent by design: $transcript/$reflection just stay
      * null and the recap simply omits them.
+     *
+     * Also feeds the AI a genuine speaking-pace signal (words per minute,
+     * from Whisper's own reported duration — not guessed) and a filler-
+     * word count, so the reflection can speak to HOW something was said,
+     * not just what — the closest this app gets to real pronunciation/
+     * fluency coaching without an actual phonetic-analysis model.
      */
     private function transcribeAndReflect(): void
     {
         try {
-            $this->transcript = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $result = app(GroqClient::class)->transcribeWithDuration($this->audioFile->getRealPath());
+            $this->transcript = trim($result['text']);
 
             if ($this->transcript === '') {
                 return;
@@ -237,16 +244,20 @@ new class extends Component
                     .'. If any of these appear naturally in the transcript, you can mention that warmly.'
                 : '';
 
+            $paceContext = $this->paceContext($this->transcript, $result['duration']);
+
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Transcript: \"{$this->transcript}\""]],
                 systemPrompt: 'You are a supportive English speaking coach. '.ucfirst($this->run->learner->levelDescription())
                     .' just recorded about 2 '
                     .'minutes of solo speaking in English about their daily life — this is low-pressure fluency '
-                    .'practice, not a graded test.'.$vocabularyContext.' Given the transcript, write a short, '
+                    .'practice, not a graded test.'.$vocabularyContext.$paceContext.' Given the transcript, write a short, '
                     .'warm, simple reflection in PERSIAN (Farsi) — never English, and never grade it or use '
                     .'severity labels. Reply with ONLY valid JSON, no markdown fences: {"highlight": "...", '
                     .'"tip": "..."} — "highlight" is one short encouraging sentence in Persian about something '
                     .'they did well; "tip" is one short, gentle, actionable suggestion in Persian for next time. '
+                    .'Only mention pace or filler words if the numbers given are genuinely notable (very slow, '
+                    .'very fast, or many filler words) — otherwise focus the tip on content/language as usual. '
                     .'Keep both simple, plain Persian, no jargon, no English words mixed in unless quoting a '
                     .'specific English word or phrase they actually said.'
             );
@@ -259,6 +270,25 @@ new class extends Component
         } catch (\Throwable) {
             // Silent by design — see method docblock.
         }
+    }
+
+    /**
+     * A short parenthetical for the reflection prompt above, built from a
+     * REAL duration (Whisper's own, not estimated) — skipped entirely for
+     * very short clips where words-per-minute would be noise, not signal.
+     */
+    private function paceContext(string $transcript, float $durationSeconds): string
+    {
+        if ($durationSeconds < 10.0) {
+            return '';
+        }
+
+        $wordCount = count(array_filter(preg_split('/\s+/', trim($transcript))));
+        $wordsPerMinute = (int) round($wordCount / ($durationSeconds / 60));
+        $fillerCount = preg_match_all('/\b(um|uh|erm)\b/i', $transcript);
+
+        return " (For your awareness only: the learner spoke at roughly {$wordsPerMinute} words per minute over "
+            .round($durationSeconds).' seconds, with '.$fillerCount.' filler words like "um"/"uh".)';
     }
 
     public function proceed(): void

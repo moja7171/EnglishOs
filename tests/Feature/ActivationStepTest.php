@@ -75,7 +75,10 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribe')->once()->andReturn('I usually wake up at seven and have breakfast.');
+            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+                'text' => 'I usually wake up at seven and have breakfast.',
+                'duration' => 90.0,
+            ]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
@@ -128,7 +131,7 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('Groq is down.'));
+            $mock->shouldReceive('transcribeWithDuration')->once()->andThrow(new \RuntimeException('Groq is down.'));
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
@@ -147,6 +150,74 @@ class ActivationStepTest extends TestCase
             ->assertSet('reflection', null);
 
         $this->assertDatabaseCount('evidences', 2);
+    }
+
+    public function test_a_long_enough_recording_gets_a_real_pace_signal_in_the_reflection_prompt(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        // Exactly 20 whitespace-separated tokens (2 of them fillers) over
+        // 60 real seconds — chosen so words-per-minute works out to a
+        // clean, easily-verified 20, derived from the mocked duration and
+        // transcript, never fabricated.
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+                'text' => 'I usually um wake up at seven and uh have breakfast then I go to work by bus every day',
+                'duration' => 60.0,
+            ]);
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function (array $messages, ?string $systemPrompt) {
+                    return str_contains($systemPrompt, '20 words per minute')
+                        && str_contains($systemPrompt, '60 seconds')
+                        && str_contains($systemPrompt, 'with 2 filler words');
+                })
+                ->andReturn(json_encode(['highlight' => 'خوب بود.', 'tip' => 'ادامه بده.']))
+                ->ordered();
+        });
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->set('sentences.0', 'I usually wake up at 7.')
+            ->set('sentences.1', 'I have breakfast at 8.')
+            ->set('sentences.2', 'I go to work by bus.')
+            ->set('sentences.3', 'I exercise in the evening.')
+            ->set('sentences.4', 'I go to bed at 11.')
+            ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('save');
+    }
+
+    public function test_a_very_short_recording_skips_the_pace_signal_entirely(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+                'text' => 'Hi.',
+                'duration' => 2.0, // too short for a meaningful words-per-minute figure
+            ]);
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => ! str_contains($systemPrompt, 'words per minute'))
+                ->andReturn(json_encode(['highlight' => 'خوب بود.', 'tip' => 'ادامه بده.']))
+                ->ordered();
+        });
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->set('sentences.0', 'I usually wake up at 7.')
+            ->set('sentences.1', 'I have breakfast at 8.')
+            ->set('sentences.2', 'I go to work by bus.')
+            ->set('sentences.3', 'I exercise in the evening.')
+            ->set('sentences.4', 'I go to bed at 11.')
+            ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('save');
     }
 
     public function test_a_major_ai_verdict_on_a_sentence_blocks_continue(): void
@@ -353,7 +424,10 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribe')->once()->andReturn('I usually wake up at seven.');
+            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+                'text' => 'I usually wake up at seven.',
+                'duration' => 45.0,
+            ]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')

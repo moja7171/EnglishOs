@@ -26,6 +26,28 @@ class GroqClient
      */
     public function transcribe(string $audioPath): string
     {
+        return $this->request($audioPath)['text'];
+    }
+
+    /**
+     * Same transcription, but also returns the recording's real duration
+     * in seconds (Whisper's own verbose_json output, not guessed) — lets a
+     * caller derive a genuine speaking-pace signal (words per minute) for
+     * AI feedback on HOW something was said, not just what was said. See
+     * ⚡activation.blade.php's transcribeAndReflect().
+     *
+     * @return array{text: string, duration: float}
+     */
+    public function transcribeWithDuration(string $audioPath): array
+    {
+        return $this->request($audioPath, verbose: true);
+    }
+
+    /**
+     * @return array{text: string, duration: float}
+     */
+    private function request(string $audioPath, bool $verbose = false): array
+    {
         if ($this->apiKey === '') {
             throw new RuntimeException('GROQ_API_KEY is not set.');
         }
@@ -34,9 +56,13 @@ class GroqClient
             ->attach('file', file_get_contents($audioPath), basename($audioPath))
             ->post('https://api.groq.com/openai/v1/audio/transcriptions', [
                 'model' => $this->whisperModel,
+                'response_format' => $verbose ? 'verbose_json' : 'json',
             ])
             ->throw();
 
-        return (string) data_get($response->json(), 'text', '');
+        return [
+            'text' => (string) data_get($response->json(), 'text', ''),
+            'duration' => (float) data_get($response->json(), 'duration', 0.0),
+        ];
     }
 }
