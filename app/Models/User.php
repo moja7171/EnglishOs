@@ -6,7 +6,9 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -129,5 +131,113 @@ class User extends Authenticatable
         $chains[] = $chainLength;
 
         return $chains;
+    }
+
+    /**
+     * People this user follows — instant, no approval needed. Following
+     * alone unlocks seeing the other person's high-level activity (see
+     * their controller/view — never the raw Evidence content, just
+     * streak/missions-completed); it does NOT by itself unlock messaging,
+     * see canMessageWith().
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * @return BelongsToMany<User, $this>
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')
+            ->withTimestamps();
+    }
+
+    public function isFollowing(User $user): bool
+    {
+        return $this->following()->whereKey($user->id)->exists();
+    }
+
+    public function isFollowedBy(User $user): bool
+    {
+        return $user->isFollowing($this);
+    }
+
+    /**
+     * Both directions of follow exist — the one thing that actually gates
+     * a conversation (see canMessageWith()), by explicit product decision:
+     * a one-way follow (e.g. following a stranger) must not open a DM.
+     */
+    public function isMutualWith(User $user): bool
+    {
+        return $this->isFollowing($user) && $this->isFollowedBy($user);
+    }
+
+    public function follow(User $user): void
+    {
+        if ($user->is($this) || $this->isFollowing($user)) {
+            return;
+        }
+
+        $this->following()->attach($user->id);
+    }
+
+    public function unfollow(User $user): void
+    {
+        $this->following()->detach($user->id);
+    }
+
+    public function hasBlocked(User $user): bool
+    {
+        return FriendBlock::query()
+            ->where('blocker_id', $this->id)
+            ->where('blocked_id', $user->id)
+            ->exists();
+    }
+
+    public function isBlockedBy(User $user): bool
+    {
+        return $user->hasBlocked($this);
+    }
+
+    /**
+     * The single gate a conversation thread actually checks: mutual
+     * follow, and neither side has blocked the other. A block silently
+     * closes the door in both directions — the blocked user is never told
+     * why, they just stop being able to reach the other person.
+     */
+    public function canMessageWith(User $user): bool
+    {
+        if ($user->is($this)) {
+            return false;
+        }
+
+        return $this->isMutualWith($user)
+            && ! $this->hasBlocked($user)
+            && ! $this->isBlockedBy($user);
+    }
+
+    /**
+     * Every message between this user and $user, oldest first — there is
+     * no separate "conversation" entity, two users can only ever have one
+     * thread (see direct_messages migration), so this just queries it
+     * directly rather than looking one up.
+     *
+     * @return Builder<DirectMessage>
+     */
+    public function conversationWith(User $user)
+    {
+        return DirectMessage::query()
+            ->where(function ($query) use ($user) {
+                $query->where('sender_id', $this->id)->where('recipient_id', $user->id);
+            })
+            ->orWhere(function ($query) use ($user) {
+                $query->where('sender_id', $user->id)->where('recipient_id', $this->id);
+            })
+            ->orderBy('created_at');
     }
 }

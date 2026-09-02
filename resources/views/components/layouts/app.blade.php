@@ -22,6 +22,20 @@
                     </span>
                 @endif
             </span>
+            <span class="flex items-center gap-3">
+                <a href="{{ route('friends.index') }}" wire:navigate class="relative inline-flex items-center gap-1 transition-colors hover:text-ink dark:hover:text-ink-dark">
+                    @svg('heroicon-o-user-group', 'h-4 w-4')
+                    Friends
+                    @php
+                        $unread = auth()->check()
+                            ? \App\Models\DirectMessage::where('recipient_id', auth()->id())->whereNull('read_at')->count()
+                            : 0;
+                    @endphp
+                    @if ($unread)
+                        <span class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark">{{ $unread }}</span>
+                    @endif
+                </a>
+            </span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="cursor-pointer underline transition-colors hover:text-ink dark:hover:text-ink-dark">Sign out</button>

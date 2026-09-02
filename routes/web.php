@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Mission;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
         return view('mission-runner', compact('mission', 'step'));
     })->name('missions.show');
+
+    Route::get('/friends', function () {
+        return view('friends');
+    })->name('friends.index');
+
+    Route::get('/friends/{user}/conversation', function (User $user) {
+        return view('friends-conversation', compact('user'));
+    })->name('friends.conversation');
 
     Route::post('/logout', function () {
         Auth::logout();
