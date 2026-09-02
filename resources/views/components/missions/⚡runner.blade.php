@@ -370,6 +370,10 @@ new class extends Component
             @endif
         </div>
 
+        <div>
+            @livewire('missions.ask-instructor', ['run' => $run, 'stepKey' => $this->activeStepKey], key('ask-instructor-'.$run->id.'-'.$this->activeStepKey))
+        </div>
+
         <div class="flex items-center justify-between text-sm">
             @if ($this->previousStepKey)
                 <a
