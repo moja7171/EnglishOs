@@ -427,8 +427,8 @@ new class extends Component
                     @if ($message->type === 'nudge')
                         <span class="inline-flex items-center gap-1 font-semibold">@svg('heroicon-s-fire', 'h-3.5 w-3.5') {{ $message->body }}</span>
                     @elseif ($message->type === 'audio')
-                        <div class="min-w-56">
-                            <x-audio-player :url="route('friends.attachment', $message)" />
+                        <div>
+                            <x-audio-player-compact :url="route('friends.attachment', $message)" :mine="$mine" />
                             @if ($message->body && $message->body !== 'Voice message')
                                 <p class="mt-1.5 text-xs {{ $mine ? 'text-white/75 dark:text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $message->body }}</p>
                             @endif
