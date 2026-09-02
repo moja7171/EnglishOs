@@ -9,6 +9,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -265,6 +266,121 @@ class FriendsConversationTest extends TestCase
         $message = DirectMessage::where('type', DirectMessage::TYPE_AUDIO)->firstOrFail();
         Storage::disk('local')->assertExists($message->attachment_path);
         Storage::disk('public')->assertMissing($message->attachment_path);
+    }
+
+    public function test_a_voice_message_is_transcribed_and_stored_as_its_body(): void
+    {
+        Storage::fake('local');
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('See you at the park tomorrow.'));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('voiceMessage', UploadedFile::fake()->create('voice-message.webm', 500, 'audio/webm'))
+            ->call('sendVoiceMessage')
+            ->assertSee('See you at the park tomorrow.');
+
+        $this->assertDatabaseHas('direct_messages', [
+            'type' => DirectMessage::TYPE_AUDIO,
+            'body' => 'See you at the park tomorrow.',
+        ]);
+    }
+
+    public function test_a_failed_transcription_falls_back_to_a_generic_label(): void
+    {
+        Storage::fake('local');
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('voiceMessage', UploadedFile::fake()->create('voice-message.webm', 500, 'audio/webm'))
+            ->call('sendVoiceMessage');
+
+        $this->assertDatabaseHas('direct_messages', [
+            'type' => DirectMessage::TYPE_AUDIO,
+            'body' => 'Voice message',
+        ]);
+    }
+
+    public function test_ai_feedback_requires_at_least_one_message_of_my_own(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hey!']);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('generateFeedback')
+            ->assertSee("there's nothing to give feedback on yet");
+    }
+
+    public function test_ai_feedback_judges_only_my_own_messages(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'I goes to school every day.']);
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Nice, me too.']);
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_NUDGE, 'body' => 'Keep it up!']);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages, $systemPrompt) => str_contains($messages[0]['text'], 'Me: I goes to school every day.')
+                    && str_contains($messages[0]['text'], 'Nice, me too.')
+                    && ! str_contains($messages[0]['text'], 'Keep it up!')
+                    && str_contains($systemPrompt, 'ONLY on "Me"'))
+                ->andReturn(json_encode([
+                    'strength' => 'You wrote a clear, complete sentence.',
+                    'expression' => 'every day',
+                    'correction' => '"I goes" should be "I go".',
+                ]));
+        });
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('generateFeedback')
+            ->assertSee('"I goes" should be "I go".');
+    }
+
+    public function test_a_failed_ai_feedback_call_shows_a_friendly_message(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hello!']);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('generateFeedback')
+            ->assertSee("Couldn't get feedback from the AI Instructor");
     }
 
     public function test_sending_a_file_attaches_it_with_its_original_name(): void

@@ -5,6 +5,7 @@ use App\Models\FriendBlock;
 use App\Models\FriendReport;
 use App\Models\User;
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Http\UploadedFile;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -25,6 +26,11 @@ new class extends Component
     public bool $reporting = false;
 
     public string $reportReason = '';
+
+    /** @var array{strength: string, expression: string, correction: string}|null */
+    public ?array $feedback = null;
+
+    public ?string $feedbackError = null;
 
     public function mount(): void
     {
@@ -72,11 +78,24 @@ new class extends Component
 
         $path = $this->voiceMessage->store('direct-messages/'.auth()->id(), 'local');
 
+        // Transcribed so the conversation has real, readable text behind
+        // it — both for the caption shown under the player and so
+        // generateFeedback() below has something to actually read. Silent
+        // fallback to a generic label on any failure: sending the voice
+        // message itself must never be blocked by a transcription hiccup.
+        $body = 'Voice message';
+        try {
+            $transcript = trim(app(GroqClient::class)->transcribe($this->voiceMessage->getRealPath()));
+            $body = $transcript !== '' ? $transcript : $body;
+        } catch (\Throwable) {
+            // Keep the generic fallback label.
+        }
+
         DirectMessage::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $this->other->id,
             'type' => DirectMessage::TYPE_AUDIO,
-            'body' => 'Voice message',
+            'body' => $body,
             'attachment_path' => $path,
             'attachment_name' => 'voice-message.webm',
             'attachment_mime' => $this->voiceMessage->getMimeType(),
@@ -199,6 +218,76 @@ new class extends Component
         $this->reportReason = '';
     }
 
+    /**
+     * On-demand, never persisted — regenerating always reflects the
+     * conversation as it stands right now, and there's no need for a new
+     * table just to cache something this cheap to recompute. Judges ONLY
+     * the requesting learner's own messages (never the friend's) — this is
+     * a peer conversation, not something the other person agreed to be
+     * graded on. Same strength/expression/correction shape as AI Feedback
+     * #1 for consistency across the app.
+     */
+    public function generateFeedback(): void
+    {
+        $this->feedbackError = null;
+
+        $mine = $this->conversationTranscript()->where('mine', true);
+
+        if ($mine->isEmpty()) {
+            $this->feedbackError = 'Send a few messages first — there\'s nothing to give feedback on yet.';
+
+            return;
+        }
+
+        try {
+            $transcript = $this->conversationTranscript()
+                ->map(fn ($line) => ($line['mine'] ? 'Me' : $this->other->name).': '.$line['text'])
+                ->implode("\n");
+
+            $raw = app(GeminiClient::class)->chat(
+                [['role' => 'user', 'text' => $transcript]],
+                systemPrompt: 'You are an encouraging English teacher reviewing a real chat conversation between '
+                    .'two friends practicing English together. Below, "Me" is '.auth()->user()->levelDescription()
+                    .' — give feedback ONLY on "Me"\'s own messages (grammar, natural phrasing, vocabulary). Do '
+                    .'NOT evaluate or comment on the other person\'s messages at all — they are only there for '
+                    .'context. Reply with ONLY valid JSON, no markdown fences, no extra text, in exactly this '
+                    .'shape: {"strength": "one specific thing \"Me\" did well, one sentence", '
+                    .'"expression": "one good word or phrase \"Me\" actually used", '
+                    .'"correction": "one grammar or vocabulary mistake of \"Me\"\'s to fix, one sentence, phrased kindly"}'
+            );
+
+            $data = json_decode(trim($raw), true);
+
+            if (! is_array($data) || ! isset($data['strength'], $data['expression'], $data['correction'])) {
+                throw new RuntimeException('Unexpected AI response format.');
+            }
+
+            $this->feedback = [
+                'strength' => $data['strength'],
+                'expression' => $data['expression'],
+                'correction' => $data['correction'],
+            ];
+        } catch (\Throwable $e) {
+            $this->feedbackError = "Couldn't get feedback from the AI Instructor: {$e->getMessage()}";
+        }
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, array{mine: bool, text: string}>
+     */
+    private function conversationTranscript()
+    {
+        return auth()->user()->conversationWith($this->other)->get()
+            ->reject(fn ($message) => $message->type === DirectMessage::TYPE_NUDGE)
+            ->map(fn ($message) => [
+                'mine' => $message->sender_id === auth()->id(),
+                'text' => $message->type === DirectMessage::TYPE_FILE
+                    ? "[attached a file: {$message->attachment_name}]"
+                    : $message->body,
+            ])
+            ->values();
+    }
+
     #[Computed]
     public function thread()
     {
@@ -256,6 +345,9 @@ new class extends Component
                     @elseif ($message->type === 'audio')
                         <div class="min-w-56">
                             <x-audio-player :url="route('friends.attachment', $message)" />
+                            @if ($message->body && $message->body !== 'Voice message')
+                                <p class="mt-1.5 text-xs {{ $mine ? 'text-ground/70 dark:text-ground-dark/70' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $message->body }}</p>
+                            @endif
                         </div>
                     @elseif ($message->type === 'file')
                         <a
@@ -273,6 +365,47 @@ new class extends Component
         @empty
             <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No messages yet — say hello!</p>
         @endforelse
+    </div>
+
+    <div wire:loading.class="pointer-events-none" wire:target="generateFeedback">
+        @if ($feedback)
+            <div class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI feedback on your side of the conversation</p>
+                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                    <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
+                </div>
+                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                    <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good expression you used</p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
+                </div>
+                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                    <p class="text-xs font-semibold text-amber-600 uppercase">One thing to improve</p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
+                </div>
+                <button
+                    type="button"
+                    wire:click="generateFeedback"
+                    class="cursor-pointer text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark"
+                >Refresh feedback</button>
+            </div>
+        @else
+            <button
+                type="button"
+                wire:click="generateFeedback"
+                wire:loading.attr="disabled"
+                wire:target="generateFeedback"
+                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken disabled:pointer-events-none disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+            >
+                @svg('heroicon-o-sparkles', 'h-3.5 w-3.5')
+                <span wire:loading.remove wire:target="generateFeedback">Get AI feedback on this conversation</span>
+                <span wire:loading wire:target="generateFeedback">Reading your side of the conversation…</span>
+            </button>
+        @endif
+
+        @if ($feedbackError)
+            <p class="mt-1 text-xs text-red-600">{{ $feedbackError }}</p>
+        @endif
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
