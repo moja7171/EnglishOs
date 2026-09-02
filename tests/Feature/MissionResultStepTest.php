@@ -44,6 +44,8 @@ class MissionResultStepTest extends TestCase
             ],
         ]);
 
+        $this->actingAs($learner);
+
         return MissionRun::findOrStart($learner, $mission);
     }
 
@@ -329,6 +331,49 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
             ->assertDontSee('Review Mission Result');
+    }
+
+    public function test_a_complete_status_offers_to_share_with_a_mutual_friend(): void
+    {
+        $run = $this->makeRun();
+        $friend = User::factory()->create(['name' => 'Priya']);
+        $run->learner->follow($friend);
+        $friend->follow($run->learner);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('Share this with a friend')
+            ->assertSee('Priya');
+    }
+
+    public function test_no_share_prompt_when_status_is_not_complete(): void
+    {
+        $run = $this->makeRun();
+        $friend = User::factory()->create();
+        $run->learner->follow($friend);
+        $friend->follow($run->learner);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'needs_review',
+            'reason' => 'Needs a bit more.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertDontSee('Share this with a friend');
     }
 
     public function test_read_only_mode_loads_the_saved_decision_without_calling_gemini(): void

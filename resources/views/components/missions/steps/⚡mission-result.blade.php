@@ -404,6 +404,16 @@ new class extends Component
                     </a>
                 </div>
             @endif
+
+            @if ($status === 'complete' && ! $readOnly)
+                <div class="mt-4">
+                    <x-practice-with-friend
+                        :text="$run->mission->title"
+                        intro="Hey — I just finished my mission:"
+                        label="Share this with a friend"
+                    />
+                </div>
+            @endif
         </div>
 
         @unless ($readOnly)
