@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
@@ -163,6 +164,67 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
             ->assertDontSee('words used');
+    }
+
+    public function test_the_result_surfaces_a_recurring_error_pattern(): void
+    {
+        $run = $this->makeRun();
+
+        // Recurring means "shown up across 2+ mission runs" — seed one
+        // earlier, separate mission for the same learner.
+        $earlierMission = Mission::create([
+            'code' => 'M-EARLIER',
+            'title' => 'Earlier Mission',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]);
+        $earlierRun = MissionRun::findOrStart($run->learner, $earlierMission);
+        ErrorLogItem::create([
+            'mission_run_id' => $earlierRun->id,
+            'error' => 'He walk fast.',
+            'correction' => 'He walks fast.',
+            'category' => 'third-person-s',
+        ]);
+        ErrorLogItem::create([
+            'mission_run_id' => $run->id,
+            'error' => 'She go home.',
+            'correction' => 'She goes home.',
+            'category' => 'third-person-s',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('A pattern to keep an eye on')
+            ->assertSee('She go home.')
+            ->assertSee('She goes home.');
+    }
+
+    public function test_no_recurring_error_section_without_a_repeated_pattern(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertDontSee('A pattern to keep an eye on');
     }
 
     public function test_read_only_mode_loads_the_saved_decision_without_calling_gemini(): void

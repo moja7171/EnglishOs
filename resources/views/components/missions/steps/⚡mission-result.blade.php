@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Models\Reflection;
@@ -72,6 +73,19 @@ new class extends Component
      *
      * @return list<array{word: string, used: bool}>
      */
+    /**
+     * The learner's most-recurring error pattern across missions (see
+     * User::topRecurringError(), built for Active Recall's spaced-
+     * repetition prompt) — naturally already includes anything logged in
+     * THIS mission's own Error Log step, since that step runs before
+     * Mission Result. Null until a pattern has recurred across 2+
+     * missions, the common case for a learner's first mission or two.
+     */
+    public function getRecurringErrorProperty(): ?ErrorLogItem
+    {
+        return $this->run->learner->topRecurringError();
+    }
+
     public function getVocabularyUsageProperty(): array
     {
         $words = $this->run->selectedVocabularyWords();
@@ -336,6 +350,20 @@ new class extends Component
                             </span>
                         @endforeach
                     </div>
+                </div>
+            @endif
+
+            @if ($this->recurringError)
+                <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950">
+                    <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
+                        @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')
+                        A pattern to keep an eye on
+                    </p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">
+                        <span class="text-red-600 line-through decoration-red-500">{{ $this->recurringError->error }}</span>
+                        <span class="text-success dark:text-success-dark">{{ $this->recurringError->correction }}</span>
+                    </p>
+                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — worth extra attention next time.</p>
                 </div>
             @endif
         </div>
