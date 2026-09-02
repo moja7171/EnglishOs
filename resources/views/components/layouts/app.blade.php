@@ -20,10 +20,38 @@
     @auth
         <div class="mx-auto flex max-w-2xl items-center justify-between px-6 pt-3 text-xs text-ink-faint dark:text-ink-faint-dark">
             <span class="flex items-center gap-3">
-                <a href="{{ route('profile') }}" wire:navigate class="flex items-center gap-2 transition-colors hover:text-ink dark:hover:text-ink-dark">
-                    <x-user-avatar :user="auth()->user()" class="h-6 w-6 text-[10px]" />
-                    {{ auth()->user()->name }}
-                </a>
+                <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
+                    <button
+                        type="button"
+                        x-on:click="open = !open"
+                        class="flex cursor-pointer items-center gap-2 transition-colors hover:text-ink dark:hover:text-ink-dark"
+                    >
+                        <x-user-avatar :user="auth()->user()" class="h-6 w-6 text-[10px]" />
+                        {{ auth()->user()->name }}
+                        @svg('heroicon-o-chevron-down', 'h-3 w-3')
+                    </button>
+
+                    <div
+                        x-show="open"
+                        x-cloak
+                        x-transition.opacity.duration.150ms
+                        class="absolute left-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-line bg-surface py-1 text-xs shadow-lg dark:border-line-dark dark:bg-surface-dark"
+                    >
+                        <a
+                            href="{{ route('profile') }}"
+                            wire:navigate
+                            x-on:click="open = false"
+                            class="flex items-center gap-2 px-3 py-2 font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                        >@svg('heroicon-o-user-circle', 'h-4 w-4') Profile &amp; settings</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left font-semibold text-ink-soft transition-colors hover:bg-red-50 hover:text-red-600 dark:text-ink-soft-dark dark:hover:bg-red-950"
+                            >@svg('heroicon-o-arrow-right-start-on-rectangle', 'h-4 w-4') Sign out</button>
+                        </form>
+                    </div>
+                </div>
                 @if ($streak = auth()->user()->currentStreak())
                     <span
                         class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark"
@@ -48,10 +76,6 @@
                     @endif
                 </a>
             </span>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="cursor-pointer underline transition-colors hover:text-ink dark:hover:text-ink-dark">Sign out</button>
-            </form>
         </div>
     @endauth
 

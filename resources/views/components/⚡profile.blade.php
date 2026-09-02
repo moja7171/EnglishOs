@@ -186,7 +186,7 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
+<div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6" x-data="{ activeTab: 'avatar' }">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
@@ -202,8 +202,18 @@ new class extends Component
         </div>
     </header>
 
+    <x-tab-nav
+        tab-var="activeTab"
+        :tabs="[
+            'avatar' => 'Avatar',
+            'basic-info' => 'Basic info',
+            'privacy' => 'Privacy',
+            'password' => 'Password',
+        ]"
+    />
+
     {{-- Avatar --}}
-    <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <div x-show="activeTab === 'avatar'" x-cloak class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
         <div class="flex items-center gap-4">
             <x-user-avatar :user="auth()->user()" class="h-16 w-16 text-xl" />
             <div>
@@ -264,7 +274,7 @@ new class extends Component
     </div>
 
     {{-- Basic info --}}
-    <form wire:submit="updateBasicInfo" class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <form wire:submit="updateBasicInfo" x-show="activeTab === 'basic-info'" x-cloak class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Basic info</p>
 
         <div>
@@ -321,7 +331,7 @@ new class extends Component
     </form>
 
     {{-- Privacy --}}
-    <div class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <div x-show="activeTab === 'privacy'" x-cloak class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
         <div>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Discoverable in Friends search</p>
             <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Turn this off and new people won't find you by name — anyone you're already connected with is unaffected.</p>
@@ -337,8 +347,8 @@ new class extends Component
         </button>
     </div>
 
-    {{-- Security --}}
-    <form wire:submit="updatePassword" class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    {{-- Password --}}
+    <form wire:submit="updatePassword" x-show="activeTab === 'password'" x-cloak class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Change password</p>
 
         <div>
