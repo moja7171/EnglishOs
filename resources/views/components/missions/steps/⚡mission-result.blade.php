@@ -296,6 +296,13 @@ new class extends Component
         </div>
     @else
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            @if ($streak = $this->run->learner->currentStreak())
+                <p class="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
+                    @svg('heroicon-s-fire', 'h-3.5 w-3.5')
+                    {{ $streak === 1 ? "You're on a 1-day streak — nice start!" : "You're on a {$streak}-day streak — keep it going!" }}
+                </p>
+            @endif
+
             <p class="text-xs font-semibold uppercase tracking-wide
                 {{ $status === 'complete' ? 'text-success dark:text-success-dark' : ($status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
                 {{ str($status)->replace('_', ' ')->title() }}
