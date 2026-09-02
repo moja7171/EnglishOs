@@ -1,9 +1,9 @@
 <?php
 
 use App\Livewire\Concerns\TracksCheckAttempts;
+use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Models\VocabularyWord;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -12,6 +12,7 @@ use Livewire\Component;
 new class extends Component
 {
     use TracksCheckAttempts;
+    use TracksVocabularyNotebook;
 
     public MissionRun $run;
 
@@ -24,10 +25,17 @@ new class extends Component
      */
     public bool $practiceStarted = false;
 
+    /**
+     * True once save() has succeeded — swaps the whole step over to the
+     * completion recap (pick which words join My Words, then Continue),
+     * same pattern Listening already uses.
+     */
+    public bool $completed = false;
+
     /** @var array<int, string> ordered phrases the learner picked from the story — at least 8, no upper limit */
     public array $selectedWords = [];
 
-    /** @var array<int, string> keyed by index, parallel to */
+    /** @var array<int, string> keyed by index, parallel to the selectedWords list above */
     public array $examples = [];
 
     /** @var array<string, array{severity: string, hint: string}> keyed by word */
@@ -246,32 +254,30 @@ new class extends Component
             ]),
         ]);
 
-        $this->trackForSpacedRepetition();
-
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
+
+        // Progress is already saved — this only decides what the learner
+        // sees next: a chance to pick which words join My Words, which
+        // they dismiss with proceed() below (same two-step pattern as
+        // Listening's completion recap).
+        $this->completed = true;
+        $this->initWordsToTrack();
+    }
+
+    public function proceed(): void
+    {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 
     /**
-     * Enrolls every selected word into the learner's My Words notebook —
-     * firstOrCreate, so picking the same word again in a later mission
-     * (or re-saving this same step) never resets an in-progress review
-     * schedule. New rows start due immediately (next_review_at now) so a
-     * freshly-picked word shows up the moment the learner opens My Words,
-     * rather than waiting a day for nothing to be due yet.
+     * @return list<array{word: string, meaning: string}>
      */
-    private function trackForSpacedRepetition(): void
+    protected function notebookCandidates(): array
     {
-        foreach ($this->selectedWords as $word) {
-            VocabularyWord::firstOrCreate(
-                ['learner_id' => $this->run->learner_id, 'word' => $word],
-                [
-                    'source_mission_run_id' => $this->run->id,
-                    'meaning' => $this->wordMeaning($word),
-                    'next_review_at' => now(),
-                ],
-            );
-        }
+        return collect($this->selectedWords)
+            ->map(fn ($word) => ['word' => $word, 'meaning' => $this->wordMeaning($word)])
+            ->values()
+            ->all();
     }
 
     /**
@@ -301,6 +307,52 @@ new class extends Component
     $totalPracticePages = max($practiceChunks->count(), 1);
 @endphp
 
+@if ($completed)
+    <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div>
+            <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
+                @svg('heroicon-o-check-circle', 'h-4 w-4')
+                Vocabulary saved
+            </p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to keep practicing these words? Pick which ones join your spaced-repetition notebook.</p>
+        </div>
+
+        <div class="space-y-2">
+            @foreach ($this->notebookCandidates() as $index => $candidate)
+                <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
+                    <input
+                        type="checkbox"
+                        wire:model="wordsToTrack.{{ $index }}"
+                        class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
+                    >
+                    <span>
+                        <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $candidate['word'] }}</span>
+                        <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $candidate['meaning'] }}</span>
+                    </span>
+                </label>
+            @endforeach
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            @if ($trackedWords)
+                <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
+                    @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
+                </span>
+            @else
+                <button
+                    type="button"
+                    wire:click="addWordsToNotebook"
+                    class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                >@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</button>
+            @endif
+
+            <button
+                wire:click="proceed"
+                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >Continue</button>
+        </div>
+    </div>
+@else
 <div
     class="space-y-6"
     x-data="{
@@ -494,3 +546,4 @@ new class extends Component
         @endif
     </div>
 </div>
+@endif

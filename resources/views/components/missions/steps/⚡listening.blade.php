@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Concerns\TracksCheckAttempts;
+use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\SentenceChecker;
@@ -13,6 +14,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use TracksCheckAttempts;
+    use TracksVocabularyNotebook;
     use WithFileUploads;
 
     public MissionRun $run;
@@ -242,7 +244,7 @@ new class extends Component
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$key] = "Couldn't reach the AI service — please try again.";
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->checkErrors[$key] = "Couldn't check this one: {$e->getMessage()}";
         }
     }
@@ -387,11 +389,25 @@ new class extends Component
         // next: the language recap, which they dismiss with proceed() below.
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
+        $this->initWordsToTrack();
     }
 
     public function proceed(): void
     {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * @return list<array{word: string, meaning: string}>
+     */
+    protected function notebookCandidates(): array
+    {
+        $phrases = $this->run->mission->stepContent('listening')['target_phrases'] ?? [];
+
+        return collect($phrases)
+            ->map(fn ($item) => ['word' => $item['phrase'], 'meaning' => $item['meaning'] ?? ''])
+            ->values()
+            ->all();
     }
 
     /**
@@ -518,22 +534,43 @@ new class extends Component
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
                     Listening complete
                 </p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's the language from today's episode — take a second look before moving on.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's the language from today's episode — pick which ones join your spaced-repetition notebook.</p>
             </div>
-            <dl class="space-y-2">
-                @foreach ($targetPhrases as $item)
-                    <div>
-                        <dt class="text-sm font-bold text-ink dark:text-ink-dark">{{ $item['phrase'] }}</dt>
-                        <dd class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</dd>
-                    </div>
+            <div class="space-y-2">
+                @foreach ($targetPhrases as $index => $item)
+                    <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
+                        <input
+                            type="checkbox"
+                            wire:model="wordsToTrack.{{ $index }}"
+                            class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
+                        >
+                        <span>
+                            <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $item['phrase'] }}</span>
+                            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</span>
+                        </span>
+                    </label>
                 @endforeach
-            </dl>
-            <button
-                wire:click="proceed"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-            >
-                Continue
-            </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                @if ($trackedWords)
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
+                        @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
+                    </span>
+                @else
+                    <button
+                        type="button"
+                        wire:click="addWordsToNotebook"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</button>
+                @endif
+
+                <button
+                    wire:click="proceed"
+                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                >
+                    Continue
+                </button>
+            </div>
         </div>
     @else
     <div wire:loading.class="pointer-events-none" wire:target="{{ $checkTargets }}">

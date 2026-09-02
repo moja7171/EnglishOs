@@ -232,6 +232,8 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.1', 'I commute by bus.')
             ->set('examples.2', 'Sunday is my day off.')
             ->call('save')
+            ->assertSet('completed', true)
+            ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
         $evidence = Evidence::where('phase', 'vocabulary_builder')->first();
@@ -259,7 +261,10 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.0', 'I have a morning routine.')
             ->set('examples.1', 'I commute by bus.')
             ->set('examples.2', 'Sunday is my day off.')
-            ->call('save');
+            ->call('save')
+            ->assertSet('completed', true)
+            ->call('addWordsToNotebook')
+            ->assertSet('trackedWords', true);
 
         $this->assertSame(8, VocabularyWord::where('learner_id', $learner->id)->count());
 
@@ -268,6 +273,49 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertSame('to stop sleeping', $wakeUp->meaning);
         $this->assertSame(0, $wakeUp->repetitions);
         $this->assertTrue($wakeUp->isDue());
+    }
+
+    public function test_words_are_only_enrolled_once_add_to_notebook_is_pressed(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I have a morning routine.')
+            ->set('examples.1', 'I commute by bus.')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save');
+
+        $this->assertSame(0, VocabularyWord::where('learner_id', $learner->id)->count());
+    }
+
+    public function test_unchecking_a_word_before_adding_leaves_it_out_of_the_notebook(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I have a morning routine.')
+            ->set('examples.1', 'I commute by bus.')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save')
+            ->set('wordsToTrack.0', false) // "wake up" is index 0 in firstEight()
+            ->call('addWordsToNotebook');
+
+        $this->assertSame(7, VocabularyWord::where('learner_id', $learner->id)->count());
+        $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $learner->id, 'word' => 'wake up']);
     }
 
     public function test_picking_an_already_tracked_word_again_never_resets_its_review_progress(): void
@@ -295,7 +343,8 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.0', 'I have a morning routine.')
             ->set('examples.1', 'I commute by bus.')
             ->set('examples.2', 'Sunday is my day off.')
-            ->call('save');
+            ->call('save')
+            ->call('addWordsToNotebook');
 
         $this->assertSame(4, $existing->fresh()->repetitions);
         $this->assertSame('stale meaning', $existing->fresh()->meaning);
@@ -354,7 +403,7 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.1', 'I have my own routine.')
             ->set('examples.2', 'I get up early.')
             ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
+            ->assertSet('completed', true);
     }
 
     public function test_continue_does_not_recheck_a_sentence_already_checked_against_the_same_text(): void
@@ -376,7 +425,7 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
             ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
+            ->assertSet('completed', true);
     }
 
     public function test_continue_rechecks_a_sentence_edited_since_its_last_check(): void
@@ -406,7 +455,7 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
             ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
+            ->assertSet('completed', true);
     }
 
     public function test_checking_one_input_does_not_touch_the_others_and_nothing_is_saved(): void

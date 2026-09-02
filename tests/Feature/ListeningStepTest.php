@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Models\VocabularyWord;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
@@ -118,6 +119,71 @@ class ListeningStepTest extends TestCase
         $this->assertArrayNotHasKey('expression_to_use', $content);
 
         $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
+    }
+
+    public function test_adding_to_the_notebook_enrolls_every_target_phrase(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->call('save')
+            ->call('addWordsToNotebook')
+            ->assertSet('trackedWords', true);
+
+        $this->assertSame(2, VocabularyWord::where('learner_id', $run->learner_id)->count());
+
+        $sleepIn = VocabularyWord::where('learner_id', $run->learner_id)->where('word', 'sleep in')->firstOrFail();
+        $this->assertSame($run->id, $sleepIn->source_mission_run_id);
+        $this->assertSame('to stay in bed and sleep later than usual', $sleepIn->meaning);
+        $this->assertTrue($sleepIn->isDue());
+    }
+
+    public function test_words_are_not_enrolled_until_add_to_notebook_is_pressed(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->call('save');
+
+        $this->assertSame(0, VocabularyWord::where('learner_id', $run->learner_id)->count());
+    }
+
+    public function test_unchecking_a_target_phrase_leaves_it_out_of_the_notebook(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->call('save')
+            ->set('wordsToTrack.0', false) // "sleep in"
+            ->call('addWordsToNotebook');
+
+        $this->assertSame(1, VocabularyWord::where('learner_id', $run->learner_id)->count());
+        $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $run->learner_id, 'word' => 'sleep in']);
+        $this->assertDatabaseHas('vocabulary_words', ['learner_id' => $run->learner_id, 'word' => 'morning person']);
     }
 
     public function test_completing_the_step_shows_a_language_recap_before_proceeding(): void

@@ -50,7 +50,8 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'vocabulary_builder',
                                 'label' => 'Vocabulary Builder',
-                                'duration_minutes' => 15,
+                                // Was 15 — +1 for the new "pick which words join My Words" recap step.
+                                'duration_minutes' => 16,
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
                                 // Word selection follows every sub-topic of English Vocabulary in Use
                                 // Unit 16, "Daily routines" (Sleep / Food / Bathroom routines / Housework
@@ -139,10 +140,11 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
-                                // Was 15, then 18 for the transcript review; now 20 for the required
+                                // Was 15, then 18 for the transcript review, then 20 for the required
                                 // Third listening detail question (gap-fill + shadowing are optional
-                                // bonus practice, not counted as required time).
-                                'duration_minutes' => 20,
+                                // bonus practice, not counted as required time); now 21 for the new
+                                // "pick which words join My Words" recap step.
+                                'duration_minutes' => 21,
                                 'hook' => 'Neil and Georgie are chatting about their mornings right now — how much can you catch without reading along?',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
                                 'audio_url' => $audioUrl,
