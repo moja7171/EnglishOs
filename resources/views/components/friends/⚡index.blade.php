@@ -297,9 +297,19 @@ new class extends Component
     </div>
 
     @if ($this->followers->count())
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Followers ({{ $this->followers->count() }})</p>
-            <div class="mt-2 flex flex-wrap gap-2">
+        <div x-data="{ showFollowers: false }">
+            <button
+                type="button"
+                x-on:click="showFollowers = !showFollowers"
+                class="flex w-full cursor-pointer items-center justify-between gap-2 text-xs font-semibold tracking-wide text-ink-faint uppercase transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark"
+            >
+                <span>Followers ({{ $this->followers->count() }})</span>
+                <span class="transition-transform" :class="showFollowers ? 'rotate-180' : ''">
+                    @svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')
+                </span>
+            </button>
+
+            <div x-show="showFollowers" x-cloak x-transition.opacity.duration.150ms class="mt-2 flex flex-wrap gap-2">
                 @foreach ($this->followers as $follower)
                     <span class="inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pr-3 pl-1 text-xs text-ink-soft shadow-sm dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">
                         <x-avatar-initial :name="$follower->name" class="h-5 w-5 text-[10px]" />
