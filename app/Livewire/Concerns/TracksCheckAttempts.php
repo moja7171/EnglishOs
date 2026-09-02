@@ -14,6 +14,11 @@ use Illuminate\Http\Client\RequestException;
  * corrected sentence for them" rule: it only fires after the learner has
  * genuinely tried three times on the same field, and only when they
  * explicitly say yes.
+ *
+ * Every class using this trait is a mission step component and so already
+ * has `public MissionRun $run;` in scope — trackCheckAttempt() relies on
+ * it to feed MissionRun::recordStruggleSignal() for mid-run tone
+ * adaptation (see MissionRun::aiToneGuidance()).
  */
 trait TracksCheckAttempts
 {
@@ -32,6 +37,10 @@ trait TracksCheckAttempts
             $this->clearCheckAttempt($key);
 
             return;
+        }
+
+        if ($severity === 'major') {
+            $this->run->recordStruggleSignal();
         }
 
         $this->checkAttempts[$key] = ($this->checkAttempts[$key] ?? 0) + 1;

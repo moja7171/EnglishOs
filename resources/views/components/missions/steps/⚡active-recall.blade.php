@@ -236,7 +236,7 @@ new class extends Component
                     text: $text,
                     extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small '
                         .'detail is debatable — never claim the learner\'s facts are wrong, since you were only '
-                        .'given a short summary, not the full listening.',
+                        .'given a short summary, not the full listening.'.$this->run->aiToneGuidance(),
                 ),
                 'present_simple_sentences' => app(SentenceChecker::class)->check(
                     judgment: 'Judge whether the learner wrote a genuine, natural personal sentence, correctly '
@@ -245,6 +245,7 @@ new class extends Component
                         .'statement',
                     context: 'a personal sentence using the present simple tense',
                     text: $text,
+                    extraGuidance: $this->run->aiToneGuidance(),
                 ),
                 default => null,
             };
@@ -292,6 +293,7 @@ new class extends Component
                 majorCriteria: 'the sentence repeats the same mistake, or is not a genuine sentence',
                 context: 'a new sentence practicing the same grammar/vocabulary pattern the learner previously got wrong',
                 text: $answer,
+                extraGuidance: $this->run->aiToneGuidance(),
             );
         } catch (ConnectionException|RequestException) {
             $this->recurringPracticeError = "Couldn't reach the AI service — please try again.";

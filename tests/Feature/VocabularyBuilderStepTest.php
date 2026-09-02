@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -391,6 +392,25 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('can you describe your own actual commute?');
     }
 
+    public function test_a_major_verdict_records_a_struggle_signal_on_the_run(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'severity' => 'major',
+                'hint' => 'This just repeats the definition.',
+            ]));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component->set('examples.3', 'to travel to work')->call('checkOne', 3);
+
+        $this->assertSame(1, $run->fresh()->struggle_signal_count);
+    }
+
     public function test_checking_an_empty_input_does_nothing(): void
     {
         [, , $run] = $this->makeMissionAndRun();
@@ -427,7 +447,7 @@ class VocabularyBuilderStepTest extends TestCase
 
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->once()->andThrow(
-                new \Illuminate\Http\Client\ConnectionException('cURL error 7: Failed to connect() to host')
+                new ConnectionException('cURL error 7: Failed to connect() to host')
             );
         });
 
@@ -519,7 +539,7 @@ class VocabularyBuilderStepTest extends TestCase
         // A stale verdict must fade the instant the learner edits that word's
         // input again — wired client-side (Alpine), so this only checks the
         // markup is present; the actual show/hide can't be exercised here.
-        $this->assertStringContainsString("dismissed[0] = true", $html);
+        $this->assertStringContainsString('dismissed[0] = true', $html);
         $this->assertStringContainsString('x-show="!dismissed[0]"', $html);
     }
 

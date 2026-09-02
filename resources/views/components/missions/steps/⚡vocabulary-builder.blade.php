@@ -145,6 +145,7 @@ new class extends Component
                     .'the definition',
                 context: "a personal sentence using the word \"{$word}\"",
                 text: $example,
+                extraGuidance: $this->run->aiToneGuidance(),
             );
 
             $this->feedback[$word] = $data + ['checkedText' => $example];

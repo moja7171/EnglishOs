@@ -232,7 +232,7 @@ new class extends Component
                 text: $text,
                 extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small detail '
                     .'is debatable — never claim the learner\'s facts are wrong, since you were only given a '
-                    .'short summary, not the full listening.',
+                    .'short summary, not the full listening.'.$this->run->aiToneGuidance(),
             );
 
             $this->feedback[$key] = $data + ['checkedText' => $text];

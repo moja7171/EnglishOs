@@ -67,4 +67,38 @@ class MissionRunToneGuidanceTest extends TestCase
 
         $this->assertStringContainsString('more challenging', $run->aiToneGuidance());
     }
+
+    public function test_recording_struggle_signals_below_the_threshold_does_not_change_guidance(): void
+    {
+        $run = $this->makeRunWithScore(5);
+
+        $run->recordStruggleSignal();
+        $run->recordStruggleSignal();
+
+        $this->assertStringContainsString('more challenging', $run->fresh()->aiToneGuidance());
+    }
+
+    public function test_three_struggle_signals_override_a_high_starting_confidence(): void
+    {
+        $run = $this->makeRunWithScore(5);
+
+        $run->recordStruggleSignal();
+        $run->recordStruggleSignal();
+        $run->recordStruggleSignal();
+
+        $guidance = $run->fresh()->aiToneGuidance();
+        $this->assertStringContainsString('extra warm and encouraging', $guidance);
+        $this->assertStringNotContainsString('more challenging', $guidance);
+    }
+
+    public function test_three_struggle_signals_produce_encouraging_guidance_even_with_no_self_report(): void
+    {
+        $run = $this->makeRunWithScore(null);
+
+        $run->recordStruggleSignal();
+        $run->recordStruggleSignal();
+        $run->recordStruggleSignal();
+
+        $this->assertStringContainsString('extra warm and encouraging', $run->fresh()->aiToneGuidance());
+    }
 }

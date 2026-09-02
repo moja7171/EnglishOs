@@ -38,6 +38,7 @@ class MissionRun extends Model
         return [
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
+            'struggle_signal_count' => 'integer',
         ];
     }
 
@@ -146,15 +147,38 @@ class MissionRun extends Model
     }
 
     /**
-     * Extra guidance appended to AI Instructor conversation prompts so the
-     * tone adapts to how confident the learner said they felt — never
-     * gating or skipping anything (Article 3, Evidence Before Progress:
-     * only real Evidence decides progress), just how warm or how much the
-     * AI pushes in follow-up questions (EOS-000 Principle 7: the system
-     * should adapt itself to the learner without lowering quality).
+     * A live, run-scoped counter of real ("major", not just a small slip)
+     * AI check misses so far this run — bumped by
+     * TracksCheckAttempts::trackCheckAttempt() every time any AI-checked
+     * step in this run gets a "major" verdict. Read by aiToneGuidance() so
+     * tone can adapt to how the learner is ACTUALLY doing right now, not
+     * just their one-time Day 1 self-report.
+     */
+    public function recordStruggleSignal(): void
+    {
+        $this->increment('struggle_signal_count');
+    }
+
+    /**
+     * Extra guidance appended to AI Instructor conversation prompts and
+     * SentenceChecker checks so the tone adapts to how the learner is
+     * doing — never gating or skipping anything (Article 3, Evidence
+     * Before Progress: only real Evidence decides progress), just how warm
+     * or how much the AI pushes (EOS-000 Principle 7: the system should
+     * adapt itself to the learner without lowering quality). Real
+     * struggle THIS mission takes priority over the Day 1 self-report:
+     * a learner who said they felt confident but has since missed several
+     * checks needs warmth now more than the number they picked before
+     * they'd actually started.
      */
     public function aiToneGuidance(): string
     {
+        if ($this->struggle_signal_count >= 3) {
+            return ' The learner has missed several checks so far in this mission with real mistakes (not just '
+                .'small slips) — regardless of how confident they said they felt at the start, be extra warm and '
+                .'encouraging right now, and keep your follow-up simple and easy to answer.';
+        }
+
         return match (true) {
             $this->startingConfidence() === null => '',
             $this->startingConfidence() <= 2 => ' The learner rated their starting confidence on this topic low '

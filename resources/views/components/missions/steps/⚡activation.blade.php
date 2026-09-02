@@ -99,6 +99,7 @@ new class extends Component
                     .'learner\'s own daily life',
                 context: "a personal sentence about the learner's own daily life",
                 text: $sentence,
+                extraGuidance: $this->run->aiToneGuidance(),
             );
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];

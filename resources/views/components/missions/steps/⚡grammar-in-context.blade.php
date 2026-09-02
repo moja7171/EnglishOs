@@ -99,6 +99,7 @@ new class extends Component
                     .'continue the given starter, or it is not a genuine personal statement',
                 context: "a personal sentence that starts with \"{$starter}\" and continues in the present simple tense",
                 text: $sentence,
+                extraGuidance: $this->run->aiToneGuidance(),
             );
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
