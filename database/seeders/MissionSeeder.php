@@ -259,6 +259,12 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 2,
+                                'hook' => 'Two minutes before anything else — let your ear warm up to English again.',
+                            ],
+                            [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
                                 'duration_minutes' => 12,
@@ -314,6 +320,12 @@ class MissionSeeder extends Seeder
                         'mode' => 'ai',
                         'steps' => [
                             [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 2,
+                                'hook' => 'Same audio, one more time — familiar is exactly the point.',
+                            ],
+                            [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
                                 // Was 10 — bumped since an off-topic spoken answer now asks for a retry.
@@ -359,6 +371,12 @@ class MissionSeeder extends Seeder
                         'label' => 'Challenge',
                         'mode' => 'ai',
                         'steps' => [
+                            [
+                                'key' => 'daily_listen_4',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 2,
+                                'hook' => 'Last time hearing this one — notice how much easier it sounds now.',
+                            ],
                             [
                                 'key' => 'active_recall',
                                 'label' => 'Active Recall',
