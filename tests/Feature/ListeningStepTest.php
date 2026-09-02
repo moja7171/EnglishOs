@@ -672,4 +672,33 @@ class ListeningStepTest extends TestCase
             ->assertSet('shadowRecording', null)
             ->assertSee('Are you a morning person?');
     }
+
+    public function test_a_selected_shadow_lines_stressed_words_render_bolded(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [[
+                    'key' => 'listening',
+                    'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
+                    'shadow_lines' => ['Do you **like** to **get up** early?'],
+                ]],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])
+            ->call('selectShadowLine', 0)
+            ->html();
+
+        $this->assertStringContainsString('<strong', $html);
+        $this->assertStringContainsString('>like</strong>', $html);
+        $this->assertStringContainsString('>get up</strong>', $html);
+        $this->assertStringNotContainsString('**', $html);
+    }
 }

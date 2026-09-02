@@ -843,10 +843,12 @@ new class extends Component
                     </div>
 
                     @if ($activeShadowLine !== null)
-                        <p class="mt-3 text-sm text-ink dark:text-ink-dark">"{{ $shadowLines[$activeShadowLine] }}"</p>
+                        <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
+                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$shadowLines[$activeShadowLine]" />"</p>
                         <div class="mt-2" wire:key="shadow-recorder-{{ $activeShadowLine }}">
                             <x-voice-recorder field="shadowRecording" :file="$shadowRecording" file-name="shadow.webm" />
                         </div>
+                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Once you've recorded, listen back and compare your rhythm to the bold pattern above.</p>
                     @endif
                 </div>
             @endif

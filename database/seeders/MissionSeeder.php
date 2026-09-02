@@ -266,10 +266,14 @@ class MissionSeeder extends Seeder
                                     'question' => 'What time did Neil need to get up to catch his flight, the last time he skipped breakfast?',
                                     'accepted' => ['3am', '3 am', '3 a.m.', '3a.m.', 'three am', 'three a.m.', 'three o\'clock', '3 oclock', '3 o\'clock'],
                                 ],
+                                // Bold marks the naturally-stressed content words (nouns, main verbs,
+                                // adjectives, question words) — function words (articles,
+                                // prepositions, auxiliary "do"/"does") stay unstressed, standard
+                                // English sentence-rhythm teaching. Rendered by <x-stress-marked-line>.
                                 'shadow_lines' => [
-                                    'So, Neil, do you like to get up early or do you prefer to sleep in?',
-                                    "Yes, I think it does. I'm a morning person. That means someone that has a lot of energy at the start of the day.",
-                                    "Sometimes I skip breakfast, because when I wake up, I'm not hungry.",
+                                    'So, **Neil**, do you **like** to **get up** **early** or do you **prefer** to **sleep in**?',
+                                    "Yes, I **think** it **does**. I'm a **morning person**. That **means** someone that has **a lot of energy** at the **start** of the **day**.",
+                                    "**Sometimes** I **skip breakfast**, because when I **wake up**, I'm **not hungry**.",
                                 ],
                             ],
                         ],
