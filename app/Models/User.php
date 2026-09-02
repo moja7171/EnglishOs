@@ -292,6 +292,27 @@ class User extends Authenticatable
     }
 
     /**
+     * Friends this user can actually message right now — mutual follow,
+     * no block either direction, the same set canMessageWith() would
+     * accept for any of them. Used to build a friend-picker (e.g. "practice
+     * this mission question with a friend") without checking every
+     * candidate one by one.
+     *
+     * @return Collection<int, User>
+     */
+    public function mutualFriends(): Collection
+    {
+        $blockedIds = FriendBlock::where('blocker_id', $this->id)->pluck('blocked_id')
+            ->merge(FriendBlock::where('blocked_id', $this->id)->pluck('blocker_id'));
+
+        return $this->following()
+            ->whereNotIn('users.id', $blockedIds)
+            ->get()
+            ->filter(fn (User $candidate) => $this->isFollowedBy($candidate))
+            ->values();
+    }
+
+    /**
      * Every message between this user and $user, oldest first — there is
      * no separate "conversation" entity, two users can only ever have one
      * thread (see direct_messages migration), so this just queries it

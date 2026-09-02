@@ -180,6 +180,10 @@ new class extends Component
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $round + 1 }} of {{ count($this->questions) }}</p>
             <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentQuestion }}</p>
 
+            <div class="mt-2">
+                <x-practice-with-friend :text="$this->currentQuestion" />
+            </div>
+
             <div class="mt-3" wire:key="recorder-{{ $round }}" wire:loading.remove wire:target="submitAnswer">
                 <x-voice-recorder
                     field="audioFile"

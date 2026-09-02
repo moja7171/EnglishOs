@@ -42,6 +42,8 @@ class AiConversation2StepTest extends TestCase
             ],
         ]);
 
+        $this->actingAs($learner);
+
         return MissionRun::findOrStart($learner, $mission);
     }
 
@@ -160,6 +162,7 @@ class AiConversation2StepTest extends TestCase
                 ],
             ],
         ]);
+        $this->actingAs($learner);
         $run = MissionRun::findOrStart($learner, $mission);
 
         Livewire::test('missions.steps.ai-conversation2', ['run' => $run])

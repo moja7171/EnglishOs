@@ -38,6 +38,16 @@ new class extends Component
         // follow, a stranger, or a blocked pair never reaches this page
         // regardless of how they got the URL.
         abort_unless(auth()->user()->canMessageWith($this->other), 403);
+
+        // Arrives from <x-practice-with-friend> on a mission step — just
+        // pre-fills the composer, never auto-sent, so the learner can
+        // still edit or discard it. Length-capped since it's untrusted
+        // query-string input.
+        $prefill = trim((string) request()->query('prefill', ''));
+
+        if ($prefill !== '') {
+            $this->body = str($prefill)->limit(500)->toString();
+        }
     }
 
     public function send(): void

@@ -44,6 +44,8 @@ class AiConversation1StepTest extends TestCase
             ],
         ]);
 
+        $this->actingAs($learner);
+
         return MissionRun::findOrStart($learner, $mission);
     }
 
@@ -160,6 +162,30 @@ class AiConversation1StepTest extends TestCase
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->assertSeeHtml('data-text="What time do you usually wake up?"')
             ->assertSeeHtml('wire:key="speak-0"');
+    }
+
+    public function test_a_mutual_friend_can_be_offered_the_question_to_practice_together(): void
+    {
+        $run = $this->makeRun(questionCount: 2);
+        $friend = User::factory()->create(['name' => 'Priya']);
+        $run->learner->follow($friend);
+        $friend->follow($run->learner);
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSee('Priya')
+            ->assertSeeHtml(route('friends.conversation', [
+                'user' => $friend,
+                'prefill' => 'Hey — want to help me practice this: "What time do you usually wake up?"',
+            ]));
+    }
+
+    public function test_without_mutual_friends_it_points_to_the_friends_page_instead(): void
+    {
+        $run = $this->makeRun(questionCount: 2);
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSee('No friends to practice with yet')
+            ->assertSeeHtml(route('friends.index'));
     }
 
     public function test_read_only_review_never_wires_up_speech(): void

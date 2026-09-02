@@ -76,6 +76,34 @@ class FriendsConversationTest extends TestCase
         ]);
     }
 
+    public function test_a_prefill_query_param_pre_fills_the_composer(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $this->actingAs($me);
+
+        Livewire::withQueryParams(['prefill' => 'Hey — want to help me practice this: "What time do you usually wake up?"'])
+            ->test('friends.conversation', ['other' => $bob])
+            ->assertSet('body', 'Hey — want to help me practice this: "What time do you usually wake up?"');
+    }
+
+    public function test_an_overlong_prefill_is_capped(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $this->actingAs($me);
+
+        Livewire::withQueryParams(['prefill' => str_repeat('a', 600)])
+            ->test('friends.conversation', ['other' => $bob])
+            ->assertSet('body', fn ($body) => strlen($body) <= 503); // Str::limit adds an ellipsis
+    }
+
     public function test_a_blank_message_is_a_no_op(): void
     {
         $me = User::factory()->create();

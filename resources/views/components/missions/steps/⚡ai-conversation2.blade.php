@@ -199,6 +199,10 @@ new class extends Component
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
             <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentRoundPrompt }}</p>
 
+            <div class="mt-2">
+                <x-practice-with-friend :text="$this->currentRoundPrompt" />
+            </div>
+
             <div class="mt-3" wire:key="recorder-round-{{ $roundIndex }}" wire:loading.remove wire:target="submitRoundAnswer">
                 <x-voice-recorder
                     field="audioFile"
@@ -217,6 +221,10 @@ new class extends Component
             @endunless
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Final Challenge · Topic: My Daily Life</p>
             <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->finalPrompt }}</p>
+
+            <div class="mt-2">
+                <x-practice-with-friend :text="$this->finalPrompt" />
+            </div>
 
             <div class="mt-3" wire:loading.remove wire:target="submitFinalChallenge">
                 <x-voice-recorder

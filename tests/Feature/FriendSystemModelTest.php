@@ -88,6 +88,25 @@ class FriendSystemModelTest extends TestCase
         $this->assertTrue($alice->isBlockedBy($bob));
     }
 
+    public function test_mutual_friends_excludes_one_way_follows_and_blocked_users(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $carol = User::factory()->create(); // one-way only
+        $dave = User::factory()->create(); // mutual, but blocked
+
+        $alice->follow($bob);
+        $bob->follow($alice);
+        $alice->follow($carol);
+        $alice->follow($dave);
+        $dave->follow($alice);
+        FriendBlock::create(['blocker_id' => $alice->id, 'blocked_id' => $dave->id]);
+
+        $this->assertTrue($alice->mutualFriends()->contains($bob));
+        $this->assertFalse($alice->mutualFriends()->contains($carol));
+        $this->assertFalse($alice->mutualFriends()->contains($dave));
+    }
+
     public function test_conversation_with_returns_every_message_between_the_pair_in_order(): void
     {
         $alice = User::factory()->create();
