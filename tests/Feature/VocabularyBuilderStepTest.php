@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Models\VocabularyWord;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
@@ -241,6 +242,64 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertCount(3, $content['examples']);
 
         $this->assertSame('listening', $run->fresh()->currentStepKey());
+    }
+
+    public function test_saving_enrolls_every_selected_word_into_the_vocabulary_notebook(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I have a morning routine.')
+            ->set('examples.1', 'I commute by bus.')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save');
+
+        $this->assertSame(8, VocabularyWord::where('learner_id', $learner->id)->count());
+
+        $wakeUp = VocabularyWord::where('learner_id', $learner->id)->where('word', 'wake up')->firstOrFail();
+        $this->assertSame($run->id, $wakeUp->source_mission_run_id);
+        $this->assertSame('to stop sleeping', $wakeUp->meaning);
+        $this->assertSame(0, $wakeUp->repetitions);
+        $this->assertTrue($wakeUp->isDue());
+    }
+
+    public function test_picking_an_already_tracked_word_again_never_resets_its_review_progress(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $existing = VocabularyWord::create([
+            'learner_id' => $learner->id,
+            'word' => 'wake up',
+            'meaning' => 'stale meaning',
+            'repetitions' => 4,
+            'interval_days' => 30,
+            'ease_factor' => 2.8,
+            'next_review_at' => now()->addDays(30),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $component
+            ->set('examples.0', 'I have a morning routine.')
+            ->set('examples.1', 'I commute by bus.')
+            ->set('examples.2', 'Sunday is my day off.')
+            ->call('save');
+
+        $this->assertSame(4, $existing->fresh()->repetitions);
+        $this->assertSame('stale meaning', $existing->fresh()->meaning);
+        $this->assertSame(8, VocabularyWord::where('learner_id', $learner->id)->count());
     }
 
     public function test_continue_checks_every_unchecked_filled_sentence_and_blocks_on_a_major_issue(): void

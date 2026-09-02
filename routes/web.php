@@ -28,6 +28,10 @@ Route::middleware('auth')->group(function () {
         return view('profile');
     })->name('profile');
 
+    Route::get('/vocabulary', function () {
+        return view('vocabulary');
+    })->name('vocabulary.index');
+
     Route::get('/friends', function () {
         return view('friends');
     })->name('friends.index');

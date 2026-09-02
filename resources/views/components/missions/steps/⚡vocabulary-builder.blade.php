@@ -3,6 +3,7 @@
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Models\VocabularyWord;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -26,7 +27,7 @@ new class extends Component
     /** @var array<int, string> ordered phrases the learner picked from the story — at least 8, no upper limit */
     public array $selectedWords = [];
 
-    /** @var array<int, string> keyed by index, parallel to $selectedWords */
+    /** @var array<int, string> keyed by index, parallel to */
     public array $examples = [];
 
     /** @var array<string, array{severity: string, hint: string}> keyed by word */
@@ -155,7 +156,7 @@ new class extends Component
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->checkErrors[$word] = "Couldn't check this one: {$e->getMessage()}";
         }
     }
@@ -245,8 +246,32 @@ new class extends Component
             ]),
         ]);
 
+        $this->trackForSpacedRepetition();
+
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Enrolls every selected word into the learner's My Words notebook —
+     * firstOrCreate, so picking the same word again in a later mission
+     * (or re-saving this same step) never resets an in-progress review
+     * schedule. New rows start due immediately (next_review_at now) so a
+     * freshly-picked word shows up the moment the learner opens My Words,
+     * rather than waiting a day for nothing to be due yet.
+     */
+    private function trackForSpacedRepetition(): void
+    {
+        foreach ($this->selectedWords as $word) {
+            VocabularyWord::firstOrCreate(
+                ['learner_id' => $this->run->learner_id, 'word' => $word],
+                [
+                    'source_mission_run_id' => $this->run->id,
+                    'meaning' => $this->wordMeaning($word),
+                    'next_review_at' => now(),
+                ],
+            );
+        }
     }
 
     /**

@@ -172,13 +172,21 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<VocabularyWord, $this>
+     */
+    public function vocabularyWords(): HasMany
+    {
+        return $this->hasMany(VocabularyWord::class, 'learner_id');
+    }
+
+    /**
      * Every distinct word/phrase this learner has ever picked in
      * Vocabulary Builder, across every mission — reuses
      * MissionRun::selectedVocabularyWords() per run rather than
      * re-decoding the Evidence JSON itself, so there's exactly one place
-     * that knows that shape. Feeds Profile's "My Progress" tab; not yet
-     * tied to any review/mastery tracking (see the vocabulary notebook
-     * feature for that).
+     * that knows that shape. Feeds Profile's "My Progress" tab — a plain
+     * count of words picked, distinct from vocabularyWords() above,
+     * which is the actual spaced-repetition tracking table.
      *
      * @return Collection<int, string>
      */
