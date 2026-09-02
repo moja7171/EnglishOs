@@ -165,6 +165,16 @@ new class extends Component
                 </p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Nicely done — take a look back at the conversation above before you move on.</p>
             </div>
+
+            @if (count($this->questions))
+                <div>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Want more practice? Ask each other all of these questions for real.</p>
+                    <div class="mt-1.5">
+                        <x-practice-session-with-friend :mission="$run->mission" step-key="ai_conversation_1" />
+                    </div>
+                </div>
+            @endif
+
             <button
                 wire:click="proceed"
                 class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"

@@ -45,7 +45,21 @@ class ListeningStepTest extends TestCase
             ],
         ]);
 
+        $this->actingAs($learner);
+
         return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_the_wrap_up_offers_discussing_the_topic_with_a_mutual_friend(): void
+    {
+        $run = $this->makeRun();
+        $friend = User::factory()->create(['name' => 'Priya']);
+        $run->learner->follow($friend);
+        $friend->follow($run->learner);
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->assertSee('Discuss this with a friend')
+            ->assertSee('Priya');
     }
 
     public function test_the_custom_audio_player_renders_with_skip_and_seek_controls(): void
@@ -397,6 +411,8 @@ class ListeningStepTest extends TestCase
             ],
         ]);
 
+        $this->actingAs($learner);
+
         return MissionRun::findOrStart($learner, $mission);
     }
 
@@ -464,6 +480,8 @@ class ListeningStepTest extends TestCase
                 ],
             ],
         ]);
+
+        $this->actingAs($learner);
 
         return MissionRun::findOrStart($learner, $mission);
     }

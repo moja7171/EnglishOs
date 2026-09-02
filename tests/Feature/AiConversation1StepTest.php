@@ -188,6 +188,25 @@ class AiConversation1StepTest extends TestCase
             ->assertSeeHtml(route('friends.index'));
     }
 
+    public function test_the_completed_recap_offers_a_partner_session_with_a_mutual_friend(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun(questionCount: 1);
+        $friend = User::factory()->create(['name' => 'Priya']);
+        $run->learner->follow($friend);
+        $friend->follow($run->learner);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Every day?'));
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSee('Do this with a partner')
+            ->assertSee('Priya')
+            ->assertSeeHtml(route('missions.practice-with-friend', ['mission' => $run->mission, 'step' => 'ai_conversation_1', 'friend' => $friend]));
+    }
+
     public function test_read_only_review_never_wires_up_speech(): void
     {
         $run = $this->makeRun(questionCount: 2);

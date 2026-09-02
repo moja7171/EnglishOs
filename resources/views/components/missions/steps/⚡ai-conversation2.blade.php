@@ -256,6 +256,15 @@ new class extends Component
             </div>
             <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $checklistNote }}</p>
 
+            @if (count($this->rounds))
+                <div>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Want more practice? Ask each other all of these questions for real.</p>
+                    <div class="mt-1.5">
+                        <x-practice-session-with-friend :mission="$run->mission" step-key="ai_conversation_2" />
+                    </div>
+                </div>
+            @endif
+
             @unless ($readOnly)
                 <button wire:click="finishConversation"
                     class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">

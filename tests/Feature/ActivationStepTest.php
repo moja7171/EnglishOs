@@ -37,6 +37,8 @@ class ActivationStepTest extends TestCase
             ],
         ]);
 
+        $this->actingAs($learner);
+
         return MissionRun::findOrStart($learner, $mission);
     }
 
@@ -67,6 +69,34 @@ class ActivationStepTest extends TestCase
             ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
             ->call('save')
             ->assertHasErrors(['sentences']);
+    }
+
+    public function test_the_recap_offers_talking_about_the_task_with_a_mutual_friend(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $friend = User::factory()->create(['name' => 'Priya']);
+        $run->learner->follow($friend);
+        $friend->follow($run->learner);
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn(['text' => 'I wake up at seven.', 'duration' => 90.0]);
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => 'خوب.', 'tip' => 'ادامه بده.']))->ordered();
+        });
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->set('sentences.0', 'I usually wake up at 7.')
+            ->set('sentences.1', 'I have breakfast at 8.')
+            ->set('sentences.2', 'I go to work by bus.')
+            ->set('sentences.3', 'I exercise in the evening.')
+            ->set('sentences.4', 'I go to bed at 11.')
+            ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('save')
+            ->assertSee('Talk about this with a friend')
+            ->assertSee('Priya');
     }
 
     public function test_valid_submission_stores_both_evidence_rows_and_shows_the_recap(): void

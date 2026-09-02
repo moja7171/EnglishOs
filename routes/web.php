@@ -3,6 +3,8 @@
 use App\Models\DirectMessage;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
+use App\Models\PartnerSession;
+use App\Models\PartnerSessionAnswer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +57,34 @@ Route::middleware('auth')->group(function () {
             ? Storage::disk('local')->response($message->attachment_path)
             : Storage::disk('local')->download($message->attachment_path, $message->attachment_name);
     })->name('instructor.attachment');
+
+    // Finds (or starts) the one shared Partner Session for this
+    // mission+step+pair and sends both friends to the exact same place —
+    // order-independent, see PartnerSession::findOrStartFor(). Gated on
+    // the same mutual-follow-and-not-blocked check as messaging itself.
+    Route::get('/missions/{mission:code}/{step}/practice-with/{friend}', function (Mission $mission, string $step, User $friend) {
+        abort_unless(auth()->user()->canMessageWith($friend), 403);
+
+        $session = PartnerSession::findOrStartFor($mission, $step, auth()->user(), $friend);
+
+        return redirect()->route('partner-sessions.show', $session);
+    })->name('missions.practice-with-friend');
+
+    Route::get('/practice-sessions/{session}', function (PartnerSession $session) {
+        abort_unless($session->isAccessibleBy(auth()->user()), 403);
+
+        return view('partner-session', compact('session'));
+    })->name('partner-sessions.show');
+
+    // Same private-disk pattern as friends.attachment/instructor.attachment.
+    Route::get('/practice-sessions/answers/{answer}/attachment', function (PartnerSessionAnswer $answer) {
+        abort_unless($answer->hasAttachment(), 404);
+        abort_unless($answer->isAccessibleBy(auth()->user()), 403);
+
+        return $answer->type === PartnerSessionAnswer::TYPE_VOICE
+            ? Storage::disk('local')->response($answer->attachment_path)
+            : Storage::disk('local')->download($answer->attachment_path, $answer->attachment_name);
+    })->name('partner-sessions.attachment');
 
     Route::post('/logout', function () {
         Auth::logout();

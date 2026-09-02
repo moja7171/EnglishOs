@@ -9,9 +9,13 @@
     @param string|null $onRecorded A Livewire method name to call automatically
         once the upload succeeds (e.g. "submitAnswer"). Omit for a manual-submit
         flow (the caller has its own Continue/save button).
+    @param int|string|null $onRecordedParam A single extra argument passed to
+        $onRecorded (e.g. a question index), for a caller with more than one
+        recorder on the page that all share one method. Omit when $onRecorded
+        takes no arguments — every existing caller is unaffected.
     @param string $fileName Filename given to the uploaded blob.
 --}}
-@props(['field', 'file' => null, 'onRecorded' => null, 'fileName' => 'recording.webm'])
+@props(['field', 'file' => null, 'onRecorded' => null, 'onRecordedParam' => null, 'fileName' => 'recording.webm'])
 
 <div
     x-data="{
@@ -37,7 +41,9 @@
                     this.$wire.upload('{{ $field }}', file,
                         () => {
                             this.uploading = false;
-                            @if ($onRecorded)
+                            @if ($onRecorded && $onRecordedParam !== null)
+                                this.$wire.call('{{ $onRecorded }}', {{ Illuminate\Support\Js::from($onRecordedParam) }});
+                            @elseif ($onRecorded)
                                 this.$wire.call('{{ $onRecorded }}');
                             @endif
                         },

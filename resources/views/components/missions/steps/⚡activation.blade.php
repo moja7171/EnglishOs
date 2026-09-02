@@ -352,6 +352,16 @@ new class extends Component
                 </div>
             @endif
 
+            @if ($activation['task'] ?? null)
+                <div>
+                    <x-practice-with-friend
+                        :text="$activation['task']"
+                        intro="Hey — want to talk about your daily routine together:"
+                        label="Talk about this with a friend"
+                    />
+                </div>
+            @endif
+
             @unless ($readOnly)
                 <button
                     wire:click="proceed"

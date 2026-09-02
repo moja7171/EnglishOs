@@ -814,6 +814,16 @@ new class extends Component
                 </div>
             @endif
 
+            @if ($listening['topic_summary'] ?? null)
+                <div class="mt-4">
+                    <x-practice-with-friend
+                        :text="$listening['topic_summary']"
+                        intro="Hey — want to discuss this listening topic with me:"
+                        label="Discuss this with a friend"
+                    />
+                </div>
+            @endif
+
             @error('sentences')
                 <p class="mt-4 text-sm text-red-600">{{ $message }}</p>
             @enderror

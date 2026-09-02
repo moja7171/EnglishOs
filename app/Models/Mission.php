@@ -95,6 +95,31 @@ class Mission extends Model
     }
 
     /**
+     * A step's questions/prompts, flattened into one ordered list of plain
+     * strings — regardless of which conversation-shaped step authored them
+     * (AI Conversation #1's flat `interview_questions`, or AI Conversation
+     * #2's `rounds` + one closing `final_prompt`). Lets a Partner Session
+     * (see PartnerSession) work the same way for any conversation step,
+     * present or future, without caring which shape it was authored in.
+     * Empty for a step with no such content.
+     *
+     * @return list<string>
+     */
+    public function conversationPrompts(string $stepKey): array
+    {
+        $content = $this->stepContent($stepKey);
+
+        return match (true) {
+            isset($content['interview_questions']) => $content['interview_questions'],
+            isset($content['rounds']) => [
+                ...$content['rounds'],
+                ...(isset($content['final_prompt']) ? [$content['final_prompt']] : []),
+            ],
+            default => [],
+        };
+    }
+
+    /**
      * The visual "mood" this mission renders with — the one thing that
      * varies per mission in the app's hybrid design system (shared
      * typography/layout/components everywhere, only the accent hue shifts

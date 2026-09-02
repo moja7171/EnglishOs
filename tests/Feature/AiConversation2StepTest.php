@@ -178,6 +178,43 @@ class AiConversation2StepTest extends TestCase
             ->assertSeeHtml('wire:key="speak-round-0"');
     }
 
+    public function test_the_checklist_recap_offers_a_partner_session_with_a_mutual_friend(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+        $friend = User::factory()->create(['name' => 'Priya']);
+        $run->learner->follow($friend);
+        $friend->follow($run->learner);
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')
+                ->times(3)
+                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'I usually wake up at seven.');
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->times(3)
+                ->andReturn(
+                    'What time do you leave for work?',
+                    'What do you enjoy most about weekends?',
+                    json_encode(['requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false], 'note' => 'Good job.'])
+                );
+        });
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+
+        foreach (['r1.webm', 'r2.webm'] as $file) {
+            $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitRoundAnswer');
+        }
+
+        $component
+            ->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
+            ->call('submitFinalChallenge')
+            ->assertSee('Do this with a partner')
+            ->assertSee('Priya')
+            ->assertSeeHtml(route('missions.practice-with-friend', ['mission' => $run->mission, 'step' => 'ai_conversation_2', 'friend' => $friend]));
+    }
+
     public function test_the_final_challenge_prompt_is_wired_to_be_spoken_aloud(): void
     {
         Storage::fake('local');
