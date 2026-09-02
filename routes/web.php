@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\DirectMessage;
+use App\Models\InstructorMessage;
 use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -42,6 +43,18 @@ Route::middleware('auth')->group(function () {
             ? Storage::disk('local')->response($message->attachment_path)
             : Storage::disk('local')->download($message->attachment_path, $message->attachment_name);
     })->name('friends.attachment');
+
+    // Same private-disk pattern as friends.attachment above, but gated to
+    // the one learner this message belongs to — an Ask the AI Instructor
+    // attachment is never shared with anyone else.
+    Route::get('/instructor/messages/{message}/attachment', function (InstructorMessage $message) {
+        abort_unless($message->hasAttachment(), 404);
+        abort_unless($message->isAccessibleBy(auth()->user()), 403);
+
+        return $message->type === InstructorMessage::TYPE_VOICE
+            ? Storage::disk('local')->response($message->attachment_path)
+            : Storage::disk('local')->download($message->attachment_path, $message->attachment_name);
+    })->name('instructor.attachment');
 
     Route::post('/logout', function () {
         Auth::logout();
