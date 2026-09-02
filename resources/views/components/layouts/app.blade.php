@@ -20,7 +20,10 @@
     @auth
         <div class="mx-auto flex max-w-2xl items-center justify-between px-6 pt-3 text-xs text-ink-faint dark:text-ink-faint-dark">
             <span class="flex items-center gap-3">
-                {{ auth()->user()->name }}
+                <a href="{{ route('profile') }}" wire:navigate class="flex items-center gap-2 transition-colors hover:text-ink dark:hover:text-ink-dark">
+                    <x-user-avatar :user="auth()->user()" class="h-6 w-6 text-[10px]" />
+                    {{ auth()->user()->name }}
+                </a>
                 @if ($streak = auth()->user()->currentStreak())
                     <span
                         class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark"

@@ -133,6 +133,7 @@ new class extends Component
         return User::query()
             ->where('id', '!=', auth()->id())
             ->whereNotIn('id', $this->blockedUserIds())
+            ->where('discoverable', true)
             // ilike, not like — Postgres' LIKE is case-sensitive by default.
             ->where('name', 'ilike', "%{$term}%")
             ->orderBy('name')
@@ -175,7 +176,7 @@ new class extends Component
             <div class="mt-3 space-y-2">
                 @forelse ($this->searchResults as $user)
                     <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface px-3.5 py-2.5 shadow-sm dark:border-line-dark dark:bg-surface-dark">
-                        <x-avatar-initial :name="$user->name" class="h-9 w-9 text-xs" />
+                        <x-user-avatar :user="$user" class="h-9 w-9 text-xs" />
                         <span class="flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $user->name }}</span>
                         @if (auth()->user()->isFollowing($user))
                             <button
@@ -208,7 +209,7 @@ new class extends Component
                 @php $stats = $this->stats($friend); $mutual = auth()->user()->isMutualWith($friend); @endphp
                 <div class="rounded-2xl border border-line bg-surface p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-line-dark dark:bg-surface-dark">
                     <div class="flex items-center gap-3">
-                        <x-avatar-initial :name="$friend->name" class="h-11 w-11 text-sm" />
+                        <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
                             <div class="mt-1 flex flex-wrap items-center gap-1.5">
@@ -312,7 +313,7 @@ new class extends Component
             <div x-show="showFollowers" x-cloak x-transition.opacity.duration.150ms class="mt-2 flex flex-wrap gap-2">
                 @foreach ($this->followers as $follower)
                     <span class="inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pr-3 pl-1 text-xs text-ink-soft shadow-sm dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">
-                        <x-avatar-initial :name="$follower->name" class="h-5 w-5 text-[10px]" />
+                        <x-user-avatar :user="$follower" class="h-5 w-5 text-[10px]" />
                         {{ $follower->name }}
                         @if (! auth()->user()->isFollowing($follower))
                             <button type="button" wire:click="follow({{ $follower->id }})" class="cursor-pointer font-semibold text-accent-ink hover:opacity-80 dark:text-accent-ink-dark">Follow back</button>

@@ -30,6 +30,14 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            // Explicit, not left to the DB column default — Eloquent
+            // doesn't re-fetch a Postgres row's own defaults after
+            // insert(), so a freshly created instance would otherwise
+            // read these as null in the very same request/test instead
+            // of their real value until the next fresh query.
+            'cefr_level' => 'B1',
+            'avatar_color' => 'accent',
+            'discoverable' => true,
         ];
     }
 

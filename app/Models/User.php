@@ -14,8 +14,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band'])]
+#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'discoverable'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -32,7 +33,73 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'discoverable' => 'boolean',
         ];
+    }
+
+    /**
+     * Plain-language self-assessment options instead of raw CEFR codes —
+     * a true beginner has no idea what "B1" means, but recognizes "I can
+     * introduce myself and ask simple questions." Shared by registration
+     * and the profile edit form so the two never drift apart. See
+     * levelDescription() for where the stored value actually gets used.
+     *
+     * @return array<string, string>
+     */
+    public static function levelOptions(): array
+    {
+        return [
+            'A1' => 'Beginner — I know a few basic words and phrases',
+            'A2' => 'Elementary — I can introduce myself and ask simple questions',
+            'B1' => 'Intermediate — I can talk about daily life and familiar topics',
+            'B2' => 'Upper-Intermediate — I can discuss most topics fairly fluently',
+            'C1' => 'Advanced — I can express myself fluently on almost anything',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function targetBandOptions(): array
+    {
+        return ['5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0'];
+    }
+
+    /**
+     * A fixed set of accent colors a learner can pick for their avatar —
+     * literal Tailwind class strings (never built from a dynamic
+     * "bg-{$key}-100"), because Tailwind's JIT scanner only generates the
+     * utility classes it can see written out somewhere in a source file.
+     * "accent" reuses the app's own semantic token (its own light/dark
+     * pair); every other key is a plain Tailwind hue since there's no
+     * semantic token for an arbitrary color.
+     *
+     * @return array<string, string>
+     */
+    public static function avatarColorPalette(): array
+    {
+        return [
+            'accent' => 'bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark',
+            'rose' => 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
+            'amber' => 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+            'emerald' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+            'sky' => 'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300',
+            'violet' => 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
+            'fuchsia' => 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-950 dark:text-fuchsia-300',
+            'slate' => 'bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-300',
+        ];
+    }
+
+    /**
+     * The public URL of this learner's uploaded photo, or null when
+     * they're on a color+initial avatar — always the 'public' disk (see
+     * the avatar_path migration comment), never the private 'local' disk
+     * every other upload in this app uses, because an avatar is meant to
+     * be visible to anyone who can already see this learner's name.
+     */
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null;
     }
 
     /**

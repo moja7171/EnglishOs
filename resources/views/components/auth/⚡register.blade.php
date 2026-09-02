@@ -18,25 +18,6 @@ new class extends Component
 
     public string $target_band = '';
 
-    /**
-     * Plain-language self-assessment options instead of raw CEFR codes —
-     * a true beginner has no idea what "B1" means, but recognizes "I can
-     * introduce myself and ask simple questions." See
-     * User::levelDescription() for where this value actually gets used.
-     *
-     * @return array<string, string>
-     */
-    public function levelOptions(): array
-    {
-        return [
-            'A1' => 'Beginner — I know a few basic words and phrases',
-            'A2' => 'Elementary — I can introduce myself and ask simple questions',
-            'B1' => 'Intermediate — I can talk about daily life and familiar topics',
-            'B2' => 'Upper-Intermediate — I can discuss most topics fairly fluently',
-            'C1' => 'Advanced — I can express myself fluently on almost anything',
-        ];
-    }
-
     public function register(): void
     {
         $data = $this->validate([
@@ -117,7 +98,7 @@ new class extends Component
                 wire:model="cefr_level"
                 class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
-                @foreach ($this->levelOptions() as $code => $label)
+                @foreach (User::levelOptions() as $code => $label)
                     <option value="{{ $code }}">{{ $label }}</option>
                 @endforeach
             </select>
@@ -133,7 +114,7 @@ new class extends Component
                 class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
                 <option value="">Not sure yet</option>
-                @foreach (['5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0'] as $band)
+                @foreach (User::targetBandOptions() as $band)
                     <option value="{{ $band }}">{{ $band }}</option>
                 @endforeach
             </select>

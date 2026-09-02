@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
         return view('mission-runner', compact('mission', 'step'));
     })->name('missions.show');
 
+    Route::get('/profile', function () {
+        return view('profile');
+    })->name('profile');
+
     Route::get('/friends', function () {
         return view('friends');
     })->name('friends.index');

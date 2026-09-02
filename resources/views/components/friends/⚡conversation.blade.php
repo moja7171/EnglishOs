@@ -336,7 +336,7 @@ new class extends Component
 
     <div class="flex items-center justify-between rounded-2xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
         <div class="flex items-center gap-3">
-            <x-avatar-initial :name="$other->name" class="h-10 w-10 text-sm" />
+            <x-user-avatar :user="$other" class="h-10 w-10 text-sm" />
             <div>
                 <h1 class="font-display text-base font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
                 @if ($streak = $other->currentStreak())
