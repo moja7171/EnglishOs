@@ -16,6 +16,8 @@ new class extends Component
 
     public string $target_band = '';
 
+    public string $gender = 'unspecified';
+
     public ?UploadedFile $newAvatar = null;
 
     public string $currentPassword = '';
@@ -35,6 +37,7 @@ new class extends Component
         $this->name = $user->name;
         $this->cefr_level = $user->cefr_level ?? 'B1';
         $this->target_band = $user->target_band ?? '';
+        $this->gender = $user->gender ?? 'unspecified';
     }
 
     public function updateBasicInfo(): void
@@ -45,22 +48,35 @@ new class extends Component
             'name' => 'required|string|max:255',
             'cefr_level' => 'required|in:A1,A2,B1,B2,C1',
             'target_band' => 'nullable|string|max:10',
+            'gender' => 'required|in:male,female,unspecified',
         ]);
 
-        auth()->user()->update([
+        $user = auth()->user();
+        $updates = [
             'name' => $data['name'],
             'cefr_level' => $data['cefr_level'],
             'target_band' => $data['target_band'] ?: null,
-        ]);
+            'gender' => $data['gender'],
+        ];
+
+        // A starting suggestion, applied only the very first time a real
+        // gender is set on an avatar nobody has customized yet (still on
+        // the plain "initial" style, no photo) — never overwrites a style
+        // or photo the learner already deliberately chose.
+        if ($data['gender'] !== $user->gender && $user->avatar_style === 'initial' && ! $user->avatar_path) {
+            $updates['avatar_style'] = User::defaultAvatarStyleForGender($data['gender']);
+        }
+
+        $user->update($updates);
 
         $this->basicInfoSaved = true;
     }
 
     /**
-     * Picking a color is an implicit "use my initials, not my photo" —
-     * the two avatar styles are mutually exclusive, so this also clears
-     * any uploaded photo rather than silently storing an unused
-     * preference behind it.
+     * Picking a color retints whichever avatar mode (illustrated style or
+     * plain initial) is already active — it never changes which one that
+     * is. It does clear any uploaded photo, since a color choice only
+     * ever applies to the non-photo modes.
      */
     public function selectColor(string $color): void
     {
@@ -71,6 +87,23 @@ new class extends Component
         $this->clearStoredAvatarPhoto();
 
         auth()->user()->update(['avatar_color' => $color, 'avatar_path' => null]);
+    }
+
+    /**
+     * Same idea as selectColor(), the other way round: picking a style
+     * keeps whatever color is already chosen and only clears an uploaded
+     * photo, since style and photo are the two mutually exclusive "what
+     * shape is the avatar" choices.
+     */
+    public function selectAvatarStyle(string $style): void
+    {
+        if (! array_key_exists($style, User::avatarStyleOptions())) {
+            return;
+        }
+
+        $this->clearStoredAvatarPhoto();
+
+        auth()->user()->update(['avatar_style' => $style, 'avatar_path' => null]);
     }
 
     public function saveAvatar(): void
@@ -218,11 +251,32 @@ new class extends Component
             <x-user-avatar :user="auth()->user()" class="h-16 w-16 text-xl" />
             <div>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Avatar</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Pick a color, or upload your own photo.</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Pick a style and a color, or upload your own photo.</p>
             </div>
         </div>
 
         <div>
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Style</p>
+            <div class="mt-2 flex flex-wrap gap-2">
+                @foreach (User::avatarStyleOptions() as $key => $label)
+                    @php $selected = ! auth()->user()->avatar_path && auth()->user()->avatar_style === $key; @endphp
+                    <button
+                        type="button"
+                        wire:click="selectAvatarStyle('{{ $key }}')"
+                        title="{{ $label }}"
+                        class="rounded-full p-0.5 transition-colors {{ $selected ? 'ring-2 ring-accent dark:ring-accent-dark' : 'ring-2 ring-transparent' }}"
+                    >
+                        @if ($key === 'initial')
+                            <x-avatar-initial :name="auth()->user()->name" :color="auth()->user()->avatar_color" class="h-9 w-9 cursor-pointer text-xs" />
+                        @else
+                            <x-illustrated-avatar :style="$key" :color="auth()->user()->avatar_color" class="h-9 w-9 cursor-pointer" />
+                        @endif
+                    </button>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="border-t border-line pt-3 dark:border-line-dark">
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Colors</p>
             <div class="mt-2 flex flex-wrap gap-2">
                 @foreach (User::avatarColorPalette() as $key => $classes)
@@ -313,6 +367,18 @@ new class extends Component
                 <option value="">Not sure yet</option>
                 @foreach (User::targetBandOptions() as $band)
                     <option value="{{ $band }}">{{ $band }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div>
+            <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Gender <span class="normal-case text-ink-faint dark:text-ink-faint-dark">(optional — only used to suggest a starting avatar style)</span></label>
+            <select
+                wire:model="gender"
+                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+            >
+                @foreach (User::genderOptions() as $code => $label)
+                    <option value="{{ $code }}">{{ $label }}</option>
                 @endforeach
             </select>
         </div>

@@ -86,6 +86,39 @@ class AuthTest extends TestCase
         ]);
     }
 
+    public function test_registration_defaults_to_unspecified_gender_and_the_plain_initial_avatar(): void
+    {
+        Livewire::test('auth.register')
+            ->set('name', 'Ada Lovelace')
+            ->set('email', 'ada@example.com')
+            ->set('password', 'super-secret')
+            ->set('password_confirmation', 'super-secret')
+            ->call('register');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'ada@example.com',
+            'gender' => 'unspecified',
+            'avatar_style' => 'initial',
+        ]);
+    }
+
+    public function test_registering_with_a_gender_picks_a_matching_default_avatar_style(): void
+    {
+        Livewire::test('auth.register')
+            ->set('name', 'Ada Lovelace')
+            ->set('email', 'ada@example.com')
+            ->set('password', 'super-secret')
+            ->set('password_confirmation', 'super-secret')
+            ->set('gender', 'female')
+            ->call('register');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'ada@example.com',
+            'gender' => 'female',
+            'avatar_style' => 'long',
+        ]);
+    }
+
     public function test_registration_requires_matching_password_confirmation(): void
     {
         Livewire::test('auth.register')

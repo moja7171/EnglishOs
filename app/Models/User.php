@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'discoverable'])]
+#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -63,6 +63,62 @@ class User extends Authenticatable
     public static function targetBandOptions(): array
     {
         return ['5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0'];
+    }
+
+    /**
+     * "unspecified" is a real, first-class choice here, not a stand-in for
+     * a missing value — it's what keeps a learner on the plain
+     * color+initial avatar (see defaultAvatarStyleForGender()) rather than
+     * ever forcing a gendered illustration on someone who'd rather not say.
+     *
+     * @return array<string, string>
+     */
+    public static function genderOptions(): array
+    {
+        return [
+            'male' => 'Male',
+            'female' => 'Female',
+            'unspecified' => 'Prefer not to say',
+        ];
+    }
+
+    /**
+     * Every illustrated avatar style a learner can pick — "initial" (the
+     * plain color+letter circle) is always available regardless of
+     * gender, same as every color in avatarColorPalette(). Labels are
+     * deliberately neutral (not "men's style 1") since any learner can
+     * freely pick any style; gender only decides the one auto-suggested
+     * the first time it's set (see defaultAvatarStyleForGender()).
+     *
+     * @return array<string, string>
+     */
+    public static function avatarStyleOptions(): array
+    {
+        return [
+            'initial' => 'Initial',
+            'bust' => 'Classic',
+            'short' => 'Cap',
+            'side-part' => 'Side part',
+            'curly' => 'Curly',
+            'long' => 'Long',
+            'bob' => 'Bob',
+            'ponytail' => 'Ponytail',
+        ];
+    }
+
+    /**
+     * A starting point, never a lock-in — Profile only applies this when
+     * gender changes AND the learner hasn't already picked a real avatar
+     * style or photo (see Profile::updateBasicInfo()), so it can never
+     * silently override a deliberate choice.
+     */
+    public static function defaultAvatarStyleForGender(string $gender): string
+    {
+        return match ($gender) {
+            'male' => 'short',
+            'female' => 'long',
+            default => 'initial',
+        };
     }
 
     /**

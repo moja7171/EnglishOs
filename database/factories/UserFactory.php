@@ -37,6 +37,8 @@ class UserFactory extends Factory
             // of their real value until the next fresh query.
             'cefr_level' => 'B1',
             'avatar_color' => 'accent',
+            'avatar_style' => 'initial',
+            'gender' => 'unspecified',
             'discoverable' => true,
         ];
     }

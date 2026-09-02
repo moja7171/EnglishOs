@@ -18,6 +18,8 @@ new class extends Component
 
     public string $target_band = '';
 
+    public string $gender = 'unspecified';
+
     public function register(): void
     {
         $data = $this->validate([
@@ -26,6 +28,7 @@ new class extends Component
             'password' => 'required|string|min:8|confirmed',
             'cefr_level' => 'required|in:A1,A2,B1,B2,C1',
             'target_band' => 'nullable|string|max:10',
+            'gender' => 'required|in:male,female,unspecified',
         ]);
 
         $user = User::create([
@@ -34,6 +37,8 @@ new class extends Component
             'password' => $data['password'],
             'cefr_level' => $data['cefr_level'],
             'target_band' => $data['target_band'] ?: null,
+            'gender' => $data['gender'],
+            'avatar_style' => User::defaultAvatarStyleForGender($data['gender']),
         ]);
 
         Auth::login($user);
@@ -116,6 +121,17 @@ new class extends Component
                 <option value="">Not sure yet</option>
                 @foreach (User::targetBandOptions() as $band)
                     <option value="{{ $band }}">{{ $band }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Gender <span class="normal-case text-ink-faint dark:text-ink-faint-dark">(optional — just picks a starting avatar style, you can change it later)</span></label>
+            <select
+                wire:model="gender"
+                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+            >
+                @foreach (User::genderOptions() as $code => $label)
+                    <option value="{{ $code }}">{{ $label }}</option>
                 @endforeach
             </select>
         </div>

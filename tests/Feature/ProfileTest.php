@@ -81,6 +81,108 @@ class ProfileTest extends TestCase
         $this->assertSame('accent', $me->fresh()->avatar_color);
     }
 
+    public function test_picking_a_color_does_not_change_the_chosen_avatar_style(): void
+    {
+        $me = User::factory()->create(['avatar_style' => 'long', 'avatar_color' => 'accent']);
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')->call('selectColor', 'rose');
+
+        $me->refresh();
+        $this->assertSame('rose', $me->avatar_color);
+        $this->assertSame('long', $me->avatar_style);
+    }
+
+    public function test_selecting_a_style_updates_it_and_keeps_the_chosen_color(): void
+    {
+        $me = User::factory()->create(['avatar_style' => 'initial', 'avatar_color' => 'violet']);
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')->call('selectAvatarStyle', 'curly');
+
+        $me->refresh();
+        $this->assertSame('curly', $me->avatar_style);
+        $this->assertSame('violet', $me->avatar_color);
+    }
+
+    public function test_an_unrecognized_style_key_is_silently_ignored(): void
+    {
+        $me = User::factory()->create(['avatar_style' => 'initial']);
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')->call('selectAvatarStyle', 'not-a-real-style');
+
+        $this->assertSame('initial', $me->fresh()->avatar_style);
+    }
+
+    public function test_selecting_a_style_clears_any_uploaded_photo(): void
+    {
+        Storage::fake('public');
+        $me = User::factory()->create(['avatar_path' => 'avatars/existing.jpg']);
+        Storage::disk('public')->put('avatars/existing.jpg', 'fake-image-bytes');
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')->call('selectAvatarStyle', 'bob');
+
+        $me->refresh();
+        $this->assertSame('bob', $me->avatar_style);
+        $this->assertNull($me->avatar_path);
+        Storage::disk('public')->assertMissing('avatars/existing.jpg');
+    }
+
+    public function test_setting_a_gender_on_an_untouched_avatar_picks_a_matching_default_style(): void
+    {
+        $me = User::factory()->create(['gender' => 'unspecified', 'avatar_style' => 'initial']);
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')
+            ->set('gender', 'female')
+            ->call('updateBasicInfo');
+
+        $me->refresh();
+        $this->assertSame('female', $me->gender);
+        $this->assertSame('long', $me->avatar_style);
+    }
+
+    public function test_setting_a_gender_never_overrides_an_avatar_style_already_chosen(): void
+    {
+        $me = User::factory()->create(['gender' => 'unspecified', 'avatar_style' => 'curly']);
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')
+            ->set('gender', 'male')
+            ->call('updateBasicInfo');
+
+        $me->refresh();
+        $this->assertSame('male', $me->gender);
+        $this->assertSame('curly', $me->avatar_style);
+    }
+
+    public function test_setting_a_gender_never_overrides_an_uploaded_photo(): void
+    {
+        Storage::fake('public');
+        $me = User::factory()->create(['gender' => 'unspecified', 'avatar_style' => 'initial']);
+        Storage::disk('public')->put('avatars/'.$me->id.'.jpg', 'fake-image-bytes');
+        $me->update(['avatar_path' => 'avatars/'.$me->id.'.jpg']);
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')
+            ->set('gender', 'male')
+            ->call('updateBasicInfo');
+
+        $me->refresh();
+        $this->assertSame('male', $me->gender);
+        $this->assertSame('initial', $me->avatar_style);
+        $this->assertNotNull($me->avatar_path);
+    }
+
     public function test_picking_a_color_clears_any_uploaded_photo(): void
     {
         Storage::fake('public');
