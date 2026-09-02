@@ -78,6 +78,16 @@ class DailyListenStepTest extends TestCase
             ->assertSee("And I'm Georgie.");
     }
 
+    public function test_the_transcript_is_wired_behind_a_show_hide_toggle(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSee('Show transcript')
+            ->assertSeeHtml('showTranscript = !showTranscript')
+            ->assertSeeHtml('x-show="showTranscript"');
+    }
+
     public function test_continue_is_blocked_until_the_audio_has_played_once(): void
     {
         $run = $this->makeRun();
