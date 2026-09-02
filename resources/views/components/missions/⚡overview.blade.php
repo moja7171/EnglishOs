@@ -12,6 +12,18 @@ new class extends Component
         return auth()->user()->vocabularyWords()->where('next_review_at', '<=', now())->count();
     }
 
+    #[Computed]
+    public function justBenefitedFromGrace(): bool
+    {
+        return auth()->user()->justBenefitedFromGrace();
+    }
+
+    #[Computed]
+    public function justLostStreak(): bool
+    {
+        return auth()->user()->justLostStreak();
+    }
+
     /**
      * The full curriculum is 24 missions (EOS-009 §15 roadmap, v3.0); only
      * the ones actually seeded so far are playable. Every slot 1-24 is
@@ -39,6 +51,28 @@ new class extends Component
     <header class="border-b border-line pb-4 dark:border-line-dark">
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
     </header>
+
+    @if ($this->justBenefitedFromGrace)
+        <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-s-fire', 'h-4 w-4')
+            </span>
+            <span class="flex-1">
+                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">You missed a day, but your streak is safe!</span>
+                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">One skipped day never breaks it — keep going.</span>
+            </span>
+        </div>
+    @elseif ($this->justLostStreak)
+        <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-o-trophy', 'h-4 w-4')
+            </span>
+            <span class="flex-1">
+                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Fresh start — your best run was {{ auth()->user()->longestStreak() }} {{ Str::plural('day', auth()->user()->longestStreak()) }}.</span>
+                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Let's see if today can be the start of a new one.</span>
+            </span>
+        </div>
+    @endif
 
     @if ($this->dueWordsCount)
         <a

@@ -11,6 +11,12 @@ new class extends Component
 {
     public string $search = '';
 
+    #[Computed]
+    public function friendsActiveTodayCount(): int
+    {
+        return auth()->user()->mutualFriendsActiveTodayCount();
+    }
+
     /** @var array<int, string> keyed by user id — shows the report textarea for that row */
     public array $reporting = [];
 
@@ -157,6 +163,13 @@ new class extends Component
             <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Follow classmates, cheer each other on, and message anyone who follows you back.</p>
         </div>
     </header>
+
+    @if ($this->friendsActiveTodayCount)
+        <p class="flex items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
+            @svg('heroicon-s-fire', 'h-3.5 w-3.5 text-accent-ink dark:text-accent-ink-dark')
+            {{ $this->friendsActiveTodayCount }} {{ Str::plural('friend', $this->friendsActiveTodayCount) }} already practiced today
+        </p>
+    @endif
 
     <div>
         <div class="relative">

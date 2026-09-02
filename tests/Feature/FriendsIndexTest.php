@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Evidence;
 use App\Models\FriendBlock;
+use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -122,5 +125,54 @@ class FriendsIndexTest extends TestCase
             ->call('submitReport', $bob->id);
 
         $this->assertDatabaseCount('friend_reports', 0);
+    }
+
+    public function test_the_active_today_banner_only_counts_real_mutual_friends(): void
+    {
+        $me = User::factory()->create();
+        $mutualActive = User::factory()->create();
+        $mutualInactive = User::factory()->create();
+        $oneWay = User::factory()->create();
+
+        $me->follow($mutualActive);
+        $mutualActive->follow($me);
+        $me->follow($mutualInactive);
+        $mutualInactive->follow($me);
+        $me->follow($oneWay);
+
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]);
+
+        foreach ([$mutualActive, $oneWay] as $user) {
+            Evidence::create([
+                'mission_run_id' => MissionRun::findOrStart($user, $mission)->id,
+                'phase' => 'mission_brief',
+                'type' => Evidence::TYPE_SCORE,
+                'content_ref' => '3',
+            ]);
+        }
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSee('1 friend already practiced today');
+    }
+
+    public function test_no_active_today_banner_when_no_mutual_friend_has_practiced(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertDontSee('already practiced today');
     }
 }

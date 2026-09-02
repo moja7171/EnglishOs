@@ -37,6 +37,16 @@ new class extends Component
 
     public ?string $error = null;
 
+    /**
+     * Set once, inside getResult() — never in readOnly mode, and never
+     * recomputed on every render, since streakMilestoneJustReached() has
+     * a side effect (marks the milestone celebrated). Reviewing an old,
+     * already-graded mission later must never replay — or worse,
+     * incorrectly attribute — a celebration for a threshold actually
+     * crossed during some other, later mission.
+     */
+    public ?int $milestoneJustReached = null;
+
     public function mount(): void
     {
         foreach ($this->skills() as $skill) {
@@ -169,7 +179,7 @@ new class extends Component
             $data = json_decode(trim($raw), true);
 
             if (! is_array($data) || ! isset($data['status'], $data['reason'])) {
-                throw new \RuntimeException('Unexpected AI response format.');
+                throw new RuntimeException('Unexpected AI response format.');
             }
 
             $this->status = $data['status'];
@@ -178,7 +188,8 @@ new class extends Component
             // existing step in this mission is ever offered as a link.
             $weakStep = $data['weak_step'] ?? null;
             $this->weakStep = in_array($weakStep, $this->run->mission->stepKeys(), true) ? $weakStep : null;
-        } catch (\Throwable $e) {
+            $this->milestoneJustReached = $this->run->learner->streakMilestoneJustReached();
+        } catch (Throwable $e) {
             $this->error = "Couldn't get your result from the AI Instructor: {$e->getMessage()}";
         } finally {
             $this->loading = false;
@@ -365,7 +376,23 @@ new class extends Component
         </div>
     @else
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-            @if ($streak = $this->run->learner->currentStreak())
+            @if ($milestoneJustReached)
+                <div class="mb-3 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 text-center dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
+                        @svg('heroicon-s-trophy', 'h-5 w-5')
+                    </span>
+                    <p class="mt-1.5 text-sm font-bold text-accent-ink dark:text-accent-ink-dark">{{ $milestoneJustReached }}-day streak!</p>
+                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
+                        @if ($milestoneJustReached === 7)
+                            A full week of practice — real momentum is building.
+                        @elseif ($milestoneJustReached === 30)
+                            A whole month, consistently — that's a real habit now.
+                        @else
+                            100 days. That's not a habit anymore — that's just who you are now.
+                        @endif
+                    </p>
+                </div>
+            @elseif ($streak = $this->run->learner->currentStreak())
                 <p class="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
                     @svg('heroicon-s-fire', 'h-3.5 w-3.5')
                     {{ $streak === 1 ? "You're on a 1-day streak — nice start!" : "You're on a {$streak}-day streak — keep it going!" }}

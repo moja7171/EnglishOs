@@ -114,4 +114,70 @@ class UserVocabularyAndProgressTest extends TestCase
         Livewire::test('profile')
             ->assertSee('Complete 2+ missions and any pattern in your mistakes will show up here.');
     }
+
+    public function test_setting_a_weekly_goal_saves_it(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->set('weeklyGoalDays', '5')
+            ->call('updateWeeklyGoal')
+            ->assertSet('weeklyGoalSaved', true);
+
+        $this->assertSame(5, $learner->fresh()->weekly_goal_days);
+    }
+
+    public function test_clearing_the_weekly_goal_sets_it_back_to_no_goal(): void
+    {
+        $learner = User::factory()->create(['weekly_goal_days' => 5]);
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->set('weeklyGoalDays', '')
+            ->call('updateWeeklyGoal');
+
+        $this->assertNull($learner->fresh()->weekly_goal_days);
+    }
+
+    public function test_an_invalid_weekly_goal_value_is_ignored(): void
+    {
+        $learner = User::factory()->create(['weekly_goal_days' => 5]);
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->set('weeklyGoalDays', '99')
+            ->call('updateWeeklyGoal')
+            ->assertSet('weeklyGoalSaved', false);
+
+        $this->assertSame(5, $learner->fresh()->weekly_goal_days);
+    }
+
+    public function test_the_progress_tab_shows_progress_toward_the_weekly_goal(): void
+    {
+        $learner = User::factory()->create(['weekly_goal_days' => 5]);
+        $run = $this->makeRun($learner, 'M01');
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->assertSet('progressStats.activeDaysThisWeek', 1)
+            ->assertSee('1 of 5 days this week');
+    }
+
+    public function test_the_progress_tab_renders_the_activity_calendar(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->assertSee('Last 12 weeks')
+            ->assertSet('progressStats.calendar', fn ($calendar) => count($calendar) === 84);
+    }
 }

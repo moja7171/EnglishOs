@@ -273,6 +273,70 @@ class MissionResultStepTest extends TestCase
             ->assertDontSee('day streak');
     }
 
+    public function test_reaching_a_7_day_streak_shows_the_milestone_celebration(): void
+    {
+        $run = $this->makeRun();
+
+        for ($i = 1; $i < 7; $i++) {
+            $evidence = Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => 'mission_brief',
+                'type' => Evidence::TYPE_SCORE,
+                'content_ref' => '3',
+            ]);
+            $evidence->forceFill(['created_at' => now()->subDays($i)])->saveQuietly();
+        }
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]); // today, completes the 7-day streak
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('7-day streak!')
+            ->assertSee('A full week of practice');
+
+        $this->assertSame(7, $run->learner->fresh()->celebrated_streak_milestone);
+    }
+
+    public function test_the_milestone_celebration_is_never_shown_in_read_only_mode(): void
+    {
+        $run = $this->makeRun();
+
+        for ($i = 0; $i < 7; $i++) {
+            $evidence = Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => 'mission_brief',
+                'type' => Evidence::TYPE_SCORE,
+                'content_ref' => '3',
+            ]);
+            $evidence->forceFill(['created_at' => now()->subDays($i)])->saveQuietly();
+        }
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_result',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['status' => 'complete', 'reason' => 'Nice work.']),
+        ]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
+            ->assertDontSee('day streak!');
+
+        $this->assertSame(0, $run->learner->fresh()->celebrated_streak_milestone);
+    }
+
     public function test_a_non_complete_status_offers_to_review_the_flagged_step(): void
     {
         $run = $this->makeRun();

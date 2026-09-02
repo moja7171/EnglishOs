@@ -20,6 +20,11 @@ new class extends Component
 
     public string $gender = 'unspecified';
 
+    /** '' means "no goal" — wire:model on a <select> needs a string, not null. */
+    public string $weeklyGoalDays = '';
+
+    public bool $weeklyGoalSaved = false;
+
     public ?UploadedFile $newAvatar = null;
 
     public string $currentPassword = '';
@@ -40,6 +45,7 @@ new class extends Component
         $this->cefr_level = $user->cefr_level ?? 'B1';
         $this->target_band = $user->target_band ?? '';
         $this->gender = $user->gender ?? 'unspecified';
+        $this->weeklyGoalDays = $user->weekly_goal_days ? (string) $user->weekly_goal_days : '';
     }
 
     /**
@@ -49,7 +55,7 @@ new class extends Component
      * themselves in one place — this tab is purely a mirror onto data
      * that already exists, no new tracking added.
      *
-     * @return array{currentStreak: int, longestStreak: int, missionsCompleted: int, vocabularyCount: int, topError: ?ErrorLogItem}
+     * @return array{currentStreak: int, longestStreak: int, missionsCompleted: int, vocabularyCount: int, topError: ?ErrorLogItem, calendar: list<array{date: string, label: string, active: bool, future: bool}>, activeDaysThisWeek: int}
      */
     #[Computed]
     public function progressStats(): array
@@ -62,7 +68,30 @@ new class extends Component
             'missionsCompleted' => $user->missionsCompletedCount(),
             'vocabularyCount' => $user->vocabularyWordsSelected()->count(),
             'topError' => $user->topRecurringError(),
+            'calendar' => $user->activityCalendar(),
+            'activeDaysThisWeek' => $user->activeDaysThisWeek(),
         ];
+    }
+
+    /**
+     * A plain manual check, not $this->validate() — the <select> only ever
+     * offers "no goal" (empty string) or 1-7, and Laravel's "nullable"
+     * rule only skips other rules for a genuine null, not an empty
+     * string, so "nullable|in:1..7" would reject the very value the UI's
+     * own empty option submits.
+     */
+    public function updateWeeklyGoal(): void
+    {
+        $this->weeklyGoalSaved = false;
+
+        if ($this->weeklyGoalDays !== '' && ! in_array($this->weeklyGoalDays, ['1', '2', '3', '4', '5', '6', '7'], true)) {
+            return;
+        }
+
+        auth()->user()->update(['weekly_goal_days' => $this->weeklyGoalDays !== '' ? (int) $this->weeklyGoalDays : null]);
+
+        unset($this->progressStats);
+        $this->weeklyGoalSaved = true;
     }
 
     public function updateBasicInfo(): void
@@ -450,6 +479,76 @@ new class extends Component
                     @svg('heroicon-o-book-open', 'h-3.5 w-3.5') Words learned
                 </p>
                 <p class="mt-1 text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->progressStats['vocabularyCount'] }}</p>
+            </div>
+        </div>
+
+        <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Weekly goal</p>
+                    @if (auth()->user()->weekly_goal_days)
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->progressStats['activeDaysThisWeek'] }} of {{ auth()->user()->weekly_goal_days }} days this week</p>
+                    @else
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Set a goal to track your week here.</p>
+                    @endif
+                </div>
+                <form wire:submit="updateWeeklyGoal" class="flex items-center gap-2">
+                    <select
+                        wire:model="weeklyGoalDays"
+                        class="rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+                    >
+                        <option value="">No goal</option>
+                        @foreach (range(1, 7) as $n)
+                            <option value="{{ $n }}">{{ $n }} {{ Str::plural('day', $n) }}/week</option>
+                        @endforeach
+                    </select>
+                    <button
+                        type="submit"
+                        class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >Save</button>
+                </form>
+            </div>
+
+            @if (auth()->user()->weekly_goal_days)
+                <div class="mt-2">
+                    <x-progress-bar>
+                        <div
+                            class="h-full rounded-full transition-all duration-300 {{ $this->progressStats['activeDaysThisWeek'] >= auth()->user()->weekly_goal_days ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark' }}"
+                            style="width: {{ min($this->progressStats['activeDaysThisWeek'] / auth()->user()->weekly_goal_days, 1) * 100 }}%"
+                        ></div>
+                    </x-progress-bar>
+                </div>
+            @endif
+
+            @if ($weeklyGoalSaved)
+                <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
+                    @svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Saved
+                </p>
+            @endif
+        </div>
+
+        <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Activity</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Last 12 weeks</p>
+            <div class="mt-2 overflow-x-auto">
+                <div class="grid w-fit grid-flow-col grid-rows-7 gap-1">
+                    @foreach ($this->progressStats['calendar'] as $day)
+                        <span
+                            title="{{ $day['label'] }}{{ $day['active'] ? ' — practiced' : '' }}"
+                            class="h-3 w-3 rounded-sm {{ $day['future']
+                                ? 'bg-transparent'
+                                : ($day['active']
+                                    ? 'bg-accent dark:bg-accent-dark'
+                                    : 'bg-surface-sunken dark:bg-surface-sunken-dark') }}"
+                        ></span>
+                    @endforeach
+                </div>
+            </div>
+            <div class="mt-2 flex items-center gap-1.5 text-[11px] text-ink-faint dark:text-ink-faint-dark">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-sm bg-surface-sunken dark:bg-surface-sunken-dark"></span>
+                No activity
+                <span class="ml-2 h-2.5 w-2.5 shrink-0 rounded-sm bg-accent dark:bg-accent-dark"></span>
+                Practiced
             </div>
         </div>
 
