@@ -4,14 +4,22 @@ use App\Models\DirectMessage;
 use App\Models\FriendBlock;
 use App\Models\FriendReport;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use WithFileUploads;
+
     public User $other;
 
     public string $body = '';
+
+    public ?UploadedFile $voiceMessage = null;
+
+    public ?UploadedFile $attachment = null;
 
     public bool $reporting = false;
 
@@ -43,6 +51,64 @@ new class extends Component
         ]);
 
         $this->body = '';
+        unset($this->thread);
+    }
+
+    /**
+     * Called automatically once <x-voice-recorder>'s upload finishes —
+     * same "record, then auto-submit" pattern as Activation and the AI
+     * Conversation steps, just landing here as a message instead of
+     * Evidence. Stored on the private disk (see the migration + the
+     * friends.attachment route), never Storage::disk('public').
+     */
+    public function sendVoiceMessage(): void
+    {
+        abort_unless(auth()->user()->canMessageWith($this->other), 403);
+
+        if (! $this->voiceMessage) {
+            return;
+        }
+
+        $path = $this->voiceMessage->store('direct-messages/'.auth()->id(), 'local');
+
+        DirectMessage::create([
+            'sender_id' => auth()->id(),
+            'recipient_id' => $this->other->id,
+            'type' => DirectMessage::TYPE_AUDIO,
+            'body' => 'Voice message',
+            'attachment_path' => $path,
+            'attachment_name' => 'voice-message.webm',
+            'attachment_mime' => $this->voiceMessage->getMimeType(),
+        ]);
+
+        $this->voiceMessage = null;
+        unset($this->thread);
+    }
+
+    public function sendFile(): void
+    {
+        abort_unless(auth()->user()->canMessageWith($this->other), 403);
+
+        $this->validate([
+            // 15MB, and an explicit allowlist — never trust the browser's
+            // claimed extension alone, but this at least keeps obviously
+            // dangerous types (executables, scripts) out from the start.
+            'attachment' => ['required', 'file', 'max:15360', 'extensions:pdf,doc,docx,txt,jpg,jpeg,png,webp,gif,mp3,wav,m4a,webm'],
+        ]);
+
+        $path = $this->attachment->store('direct-messages/'.auth()->id(), 'local');
+
+        DirectMessage::create([
+            'sender_id' => auth()->id(),
+            'recipient_id' => $this->other->id,
+            'type' => DirectMessage::TYPE_FILE,
+            'body' => $this->attachment->getClientOriginalName(),
+            'attachment_path' => $path,
+            'attachment_name' => $this->attachment->getClientOriginalName(),
+            'attachment_mime' => $this->attachment->getMimeType(),
+        ]);
+
+        $this->attachment = null;
         unset($this->thread);
     }
 
@@ -155,6 +221,18 @@ new class extends Component
                             : 'border border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark') }}">
                     @if ($message->type === 'nudge')
                         <span class="inline-flex items-center gap-1 font-semibold">@svg('heroicon-s-fire', 'h-3.5 w-3.5') {{ $message->body }}</span>
+                    @elseif ($message->type === 'audio')
+                        <div class="min-w-56">
+                            <x-audio-player :url="route('friends.attachment', $message)" />
+                        </div>
+                    @elseif ($message->type === 'file')
+                        <a
+                            href="{{ route('friends.attachment', $message) }}"
+                            class="inline-flex items-center gap-1.5 {{ $mine ? 'text-ground dark:text-ground-dark' : 'text-ink dark:text-ink-dark' }}"
+                        >
+                            @svg('heroicon-o-paper-clip', 'h-4 w-4 shrink-0')
+                            <span class="underline decoration-dotted underline-offset-2">{{ $message->attachment_name }}</span>
+                        </a>
                     @else
                         {{ $message->body }}
                     @endif
@@ -165,12 +243,16 @@ new class extends Component
         @endforelse
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
         <button
             type="button"
             wire:click="sendNudge"
             class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-accent-soft px-3 py-2 text-xs font-semibold text-accent-ink transition-colors hover:bg-accent-soft dark:border-accent-soft-dark dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark"
         >@svg('heroicon-s-fire', 'h-3.5 w-3.5') Nudge</button>
+
+        <div wire:key="voice-recorder-{{ $other->id }}">
+            <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" />
+        </div>
 
         <form wire:submit="send" class="flex flex-1 items-center gap-2">
             <input
@@ -184,5 +266,28 @@ new class extends Component
                 class="cursor-pointer rounded-full bg-accent px-4 py-2 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
             >Send</button>
         </form>
+    </div>
+
+    <div class="flex items-center gap-2">
+        <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+            @svg('heroicon-o-paper-clip', 'h-3.5 w-3.5')
+            <span wire:loading.remove wire:target="attachment">Attach a file</span>
+            <span wire:loading wire:target="attachment">Uploading…</span>
+            <input type="file" wire:model="attachment" class="hidden">
+        </label>
+
+        @if ($attachment)
+            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $attachment->getClientOriginalName() }}</span>
+            <button
+                type="button"
+                wire:click="sendFile"
+                wire:loading.attr="disabled"
+                class="cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+            >Send file</button>
+        @endif
+
+        @error('attachment')
+            <span class="text-xs text-red-600">{{ $message }}</span>
+        @enderror
     </div>
 </div>
