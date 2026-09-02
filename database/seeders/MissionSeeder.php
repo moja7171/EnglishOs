@@ -373,7 +373,8 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'error_log',
                                 'label' => 'Error Log',
-                                'duration_minutes' => 6,
+                                // Was 6 — bumped for the optional AI-generated fill-in-the-blank drills.
+                                'duration_minutes' => 7,
                                 'hook' => 'Mistakes are proof you tried something new. Let\'s fix a few, for good.',
                             ],
                             [
