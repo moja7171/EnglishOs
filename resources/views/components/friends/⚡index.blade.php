@@ -2,7 +2,6 @@
 
 use App\Models\FriendBlock;
 use App\Models\FriendReport;
-use App\Models\MissionRun;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -85,7 +84,7 @@ new class extends Component
     {
         return [
             'streak' => $user->currentStreak(),
-            'missionsCompleted' => $user->missionRuns()->where('status', MissionRun::STATUS_COMPLETE)->count(),
+            'missionsCompleted' => $user->missionsCompletedCount(),
         ];
     }
 

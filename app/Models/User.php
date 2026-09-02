@@ -166,6 +166,31 @@ class User extends Authenticatable
         return $this->hasMany(MissionRun::class, 'learner_id');
     }
 
+    public function missionsCompletedCount(): int
+    {
+        return $this->missionRuns()->where('status', MissionRun::STATUS_COMPLETE)->count();
+    }
+
+    /**
+     * Every distinct word/phrase this learner has ever picked in
+     * Vocabulary Builder, across every mission — reuses
+     * MissionRun::selectedVocabularyWords() per run rather than
+     * re-decoding the Evidence JSON itself, so there's exactly one place
+     * that knows that shape. Feeds Profile's "My Progress" tab; not yet
+     * tied to any review/mastery tracking (see the vocabulary notebook
+     * feature for that).
+     *
+     * @return Collection<int, string>
+     */
+    public function vocabularyWordsSelected(): Collection
+    {
+        return $this->missionRuns()
+            ->get()
+            ->flatMap(fn (MissionRun $run) => $run->selectedVocabularyWords())
+            ->unique()
+            ->values();
+    }
+
     /**
      * A natural-language description of this learner's self-reported CEFR
      * level, meant to be dropped directly into an AI systemPrompt (see

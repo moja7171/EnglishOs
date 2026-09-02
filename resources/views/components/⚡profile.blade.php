@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\ErrorLogItem;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -38,6 +40,29 @@ new class extends Component
         $this->cefr_level = $user->cefr_level ?? 'B1';
         $this->target_band = $user->target_band ?? '';
         $this->gender = $user->gender ?? 'unspecified';
+    }
+
+    /**
+     * Everything here is already computed elsewhere in the app
+     * (streak/missions on Friends' list, top recurring error on Active
+     * Recall and Mission Result) but never shown to the learner
+     * themselves in one place — this tab is purely a mirror onto data
+     * that already exists, no new tracking added.
+     *
+     * @return array{currentStreak: int, longestStreak: int, missionsCompleted: int, vocabularyCount: int, topError: ?ErrorLogItem}
+     */
+    #[Computed]
+    public function progressStats(): array
+    {
+        $user = auth()->user();
+
+        return [
+            'currentStreak' => $user->currentStreak(),
+            'longestStreak' => $user->longestStreak(),
+            'missionsCompleted' => $user->missionsCompletedCount(),
+            'vocabularyCount' => $user->vocabularyWordsSelected()->count(),
+            'topError' => $user->topRecurringError(),
+        ];
     }
 
     public function updateBasicInfo(): void
@@ -240,6 +265,7 @@ new class extends Component
         :tabs="[
             'avatar' => 'Avatar',
             'basic-info' => 'Basic info',
+            'progress' => 'My progress',
             'privacy' => 'Privacy',
             'password' => 'Password',
         ]"
@@ -395,6 +421,53 @@ new class extends Component
             @endif
         </div>
     </form>
+
+    {{-- My progress --}}
+    <div x-show="activeTab === 'progress'" x-cloak class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <p class="text-sm font-semibold text-ink dark:text-ink-dark">My progress</p>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
+                    @svg('heroicon-s-fire', 'h-3.5 w-3.5') Current streak
+                </p>
+                <p class="mt-1 text-2xl font-extrabold text-accent-ink dark:text-accent-ink-dark">{{ $this->progressStats['currentStreak'] }}</p>
+            </div>
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
+                    @svg('heroicon-o-trophy', 'h-3.5 w-3.5') Longest streak
+                </p>
+                <p class="mt-1 text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->progressStats['longestStreak'] }}</p>
+            </div>
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
+                    @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') Missions completed
+                </p>
+                <p class="mt-1 text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->progressStats['missionsCompleted'] }}</p>
+            </div>
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
+                    @svg('heroicon-o-book-open', 'h-3.5 w-3.5') Words learned
+                </p>
+                <p class="mt-1 text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->progressStats['vocabularyCount'] }}</p>
+            </div>
+        </div>
+
+        @if ($topError = $this->progressStats['topError'])
+            <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950">
+                <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
+                    @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Your most recurring mistake
+                </p>
+                <p class="mt-1 text-sm text-ink dark:text-ink-dark">
+                    <span class="text-red-600 line-through decoration-red-500">{{ $topError->error }}</span>
+                    <span class="text-success dark:text-success-dark">{{ $topError->correction }}</span>
+                </p>
+                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — Active Recall keeps bringing it back for extra practice.</p>
+            </div>
+        @else
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Complete 2+ missions and any pattern in your mistakes will show up here.</p>
+        @endif
+    </div>
 
     {{-- Privacy --}}
     <div x-show="activeTab === 'privacy'" x-cloak class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
