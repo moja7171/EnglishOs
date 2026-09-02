@@ -337,7 +337,8 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'writing',
                                 'label' => 'Writing',
-                                'duration_minutes' => 12,
+                                // Was 12 — bumped for the AI feedback recap (strength/expression/correction).
+                                'duration_minutes' => 14,
                                 'hook' => 'Putting it on paper often reveals what you actually think about your own day.',
                                 'title' => 'A typical day in my life',
                                 'prompts' => ['Morning', 'Work / Study', 'Afternoon', 'Evening', 'Free Time', 'Weekend'],
