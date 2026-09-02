@@ -4,6 +4,7 @@ use App\Models\FriendBlock;
 use App\Models\FriendReport;
 use App\Models\MissionRun;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -94,7 +95,7 @@ new class extends Component
      * block quietly removes both sides from each other's view everywhere
      * in this component, not just from starting a new conversation.
      *
-     * @return \Illuminate\Support\Collection<int, int>
+     * @return Collection<int, int>
      */
     private function blockedUserIds()
     {
@@ -141,46 +142,60 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
+<div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
     </a>
 
-    <header>
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>
-        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Follow classmates, cheer each other on, and message anyone who follows you back.</p>
+    <header class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+            @svg('heroicon-s-user-group', 'h-5 w-5')
+        </span>
+        <div>
+            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>
+            <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Follow classmates, cheer each other on, and message anyone who follows you back.</p>
+        </div>
     </header>
 
     <div>
-        <input
-            type="text"
-            wire:model.live.debounce.300ms="search"
-            placeholder="Search by name…"
-            class="w-full rounded-full border border-line bg-transparent px-4 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-        >
+        <div class="relative">
+            <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-ink-faint dark:text-ink-faint-dark">
+                @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+            </span>
+            <input
+                type="text"
+                wire:model.live.debounce.300ms="search"
+                placeholder="Search by name…"
+                class="w-full rounded-full border border-line bg-surface py-2.5 pr-4 pl-10 text-sm text-ink shadow-sm transition-colors focus:border-accent focus:outline-none dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:focus:border-accent-dark"
+            >
+        </div>
 
         @if (trim($search) !== '')
             <div class="mt-3 space-y-2">
                 @forelse ($this->searchResults as $user)
-                    <div class="flex items-center justify-between gap-3 rounded-xl border border-line px-3.5 py-2.5 dark:border-line-dark">
-                        <span class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $user->name }}</span>
+                    <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface px-3.5 py-2.5 shadow-sm dark:border-line-dark dark:bg-surface-dark">
+                        <x-avatar-initial :name="$user->name" class="h-9 w-9 text-xs" />
+                        <span class="flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $user->name }}</span>
                         @if (auth()->user()->isFollowing($user))
                             <button
                                 type="button"
                                 wire:click="unfollow({{ $user->id }})"
-                                class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                                class="shrink-0 cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                             >Following</button>
                         @else
                             <button
                                 type="button"
                                 wire:click="follow({{ $user->id }})"
-                                class="cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                                class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
                             >Follow</button>
                         @endif
                     </div>
                 @empty
-                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No one found with that name.</p>
+                    <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-6 text-center dark:border-line-dark">
+                        @svg('heroicon-o-face-frown', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
+                        <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No one found with that name.</p>
+                    </div>
                 @endforelse
             </div>
         @endif
@@ -188,30 +203,35 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Following ({{ $this->following->count() }})</p>
-        <div class="mt-2 space-y-2">
+        <div class="mt-2 space-y-2.5">
             @forelse ($this->following as $friend)
                 @php $stats = $this->stats($friend); $mutual = auth()->user()->isMutualWith($friend); @endphp
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
-                            <p class="mt-0.5 flex items-center gap-3 text-xs text-ink-faint dark:text-ink-faint-dark">
+                <div class="rounded-2xl border border-line bg-surface p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-line-dark dark:bg-surface-dark">
+                    <div class="flex items-center gap-3">
+                        <x-avatar-initial :name="$friend->name" class="h-11 w-11 text-sm" />
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
+                            <div class="mt-1 flex flex-wrap items-center gap-1.5">
                                 @if ($stats['streak'] > 0)
-                                    <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
-                                        @svg('heroicon-s-fire', 'h-3.5 w-3.5')
-                                        {{ $stats['streak'] }}
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                                        @svg('heroicon-s-fire', 'h-3 w-3')
+                                        {{ $stats['streak'] }}-day streak
                                     </span>
                                 @endif
-                                <span>{{ $stats['missionsCompleted'] }} {{ Str::plural('mission', $stats['missionsCompleted']) }} completed</span>
-                            </p>
+                                <span class="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2 py-0.5 text-[11px] font-medium text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
+                                    @svg('heroicon-o-check-badge', 'h-3 w-3')
+                                    {{ $stats['missionsCompleted'] }} {{ Str::plural('mission', $stats['missionsCompleted']) }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="flex shrink-0 items-center gap-2">
+                        <div class="flex shrink-0 items-center gap-1.5">
                             @if ($mutual)
                                 <a
                                     href="{{ route('friends.conversation', $friend) }}"
                                     wire:navigate
-                                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
-                                >@svg('heroicon-o-chat-bubble-left-right', 'h-3.5 w-3.5') Message</a>
+                                    title="Message"
+                                    class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-ink text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
+                                >@svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4')</a>
                             @endif
                             <button
                                 type="button"
@@ -222,30 +242,30 @@ new class extends Component
                     </div>
 
                     @if (! $mutual)
-                        <p class="mt-2 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                        <p class="mt-2.5 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
                             @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
                             They don't follow you back yet — messaging unlocks once they do.
                         </p>
                     @endif
 
-                    <div class="mt-2 flex items-center gap-3">
-                        @if (! isset($reporting[$friend->id]))
+                    @if (! isset($reporting[$friend->id]))
+                        <div class="mt-2.5 flex items-center gap-1 border-t border-line pt-2.5 dark:border-line-dark">
                             <button
                                 type="button"
                                 wire:click="block({{ $friend->id }})"
                                 wire:confirm="Block {{ $friend->name }}? They won't be able to message you, and you won't see each other's activity."
-                                class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-red-600 dark:text-ink-faint-dark"
-                            >Block</button>
+                                title="Block"
+                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-red-100 hover:text-red-600 dark:text-ink-faint-dark dark:hover:bg-red-950"
+                            >@svg('heroicon-o-no-symbol', 'h-3.5 w-3.5')</button>
                             <button
                                 type="button"
                                 wire:click="startReport({{ $friend->id }})"
-                                class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-red-600 dark:text-ink-faint-dark"
-                            >Report</button>
-                        @endif
-                    </div>
-
-                    @if (isset($reporting[$friend->id]))
-                        <div class="mt-2 space-y-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950">
+                                title="Report"
+                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                            >@svg('heroicon-o-flag', 'h-3.5 w-3.5')</button>
+                        </div>
+                    @else
+                        <div class="mt-2.5 space-y-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950">
                             <textarea
                                 wire:model="reportReason.{{ $friend->id }}"
                                 rows="2"
@@ -268,7 +288,10 @@ new class extends Component
                     @endif
                 </div>
             @empty
-                <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Search above to follow your first classmate.</p>
+                <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-8 text-center dark:border-line-dark">
+                    @svg('heroicon-o-user-plus', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
+                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Search above to follow your first classmate.</p>
+                </div>
             @endforelse
         </div>
     </div>
@@ -276,9 +299,10 @@ new class extends Component
     @if ($this->followers->count())
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Followers ({{ $this->followers->count() }})</p>
-            <div class="mt-2 flex flex-wrap gap-1.5">
+            <div class="mt-2 flex flex-wrap gap-2">
                 @foreach ($this->followers as $follower)
-                    <span class="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">
+                    <span class="inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pr-3 pl-1 text-xs text-ink-soft shadow-sm dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">
+                        <x-avatar-initial :name="$follower->name" class="h-5 w-5 text-[10px]" />
                         {{ $follower->name }}
                         @if (! auth()->user()->isFollowing($follower))
                             <button type="button" wire:click="follow({{ $follower->id }})" class="cursor-pointer font-semibold text-accent-ink hover:opacity-80 dark:text-accent-ink-dark">Follow back</button>

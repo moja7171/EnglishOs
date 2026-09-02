@@ -336,9 +336,7 @@ new class extends Component
 
     <div class="flex items-center justify-between rounded-2xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
         <div class="flex items-center gap-3">
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-soft font-display text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                {{ mb_strtoupper(mb_substr($other->name, 0, 1)) }}
-            </span>
+            <x-avatar-initial :name="$other->name" class="h-10 w-10 text-sm" />
             <div>
                 <h1 class="font-display text-base font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
                 @if ($streak = $other->currentStreak())
