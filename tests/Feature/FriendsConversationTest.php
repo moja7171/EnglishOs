@@ -76,6 +76,86 @@ class FriendsConversationTest extends TestCase
         ]);
     }
 
+    public function test_the_emoji_picker_is_wired_with_the_curated_set(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSeeHtml('showEmoji = !showEmoji')
+            ->assertSee('😀')
+            ->assertSeeHtml("\$wire.body = \$wire.body + '😀'");
+    }
+
+    public function test_read_receipts_reflect_whether_the_message_was_read(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $unread = DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Unread one.']);
+        $read = DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Already read.', 'read_at' => now()]);
+
+        $this->actingAs($me);
+
+        $html = Livewire::test('friends.conversation', ['other' => $bob])->html();
+
+        $this->assertStringContainsString('title="Sent"', $html);
+        $this->assertStringContainsString('title="Read"', $html);
+    }
+
+    public function test_consecutive_messages_from_the_same_sender_are_visually_grouped(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'First.']);
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Second, right after.']);
+
+        $this->actingAs($me);
+
+        $html = Livewire::test('friends.conversation', ['other' => $bob])->html();
+
+        // The second consecutive message from the same sender gets the
+        // tighter "grouped" spacing, not the normal turn spacing.
+        $this->assertStringContainsString('mt-0.5', $html);
+    }
+
+    public function test_the_header_shows_an_avatar_initial_and_the_others_streak(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Priya']);
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]);
+        Evidence::create([
+            'mission_run_id' => MissionRun::findOrStart($bob, $mission)->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('P') // avatar initial
+            ->assertSee('1-day streak');
+    }
+
     public function test_a_prefill_query_param_pre_fills_the_composer(): void
     {
         $me = User::factory()->create();

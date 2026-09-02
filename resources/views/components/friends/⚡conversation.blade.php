@@ -32,6 +32,23 @@ new class extends Component
 
     public ?string $feedbackError = null;
 
+    /**
+     * A small curated set rather than a full picker library — no new
+     * dependency, no external CDN call, just plain UTF-8 characters
+     * appended straight into the composer.
+     *
+     * @return list<string>
+     */
+    public function emojis(): array
+    {
+        return [
+            '😀', '😂', '😊', '😍', '🥰', '😘', '😉', '😎',
+            '🤔', '😅', '😢', '😭', '😮', '😴', '🙄', '😇',
+            '👍', '👎', '👏', '🙌', '🤝', '🙏', '💪', '✌️',
+            '❤️', '🔥', '✨', '🎉', '🎯', '💯', '⭐', '👋',
+        ];
+    }
+
     public function mount(): void
     {
         // Strictly 1:1 by design (see User::canMessageWith) — a one-way
@@ -310,17 +327,41 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
+<div class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6" x-data="{ showEmoji: false }">
     <a href="{{ route('friends.index') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         Friends
     </a>
 
-    <div class="flex items-center justify-between">
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
+    <div class="flex items-center justify-between rounded-2xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
         <div class="flex items-center gap-3">
-            <button type="button" wire:click="block" wire:confirm="Block {{ $other->name }}? They won't be able to message you." class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-red-600 dark:text-ink-faint-dark">Block</button>
-            <button type="button" wire:click="$set('reporting', true)" class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-red-600 dark:text-ink-faint-dark">Report</button>
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-soft font-display text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                {{ mb_strtoupper(mb_substr($other->name, 0, 1)) }}
+            </span>
+            <div>
+                <h1 class="font-display text-base font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
+                @if ($streak = $other->currentStreak())
+                    <p class="inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                        @svg('heroicon-s-fire', 'h-3 w-3 text-accent-ink dark:text-accent-ink-dark')
+                        {{ $streak }}-day streak
+                    </p>
+                @endif
+            </div>
+        </div>
+        <div class="flex items-center gap-1">
+            <button
+                type="button"
+                wire:click="$set('reporting', true)"
+                title="Report"
+                class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+            >@svg('heroicon-o-flag', 'h-4 w-4')</button>
+            <button
+                type="button"
+                wire:click="block"
+                wire:confirm="Block {{ $other->name }}? They won't be able to message you."
+                title="Block"
+                class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-red-100 hover:text-red-600 dark:text-ink-faint-dark dark:hover:bg-red-950"
+            >@svg('heroicon-o-no-symbol', 'h-4 w-4')</button>
         </div>
     </div>
 
@@ -340,40 +381,68 @@ new class extends Component
         </div>
     @endif
 
-    <div wire:poll.5s="$refresh" class="space-y-2 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+    {{-- Chat wallpaper — a subtle dot-grid texture (self-hosted CSS, no
+         image/network dependency) instead of a flat card, so the thread
+         reads as its own "room" the way real chat apps frame a
+         conversation. --}}
+    <div
+        wire:poll.5s="$refresh"
+        class="max-h-[28rem] space-y-0.5 overflow-y-auto rounded-2xl border border-line p-4 dark:border-line-dark"
+        style="background-color: var(--color-surface-sunken); background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 10%, transparent) 1px, transparent 1px); background-size: 18px 18px;"
+    >
         @forelse ($this->thread as $message)
-            @php $mine = $message->sender_id === auth()->id(); @endphp
-            <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }}">
-                <div class="max-w-[75%] rounded-2xl px-3 py-2 text-sm
+            @php
+                $mine = $message->sender_id === auth()->id();
+                $previous = $this->thread[$loop->index - 1] ?? null;
+                $grouped = $previous && $previous->sender_id === $message->sender_id && $previous->type !== 'nudge' && $message->type !== 'nudge';
+            @endphp
+            <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }} {{ $grouped ? 'mt-0.5' : 'mt-2.5' }}">
+                <div class="max-w-[75%] px-3 py-2 text-sm shadow-sm
                     {{ $message->type === 'nudge'
-                        ? 'border border-accent-soft bg-accent-soft/60 text-accent-ink dark:border-accent-soft-dark dark:bg-accent-soft-dark/60 dark:text-accent-ink-dark'
+                        ? 'rounded-2xl border border-accent-soft bg-accent-soft/60 text-accent-ink dark:border-accent-soft-dark dark:bg-accent-soft-dark/60 dark:text-accent-ink-dark'
                         : ($mine
-                            ? 'bg-ink text-ground dark:bg-ink-dark dark:text-ground-dark'
-                            : 'border border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark') }}">
+                            ? 'rounded-2xl rounded-br-sm bg-accent text-white dark:bg-accent-dark'
+                            : 'rounded-2xl rounded-bl-sm border border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark') }}">
                     @if ($message->type === 'nudge')
                         <span class="inline-flex items-center gap-1 font-semibold">@svg('heroicon-s-fire', 'h-3.5 w-3.5') {{ $message->body }}</span>
                     @elseif ($message->type === 'audio')
                         <div class="min-w-56">
                             <x-audio-player :url="route('friends.attachment', $message)" />
                             @if ($message->body && $message->body !== 'Voice message')
-                                <p class="mt-1.5 text-xs {{ $mine ? 'text-ground/70 dark:text-ground-dark/70' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $message->body }}</p>
+                                <p class="mt-1.5 text-xs {{ $mine ? 'text-white/75 dark:text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $message->body }}</p>
                             @endif
                         </div>
                     @elseif ($message->type === 'file')
                         <a
                             href="{{ route('friends.attachment', $message) }}"
-                            class="inline-flex items-center gap-1.5 {{ $mine ? 'text-ground dark:text-ground-dark' : 'text-ink dark:text-ink-dark' }}"
+                            class="inline-flex items-center gap-1.5 {{ $mine ? 'text-white dark:text-white' : 'text-ink dark:text-ink-dark' }}"
                         >
                             @svg('heroicon-o-paper-clip', 'h-4 w-4 shrink-0')
                             <span class="underline decoration-dotted underline-offset-2">{{ $message->attachment_name }}</span>
                         </a>
                     @else
-                        {{ $message->body }}
+                        <span class="break-words">{{ $message->body }}</span>
                     @endif
+
+                    <div class="mt-1 flex items-center justify-end gap-1 {{ $mine ? 'text-white/70 dark:text-white/70' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+                        <span class="text-[10px] tabular-nums">{{ $message->created_at->format('g:i A') }}</span>
+                        @if ($mine && $message->type !== 'nudge')
+                            <span
+                                class="relative inline-flex h-3 w-4 shrink-0 items-center {{ $message->read_at ? 'opacity-100' : 'opacity-60' }}"
+                                title="{{ $message->read_at ? 'Read' : 'Sent' }}"
+                            >
+                                @svg('heroicon-s-check', 'absolute left-0 h-3 w-3')
+                                @svg('heroicon-s-check', 'absolute left-1 h-3 w-3')
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
         @empty
-            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No messages yet — say hello!</p>
+            <div class="flex h-full min-h-32 flex-col items-center justify-center gap-2 py-8 text-center">
+                @svg('heroicon-o-chat-bubble-left-right', 'h-8 w-8 text-ink-faint/50 dark:text-ink-faint-dark/50')
+                <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No messages yet — say hello!</p>
+            </div>
         @endforelse
     </div>
 
@@ -425,25 +494,6 @@ new class extends Component
             class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full border border-accent-soft px-3 py-2 text-xs font-semibold text-accent-ink transition-colors hover:bg-accent-soft dark:border-accent-soft-dark dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark"
         >@svg('heroicon-s-fire', 'h-3.5 w-3.5') Nudge</button>
 
-        <div wire:key="voice-recorder-{{ $other->id }}">
-            <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" />
-        </div>
-
-        <form wire:submit="send" class="flex flex-1 items-center gap-2">
-            <input
-                type="text"
-                wire:model="body"
-                placeholder="Message {{ $other->name }}…"
-                class="w-full rounded-full border border-line bg-transparent px-4 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            >
-            <button
-                type="submit"
-                class="cursor-pointer rounded-full bg-accent px-4 py-2 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-            >Send</button>
-        </form>
-    </div>
-
-    <div class="flex items-center gap-2">
         <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
             @svg('heroicon-o-paper-clip', 'h-3.5 w-3.5')
             <span wire:loading.remove wire:target="attachment">Attach a file</span>
@@ -464,5 +514,51 @@ new class extends Component
         @error('attachment')
             <span class="text-xs text-red-600">{{ $message }}</span>
         @enderror
+    </div>
+
+    {{-- Composer — emoji picker, text input, and the voice recorder all in
+         one bar, closer to a real chat app's input row than three
+         separate stacked controls. --}}
+    <div class="relative flex items-center gap-1.5 rounded-full border border-line bg-surface p-1.5 dark:border-line-dark dark:bg-surface-dark">
+        <button
+            type="button"
+            x-on:click="showEmoji = !showEmoji"
+            class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+        >@svg('heroicon-o-face-smile', 'h-5 w-5')</button>
+
+        <div
+            x-show="showEmoji"
+            x-cloak
+            x-on:click.outside="showEmoji = false"
+            x-transition.opacity.duration.150ms
+            class="absolute bottom-full left-0 z-10 mb-2 grid w-64 grid-cols-8 gap-0.5 rounded-2xl border border-line bg-surface p-2 shadow-lg dark:border-line-dark dark:bg-surface-dark"
+        >
+            @foreach ($this->emojis() as $emoji)
+                <button
+                    type="button"
+                    x-on:click="$wire.body = $wire.body + '{{ $emoji }}'"
+                    class="cursor-pointer rounded-lg py-1 text-lg transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
+                >{{ $emoji }}</button>
+            @endforeach
+        </div>
+
+        <form wire:submit="send" class="flex flex-1 items-center gap-1.5">
+            <input
+                type="text"
+                wire:model="body"
+                placeholder="Message {{ $other->name }}…"
+                x-on:focus="showEmoji = false"
+                class="w-full rounded-full border-0 bg-transparent px-2 py-1.5 text-sm text-ink focus:outline-none dark:text-ink-dark"
+            >
+            <button
+                type="submit"
+                title="Send"
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
+        </form>
+
+        <div wire:key="voice-recorder-{{ $other->id }}" class="shrink-0">
+            <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" />
+        </div>
     </div>
 </div>
