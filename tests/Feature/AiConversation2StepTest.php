@@ -59,10 +59,13 @@ class AiConversation2StepTest extends TestCase
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
-                ->times(3)
+                ->times(6)
                 ->andReturn(
+                    json_encode(['severity' => 'none', 'hint' => '']),
                     'What time do you leave for work?',
+                    json_encode(['severity' => 'none', 'hint' => '']),
                     'What do you enjoy most about weekends?',
+                    json_encode(['severity' => 'none', 'hint' => '']),
                     json_encode([
                         'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false],
                         'note' => 'Good use of Present Simple, try more vocabulary next time.',
@@ -118,7 +121,16 @@ class AiConversation2StepTest extends TestCase
                 ->andReturn('answer 1', 'answer 2', 'final answer');
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(2)->andReturn('a follow-up question');
+            $mock->shouldReceive('chat')
+                ->times(5)
+                ->andReturn(
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'a follow-up question',
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'a follow-up question',
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                )
+                ->ordered();
             $mock->shouldReceive('chat')
                 ->once()
                 ->withArgs(function (array $messages, ?string $systemPrompt) {
@@ -130,7 +142,8 @@ class AiConversation2StepTest extends TestCase
                 ->andReturn(json_encode([
                     'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => true],
                     'note' => 'Great use of your target words.',
-                ]));
+                ]))
+                ->ordered();
         });
 
         $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
@@ -194,10 +207,13 @@ class AiConversation2StepTest extends TestCase
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
-                ->times(3)
+                ->times(6)
                 ->andReturn(
+                    json_encode(['severity' => 'none', 'hint' => '']),
                     'What time do you leave for work?',
+                    json_encode(['severity' => 'none', 'hint' => '']),
                     'What do you enjoy most about weekends?',
+                    json_encode(['severity' => 'none', 'hint' => '']),
                     json_encode(['requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false], 'note' => 'Good job.'])
                 );
         });
@@ -227,7 +243,12 @@ class AiConversation2StepTest extends TestCase
                 ->andReturn('I get up and go to work.', 'Weekends are more relaxed.');
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(2)->andReturn('Reaction one.', 'Reaction two.');
+            $mock->shouldReceive('chat')->times(4)->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'Reaction one.',
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'Reaction two.',
+            );
         });
 
         $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
@@ -242,6 +263,87 @@ class AiConversation2StepTest extends TestCase
             ->assertSeeHtml('data-text="Speak for 3 minutes about your daily life."')
             ->assertSee('Read aloud')
             ->assertDontSeeHtml('x-init');
+    }
+
+    public function test_an_off_topic_round_answer_is_not_advanced_and_shows_an_encouraging_hint(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('Pizza is great.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'severity' => 'major',
+            'hint' => "That's not quite about your weekday — want to try again?",
+        ])));
+
+        Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
+            ->set('audioFile', UploadedFile::fake()->create('r1.webm', 100, 'audio/webm'))
+            ->call('submitRoundAnswer')
+            ->assertSet('roundIndex', 0)
+            ->assertSet('turns', [])
+            ->assertSee("That's not quite about your weekday — want to try again?");
+    }
+
+    public function test_an_off_topic_final_challenge_is_not_graded_and_shows_an_encouraging_hint(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')
+                ->times(3)
+                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'Pizza is my favorite food.');
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(5)->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'What time do you leave for work?',
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'What do you enjoy most about weekends?',
+                json_encode(['severity' => 'major', 'hint' => "That's not about your daily life — want to try again?"]),
+            );
+        });
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+
+        foreach (['r1.webm', 'r2.webm'] as $file) {
+            $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitRoundAnswer');
+        }
+
+        $component
+            ->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
+            ->call('submitFinalChallenge')
+            ->assertSet('checklist', null)
+            ->assertSee("That's not about your daily life — want to try again?");
+    }
+
+    public function test_after_3_off_topic_final_challenge_attempts_an_example_can_be_revealed(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->times(3)->andReturn('a', 'b', 'c'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(3)->andReturn(
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+        ));
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $component->set('roundIndex', 2); // skip straight to the final stage
+
+        foreach (['a.webm', 'b.webm', 'c.webm'] as $file) {
+            $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitFinalChallenge');
+        }
+
+        $component->assertSet('offerReveal.final', true);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('I usually wake up early and go to work.'));
+
+        $component->call('revealExample', 'final')
+            ->assertSet('exampleAnswer.final', 'I usually wake up early and go to work.')
+            ->assertSet('checkAttempts.final', 0)
+            ->assertSee('I usually wake up early and go to work.');
     }
 
     public function test_read_only_review_never_wires_up_speech(): void

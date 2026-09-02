@@ -1,9 +1,11 @@
 <?php
 
+use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -11,6 +13,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use WithFileUploads;
+    use TracksCheckAttempts;
 
     public MissionRun $run;
 
@@ -26,6 +29,12 @@ new class extends Component
     public bool $processing = false;
 
     public ?string $error = null;
+
+    /** @var array<int, string> keyed by round — set when the last spoken attempt was off-topic/empty */
+    public array $offTopicHint = [];
+
+    /** @var array<int, string> keyed by round — an example answer, shown only after 3 off-topic attempts */
+    public array $exampleAnswer = [];
 
     /**
      * True once every question has been answered and Evidence is saved —
@@ -59,15 +68,33 @@ new class extends Component
     public function submitAnswer(): void
     {
         $this->error = null;
+        $this->processing = true;
+        $round = $this->round;
 
         $this->validate([
             'audioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
         ]);
 
-        $this->processing = true;
-
         try {
             $answer = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $this->audioFile = null;
+
+            $check = app(SpokenAnswerChecker::class)->checkRelevance(
+                $this->currentQuestion,
+                $answer,
+                $this->run->learner->levelDescription(),
+                $this->run->aiToneGuidance(),
+            );
+
+            $this->trackCheckAttempt($round, $check['severity']);
+
+            if ($check['severity'] === 'major') {
+                $this->offTopicHint[$round] = $check['hint'];
+
+                return;
+            }
+
+            unset($this->offTopicHint[$round], $this->exampleAnswer[$round]);
 
             $followup = trim(app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Interview question: \"{$this->currentQuestion}\"\nLearner's answer: \"{$answer}\""]],
@@ -86,7 +113,6 @@ new class extends Component
             ];
 
             $this->round++;
-            $this->audioFile = null;
 
             if ($this->round >= count($this->questions)) {
                 $this->finish();
@@ -96,6 +122,29 @@ new class extends Component
         } finally {
             $this->processing = false;
         }
+    }
+
+    /**
+     * Offered only after 3 genuinely off-topic/empty attempts on the same
+     * question — see TracksCheckAttempts. Shows an example, never fills
+     * anything in for them: they still have to record their own answer.
+     */
+    public function revealExample(int $round): void
+    {
+        try {
+            $this->exampleAnswer[$round] = app(SpokenAnswerChecker::class)->suggestExample(
+                $this->questions[$round],
+                $this->run->learner->levelDescription(),
+            );
+            $this->clearCheckAttempt($round);
+        } catch (\Throwable $e) {
+            $this->error = "Couldn't get an example: {$e->getMessage()}";
+        }
+    }
+
+    public function declineExample(int $round): void
+    {
+        $this->declineCheckReveal($round);
     }
 
     private function finish(): void
@@ -206,6 +255,30 @@ new class extends Component
             </div>
 
             <x-ai-thinking wire:loading wire:target="submitAnswer" label="Transcribing and thinking of a follow-up…" class="mt-3" />
+
+            @if ($exampleAnswer[$round] ?? null)
+                <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                    <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer[$round] }}</p>
+                </div>
+            @elseif ($offTopicHint[$round] ?? null)
+                <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint[$round]]" />
+            @endif
+
+            @unless ($readOnly)
+                <x-almost-reveal-notice
+                    :show="($checkAttempts[$round] ?? 0) === 2"
+                    label="One more try — after that I can suggest an example to help you get started."
+                />
+                <x-reveal-offer
+                    :show="$offerReveal[$round] ?? false"
+                    reveal-method="revealExample"
+                    decline-method="declineExample"
+                    :index="$round"
+                    wire-target="submitAnswer,revealExample,declineExample"
+                    label="Want an example to help you get started?"
+                />
+            @endunless
 
             @error('audioFile')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

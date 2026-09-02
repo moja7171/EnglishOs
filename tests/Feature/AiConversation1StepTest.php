@@ -58,7 +58,12 @@ class AiConversation1StepTest extends TestCase
             $mock->shouldReceive('transcribe')->twice()->andReturn('I wake up at seven.', 'I have breakfast and go to work.');
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->twice()->andReturn('Do you always wake up at the same time?', 'How do you get to work?');
+            $mock->shouldReceive('chat')->times(4)->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'Do you always wake up at the same time?',
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'How do you get to work?',
+            );
         });
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
@@ -121,9 +126,12 @@ class AiConversation1StepTest extends TestCase
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
+                ->twice()
                 ->withArgs(fn ($_messages, $systemPrompt) => str_contains($systemPrompt, 'extra warm and encouraging'))
-                ->once()
-                ->andReturn('Do you always wake up at the same time?');
+                ->andReturn(
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'Do you always wake up at the same time?',
+                );
         });
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
@@ -199,7 +207,12 @@ class AiConversation1StepTest extends TestCase
         $friend->follow($run->learner);
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Every day?'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->twice()->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'Every day?',
+            );
+        });
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
@@ -207,6 +220,79 @@ class AiConversation1StepTest extends TestCase
             ->assertSee('Do this with a partner')
             ->assertSee('Priya')
             ->assertSeeHtml(route('missions.practice-with-friend', ['mission' => $run->mission, 'step' => 'ai_conversation_1', 'friend' => $friend]));
+    }
+
+    public function test_an_off_topic_answer_is_not_advanced_and_shows_an_encouraging_hint(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun(questionCount: 2);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('Pizza is great.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'severity' => 'major',
+            'hint' => "That's not quite about your morning — want to try again?",
+        ])));
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSet('round', 0) // never advances
+            ->assertSet('turns', [])
+            ->assertSee("That's not quite about your morning — want to try again?");
+
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_a_relevant_answer_is_never_flagged_for_grammar(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun(questionCount: 1);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up early I go work'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($_messages, $systemPrompt) => str_contains($systemPrompt, 'Do NOT judge grammar'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']))
+                ->ordered();
+            $mock->shouldReceive('chat')
+                ->once()
+                ->andReturn('What time?')
+                ->ordered();
+        });
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSet('round', 1);
+    }
+
+    public function test_after_3_off_topic_attempts_an_example_can_be_revealed(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun(questionCount: 1);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->times(3)->andReturn('a', 'b', 'c'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(3)->andReturn(
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+        ));
+
+        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
+
+        foreach (['a.webm', 'b.webm', 'c.webm'] as $file) {
+            $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitAnswer');
+        }
+
+        $component->assertSet('offerReveal.0', true);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('I usually wake up at seven.'));
+
+        $component->call('revealExample', 0)
+            ->assertSet('exampleAnswer.0', 'I usually wake up at seven.')
+            ->assertSet('checkAttempts.0', 0)
+            ->assertSee('I usually wake up at seven.');
     }
 
     public function test_read_only_review_never_wires_up_speech(): void

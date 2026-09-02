@@ -316,7 +316,8 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                'duration_minutes' => 10,
+                                // Was 10 — bumped since an off-topic spoken answer now asks for a retry.
+                                'duration_minutes' => 12,
                                 'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
                                 // Real interview questions from Mission01.pdf "Speaking Session 01".
                                 'interview_questions' => [
@@ -381,7 +382,8 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
-                                'duration_minutes' => 10,
+                                // Was 10 — bumped since an off-topic spoken answer now asks for a retry.
+                                'duration_minutes' => 12,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
                                 // Real rounds + requirements from Mission01.pdf "Speaking Session 02".
                                 'rounds' => [

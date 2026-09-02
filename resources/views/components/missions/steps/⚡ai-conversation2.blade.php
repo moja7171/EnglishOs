@@ -1,9 +1,11 @@
 <?php
 
+use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -11,6 +13,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use WithFileUploads;
+    use TracksCheckAttempts;
 
     public MissionRun $run;
 
@@ -33,6 +36,12 @@ new class extends Component
     public bool $processing = false;
 
     public ?string $error = null;
+
+    /** @var array<int, string> keyed by round — set when the last spoken attempt was off-topic/empty. Final Challenge uses key "final". */
+    public array $offTopicHint = [];
+
+    /** @var array<int, string> keyed the same way — an example answer, shown only after 3 off-topic attempts */
+    public array $exampleAnswer = [];
 
     public function mount(): void
     {
@@ -76,13 +85,31 @@ new class extends Component
     public function submitRoundAnswer(): void
     {
         $this->error = null;
+        $this->processing = true;
+        $roundIndex = $this->roundIndex;
 
         $this->validate(['audioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480']]);
 
-        $this->processing = true;
-
         try {
             $answer = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $this->audioFile = null;
+
+            $check = app(SpokenAnswerChecker::class)->checkRelevance(
+                $this->currentRoundPrompt,
+                $answer,
+                $this->run->learner->levelDescription(),
+                $this->run->aiToneGuidance(),
+            );
+
+            $this->trackCheckAttempt($roundIndex, $check['severity']);
+
+            if ($check['severity'] === 'major') {
+                $this->offTopicHint[$roundIndex] = $check['hint'];
+
+                return;
+            }
+
+            unset($this->offTopicHint[$roundIndex], $this->exampleAnswer[$roundIndex]);
 
             $followup = trim(app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Prompt: \"{$this->currentRoundPrompt}\"\nLearner's spoken response: \"{$answer}\""]],
@@ -94,7 +121,6 @@ new class extends Component
 
             $this->turns[] = ['prompt' => $this->currentRoundPrompt, 'answer' => $answer, 'followup' => $followup];
             $this->roundIndex++;
-            $this->audioFile = null;
         } catch (\Throwable $e) {
             $this->error = "Something went wrong talking to the AI Instructor: {$e->getMessage()}";
         } finally {
@@ -102,16 +128,60 @@ new class extends Component
         }
     }
 
+    /**
+     * Offered only after 3 genuinely off-topic/empty attempts on the same
+     * round/prompt — see TracksCheckAttempts. $key is a round index or the
+     * string "final" for the Final Challenge; never fills anything in for
+     * the learner, just gives them a starting idea.
+     */
+    public function revealExample(int|string $key): void
+    {
+        try {
+            $prompt = $key === 'final' ? $this->finalPrompt : $this->rounds[$key];
+
+            $this->exampleAnswer[$key] = app(SpokenAnswerChecker::class)->suggestExample(
+                $prompt,
+                $this->run->learner->levelDescription(),
+            );
+            $this->clearCheckAttempt($key);
+        } catch (\Throwable $e) {
+            $this->error = "Couldn't get an example: {$e->getMessage()}";
+        }
+    }
+
+    public function declineExample(int|string $key): void
+    {
+        $this->declineCheckReveal($key);
+    }
+
     public function submitFinalChallenge(): void
     {
         $this->error = null;
+        $this->processing = true;
 
         $this->validate(['audioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480']]);
 
-        $this->processing = true;
-
         try {
-            $this->finalTranscript = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $transcript = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $this->audioFile = null;
+
+            $check = app(SpokenAnswerChecker::class)->checkRelevance(
+                $this->finalPrompt,
+                $transcript,
+                $this->run->learner->levelDescription(),
+                $this->run->aiToneGuidance(),
+            );
+
+            $this->trackCheckAttempt('final', $check['severity']);
+
+            if ($check['severity'] === 'major') {
+                $this->offTopicHint['final'] = $check['hint'];
+
+                return;
+            }
+
+            unset($this->offTopicHint['final'], $this->exampleAnswer['final']);
+            $this->finalTranscript = $transcript;
 
             $requirementList = collect($this->requirements)->map(fn ($r) => "\"{$r}\"")->implode(', ');
 
@@ -215,6 +285,30 @@ new class extends Component
             </div>
 
             <p wire:loading wire:target="submitRoundAnswer" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
+
+            @if ($exampleAnswer[$roundIndex] ?? null)
+                <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                    <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer[$roundIndex] }}</p>
+                </div>
+            @elseif ($offTopicHint[$roundIndex] ?? null)
+                <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint[$roundIndex]]" />
+            @endif
+
+            @unless ($readOnly)
+                <x-almost-reveal-notice
+                    :show="($checkAttempts[$roundIndex] ?? 0) === 2"
+                    label="One more try — after that I can suggest an example to help you get started."
+                />
+                <x-reveal-offer
+                    :show="$offerReveal[$roundIndex] ?? false"
+                    reveal-method="revealExample"
+                    decline-method="declineExample"
+                    :index="$roundIndex"
+                    wire-target="submitRoundAnswer,revealExample,declineExample"
+                    label="Want an example to help you get started?"
+                />
+            @endunless
         </div>
     @elseif (! $checklist)
         <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
@@ -242,6 +336,30 @@ new class extends Component
             <p wire:loading wire:target="submitFinalChallenge" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">
                 Checking your answer against the requirements…
             </p>
+
+            @if ($exampleAnswer['final'] ?? null)
+                <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                    <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer['final'] }}</p>
+                </div>
+            @elseif ($offTopicHint['final'] ?? null)
+                <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint['final']]" />
+            @endif
+
+            @unless ($readOnly)
+                <x-almost-reveal-notice
+                    :show="($checkAttempts['final'] ?? 0) === 2"
+                    label="One more try — after that I can suggest an example to help you get started."
+                />
+                <x-reveal-offer
+                    :show="$offerReveal['final'] ?? false"
+                    reveal-method="revealExample"
+                    decline-method="declineExample"
+                    index="final"
+                    wire-target="submitFinalChallenge,revealExample,declineExample"
+                    label="Want an example to help you get started?"
+                />
+            @endunless
         </div>
     @else
         <div class="space-y-3">
