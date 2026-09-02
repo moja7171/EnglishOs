@@ -62,6 +62,31 @@ new class extends Component
         return $this->run->mission->stepContent('mission_result')['reflection_questions'] ?? [];
     }
 
+    /**
+     * Which of the learner's own Vocabulary Builder picks actually turned
+     * up somewhere in their real output this mission (AI Conversation,
+     * Writing, Activation, Active Recall — see MissionRun::allLearnerText())
+     * — a plain case-insensitive substring check, deliberately not an AI
+     * call: this is just closing the loop on a word list already threaded
+     * through the whole mission, not a new judgment worth an API round-trip.
+     *
+     * @return list<array{word: string, used: bool}>
+     */
+    public function getVocabularyUsageProperty(): array
+    {
+        $words = $this->run->selectedVocabularyWords();
+
+        if (! $words) {
+            return [];
+        }
+
+        $haystack = strtolower($this->run->allLearnerText());
+
+        return collect($words)
+            ->map(fn ($word) => ['word' => $word, 'used' => str_contains($haystack, strtolower($word))])
+            ->all();
+    }
+
     public function getResult(): void
     {
         $this->error = null;
@@ -289,6 +314,28 @@ new class extends Component
                             </div>
                         </div>
                     @endforeach
+                </div>
+            @endif
+
+            @if (count($this->vocabularyUsage))
+                @php $usedCount = collect($this->vocabularyUsage)->where('used', true)->count(); @endphp
+                <div class="mt-4">
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
+                        Vocabulary — {{ $usedCount }} of {{ count($this->vocabularyUsage) }} words used
+                    </p>
+                    <div class="mt-1.5 flex flex-wrap gap-1.5">
+                        @foreach ($this->vocabularyUsage as $item)
+                            <span class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs
+                                {{ $item['used']
+                                    ? 'border-success/30 bg-success-soft text-success dark:border-success-dark/30 dark:bg-success-soft-dark dark:text-success-dark'
+                                    : 'border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark' }}">
+                                @if ($item['used'])
+                                    @svg('heroicon-o-check-circle', 'h-3 w-3')
+                                @endif
+                                {{ $item['word'] }}
+                            </span>
+                        @endforeach
+                    </div>
                 </div>
             @endif
         </div>

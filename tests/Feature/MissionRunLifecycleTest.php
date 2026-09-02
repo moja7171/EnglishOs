@@ -40,6 +40,76 @@ class MissionRunLifecycleTest extends TestCase
         ]);
     }
 
+    public function test_all_learner_text_pulls_from_every_prose_bearing_phase(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_1',
+            'type' => Evidence::TYPE_TRANSCRIPT,
+            'content_ref' => json_encode([['question' => 'Q', 'answer' => 'I wake up early.', 'followup' => 'F']]),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_2',
+            'type' => Evidence::TYPE_TRANSCRIPT,
+            'content_ref' => json_encode([
+                'rounds' => [['prompt' => 'P', 'answer' => 'I commute by bus.', 'followup' => 'F']],
+                'final_transcript' => 'I usually have breakfast at eight.',
+            ]),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'writing',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => 'A typical day starts with a shower.',
+        ]);
+        // Two Evidence rows for the same phase, text then audio — the
+        // audio one (a plain storage URL, not JSON) must never be the one
+        // picked for text extraction.
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['sentences' => ['I exercise in the evening.'], 'transcript' => 'I go to bed at eleven.']),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'http://localhost/storage/missions/m01/evidence/speaking.webm',
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'active_recall',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['expressions' => ['have a shower'], 'listening_facts' => [], 'present_simple_sentences' => []]),
+        ]);
+
+        $text = $run->allLearnerText();
+
+        $this->assertStringContainsString('I wake up early.', $text);
+        $this->assertStringContainsString('I commute by bus.', $text);
+        $this->assertStringContainsString('I usually have breakfast at eight.', $text);
+        $this->assertStringContainsString('A typical day starts with a shower.', $text);
+        $this->assertStringContainsString('I exercise in the evening.', $text);
+        $this->assertStringContainsString('I go to bed at eleven.', $text);
+        $this->assertStringContainsString('have a shower', $text);
+        $this->assertStringNotContainsString('speaking.webm', $text);
+    }
+
+    public function test_all_learner_text_is_empty_for_a_fresh_run(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->assertSame('', $run->allLearnerText());
+    }
+
     public function test_step_keys_are_flattened_in_order(): void
     {
         $mission = $this->makeMission();

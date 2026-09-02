@@ -119,6 +119,53 @@ class MissionRun extends Model
     }
 
     /**
+     * Every substantial piece of English the learner actually produced
+     * across this run — AI Conversation transcripts, Writing, Activation's
+     * spoken transcript, and Active Recall's own-word recall attempts.
+     * Centralizes what was previously a private duplicate in Error Log's
+     * mistake-extraction; also used by Mission Result's vocabulary-usage
+     * recap. Deliberately excludes Vocabulary Builder's own example
+     * sentences and Grammar in Context's drills — those are graded
+     * in-place already, not raw prose worth re-scanning here.
+     */
+    public function allLearnerText(): string
+    {
+        $pieces = [];
+
+        if ($conv1 = $this->latestEvidence('ai_conversation_1')) {
+            $turns = json_decode($conv1->content_ref, true) ?? [];
+            $pieces[] = collect($turns)->pluck('answer')->implode(' ');
+        }
+
+        if ($conv2 = $this->latestEvidence('ai_conversation_2')) {
+            $data = json_decode($conv2->content_ref, true) ?? [];
+            $pieces[] = collect($data['rounds'] ?? [])->pluck('answer')->implode(' ');
+            $pieces[] = $data['final_transcript'] ?? '';
+        }
+
+        if ($writing = $this->latestEvidence('writing')) {
+            $pieces[] = $writing->content_ref;
+        }
+
+        // Activation has two Evidence rows for the same phase (text, then
+        // audio) — filter explicitly rather than latestEvidence(), whose
+        // "most recent" is ambiguous between them when both save in the
+        // same request.
+        if ($activation = $this->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($activation->content_ref, true) ?? [];
+            $pieces[] = collect($data['sentences'] ?? [])->implode(' ');
+            $pieces[] = $data['transcript'] ?? '';
+        }
+
+        if ($activeRecall = $this->latestEvidence('active_recall')) {
+            $data = json_decode($activeRecall->content_ref, true) ?? [];
+            $pieces[] = collect($data['expressions'] ?? [])->implode(' ');
+        }
+
+        return implode("\n\n", array_filter($pieces));
+    }
+
+    /**
      * The exact vocabulary words the learner picked in Vocabulary Builder —
      * the thread later steps (Writing suggestions, Active Recall, the Final
      * Challenge's grading) pull from so the words actually studied get

@@ -75,7 +75,7 @@ new class extends Component
         $this->loading = true;
 
         try {
-            $text = $this->gatherLearnerText();
+            $text = $this->run->allLearnerText();
 
             if (trim($text) === '') {
                 $this->mistakes = [];
@@ -166,28 +166,6 @@ new class extends Component
         ]);
 
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
-    }
-
-    private function gatherLearnerText(): string
-    {
-        $pieces = [];
-
-        if ($conv1 = $this->run->evidence()->where('phase', 'ai_conversation_1')->latest()->first()) {
-            $turns = json_decode($conv1->content_ref, true) ?? [];
-            $pieces[] = collect($turns)->pluck('answer')->implode(' ');
-        }
-
-        if ($conv2 = $this->run->evidence()->where('phase', 'ai_conversation_2')->latest()->first()) {
-            $data = json_decode($conv2->content_ref, true) ?? [];
-            $pieces[] = collect($data['rounds'] ?? [])->pluck('answer')->implode(' ');
-            $pieces[] = $data['final_transcript'] ?? '';
-        }
-
-        if ($writing = $this->run->evidence()->where('phase', 'writing')->latest()->first()) {
-            $pieces[] = $writing->content_ref;
-        }
-
-        return implode("\n\n", array_filter($pieces));
     }
 };
 ?>

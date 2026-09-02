@@ -113,6 +113,58 @@ class MissionResultStepTest extends TestCase
             ->assertSee('3 → 3 (0)');
     }
 
+    public function test_the_result_shows_which_target_vocabulary_words_were_actually_used(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['selected_words' => ['wake up', 'commute', 'have a shower']]),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'writing',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => 'Every morning I wake up early and commute to work by bus.',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('2 of 3 words used')
+            ->assertSee('wake up')
+            ->assertSee('commute')
+            ->assertSee('have a shower');
+    }
+
+    public function test_no_vocabulary_section_renders_without_a_selection(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertDontSee('words used');
+    }
+
     public function test_read_only_mode_loads_the_saved_decision_without_calling_gemini(): void
     {
         $run = $this->makeRun();
