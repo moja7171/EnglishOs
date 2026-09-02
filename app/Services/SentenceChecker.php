@@ -19,19 +19,19 @@ class SentenceChecker
 
     /**
      * @param  string  $judgment  This check's primary judgment, e.g. "Judge
-     *   whether the learner used the target word correctly, naturally, and
-     *   as a genuine personal sentence (not just repeating the dictionary
-     *   definition)."
+     *                            whether the learner used the target word correctly, naturally, and
+     *                            as a genuine personal sentence (not just repeating the dictionary
+     *                            definition)."
      * @param  string  $majorCriteria  What counts as a real ("major")
-     *   problem beyond "it is not real English", e.g. "the word is missing
-     *   or used with the wrong meaning, the sentence just repeats the
-     *   definition".
+     *                                 problem beyond "it is not real English", e.g. "the word is missing
+     *                                 or used with the wrong meaning, the sentence just repeats the
+     *                                 definition".
      * @param  string  $context  What this specific text is meant to be,
-     *   given to the AI alongside the learner's text.
+     *                           given to the AI alongside the learner's text.
      * @param  string  $text  The learner's actual sentence.
      * @param  string|null  $extraGuidance  Any additional rule specific to
-     *   this check, appended after the shared rules (e.g. a instruction not
-     *   to fact-check details the AI wasn't given).
+     *                                      this check, appended after the shared rules (e.g. a instruction not
+     *                                      to fact-check details the AI wasn't given).
      * @return array{severity: string, hint: string}
      */
     public function check(
@@ -69,17 +69,28 @@ class SentenceChecker
     {
         return trim($this->gemini->chat(
             [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
-            systemPrompt: 'You are a supportive English writing assistant helping a B1 learner who has tried '
-                .'several times and is stuck. Rewrite their sentence into a correct, natural version — fixing '
-                .'grammar, spelling, word choice, and tense — while keeping their original personal meaning as '
-                .'much as possible. Reply with ONLY the corrected sentence, no quotation marks, no explanation, '
-                .'nothing else.'
+            systemPrompt: 'You are a supportive English writing assistant helping '.$this->learnerDescription().' who '
+                .'has tried several times and is stuck. Rewrite their sentence into a correct, natural version — '
+                .'fixing grammar, spelling, word choice, and tense — while keeping their original personal '
+                .'meaning as much as possible. Reply with ONLY the corrected sentence, no quotation marks, no '
+                .'explanation, nothing else.'
         ));
+    }
+
+    /**
+     * auth()->user() is null in a few unit-style tests that call this
+     * service directly with no authenticated learner — falls back to the
+     * app's original B1 baseline in that case, same as
+     * User::levelDescription()'s own default.
+     */
+    private function learnerDescription(): string
+    {
+        return auth()->user()?->levelDescription() ?? 'a B1 (intermediate) English learner';
     }
 
     private function systemPrompt(string $judgment, string $majorCriteria, ?string $extraGuidance): string
     {
-        $prompt = 'You are a supportive English writing assistant helping a B1 learner. '.$judgment.' A short, '
+        $prompt = 'You are a supportive English writing assistant helping '.$this->learnerDescription().'. '.$judgment.' A short, '
             .'minimal sentence is completely fine — do not ask for more detail. Also check: the spelling of '
             .'every word; that the sentence starts with a capital letter and ends with proper punctuation '
             .'(. ? or !); and that any word is used in the right grammatical form (e.g. not a noun used as a '

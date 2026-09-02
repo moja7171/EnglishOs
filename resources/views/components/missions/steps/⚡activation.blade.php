@@ -239,7 +239,8 @@ new class extends Component
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Transcript: \"{$this->transcript}\""]],
-                systemPrompt: 'You are a supportive English speaking coach. The learner just recorded about 2 '
+                systemPrompt: 'You are a supportive English speaking coach. '.ucfirst($this->run->learner->levelDescription())
+                    .' just recorded about 2 '
                     .'minutes of solo speaking in English about their daily life — this is low-pressure fluency '
                     .'practice, not a graded test.'.$vocabularyContext.' Given the transcript, write a short, '
                     .'warm, simple reflection in PERSIAN (Farsi) — never English, and never grade it or use '

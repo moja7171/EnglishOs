@@ -2,12 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Services\GeminiClient;
 use App\Services\SentenceChecker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SentenceCheckerTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_it_returns_the_parsed_severity_and_hint(): void
     {
         $this->mock(GeminiClient::class, function ($mock) {
@@ -88,6 +92,42 @@ class SentenceCheckerTest extends TestCase
             majorCriteria: 'it makes no sense',
             context: 'a test context',
             text: 'I commute work.',
+        );
+    }
+
+    public function test_it_defaults_to_b1_when_no_learner_is_authenticated(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, 'a B1 (intermediate) English learner'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I commute to work.',
+        );
+    }
+
+    public function test_it_calibrates_to_the_authenticated_learners_own_level(): void
+    {
+        $this->actingAs(User::factory()->create(['cefr_level' => 'A2']));
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, 'an elementary (A2) English learner'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I commute to work.',
         );
     }
 }

@@ -44,6 +44,26 @@ class User extends Authenticatable
     }
 
     /**
+     * A natural-language description of this learner's self-reported CEFR
+     * level, meant to be dropped directly into an AI systemPrompt (see
+     * SentenceChecker and every step's GeminiClient::chat() call) so
+     * grading/conversation difficulty actually calibrates to the learner,
+     * instead of a hardcoded "B1" assumption everywhere. Falls back to the
+     * app's original B1 baseline for a level this map doesn't recognise
+     * (including the column's own default before onboarding sets it).
+     */
+    public function levelDescription(): string
+    {
+        return match ($this->cefr_level) {
+            'A1' => 'an absolute beginner (A1) English learner who is just starting out',
+            'A2' => 'an elementary (A2) English learner who knows basic phrases and simple sentences',
+            'B2' => 'a B2 (upper-intermediate) English learner who is fairly fluent already',
+            'C1' => 'a C1 (advanced) English learner who is highly fluent',
+            default => 'a B1 (intermediate) English learner',
+        };
+    }
+
+    /**
      * The calendar dates (across every Mission, not just one) on which
      * this learner recorded at least one real Evidence row — the unit the
      * learning streak is built from. Deliberately keyed off real Evidence,

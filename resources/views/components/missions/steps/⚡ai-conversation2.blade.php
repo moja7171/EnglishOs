@@ -129,8 +129,9 @@ new class extends Component
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Transcript: \"{$this->finalTranscript}\""]],
-                systemPrompt: 'You are an English teacher checking a B1 learner\'s 3-minute speaking challenge transcript '
-                    ."against a requirements checklist.{$vocabularyContext} For each of these requirements: "
+                systemPrompt: 'You are an English teacher checking the 3-minute speaking challenge transcript of '
+                    .$this->run->learner->levelDescription()
+                    ." against a requirements checklist.{$vocabularyContext} For each of these requirements: "
                     ."[{$requirementList}], decide if the transcript satisfies it. Reply with ONLY valid JSON, no "
                     .'markdown fences: {"requirements": {"<requirement label exactly as given>": true or false, '
                     .'...}, "note": "one short encouraging sentence about their overall performance"}'

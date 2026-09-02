@@ -71,7 +71,8 @@ new class extends Component
 
             $followup = trim(app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Interview question: \"{$this->currentQuestion}\"\nLearner's answer: \"{$answer}\""]],
-                systemPrompt: 'You are a friendly English conversation partner interviewing a B1 learner about their daily '
+                systemPrompt: 'You are a friendly English conversation partner interviewing '
+                    .$this->run->learner->levelDescription().' about their daily '
                     ."life. Given the question you asked and the learner's transcribed spoken answer, reply with exactly "
                     .'ONE short, natural follow-up question (max 15 words) that shows you listened — no preamble, no '
                     .'quotation marks, just the question.'

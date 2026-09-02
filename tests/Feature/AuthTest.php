@@ -51,6 +51,41 @@ class AuthTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'ada@example.com', 'name' => 'Ada Lovelace']);
     }
 
+    public function test_registration_saves_the_learners_self_reported_level_and_target_band(): void
+    {
+        Livewire::test('auth.register')
+            ->set('name', 'Ada Lovelace')
+            ->set('email', 'ada@example.com')
+            ->set('password', 'super-secret')
+            ->set('password_confirmation', 'super-secret')
+            ->set('cefr_level', 'A2')
+            ->set('target_band', '6.5')
+            ->call('register')
+            ->assertRedirect('/');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'ada@example.com',
+            'cefr_level' => 'A2',
+            'target_band' => '6.5',
+        ]);
+    }
+
+    public function test_registration_defaults_to_b1_and_no_target_band_if_left_untouched(): void
+    {
+        Livewire::test('auth.register')
+            ->set('name', 'Ada Lovelace')
+            ->set('email', 'ada@example.com')
+            ->set('password', 'super-secret')
+            ->set('password_confirmation', 'super-secret')
+            ->call('register');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'ada@example.com',
+            'cefr_level' => 'B1',
+            'target_band' => null,
+        ]);
+    }
+
     public function test_registration_requires_matching_password_confirmation(): void
     {
         Livewire::test('auth.register')

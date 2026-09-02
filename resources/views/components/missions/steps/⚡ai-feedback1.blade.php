@@ -50,7 +50,8 @@ new class extends Component
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $transcript]],
-                systemPrompt: "You are an encouraging English teacher reviewing a B1 learner's spoken interview answers. "
+                systemPrompt: 'You are an encouraging English teacher reviewing the spoken interview answers of '
+                    .$this->run->learner->levelDescription().'. '
                     .'Reply with ONLY valid JSON, no markdown fences, no extra text, in exactly this shape: '
                     .'{"strength": "one specific thing they did well, one sentence", '
                     .'"expression": "one good word or phrase they actually used", '

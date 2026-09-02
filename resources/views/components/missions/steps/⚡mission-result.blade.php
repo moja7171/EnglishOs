@@ -79,7 +79,8 @@ new class extends Component
         try {
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $this->buildSummary()]],
-                systemPrompt: 'You are the AI Instructor deciding whether a B1 English learner has completed this '
+                systemPrompt: 'You are the AI Instructor deciding whether '.$this->run->learner->levelDescription()
+                    .' has completed this '
                     .'mission. Based on the summary, reply with ONLY valid JSON, no markdown fences: '
                     .'{"status": "complete" or "needs_review" or "retry_evidence", "reason": "one short, clear, '
                     .'encouraging sentence explaining the decision to the learner"}'

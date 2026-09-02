@@ -51,7 +51,8 @@ new class extends Component
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $text]],
-                systemPrompt: 'You are an English teacher reviewing everything a B1 learner said and wrote during a '
+                systemPrompt: 'You are an English teacher reviewing everything '.$this->run->learner->levelDescription()
+                    .' said and wrote during a '
                     .'lesson. Identify 3 to 5 recurring or notable grammar/vocabulary mistakes. Reply with ONLY a valid '
                     .'JSON array, no markdown fences, no extra text, each item shaped exactly like: '
                     .'{"error": "the mistake as the learner wrote/said it", "correction": "the corrected form"}. '
