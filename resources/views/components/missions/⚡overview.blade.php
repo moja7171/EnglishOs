@@ -31,10 +31,6 @@ new class extends Component
 
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     <header class="border-b border-line pb-4 dark:border-line-dark">
-        <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-ink-faint uppercase dark:text-ink-faint-dark">
-            <span class="h-1.5 w-1.5 rounded-full bg-accent dark:bg-accent-dark"></span>
-            English OS
-        </p>
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
     </header>
 

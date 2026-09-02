@@ -4,12 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'English OS') }}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 <body class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark">
+    <div class="mx-auto max-w-2xl px-6 pt-4">
+        <a href="{{ route('home') }}" wire:navigate class="inline-flex transition-opacity hover:opacity-80">
+            <x-logo icon-class="h-8 w-8" text-class="text-base" />
+        </a>
+    </div>
+
     @auth
-        <div class="mx-auto flex max-w-2xl items-center justify-between px-6 pt-4 text-xs text-ink-faint dark:text-ink-faint-dark">
+        <div class="mx-auto flex max-w-2xl items-center justify-between px-6 pt-3 text-xs text-ink-faint dark:text-ink-faint-dark">
             <span class="flex items-center gap-3">
                 {{ auth()->user()->name }}
                 @if ($streak = auth()->user()->currentStreak())

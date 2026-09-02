@@ -148,10 +148,6 @@ new class extends Component
     </a>
 
     <header>
-        <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-ink-faint uppercase dark:text-ink-faint-dark">
-            <span class="h-1.5 w-1.5 rounded-full bg-accent dark:bg-accent-dark"></span>
-            English OS
-        </p>
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>
         <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Follow classmates, cheer each other on, and message anyone who follows you back.</p>
     </header>
