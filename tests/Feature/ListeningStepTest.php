@@ -518,6 +518,66 @@ class ListeningStepTest extends TestCase
         $this->assertStringNotContainsString('Show transcript', $html);
     }
 
+    private function makeRunWithComprehensionCheck(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'foundation',
+                    'steps' => [
+                        [
+                            'key' => 'listening',
+                            'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
+                            'comprehension_check' => [
+                                ['statement' => 'They are talking about morning routines.', 'correct' => true],
+                                ['statement' => 'Neil often skips breakfast.', 'correct' => false],
+                            ],
+                        ],
+                        ['key' => 'grammar_in_context'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_the_comprehension_check_renders_as_the_first_substep_when_authored(): void
+    {
+        $run = $this->makeRunWithComprehensionCheck();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringContainsString('activeSubstep === 0', $html);
+        $this->assertStringContainsString('They are talking about morning routines.', $html);
+        $this->assertStringContainsString('Neil often skips breakfast.', $html);
+    }
+
+    public function test_the_comprehension_check_never_blocks_moving_to_the_next_substep(): void
+    {
+        $run = $this->makeRunWithComprehensionCheck();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringNotContainsString('activeSubstep === 0 &amp;&amp;', $html);
+    }
+
+    public function test_the_comprehension_check_does_not_render_in_read_only_mode(): void
+    {
+        $run = $this->makeRunWithComprehensionCheck();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run, 'readOnly' => true])->html();
+
+        $this->assertStringNotContainsString('They are talking about morning routines.', $html);
+    }
+
     private function makeRunWithDetailAndGapFill(): MissionRun
     {
         $learner = User::factory()->create();
@@ -538,7 +598,8 @@ class ListeningStepTest extends TestCase
                             ],
                             'detail_question' => [
                                 'question' => 'What time did Neil need to get up to catch his flight?',
-                                'accepted' => ['3am', '3 am', 'three am'],
+                                'options' => ['3am', '7am', '9am'],
+                                'correct' => 0,
                             ],
                         ],
                         ['key' => 'grammar_in_context'],
@@ -552,22 +613,7 @@ class ListeningStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
-    public function test_the_detail_question_is_required_and_blocks_continue_when_empty(): void
-    {
-        $run = $this->makeRunWithDetailAndGapFill();
-
-        Livewire::test('missions.steps.listening', ['run' => $run])
-            ->set('gistPoints.0', 'They talk about morning routines.')
-            ->set('gistPoints.1', 'Some people get up early or late.')
-            ->set('gistPoints.2', 'They mention breakfast habits.')
-            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
-            ->call('save')
-            ->assertHasErrors(['detailAnswer']);
-
-        $this->assertDatabaseCount('evidences', 0);
-    }
-
-    public function test_a_wrong_detail_answer_blocks_continue(): void
+    public function test_the_detail_bonus_is_optional_and_never_blocks_continue(): void
     {
         $run = $this->makeRunWithDetailAndGapFill();
 
@@ -580,34 +626,44 @@ class ListeningStepTest extends TestCase
             ->set('gistPoints.1', 'Some people get up early or late.')
             ->set('gistPoints.2', 'They mention breakfast habits.')
             ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
-            ->set('detailAnswer', 'Nine in the morning')
-            ->call('save')
-            ->assertHasErrors(['sentences']);
-
-        $this->assertDatabaseCount('evidences', 0);
-    }
-
-    public function test_a_correct_detail_answer_saves_and_advances(): void
-    {
-        $run = $this->makeRunWithDetailAndGapFill();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        Livewire::test('missions.steps.listening', ['run' => $run])
-            ->set('gistPoints.0', 'They talk about morning routines.')
-            ->set('gistPoints.1', 'Some people get up early or late.')
-            ->set('gistPoints.2', 'They mention breakfast habits.')
-            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
-            ->set('detailAnswer', 'He needed to get up at 3am.')
+            // detailCorrect left untouched — the learner skipped the bonus round.
             ->call('save')
             ->assertHasNoErrors()
             ->assertSet('completed', true);
 
+        $this->assertDatabaseCount('evidences', 1);
+    }
+
+    public function test_a_completed_detail_bonus_is_recorded_in_evidence(): void
+    {
+        $run = $this->makeRunWithDetailAndGapFill();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gistPoints.0', 'They talk about morning routines.')
+            ->set('gistPoints.1', 'Some people get up early or late.')
+            ->set('gistPoints.2', 'They mention breakfast habits.')
+            ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
+            ->set('detailCorrect', true)
+            ->call('save')
+            ->assertHasNoErrors();
+
         $evidence = Evidence::where('phase', 'listening')->first();
         $content = json_decode($evidence->content_ref, true);
-        $this->assertSame('He needed to get up at 3am.', $content['detail_answer']);
+        $this->assertTrue($content['detail_correct']);
+    }
+
+    public function test_the_detail_bonus_is_rendered_as_a_quick_round_in_the_wrap_up(): void
+    {
+        $run = $this->makeRunWithDetailAndGapFill();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringContainsString('What time did Neil need to get up to catch his flight?', $html);
+        $this->assertStringContainsString('quick-round-completed', $html);
     }
 
     public function test_gap_fill_is_optional_and_never_blocks_continue(): void
@@ -623,7 +679,7 @@ class ListeningStepTest extends TestCase
             ->set('gistPoints.1', 'Some people get up early or late.')
             ->set('gistPoints.2', 'They mention breakfast habits.')
             ->set('expressionsHeard.0', 'I like to sleep in on weekends.')
-            ->set('detailAnswer', '3am')
+            ->set('detailCorrect', true)
             // gapFillAnswers left entirely empty on purpose.
             ->call('save')
             ->assertHasNoErrors()

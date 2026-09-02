@@ -173,6 +173,28 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSet('selectedWords', [...$this->firstEight(), 'sleep in']);
     }
 
+    public function test_a_meaning_check_quick_round_is_offered_between_selecting_and_writing(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $this->selectEight($component);
+
+        $cards = $component->instance()->meaningCheckCards();
+        $meanings = collect($component->instance()->run->mission->stepContent('vocabulary_builder')['story_words'])
+            ->pluck('meaning', 'phrase');
+
+        $this->assertCount(8, $cards);
+
+        foreach ($cards as $index => $card) {
+            $this->assertSame(self::STORY_WORDS[$index], $card['prompt']);
+            $this->assertCount(3, $card['options']);
+            $this->assertSame($meanings[$card['prompt']], $card['options'][$card['correct']]);
+        }
+
+        $component->assertSee('Quick check before you write')->assertSee('quick-round-completed');
+    }
+
     public function test_read_only_mode_skips_selection_but_shows_the_story_as_reference(): void
     {
         [, , $run] = $this->makeMissionAndRun();

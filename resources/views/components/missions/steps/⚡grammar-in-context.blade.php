@@ -27,17 +27,21 @@ new class extends Component
     /** @var array<int, string> */
     public array $frequencySentences = [];
 
-    /** @var array<int, string> */
-    public array $corrections = [];
-
     /** @var array<int, array{severity: string, hint: string, checkedText: string}> keyed by frequencySentences index */
     public array $feedback = [];
 
     /** @var array<int, string> keyed by frequencySentences index — per-input check failure message */
     public array $checkErrors = [];
 
-    /** @var array<int, array{severity: string, hint: string}> keyed by corrections index — a local, non-AI verdict */
-    public array $correctionFeedback = [];
+    /**
+     * Quick Check's result — set client-side by <x-quick-round>'s
+     * on-complete Alpine statement once the round finishes. Ungraded and
+     * skippable like every Quick Round, so this stays null if the learner
+     * skips it or never gets there.
+     *
+     * @var array{correct: int, total: int}|null
+     */
+    public ?array $quickCheckScore = null;
 
     public function mount(): void
     {
@@ -53,7 +57,19 @@ new class extends Component
             $this->frequencySentences[$index] = $savedSentences[$starter]['completion'] ?? '';
         }
 
-        $this->corrections = collect($data['corrections'] ?? [])->pluck('my_correction')->all();
+        $this->quickCheckScore = $data['quick_check_score'] ?? null;
+    }
+
+    /**
+     * @return list<array{prompt: string, options: list<string>, correct: int}>
+     */
+    public function quickCheckCards(): array
+    {
+        $items = $this->run->mission->stepContent('grammar_in_context')['quick_check'] ?? [];
+
+        return collect($items)
+            ->map(fn ($item) => ['prompt' => $item['wrong'], 'options' => $item['options'], 'correct' => $item['correct']])
+            ->all();
     }
 
     public function startPractice(): void
@@ -145,61 +161,6 @@ new class extends Component
         $this->declineCheckReveal($index);
     }
 
-    /**
-     * Quick Check has exactly one correct answer per item (a known grammar
-     * fix), so this is a plain local comparison — no AI call needed. Shaped
-     * like a SentenceChecker verdict anyway so the template can reuse
-     * <x-severity-feedback> for both.
-     */
-    public function checkCorrection(int $index): void
-    {
-        $item = ($this->run->mission->stepContent('grammar_in_context')['quick_check'] ?? [])[$index] ?? null;
-
-        if (! $item) {
-            return;
-        }
-
-        $mine = trim($this->corrections[$index] ?? '');
-
-        if ($mine === '') {
-            $this->checkErrors["qc_{$index}"] = 'Write something first.';
-
-            return;
-        }
-
-        unset($this->checkErrors["qc_{$index}"]);
-
-        $isCorrect = $this->normalize($mine) === $this->normalize($item['correct']);
-
-        $this->correctionFeedback[$index] = $isCorrect
-            ? ['severity' => 'none', 'hint' => '']
-            : ['severity' => 'minor', 'hint' => 'Not quite right yet — check the verb form for this subject.'];
-
-        $this->trackCheckAttempt("qc_{$index}", $isCorrect ? 'none' : 'minor');
-    }
-
-    /**
-     * Quick Check's correct answer is already known server-side, so
-     * revealing it needs no AI call — just show it directly.
-     */
-    public function revealQuickCheckCorrection(int $index): void
-    {
-        $item = ($this->run->mission->stepContent('grammar_in_context')['quick_check'] ?? [])[$index] ?? null;
-
-        if (! $item) {
-            return;
-        }
-
-        $this->corrections[$index] = $item['correct'];
-        $this->correctionFeedback[$index] = ['severity' => 'none', 'hint' => ''];
-        $this->clearCheckAttempt("qc_{$index}");
-    }
-
-    public function declineQuickCheckReveal(int $index): void
-    {
-        $this->declineCheckReveal("qc_{$index}");
-    }
-
     private function normalize(string $text): string
     {
         return trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
@@ -223,7 +184,6 @@ new class extends Component
     public function save(): void
     {
         $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
-        $quickCheck = $this->run->mission->stepContent('grammar_in_context')['quick_check'] ?? [];
 
         $filledSentences = collect($this->frequencySentences)
             ->map(fn ($s, $i) => ['index' => $i, 'starter' => $starters[$i] ?? null, 'text' => trim((string) $s)])
@@ -256,30 +216,6 @@ new class extends Component
             return;
         }
 
-        $quickCheckResults = collect($quickCheck)->map(function ($item, $i) {
-            $mine = trim($this->corrections[$i] ?? '');
-            $isCorrect = $mine !== '' && $this->normalize($mine) === $this->normalize($item['correct']);
-
-            $this->correctionFeedback[$i] = $isCorrect
-                ? ['severity' => 'none', 'hint' => '']
-                : ['severity' => 'minor', 'hint' => 'Not quite right yet — check the verb form for this subject.'];
-
-            $this->trackCheckAttempt("qc_{$i}", $isCorrect ? 'none' : 'minor');
-
-            return [
-                'wrong' => $item['wrong'],
-                'my_correction' => $mine,
-                'correct' => $item['correct'],
-                'is_correct' => $isCorrect,
-            ];
-        });
-
-        if ($quickCheckResults->contains(fn ($r) => ! $r['is_correct'])) {
-            $this->addError('corrections', 'Fix the sentences that are still wrong before continuing.');
-
-            return;
-        }
-
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'grammar_in_context',
@@ -288,7 +224,9 @@ new class extends Component
                 'frequency_sentences' => $filledSentences
                     ->map(fn ($s) => ['starter' => $s['starter'], 'completion' => $s['text']])
                     ->values(),
-                'corrections' => $quickCheckResults->values(),
+                // Optional bonus practice — saved if attempted, but never
+                // required and never blocks Continue.
+                'quick_check_score' => $this->quickCheckScore,
             ]),
         ]);
 
@@ -527,59 +465,27 @@ new class extends Component
             @enderror
         </div>
 
-        <div>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Correct these sentences.</p>
-            <div wire:loading.class="pointer-events-none" wire:target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save" class="mt-2 space-y-3">
-                @foreach ($grammar['quick_check'] ?? [] as $index => $item)
-                    @php $correctionItemFeedback = $correctionFeedback[$index] ?? null; @endphp
-                    <div>
-                        <p class="text-sm text-ink-faint line-through decoration-red-500 dark:text-ink-faint-dark">{{ $item['wrong'] }}</p>
-                        <div class="mt-1 flex items-center gap-2">
-                            <input
-                                type="text"
-                                wire:model="corrections.{{ $index }}"
-                                placeholder="Correct it…"
-                                x-on:input="dismissed['qc{{ $index }}'] = true"
-                                @unless ($readOnly)
-                                    x-draft="{ key: '{{ $draftPrefix }}corrections.{{ $index }}', field: 'corrections.{{ $index }}' }"
-                                @endunless
-                                @readonly($readOnly)
-                                wire:loading.attr="disabled"
-                                wire:target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save"
-                                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                            >
-                            @unless ($readOnly)
-                                <x-check-button method="checkCorrection" :index="$index" key-prefix="qc" wire-target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save" />
-                            @endunless
-                        </div>
-
-                        <div x-show="!dismissed['qc{{ $index }}']" x-transition.opacity.duration.300ms>
-                            <x-severity-feedback :feedback="$correctionItemFeedback" :error="$checkErrors['qc_'.$index] ?? null" />
-                        </div>
-
-                        @unless ($readOnly)
-                            <x-almost-reveal-notice :show="($checkAttempts['qc_'.$index] ?? 0) === 2" />
-                            <x-reveal-offer
-                                :show="$offerReveal['qc_'.$index] ?? false"
-                                reveal-method="revealQuickCheckCorrection"
-                                decline-method="declineQuickCheckReveal"
-                                :index="$index"
-                                wire-target="checkCorrection,revealQuickCheckCorrection,declineQuickCheckReveal,save"
-                            />
-                        @endunless
-                    </div>
-                @endforeach
+        @if ($readOnly)
+            @if ($quickCheckScore)
+                <div>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $quickCheckScore['correct'] }} of {{ $quickCheckScore['total'] }}.</p>
+                </div>
+            @endif
+        @else
+            <div>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
+                <div class="mt-2">
+                    <x-quick-round :cards="$this->quickCheckCards()" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
+                </div>
             </div>
-            @error('corrections')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+        @endif
 
         @unless ($readOnly)
             <x-continue-button
-                on-click="filled.forEach((_, i) => dismissed['freq' + i] = true); Object.keys(dismissed).filter(k => k.startsWith('qc')).forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
-                wire-target="checkOne,checkCorrection,revealCorrection,declineReveal,revealQuickCheckCorrection,declineQuickCheckReveal,save"
+                on-click="filled.forEach((_, i) => dismissed['freq' + i] = true); $wire.save().then(() => { dismissed = {} })"
+                wire-target="checkOne,revealCorrection,declineReveal,save"
                 loading-label="Checking your sentences…"
             />
         @endunless

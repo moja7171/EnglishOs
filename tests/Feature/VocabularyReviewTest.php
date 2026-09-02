@@ -55,6 +55,46 @@ class VocabularyReviewTest extends TestCase
             ->assertDontSee('Show meaning');
     }
 
+    public function test_a_brand_new_word_offers_a_meaning_check_diagnostic_first_when_other_words_exist(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['word' => 'commute', 'meaning' => 'to travel to work']);
+        $this->makeDueWord($learner, ['word' => 'errand', 'meaning' => 'a short trip to do a task', 'next_review_at' => now()->addWeek()]);
+        $this->makeDueWord($learner, ['word' => 'chore', 'meaning' => 'a routine task', 'next_review_at' => now()->addWeek()]);
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')
+            ->assertSee('Quick check before you write')
+            ->assertSee('quick-round-completed')
+            ->assertDontSee('Write a sentence using this word.');
+    }
+
+    public function test_the_diagnostic_is_skipped_when_the_learner_has_fewer_than_three_words(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['word' => 'commute']);
+        $this->makeDueWord($learner, ['word' => 'errand', 'next_review_at' => now()->addWeek()]);
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')
+            ->assertDontSee('Quick check before you write')
+            ->assertSee('Write a sentence using this word.');
+    }
+
+    public function test_completing_the_diagnostic_reveals_the_written_review(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['word' => 'commute']);
+        $this->makeDueWord($learner, ['word' => 'errand', 'next_review_at' => now()->addWeek()]);
+        $this->makeDueWord($learner, ['word' => 'chore', 'next_review_at' => now()->addWeek()]);
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')
+            ->set('diagnosticDone', true)
+            ->assertSee('Write a sentence using this word.')
+            ->assertDontSee('Quick check before you write');
+    }
+
     public function test_checking_a_good_sentence_advances_the_word_and_shows_feedback(): void
     {
         $learner = User::factory()->create();

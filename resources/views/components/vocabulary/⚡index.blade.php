@@ -19,6 +19,14 @@ new class extends Component
 
     public ?string $checkError = null;
 
+    /**
+     * True once the learner has tapped through (or skipped) the meaning
+     * diagnostic <x-quick-round> for the current word — see
+     * diagnosticCard(). Reset on advance() so the next word gets its own
+     * fresh round.
+     */
+    public bool $diagnosticDone = false;
+
     #[Computed]
     public function dueWords()
     {
@@ -43,6 +51,40 @@ new class extends Component
     public function reveal(): void
     {
         $this->revealed = true;
+    }
+
+    /**
+     * A one-card meaning-match <x-quick-round> shown before the deeper
+     * written review for a brand-new (or just-reset) word — a quick,
+     * ungraded warm-up, not another gate. Distractor meanings come from
+     * the learner's OTHER words, so with fewer than 3 words total there's
+     * nothing plausible to build them from and the diagnostic is skipped
+     * entirely (written review shows immediately, as before).
+     *
+     * @return array{prompt: string, options: list<string>, correct: int}|null
+     */
+    public function diagnosticCard(): ?array
+    {
+        $word = $this->currentWord;
+
+        if (! $word) {
+            return null;
+        }
+
+        $distractors = auth()->user()->vocabularyWords()
+            ->where('id', '!=', $word->id)
+            ->inRandomOrder()
+            ->limit(2)
+            ->pluck('meaning')
+            ->filter();
+
+        if ($distractors->count() < 2) {
+            return null;
+        }
+
+        $options = collect([$word->meaning, ...$distractors])->shuffle()->values();
+
+        return ['prompt' => $word->word, 'options' => $options->all(), 'correct' => $options->search($word->meaning)];
     }
 
     /**
@@ -129,6 +171,7 @@ new class extends Component
         $this->revealed = false;
         $this->feedback = null;
         $this->checkError = null;
+        $this->diagnosticDone = false;
         unset($this->dueWords, $this->currentWord);
     }
 };
@@ -187,6 +230,15 @@ new class extends Component
                     wire:click="nextWord"
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
                 >Next word @svg('heroicon-o-arrow-right', 'h-3.5 w-3.5')</button>
+            @elseif ($word->needsWrittenReview() && ! $diagnosticDone && ($diagnosticCard = $this->diagnosticCard()))
+                {{-- A quick meaning-match warm-up before the deeper written
+                     review below — ungraded, always skippable. --}}
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Quick check before you write — pick the right meaning.</p>
+                <x-quick-round
+                    :cards="[$diagnosticCard]"
+                    on-complete="$wire.set('diagnosticDone', true)"
+                    on-skip="$wire.set('diagnosticDone', true)"
+                />
             @elseif ($word->needsWrittenReview())
                 {{-- Written, AI-checked review — the deeper path for a
                      brand-new or just-reset word. --}}

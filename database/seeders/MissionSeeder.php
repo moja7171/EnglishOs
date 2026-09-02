@@ -51,9 +51,10 @@ class MissionSeeder extends Seeder
                                 'key' => 'vocabulary_builder',
                                 'label' => 'Vocabulary Builder',
                                 // Was 15, then 16 for the "pick which words join My Words" recap
-                                // step; now 17 for 4 more story words woven in to overlap with the
-                                // real Listening episode's own vocabulary.
-                                'duration_minutes' => 17,
+                                // step, then 17 for 4 more story words woven in to overlap with the
+                                // real Listening episode's own vocabulary; now 18 for the new
+                                // meaning-check Quick Round warm-up between the story and practice.
+                                'duration_minutes' => 18,
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
                                 // Word selection follows every sub-topic of English Vocabulary in Use
                                 // Unit 16, "Daily routines" (Sleep / Food / Bathroom routines / Housework
@@ -159,11 +160,12 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
-                                // Was 15, then 18 for the transcript review, then 20 for the required
-                                // Third listening detail question (gap-fill + shadowing are optional
-                                // bonus practice, not counted as required time); now 21 for the new
-                                // "pick which words join My Words" recap step.
-                                'duration_minutes' => 21,
+                                // Was 15, then 18 for the transcript review, then 21 for the "pick
+                                // which words join My Words" recap step; now 20 — the detail question
+                                // moved from a required third listen to an optional 1-tap Quick Round
+                                // bonus (-2), and a new ungraded comprehension Quick Round warm-up
+                                // was added after the first listen (+1).
+                                'duration_minutes' => 20,
                                 'hook' => 'Neil and Georgie are chatting about their mornings right now — how much can you catch without reading along?',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
                                 'audio_url' => $audioUrl,
@@ -259,12 +261,23 @@ class MissionSeeder extends Seeder
                                     .'they like to get up early or sleep in, whether they eat breakfast or '
                                     .'sometimes skip it, whether they ever oversleep, whether they exercise in '
                                     .'the morning, and how Neil checks the weather before choosing his clothes.',
-                                // Third listening — a detail question with one real, checkable fact (not
-                                // just "on topic" like gist/expressions), and 3 curated real lines to
-                                // shadow (repeat out loud with the audio) once the transcript is unlocked.
+                                // A quick true/false warm-up right after the first listen — plain
+                                // client-side <x-quick-round> cards (see EOS-009 §8), ungraded and
+                                // always skippable, just to get the ear engaged before the real
+                                // gist/expressions writing starts.
+                                'comprehension_check' => [
+                                    ['statement' => 'Neil and Georgie are talking about their morning routines.', 'correct' => true],
+                                    ['statement' => 'Neil says he often skips breakfast.', 'correct' => false],
+                                    ['statement' => 'Georgie describes herself as a morning person.', 'correct' => true],
+                                ],
+                                // A one-tap <x-quick-round> bonus in the Wrap-up sub-step (not a
+                                // required field — never blocks Continue) with one real, checkable
+                                // fact from the episode, plus 3 curated real lines to shadow (repeat
+                                // out loud with the audio) once the transcript is unlocked.
                                 'detail_question' => [
                                     'question' => 'What time did Neil need to get up to catch his flight, the last time he skipped breakfast?',
-                                    'accepted' => ['3am', '3 am', '3 a.m.', '3a.m.', 'three am', 'three a.m.', 'three o\'clock', '3 oclock', '3 o\'clock'],
+                                    'options' => ['3am', '7am', '9am'],
+                                    'correct' => 0,
                                 ],
                                 // Bold marks the naturally-stressed content words (nouns, main verbs,
                                 // adjectives, question words) — function words (articles,
@@ -321,10 +334,26 @@ class MissionSeeder extends Seeder
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
                                 ],
+                                // Rendered as a tap-card <x-quick-round> (see EOS-009 §8) — the
+                                // learner picks the correct fix among the real error plus one more
+                                // plausible wrong attempt, instead of typing it out. Ungraded and
+                                // skippable, like every other Quick Round.
                                 'quick_check' => [
-                                    ['wrong' => 'She go to work at eight.', 'correct' => 'She goes to work at eight.'],
-                                    ['wrong' => "I doesn't exercise every day.", 'correct' => "I don't exercise every day."],
-                                    ['wrong' => 'He usually wake up late.', 'correct' => 'He usually wakes up late.'],
+                                    [
+                                        'wrong' => 'She go to work at eight.',
+                                        'options' => ['She goes to work at eight.', 'She gos to work at eight.', 'She go to work at eight.'],
+                                        'correct' => 0,
+                                    ],
+                                    [
+                                        'wrong' => "I doesn't exercise every day.",
+                                        'options' => ["I don't exercise every day.", "I doesn't exercises every day.", 'I not exercise every day.'],
+                                        'correct' => 0,
+                                    ],
+                                    [
+                                        'wrong' => 'He usually wake up late.',
+                                        'options' => ['He usually wakes up late.', 'He usually waking up late.', 'He usually wake ups late.'],
+                                        'correct' => 0,
+                                    ],
                                 ],
                             ],
                             [

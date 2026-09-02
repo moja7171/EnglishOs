@@ -49,8 +49,8 @@ class GrammarInContextStepTest extends TestCase
                             ],
                             'frequency_starters' => ['I usually', 'I often', 'I sometimes', 'I rarely'],
                             'quick_check' => [
-                                ['wrong' => 'She go to work.', 'correct' => 'She goes to work.'],
-                                ['wrong' => 'He wake up late.', 'correct' => 'He wakes up late.'],
+                                ['wrong' => 'She go to work.', 'options' => ['She goes to work.', 'She gos to work.'], 'correct' => 0],
+                                ['wrong' => 'He wake up late.', 'options' => ['He wakes up late.', 'He waking up late.'], 'correct' => 0],
                             ],
                         ],
                         ['key' => 'activation'],
@@ -73,20 +73,6 @@ class GrammarInContextStepTest extends TestCase
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
             ->call('checkOne', 0)
             ->assertSet('checkErrors.0', 'Write something first.')
-            ->assertSee('Write something first.');
-    }
-
-    public function test_clicking_check_on_an_empty_correction_shows_an_error(): void
-    {
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldNotReceive('chat');
-        });
-
-        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->call('checkCorrection', 0)
-            ->assertSet('checkErrors.qc_0', 'Write something first.')
             ->assertSee('Write something first.');
     }
 
@@ -127,7 +113,7 @@ class GrammarInContextStepTest extends TestCase
         $this->assertDatabaseCount('evidences', 0);
     }
 
-    public function test_incorrect_quick_check_corrections_block_continue(): void
+    public function test_the_quick_check_is_optional_and_never_blocks_continue(): void
     {
         $run = $this->makeRun();
 
@@ -139,28 +125,7 @@ class GrammarInContextStepTest extends TestCase
             ->set('frequencySentences.0', 'I usually wake up at 7.')
             ->set('frequencySentences.1', 'I often cook dinner.')
             ->set('frequencySentences.2', 'I sometimes exercise.')
-            ->set('corrections.0', 'She go to work.') // still wrong — repeats the error
-            ->set('corrections.1', 'He wakes up late.')
-            ->call('save')
-            ->assertHasErrors(['corrections']);
-
-        $this->assertDatabaseCount('evidences', 0);
-    }
-
-    public function test_valid_submission_records_evidence_and_advances_the_run(): void
-    {
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->set('frequencySentences.0', 'I usually wake up at 7.')
-            ->set('frequencySentences.1', 'I often cook dinner.')
-            ->set('frequencySentences.2', 'I sometimes exercise.')
-            ->set('corrections.0', 'She goes to work.')
-            ->set('corrections.1', 'He wakes up late.')
+            // quickCheckScore left untouched — the learner skipped the round.
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
 
@@ -168,25 +133,39 @@ class GrammarInContextStepTest extends TestCase
         $content = json_decode($evidence->content_ref, true);
 
         $this->assertCount(3, $content['frequency_sentences']);
-        $this->assertSame('She goes to work.', $content['corrections'][0]['my_correction']);
-        $this->assertTrue($content['corrections'][0]['is_correct']);
-
+        $this->assertNull($content['quick_check_score']);
         $this->assertSame('activation', $run->fresh()->currentStepKey());
     }
 
-    public function test_checking_a_correction_gives_local_feedback_without_calling_the_ai(): void
+    public function test_a_completed_quick_check_score_is_recorded_in_evidence(): void
     {
         $run = $this->makeRun();
 
-        // No GeminiClient mock at all — checkCorrection must never call it.
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldNotReceive('chat');
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->set('corrections.0', 'She go to work.')
-            ->call('checkCorrection', 0)
-            ->assertSet('correctionFeedback.0.severity', 'minor');
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->set('quickCheckScore', ['correct' => 2, 'total' => 2])
+            ->call('save');
+
+        $evidence = Evidence::where('phase', 'grammar_in_context')->first();
+        $content = json_decode($evidence->content_ref, true);
+
+        $this->assertSame(['correct' => 2, 'total' => 2], $content['quick_check_score']);
+    }
+
+    public function test_the_quick_check_is_rendered_as_a_quick_round(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])->html();
+
+        $this->assertStringContainsString('She go to work.', $html);
+        $this->assertStringContainsString('quick-round-completed', $html);
     }
 
     public function test_the_lesson_highlights_the_adverb_and_shows_the_bridge_note(): void
@@ -304,28 +283,6 @@ class GrammarInContextStepTest extends TestCase
         $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
     }
 
-    public function test_three_failed_quick_check_attempts_offer_to_reveal_the_correction_without_ai(): void
-    {
-        $run = $this->makeRun();
-
-        // No GeminiClient mock — Quick Check's known-answer reveal never calls it.
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldNotReceive('chat');
-        });
-
-        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->set('corrections.0', 'She go to work.');
-
-        $component->call('checkCorrection', 0);
-        $component->call('checkCorrection', 0);
-        $component->call('checkCorrection', 0)->assertSet('offerReveal.qc_0', true);
-
-        $component->call('revealQuickCheckCorrection', 0)
-            ->assertSet('corrections.0', 'She goes to work.')
-            ->assertSet('correctionFeedback.0.severity', 'none')
-            ->assertSet('offerReveal.qc_0', null);
-    }
-
     public function test_a_request_exception_does_not_leak_the_raw_response_body(): void
     {
         $run = $this->makeRun();
@@ -342,7 +299,7 @@ class GrammarInContextStepTest extends TestCase
             ->assertSet('checkErrors.0', "Couldn't reach the AI service — please try again.");
     }
 
-    public function test_reviewing_a_completed_step_reloads_saved_sentences_and_corrections(): void
+    public function test_reviewing_a_completed_step_reloads_saved_sentences_and_quick_check_score(): void
     {
         $run = $this->makeRun();
 
@@ -354,24 +311,22 @@ class GrammarInContextStepTest extends TestCase
                 'frequency_sentences' => [
                     ['starter' => 'I usually', 'completion' => 'I usually wake up at 7.'],
                 ],
-                'corrections' => [
-                    ['wrong' => 'She go to work.', 'my_correction' => 'She goes to work.', 'correct' => 'She goes to work.', 'is_correct' => true],
-                ],
+                'quick_check_score' => ['correct' => 2, 'total' => 2],
             ]),
         ]);
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run, 'readOnly' => true])
             ->assertSet('frequencySentences.0', 'I usually wake up at 7.')
-            ->assertSet('corrections.0', 'She goes to work.');
+            ->assertSet('quickCheckScore', ['correct' => 2, 'total' => 2])
+            ->assertSee('You scored 2 of 2.');
     }
 
-    public function test_sentence_and_correction_inputs_carry_a_draft_key_scoped_to_the_run(): void
+    public function test_sentence_inputs_carry_a_draft_key_scoped_to_the_run(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->assertSeeHtml("eos-draft:{$run->id}:grammar_in_context:frequencySentences.0")
-            ->assertSeeHtml("eos-draft:{$run->id}:grammar_in_context:corrections.0");
+            ->assertSeeHtml("eos-draft:{$run->id}:grammar_in_context:frequencySentences.0");
     }
 
     public function test_a_successful_save_dispatches_a_clear_draft_event(): void
@@ -386,8 +341,6 @@ class GrammarInContextStepTest extends TestCase
             ->set('frequencySentences.0', 'I usually wake up at 7.')
             ->set('frequencySentences.1', 'I often cook dinner.')
             ->set('frequencySentences.2', 'I sometimes exercise.')
-            ->set('corrections.0', 'She goes to work.')
-            ->set('corrections.1', 'He wakes up late.')
             ->call('save')
             ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:grammar_in_context:");
     }

@@ -117,6 +117,37 @@ new class extends Component
         return $storyWords->firstWhere('phrase', $phrase)['meaning'] ?? '';
     }
 
+    /**
+     * A warm-up <x-quick-round> between picking words and writing examples
+     * — one card per selected word, distractor meanings pulled from the
+     * OTHER story words so they're always plausible-sounding, never random
+     * unrelated text.
+     *
+     * @return list<array{prompt: string, options: list<string>, correct: int}>
+     */
+    public function meaningCheckCards(): array
+    {
+        $storyWords = collect($this->run->mission->stepContent('vocabulary_builder')['story_words'] ?? []);
+
+        return collect($this->selectedWords)
+            ->map(function (string $word) use ($storyWords) {
+                $meaning = $storyWords->firstWhere('phrase', $word)['meaning'] ?? '';
+
+                $distractors = $storyWords
+                    ->where('phrase', '!=', $word)
+                    ->pluck('meaning')
+                    ->filter()
+                    ->shuffle()
+                    ->take(2);
+
+                $options = collect([$meaning, ...$distractors])->shuffle()->values();
+
+                return ['prompt' => $word, 'options' => $options->all(), 'correct' => $options->search($meaning)];
+            })
+            ->values()
+            ->all();
+    }
+
     public function checkOne(int $index): void
     {
         $word = $this->selectedWords[$index] ?? null;
@@ -402,11 +433,22 @@ new class extends Component
             @if ($selectedCount >= 8)
                 <button
                     type="button"
-                    wire:click="startPractice"
-                    x-on:click="phase = 'practice'"
+                    x-on:click="phase = 'meaning_check'"
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
                 >Continue with these {{ $selectedCount }} words @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
             @endif
+        </div>
+
+        <div x-show="phase === 'meaning_check'" x-cloak class="space-y-4">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick check before you write</p>
+                <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Match each word to its meaning — just a warm-up, skip anytime.</p>
+            </div>
+            <x-quick-round
+                :cards="$this->meaningCheckCards()"
+                on-complete="$wire.call('startPractice'); phase = 'practice'"
+                on-skip="$wire.call('startPractice'); phase = 'practice'"
+            />
         </div>
     @endunless
 

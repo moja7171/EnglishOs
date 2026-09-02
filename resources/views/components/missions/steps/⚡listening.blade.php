@@ -35,21 +35,18 @@ new class extends Component
     public array $expressionsHeard = ['', '', ''];
 
     /**
-     * Third listening — one specific fact, checked locally (a known correct
-     * answer exists, so no AI call is needed — same reasoning as Grammar in
-     * Context's Quick Check). Required, and blocks Continue like gist/
-     * expressions do, since it's testing real comprehension of one detail.
+     * A one-tap bonus check (see <x-quick-round>), not a required field —
+     * null until the learner taps an option (or leaves it alone entirely,
+     * which is fine; the round is always skippable). Set client-side by
+     * the Quick Round's on-complete Alpine statement.
      */
-    public string $detailAnswer = '';
+    public ?bool $detailCorrect = null;
 
     /** @var array<int, string> optional bonus — one blank per target phrase, never required */
     public array $gapFillAnswers = ['', '', '', '', ''];
 
     /** @var array<string, array{severity: string, hint: string, checkedText: string}> keyed by field key */
     public array $feedback = [];
-
-    /** @var array{severity: string, hint: string}|null local verdict for detailAnswer */
-    public ?array $detailFeedback = null;
 
     /** @var array<int, array{severity: string, hint: string}> local verdicts for gapFillAnswers, keyed by index */
     public array $gapFillFeedback = [];
@@ -77,7 +74,7 @@ new class extends Component
 
         $this->gistPoints = array_pad($data['gist_points'] ?? [], 3, '');
         $this->expressionsHeard = array_pad($data['expressions_heard'] ?? [], 3, '');
-        $this->detailAnswer = $data['detail_answer'] ?? '';
+        $this->detailCorrect = $data['detail_correct'] ?? null;
         $this->gapFillAnswers = array_pad($data['gap_fill_answers'] ?? [], 5, '');
     }
 
@@ -105,39 +102,6 @@ new class extends Component
         }
 
         $this->runCheck("expr_{$index}", $this->expressionContext(), $text);
-    }
-
-    /**
-     * The detail question has one real, known-correct answer (unlike gist/
-     * expressions, which deliberately avoid fact-checking) — so, like
-     * Grammar in Context's Quick Check, this is a plain local comparison,
-     * no AI call needed.
-     */
-    public function checkDetailAnswer(int $index = 0): void
-    {
-        $question = $this->run->mission->stepContent('listening')['detail_question'] ?? null;
-        $answer = trim($this->detailAnswer);
-
-        if (! $question) {
-            return;
-        }
-
-        if ($answer === '') {
-            $this->checkErrors['detail'] = 'Write something first.';
-
-            return;
-        }
-
-        unset($this->checkErrors['detail']);
-
-        $normalized = $this->normalize($answer);
-        $isCorrect = collect($question['accepted'])->contains(
-            fn ($accepted) => str_contains($normalized, $this->normalize($accepted))
-        );
-
-        $this->detailFeedback = $isCorrect
-            ? ['severity' => 'none', 'hint' => '', 'checkedText' => $answer]
-            : ['severity' => 'major', 'hint' => 'Not quite — listen again for the exact detail.', 'checkedText' => $answer];
     }
 
     /**
@@ -317,15 +281,6 @@ new class extends Component
             return;
         }
 
-        $hasDetailQuestion = (bool) ($this->run->mission->stepContent('listening')['detail_question'] ?? null);
-        $detailAnswer = trim($this->detailAnswer);
-
-        if ($hasDetailQuestion && $detailAnswer === '') {
-            $this->addError('detailAnswer', 'Answer the detail question before continuing.');
-
-            return;
-        }
-
         $entries = collect();
 
         foreach ($this->gistPoints as $index => $text) {
@@ -353,17 +308,9 @@ new class extends Component
             }
         }
 
-        // The detail question is local (no AI call), but follows the same
-        // "re-check only if edited since last check" rule.
-        $detailAlreadyChecked = ($this->detailFeedback['checkedText'] ?? null) === $detailAnswer;
-
-        if (! $detailAlreadyChecked) {
-            $this->checkDetailAnswer();
-        }
-
         $hasMajorIssue = $entries->contains(
             fn ($entry) => ($this->feedback[$entry['key']]['severity'] ?? null) === 'major'
-        ) || ($this->detailFeedback['severity'] ?? null) === 'major';
+        );
 
         if ($hasMajorIssue) {
             $this->addError('sentences', 'Fix the highlighted sentence before continuing.');
@@ -378,9 +325,10 @@ new class extends Component
             'content_ref' => json_encode([
                 'gist_points' => $gist->values(),
                 'expressions_heard' => collect($this->expressionsHeard)->map(fn ($e) => trim($e))->filter()->values(),
-                'detail_answer' => $detailAnswer,
-                // Optional bonus practice — saved if attempted, but never
-                // required and never blocks Continue.
+                // Both are optional bonus practice — saved if attempted
+                // (detail_correct stays null if the Quick Round was
+                // skipped), but neither is required or blocks Continue.
+                'detail_correct' => $this->detailCorrect,
                 'gap_fill_answers' => collect($this->gapFillAnswers)->map(fn ($a) => trim($a))->filter()->values(),
             ]),
         ]);
@@ -431,28 +379,42 @@ new class extends Component
     $initialExpressionsFilled = collect($expressionsHeard)->map(fn ($p) => trim($p) !== '')->values();
     $draftPrefix = $this->draftPrefix();
     $listensRequired = 2;
-    $checkTargets = 'checkGist,checkExpression,checkDetailAnswer,checkGapFill,revealGist,declineGist,revealExpression,declineExpression,save';
+    $checkTargets = 'checkGist,checkExpression,checkGapFill,revealGist,declineGist,revealExpression,declineExpression,save';
+
+    // Detail question is now a one-tap <x-quick-round> bonus in the
+    // Wrap-up sub-step (never required, never blocks Continue), not its
+    // own required sub-step — see the "Bonus — a detail" block below.
+    $detailCard = $detailQuestion ? [[
+        'prompt' => $detailQuestion['question'],
+        'options' => $detailQuestion['options'],
+        'correct' => $detailQuestion['correct'],
+    ]] : [];
+
+    // A quick, ungraded true/false warm-up right after the first listen —
+    // purely client-side (see <x-quick-round>), so it's skipped from the
+    // pager entirely in read-only review (nothing was ever submitted for
+    // it to replay).
+    $comprehensionCards = ! $readOnly
+        ? collect($listening['comprehension_check'] ?? [])
+            ->map(fn ($item) => ['prompt' => $item['statement'], 'options' => ['True', 'False'], 'correct' => $item['correct'] ? 0 : 1])
+            ->all()
+        : [];
 
     // One focused sub-step per phase instead of stacking everything into
     // one long scroll (see EOS-009 §8's shared <x-substep-nav>). The
     // transcript stays outside this pager — it's tied to listenCount, not
     // to any one exercise, so it should stay visible no matter which
     // sub-step is active.
-    $hasDetailQuestion = (bool) $detailQuestion;
-    $gistIndex = 0;
-    $exprIndex = 1;
-    $detailIndex = $hasDetailQuestion ? 2 : null;
-    $wrapupIndex = $hasDetailQuestion ? 3 : 2;
+    $hasComprehensionCheck = count($comprehensionCards) > 0;
+    $comprehensionIndex = $hasComprehensionCheck ? 0 : null;
+    $gistIndex = $hasComprehensionCheck ? 1 : 0;
+    $exprIndex = $gistIndex + 1;
+    $wrapupIndex = $exprIndex + 1;
     $totalSubsteps = $wrapupIndex + 1;
-    $initialDetailFilled = trim($detailAnswer) !== '';
-    $nextDisabledParts = [
+    $nextDisabledExpr = implode(' || ', [
         "(activeSubstep === {$gistIndex} && !gistDone)",
         "(activeSubstep === {$exprIndex} && !expressionsDone)",
-    ];
-    if ($hasDetailQuestion) {
-        $nextDisabledParts[] = "(activeSubstep === {$detailIndex} && !detailFilled)";
-    }
-    $nextDisabledExpr = implode(' || ', $nextDisabledParts);
+    ]);
 @endphp
 
 <div
@@ -463,7 +425,6 @@ new class extends Component
         get gistDone() { return this.gistFilled.filter(Boolean).length === 3 },
         expressionsFilled: {{ $initialExpressionsFilled->toJson() }},
         get expressionsDone() { return this.expressionsFilled.filter(Boolean).length === 3 },
-        detailFilled: {{ $initialDetailFilled ? 'true' : 'false' }},
         activeSubstep: 0,
         listenCount: 0,
         showTranscript: false,
@@ -587,6 +548,17 @@ new class extends Component
                 </x-slot:label>
             </x-progress-bar>
         </div>
+
+        @if ($hasComprehensionCheck)
+            {{-- Sub-step: quick warm-up right after the first listen — ungraded, always skippable. --}}
+            <div x-show="activeSubstep === {{ $comprehensionIndex }}" x-cloak>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Warm-up — quick check</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen once, then a few quick true/false taps — no pressure, just a warm-up before the real listening starts.</p>
+                <div class="mt-2">
+                    <x-quick-round :cards="$comprehensionCards" />
+                </div>
+            </div>
+        @endif
 
         {{-- Sub-step: First listening — gist --}}
         <div x-show="activeSubstep === {{ $gistIndex }}" x-cloak>
@@ -743,48 +715,6 @@ new class extends Component
             @endunless
         </div>
 
-        @if ($hasDetailQuestion)
-            {{-- Sub-step: Third listening — a detail --}}
-            <div x-show="activeSubstep === {{ $detailIndex }}" x-cloak>
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Third listening — a detail</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $detailQuestion['question'] }}</p>
-
-                <div class="mt-2">
-                    <div class="flex items-center gap-2">
-                        <input
-                            type="text"
-                            wire:model="detailAnswer"
-                            placeholder="Your answer…"
-                            @unless ($readOnly)
-                                x-draft="{ key: '{{ $draftPrefix }}detailAnswer', field: 'detailAnswer' }"
-                            @endunless
-                            @readonly($readOnly)
-                            wire:loading.attr="disabled"
-                            wire:target="{{ $checkTargets }}"
-                            x-on:input="dismissed['detail_0'] = true; detailFilled = $el.value.trim() !== ''"
-                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                        >
-                        @unless ($readOnly)
-                            <x-check-button method="checkDetailAnswer" :index="0" key-prefix="detail_" wire-target="{{ $checkTargets }}" />
-                        @endunless
-                    </div>
-
-                    <div x-show="!dismissed['detail_0']" x-transition.opacity.duration.300ms>
-                        <x-severity-feedback :feedback="$detailFeedback" :error="$checkErrors['detail'] ?? null" />
-                    </div>
-                </div>
-                @error('detailAnswer')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-                @unless ($readOnly)
-                    <p x-show="!detailFilled" class="mt-2 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                        @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
-                        Answer to move on.
-                    </p>
-                @endunless
-            </div>
-        @endif
-
         {{-- Sub-step: Wrap-up — transcript recap, bonus practice, Continue --}}
         <div x-show="activeSubstep === {{ $wrapupIndex }}" x-cloak>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Wrap-up</p>
@@ -820,6 +750,24 @@ new class extends Component
                             </div>
                         @endforeach
                     </div>
+                </div>
+            @endif
+
+            @if ($detailQuestion)
+                <div class="mt-4">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — a detail</p>
+                    @if ($readOnly)
+                        @if ($detailCorrect !== null)
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+                                You {{ $detailCorrect ? 'got' : "didn't quite get" }} this one: {{ $detailQuestion['question'] }}
+                            </p>
+                        @endif
+                    @else
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional — one real detail from the conversation. Doesn't affect Continue.</p>
+                        <div class="mt-2">
+                            <x-quick-round :cards="$detailCard" on-complete="$wire.set('detailCorrect', correctCount === 1)" />
+                        </div>
+                    @endif
                 </div>
             @endif
 
@@ -870,7 +818,7 @@ new class extends Component
             @unless ($readOnly)
                 <div class="mt-4">
                     <x-continue-button
-                        on-click="['gist_0','gist_1','gist_2','expr_0','expr_1','expr_2','detail_0'].forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
+                        on-click="['gist_0','gist_1','gist_2','expr_0','expr_1','expr_2'].forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
                         wire-target="{{ $checkTargets }}"
                         loading-label="Checking your sentences…"
                     />
