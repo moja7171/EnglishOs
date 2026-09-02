@@ -56,14 +56,14 @@ document.addEventListener('livewire:init', () => {
 });
 
 /**
- * Reads an AI Conversation question aloud via the browser's built-in
+ * Reads a question/prompt aloud via the browser's built-in
  * SpeechSynthesis — no TTS API call, no audio file, no new backend surface.
- * Used by <x-speak-on-change> (see that component) so a scripted question
- * feels genuinely "asked", not just silently displayed as text. Silently
- * does nothing on a browser without SpeechSynthesis support, or if speech
- * synthesis throws (e.g. blocked before any page interaction) — the
- * question's text is always shown regardless, so this is a pure bonus,
- * never something a step depends on.
+ * Used by <x-speak-button> (see that component), which only ever calls
+ * this from an explicit learner click — the AI Instructor never speaks on
+ * its own anywhere in the app. Silently does nothing on a browser without
+ * SpeechSynthesis support, or if speech synthesis throws — the question's
+ * text is always shown regardless, so this is a pure bonus, never
+ * something a step depends on.
  */
 window.eosVoice = {
     speak(text) {

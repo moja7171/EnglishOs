@@ -155,13 +155,15 @@ class AiConversation1StepTest extends TestCase
             ->assertDontSee('Record');
     }
 
-    public function test_the_current_question_is_wired_to_be_spoken_aloud(): void
+    public function test_the_current_question_has_a_read_aloud_button_the_learner_must_click(): void
     {
         $run = $this->makeRun(questionCount: 2);
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->assertSeeHtml('data-text="What time do you usually wake up?"')
-            ->assertSeeHtml('wire:key="speak-0"');
+            ->assertSee('Read aloud')
+            // Never auto-speaks: no init/mount hook calls eosVoice on its own.
+            ->assertDontSeeHtml('x-init');
     }
 
     public function test_a_mutual_friend_can_be_offered_the_question_to_practice_together(): void

@@ -127,7 +127,7 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Conversation #1</p>
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">The AI Instructor will ask each question out loud — answer out loud too. It'll ask one follow-up after each answer.</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
     </div>
 
     @if (! $readOnly && ! $completed)
@@ -184,11 +184,13 @@ new class extends Component
         </div>
     @elseif ($this->currentQuestion)
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-            @unless ($readOnly)
-                <x-speak-on-change :text="$this->currentQuestion" :change-key="$round" />
-            @endunless
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $round + 1 }} of {{ count($this->questions) }}</p>
-            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentQuestion }}</p>
+            <div class="mt-1 flex items-start justify-between gap-2">
+                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentQuestion }}</p>
+                @unless ($readOnly)
+                    <x-speak-button :text="$this->currentQuestion" />
+                @endunless
+            </div>
 
             <div class="mt-2">
                 <x-practice-with-friend :text="$this->currentQuestion" />

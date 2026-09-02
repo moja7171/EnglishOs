@@ -144,9 +144,11 @@ new class extends Component
                 $partnerAnswer = $this->answersByQuestion->get($index, collect())->firstWhere('responder_id', $this->partner->id);
             @endphp
             <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark" wire:key="question-{{ $index }}">
-                <x-speak-on-change :text="$prompt" :change-key="'partner-'.$session->id.'-'.$index" />
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $index + 1 }} of {{ count($this->prompts) }}</p>
-                <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $prompt }}</p>
+                <div class="mt-1 flex items-start justify-between gap-2">
+                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $prompt }}</p>
+                    <x-speak-button :text="$prompt" />
+                </div>
 
                 <div class="mt-3 grid gap-3 sm:grid-cols-2">
                     <div>

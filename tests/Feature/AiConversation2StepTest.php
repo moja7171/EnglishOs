@@ -169,13 +169,14 @@ class AiConversation2StepTest extends TestCase
             ->assertSee("This one's harder on purpose.");
     }
 
-    public function test_the_round_prompt_is_wired_to_be_spoken_aloud(): void
+    public function test_the_round_prompt_has_a_read_aloud_button_the_learner_must_click(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
             ->assertSeeHtml('data-text="Describe your typical weekday."')
-            ->assertSeeHtml('wire:key="speak-round-0"');
+            ->assertSee('Read aloud')
+            ->assertDontSeeHtml('x-init');
     }
 
     public function test_the_checklist_recap_offers_a_partner_session_with_a_mutual_friend(): void
@@ -215,7 +216,7 @@ class AiConversation2StepTest extends TestCase
             ->assertSeeHtml(route('missions.practice-with-friend', ['mission' => $run->mission, 'step' => 'ai_conversation_2', 'friend' => $friend]));
     }
 
-    public function test_the_final_challenge_prompt_is_wired_to_be_spoken_aloud(): void
+    public function test_the_final_challenge_prompt_has_a_read_aloud_button_the_learner_must_click(): void
     {
         Storage::fake('local');
         $run = $this->makeRun();
@@ -239,7 +240,8 @@ class AiConversation2StepTest extends TestCase
 
         $component
             ->assertSeeHtml('data-text="Speak for 3 minutes about your daily life."')
-            ->assertSeeHtml('wire:key="speak-final"');
+            ->assertSee('Read aloud')
+            ->assertDontSeeHtml('x-init');
     }
 
     public function test_read_only_review_never_wires_up_speech(): void

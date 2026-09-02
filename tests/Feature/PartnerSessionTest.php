@@ -256,7 +256,7 @@ class PartnerSessionTest extends TestCase
         $this->get(route('partner-sessions.attachment', $answer))->assertOk();
     }
 
-    public function test_each_question_is_wired_to_be_spoken_aloud(): void
+    public function test_each_question_has_a_read_aloud_button_the_partner_must_click(): void
     {
         $mission = $this->makeMission();
         $alice = User::factory()->create();
@@ -268,6 +268,8 @@ class PartnerSessionTest extends TestCase
 
         $this->actingAs($alice);
         Livewire::test('partner-session', ['session' => $session])
-            ->assertSeeHtml('data-text="What time do you usually wake up?"');
+            ->assertSeeHtml('data-text="What time do you usually wake up?"')
+            ->assertSee('Read aloud')
+            ->assertDontSeeHtml('x-init');
     }
 }

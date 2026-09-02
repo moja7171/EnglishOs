@@ -193,11 +193,13 @@ new class extends Component
 
     @if (! $this->inFinalStage)
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-            @unless ($readOnly)
-                <x-speak-on-change :text="$this->currentRoundPrompt" :change-key="'round-'.$roundIndex" />
-            @endunless
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
-            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentRoundPrompt }}</p>
+            <div class="mt-1 flex items-start justify-between gap-2">
+                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentRoundPrompt }}</p>
+                @unless ($readOnly)
+                    <x-speak-button :text="$this->currentRoundPrompt" />
+                @endunless
+            </div>
 
             <div class="mt-2">
                 <x-practice-with-friend :text="$this->currentRoundPrompt" />
@@ -216,11 +218,13 @@ new class extends Component
         </div>
     @elseif (! $checklist)
         <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-            @unless ($readOnly)
-                <x-speak-on-change :text="$this->finalPrompt" change-key="final" />
-            @endunless
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Final Challenge · Topic: My Daily Life</p>
-            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->finalPrompt }}</p>
+            <div class="mt-1 flex items-start justify-between gap-2">
+                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->finalPrompt }}</p>
+                @unless ($readOnly)
+                    <x-speak-button :text="$this->finalPrompt" />
+                @endunless
+            </div>
 
             <div class="mt-2">
                 <x-practice-with-friend :text="$this->finalPrompt" />
