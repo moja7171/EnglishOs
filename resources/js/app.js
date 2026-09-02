@@ -54,3 +54,26 @@ document.addEventListener('alpine:init', () => {
 document.addEventListener('livewire:init', () => {
     Livewire.on('clear-draft', ({ prefix }) => window.eosDraft.clearPrefix(prefix));
 });
+
+/**
+ * Reads an AI Conversation question aloud via the browser's built-in
+ * SpeechSynthesis — no TTS API call, no audio file, no new backend surface.
+ * Used by <x-speak-on-change> (see that component) so a scripted question
+ * feels genuinely "asked", not just silently displayed as text. Silently
+ * does nothing on a browser without SpeechSynthesis support, or if speech
+ * synthesis throws (e.g. blocked before any page interaction) — the
+ * question's text is always shown regardless, so this is a pure bonus,
+ * never something a step depends on.
+ */
+window.eosVoice = {
+    speak(text) {
+        try {
+            if (!('speechSynthesis' in window) || !text) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.95;
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {}
+    },
+};

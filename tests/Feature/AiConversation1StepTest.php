@@ -153,6 +153,34 @@ class AiConversation1StepTest extends TestCase
             ->assertDontSee('Record');
     }
 
+    public function test_the_current_question_is_wired_to_be_spoken_aloud(): void
+    {
+        $run = $this->makeRun(questionCount: 2);
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSeeHtml('data-text="What time do you usually wake up?"')
+            ->assertSeeHtml('wire:key="speak-0"');
+    }
+
+    public function test_read_only_review_never_wires_up_speech(): void
+    {
+        $run = $this->makeRun(questionCount: 2);
+
+        $turns = [
+            ['question' => 'What time do you usually wake up?', 'answer' => 'Seven.', 'followup' => 'Every day?'],
+            ['question' => 'What do you normally do in the morning?', 'answer' => 'Breakfast.', 'followup' => 'What do you eat?'],
+        ];
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_1',
+            'type' => Evidence::TYPE_TRANSCRIPT,
+            'content_ref' => json_encode($turns),
+        ]);
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run, 'readOnly' => true])
+            ->assertDontSeeHtml('data-text=');
+    }
+
     public function test_shows_a_progress_bar_and_the_selected_vocabulary(): void
     {
         $run = $this->makeRun(questionCount: 2);

@@ -165,4 +165,63 @@ class AiConversation2StepTest extends TestCase
         Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
             ->assertSee("This one's harder on purpose.");
     }
+
+    public function test_the_round_prompt_is_wired_to_be_spoken_aloud(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
+            ->assertSeeHtml('data-text="Describe your typical weekday."')
+            ->assertSeeHtml('wire:key="speak-round-0"');
+    }
+
+    public function test_the_final_challenge_prompt_is_wired_to_be_spoken_aloud(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')
+                ->times(2)
+                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.');
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(2)->andReturn('Reaction one.', 'Reaction two.');
+        });
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+
+        foreach (['recording-1.webm', 'recording-2.webm'] as $file) {
+            $component
+                ->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))
+                ->call('submitRoundAnswer');
+        }
+
+        $component
+            ->assertSeeHtml('data-text="Speak for 3 minutes about your daily life."')
+            ->assertSeeHtml('wire:key="speak-final"');
+    }
+
+    public function test_read_only_review_never_wires_up_speech(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_2',
+            'type' => Evidence::TYPE_TRANSCRIPT,
+            'content_ref' => json_encode([
+                'rounds' => [
+                    ['prompt' => 'Describe your typical weekday.', 'answer' => 'Work then home.', 'followup' => 'Anything else?'],
+                    ['prompt' => 'Compare weekday and weekend.', 'answer' => 'Weekends are calmer.', 'followup' => 'Nice.'],
+                ],
+                'final_transcript' => 'I usually wake up at seven.',
+                'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false],
+                'note' => 'Good job.',
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.ai-conversation2', ['run' => $run, 'readOnly' => true])
+            ->assertDontSeeHtml('data-text=');
+    }
 }
