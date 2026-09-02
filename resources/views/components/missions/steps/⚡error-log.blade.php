@@ -35,6 +35,7 @@ new class extends Component
             $this->mistakes = $items->map(fn ($i) => [
                 'error' => $i->error,
                 'correction' => $i->correction,
+                'category' => $i->category,
                 'drills' => $i->drills ?? [],
             ])->all();
             $this->newExamples = $items->pluck('new_example')->all();
@@ -89,9 +90,14 @@ new class extends Component
                     .'lesson. Identify 3 to 5 recurring or notable grammar/vocabulary mistakes. For EACH mistake, also '
                     .'write 2 short NEW fill-in-the-blank practice sentences that target the exact same error pattern '
                     .'(not the same sentence reworded) — a personal, natural sentence with the key word or form '
-                    .'replaced by "___", plus the single word/phrase that correctly fills it. Reply with ONLY a valid '
+                    .'replaced by "___", plus the single word/phrase that correctly fills it. Also assign a short '
+                    .'category slug (lowercase, hyphenated, 1-3 words, e.g. "third-person-s", "article-usage", '
+                    .'"preposition", "verb-tense", "word-order") naming the general grammar/vocabulary pattern the '
+                    .'mistake belongs to — so the SAME pattern can be recognised again in a future lesson even '
+                    .'though the sentence itself will be different. Reply with ONLY a valid '
                     .'JSON array, no markdown fences, no extra text, each item shaped exactly like: '
                     .'{"error": "the mistake as the learner wrote/said it", "correction": "the corrected form", '
+                    .'"category": "short-slug", '
                     .'"drills": [{"sentence": "...___...", "answer": "..."}, {"sentence": "...___...", "answer": "..."}]}. '
                     .'If the learner made no real mistakes, reply with an empty JSON array: []'
             );
@@ -103,7 +109,7 @@ new class extends Component
             }
 
             $this->mistakes = collect($data)
-                ->map(fn ($item) => $item + ['drills' => []])
+                ->map(fn ($item) => $item + ['drills' => [], 'category' => null])
                 ->all();
             $this->newExamples = array_fill(0, count($data), '');
         } catch (\Throwable $e) {
@@ -136,6 +142,7 @@ new class extends Component
                 'correction' => $item['correction'],
                 'new_example' => trim($this->newExamples[$i]),
                 'drills' => $item['drills'] ?? [],
+                'category' => $item['category'] ?? null,
             ]);
         }
 

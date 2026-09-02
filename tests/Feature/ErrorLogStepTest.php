@@ -57,7 +57,24 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
-            ->assertSet('mistakes', [['error' => 'She go to work.', 'correction' => 'She goes to work.', 'drills' => []]]);
+            ->assertSet('mistakes', [['error' => 'She go to work.', 'correction' => 'She goes to work.', 'drills' => [], 'category' => null]]);
+    }
+
+    public function test_the_ai_assigned_category_is_persisted_for_recurrence_detection(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                ['error' => 'She go to work.', 'correction' => 'She goes to work.', 'category' => 'third-person-s'],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->set('newExamples.0', 'She goes to work every day by bus.')
+            ->call('save');
+
+        $this->assertSame('third-person-s', ErrorLogItem::first()->category);
     }
 
     public function test_new_example_required_for_every_error_before_saving(): void
@@ -140,7 +157,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run, 'readOnly' => true])
-            ->assertSet('mistakes', [['error' => 'She go to work.', 'correction' => 'She goes to work.', 'drills' => []]])
+            ->assertSet('mistakes', [['error' => 'She go to work.', 'correction' => 'She goes to work.', 'category' => null, 'drills' => []]])
             ->assertSet('newExamples', ['She goes to work every day.'])
             ->assertDontSee('Continue');
     }

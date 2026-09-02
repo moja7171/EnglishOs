@@ -47,6 +47,28 @@ new class extends Component
     /** @var array{good: int, total: int}|null */
     public ?array $presentSimpleResult = null;
 
+    /**
+     * The learner's single most-recurring error pattern (see
+     * User::topRecurringError()) — null when nothing recurs yet, which is
+     * the common case until they've completed 2+ missions. Deliberately
+     * NOT one of the paginated sections() above: it's cross-mission
+     * spaced-repetition practice, entirely separate from this mission's
+     * own recall content, so it's shown as its own small optional card
+     * and saved as its own Evidence phase (never blocks Continue).
+     */
+    public ?string $recurringErrorCategory = null;
+
+    public ?string $recurringErrorExample = null;
+
+    public ?string $recurringErrorCorrection = null;
+
+    public string $recurringPracticeAnswer = '';
+
+    /** @var array{severity: string, hint: string}|null */
+    public ?array $recurringPracticeFeedback = null;
+
+    public ?string $recurringPracticeError = null;
+
     public function mount(): void
     {
         $saved = $this->readOnly
@@ -64,6 +86,33 @@ new class extends Component
         // AI-checked step: readOnly never re-checks).
         if ($this->readOnly) {
             $this->scoreExpressions();
+        }
+
+        $this->loadRecurringPractice();
+    }
+
+    /**
+     * Recomputed fresh on every visit (unlike the sections above, which
+     * are frozen once saved) — this is purely informational spaced
+     * practice, so it's fine if which pattern shows up here drifts as
+     * more Error Log entries are logged in later missions. A prior
+     * attempt is reloaded from its own separate Evidence phase so
+     * reviewing a completed run doesn't lose what was written, but the
+     * PATTERN shown always reflects the learner's current top recurring
+     * error, not a frozen snapshot.
+     */
+    private function loadRecurringPractice(): void
+    {
+        $topError = $this->run->learner->topRecurringError();
+        $this->recurringErrorCategory = $topError?->category;
+        $this->recurringErrorExample = $topError?->error;
+        $this->recurringErrorCorrection = $topError?->correction;
+
+        $saved = json_decode($this->run->latestEvidence('active_recall_spaced_practice')?->content_ref ?? 'null', true);
+
+        if (is_array($saved) && ($saved['category'] ?? null) === $this->recurringErrorCategory) {
+            $this->recurringPracticeAnswer = $saved['answer'] ?? '';
+            $this->recurringPracticeFeedback = $saved['feedback'] ?? null;
         }
     }
 
@@ -215,6 +264,42 @@ new class extends Component
         }
     }
 
+    /**
+     * Checks the spaced-repetition sentence against the CONCRETE example
+     * the learner actually got wrong before (not just an abstract category
+     * name) — grounds the AI in a real originally-wrong/corrected pair so
+     * it can judge whether the new sentence genuinely avoids the same
+     * pattern. Same non-blocking try/catch idiom as runSentenceCheck():
+     * this never gates Continue.
+     */
+    public function checkRecurringPractice(): void
+    {
+        $answer = trim($this->recurringPracticeAnswer);
+
+        if ($answer === '') {
+            $this->recurringPracticeError = 'Write something first.';
+
+            return;
+        }
+
+        $this->recurringPracticeError = null;
+
+        try {
+            $this->recurringPracticeFeedback = app(SentenceChecker::class)->check(
+                judgment: 'The learner previously made this mistake: "'.$this->recurringErrorExample.'" '
+                    .'(corrected: "'.$this->recurringErrorCorrection.'"). Judge whether the NEW sentence below is '
+                    .'a genuine, natural personal sentence that correctly avoids repeating that same error pattern.',
+                majorCriteria: 'the sentence repeats the same mistake, or is not a genuine sentence',
+                context: 'a new sentence practicing the same grammar/vocabulary pattern the learner previously got wrong',
+                text: $answer,
+            );
+        } catch (ConnectionException|RequestException) {
+            $this->recurringPracticeError = "Couldn't reach the AI service — please try again.";
+        } catch (\Throwable $e) {
+            $this->recurringPracticeError = "Couldn't check this one: {$e->getMessage()}";
+        }
+    }
+
     private function listeningRecallContext(): string
     {
         $context = "a sentence recalling something the learner remembers from a B1-level listening, without looking back at it";
@@ -312,11 +397,46 @@ new class extends Component
             'content_ref' => json_encode($result),
         ]);
 
+        $this->saveRecurringPractice();
+
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
 
         // Progress is already saved — this only decides what the learner
         // sees next: the recap, which they dismiss with proceed() below.
         $this->completed = true;
+    }
+
+    /**
+     * Extra-phase Evidence, same pattern as Writing's 'writing_feedback' —
+     * 'active_recall_spaced_practice' is deliberately NOT a real step key
+     * in any mission's stepKeys(), so MissionRun::currentStepKey() and
+     * dayProgress() silently ignore it and it can never block or advance
+     * progress. Entirely skipped if the learner left it blank (it's
+     * optional, and there may be no recurring pattern to show at all).
+     */
+    private function saveRecurringPractice(): void
+    {
+        if ($this->recurringErrorCategory === null || trim($this->recurringPracticeAnswer) === '') {
+            return;
+        }
+
+        $alreadyChecked = ($this->recurringPracticeFeedback !== null)
+            && $this->recurringPracticeError === null;
+
+        if (! $alreadyChecked) {
+            $this->checkRecurringPractice();
+        }
+
+        Evidence::create([
+            'mission_run_id' => $this->run->id,
+            'phase' => 'active_recall_spaced_practice',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'category' => $this->recurringErrorCategory,
+                'answer' => trim($this->recurringPracticeAnswer),
+                'feedback' => $this->recurringPracticeFeedback,
+            ]),
+        ]);
     }
 
     public function proceed(): void
@@ -386,6 +506,42 @@ new class extends Component
                     Continue
                 </button>
             @endunless
+        </div>
+    @endif
+
+    @if (! $completed && $recurringErrorCategory && (! $readOnly || trim($recurringPracticeAnswer) !== ''))
+        <div class="space-y-2 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Spaced practice — a pattern you keep mixing up</p>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                You've mixed this up before: <span class="text-red-600 line-through decoration-red-500">{{ $recurringErrorExample }}</span>
+                <span class="text-success dark:text-success-dark">{{ $recurringErrorCorrection }}</span>
+            </p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a new sentence of your own that avoids the same mistake.</p>
+            <div class="flex items-center gap-2">
+                <input
+                    type="text"
+                    wire:model="recurringPracticeAnswer"
+                    placeholder="Write a new sentence…"
+                    @readonly($readOnly)
+                    wire:loading.attr="disabled"
+                    wire:target="checkRecurringPractice"
+                    class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+                >
+                @unless ($readOnly)
+                    <button
+                        type="button"
+                        wire:click="checkRecurringPractice"
+                        wire:loading.attr="disabled"
+                        wire:target="checkRecurringPractice"
+                        class="shrink-0 cursor-pointer rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
+                    >
+                        <span wire:loading.remove wire:target="checkRecurringPractice">Check</span>
+                        <span wire:loading wire:target="checkRecurringPractice">Checking…</span>
+                    </button>
+                @endunless
+            </div>
+            <x-ai-thinking wire:loading wire:target="checkRecurringPractice" />
+            <x-severity-feedback :feedback="$recurringPracticeFeedback" :error="$recurringPracticeError" />
         </div>
     @endif
 

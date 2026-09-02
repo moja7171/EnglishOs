@@ -154,6 +154,56 @@ class User extends Authenticatable
     }
 
     /**
+     * Grammar/vocabulary error categories (see ErrorLogItem::$category)
+     * that this learner has been flagged for in 2 or more DIFFERENT
+     * mission runs — the same slip showing up twice within one Error Log
+     * batch doesn't count, this is specifically "keeps coming back across
+     * lessons". Ordered by how many distinct runs it's shown up in, most
+     * first. Naturally empty until a learner has completed 2+ missions
+     * (or the AI simply never assigned a category), since there is
+     * nothing to compare across yet.
+     *
+     * @return Collection<int, string>
+     */
+    public function recurringErrorCategories(): Collection
+    {
+        return ErrorLogItem::query()
+            ->join('mission_runs', 'mission_runs.id', '=', 'error_log_items.mission_run_id')
+            ->where('mission_runs.learner_id', $this->id)
+            ->whereNotNull('error_log_items.category')
+            ->selectRaw('error_log_items.category as category, COUNT(DISTINCT error_log_items.mission_run_id) as run_count')
+            ->groupBy('error_log_items.category')
+            ->havingRaw('COUNT(DISTINCT error_log_items.mission_run_id) >= 2')
+            ->orderByDesc('run_count')
+            ->pluck('category');
+    }
+
+    /**
+     * The single most recent example of this learner's most-recurring
+     * error pattern — a concrete sentence/correction pair (not just an
+     * abstract category name) to ground a fresh spaced-repetition prompt
+     * in a later mission's Active Recall step. Null if nothing recurs yet
+     * (see recurringErrorCategories()).
+     */
+    public function topRecurringError(): ?ErrorLogItem
+    {
+        $category = $this->recurringErrorCategories()->first();
+
+        if ($category === null) {
+            return null;
+        }
+
+        return ErrorLogItem::query()
+            ->join('mission_runs', 'mission_runs.id', '=', 'error_log_items.mission_run_id')
+            ->where('mission_runs.learner_id', $this->id)
+            ->where('error_log_items.category', $category)
+            ->orderByDesc('error_log_items.created_at')
+            ->orderByDesc('error_log_items.id')
+            ->select('error_log_items.*')
+            ->first();
+    }
+
+    /**
      * People this user follows — instant, no approval needed. Following
      * alone unlocks seeing the other person's high-level activity (see
      * their controller/view — never the raw Evidence content, just

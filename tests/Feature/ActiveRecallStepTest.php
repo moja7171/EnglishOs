@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
@@ -15,9 +16,9 @@ class ActiveRecallStepTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function makeRun(): MissionRun
+    private function makeRun(?User $learner = null): MissionRun
     {
-        $learner = User::factory()->create();
+        $learner ??= User::factory()->create();
         $mission = Mission::create([
             'code' => 'M01',
             'title' => 'My Daily Life',
@@ -346,5 +347,126 @@ class ActiveRecallStepTest extends TestCase
             ->assertSet('completed', true)
             ->assertSee('0 of 1 things you recalled about the listening were clear and on-topic.')
             ->assertSee('0 of 1 sentences correctly used the present simple.');
+    }
+
+    /**
+     * Logs the same error category against 2 separate, already-finished
+     * mission runs for this learner — the minimum for
+     * User::recurringErrorCategories() to flag it (see UserRecurringErrorsTest).
+     */
+    private function seedRecurringError(User $learner): void
+    {
+        foreach (['M-OLD-1', 'M-OLD-2'] as $i => $code) {
+            $mission = Mission::create([
+                'code' => $code,
+                'title' => 'Earlier Mission',
+                'module' => 'Me',
+                'outcome' => 'Outcome.',
+                'phases' => [],
+            ]);
+            $run = MissionRun::findOrStart($learner, $mission);
+
+            ErrorLogItem::create([
+                'mission_run_id' => $run->id,
+                'error' => "He walk fast {$i}.",
+                'correction' => "He walks fast {$i}.",
+                'category' => 'third-person-s',
+            ]);
+        }
+    }
+
+    public function test_no_spaced_practice_card_shows_without_a_recurring_error(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->assertDontSee('Spaced practice');
+    }
+
+    public function test_a_recurring_error_shows_the_spaced_practice_card_with_the_concrete_example(): void
+    {
+        $learner = User::factory()->create();
+        $this->seedRecurringError($learner);
+        $run = $this->makeRun($learner);
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->assertSee('Spaced practice')
+            ->assertSee('He walk fast 1.')
+            ->assertSee('He walks fast 1.');
+    }
+
+    public function test_checking_the_spaced_practice_sentence_grounds_the_ai_in_the_real_mistake(): void
+    {
+        $learner = User::factory()->create();
+        $this->seedRecurringError($learner);
+        $run = $this->makeRun($learner);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($_messages, $systemPrompt) => str_contains($systemPrompt, 'He walk fast 1.')
+                    && str_contains($systemPrompt, 'He walks fast 1.'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('recurringPracticeAnswer', 'She works hard every day.')
+            ->call('checkRecurringPractice')
+            ->assertSet('recurringPracticeFeedback.severity', 'none');
+    }
+
+    public function test_leaving_the_spaced_practice_blank_never_blocks_continue(): void
+    {
+        $learner = User::factory()->create();
+        $this->seedRecurringError($learner);
+        $run = $this->makeRun($learner);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(2)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'get up');
+        $this->fillOtherSections($component);
+
+        $component->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('completed', true);
+
+        $this->assertDatabaseMissing('evidences', [
+            'mission_run_id' => $run->id,
+            'phase' => 'active_recall_spaced_practice',
+        ]);
+    }
+
+    public function test_an_answered_spaced_practice_is_saved_as_its_own_evidence_phase(): void
+    {
+        $learner = User::factory()->create();
+        $this->seedRecurringError($learner);
+        $run = $this->makeRun($learner);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'get up')
+            ->set('recurringPracticeAnswer', 'She works hard every day.');
+        $this->fillOtherSections($component);
+
+        $component->call('save')->assertSet('completed', true);
+
+        $evidence = Evidence::where('mission_run_id', $run->id)
+            ->where('phase', 'active_recall_spaced_practice')
+            ->first();
+
+        $this->assertNotNull($evidence);
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertSame('third-person-s', $content['category']);
+        $this->assertSame('She works hard every day.', $content['answer']);
+
+        // This extra phase is never a real step key, so it can't block or
+        // advance mission progress.
+        $this->assertSame('error_log', $run->fresh()->currentStepKey());
     }
 }

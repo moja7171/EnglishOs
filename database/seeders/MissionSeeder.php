@@ -361,7 +361,8 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'active_recall',
                                 'label' => 'Active Recall',
-                                'duration_minutes' => 8,
+                                // Was 8 — bumped for the optional cross-mission spaced-repetition practice card.
+                                'duration_minutes' => 9,
                                 'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
                                 'instruction' => 'Without looking at the previous pages.',
                                 'sections' => [
