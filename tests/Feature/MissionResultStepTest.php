@@ -94,6 +94,25 @@ class MissionResultStepTest extends TestCase
         $this->assertNull($run->currentStepKey());
     }
 
+    public function test_the_result_shows_a_before_after_comparison_per_skill(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 3)
+            ->set('reflection.became_easier', 'Talking about my routine.')
+            ->set('reflection.still_difficult', 'Past tense.')
+            ->call('getResult')
+            ->assertSee('2 → 4 (+2)')
+            ->assertSee('3 → 3 (0)');
+    }
+
     public function test_read_only_mode_loads_the_saved_decision_without_calling_gemini(): void
     {
         $run = $this->makeRun();

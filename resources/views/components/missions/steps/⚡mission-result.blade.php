@@ -262,6 +262,35 @@ new class extends Component
                 {{ str($status)->replace('_', ' ')->title() }}
             </p>
             <p class="mt-2 text-sm text-ink dark:text-ink-dark">{{ $reason }}</p>
+
+            @if (collect($scores)->every(fn ($pair) => $pair['before'] && $pair['after']))
+                <div class="mt-4 space-y-2.5">
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Self-assessment</p>
+                    @foreach ($scores as $skill => $pair)
+                        @php
+                            $before = (int) $pair['before'];
+                            $after = (int) $pair['after'];
+                            $delta = $after - $before;
+                        @endphp
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-ink-soft dark:text-ink-soft-dark">
+                                <span>{{ $skill }}</span>
+                                <span class="font-semibold {{ $delta > 0 ? 'text-success dark:text-success-dark' : ($delta < 0 ? 'text-red-600' : 'text-ink-faint dark:text-ink-faint-dark') }}">
+                                    {{ $before }} → {{ $after }} ({{ $delta > 0 ? '+' : '' }}{{ $delta }})
+                                </span>
+                            </div>
+                            <div class="mt-1 flex gap-1">
+                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark" title="Before">
+                                    <div class="h-full rounded-full bg-ink-faint dark:bg-ink-faint-dark" style="width: {{ $before / 5 * 100 }}%"></div>
+                                </div>
+                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark" title="After">
+                                    <div class="h-full rounded-full bg-accent dark:bg-accent-dark" style="width: {{ $after / 5 * 100 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         @unless ($readOnly)
