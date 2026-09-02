@@ -263,6 +263,16 @@ new class extends Component
     $storyParagraphs = $this->storyParagraphs();
     $initialFilled = collect($selectedWords)->map(fn ($word, $i) => trim($examples[$i] ?? '') !== '')->values();
     $draftPrefix = $this->draftPrefix();
+    // The practice list has no upper limit (min 8, learners often pick
+    // more), so it's paginated in fixed-size groups rather than all at
+    // once or one word per page (too many clicks for a flexible list).
+    // Review mode stays a single flat page (matching how it already hides
+    // every other progress affordance here) — one "chunk" with everything.
+    $practiceChunkSize = 4;
+    $practiceChunks = $readOnly
+        ? collect([collect($selectedWords)->keys()])
+        : collect($selectedWords)->keys()->chunk($practiceChunkSize)->values();
+    $totalPracticePages = max($practiceChunks->count(), 1);
 @endphp
 
 <div
@@ -270,6 +280,7 @@ new class extends Component
     x-data="{
         phase: '{{ $readOnly || $practiceStarted ? 'practice' : 'story' }}',
         showStoryAgain: false,
+        practicePage: 0,
         filled: {{ $initialFilled->toJson() }},
         dismissed: {},
         get filledCount() { return this.filled.filter(Boolean).length },
@@ -362,70 +373,98 @@ new class extends Component
             @endunless
         </div>
 
-        <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="space-y-4">
-            @foreach ($selectedWords as $index => $word)
-                @php $itemFeedback = $feedback[$word] ?? null; @endphp
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->wordMeaning($word) }}</p>
-                    @unless ($readOnly)
-                        <p x-show="filledCount >= 3 && !filled[{{ $index }}]" class="text-[11px] text-ink-faint italic dark:text-ink-faint-dark">optional — bonus practice</p>
-                    @endunless
+        @if ($totalPracticePages > 1)
+            <div class="mb-2">
+                <x-progress-bar>
+                    <div
+                        class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                        :style="`width: ${(practicePage + 1) / {{ $totalPracticePages }} * 100}%`"
+                    ></div>
+                    <x-slot:label>
+                        <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                            Words <span x-text="practicePage + 1"></span> of {{ $totalPracticePages }}
+                        </p>
+                    </x-slot:label>
+                </x-progress-bar>
+            </div>
+        @endif
 
-                    <div class="mt-2 flex items-center gap-2">
-                        <input
-                            type="text"
-                            wire:model="examples.{{ $index }}"
-                            x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
-                            placeholder="My example…"
+        <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save">
+            @foreach ($practiceChunks as $pageIndex => $indices)
+                <div x-show="practicePage === {{ $pageIndex }}" x-cloak class="space-y-4">
+                    @foreach ($indices as $index)
+                        @php $word = $selectedWords[$index]; $itemFeedback = $feedback[$word] ?? null; @endphp
+                        <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                            <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</p>
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->wordMeaning($word) }}</p>
                             @unless ($readOnly)
-                                x-draft="{ key: '{{ $draftPrefix }}examples.{{ $index }}', field: 'examples.{{ $index }}' }"
+                                <p x-show="filledCount >= 3 && !filled[{{ $index }}]" class="text-[11px] text-ink-faint italic dark:text-ink-faint-dark">optional — bonus practice</p>
                             @endunless
-                            @readonly($readOnly)
-                            wire:loading.attr="disabled"
-                            wire:target="checkOne,revealCorrection,declineReveal,save"
-                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                        >
-                        <x-filled-check show="filled[{{ $index }}]" />
+
+                            <div class="mt-2 flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    wire:model="examples.{{ $index }}"
+                                    x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
+                                    placeholder="My example…"
+                                    @unless ($readOnly)
+                                        x-draft="{ key: '{{ $draftPrefix }}examples.{{ $index }}', field: 'examples.{{ $index }}' }"
+                                    @endunless
+                                    @readonly($readOnly)
+                                    wire:loading.attr="disabled"
+                                    wire:target="checkOne,revealCorrection,declineReveal,save"
+                                    class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+                                >
+                                <x-filled-check show="filled[{{ $index }}]" />
+                                @unless ($readOnly)
+                                    <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
+                                @endunless
+                            </div>
+
+                            @unless ($readOnly)
+                                <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
+                            @endunless
+
+                            {{-- Fades out the moment the learner edits this input again — a stale
+                                 verdict for text that no longer exists would only mislead them. --}}
+                            <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
+                                <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$word] ?? null" />
+                            </div>
+
+                            @unless ($readOnly)
+                                <x-almost-reveal-notice :show="($checkAttempts[$word] ?? 0) === 2" />
+                                <x-reveal-offer
+                                    :show="$offerReveal[$word] ?? false"
+                                    reveal-method="revealCorrection"
+                                    decline-method="declineReveal"
+                                    :index="$index"
+                                    wire-target="checkOne,revealCorrection,declineReveal,save"
+                                />
+                            @endunless
+                        </div>
+                    @endforeach
+
+                    @if ($loop->last)
+                        @error('examples')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+
                         @unless ($readOnly)
-                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
+                            <x-continue-button
+                                on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
+                                wire-target="checkOne,revealCorrection,declineReveal,save"
+                                loading-label="Checking your sentences…"
+                            />
                         @endunless
-                    </div>
-
-                    @unless ($readOnly)
-                        <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
-                    @endunless
-
-                    {{-- Fades out the moment the learner edits this input again — a stale
-                         verdict for text that no longer exists would only mislead them. --}}
-                    <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
-                        <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$word] ?? null" />
-                    </div>
-
-                    @unless ($readOnly)
-                        <x-almost-reveal-notice :show="($checkAttempts[$word] ?? 0) === 2" />
-                        <x-reveal-offer
-                            :show="$offerReveal[$word] ?? false"
-                            reveal-method="revealCorrection"
-                            decline-method="declineReveal"
-                            :index="$index"
-                            wire-target="checkOne,revealCorrection,declineReveal,save"
-                        />
-                    @endunless
+                    @endif
                 </div>
             @endforeach
         </div>
 
-        @error('examples')
-            <p class="text-sm text-red-600">{{ $message }}</p>
-        @enderror
-
-        @unless ($readOnly)
-            <x-continue-button
-                on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
-                wire-target="checkOne,revealCorrection,declineReveal,save"
-                loading-label="Checking your sentences…"
-            />
-        @endunless
+        @if ($totalPracticePages > 1)
+            <div class="mt-4">
+                <x-substep-nav index-var="practicePage" :total="$totalPracticePages" />
+            </div>
+        @endif
     </div>
 </div>
