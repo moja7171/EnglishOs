@@ -32,6 +32,7 @@ class MissionResultStepTest extends TestCase
                     'steps' => [
                         [
                             'key' => 'mission_result',
+                            'label' => 'Mission Result',
                             'skills' => ['Speaking', 'Writing'],
                             'reflection_questions' => [
                                 'became_easier' => 'What became easier?',
@@ -270,6 +271,66 @@ class MissionResultStepTest extends TestCase
             ->assertDontSee('day streak');
     }
 
+    public function test_a_non_complete_status_offers_to_review_the_flagged_step(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'needs_review',
+            'reason' => 'Your grammar needs a bit more work.',
+            'weak_step' => 'mission_result',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSet('weakStep', 'mission_result')
+            ->assertSeeHtml(route('missions.show', [$run->mission, 'mission_result']))
+            ->assertSee('Review Mission Result');
+    }
+
+    public function test_a_hallucinated_step_key_is_never_trusted(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'needs_review',
+            'reason' => 'Needs work.',
+            'weak_step' => 'not_a_real_step',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSet('weakStep', null)
+            ->assertDontSee('Review Mission Result');
+    }
+
+    public function test_no_review_link_when_status_is_complete_even_with_a_weak_step(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+            'weak_step' => 'mission_result',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertDontSee('Review Mission Result');
+    }
+
     public function test_read_only_mode_loads_the_saved_decision_without_calling_gemini(): void
     {
         $run = $this->makeRun();
@@ -289,6 +350,24 @@ class MissionResultStepTest extends TestCase
             ->assertSet('status', 'complete')
             ->assertSet('reason', 'Saved reason.')
             ->assertDontSee('Finish Mission');
+    }
+
+    public function test_read_only_mode_reloads_the_saved_weak_step(): void
+    {
+        $run = $this->makeRun();
+
+        SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
+        Reflection::create(['mission_run_id' => $run->id, 'answers' => ['became_easier' => 'x']]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_result',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['status' => 'needs_review', 'reason' => 'Saved reason.', 'weak_step' => 'mission_result']),
+        ]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
+            ->assertSet('weakStep', 'mission_result')
+            ->assertSee('Review Mission Result');
     }
 
     public function test_reflection_inputs_carry_a_draft_key_scoped_to_the_run(): void

@@ -24,6 +24,15 @@ new class extends Component
 
     public ?string $reason = null;
 
+    /**
+     * The one step the AI thinks is most worth a second look when status
+     * isn't "complete" — a real, reachable step key (validated against
+     * this mission's own stepKeys(), never trusted blindly from the AI),
+     * so "Review this step" can link straight to it. Null when the AI
+     * didn't name one, or status is "complete".
+     */
+    public ?string $weakStep = null;
+
     public bool $loading = false;
 
     public ?string $error = null;
@@ -42,6 +51,7 @@ new class extends Component
             $data = json_decode($this->run->latestEvidence('mission_result')?->content_ref ?? '{}', true);
             $this->status = $data['status'] ?? null;
             $this->reason = $data['reason'] ?? null;
+            $this->weakStep = $data['weak_step'] ?? null;
 
             foreach ($this->run->selfAssessments as $assessment) {
                 $this->scores[$assessment->skill] = ['before' => $assessment->before, 'after' => $assessment->after];
@@ -64,16 +74,6 @@ new class extends Component
     }
 
     /**
-     * Which of the learner's own Vocabulary Builder picks actually turned
-     * up somewhere in their real output this mission (AI Conversation,
-     * Writing, Activation, Active Recall — see MissionRun::allLearnerText())
-     * — a plain case-insensitive substring check, deliberately not an AI
-     * call: this is just closing the loop on a word list already threaded
-     * through the whole mission, not a new judgment worth an API round-trip.
-     *
-     * @return list<array{word: string, used: bool}>
-     */
-    /**
      * The learner's most-recurring error pattern across missions (see
      * User::topRecurringError(), built for Active Recall's spaced-
      * repetition prompt) — naturally already includes anything logged in
@@ -86,6 +86,16 @@ new class extends Component
         return $this->run->learner->topRecurringError();
     }
 
+    /**
+     * Which of the learner's own Vocabulary Builder picks actually turned
+     * up somewhere in their real output this mission (AI Conversation,
+     * Writing, Activation, Active Recall — see MissionRun::allLearnerText())
+     * — a plain case-insensitive substring check, deliberately not an AI
+     * call: this is just closing the loop on a word list already threaded
+     * through the whole mission, not a new judgment worth an API round-trip.
+     *
+     * @return list<array{word: string, used: bool}>
+     */
     public function getVocabularyUsageProperty(): array
     {
         $words = $this->run->selectedVocabularyWords();
@@ -116,13 +126,17 @@ new class extends Component
         $this->loading = true;
 
         try {
+            $stepKeys = implode(', ', $this->run->mission->stepKeys());
+
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $this->buildSummary()]],
                 systemPrompt: 'You are the AI Instructor deciding whether '.$this->run->learner->levelDescription()
                     .' has completed this '
                     .'mission. Based on the summary, reply with ONLY valid JSON, no markdown fences: '
                     .'{"status": "complete" or "needs_review" or "retry_evidence", "reason": "one short, clear, '
-                    .'encouraging sentence explaining the decision to the learner"}'
+                    .'encouraging sentence explaining the decision to the learner", "weak_step": "if status is '
+                    .'not complete, the single step key most worth revisiting — exactly one of: '.$stepKeys
+                    .' — otherwise null"}'
             );
 
             $data = json_decode(trim($raw), true);
@@ -133,6 +147,10 @@ new class extends Component
 
             $this->status = $data['status'];
             $this->reason = $data['reason'];
+            // Never trust the AI's step key blindly — only a real,
+            // existing step in this mission is ever offered as a link.
+            $weakStep = $data['weak_step'] ?? null;
+            $this->weakStep = in_array($weakStep, $this->run->mission->stepKeys(), true) ? $weakStep : null;
         } catch (\Throwable $e) {
             $this->error = "Couldn't get your result from the AI Instructor: {$e->getMessage()}";
         } finally {
@@ -190,7 +208,7 @@ new class extends Component
             'mission_run_id' => $this->run->id,
             'phase' => 'mission_result',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['status' => $this->status, 'reason' => $this->reason]),
+            'content_ref' => json_encode(['status' => $this->status, 'reason' => $this->reason, 'weak_step' => $this->weakStep]),
         ]);
 
         $this->run->update(['status' => $this->status, 'completed_at' => now()]);
@@ -371,6 +389,19 @@ new class extends Component
                         <span class="text-success dark:text-success-dark">{{ $this->recurringError->correction }}</span>
                     </p>
                     <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — worth extra attention next time.</p>
+                </div>
+            @endif
+
+            @if ($status !== 'complete' && $weakStep)
+                <div class="mt-4">
+                    <a
+                        href="{{ route('missions.show', [$run->mission, $weakStep]) }}"
+                        wire:navigate
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >
+                        @svg('heroicon-o-arrow-uturn-left', 'h-3.5 w-3.5')
+                        Review {{ $run->mission->stepLabel($weakStep) }}
+                    </a>
                 </div>
             @endif
         </div>
