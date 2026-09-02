@@ -11,15 +11,13 @@
     @livewireStyles
 </head>
 <body class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark">
-    <div class="mx-auto max-w-2xl px-6 pt-4">
+    <div class="mx-auto flex max-w-2xl items-center justify-between px-6 pt-4 text-xs text-ink-faint dark:text-ink-faint-dark">
         <a href="{{ route('home') }}" wire:navigate class="inline-flex transition-opacity hover:opacity-80">
             <x-logo icon-class="h-8 w-8" text-class="text-base" />
         </a>
-    </div>
 
-    @auth
-        <div class="mx-auto flex max-w-2xl items-center justify-between px-6 pt-3 text-xs text-ink-faint dark:text-ink-faint-dark">
-            <span class="flex items-center gap-3">
+        @auth
+            <div class="flex items-center gap-4">
                 <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
                     <button
                         type="button"
@@ -35,7 +33,7 @@
                         x-show="open"
                         x-cloak
                         x-transition.opacity.duration.150ms
-                        class="absolute left-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-line bg-surface py-1 text-xs shadow-lg dark:border-line-dark dark:bg-surface-dark"
+                        class="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-line bg-surface py-1 text-xs shadow-lg dark:border-line-dark dark:bg-surface-dark"
                     >
                         <a
                             href="{{ route('profile') }}"
@@ -52,6 +50,7 @@
                         </form>
                     </div>
                 </div>
+
                 @if ($streak = auth()->user()->currentStreak())
                     <span
                         class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark"
@@ -61,8 +60,7 @@
                         {{ $streak }}
                     </span>
                 @endif
-            </span>
-            <span class="flex items-center gap-3">
+
                 <a href="{{ route('friends.index') }}" wire:navigate class="relative inline-flex items-center gap-1 transition-colors hover:text-ink dark:hover:text-ink-dark">
                     @svg('heroicon-o-user-group', 'h-4 w-4')
                     Friends
@@ -75,9 +73,9 @@
                         <span class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark">{{ $unread }}</span>
                     @endif
                 </a>
-            </span>
-        </div>
-    @endauth
+            </div>
+        @endauth
+    </div>
 
     {{ $slot }}
     @livewireScripts
