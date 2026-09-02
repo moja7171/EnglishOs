@@ -16,12 +16,24 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable'])]
+#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'celebrated_streak_milestone', 'weekly_goal_days'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * Explicit, not left to the migration's DB column default — Eloquent
+     * doesn't re-fetch a Postgres row's own defaults after insert(), so a
+     * freshly created instance would otherwise read this as null in the
+     * very same request instead of 0, breaking
+     * streakMilestoneJustReached()'s "< $milestone" comparison. Same class
+     * of gap already found and fixed once on VocabularyWord.
+     */
+    protected $attributes = [
+        'celebrated_streak_milestone' => 0,
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -310,6 +322,102 @@ class User extends Authenticatable
     }
 
     /**
+     * A fixed grid of the last N calendar weeks (Sunday-start, so it lines
+     * up cleanly as columns of 7 in a CSS grid with grid-flow-col), each
+     * day flagged active/not from the same real-Evidence signal
+     * currentStreak() trusts. Powers Profile's "My progress" heatmap.
+     *
+     * @return list<array{date: string, label: string, active: bool, future: bool}>
+     */
+    public function activityCalendar(int $weeks = 12): array
+    {
+        $active = $this->activeDates()->map(fn (Carbon $date) => $date->toDateString())->flip();
+        $start = now()->startOfWeek(Carbon::SUNDAY)->subWeeks($weeks - 1);
+
+        return collect(range(0, $weeks * 7 - 1))
+            ->map(function (int $offset) use ($start, $active) {
+                $date = $start->copy()->addDays($offset);
+
+                return [
+                    'date' => $date->toDateString(),
+                    'label' => $date->format('M j, Y'),
+                    'active' => $active->has($date->toDateString()),
+                    'future' => $date->isFuture(),
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * How many days this calendar week (Sunday-start, same boundary as
+     * activityCalendar()) already have real activity — what
+     * weekly_goal_days is measured against.
+     */
+    public function activeDaysThisWeek(): int
+    {
+        $startOfWeek = now()->startOfWeek(Carbon::SUNDAY);
+
+        return $this->activeDates()->filter(fn (Carbon $date) => $date->gte($startOfWeek))->count();
+    }
+
+    /**
+     * True right after today's activity was the thing that carried the
+     * streak across yesterday's gap — i.e. currentStreak()'s built-in
+     * one-day forgiveness (see streakChains()) just actually applied,
+     * rather than the learner having simply practiced every day. Lets the
+     * UI say so explicitly instead of the forgiveness being an invisible
+     * mechanic the learner never finds out about.
+     */
+    public function justBenefitedFromGrace(): bool
+    {
+        $dates = $this->activeDates();
+
+        if ($dates->count() < 2 || ! $dates->first()->isToday()) {
+            return false;
+        }
+
+        return (int) abs($dates->first()->diffInDays($dates->get(1))) === 2;
+    }
+
+    /**
+     * True the moment a streak has actually broken (2+ days missed, not
+     * just the one-day grace) but there's a real best run on record worth
+     * pointing back to — the encouraging "let's beat your record" moment
+     * instead of a silent reset to zero.
+     */
+    public function justLostStreak(): bool
+    {
+        return $this->currentStreak() === 0 && $this->longestStreak() > 0;
+    }
+
+    private const STREAK_MILESTONES = [100, 30, 7];
+
+    /**
+     * Returns the milestone (100/30/7) the moment currentStreak() first
+     * reaches it, marking it celebrated so the same milestone is never
+     * returned again — without celebrated_streak_milestone, this would
+     * replay on every single page view for as long as the streak stays at
+     * or above that milestone, since currentStreak() is computed fresh
+     * every time rather than stored. Highest milestone first, so hitting
+     * several in one jump (e.g. a backfilled/edited streak) only
+     * celebrates the highest one reached.
+     */
+    public function streakMilestoneJustReached(): ?int
+    {
+        $streak = $this->currentStreak();
+
+        foreach (self::STREAK_MILESTONES as $milestone) {
+            if ($streak >= $milestone && $this->celebrated_streak_milestone < $milestone) {
+                $this->update(['celebrated_streak_milestone' => $milestone]);
+
+                return $milestone;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Grammar/vocabulary error categories (see ErrorLogItem::$category)
      * that this learner has been flagged for in 2 or more DIFFERENT
      * mission runs — the same slip showing up twice within one Error Log
@@ -466,6 +574,19 @@ class User extends Authenticatable
             ->get()
             ->filter(fn (User $candidate) => $this->isFollowedBy($candidate))
             ->values();
+    }
+
+    /**
+     * How many of this learner's real (mutual) friends have already
+     * practiced today — deliberately just a headcount, never a ranked
+     * leaderboard: visible companionship without turning the streak into
+     * a competition (Article 12, Independence).
+     */
+    public function mutualFriendsActiveTodayCount(): int
+    {
+        return $this->mutualFriends()
+            ->filter(fn (User $friend) => $friend->activeDates()->first()?->isToday())
+            ->count();
     }
 
     /**

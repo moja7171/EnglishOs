@@ -40,6 +40,7 @@ class UserFactory extends Factory
             'avatar_style' => 'initial',
             'gender' => 'unspecified',
             'discoverable' => true,
+            'celebrated_streak_milestone' => 0,
         ];
     }
 

@@ -182,4 +182,182 @@ class LearningStreakTest extends TestCase
 
         $this->assertSame(0, $learner->currentStreak());
     }
+
+    public function test_activity_calendar_flags_active_and_inactive_days(): void
+    {
+        $this->travelTo(Carbon::parse('2024-01-10 12:00:00')); // a Wednesday
+
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->toDateString());
+        $this->recordEvidenceOn($run, now()->subDays(2)->toDateString());
+
+        $calendar = collect($learner->activityCalendar(weeks: 2))->keyBy('date');
+
+        $this->assertTrue($calendar[now()->toDateString()]['active']);
+        $this->assertTrue($calendar[now()->subDays(2)->toDateString()]['active']);
+        $this->assertFalse($calendar[now()->subDay()->toDateString()]['active']);
+    }
+
+    public function test_activity_calendar_marks_days_after_today_as_future(): void
+    {
+        $this->travelTo(Carbon::parse('2024-01-10 12:00:00')); // a Wednesday
+
+        $learner = User::factory()->create();
+
+        $calendar = collect($learner->activityCalendar(weeks: 1))->keyBy('date');
+
+        $this->assertTrue($calendar[now()->addDay()->toDateString()]['future']);
+        $this->assertFalse($calendar[now()->toDateString()]['future']);
+    }
+
+    public function test_active_days_this_week_counts_only_the_current_calendar_week(): void
+    {
+        $this->travelTo(Carbon::parse('2024-01-10 12:00:00')); // Wednesday, week starts Sunday Jan 7
+
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, '2024-01-10'); // this week
+        $this->recordEvidenceOn($run, '2024-01-08'); // this week (Monday)
+        $this->recordEvidenceOn($run, '2024-01-06'); // LAST week (Saturday)
+
+        $this->assertSame(2, $learner->activeDaysThisWeek());
+    }
+
+    public function test_just_benefited_from_grace_is_true_right_after_a_forgiven_gap(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->toDateString());
+        $this->recordEvidenceOn($run, now()->subDays(2)->toDateString()); // yesterday skipped
+
+        $this->assertTrue($learner->justBenefitedFromGrace());
+    }
+
+    public function test_just_benefited_from_grace_is_false_with_no_gap(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->toDateString());
+        $this->recordEvidenceOn($run, now()->subDay()->toDateString());
+
+        $this->assertFalse($learner->justBenefitedFromGrace());
+    }
+
+    public function test_just_benefited_from_grace_is_false_when_nothing_happened_today(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->subDay()->toDateString());
+        $this->recordEvidenceOn($run, now()->subDays(3)->toDateString());
+
+        $this->assertFalse($learner->justBenefitedFromGrace());
+    }
+
+    public function test_just_lost_streak_is_true_after_the_streak_actually_breaks(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->subDays(10)->toDateString());
+        $this->recordEvidenceOn($run, now()->subDays(9)->toDateString());
+        $this->recordEvidenceOn($run, now()->subDays(8)->toDateString());
+
+        $this->assertSame(0, $learner->currentStreak());
+        $this->assertTrue($learner->justLostStreak());
+    }
+
+    public function test_just_lost_streak_is_false_with_no_history(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->assertFalse($learner->justLostStreak());
+    }
+
+    public function test_just_lost_streak_is_false_while_the_streak_is_still_alive(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->toDateString());
+
+        $this->assertFalse($learner->justLostStreak());
+    }
+
+    public function test_streak_milestone_just_reached_returns_7_at_a_7_day_streak(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        for ($i = 0; $i < 7; $i++) {
+            $this->recordEvidenceOn($run, now()->subDays($i)->toDateString());
+        }
+
+        $this->assertSame(7, $learner->currentStreak());
+        $this->assertSame(7, $learner->streakMilestoneJustReached());
+        $this->assertSame(7, $learner->fresh()->celebrated_streak_milestone);
+    }
+
+    public function test_streak_milestone_just_reached_is_null_below_the_first_milestone(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->toDateString());
+
+        $this->assertNull($learner->streakMilestoneJustReached());
+    }
+
+    public function test_a_milestone_is_never_celebrated_twice(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        for ($i = 0; $i < 7; $i++) {
+            $this->recordEvidenceOn($run, now()->subDays($i)->toDateString());
+        }
+
+        $learner->streakMilestoneJustReached();
+
+        $this->assertNull($learner->fresh()->streakMilestoneJustReached());
+    }
+
+    public function test_reaching_a_higher_milestone_celebrates_the_higher_one_directly(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        for ($i = 0; $i < 30; $i++) {
+            $this->recordEvidenceOn($run, now()->subDays($i)->toDateString());
+        }
+
+        $this->assertSame(30, $learner->currentStreak());
+        $this->assertSame(30, $learner->streakMilestoneJustReached());
+    }
+
+    public function test_mutual_friends_active_today_count_only_counts_real_mutual_active_friends(): void
+    {
+        $learner = User::factory()->create();
+        $friendActive = User::factory()->create();
+        $friendInactive = User::factory()->create();
+        $notMutual = User::factory()->create();
+
+        $learner->follow($friendActive);
+        $friendActive->follow($learner);
+        $learner->follow($friendInactive);
+        $friendInactive->follow($learner);
+        $learner->follow($notMutual); // one-way only
+
+        $mission = $this->makeMission();
+        $this->recordEvidenceOn(MissionRun::findOrStart($friendActive, $mission), now()->toDateString());
+        $this->recordEvidenceOn(MissionRun::findOrStart($friendInactive, $mission), now()->subDay()->toDateString());
+        $this->recordEvidenceOn(MissionRun::findOrStart($notMutual, $mission), now()->toDateString());
+
+        $this->assertSame(1, $learner->mutualFriendsActiveTodayCount());
+    }
 }
