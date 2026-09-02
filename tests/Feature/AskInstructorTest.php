@@ -99,7 +99,7 @@ class AskInstructorTest extends TestCase
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('question', 'Help?')
             ->call('ask')
-            ->assertSee("Couldn't reach the AI Instructor")
+            ->assertSee("Couldn't reach the AI Assistant")
             ->assertDontSee('cURL error');
     }
 

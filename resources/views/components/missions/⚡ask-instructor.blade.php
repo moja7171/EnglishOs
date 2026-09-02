@@ -91,7 +91,7 @@ new class extends Component
 
         try {
             $question = trim(app(GroqClient::class)->transcribe($this->voiceQuestion->getRealPath()));
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $question = '';
         }
 
@@ -163,8 +163,8 @@ new class extends Component
 
             $this->messages[] = $this->toDisplay($instructorMessage);
         } catch (ConnectionException|RequestException) {
-            $this->error = "Couldn't reach the AI Instructor — please try again.";
-        } catch (\Throwable $e) {
+            $this->error = "Couldn't reach the AI Assistant — please try again.";
+        } catch (Throwable $e) {
             $this->error = "Couldn't get an answer: {$e->getMessage()}";
         } finally {
             $this->loading = false;
@@ -205,98 +205,147 @@ new class extends Component
 };
 ?>
 
-<div x-data="{ open: false }" class="rounded-2xl border border-line dark:border-line-dark">
+{{--
+    A floating chat widget rather than an inline accordion at the bottom of
+    the step — the accordion was easy to scroll past and lose track of.
+    The trigger is a fixed round icon in the corner, reachable from
+    anywhere on the step; opening it reveals the full persisted history
+    for this step as a real chat thread (same bubble/wallpaper structure
+    as the Friends conversation page), not just the latest exchange.
+--}}
+<div
+    x-data="{
+        open: false,
+        init() {
+            this.observer = new MutationObserver(() => this.scrollToBottom());
+            this.observer.observe(this.$refs.messages, { childList: true, subtree: true });
+        },
+        scrollToBottom() {
+            this.$nextTick(() => {
+                if (this.$refs.messages) this.$refs.messages.scrollTop = this.$refs.messages.scrollHeight;
+            });
+        },
+    }"
+>
     <button
         type="button"
-        x-on:click="open = !open"
-        class="flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-3 text-left text-sm font-semibold text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
+        x-on:click="open = !open; if (open) $nextTick(() => scrollToBottom())"
+        title="AI Assistant"
+        class="fixed right-5 bottom-5 z-40 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-lg transition-transform hover:scale-105 active:scale-95 dark:bg-accent-dark"
     >
-        <span class="inline-flex items-center gap-2">
-            @svg('heroicon-o-question-mark-circle', 'h-4 w-4')
-            Ask the AI Instructor
-        </span>
-        <span x-text="open ? '−' : '+'" class="text-ink-faint dark:text-ink-faint-dark"></span>
+        <span x-show="!open">@svg('heroicon-o-sparkles', 'h-6 w-6')</span>
+        <span x-show="open" x-cloak>@svg('heroicon-o-x-mark', 'h-6 w-6')</span>
     </button>
 
-    <div x-show="open" x-cloak x-transition.opacity.duration.200ms class="space-y-3 border-t border-line px-4 py-3 dark:border-line-dark">
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-            Ask about a word, a grammar rule, or anything else about English — by typing, by voice, or with a file attached. I won't give you the answer to this exercise, but I'm happy to explain the rule behind it.
-        </p>
-
-        @if (count($messages))
-            <div class="space-y-2">
-                @foreach ($messages as $message)
-                    <div class="{{ $message['role'] === 'learner' ? 'ml-6' : 'mr-6' }}">
-                        <div class="rounded-xl px-3 py-2 text-sm {{ $message['role'] === 'learner'
-                            ? 'bg-surface-sunken text-ink dark:bg-surface-sunken-dark dark:text-ink-dark'
-                            : 'bg-accent-soft text-ink dark:bg-accent-soft-dark dark:text-ink-dark' }}">
-                            @if ($message['type'] === 'voice')
-                                <p class="mb-1 inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                                    @svg('heroicon-o-microphone', 'h-3.5 w-3.5') Sent by voice
-                                </p>
-                            @elseif ($message['type'] === 'file')
-                                <p class="mb-1 inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                                    @svg('heroicon-o-paper-clip', 'h-3.5 w-3.5')
-                                    <a href="{{ route('instructor.attachment', $message['id']) }}" class="underline decoration-dotted underline-offset-2">{{ $message['attachmentName'] }}</a>
-                                </p>
-                            @endif
-                            {{ $message['text'] }}
-                        </div>
-                    </div>
-                @endforeach
+    <div
+        x-show="open"
+        x-cloak
+        x-transition.opacity.duration.150ms
+        x-on:click.outside="open = false"
+        class="fixed right-5 bottom-24 z-40 flex h-[28rem] max-h-[calc(100vh-8rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl dark:border-line-dark dark:bg-surface-dark"
+    >
+        <div class="flex shrink-0 items-center gap-2.5 border-b border-line px-4 py-3 dark:border-line-dark">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-o-sparkles', 'h-4 w-4')
+            </span>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">AI Assistant</p>
+                <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask about this step — I'll explain, not solve it for you.</p>
             </div>
-        @endif
-
-        <div wire:loading.delay wire:target="ask,askWithVoice,sendFile">
-            <x-ai-thinking label="The AI Instructor is answering…" />
+            <button
+                type="button"
+                x-on:click="open = false"
+                title="Close"
+                class="inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+            >@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
         </div>
 
-        @if ($error)
-            <p class="text-sm text-red-600">{{ $error }}</p>
-        @endif
-        @error('fileAttachment')
-            <p class="text-sm text-red-600">{{ $message }}</p>
-        @enderror
+        <div
+            x-ref="messages"
+            class="flex-1 space-y-2 overflow-y-auto p-3"
+            style="background-color: var(--color-surface-sunken); background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 10%, transparent) 1px, transparent 1px); background-size: 18px 18px;"
+        >
+            @forelse ($messages as $message)
+                @php $mine = $message['role'] === 'learner'; @endphp
+                <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }}">
+                    <div class="max-w-[85%] rounded-2xl px-3 py-2 text-sm shadow-sm
+                        {{ $mine
+                            ? 'rounded-br-sm bg-accent text-white dark:bg-accent-dark'
+                            : 'rounded-bl-sm border border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark' }}">
+                        @if ($message['type'] === 'voice')
+                            <p class="mb-1 inline-flex items-center gap-1 text-xs {{ $mine ? 'text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+                                @svg('heroicon-o-microphone', 'h-3 w-3') Sent by voice
+                            </p>
+                        @elseif ($message['type'] === 'file')
+                            <p class="mb-1 inline-flex items-center gap-1 text-xs {{ $mine ? 'text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+                                @svg('heroicon-o-paper-clip', 'h-3 w-3')
+                                <a href="{{ route('instructor.attachment', $message['id']) }}" class="underline decoration-dotted underline-offset-2">{{ $message['attachmentName'] }}</a>
+                            </p>
+                        @endif
+                        <span class="break-words">{{ $message['text'] }}</span>
+                    </div>
+                </div>
+            @empty
+                <div class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
+                    @svg('heroicon-o-sparkles', 'h-6 w-6 text-ink-faint/50 dark:text-ink-faint-dark/50')
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Ask about a word, a grammar rule, or anything else about English — by typing, by voice, or with a file attached.</p>
+                </div>
+            @endforelse
 
-        <form wire:submit="ask" class="flex items-center gap-2">
-            <input
-                type="text"
-                wire:model="question"
-                placeholder="Ask a question…"
-                wire:loading.attr="disabled"
-                wire:target="ask,askWithVoice,sendFile"
-                class="w-full rounded-lg border border-line bg-transparent px-2 py-1.5 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-            >
-            <button
-                type="submit"
-                wire:loading.attr="disabled"
-                wire:target="ask,askWithVoice,sendFile"
-                class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
-            >Ask</button>
-        </form>
-
-        <div class="flex flex-wrap items-center gap-2">
-            <div wire:key="ask-voice-recorder-{{ count($messages) }}">
-                <x-voice-recorder field="voiceQuestion" :file="$voiceQuestion" on-recorded="askWithVoice" file-name="question.webm" />
+            <div wire:loading.delay wire:target="ask,askWithVoice,sendFile">
+                <x-ai-thinking label="The AI Assistant is answering…" class="bg-surface dark:bg-surface-dark" />
             </div>
+        </div>
 
-            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-                @svg('heroicon-o-paper-clip', 'h-3.5 w-3.5')
-                <span wire:loading.remove wire:target="fileAttachment">Attach a file</span>
-                <span wire:loading wire:target="fileAttachment">Uploading…</span>
-                <input type="file" wire:model="fileAttachment" class="hidden">
-            </label>
+        <div class="shrink-0 space-y-2 border-t border-line p-2 dark:border-line-dark">
+            @if ($error)
+                <p class="px-1 text-xs text-red-600">{{ $error }}</p>
+            @endif
+            @error('fileAttachment')
+                <p class="px-1 text-xs text-red-600">{{ $message }}</p>
+            @enderror
 
             @if ($fileAttachment)
-                <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $fileAttachment->getClientOriginalName() }}</span>
-                <button
-                    type="button"
-                    wire:click="sendFile"
-                    wire:loading.attr="disabled"
-                    wire:target="ask,askWithVoice,sendFile"
-                    class="cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                >Send file</button>
+                <div class="flex items-center gap-2 px-1">
+                    <span class="truncate text-xs text-ink-faint dark:text-ink-faint-dark">{{ $fileAttachment->getClientOriginalName() }}</span>
+                    <button
+                        type="button"
+                        wire:click="sendFile"
+                        wire:loading.attr="disabled"
+                        wire:target="ask,askWithVoice,sendFile"
+                        class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                    >Send file</button>
+                </div>
             @endif
+
+            <div class="flex items-center gap-1">
+                <label title="Attach a file" class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
+                    @svg('heroicon-o-paper-clip', 'h-4 w-4')
+                    <input type="file" wire:model="fileAttachment" class="hidden">
+                </label>
+
+                <form wire:submit="ask" class="flex flex-1 items-center gap-1.5">
+                    <input
+                        type="text"
+                        wire:model="question"
+                        placeholder="Ask a question…"
+                        wire:loading.attr="disabled"
+                        wire:target="ask,askWithVoice,sendFile"
+                        class="w-full rounded-full border border-line bg-transparent px-3 py-1.5 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+                    >
+                    <button
+                        type="submit"
+                        title="Send"
+                        wire:loading.attr="disabled"
+                        wire:target="ask,askWithVoice,sendFile"
+                        class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                    >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
+                </form>
+
+                <div wire:key="ask-voice-recorder-{{ count($messages) }}" class="shrink-0">
+                    <x-voice-recorder field="voiceQuestion" :file="$voiceQuestion" on-recorded="askWithVoice" file-name="question.webm" />
+                </div>
+            </div>
         </div>
     </div>
 </div>
