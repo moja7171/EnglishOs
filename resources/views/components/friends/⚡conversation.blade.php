@@ -4,6 +4,7 @@ use App\Models\DirectMessage;
 use App\Models\FriendBlock;
 use App\Models\FriendReport;
 use App\Models\User;
+use App\Services\GeminiClient;
 use Illuminate\Http\UploadedFile;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -122,20 +123,51 @@ new class extends Component
     {
         abort_unless(auth()->user()->canMessageWith($this->other), 403);
 
-        $streak = $this->other->currentStreak();
-
-        $body = $streak > 0
-            ? "Keep your {$streak}-day streak going today! 🔥"
-            : 'Come practice with me today!';
-
         DirectMessage::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $this->other->id,
             'type' => DirectMessage::TYPE_NUDGE,
-            'body' => $body,
+            'body' => $this->nudgeMessage(),
         ]);
 
         unset($this->thread);
+    }
+
+    /**
+     * A personalized nudge instead of one of a fixed pair of presets — the
+     * AI is grounded in the recipient's REAL streak (never fabricated), and
+     * writes in the sender's voice as a short, casual message. Silent
+     * fallback to the original hardcoded presets on any failure: sending a
+     * nudge is a nice-to-have, never something worth blocking or erroring
+     * out on (same non-blocking pattern as every other AI call in the app).
+     */
+    private function nudgeMessage(): string
+    {
+        $streak = $this->other->currentStreak();
+
+        $fallback = $streak > 0
+            ? "Keep your {$streak}-day streak going today! 🔥"
+            : 'Come practice with me today!';
+
+        try {
+            $context = $streak > 0
+                ? "{$this->other->name}'s current practice streak is {$streak} day(s) in a row."
+                : "{$this->other->name} doesn't have an active practice streak right now.";
+
+            $raw = app(GeminiClient::class)->chat(
+                [['role' => 'user', 'text' => $context]],
+                systemPrompt: 'Write a short, warm, casual nudge message from '.auth()->user()->name.' to a '
+                    .'friend, encouraging them to come practice English today. '.$context.' Sound like a real '
+                    .'text message between friends, not a formal notification — one short sentence, at most one '
+                    .'emoji. Reply with ONLY the message text, no quotation marks, no explanation.',
+            );
+
+            $message = trim($raw, " \t\n\r\0\x0B\"'");
+
+            return $message !== '' ? $message : $fallback;
+        } catch (\Throwable) {
+            return $fallback;
+        }
     }
 
     public function block(): void

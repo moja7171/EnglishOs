@@ -3,8 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\DirectMessage;
+use App\Models\Evidence;
 use App\Models\FriendBlock;
+use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -87,12 +91,14 @@ class FriendsConversationTest extends TestCase
         $this->assertDatabaseCount('direct_messages', 0);
     }
 
-    public function test_sending_a_nudge_uses_the_recipients_real_streak(): void
+    public function test_sending_a_nudge_falls_back_to_a_preset_when_the_ai_call_fails(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
         $bob->follow($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
 
         $this->actingAs($me);
 
@@ -104,6 +110,66 @@ class FriendsConversationTest extends TestCase
             'sender_id' => $me->id,
             'recipient_id' => $bob->id,
             'type' => DirectMessage::TYPE_NUDGE,
+            'body' => 'Come practice with me today!',
+        ]);
+    }
+
+    public function test_a_streak_holder_gets_the_streak_preset_as_a_fallback(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]);
+        Evidence::create([
+            'mission_run_id' => MissionRun::findOrStart($bob, $mission)->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => '{}',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('sendNudge')
+            ->assertSee('Keep your 1-day streak going today!');
+    }
+
+    public function test_sending_a_nudge_uses_the_ai_generated_message_grounded_in_the_real_streak(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->follow($me);
+
+        $this->mock(GeminiClient::class, function ($mock) use ($me) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages, $systemPrompt) => str_contains($messages[0]['text'], "doesn't have an active practice streak")
+                    && str_contains($systemPrompt, $me->name))
+                ->andReturn('Missed you today — come get some practice in! 😊');
+        });
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('sendNudge')
+            ->assertSee('Missed you today — come get some practice in!');
+
+        $this->assertDatabaseHas('direct_messages', [
+            'sender_id' => $me->id,
+            'recipient_id' => $bob->id,
+            'type' => DirectMessage::TYPE_NUDGE,
+            'body' => 'Missed you today — come get some practice in! 😊',
         ]);
     }
 
