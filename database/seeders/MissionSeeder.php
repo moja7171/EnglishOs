@@ -407,11 +407,14 @@ class MissionSeeder extends Seeder
                                 'hook' => 'You started this mission with a number — let\'s see how far it moved.',
                                 // Real structure from Mission01.pdf page 12 "Mission complete".
                                 'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                // Was free-text ("پرسش و پاسخ" felt like a chore) — now a pick from
+                                // real options for this run (see ⚡mission-result.blade.php's
+                                // reflectionOptions()), never a blank page to type into.
                                 'reflection_questions' => [
-                                    'became_easier' => 'What became easier?',
-                                    'still_difficult' => 'What is still difficult?',
-                                    'expression_to_keep' => 'One expression I want to keep using',
-                                    'grammar_to_review' => 'One grammar point I need to review',
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
                                 ],
                             ],
                         ],

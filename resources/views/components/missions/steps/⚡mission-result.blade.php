@@ -74,6 +74,33 @@ new class extends Component
     }
 
     /**
+     * Picking from real options beats a blank text box — every reflection
+     * question is authored with a "type" naming where its options come
+     * from, all real data about THIS run rather than a generic fixed
+     * list: the same skills self-assessed above, the learner's own
+     * Vocabulary Builder picks, or the corrections from their own Error
+     * Log this mission. Empty if that source has nothing yet (e.g. no
+     * mistakes logged this run) — the question is simply skipped, never a
+     * dead end forcing an answer that doesn't exist.
+     *
+     * @return list<string>
+     */
+    private function reflectionOptions(string $type): array
+    {
+        return match ($type) {
+            'skills' => $this->skills(),
+            'vocabulary' => $this->run->selectedVocabularyWords(),
+            'errors' => $this->run->errorLogItems()->pluck('correction')->filter()->unique()->values()->all(),
+            default => [],
+        };
+    }
+
+    public function selectReflectionOption(string $key, string $option): void
+    {
+        $this->reflection[$key] = $option;
+    }
+
+    /**
      * The learner's most-recurring error pattern across missions (see
      * User::topRecurringError(), built for Active Recall's spaced-
      * repetition prompt) — naturally already includes anything logged in
@@ -279,19 +306,43 @@ new class extends Component
         </div>
 
         <div x-show="activeSection === 1" x-cloak>
-            <div class="space-y-3">
-                @foreach ($this->questions() as $key => $label)
-                    <div>
-                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $label }}</p>
-                        <input
-                            type="text"
-                            wire:model="reflection.{{ $key }}"
-                            @unless ($readOnly)
-                                x-draft="{ key: '{{ $draftPrefix }}reflection.{{ $key }}', field: 'reflection.{{ $key }}' }"
-                            @endunless
-                            class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                        >
-                    </div>
+            <div class="space-y-4">
+                @foreach ($this->questions() as $key => $question)
+                    @php
+                        $label = is_array($question) ? $question['label'] : $question;
+                        $options = is_array($question) ? $this->reflectionOptions($question['type'] ?? '') : [];
+                    @endphp
+                    @if ($options || ! is_array($question))
+                        <div>
+                            <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $label }}</p>
+                            @if ($options)
+                                <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                    @foreach ($options as $option)
+                                        <button
+                                            type="button"
+                                            @unless ($readOnly)
+                                                wire:click="selectReflectionOption('{{ $key }}', {{ \Illuminate\Support\Js::from($option) }})"
+                                            @endunless
+                                            @class([
+                                                'cursor-pointer rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                                                'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => ($reflection[$key] ?? null) === $option,
+                                                'border-line text-ink-soft hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ($reflection[$key] ?? null) !== $option,
+                                            ])
+                                        >{{ $option }}</button>
+                                    @endforeach
+                                </div>
+                            @else
+                                <input
+                                    type="text"
+                                    wire:model="reflection.{{ $key }}"
+                                    @unless ($readOnly)
+                                        x-draft="{ key: '{{ $draftPrefix }}reflection.{{ $key }}', field: 'reflection.{{ $key }}' }"
+                                    @endunless
+                                    class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+                                >
+                            @endif
+                        </div>
+                    @endif
                 @endforeach
             </div>
 

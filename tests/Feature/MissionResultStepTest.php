@@ -376,6 +376,125 @@ class MissionResultStepTest extends TestCase
             ->assertDontSee('Share this with a friend');
     }
 
+    /**
+     * Mirrors the real seeded shape (see MissionSeeder) — each reflection
+     * question authored as {label, type}, not a plain string — used only
+     * by the tests below that exercise the actual pick-from-options UI.
+     */
+    private function makeRunWithSelectableReflection(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'mission',
+                    'steps' => [
+                        [
+                            'key' => 'mission_result',
+                            'label' => 'Mission Result',
+                            'skills' => ['Speaking', 'Writing'],
+                            'reflection_questions' => [
+                                'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_a_skills_type_reflection_question_offers_the_skill_chips(): void
+    {
+        $run = $this->makeRunWithSelectableReflection();
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->assertSee('What became easier?')
+            ->assertSee('Speaking')
+            ->assertSee('Writing');
+    }
+
+    public function test_selecting_a_chip_sets_the_reflection_answer(): void
+    {
+        $run = $this->makeRunWithSelectableReflection();
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->call('selectReflectionOption', 'became_easier', 'Speaking')
+            ->assertSet('reflection.became_easier', 'Speaking');
+    }
+
+    public function test_a_vocabulary_type_reflection_offers_the_learners_own_words(): void
+    {
+        $run = $this->makeRunWithSelectableReflection();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['selected_words' => ['wake up', 'commute']]),
+        ]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->assertSee('One expression I want to keep using')
+            ->assertSee('wake up')
+            ->assertSee('commute');
+    }
+
+    public function test_an_errors_type_reflection_offers_this_runs_corrections(): void
+    {
+        $run = $this->makeRunWithSelectableReflection();
+
+        ErrorLogItem::create([
+            'mission_run_id' => $run->id,
+            'error' => 'She go home.',
+            'correction' => 'She goes home.',
+        ]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->assertSee('One grammar point I need to review')
+            ->assertSee('She goes home.');
+    }
+
+    public function test_a_reflection_question_with_no_available_options_is_skipped(): void
+    {
+        $run = $this->makeRunWithSelectableReflection(); // no vocabulary_builder Evidence, no ErrorLogItem
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->assertSee('What became easier?') // skills always available
+            ->assertDontSee('One expression I want to keep using')
+            ->assertDontSee('One grammar point I need to review');
+    }
+
+    public function test_a_selected_reflection_option_persists_through_finish(): void
+    {
+        $run = $this->makeRunWithSelectableReflection();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        $component = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->call('selectReflectionOption', 'became_easier', 'Speaking')
+            ->call('getResult');
+
+        $component->call('finish');
+
+        $reflection = Reflection::first();
+        $this->assertSame('Speaking', $reflection->answers['became_easier']);
+    }
+
     public function test_read_only_mode_loads_the_saved_decision_without_calling_gemini(): void
     {
         $run = $this->makeRun();
