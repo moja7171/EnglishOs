@@ -6,12 +6,22 @@
     @param \App\Models\MissionRun $run
     @param bool $readOnly
     @param bool $listened
+    @param string $recall
 --}}
 @php $listening = $run->mission->stepContent('listening'); @endphp
 
 <div
     class="space-y-6"
-    x-data="{ hasListened: {{ $listened ? 'true' : 'false' }}, showTranscript: false }"
+    x-data="{
+        hasListened: {{ $listened ? 'true' : 'false' }},
+        showTranscript: false,
+        recall: @js($recall),
+        targetPhrases: @js($this->targetPhrasesForRecall()),
+        get matchesTarget() {
+            const text = this.recall.toLowerCase();
+            return this.recall.trim() !== '' && this.targetPhrases.some((p) => text.includes(p));
+        },
+    }"
     x-on:audio-ended="hasListened = true; $wire.markListened()"
 >
     <x-hook :text="$this->hook()" />
@@ -61,16 +71,41 @@
         </div>
     @endif
 
+    {{-- A tiny, ungraded recall prompt — turns passive re-listening into
+         one small act of active retrieval. Anything counts; the only
+         reaction is a quiet nod if it happens to match a real target
+         phrase, never a "wrong answer" state. --}}
+    <div x-show="hasListened || {{ $readOnly ? 'true' : 'false' }}" @unless($readOnly) x-cloak @endunless>
+        <label class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $this->recallPrompt() }}</label>
+        <div class="mt-1 flex items-center gap-2">
+            <input
+                type="text"
+                wire:model="recall"
+                x-on:input="recall = $el.value"
+                placeholder="A word or phrase…"
+                @readonly($readOnly)
+                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+            >
+        </div>
+        <p x-show="matchesTarget" x-cloak class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
+            @svg('heroicon-s-sparkles', 'h-3.5 w-3.5') That's one of the key phrases!
+        </p>
+        @error('recall')
+            <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+        @enderror
+    </div>
+
     @unless ($readOnly)
         <div>
             <button
                 wire:click="save"
-                :disabled="!hasListened"
+                :disabled="!hasListened || !recall.trim()"
                 class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
             >
                 Continue
             </button>
             <p x-show="!hasListened" x-cloak class="mt-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">Listen at least once to continue.</p>
+            <p x-show="hasListened && !recall.trim()" x-cloak class="mt-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">Write a word or phrase above to continue.</p>
         </div>
     @endunless
 </div>

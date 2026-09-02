@@ -50,26 +50,37 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'vocabulary_builder',
                                 'label' => 'Vocabulary Builder',
-                                // Was 15 — +1 for the new "pick which words join My Words" recap step.
-                                'duration_minutes' => 16,
+                                // Was 15, then 16 for the "pick which words join My Words" recap
+                                // step; now 17 for 4 more story words woven in to overlap with the
+                                // real Listening episode's own vocabulary.
+                                'duration_minutes' => 17,
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
                                 // Word selection follows every sub-topic of English Vocabulary in Use
                                 // Unit 16, "Daily routines" (Sleep / Food / Bathroom routines / Housework
                                 // / Spare time — the book's own 5 sections). The story and every meaning
                                 // below are written fresh for this app, not copied from it (see EOS-009
                                 // §14: content stays original, licensing/piracy risk).
+                                // "sleep in", "oversleep", "morning person", and "skip breakfast" are
+                                // deliberately woven in here too, not just their own vocabulary — the
+                                // real BBC Listening audio right after this step uses these same 4
+                                // words/phrases (plus "get up", already above), so every learner reads
+                                // them here first regardless of which words they personally select,
+                                // then hears them again in context. Previously the two steps' word
+                                // pools barely overlapped.
                                 'story' => [
                                     [
                                         'heading' => 'Sleep',
-                                        'text' => 'During the week, I **wake up** at half past six and '
-                                            .'**get up** straight away. I usually **go to bed** around '
-                                            .'eleven and **go to sleep** quickly, but sometimes I '
-                                            .'**have a late night** if I\'m out with friends. At weekends '
-                                            .'I like to **have a sleep** in the afternoon instead.',
+                                        'text' => 'I\'m not really a **morning person**, so during the '
+                                            .'week I **wake up** at half past six and **get up** straight '
+                                            .'away, before I can **oversleep**. I usually **go to bed** '
+                                            .'around eleven and **go to sleep** quickly, but sometimes I '
+                                            .'**have a late night** if I\'m out with friends. At weekends, '
+                                            .'though, I love to **sleep in** and **have a sleep** in the '
+                                            .'afternoon too.',
                                     ],
                                     [
                                         'heading' => 'Food',
-                                        'text' => 'For breakfast I usually have **cereal**, then at work I '
+                                        'text' => 'I never **skip breakfast** — for breakfast I usually have **cereal**, then at work I '
                                             .'**have a light lunch** — just a sandwich and a **snack** in '
                                             .'the afternoon. If I\'m tired, I sometimes **don\'t bother** '
                                             .'cooking and order a **takeaway** instead. Before I leave, I '
@@ -108,7 +119,15 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'go to sleep', 'meaning' => 'to start sleeping'],
                                     ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual'],
                                     ['phrase' => 'have a sleep', 'meaning' => 'to rest for a short period during the day'],
+                                    // Same 4 words/phrases the real Listening episode uses (see the
+                                    // "story" comment above) — same meanings as Listening's own
+                                    // target_phrases, so the definition never contradicts itself
+                                    // between the two steps.
+                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day'],
+                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident'],
+                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual'],
                                     // Food
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do'],
                                     ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk'],
                                     ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday'],
                                     ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals'],
@@ -263,8 +282,10 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
-                                'duration_minutes' => 2,
+                                // Was 2 — +1 for the new ungraded recall prompt.
+                                'duration_minutes' => 3,
                                 'hook' => 'Two minutes before anything else — let your ear warm up to English again.',
+                                'recall_prompt' => 'Write one word or phrase you remember hearing.',
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -324,8 +345,10 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
-                                'duration_minutes' => 2,
+                                // Was 2 — +1 for the new ungraded recall prompt.
+                                'duration_minutes' => 3,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
+                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -376,8 +399,10 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'daily_listen_4',
                                 'label' => 'Daily Listening',
-                                'duration_minutes' => 2,
+                                // Was 2 — +1 for the new ungraded recall prompt.
+                                'duration_minutes' => 3,
                                 'hook' => 'Last time hearing this one — notice how much easier it sounds now.',
+                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
                             ],
                             [
                                 'key' => 'active_recall',

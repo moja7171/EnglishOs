@@ -34,20 +34,31 @@ class DailyListenStepTest extends TestCase
                                 ['speaker' => 'Neil', 'text' => 'Hello and welcome.'],
                                 ['speaker' => 'Georgie', 'text' => "And I'm Georgie."],
                             ],
+                            'target_phrases' => [
+                                ['phrase' => 'sleep in', 'meaning' => 'to stay in bed longer than usual'],
+                            ],
                         ],
                     ],
                 ],
                 [
                     'phase' => 'build',
                     'steps' => [
-                        ['key' => 'daily_listen_2', 'hook' => 'Two minutes before anything else.'],
+                        [
+                            'key' => 'daily_listen_2',
+                            'hook' => 'Two minutes before anything else.',
+                            'recall_prompt' => 'Write one word or phrase you remember hearing.',
+                        ],
                         ['key' => 'grammar_in_context'],
                     ],
                 ],
                 [
                     'phase' => 'practice',
                     'steps' => [
-                        ['key' => 'daily_listen_3', 'hook' => 'Same audio, one more time.'],
+                        [
+                            'key' => 'daily_listen_3',
+                            'hook' => 'Same audio, one more time.',
+                            'recall_prompt' => 'Write a different word or phrase this time.',
+                        ],
                         ['key' => 'ai_conversation_1'],
                     ],
                 ],
@@ -93,6 +104,7 @@ class DailyListenStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->set('recall', 'sleep in')
             ->call('save');
 
         $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
@@ -106,11 +118,72 @@ class DailyListenStepTest extends TestCase
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
             ->call('markListened')
             ->assertSet('listened', true)
+            ->set('recall', 'sleep in')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
         $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
+    }
+
+    public function test_continue_is_blocked_until_a_recall_answer_is_written(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->call('markListened')
+            ->call('save')
+            ->assertHasErrors(['recall']);
+
+        $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
+    }
+
+    public function test_the_recall_answer_is_saved_whatever_it_is_never_graded(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->call('markListened')
+            ->set('recall', 'something totally unrelated')
+            ->call('save');
+
+        $evidence = Evidence::where('mission_run_id', $run->id)->where('phase', 'daily_listen_2')->firstOrFail();
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertSame('something totally unrelated', $content['recall']);
+    }
+
+    public function test_each_day_has_its_own_recall_prompt(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSee('Write one word or phrase you remember hearing.');
+
+        Livewire::test('missions.steps.daily-listen-3', ['run' => $run])
+            ->assertSee('Write a different word or phrase this time.');
+    }
+
+    public function test_matching_a_real_target_phrase_is_passed_to_the_page(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSeeHtml('sleep in');
+    }
+
+    public function test_read_only_mode_shows_the_previously_saved_recall_answer(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'daily_listen_2',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['listened' => true, 'recall' => 'oversleep']),
+        ]);
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run, 'readOnly' => true])
+            ->assertSet('recall', 'oversleep');
     }
 
     public function test_each_day_needs_its_own_fresh_listen_not_satisfied_by_another_day(): void
@@ -120,6 +193,7 @@ class DailyListenStepTest extends TestCase
         // Day 2's gate is done...
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
             ->call('markListened')
+            ->set('recall', 'sleep in')
             ->call('save');
 
         // ...but Day 3's gate is a completely separate step key, still open.
@@ -134,11 +208,13 @@ class DailyListenStepTest extends TestCase
         // Day 2's gate already passed.
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
             ->call('markListened')
+            ->set('recall', 'sleep in')
             ->call('save');
 
         Livewire::test('missions.steps.daily-listen-3', ['run' => $run])
             ->assertSee('Same audio, one more time.')
             ->call('markListened')
+            ->set('recall', 'oversleep')
             ->call('save');
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_3']);
@@ -156,7 +232,7 @@ class DailyListenStepTest extends TestCase
             'mission_run_id' => $run->id,
             'phase' => 'daily_listen_2',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => '1',
+            'content_ref' => json_encode(['listened' => true, 'recall' => 'sleep in']),
         ]);
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run, 'readOnly' => true])
