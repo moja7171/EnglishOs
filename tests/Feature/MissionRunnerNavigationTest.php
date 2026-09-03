@@ -93,6 +93,32 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSet('isReviewing', false);
     }
 
+    /**
+     * Only exercises real behavior once TESTING_UNLOCK_ALL_STEPS is false
+     * — see project_testing_unlock_all_steps memory. Direct-URL access is
+     * the path the overview page's own gated card can't cover, since it
+     * never renders a link to a gated mission in the first place.
+     */
+    public function test_direct_url_access_to_a_gated_mission_redirects_home(): void
+    {
+        $learner = User::factory()->create();
+        $m01 = $this->makeMission();
+        $m02 = Mission::create([
+            'code' => 'M02',
+            'title' => 'My Neighborhood',
+            'module' => 'Me',
+            'outcome' => 'I can describe where I live.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $m02, 'step' => null])
+            ->assertRedirect(route('home'));
+
+        $this->assertDatabaseMissing('mission_runs', ['learner_id' => $learner->id, 'mission_id' => $m02->id]);
+    }
+
     public function test_previous_and_next_step_keys_only_span_reachable_steps(): void
     {
         $learner = User::factory()->create();

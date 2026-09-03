@@ -24,8 +24,23 @@ new class extends Component
     #[Url]
     public bool $retry = false;
 
+    /**
+     * Checked BEFORE findOrStart() deliberately — that call is a
+     * firstOrCreate() and would otherwise plant an 'in_progress' run for a
+     * still-gated mission on the mere act of visiting its URL, which would
+     * then permanently exempt it from the gate (see
+     * MissionRun::gatingMission()'s "already has ANY run" carve-out).
+     * Direct-URL access is the only way in that skips the overview page's
+     * own gated card, so this is real enforcement, not just UI decoration.
+     */
     public function mount(Mission $mission, ?string $step = null): void
     {
+        if (MissionRun::gatingMission(auth()->user(), $mission)) {
+            $this->redirect(route('home'), navigate: true);
+
+            return;
+        }
+
         $this->mission = $mission;
         $this->run = MissionRun::findOrStart(auth()->user(), $mission);
         $this->viewStep = $step;

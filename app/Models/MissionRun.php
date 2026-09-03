@@ -309,6 +309,50 @@ class MissionRun extends Model
     }
 
     /**
+     * The previous mission blocking this one, or null if it's open —
+     * Evidence Before Progress (EOS-001 Article 3) applied mission-to-
+     * mission: a mission stays gated until its predecessor's run is at
+     * least 'complete' or 'needs_review' (never started, still
+     * 'in_progress', or 'retry_evidence' all block). A learner who already
+     * has ANY run of their own for $mission is exempt — this must never
+     * retroactively lock progress made before this gate existed, or made
+     * while TESTING_UNLOCK_ALL_STEPS bypassed it (also checked here).
+     */
+    public static function gatingMission(User $learner, Mission $mission): ?Mission
+    {
+        if (self::TESTING_UNLOCK_ALL_STEPS) {
+            return null;
+        }
+
+        $previousMission = $mission->previousMission();
+
+        if (! $previousMission) {
+            return null;
+        }
+
+        $alreadyStarted = self::query()
+            ->where('learner_id', $learner->id)
+            ->where('mission_id', $mission->id)
+            ->exists();
+
+        if ($alreadyStarted) {
+            return null;
+        }
+
+        $previousRun = self::query()
+            ->where('learner_id', $learner->id)
+            ->where('mission_id', $previousMission->id)
+            ->first();
+
+        $previousCleared = $previousRun && in_array($previousRun->status, [
+            self::STATUS_COMPLETE,
+            self::STATUS_NEEDS_REVIEW,
+        ], true);
+
+        return $previousCleared ? null : $previousMission;
+    }
+
+    /**
      * Finds the learner's run for this mission — whatever its status — or
      * starts a new one. Keying only on learner+mission (not status) matters:
      * once a run is complete, revisiting the mission must show that same

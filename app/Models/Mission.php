@@ -28,6 +28,28 @@ class Mission extends Model
     }
 
     /**
+     * The seeded mission immediately before this one in the curriculum
+     * sequence ("M03" → "M02"), or null for the first mission or when the
+     * previous slot hasn't been seeded yet. Codes are zero-padded "M##"
+     * (EOS-009 §15) — see MissionRun::gatingMission() for how this is used
+     * to enforce Evidence Before Progress across missions.
+     */
+    public function previousMission(): ?self
+    {
+        if (! preg_match('/^M(\d+)$/', $this->code, $matches)) {
+            return null;
+        }
+
+        $number = (int) $matches[1];
+
+        if ($number <= 1) {
+            return null;
+        }
+
+        return static::where('code', sprintf('M%02d', $number - 1))->first();
+    }
+
+    /**
      * Flattens phases[].steps[] into an ordered list of step keys, in the
      * order a learner must complete them (EOS-009 §7).
      *

@@ -167,4 +167,59 @@ class MissionRunLifecycleTest extends TestCase
 
         $this->assertNull($run->fresh()->currentStepKey());
     }
+
+    public function test_previous_mission_finds_the_prior_seeded_mission(): void
+    {
+        $m01 = $this->makeMission();
+        $m02 = Mission::create([
+            'code' => 'M02',
+            'title' => 'My Neighborhood',
+            'module' => 'Me',
+            'outcome' => 'I can describe where I live.',
+            'phases' => [],
+        ]);
+
+        $this->assertTrue($m02->previousMission()->is($m01));
+    }
+
+    public function test_previous_mission_is_null_for_the_first_mission(): void
+    {
+        $this->assertNull($this->makeMission()->previousMission());
+    }
+
+    public function test_previous_mission_is_null_when_the_prior_slot_is_not_seeded(): void
+    {
+        $m03 = Mission::create([
+            'code' => 'M03',
+            'title' => 'My Free Time',
+            'module' => 'Me',
+            'outcome' => 'I can talk about hobbies.',
+            'phases' => [],
+        ]);
+
+        $this->assertNull($m03->previousMission());
+    }
+
+    /**
+     * Documents the current, deliberate bypass — see
+     * project_testing_unlock_all_steps memory. This test itself must be
+     * updated (not just left failing) when TESTING_UNLOCK_ALL_STEPS
+     * reverts to false, since it's asserting the bypass, not the gate.
+     */
+    public function test_gating_mission_bypasses_entirely_while_testing_unlock_all_steps_is_on(): void
+    {
+        $this->assertTrue(MissionRun::TESTING_UNLOCK_ALL_STEPS);
+
+        $learner = User::factory()->create();
+        $m01 = $this->makeMission();
+        $m02 = Mission::create([
+            'code' => 'M02',
+            'title' => 'My Neighborhood',
+            'module' => 'Me',
+            'outcome' => 'I can describe where I live.',
+            'phases' => [],
+        ]);
+
+        $this->assertNull(MissionRun::gatingMission($learner, $m02));
+    }
 }

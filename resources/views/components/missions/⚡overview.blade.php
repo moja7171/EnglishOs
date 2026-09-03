@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Mission;
+use App\Models\MissionRun;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -40,17 +41,29 @@ new class extends Component
      * real clickable cards, the rest as locked placeholders — rather than
      * the list just trailing off after whatever happens to exist yet.
      *
-     * @return list<Mission|string> a Mission where seeded, otherwise its
-     *                              not-yet-seeded code (e.g. "M07")
+     * Evidence Before Progress (EOS-001 Article 3) also gates mission-to-
+     * mission: a seeded mission whose predecessor's MissionRun isn't at
+     * least 'complete' or 'needs_review' — never started, still
+     * 'in_progress', or 'retry_evidence' — renders as gated instead of
+     * clickable. A learner who already has ANY run of their own for that
+     * mission is exempt, so this never retroactively locks progress made
+     * before the gate existed (or while TESTING_UNLOCK_ALL_STEPS bypasses
+     * it entirely below).
+     *
+     * @return list<array{code: string, mission: ?Mission, blockedBy: ?Mission}>
      */
     #[Computed]
     public function missionSlots(): array
     {
         $seeded = Mission::orderBy('code')->get()->keyBy('code');
+        $learner = auth()->user();
 
         return collect(range(1, 24))
             ->map(fn ($n) => sprintf('M%02d', $n))
-            ->map(fn ($code) => $seeded->get($code) ?? $code)
+            ->map(fn ($code) => ['code' => $code, 'mission' => $seeded->get($code)])
+            ->map(fn ($slot) => $slot + [
+                'blockedBy' => $slot['mission'] ? MissionRun::gatingMission($learner, $slot['mission']) : null,
+            ])
             ->all();
     }
 };
@@ -101,22 +114,36 @@ new class extends Component
     @endif
 
     @foreach ($this->missionSlots as $slot)
-        @if ($slot instanceof Mission)
-            <a href="{{ route('missions.show', $slot) }}"
-               data-mood="{{ $slot->moodKey() }}"
-               class="block rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $slot->code }} · {{ $slot->module }}</p>
-                <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $slot->title }}</h2>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $slot->outcome }}</p>
-            </a>
-        @else
+        @if (! $slot['mission'])
             <div class="flex items-center justify-between rounded-2xl border border-line bg-surface-sunken p-4 opacity-60 dark:border-line-dark dark:bg-surface-sunken-dark">
                 <div>
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot }}</p>
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['code'] }}</p>
                     <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">Coming soon</p>
                 </div>
                 <span class="shrink-0 text-ink-faint dark:text-ink-faint-dark">@svg('heroicon-o-lock-closed', 'h-4 w-4')</span>
             </div>
+        @elseif ($slot['blockedBy'])
+            <div class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                <div>
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
+                    <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['mission']->title }}</p>
+                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Finish {{ $slot['blockedBy']->code }} first to unlock this one.</p>
+                </div>
+                <a
+                    href="{{ route('missions.show', $slot['blockedBy']) }}"
+                    wire:navigate
+                    title="Go to {{ $slot['blockedBy']->code }}"
+                    class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark"
+                >@svg('heroicon-o-lock-closed', 'h-4 w-4')</a>
+            </div>
+        @else
+            <a href="{{ route('missions.show', $slot['mission']) }}"
+               data-mood="{{ $slot['mission']->moodKey() }}"
+               class="block rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
+                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
+                <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $slot['mission']->title }}</h2>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $slot['mission']->outcome }}</p>
+            </a>
         @endif
     @endforeach
 </div>

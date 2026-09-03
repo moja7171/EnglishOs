@@ -104,4 +104,98 @@ class MissionsOverviewTest extends TestCase
         Livewire::test('missions.overview')
             ->assertDontSee('Fresh start');
     }
+
+    private function makeSecondMission(): Mission
+    {
+        return Mission::create([
+            'code' => 'M02',
+            'title' => 'My Neighborhood',
+            'module' => 'Me',
+            'outcome' => 'I can describe where I live.',
+            'phases' => [
+                ['phase' => 'foundation', 'label' => 'Day 1', 'steps' => [['key' => 'mission_brief']]],
+            ],
+        ]);
+    }
+
+    /**
+     * These 4 gating tests only exercise real behavior once
+     * MissionRun::TESTING_UNLOCK_ALL_STEPS is false — see
+     * project_testing_unlock_all_steps memory. Expected to fail alongside
+     * the other 4 known TESTING_UNLOCK_ALL_STEPS-caused failures until
+     * that flag is reverted.
+     */
+    public function test_a_mission_is_gated_until_its_predecessor_is_cleared(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeMission();
+        $this->makeSecondMission();
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Finish M01 first to unlock this one.');
+    }
+
+    public function test_a_mission_unlocks_once_its_predecessor_is_complete(): void
+    {
+        $learner = User::factory()->create();
+        $first = $this->makeMission();
+        $second = $this->makeSecondMission();
+
+        $run = MissionRun::findOrStart($learner, $first);
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSee('Finish M01 first to unlock this one.')
+            ->assertSeeHtml(route('missions.show', $second));
+    }
+
+    public function test_a_mission_unlocks_when_its_predecessor_is_needs_review_not_just_complete(): void
+    {
+        $learner = User::factory()->create();
+        $first = $this->makeMission();
+        $this->makeSecondMission();
+
+        $run = MissionRun::findOrStart($learner, $first);
+        $run->update(['status' => MissionRun::STATUS_NEEDS_REVIEW, 'completed_at' => now()]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSee('Finish M01 first to unlock this one.');
+    }
+
+    public function test_a_mission_stays_gated_when_its_predecessor_needs_retry_evidence(): void
+    {
+        $learner = User::factory()->create();
+        $first = $this->makeMission();
+        $this->makeSecondMission();
+
+        $run = MissionRun::findOrStart($learner, $first);
+        $run->update(['status' => MissionRun::STATUS_RETRY_EVIDENCE, 'completed_at' => now()]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Finish M01 first to unlock this one.');
+    }
+
+    public function test_progress_already_made_on_a_gated_mission_is_never_locked_out(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeMission();
+        $second = $this->makeSecondMission();
+
+        // The learner already has a run of their own for M02 — from
+        // before this gate existed, or made while TESTING_UNLOCK_ALL_STEPS
+        // bypassed it — and must never be retroactively locked out of it.
+        MissionRun::findOrStart($learner, $second);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSee('Finish M01 first to unlock this one.');
+    }
 }
