@@ -568,7 +568,7 @@ new class extends Component
                 </div>
             @elseif ($streak = $this->run->learner->currentStreak())
                 <p class="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
-                    @svg('heroicon-s-fire', 'h-3.5 w-3.5')
+                    <x-streak-flame :streak="$streak" />
                     {{ $streak === 1 ? "You're on a 1-day streak — nice start!" : "You're on a {$streak}-day streak — keep it going!" }}
                 </p>
             @endif

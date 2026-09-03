@@ -55,7 +55,7 @@
                         class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark"
                         title="{{ $streak }}-day streak"
                     >
-                        @svg('heroicon-s-fire', 'h-3.5 w-3.5')
+                        <x-streak-flame :streak="$streak" />
                         {{ $streak }}
                     </span>
                 @endif

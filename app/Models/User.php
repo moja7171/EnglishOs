@@ -457,6 +457,39 @@ class User extends Authenticatable
     }
 
     /**
+     * A real single-month calendar grid (Sunday-start, padded with the
+     * adjacent months' days so every week row has 7 cells) — the "look
+     * back at one specific month" counterpart to activityCalendar()'s
+     * 12-week strip. Powers <x-month-calendar> on the Progress page.
+     *
+     * @return list<array{date: string, day: int, active: bool, future: bool, inMonth: bool, isToday: bool}>
+     */
+    public function activityForMonth(int $year, int $month): array
+    {
+        $active = $this->activeDates()->map(fn (Carbon $date) => $date->toDateString())->flip();
+        $firstOfMonth = Carbon::create($year, $month, 1)->startOfDay();
+        $gridStart = $firstOfMonth->copy()->startOfWeek(Carbon::SUNDAY);
+        $gridEnd = $firstOfMonth->copy()->endOfMonth()->endOfWeek(Carbon::SATURDAY);
+
+        $days = [];
+        $cursor = $gridStart->copy();
+
+        while ($cursor->lte($gridEnd)) {
+            $days[] = [
+                'date' => $cursor->toDateString(),
+                'day' => $cursor->day,
+                'active' => $active->has($cursor->toDateString()),
+                'future' => $cursor->isFuture(),
+                'inMonth' => $cursor->month === $month,
+                'isToday' => $cursor->isToday(),
+            ];
+            $cursor = $cursor->copy()->addDay();
+        }
+
+        return $days;
+    }
+
+    /**
      * How many days this calendar week (Sunday-start, same boundary as
      * activityCalendar()) already have real activity — what
      * weekly_goal_days is measured against.
@@ -526,6 +559,26 @@ class User extends Authenticatable
     }
 
     /**
+     * The next streak badge (7/30/100) still ahead of the CURRENT streak
+     * — null once every tier is earned. Powers <x-milestone-path>'s "X
+     * days to go" framing, a nearer-term goal than just showing badges
+     * already earned.
+     */
+    public function nextStreakMilestone(): ?int
+    {
+        $streak = $this->currentStreak();
+
+        return collect(self::STREAK_MILESTONES)->sort()->first(fn (int $milestone) => $milestone > $streak);
+    }
+
+    public function daysUntilNextMilestone(): ?int
+    {
+        $next = $this->nextStreakMilestone();
+
+        return $next === null ? null : $next - $this->currentStreak();
+    }
+
+    /**
      * Grammar/vocabulary error categories (see ErrorLogItem::$category)
      * that this learner has been flagged for in 2 or more DIFFERENT
      * mission runs — the same slip showing up twice within one Error Log
@@ -573,6 +626,112 @@ class User extends Authenticatable
             ->orderByDesc('error_log_items.id')
             ->select('error_log_items.*')
             ->first();
+    }
+
+    /**
+     * A lightweight "is this actually improving" signal for the top
+     * recurring error category — deliberately NOT a full chart, since
+     * most learners simply don't have enough dated data points yet for
+     * one to look like anything but noise (or an empty state). Compares
+     * how often the category showed up across the learner's 2 MOST
+     * RECENT mission runs against its all-time total.
+     *
+     * @return array{category: string, totalCount: int, recentCount: int}|null
+     */
+    public function topRecurringErrorTrend(): ?array
+    {
+        $category = $this->recurringErrorCategories()->first();
+
+        if ($category === null) {
+            return null;
+        }
+
+        $totalCount = ErrorLogItem::query()
+            ->join('mission_runs', 'mission_runs.id', '=', 'error_log_items.mission_run_id')
+            ->where('mission_runs.learner_id', $this->id)
+            ->where('error_log_items.category', $category)
+            ->count();
+
+        $recentRunIds = $this->missionRuns()
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->limit(2)
+            ->pluck('id');
+
+        $recentCount = ErrorLogItem::query()
+            ->whereIn('mission_run_id', $recentRunIds)
+            ->where('category', $category)
+            ->count();
+
+        return ['category' => $category, 'totalCount' => $totalCount, 'recentCount' => $recentCount];
+    }
+
+    /**
+     * Average "after" self-assessment score per skill (0-5) across every
+     * completed mission — feeds <x-skill-radar> on the Progress page.
+     * Deliberately excludes the "before" scores (this is a snapshot of
+     * where the learner stands now, not a before/after comparison).
+     *
+     * @return array<string, float>
+     */
+    public function skillAverages(): array
+    {
+        return SelfAssessment::query()
+            ->join('mission_runs', 'mission_runs.id', '=', 'self_assessments.mission_run_id')
+            ->where('mission_runs.learner_id', $this->id)
+            ->whereNotNull('self_assessments.after')
+            ->selectRaw('self_assessments.skill as skill, AVG(self_assessments.after) as avg_after')
+            ->groupBy('self_assessments.skill')
+            ->pluck('avg_after', 'skill')
+            ->map(fn ($value) => round((float) $value, 1))
+            ->all();
+    }
+
+    /**
+     * Total real minutes practiced — summed duration_minutes for every
+     * step that actually has recorded Evidence, across every mission run
+     * this learner has ever started (not just completed ones). A
+     * satisfying "time invested" number for the Progress page.
+     */
+    public function totalPracticeMinutes(): int
+    {
+        return $this->missionRuns()
+            ->get()
+            ->sum(function (MissionRun $run) {
+                $recordedPhases = $run->evidence()->pluck('phase')->unique();
+
+                return collect($run->mission->stepKeys())
+                    ->filter(fn (string $key) => $recordedPhases->contains($key))
+                    ->sum(fn (string $key) => $run->mission->stepDuration($key));
+            });
+    }
+
+    /**
+     * New vocabulary words added per week over the last N weeks — feeds a
+     * simple growth bar chart on the Progress page. Sunday-start weeks,
+     * same boundary as activityCalendar()/activeDaysThisWeek().
+     *
+     * @return list<array{label: string, count: int}>
+     */
+    public function vocabularyGrowthByWeek(int $weeks = 8): array
+    {
+        $start = now()->startOfWeek(Carbon::SUNDAY)->subWeeks($weeks - 1);
+
+        $counted = $this->vocabularyWords()
+            ->where('created_at', '>=', $start)
+            ->get()
+            ->groupBy(fn (VocabularyWord $word) => $word->created_at->startOfWeek(Carbon::SUNDAY)->toDateString());
+
+        return collect(range(0, $weeks - 1))
+            ->map(function (int $offset) use ($start, $counted) {
+                $weekStart = $start->copy()->addWeeks($offset);
+
+                return [
+                    'label' => $weekStart->format('M j'),
+                    'count' => $counted->get($weekStart->toDateString(), collect())->count(),
+                ];
+            })
+            ->all();
     }
 
     /**

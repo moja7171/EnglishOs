@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\ErrorLogItem;
+use App\Models\Mission;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -12,11 +14,56 @@ new class extends Component
 
     public bool $weeklyGoalSaved = false;
 
+    /** The month currently shown in <x-month-calendar> — starts on today's month. */
+    public int $calendarYear;
+
+    public int $calendarMonth;
+
     public function mount(): void
     {
         $user = auth()->user();
 
         $this->weeklyGoalDays = $user->weekly_goal_days ? (string) $user->weekly_goal_days : '';
+        $this->calendarYear = (int) now()->year;
+        $this->calendarMonth = (int) now()->month;
+    }
+
+    public function previousMonth(): void
+    {
+        $date = Carbon::create($this->calendarYear, $this->calendarMonth, 1)->subMonthNoOverflow();
+        $this->calendarYear = $date->year;
+        $this->calendarMonth = $date->month;
+    }
+
+    /** Never lets the learner navigate past the current real month. */
+    public function nextMonth(): void
+    {
+        $date = Carbon::create($this->calendarYear, $this->calendarMonth, 1)->addMonthNoOverflow();
+
+        if ($date->gt(now()->startOfMonth())) {
+            return;
+        }
+
+        $this->calendarYear = $date->year;
+        $this->calendarMonth = $date->month;
+    }
+
+    #[Computed]
+    public function isCurrentCalendarMonth(): bool
+    {
+        return $this->calendarYear === (int) now()->year && $this->calendarMonth === (int) now()->month;
+    }
+
+    #[Computed]
+    public function calendarMonthLabel(): string
+    {
+        return Carbon::create($this->calendarYear, $this->calendarMonth, 1)->format('F Y');
+    }
+
+    #[Computed]
+    public function calendarDays(): array
+    {
+        return auth()->user()->activityForMonth($this->calendarYear, $this->calendarMonth);
     }
 
     /**
@@ -61,6 +108,33 @@ new class extends Component
         return auth()->user()->averageMemoryFreshness();
     }
 
+    /** @return array<string, float> */
+    #[Computed]
+    public function skillAverages(): array
+    {
+        return auth()->user()->skillAverages();
+    }
+
+    /** @return array{category: string, totalCount: int, recentCount: int}|null */
+    #[Computed]
+    public function topErrorTrend(): ?array
+    {
+        return auth()->user()->topRecurringErrorTrend();
+    }
+
+    #[Computed]
+    public function totalPracticeMinutes(): int
+    {
+        return auth()->user()->totalPracticeMinutes();
+    }
+
+    /** @return list<array{label: string, count: int}> */
+    #[Computed]
+    public function vocabularyGrowth(): array
+    {
+        return auth()->user()->vocabularyGrowthByWeek();
+    }
+
     /**
      * A plain manual check, not $this->validate() — the <select> only ever
      * offers "no goal" (empty string) or 1-7, and Laravel's "nullable"
@@ -100,34 +174,27 @@ new class extends Component
         </div>
     </header>
 
-    <div class="grid grid-cols-2 gap-3">
-        <div class="rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
-                @svg('heroicon-s-fire', 'h-3.5 w-3.5') Current streak
+    {{-- Streak hero — current streak, longest streak, and the path to the
+         next badge, all in one card instead of three separate ones. --}}
+    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
+                    <x-streak-flame :streak="$this->progressStats['currentStreak']" /> Current streak
+                </p>
+                <p class="mt-1 text-3xl font-extrabold text-accent-ink dark:text-accent-ink-dark">{{ $this->progressStats['currentStreak'] }}</p>
+            </div>
+            <p class="inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                @svg('heroicon-o-trophy', 'h-3.5 w-3.5') Best: {{ $this->progressStats['longestStreak'] }}
             </p>
-            <p class="mt-1 text-2xl font-extrabold text-accent-ink dark:text-accent-ink-dark">{{ $this->progressStats['currentStreak'] }}</p>
         </div>
-        <div class="rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
-                @svg('heroicon-o-trophy', 'h-3.5 w-3.5') Longest streak
-            </p>
-            <p class="mt-1 text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->progressStats['longestStreak'] }}</p>
-        </div>
-        <div class="rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
-                @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') Missions completed
-            </p>
-            <p class="mt-1 text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->progressStats['missionsCompleted'] }}</p>
-        </div>
-        <div class="rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
-                @svg('heroicon-o-book-open', 'h-3.5 w-3.5') Words learned
-            </p>
-            <p class="mt-1 text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->progressStats['vocabularyCount'] }}</p>
-        </div>
+        <x-milestone-path :current-streak="$this->progressStats['currentStreak']" class="mt-2" />
     </div>
 
-    <div class="rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
+    {{-- Today — the two things actually actionable right now (what to
+         review, whether the weekly goal is on track), merged into one
+         card so the daily-relevant stuff never gets buried under charts. --}}
+    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
         <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
             @svg('heroicon-o-bolt', 'h-3.5 w-3.5') Memory freshness
         </p>
@@ -148,11 +215,9 @@ new class extends Component
                 </div>
                 <span class="shrink-0 text-sm font-bold {{ $textColor }}">{{ $avg }}%</span>
             </div>
-            <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Average across everything you're tracking — it fades the longer something goes unreviewed.</p>
 
             @if (count($this->freshnessItems))
-                <div class="mt-3 space-y-1.5 border-t border-line pt-2.5 dark:border-line-dark">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Fading fastest</p>
+                <div class="mt-2 space-y-1.5">
                     @foreach (array_slice($this->freshnessItems, 0, 3) as $item)
                         @php
                             $itemColor = $item['freshness'] >= 66 ? 'text-success dark:text-success-dark' : ($item['freshness'] >= 33 ? 'text-amber-600' : 'text-red-600');
@@ -162,77 +227,169 @@ new class extends Component
                             <span class="shrink-0 text-xs font-semibold {{ $itemColor }}">{{ $item['freshness'] }}%</span>
                         </div>
                     @endforeach
-                    <a href="{{ route('review.index') }}" wire:navigate class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">
-                        Review now
-                        @svg('heroicon-o-arrow-right', 'h-3 w-3')
-                    </a>
                 </div>
             @endif
+
+            <a href="{{ route('review.index') }}" wire:navigate class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">
+                Review now
+                @svg('heroicon-o-arrow-right', 'h-3 w-3')
+            </a>
         @endif
+
+        <div class="mt-3 border-t border-line pt-3 dark:border-line-dark">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Weekly goal</p>
+                    @if (auth()->user()->weekly_goal_days)
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->progressStats['activeDaysThisWeek'] }} of {{ auth()->user()->weekly_goal_days }} days this week</p>
+                    @else
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Set a goal to track your week here.</p>
+                    @endif
+                </div>
+                <form wire:submit="updateWeeklyGoal" class="flex items-center gap-2">
+                    <select
+                        wire:model="weeklyGoalDays"
+                        class="rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+                    >
+                        <option value="">No goal</option>
+                        @foreach (range(1, 7) as $n)
+                            <option value="{{ $n }}">{{ $n }} {{ Str::plural('day', $n) }}/week</option>
+                        @endforeach
+                    </select>
+                    <button
+                        type="submit"
+                        class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >Save</button>
+                </form>
+            </div>
+
+            @if (auth()->user()->weekly_goal_days)
+                <div class="mt-2">
+                    <x-progress-bar>
+                        <div
+                            class="h-full rounded-full transition-all duration-300 {{ $this->progressStats['activeDaysThisWeek'] >= auth()->user()->weekly_goal_days ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark' }}"
+                            style="width: {{ min($this->progressStats['activeDaysThisWeek'] / auth()->user()->weekly_goal_days, 1) * 100 }}%"
+                        ></div>
+                    </x-progress-bar>
+                </div>
+            @endif
+
+            @if ($weeklyGoalSaved)
+                <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
+                    @svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Saved
+                </p>
+            @endif
+        </div>
     </div>
 
-    <div class="rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+    {{-- A slim inline strip instead of 3 separate boxy tiles. --}}
+    <div class="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-xs dark:border-line-dark dark:bg-surface-dark">
+        <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
+            @svg('heroicon-o-check-badge', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['missionsCompleted'] }} {{ Str::plural('mission', $this->progressStats['missionsCompleted']) }}
+        </span>
+        <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
+            @svg('heroicon-o-book-open', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['vocabularyCount'] }} {{ Str::plural('word', $this->progressStats['vocabularyCount']) }}
+        </span>
+        <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
+            @svg('heroicon-o-clock', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ Mission::formatDuration($this->totalPracticeMinutes) }}
+        </span>
+    </div>
+
+    {{-- Everything below is reflective, not actionable — collapsed by
+         default (native <details>, no extra JS) so it stays one tap away
+         instead of pushing the actionable cards above off-screen. --}}
+    <details class="group rounded-2xl border border-line bg-surface open:pb-1 dark:border-line-dark dark:bg-surface-dark">
+        <summary class="flex cursor-pointer list-none items-center justify-between p-4 text-sm font-semibold text-ink dark:text-ink-dark">
+            More stats
+            @svg('heroicon-o-chevron-down', 'h-4 w-4 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
+        </summary>
+
+        <div class="space-y-4 px-4 pb-4" x-data="{ activityView: 'heatmap' }">
             <div>
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Weekly goal</p>
-                @if (auth()->user()->weekly_goal_days)
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->progressStats['activeDaysThisWeek'] }} of {{ auth()->user()->weekly_goal_days }} days this week</p>
+                <div class="inline-flex rounded-full border border-line p-0.5 dark:border-line-dark">
+                    <button
+                        type="button"
+                        x-on:click="activityView = 'heatmap'"
+                        :class="activityView === 'heatmap' ? 'bg-accent text-white dark:bg-accent-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
+                        class="cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold transition-colors"
+                    >12 weeks</button>
+                    <button
+                        type="button"
+                        x-on:click="activityView = 'calendar'"
+                        :class="activityView === 'calendar' ? 'bg-accent text-white dark:bg-accent-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
+                        class="cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold transition-colors"
+                    >Month</button>
+                </div>
+
+                <div x-show="activityView === 'heatmap'" class="mt-2">
+                    <x-activity-heatmap :calendar="$this->progressStats['calendar']" />
+                </div>
+
+                <div x-show="activityView === 'calendar'" x-cloak class="mt-2">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->calendarMonthLabel }}</p>
+                        <div class="flex items-center gap-1">
+                            <button
+                                type="button"
+                                wire:click="previousMonth"
+                                title="Previous month"
+                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                            >@svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</button>
+                            <button
+                                type="button"
+                                wire:click="nextMonth"
+                                title="Next month"
+                                @disabled($this->isCurrentCalendarMonth)
+                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink disabled:pointer-events-none disabled:opacity-30 dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                            >@svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <x-month-calendar :days="$this->calendarDays" />
+                    </div>
+                </div>
+            </div>
+
+            @if (count($this->skillAverages))
+                <div class="border-t border-line pt-4 dark:border-line-dark">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Skills</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your average self-assessment across every completed mission.</p>
+                    <x-skill-radar :skills="$this->skillAverages" class="mt-2" />
+                </div>
+            @endif
+
+            @if (collect($this->vocabularyGrowth)->sum('count') > 0)
+                <div class="border-t border-line pt-4 dark:border-line-dark">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Vocabulary growth</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">New words added per week.</p>
+                    <x-bar-chart :data="$this->vocabularyGrowth" class="mt-2" />
+                </div>
+            @endif
+
+            <div class="border-t border-line pt-4 dark:border-line-dark">
+                @if ($topError = $this->progressStats['topError'])
+                    <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
+                        @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Your most recurring mistake
+                    </p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">
+                        <span class="text-red-600 line-through decoration-red-500">{{ $topError->error }}</span>
+                        <span class="text-success dark:text-success-dark">{{ $topError->correction }}</span>
+                    </p>
+                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — Active Recall keeps bringing it back for extra practice.</p>
+                    @if ($trend = $this->topErrorTrend)
+                        <p class="mt-1.5 flex items-center gap-1 text-xs font-semibold {{ $trend['recentCount'] === 0 ? 'text-success dark:text-success-dark' : 'text-amber-700 dark:text-amber-400' }}">
+                            @svg($trend['recentCount'] === 0 ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-trending-down', 'h-3.5 w-3.5')
+                            @if ($trend['recentCount'] === 0)
+                                Hasn't come up in your last 2 missions — looking good!
+                            @else
+                                {{ $trend['recentCount'] }} of {{ $trend['totalCount'] }} times total came from your last 2 missions.
+                            @endif
+                        </p>
+                    @endif
                 @else
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Set a goal to track your week here.</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Complete 2+ missions and any pattern in your mistakes will show up here.</p>
                 @endif
             </div>
-            <form wire:submit="updateWeeklyGoal" class="flex items-center gap-2">
-                <select
-                    wire:model="weeklyGoalDays"
-                    class="rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                >
-                    <option value="">No goal</option>
-                    @foreach (range(1, 7) as $n)
-                        <option value="{{ $n }}">{{ $n }} {{ Str::plural('day', $n) }}/week</option>
-                    @endforeach
-                </select>
-                <button
-                    type="submit"
-                    class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >Save</button>
-            </form>
         </div>
-
-        @if (auth()->user()->weekly_goal_days)
-            <div class="mt-2">
-                <x-progress-bar>
-                    <div
-                        class="h-full rounded-full transition-all duration-300 {{ $this->progressStats['activeDaysThisWeek'] >= auth()->user()->weekly_goal_days ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark' }}"
-                        style="width: {{ min($this->progressStats['activeDaysThisWeek'] / auth()->user()->weekly_goal_days, 1) * 100 }}%"
-                    ></div>
-                </x-progress-bar>
-            </div>
-        @endif
-
-        @if ($weeklyGoalSaved)
-            <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Saved
-            </p>
-        @endif
-    </div>
-
-    <div class="rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
-        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Activity</p>
-        <x-activity-heatmap :calendar="$this->progressStats['calendar']" />
-    </div>
-
-    @if ($topError = $this->progressStats['topError'])
-        <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
-                @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Your most recurring mistake
-            </p>
-            <p class="mt-1 text-sm text-ink dark:text-ink-dark">
-                <span class="text-red-600 line-through decoration-red-500">{{ $topError->error }}</span>
-                <span class="text-success dark:text-success-dark">{{ $topError->correction }}</span>
-            </p>
-            <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — Active Recall keeps bringing it back for extra practice.</p>
-        </div>
-    @else
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Complete 2+ missions and any pattern in your mistakes will show up here.</p>
-    @endif
+    </details>
 </div>

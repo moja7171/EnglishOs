@@ -292,7 +292,7 @@ new class extends Component
                             <div class="mt-1 flex flex-wrap items-center gap-1.5">
                                 @if ($stats['streak'] > 0)
                                     <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                                        @svg('heroicon-s-fire', 'h-3 w-3')
+                                        <x-streak-flame :streak="$stats['streak']" size="h-3 w-3" />
                                         {{ $stats['streak'] }}-day streak
                                     </span>
                                 @endif

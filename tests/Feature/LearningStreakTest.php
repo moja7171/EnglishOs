@@ -407,4 +407,62 @@ class LearningStreakTest extends TestCase
 
         $this->assertSame(0, $learner->missionsCompletedThisWeekCount());
     }
+
+    public function test_activity_for_month_marks_the_learners_real_active_days(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+        $this->recordEvidenceOn($run, '2026-03-10');
+
+        $days = $learner->activityForMonth(2026, 3);
+        $march10 = collect($days)->firstWhere('date', '2026-03-10');
+        $march11 = collect($days)->firstWhere('date', '2026-03-11');
+
+        $this->assertTrue($march10['active']);
+        $this->assertTrue($march10['inMonth']);
+        $this->assertFalse($march11['active']);
+    }
+
+    public function test_activity_for_month_pads_the_grid_to_full_weeks(): void
+    {
+        $learner = User::factory()->create();
+
+        $days = $learner->activityForMonth(2026, 3);
+
+        $this->assertSame(0, count($days) % 7);
+        // March 1, 2026 is a Sunday, so no padding is needed before it —
+        // the first cell should be the 1st itself, still flagged inMonth.
+        $this->assertSame('2026-03-01', $days[0]['date']);
+        $this->assertTrue($days[0]['inMonth']);
+    }
+
+    public function test_next_streak_milestone_is_the_lowest_tier_not_yet_reached(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        foreach (range(0, 4) as $daysAgo) {
+            $this->recordEvidenceOn($run, now()->subDays($daysAgo)->toDateString());
+        }
+
+        $this->assertSame(5, $learner->currentStreak());
+        $this->assertSame(7, $learner->nextStreakMilestone());
+        $this->assertSame(2, $learner->daysUntilNextMilestone());
+    }
+
+    public function test_next_streak_milestone_is_null_once_every_tier_is_earned(): void
+    {
+        $learner = User::factory()->create(['celebrated_streak_milestone' => 100]);
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        foreach (range(0, 99) as $daysAgo) {
+            $this->recordEvidenceOn($run, now()->subDays($daysAgo)->toDateString());
+        }
+
+        $this->assertNull($learner->nextStreakMilestone());
+        $this->assertNull($learner->daysUntilNextMilestone());
+    }
 }

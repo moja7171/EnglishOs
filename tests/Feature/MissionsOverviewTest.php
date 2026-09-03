@@ -105,6 +105,40 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Fresh start');
     }
 
+    public function test_the_today_reminder_shows_with_an_active_streak_not_yet_logged_today(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->recordEvidenceOn($run, now()->subDay()->toDateString());
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Practice today to keep your');
+    }
+
+    public function test_no_today_reminder_once_todays_activity_is_already_logged(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->recordEvidenceOn($run, now()->subDay()->toDateString());
+        $this->recordEvidenceOn($run, now()->toDateString());
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSee('Practice today to keep your');
+    }
+
+    public function test_no_today_reminder_with_no_streak_to_protect(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSee('Practice today to keep your');
+    }
+
     private function makeSecondMission(): Mission
     {
         return Mission::create([

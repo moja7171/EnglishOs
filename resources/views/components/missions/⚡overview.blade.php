@@ -49,6 +49,20 @@ new class extends Component
         return auth()->user()->justBenefitedFromGrace();
     }
 
+    /**
+     * True when there's a real streak worth protecting AND today hasn't
+     * been logged yet — the one moment a reminder is genuinely actionable
+     * (not shown once currentStreak() is already 0, since there's nothing
+     * left to protect; see justLostStreak() for that case instead).
+     */
+    #[Computed]
+    public function needsTodayReminder(): bool
+    {
+        $user = auth()->user();
+
+        return $user->currentStreak() > 0 && ! ($user->activeDates()->first()?->isToday() ?? false);
+    }
+
     #[Computed]
     public function justLostStreak(): bool
     {
@@ -102,7 +116,7 @@ new class extends Component
     >
         <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
             <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
-                @svg('heroicon-s-fire', 'h-3.5 w-3.5') {{ $this->progressSummary['streak'] }}
+                <x-streak-flame :streak="$this->progressSummary['streak']" /> {{ $this->progressSummary['streak'] }}
             </span>
             <span class="inline-flex items-center gap-1 font-semibold text-ink dark:text-ink-dark">
                 @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') {{ $this->progressSummary['missionsCompleted'] }} {{ Str::plural('mission', $this->progressSummary['missionsCompleted']) }}
@@ -140,6 +154,31 @@ new class extends Component
             <span class="flex-1">
                 <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Fresh start — your best run was {{ auth()->user()->longestStreak() }} {{ Str::plural('day', auth()->user()->longestStreak()) }}.</span>
                 <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Let's see if today can be the start of a new one.</span>
+            </span>
+        </div>
+    @elseif ($this->needsTodayReminder)
+        <div
+            class="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950"
+            x-data="{
+                remaining: '',
+                updateRemaining() {
+                    const now = new Date();
+                    const midnight = new Date(now);
+                    midnight.setHours(24, 0, 0, 0);
+                    const diff = midnight - now;
+                    const h = Math.floor(diff / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    this.remaining = `${h}h ${m}m`;
+                },
+            }"
+            x-init="updateRemaining(); setInterval(() => updateRemaining(), 60000)"
+        >
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400">
+                <x-streak-flame :streak="auth()->user()->currentStreak()" size="h-4 w-4" />
+            </span>
+            <span class="flex-1">
+                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Practice today to keep your {{ auth()->user()->currentStreak() }}-day streak!</span>
+                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark"><span x-text="remaining"></span> left today</span>
             </span>
         </div>
     @endif

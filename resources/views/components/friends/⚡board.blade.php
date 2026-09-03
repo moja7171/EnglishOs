@@ -112,7 +112,7 @@ new class extends Component
                 <div class="mt-1 flex flex-wrap items-center gap-1.5">
                     @if ($this->myCard['streak'] > 0)
                         <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                            @svg('heroicon-s-fire', 'h-3 w-3') {{ $this->myCard['streak'] }}-day streak
+                            <x-streak-flame :streak="$this->myCard['streak']" size="h-3 w-3" /> {{ $this->myCard['streak'] }}-day streak
                         </span>
                     @endif
                     <span class="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2 py-0.5 text-[11px] font-medium text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
@@ -178,7 +178,7 @@ new class extends Component
                             <div class="mt-1 flex flex-wrap items-center gap-1.5">
                                 @if ($card['streak'] > 0)
                                     <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                                        @svg('heroicon-s-fire', 'h-3 w-3') {{ $card['streak'] }}-day streak
+                                        <x-streak-flame :streak="$card['streak']" size="h-3 w-3" /> {{ $card['streak'] }}-day streak
                                     </span>
                                 @endif
                                 <span class="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2 py-0.5 text-[11px] font-medium text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">

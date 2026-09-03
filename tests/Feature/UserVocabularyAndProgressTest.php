@@ -6,6 +6,7 @@ use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\SelfAssessment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -232,5 +233,91 @@ class UserVocabularyAndProgressTest extends TestCase
         Livewire::test('progress.index')
             ->assertSet('averageFreshness', 50)
             ->assertSeeInOrder(['errand', 'commute']);
+    }
+
+    public function test_skill_averages_only_uses_after_scores_across_completed_runs(): void
+    {
+        $learner = User::factory()->create();
+        $run1 = $this->makeRun($learner, 'M01');
+        $run2 = $this->makeRun($learner, 'M02');
+
+        SelfAssessment::create(['mission_run_id' => $run1->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
+        SelfAssessment::create(['mission_run_id' => $run2->id, 'skill' => 'Speaking', 'before' => 3, 'after' => 2]);
+
+        $this->assertSame(['Speaking' => 3.0], $learner->skillAverages());
+    }
+
+    public function test_skill_averages_is_empty_with_no_self_assessments_yet(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->assertSame([], $learner->skillAverages());
+    }
+
+    public function test_total_practice_minutes_sums_only_recorded_steps(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'Test Mission',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [
+                    ['key' => 'mission_brief', 'duration_minutes' => 5],
+                    ['key' => 'listening', 'duration_minutes' => 20],
+                ],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+
+        $this->assertSame(5, $learner->totalPracticeMinutes());
+    }
+
+    public function test_vocabulary_growth_by_week_buckets_words_by_creation_week(): void
+    {
+        $learner = User::factory()->create();
+
+        $thisWeek = $learner->vocabularyWords()->create(['word' => 'commute', 'meaning' => 'to travel to work', 'next_review_at' => now()]);
+        $thisWeek->forceFill(['created_at' => now()])->saveQuietly();
+
+        $lastWeek = $learner->vocabularyWords()->create(['word' => 'errand', 'meaning' => 'a short task', 'next_review_at' => now()]);
+        $lastWeek->forceFill(['created_at' => now()->subWeek()])->saveQuietly();
+
+        $growth = $learner->vocabularyGrowthByWeek(4);
+
+        $this->assertCount(4, $growth);
+        $this->assertSame(1, $growth[3]['count']); // most recent week
+        $this->assertSame(1, $growth[2]['count']); // the week before
+        $this->assertSame(0, $growth[0]['count']);
+    }
+
+    public function test_top_recurring_error_trend_is_null_when_nothing_recurs(): void
+    {
+        $learner = User::factory()->create();
+        $run = $this->makeRun($learner, 'M01');
+        ErrorLogItem::create(['mission_run_id' => $run->id, 'error' => 'x', 'correction' => 'y', 'category' => 'third-person-s']);
+
+        $this->assertNull($learner->topRecurringErrorTrend());
+    }
+
+    public function test_top_recurring_error_trend_counts_recent_vs_total_occurrences(): void
+    {
+        $learner = User::factory()->create();
+        $run1 = $this->makeRun($learner, 'M01');
+        $run2 = $this->makeRun($learner, 'M02');
+        $run1->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDays(2)]);
+        $run2->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+
+        ErrorLogItem::create(['mission_run_id' => $run1->id, 'error' => 'She go.', 'correction' => 'She goes.', 'category' => 'third-person-s']);
+        ErrorLogItem::create(['mission_run_id' => $run2->id, 'error' => 'He walk.', 'correction' => 'He walks.', 'category' => 'third-person-s']);
+
+        $trend = $learner->topRecurringErrorTrend();
+
+        $this->assertSame('third-person-s', $trend['category']);
+        $this->assertSame(2, $trend['totalCount']);
+        $this->assertSame(2, $trend['recentCount']); // both runs are within the 2 most recent
     }
 }
