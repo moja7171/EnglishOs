@@ -80,7 +80,7 @@ class ActivationStepTest extends TestCase
         $friend->acceptFollowRequest($run->learner);
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn(['text' => 'I wake up at seven.', 'duration' => 90.0]);
+            $mock->shouldReceive('transcribeWithConfidence')->once()->andReturn(['text' => 'I wake up at seven.', 'duration' => 90.0, 'segments' => []]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
@@ -105,9 +105,13 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+            $mock->shouldReceive('transcribeWithConfidence')->once()->andReturn([
                 'text' => 'I usually wake up at seven and have breakfast.',
                 'duration' => 90.0,
+                'segments' => [
+                    ['text' => 'I usually wake up at seven', 'confidence' => 'high'],
+                    ['text' => 'and have breakfast.', 'confidence' => 'low'],
+                ],
             ]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
@@ -132,7 +136,10 @@ class ActivationStepTest extends TestCase
             ->assertSet('completed', true)
             ->assertSet('transcript', 'I usually wake up at seven and have breakfast.')
             ->assertSet('reflection.highlight', 'خیلی روان صحبت کردی.')
-            ->assertSee('خیلی روان صحبت کردی.');
+            ->assertSee('خیلی روان صحبت کردی.')
+            ->assertSee('I usually wake up at seven')
+            ->assertSee('and have breakfast.')
+            ->assertSee('might be worth saying again out loud');
 
         $this->assertDatabaseCount('evidences', 2);
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'activation', 'type' => Evidence::TYPE_TEXT]);
@@ -142,6 +149,7 @@ class ActivationStepTest extends TestCase
         $content = json_decode($textEvidence->content_ref, true);
         $this->assertCount(5, $content['sentences']);
         $this->assertSame('I usually wake up at seven and have breakfast.', $content['transcript']);
+        $this->assertSame('low', $content['segments'][1]['confidence']);
         $this->assertSame('خیلی روان صحبت کردی.', $content['reflection']['highlight']);
 
         $audioEvidence = Evidence::where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->first();
@@ -161,7 +169,7 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()->andThrow(new \RuntimeException('Groq is down.'));
+            $mock->shouldReceive('transcribeWithConfidence')->once()->andThrow(new \RuntimeException('Groq is down.'));
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
@@ -192,9 +200,10 @@ class ActivationStepTest extends TestCase
         // clean, easily-verified 20, derived from the mocked duration and
         // transcript, never fabricated.
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+            $mock->shouldReceive('transcribeWithConfidence')->once()->andReturn([
                 'text' => 'I usually um wake up at seven and uh have breakfast then I go to work by bus every day',
                 'duration' => 60.0,
+                'segments' => [],
             ]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
@@ -226,9 +235,10 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+            $mock->shouldReceive('transcribeWithConfidence')->once()->andReturn([
                 'text' => 'Hi.',
                 'duration' => 2.0, // too short for a meaningful words-per-minute figure
+                'segments' => [],
             ]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
@@ -454,9 +464,10 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()->andReturn([
+            $mock->shouldReceive('transcribeWithConfidence')->once()->andReturn([
                 'text' => 'I usually wake up at seven.',
                 'duration' => 45.0,
+                'segments' => [],
             ]);
         });
         $this->mock(GeminiClient::class, function ($mock) {

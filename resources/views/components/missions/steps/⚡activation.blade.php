@@ -43,6 +43,18 @@ new class extends Component
      */
     public ?string $transcript = null;
 
+    /**
+     * The same transcript, split into Whisper's own segments and tagged
+     * with a rough confidence tier — see GroqClient::transcribeWithConfidence().
+     * Purely additive coloring on top of $transcript, which stays the
+     * source of truth (used for the AI reflection prompt, vocabulary
+     * matching, etc.); empty when generation failed, hasn't run yet, or
+     * (for Evidence saved before this feature existed) was never recorded.
+     *
+     * @var list<array{text: string, confidence: string}>
+     */
+    public array $segments = [];
+
     /** @var array{highlight: string, tip: string}|null */
     public ?array $reflection = null;
 
@@ -63,6 +75,7 @@ new class extends Component
         $data = json_decode($textEvidence?->content_ref ?? '{}', true);
         $this->sentences = array_pad($data['sentences'] ?? [], 5, '');
         $this->transcript = $data['transcript'] ?? null;
+        $this->segments = $data['segments'] ?? [];
         $this->reflection = $data['reflection'] ?? null;
 
         $audioEvidence = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
@@ -196,6 +209,7 @@ new class extends Component
             'content_ref' => json_encode([
                 'sentences' => $filledSentences->pluck('text')->values(),
                 'transcript' => $this->transcript,
+                'segments' => $this->segments,
                 'reflection' => $this->reflection,
             ]),
         ]);
@@ -232,8 +246,9 @@ new class extends Component
     private function transcribeAndReflect(): void
     {
         try {
-            $result = app(GroqClient::class)->transcribeWithDuration($this->audioFile->getRealPath());
+            $result = app(GroqClient::class)->transcribeWithConfidence($this->audioFile->getRealPath());
             $this->transcript = trim($result['text']);
+            $this->segments = $result['segments'];
 
             if ($this->transcript === '') {
                 return;
@@ -354,7 +369,7 @@ new class extends Component
             @if ($transcript)
                 <div>
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $transcript }}</p>
+                    <x-confidence-transcript :segments="$segments" :fallback="$transcript" class="mt-1" />
                 </div>
             @endif
 

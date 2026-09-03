@@ -44,25 +44,70 @@ class GroqClient
     }
 
     /**
-     * @return array{text: string, duration: float}
+     * Same transcription, split into Whisper's own segments (sentence/
+     * phrase-length chunks — never individual words: neither Groq nor
+     * OpenAI's Whisper API exposes true per-word confidence, only word
+     * TIMESTAMPS with no probability attached), each tagged with a rough
+     * confidence tier derived from that segment's avg_logprob. This is an
+     * approximation — how sure Whisper was it heard the words right, not a
+     * calibrated phonetic pronunciation score — good enough to flag "this
+     * stretch is worth listening back to", not a precise measurement.
+     * Thresholds are a starting heuristic, not derived from any dataset.
+     *
+     * @return array{text: string, duration: float, segments: list<array{text: string, confidence: string}>}
      */
-    private function request(string $audioPath, bool $verbose = false): array
+    public function transcribeWithConfidence(string $audioPath): array
+    {
+        $data = $this->request($audioPath, verbose: true, segments: true);
+
+        $segments = collect($data['segments'])
+            ->map(fn (array $segment) => [
+                'text' => trim((string) ($segment['text'] ?? '')),
+                'confidence' => self::confidenceTier((float) ($segment['avg_logprob'] ?? 0.0)),
+            ])
+            ->filter(fn (array $segment) => $segment['text'] !== '')
+            ->values()
+            ->all();
+
+        return ['text' => $data['text'], 'duration' => $data['duration'], 'segments' => $segments];
+    }
+
+    private static function confidenceTier(float $avgLogprob): string
+    {
+        return match (true) {
+            $avgLogprob >= -0.35 => 'high',
+            $avgLogprob >= -0.7 => 'medium',
+            default => 'low',
+        };
+    }
+
+    /**
+     * @return array{text: string, duration: float, segments: array}
+     */
+    private function request(string $audioPath, bool $verbose = false, bool $segments = false): array
     {
         if ($this->apiKey === '') {
             throw new RuntimeException('GROQ_API_KEY is not set.');
         }
 
+        $payload = [
+            'model' => $this->whisperModel,
+            'response_format' => $verbose ? 'verbose_json' : 'json',
+        ];
+
+        if ($segments) {
+            $payload['timestamp_granularities[]'] = 'segment';
+        }
+
         $response = Http::withToken($this->apiKey)
             ->attach('file', file_get_contents($audioPath), basename($audioPath))
-            ->post('https://api.groq.com/openai/v1/audio/transcriptions', [
-                'model' => $this->whisperModel,
-                'response_format' => $verbose ? 'verbose_json' : 'json',
-            ])
+            ->post('https://api.groq.com/openai/v1/audio/transcriptions', $payload)
             ->throw();
 
         return [
             'text' => (string) data_get($response->json(), 'text', ''),
             'duration' => (float) data_get($response->json(), 'duration', 0.0),
+            'segments' => (array) data_get($response->json(), 'segments', []),
         ];
     }
 }
