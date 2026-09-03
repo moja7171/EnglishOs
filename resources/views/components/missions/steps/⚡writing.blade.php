@@ -264,7 +264,10 @@ new class extends Component
         <p class="text-sm text-red-600">{{ $message }}</p>
     @enderror
 
-    @unless ($readOnly)
+    {{-- text uses wire:model.live, so wordCount is already known
+         server-side on every keystroke — no extra Alpine tracking needed,
+         just don't render the bar until the minimum is reached. --}}
+    @if (! $readOnly && $this->wordCount >= ($writing['min_words'] ?? 100))
         <x-sticky-bar>
             <button
                 wire:click="save"
@@ -273,6 +276,6 @@ new class extends Component
                 Continue
             </button>
         </x-sticky-bar>
-    @endunless
+    @endif
     @endunless
 </div>

@@ -97,6 +97,25 @@ class ErrorLogStepTest extends TestCase
         $this->assertDatabaseCount('error_log_items', 0);
     }
 
+    public function test_continue_is_hidden_until_every_new_example_is_filled(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                ['error' => 'She go to work.', 'correction' => 'She goes to work.'],
+                ['error' => 'I usually goes.', 'correction' => 'I usually go.'],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->assertDontSeeHtml('wire:click="save"')
+            ->set('newExamples.0', 'She goes to work every day.')
+            ->assertDontSeeHtml('wire:click="save"')
+            ->set('newExamples.1', 'I usually go home at six.')
+            ->assertSeeHtml('wire:click="save"');
+    }
+
     public function test_saving_persists_error_log_items_and_advances_the_run(): void
     {
         $run = $this->makeRunWithEvidence();

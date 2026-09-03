@@ -52,6 +52,24 @@ class MissionBriefStepTest extends TestCase
         $this->assertSame('vocabulary_builder', $run->fresh()->currentStepKey());
     }
 
+    public function test_continue_is_hidden_until_a_score_is_picked(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->assertDontSeeHtml('wire:click="save"')
+            ->set('score', 3)
+            ->assertSeeHtml('wire:click="save"');
+    }
+
     public function test_score_is_required_before_saving(): void
     {
         $learner = User::factory()->create();

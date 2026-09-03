@@ -284,7 +284,7 @@ new class extends Component
                     <div class="mt-2 flex items-center gap-2">
                         <input
                             type="text"
-                            wire:model="answers.{{ $index }}"
+                            wire:model.live="answers.{{ $index }}"
                             @unless ($readOnly)
                                 x-draft="{ key: '{{ $draftPrefix }}answers.{{ $index }}', field: 'answers.{{ $index }}' }"
                             @endunless
@@ -321,7 +321,9 @@ new class extends Component
             <p class="text-sm text-red-600">{{ $message }}</p>
         @enderror
 
-        @unless ($readOnly)
+        {{-- answers use wire:model.live, so completeness is already known
+             server-side on every keystroke — no extra Alpine tracking. --}}
+        @if (! $readOnly && collect($answers)->every(fn ($a) => trim((string) $a) !== ''))
             <div class="mt-4">
                 <x-continue-button
                     on-click="$wire.save()"
@@ -329,7 +331,7 @@ new class extends Component
                     loading-label="Checking your answers…"
                 />
             </div>
-        @endunless
+        @endif
     </div>
 
     <div class="mt-4">

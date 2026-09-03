@@ -226,7 +226,7 @@ new class extends Component
                         <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
                             <input
                                 type="checkbox"
-                                wire:model="watchedWithCaptions"
+                                wire:model.live="watchedWithCaptions"
                                 class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                             >
                             I watched with captions on
@@ -234,7 +234,7 @@ new class extends Component
                         <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
                             <input
                                 type="checkbox"
-                                wire:model="watchedWithoutCaptions"
+                                wire:model.live="watchedWithoutCaptions"
                                 class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                             >
                             I watched again with captions off
@@ -300,7 +300,12 @@ new class extends Component
                     </div>
                 @endif
 
-                @unless ($readOnly)
+                {{-- Both checkboxes use wire:model.live (instant server
+                     knowledge); shadowedCount() only advances once an
+                     upload genuinely completes, which needs a real
+                     round-trip either way — so this whole bar is gated
+                     with a plain @if, not an Alpine ready-when. --}}
+                @if (! $readOnly && $watchedWithCaptions && $watchedWithoutCaptions && $this->shadowedCount() >= $this->requiredShadowedLines())
                     <div class="mt-4">
                         <x-continue-button
                             on-click="$wire.save()"
@@ -308,7 +313,7 @@ new class extends Component
                             loading-label="Saving…"
                         />
                     </div>
-                @endunless
+                @endif
             </div>
         </div>
 

@@ -96,16 +96,16 @@
     </div>
 
     @unless ($readOnly)
-        <x-sticky-bar>
+        <p x-show="!hasListened" class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen at least once to continue.</p>
+        <p x-show="hasListened && !recall.trim()" x-cloak class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a word or phrase above to continue.</p>
+
+        <x-sticky-bar ready-when="hasListened && recall.trim() !== ''">
             <button
                 wire:click="save"
-                :disabled="!hasListened || !recall.trim()"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
             >
                 Continue
             </button>
-            <p x-show="!hasListened" x-cloak class="mt-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">Listen at least once to continue.</p>
-            <p x-show="hasListened && !recall.trim()" x-cloak class="mt-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">Write a word or phrase above to continue.</p>
         </x-sticky-bar>
     @endunless
 </div>

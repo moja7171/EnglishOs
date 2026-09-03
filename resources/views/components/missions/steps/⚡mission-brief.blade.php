@@ -153,7 +153,11 @@ new class extends Component
         @enderror
     </div>
 
-    @unless ($readOnly)
+    {{-- The score buttons use wire:click="$set(...)" (a real round-trip),
+         so readiness is already known server-side by the time this
+         renders — no Alpine tracking needed, just don't render the bar
+         at all until it's true. --}}
+    @if (! $readOnly && $score !== null)
         <x-sticky-bar>
             <button
                 wire:click="save"
@@ -162,5 +166,5 @@ new class extends Component
                 Continue
             </button>
         </x-sticky-bar>
-    @endunless
+    @endif
 </div>

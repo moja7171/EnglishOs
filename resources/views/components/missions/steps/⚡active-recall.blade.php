@@ -694,6 +694,7 @@ new class extends Component
                     on-click="Object.keys(dismissed).forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
                     wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save"
                     loading-label="Checking your answers…"
+                    ready-when="Object.keys(filled).every(section => countFilled(section) >= 1)"
                 />
             @endunless
         </div>

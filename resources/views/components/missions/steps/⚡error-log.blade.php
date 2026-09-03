@@ -218,7 +218,7 @@ new class extends Component
                     <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $item['correction'] }}</p>
                     <input
                         type="text"
-                        wire:model="newExamples.{{ $i }}"
+                        wire:model.live="newExamples.{{ $i }}"
                         placeholder="Write a new sentence using the correct form…"
                         @readonly($readOnly)
                         class="mt-2 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
@@ -270,12 +270,14 @@ new class extends Component
             <p class="text-sm text-red-600">{{ $message }}</p>
         @enderror
 
-        @unless ($readOnly)
+        {{-- newExamples uses wire:model.live, so this is already known
+             server-side on every keystroke — no extra Alpine tracking. --}}
+        @if (! $readOnly && collect($newExamples)->every(fn ($e) => trim((string) $e) !== ''))
             <x-sticky-bar>
                 <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
                     Continue
                 </button>
             </x-sticky-bar>
-        @endunless
+        @endif
     @endif
 </div>

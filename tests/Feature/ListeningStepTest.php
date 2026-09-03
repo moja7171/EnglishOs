@@ -451,6 +451,15 @@ class ListeningStepTest extends TestCase
             ->assertSeeHtml('of 3 written');
     }
 
+    public function test_continue_only_reveals_once_gist_and_expressions_are_both_done(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        $this->assertStringContainsString('gistDone &amp;&amp; expressionsDone', $html);
+    }
+
     private function makeRunWithTranscript(): MissionRun
     {
         $learner = User::factory()->create();

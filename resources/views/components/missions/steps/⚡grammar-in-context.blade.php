@@ -528,6 +528,7 @@ new class extends Component
                 on-click="filled.forEach((_, i) => dismissed['freq' + i] = true); $wire.save().then(() => { dismissed = {} })"
                 wire-target="checkOne,revealCorrection,declineReveal,save"
                 loading-label="Checking your sentences…"
+                ready-when="filledCount >= 3"
             />
         @endunless
     </div>

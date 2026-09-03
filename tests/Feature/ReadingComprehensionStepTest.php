@@ -97,6 +97,18 @@ class ReadingComprehensionStepTest extends TestCase
         $this->assertStringContainsString('Part', $html);
     }
 
+    public function test_continue_is_hidden_until_both_answers_are_filled(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->set('answers.0', 'She wakes up early.')
+            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->set('answers.1', 'She sleeps in.')
+            ->assertSeeHtml('x-on:click="$wire.save()"');
+    }
+
     public function test_a_passage_with_an_image_query_shows_a_header_image(): void
     {
         $run = $this->makeRunWithImageQuery();

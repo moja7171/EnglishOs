@@ -824,6 +824,7 @@ new class extends Component
                         on-click="['gist_0','gist_1','gist_2','expr_0','expr_1','expr_2'].forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
                         wire-target="{{ $checkTargets }}"
                         loading-label="Checking your sentences…"
+                        ready-when="gistDone && expressionsDone"
                     />
                 </div>
             @endunless

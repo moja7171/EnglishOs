@@ -116,6 +116,18 @@ class WritingStepTest extends TestCase
         $this->assertDatabaseCount('evidences', 0);
     }
 
+    public function test_continue_is_hidden_until_the_minimum_word_count_is_reached(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->assertDontSeeHtml('wire:click="save"')
+            ->set('text', 'Too short.')
+            ->assertDontSeeHtml('wire:click="save"')
+            ->set('text', 'This sentence has five words.')
+            ->assertSeeHtml('wire:click="save"');
+    }
+
     public function test_reaching_the_minimum_saves_evidence_and_shows_the_recap(): void
     {
         $run = $this->makeRun();
