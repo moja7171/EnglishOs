@@ -12,6 +12,15 @@ class Mission extends Model
 {
     use HasFactory;
 
+    /**
+     * The full curriculum roadmap size (EOS-009 §15, v3.0) — M01-M24.
+     * Only some are seeded/playable yet; this is the total the roadmap
+     * commits to, used for "Mission N of 24" course-level progress
+     * (see User::currentMissionNumber()) and the missions overview's own
+     * placeholder slots.
+     */
+    public const TOTAL_ROADMAP_MISSIONS = 24;
+
     protected function casts(): array
     {
         return [

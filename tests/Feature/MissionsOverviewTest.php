@@ -139,6 +139,26 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Practice today to keep your');
     }
 
+    public function test_the_course_progress_bar_shows_mission_1_of_24_for_a_new_learner(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Mission 1 of 24');
+    }
+
+    public function test_the_course_progress_bar_reflects_the_furthest_mission_reached(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission());
+        MissionRun::findOrStart($learner, $this->makeSecondMission());
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Mission 2 of 24');
+    }
+
     private function makeSecondMission(): Mission
     {
         return Mission::create([

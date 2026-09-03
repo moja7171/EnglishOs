@@ -43,6 +43,23 @@ new class extends Component
         ];
     }
 
+    /**
+     * "Mission N of 24" — a course-level counter, deliberately separate
+     * from any mission's own Day 1-4 numbering (see
+     * User::currentMissionNumber()'s own docblock for why those two
+     * never get merged into one continuous count).
+     *
+     * @return array{current: int, total: int}
+     */
+    #[Computed]
+    public function courseProgress(): array
+    {
+        return [
+            'current' => auth()->user()->currentMissionNumber(),
+            'total' => Mission::TOTAL_ROADMAP_MISSIONS,
+        ];
+    }
+
     #[Computed]
     public function justBenefitedFromGrace(): bool
     {
@@ -93,7 +110,7 @@ new class extends Component
         $seeded = Mission::orderBy('code')->get()->keyBy('code');
         $learner = auth()->user();
 
-        return collect(range(1, 24))
+        return collect(range(1, Mission::TOTAL_ROADMAP_MISSIONS))
             ->map(fn ($n) => sprintf('M%02d', $n))
             ->map(fn ($code) => ['code' => $code, 'mission' => $seeded->get($code)])
             ->map(fn ($slot) => $slot + [
@@ -107,6 +124,20 @@ new class extends Component
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     <header class="border-b border-line pb-4 dark:border-line-dark">
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
+        <div class="mt-2">
+            <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">Mission {{ $this->courseProgress['current'] }} of {{ $this->courseProgress['total'] }}</span>
+                <span class="text-ink-faint dark:text-ink-faint-dark">{{ round($this->courseProgress['current'] / $this->courseProgress['total'] * 100) }}%</span>
+            </div>
+            <div class="mt-1">
+                <x-progress-bar>
+                    <div
+                        class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                        style="width: {{ $this->courseProgress['current'] / $this->courseProgress['total'] * 100 }}%"
+                    ></div>
+                </x-progress-bar>
+            </div>
+        </div>
     </header>
 
     <a

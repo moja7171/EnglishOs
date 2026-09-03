@@ -197,6 +197,31 @@ class User extends Authenticatable
     }
 
     /**
+     * How far into the 24-mission roadmap (Mission::TOTAL_ROADMAP_MISSIONS,
+     * EOS-009 §15) this learner has reached — the highest mission NUMBER
+     * they have any run for at all (complete, in progress, needs review,
+     * or retry), regardless of calendar pace. Deliberately separate from
+     * "day" numbering: each mission's own Day 1-4 stays local to that
+     * mission (see MissionRun::dayProgress()) — a single continuous day
+     * count across the whole roadmap would conflate two different things
+     * (calendar-based streak vs. content-based mission day) and produce
+     * a number in the high 90s by the end of the roadmap, which reads as
+     * a slog rather than a series of manageable sprints. Defaults to 1 —
+     * a learner who hasn't started anything yet is still "on Mission 1".
+     */
+    public function currentMissionNumber(): int
+    {
+        $numbers = $this->missionRuns()
+            ->with('mission')
+            ->get()
+            ->pluck('mission.code')
+            ->filter()
+            ->map(fn (string $code) => (int) preg_replace('/\D/', '', $code));
+
+        return max(1, $numbers->max() ?? 1);
+    }
+
+    /**
      * The mission this learner is actively working on right now, if any —
      * feeds the Friends Board's per-friend progress ring/journey map.
      * "Latest" by started_at since a learner could in principle have more

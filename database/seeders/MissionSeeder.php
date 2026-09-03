@@ -164,11 +164,12 @@ class MissionSeeder extends Seeder
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 // Was 15, then 18 for the transcript review, then 21 for the "pick
-                                // which words join My Words" recap step; now 20 — the detail question
-                                // moved from a required third listen to an optional 1-tap Quick Round
-                                // bonus (-2), and a new ungraded comprehension Quick Round warm-up
-                                // was added after the first listen (+1).
-                                'duration_minutes' => 20,
+                                // which words join My Words" recap step, then 20 (detail question
+                                // moved to an optional Quick Round bonus, -2; a comprehension Quick
+                                // Round warm-up added, +1); now 24 — the real BBC audio is 6:44
+                                // (ffprobe-verified), and the transcript gate requires 2 real listens
+                                // (13:30 alone), which 20 never actually accounted for.
+                                'duration_minutes' => 24,
                                 'hook' => 'Neil and Georgie are chatting about their mornings right now — how much can you catch without reading along?',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
                                 'audio_url' => $audioUrl,
@@ -302,9 +303,11 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
-                                // Was 2 — +1 for the new ungraded recall prompt.
-                                'duration_minutes' => 3,
-                                'hook' => 'Two minutes before anything else — let your ear warm up to English again.',
+                                // Was 2, then 3 for the recall prompt (+1); now 8 — the audio-ended
+                                // gate genuinely requires the full 6:44 (ffprobe-verified) BBC
+                                // episode to play through, which 3 never accounted for.
+                                'duration_minutes' => 8,
+                                'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 'recall_prompt' => 'Write one word or phrase you remember hearing.',
                             ],
                             [
@@ -429,8 +432,9 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
-                                // Was 2 — +1 for the new ungraded recall prompt.
-                                'duration_minutes' => 3,
+                                // Was 2, then 3 for the recall prompt (+1); now 8 — same real 6:44
+                                // (ffprobe-verified) audio-ended gate as daily_listen_2.
+                                'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
                             ],
@@ -549,8 +553,9 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'daily_listen_4',
                                 'label' => 'Daily Listening',
-                                // Was 2 — +1 for the new ungraded recall prompt.
-                                'duration_minutes' => 3,
+                                // Was 2, then 3 for the recall prompt (+1); now 8 — same real 6:44
+                                // (ffprobe-verified) audio-ended gate as daily_listen_2.
+                                'duration_minutes' => 8,
                                 'hook' => 'Last time hearing this one — notice how much easier it sounds now.',
                                 'recall_prompt' => "One more — this time, are you sure you'll remember it?",
                             ],

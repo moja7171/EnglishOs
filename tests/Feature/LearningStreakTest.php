@@ -465,4 +465,26 @@ class LearningStreakTest extends TestCase
         $this->assertNull($learner->nextStreakMilestone());
         $this->assertNull($learner->daysUntilNextMilestone());
     }
+
+    public function test_current_mission_number_defaults_to_1_with_no_runs_yet(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->assertSame(1, $learner->currentMissionNumber());
+    }
+
+    public function test_current_mission_number_is_the_highest_mission_reached(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission());
+        MissionRun::findOrStart($learner, Mission::create([
+            'code' => 'M03',
+            'title' => 'Third Mission',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]));
+
+        $this->assertSame(3, $learner->currentMissionNumber());
+    }
 }
