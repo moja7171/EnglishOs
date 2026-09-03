@@ -480,4 +480,44 @@ class ActivationStepTest extends TestCase
             ->call('save')
             ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:activation:");
     }
+
+    public function test_the_same_warm_up_questions_from_mission_brief_are_shown_before_recording(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'foundation',
+                    'steps' => [
+                        ['key' => 'mission_brief', 'warm_up_questions' => ['What time do you usually wake up?']],
+                    ],
+                ],
+                [
+                    'phase' => 'build',
+                    'steps' => [
+                        ['key' => 'activation', 'task' => 'Write 5 personal sentences, then record 2 minutes.'],
+                    ],
+                ],
+            ],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->assertSee('Same questions as Day 1')
+            ->assertSee('What time do you usually wake up?');
+    }
+
+    public function test_no_warm_up_questions_block_renders_when_the_mission_has_none(): void
+    {
+        // makeRun()'s fixture mission has no mission_brief step at all.
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.activation', ['run' => $run])
+            ->assertDontSee('Same questions as Day 1');
+    }
 }

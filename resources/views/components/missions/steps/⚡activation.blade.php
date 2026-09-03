@@ -9,13 +9,14 @@ use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 new class extends Component
 {
-    use WithFileUploads;
     use TracksCheckAttempts;
+    use WithFileUploads;
 
     public MissionRun $run;
 
@@ -109,7 +110,7 @@ new class extends Component
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->checkErrors[$index] = "Couldn't check this one: {$e->getMessage()}";
         }
     }
@@ -203,7 +204,7 @@ new class extends Component
             'mission_run_id' => $this->run->id,
             'phase' => 'activation',
             'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
+            'content_ref' => Storage::disk('public')->url($path),
         ]);
 
         // Progress is already saved — this only decides what the learner sees
@@ -268,7 +269,7 @@ new class extends Component
             if (is_array($data) && isset($data['highlight'], $data['tip'])) {
                 $this->reflection = ['highlight' => $data['highlight'], 'tip' => $data['tip']];
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Silent by design — see method docblock.
         }
     }
@@ -313,6 +314,11 @@ new class extends Component
     $vocabularyWords = $run->selectedVocabularyWords();
     $initialFilled = collect($sentences)->map(fn ($s) => trim((string) $s) !== '')->values();
     $draftPrefix = $this->draftPrefix();
+    // Same questions from Mission Brief's warm-up, on purpose — a
+    // learner who could barely answer them unprepared on Day 1 gets to
+    // feel the difference now, with a whole mission of practice behind
+    // them (see EOS-009 §8).
+    $warmUpQuestions = $run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
 @endphp
 
 <div class="space-y-6" x-data="{
@@ -484,6 +490,17 @@ new class extends Component
             </div>
         @else
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Talk about your daily life without reading. Record when you're ready.</p>
+
+            @if (count($warmUpQuestions))
+                <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                    <p class="text-xs font-semibold text-ink dark:text-ink-dark">Same questions as Day 1 — how does it feel now?</p>
+                    <ul class="mt-2 space-y-1.5">
+                        @foreach ($warmUpQuestions as $question)
+                            <li class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $question }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <div class="mt-3">
                 <x-voice-recorder field="audioFile" :file="$audioFile" file-name="activation-speaking.webm" />
