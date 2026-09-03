@@ -72,6 +72,19 @@ new class extends Component
     public ?string $activationRecordingUrl = null;
 
     /**
+     * A random unscripted recording (Mission Brief's warm-up or
+     * Activation's solo speaking) from a DIFFERENT, already-finished
+     * mission — a "how far you've come" flashback, not tied to this
+     * mission's own before/after. Purely to listen back to; no new
+     * recording is asked for here (Speaking Recall is where that
+     * happens on a real schedule). Null for a learner's first
+     * completed mission, or if nobody ever recorded anything optional.
+     */
+    public ?string $flashbackRecordingUrl = null;
+
+    public ?string $flashbackMissionCode = null;
+
+    /**
      * Opt-in "join Speaking Recall" checklist — same philosophy as
      * TracksVocabularyNotebook (Article 12, Independence: offered, never
      * silently enrolled), kept as plain properties here rather than a
@@ -99,6 +112,21 @@ new class extends Component
 
         $this->warmUpRecordingUrl = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
         $this->activationRecordingUrl = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
+
+        $flashback = Evidence::query()
+            ->whereIn('phase', ['mission_brief', 'activation'])
+            ->where('type', Evidence::TYPE_AUDIO)
+            ->whereHas('missionRun', fn ($query) => $query
+                ->where('learner_id', $this->run->learner_id)
+                ->where('id', '!=', $this->run->id)
+                ->whereNotNull('completed_at'))
+            ->inRandomOrder()
+            ->first();
+
+        if ($flashback) {
+            $this->flashbackRecordingUrl = $flashback->content_ref;
+            $this->flashbackMissionCode = $flashback->missionRun->mission->code;
+        }
 
         if ($this->readOnly) {
             $data = json_decode($this->run->latestEvidence('mission_result')?->content_ref ?? '{}', true);
@@ -570,6 +598,23 @@ new class extends Component
                             @endforeach
                         </div>
                     @endif
+                </div>
+            @endif
+
+            @if ($flashbackRecordingUrl)
+                <div class="mt-4 rounded-xl border border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark">
+                    <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
+                        @svg('heroicon-o-clock', 'h-3.5 w-3.5')
+                        A voice from an earlier mission
+                    </p>
+                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                        @if ($flashbackMissionCode)
+                            From {{ $flashbackMissionCode }} — listen back and hear how far you've come.
+                        @else
+                            Listen back and hear how far you've come.
+                        @endif
+                    </p>
+                    <div class="mt-2"><x-audio-player :url="$flashbackRecordingUrl" /></div>
                 </div>
             @endif
 

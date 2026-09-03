@@ -769,6 +769,84 @@ class MissionResultStepTest extends TestCase
             ->assertSeeHtml('https://example.test/storage/activation.webm');
     }
 
+    public function test_a_flashback_recording_from_a_different_finished_mission_is_shown(): void
+    {
+        $run = $this->makeRun();
+
+        $earlierMission = Mission::create([
+            'code' => 'M-EARLIER',
+            'title' => 'Earlier Mission',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]);
+        $earlierRun = MissionRun::findOrStart($run->learner, $earlierMission);
+        $earlierRun->update(['completed_at' => now()->subWeek()]);
+        Evidence::create([
+            'mission_run_id' => $earlierRun->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'https://example.test/storage/earlier-activation.webm',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('A voice from an earlier mission')
+            ->assertSee('M-EARLIER')
+            ->assertSeeHtml('https://example.test/storage/earlier-activation.webm');
+    }
+
+    public function test_no_flashback_recording_from_the_current_mission_itself_or_an_unfinished_one(): void
+    {
+        $run = $this->makeRun();
+
+        // A recording from THIS SAME run must never count as a "flashback".
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'https://example.test/storage/this-run-activation.webm',
+        ]);
+
+        // A different run that was never finished must not count either.
+        $unfinishedMission = Mission::create([
+            'code' => 'M-UNFINISHED',
+            'title' => 'Unfinished Mission',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]);
+        $unfinishedRun = MissionRun::findOrStart($run->learner, $unfinishedMission);
+        Evidence::create([
+            'mission_run_id' => $unfinishedRun->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'https://example.test/storage/unfinished-activation.webm',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertDontSee('A voice from an earlier mission');
+    }
+
     public function test_reflection_inputs_carry_a_draft_key_scoped_to_the_run(): void
     {
         $run = $this->makeRun();
