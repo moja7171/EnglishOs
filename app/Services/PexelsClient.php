@@ -8,12 +8,15 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Thin wrapper around the Pexels photo search API — powers Vocabulary
- * Builder's picture flashcards (dual-coding: a concrete-noun word paired
- * with an image aids recall more than the word alone). Deliberately
- * fails soft everywhere (missing key, network error, no results all
- * return null) — this is a nice-to-have, never something a step should
- * block or error out on. See EOS-009 §8.
+ * Thin wrapper around the Pexels photo + video search APIs. Photos power
+ * Vocabulary Builder's picture flashcards (dual-coding: a concrete-noun
+ * word paired with an image aids recall more than the word alone).
+ * Videos power ambient/decorative background clips (see
+ * <x-ambient-video>) — deliberately NOT a listening-comprehension source:
+ * Pexels footage has no usable spoken dialogue to test against, it is
+ * mood-setting only. Deliberately fails soft everywhere (missing key,
+ * network error, no results all return null) — this is a nice-to-have,
+ * never something a step should block or error out on. See EOS-009 §8.
  */
 class PexelsClient
 {
@@ -33,13 +36,35 @@ class PexelsClient
      */
     public function imageUrlFor(string $word, string $query): ?string
     {
-        $path = 'vocabulary-images/'.Str::slug($word).'.jpg';
+        return $this->fetchAndCache(
+            'vocabulary-images/'.Str::slug($word).'.jpg',
+            fn () => $this->searchPhotoUrl($query),
+        );
+    }
 
+    /**
+     * A short, silent background video clip for one topic, same fetch-once
+     * -cache-forever shape as imageUrlFor(). $identifier scopes the cached
+     * file (e.g. a mission code), $query is what's actually searched for.
+     */
+    public function videoUrlFor(string $identifier, string $query): ?string
+    {
+        return $this->fetchAndCache(
+            'ambient-videos/'.Str::slug($identifier).'.mp4',
+            fn () => $this->searchVideoUrl($query),
+        );
+    }
+
+    /**
+     * @param  callable(): ?string  $resolveRemoteUrl
+     */
+    private function fetchAndCache(string $path, callable $resolveRemoteUrl): ?string
+    {
         if (Storage::disk('public')->exists($path)) {
             return Storage::disk('public')->url($path);
         }
 
-        $remoteUrl = $this->searchPhotoUrl($query);
+        $remoteUrl = $resolveRemoteUrl();
 
         if (! $remoteUrl) {
             return null;
@@ -74,5 +99,33 @@ class PexelsClient
         }
 
         return data_get($response->json(), 'photos.0.src.medium');
+    }
+
+    /**
+     * Picks the smallest "sd" file when one exists (this is a muted,
+     * looping background loop, not something worth HD bandwidth), falling
+     * back to whichever file Pexels lists first.
+     */
+    private function searchVideoUrl(string $query): ?string
+    {
+        if ($this->apiKey === '') {
+            return null;
+        }
+
+        try {
+            $response = Http::withHeaders(['Authorization' => $this->apiKey])
+                ->get('https://api.pexels.com/videos/search', [
+                    'query' => $query,
+                    'per_page' => 1,
+                    'orientation' => 'landscape',
+                ])
+                ->throw();
+        } catch (Throwable) {
+            return null;
+        }
+
+        $files = collect(data_get($response->json(), 'videos.0.video_files', []));
+
+        return $files->firstWhere('quality', 'sd')['link'] ?? $files->first()['link'] ?? null;
     }
 }

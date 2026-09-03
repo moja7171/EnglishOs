@@ -69,4 +69,50 @@ class PexelsClientTest extends TestCase
 
         $this->assertNull($url);
     }
+
+    public function test_it_downloads_and_caches_a_video_preferring_sd_quality(): void
+    {
+        Storage::fake('public');
+        Http::fake([
+            'api.pexels.com/videos/*' => Http::response([
+                'videos' => [[
+                    'video_files' => [
+                        ['quality' => 'hd', 'link' => 'https://videos.pexels.com/video/hd.mp4'],
+                        ['quality' => 'sd', 'link' => 'https://videos.pexels.com/video/sd.mp4'],
+                    ],
+                ]],
+            ]),
+            'videos.pexels.com/*' => Http::response('fake-video-bytes'),
+        ]);
+
+        $url = (new PexelsClient('test-key'))->videoUrlFor('m01-morning', 'quiet morning routine');
+
+        $this->assertNotNull($url);
+        Storage::disk('public')->assertExists('ambient-videos/m01-morning.mp4');
+        Http::assertSent(fn ($request) => $request->url() === 'https://videos.pexels.com/video/sd.mp4');
+    }
+
+    public function test_a_second_call_for_the_same_video_never_hits_the_api_again(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('ambient-videos/m01-morning.mp4', 'already-cached-bytes');
+        Http::fake();
+
+        $url = (new PexelsClient('test-key'))->videoUrlFor('m01-morning', 'quiet morning routine');
+
+        $this->assertNotNull($url);
+        Http::assertNothingSent();
+    }
+
+    public function test_video_returns_null_when_pexels_has_no_results(): void
+    {
+        Storage::fake('public');
+        Http::fake([
+            'api.pexels.com/videos/*' => Http::response(['videos' => []]),
+        ]);
+
+        $url = (new PexelsClient('test-key'))->videoUrlFor('m01-morning', 'quiet morning routine');
+
+        $this->assertNull($url);
+    }
 }
