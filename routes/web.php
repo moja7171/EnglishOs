@@ -48,6 +48,10 @@ Route::middleware('auth')->group(function () {
         return view('friends');
     })->name('friends.index');
 
+    Route::get('/friends/board', function () {
+        return view('friends-board');
+    })->name('friends.board');
+
     Route::get('/friends/{user}/conversation', function (User $user) {
         return view('friends-conversation', compact('user'));
     })->name('friends.conversation');

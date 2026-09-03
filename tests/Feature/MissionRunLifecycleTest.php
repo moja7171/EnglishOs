@@ -222,4 +222,36 @@ class MissionRunLifecycleTest extends TestCase
 
         $this->assertNull(MissionRun::gatingMission($learner, $m02));
     }
+
+    public function test_progress_percent_is_zero_for_a_fresh_run(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->assertSame(0, $run->progressPercent());
+    }
+
+    public function test_progress_percent_reflects_recorded_evidence_out_of_all_steps(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        // 5 total steps in this fixture — 2 recorded = 40%.
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'vocabulary_builder', 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+
+        $this->assertSame(40, $run->progressPercent());
+    }
+
+    public function test_progress_percent_is_100_once_every_step_has_evidence(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        foreach (['mission_brief', 'vocabulary_builder', 'listening', 'grammar_in_context', 'activation'] as $key) {
+            Evidence::create(['mission_run_id' => $run->id, 'phase' => $key, 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+        }
+
+        $this->assertSame(100, $run->progressPercent());
+    }
 }

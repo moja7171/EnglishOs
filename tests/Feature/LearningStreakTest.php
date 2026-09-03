@@ -360,4 +360,51 @@ class LearningStreakTest extends TestCase
 
         $this->assertSame(1, $learner->mutualFriendsActiveTodayCount());
     }
+
+    public function test_latest_in_progress_mission_run_is_null_with_no_runs(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->assertNull($learner->latestInProgressMissionRun());
+    }
+
+    public function test_latest_in_progress_mission_run_finds_the_one_still_in_progress(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->assertSame($run->id, $learner->latestInProgressMissionRun()->id);
+    }
+
+    public function test_latest_in_progress_mission_run_excludes_completed_runs(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+
+        $this->assertNull($learner->latestInProgressMissionRun());
+    }
+
+    public function test_missions_completed_this_week_only_counts_recent_completions(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+
+        $thisWeek = MissionRun::findOrStart($learner, $mission);
+        $thisWeek->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+
+        $this->assertSame(1, $learner->missionsCompletedThisWeekCount());
+    }
+
+    public function test_missions_completed_this_week_excludes_older_completions(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+
+        $lastMonth = MissionRun::findOrStart($learner, $mission);
+        $lastMonth->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subWeeks(3)]);
+
+        $this->assertSame(0, $learner->missionsCompletedThisWeekCount());
+    }
 }

@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'celebrated_streak_milestone', 'weekly_goal_days'])]
+#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -182,6 +182,32 @@ class User extends Authenticatable
     public function missionsCompletedCount(): int
     {
         return $this->missionRuns()->where('status', MissionRun::STATUS_COMPLETE)->count();
+    }
+
+    /**
+     * Non-competitive "this week" framing for the Friends Board (see
+     * friends/⚡board.blade.php) — a plain count, never a rank.
+     */
+    public function missionsCompletedThisWeekCount(): int
+    {
+        return $this->missionRuns()
+            ->where('status', MissionRun::STATUS_COMPLETE)
+            ->where('completed_at', '>=', now()->startOfWeek())
+            ->count();
+    }
+
+    /**
+     * The mission this learner is actively working on right now, if any —
+     * feeds the Friends Board's per-friend progress ring/journey map.
+     * "Latest" by started_at since a learner could in principle have more
+     * than one in_progress run across different missions.
+     */
+    public function latestInProgressMissionRun(): ?MissionRun
+    {
+        return $this->missionRuns()
+            ->where('status', MissionRun::STATUS_IN_PROGRESS)
+            ->latest('started_at')
+            ->first();
     }
 
     /**

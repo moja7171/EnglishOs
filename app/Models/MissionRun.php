@@ -109,6 +109,26 @@ class MissionRun extends Model
     }
 
     /**
+     * What fraction of this mission's steps have recorded Evidence —
+     * feeds the Friends Board's per-friend progress ring (see
+     * User::latestInProgressMissionRun()). Content-free by design: this
+     * is a count, never a hint at what was actually answered.
+     */
+    public function progressPercent(): int
+    {
+        $stepKeys = $this->mission->stepKeys();
+
+        if ($stepKeys === []) {
+            return 0;
+        }
+
+        $recorded = $this->evidence()->pluck('phase')->unique()->all();
+        $done = count(array_intersect($stepKeys, $recorded));
+
+        return (int) round($done / count($stepKeys) * 100);
+    }
+
+    /**
      * The most recent Evidence row for a given step, if any. Step
      * components use this to reload what the learner already submitted
      * when reviewing a completed step in read-only mode.

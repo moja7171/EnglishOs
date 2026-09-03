@@ -184,10 +184,16 @@ new class extends Component
         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
             @svg('heroicon-s-user-group', 'h-5 w-5')
         </span>
-        <div>
+        <div class="min-w-0 flex-1">
             <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>
             <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Send a follow request, accept the ones you get, and message anyone who follows you back.</p>
         </div>
+        <a
+            href="{{ route('friends.board') }}"
+            wire:navigate
+            title="Friends Board — see everyone's progress"
+            class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+        >@svg('heroicon-o-chart-bar', 'h-4.5 w-4.5')</a>
     </header>
 
     @if ($this->friendsActiveTodayCount)
