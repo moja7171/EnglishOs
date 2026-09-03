@@ -131,6 +131,12 @@ new class extends Component
             <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $prompt->prompt }}</p>
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Answer out loud, without preparing first.</p>
 
+            <x-practice-with-friend
+                :text="$prompt->prompt"
+                intro="Hey — want to practice this speaking question with me:"
+                label="Practice this with a friend"
+            />
+
             @if ($prompt->last_recording_url && ! $recordedThisTurn)
                 <div>
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your last attempt:</p>

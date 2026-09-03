@@ -127,4 +127,19 @@ class SpeakingRecallTest extends TestCase
             ->assertSee('Due now')
             ->assertSeeHtml('Second question');
     }
+
+    public function test_the_due_prompt_offers_practicing_it_with_a_mutual_friend(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDuePrompt($learner);
+        $friend = User::factory()->create(['name' => 'Priya']);
+        $learner->follow($friend);
+        $friend->follow($learner);
+
+        $this->actingAs($learner);
+
+        Livewire::test('speaking.index')
+            ->assertSee('Practice this with a friend')
+            ->assertSee('Priya');
+    }
 }
