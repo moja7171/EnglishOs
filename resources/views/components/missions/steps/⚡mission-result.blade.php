@@ -47,6 +47,29 @@ new class extends Component
      */
     public ?int $milestoneJustReached = null;
 
+    /**
+     * The literal Day 1 comfort score from Mission Brief (never touched
+     * since) — see mission-brief.blade.php. Closes the loop on the
+     * promise made there ("we'll compare this to your score at the
+     * end"), which nothing previously read back.
+     */
+    public ?int $briefScore = null;
+
+    /**
+     * A fresh, optional, ungraded re-ask of the same "how comfortable do
+     * you feel about this topic?" question — deliberately separate from
+     * the required multi-skill before/after grid above, so answering it
+     * never blocks Finish. Null until tapped (live) or if the learner
+     * skipped it (readOnly).
+     */
+    public ?int $afterScore = null;
+
+    /** Mission Brief's optional Day 1 warm-up recording, if the learner made one. */
+    public ?string $warmUpRecordingUrl = null;
+
+    /** Activation's recording — the closest "mid-mission, unscripted speaking" equivalent to pair it against. */
+    public ?string $activationRecordingUrl = null;
+
     public function mount(): void
     {
         foreach ($this->skills() as $skill) {
@@ -57,11 +80,18 @@ new class extends Component
             $this->reflection[$key] = '';
         }
 
+        $briefScoreEvidence = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_SCORE)->latest()->first();
+        $this->briefScore = $briefScoreEvidence ? (int) $briefScoreEvidence->content_ref : null;
+
+        $this->warmUpRecordingUrl = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
+        $this->activationRecordingUrl = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
+
         if ($this->readOnly) {
             $data = json_decode($this->run->latestEvidence('mission_result')?->content_ref ?? '{}', true);
             $this->status = $data['status'] ?? null;
             $this->reason = $data['reason'] ?? null;
             $this->weakStep = $data['weak_step'] ?? null;
+            $this->afterScore = $data['topic_comfort_after'] ?? null;
 
             foreach ($this->run->selfAssessments as $assessment) {
                 $this->scores[$assessment->skill] = ['before' => $assessment->before, 'after' => $assessment->after];
@@ -246,7 +276,14 @@ new class extends Component
             'mission_run_id' => $this->run->id,
             'phase' => 'mission_result',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['status' => $this->status, 'reason' => $this->reason, 'weak_step' => $this->weakStep]),
+            'content_ref' => json_encode([
+                'status' => $this->status,
+                'reason' => $this->reason,
+                'weak_step' => $this->weakStep,
+                // Optional — null if the learner never tapped it, never
+                // required to reach here.
+                'topic_comfort_after' => $this->afterScore,
+            ]),
         ]);
 
         $this->run->update(['status' => $this->status, 'completed_at' => now()]);
@@ -431,6 +468,51 @@ new class extends Component
                             </div>
                         </div>
                     @endforeach
+                </div>
+            @endif
+
+            @if ($briefScore)
+                <div class="mt-4">
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Since Day 1</p>
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">You started this mission rating your comfort with this topic <span class="font-semibold text-ink dark:text-ink-dark">{{ $briefScore }}/5</span>.</p>
+
+                    @if ($warmUpRecordingUrl || $activationRecordingUrl)
+                        <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                            @if ($warmUpRecordingUrl)
+                                <div class="rounded-xl border border-line p-2.5 dark:border-line-dark">
+                                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Day 1 — your warm-up answer</p>
+                                    <div class="mt-1"><x-audio-player :url="$warmUpRecordingUrl" /></div>
+                                </div>
+                            @endif
+                            @if ($activationRecordingUrl)
+                                <div class="rounded-xl border border-line p-2.5 dark:border-line-dark">
+                                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Mid-mission — your Activation recording</p>
+                                    <div class="mt-1"><x-audio-player :url="$activationRecordingUrl" /></div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if ($readOnly)
+                        @if ($afterScore)
+                            <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">You rated it <span class="font-semibold text-ink dark:text-ink-dark">{{ $afterScore }}/5</span> by the end.</p>
+                        @endif
+                    @else
+                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">How about now? (optional)</p>
+                        <div class="mt-1 flex gap-1.5">
+                            @foreach (range(1, 5) as $value)
+                                <button
+                                    type="button"
+                                    wire:click="$set('afterScore', {{ $value }})"
+                                    @class([
+                                        'h-8 w-8 cursor-pointer rounded-full border text-xs font-semibold transition-colors',
+                                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $afterScore === $value,
+                                        'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark' => $afterScore !== $value,
+                                    ])
+                                >{{ $value }}</button>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             @endif
 

@@ -598,6 +598,176 @@ class MissionResultStepTest extends TestCase
             ->assertSee('Review Mission Result');
     }
 
+    public function test_the_result_shows_the_day_1_comfort_score_from_mission_brief(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '2',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('Since Day 1')
+            ->assertSee('2/5');
+    }
+
+    public function test_no_since_day_1_section_without_a_mission_brief_score(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertDontSee('Since Day 1');
+    }
+
+    public function test_tapping_the_after_score_never_blocks_finish_and_is_saved(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '2',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        $component = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->set('afterScore', 4);
+
+        $component->call('finish');
+
+        $evidence = Evidence::where('mission_run_id', $run->id)->where('phase', 'mission_result')->first();
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertSame(4, $content['topic_comfort_after']);
+    }
+
+    public function test_finish_succeeds_without_ever_tapping_the_after_score(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '2',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        $component = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult');
+
+        $component->call('finish');
+
+        $evidence = Evidence::where('mission_run_id', $run->id)->where('phase', 'mission_result')->first();
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertNull($content['topic_comfort_after']);
+    }
+
+    public function test_read_only_mode_reloads_the_saved_after_score(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '2',
+        ]);
+
+        SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
+        Reflection::create(['mission_run_id' => $run->id, 'answers' => ['became_easier' => 'x']]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_result',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['status' => 'complete', 'reason' => 'Saved reason.', 'topic_comfort_after' => 5]),
+        ]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
+            ->assertSet('afterScore', 5)
+            ->assertSee('5/5');
+    }
+
+    public function test_the_result_shows_day_1_and_activation_recordings_when_present(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '2',
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'https://example.test/storage/warmup.webm',
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'activation',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'https://example.test/storage/activation.webm',
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('Day 1 — your warm-up answer')
+            ->assertSee('Mid-mission — your Activation recording')
+            ->assertSeeHtml('https://example.test/storage/warmup.webm')
+            ->assertSeeHtml('https://example.test/storage/activation.webm');
+    }
+
     public function test_reflection_inputs_carry_a_draft_key_scoped_to_the_run(): void
     {
         $run = $this->makeRun();
