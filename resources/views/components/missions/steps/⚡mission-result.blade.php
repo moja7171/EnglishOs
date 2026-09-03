@@ -5,6 +5,7 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Models\Reflection;
 use App\Models\SelfAssessment;
+use App\Models\SpeakingPrompt;
 use App\Services\GeminiClient;
 use Livewire\Component;
 
@@ -69,6 +70,19 @@ new class extends Component
 
     /** Activation's recording — the closest "mid-mission, unscripted speaking" equivalent to pair it against. */
     public ?string $activationRecordingUrl = null;
+
+    /**
+     * Opt-in "join Speaking Recall" checklist — same philosophy as
+     * TracksVocabularyNotebook (Article 12, Independence: offered, never
+     * silently enrolled), kept as plain properties here rather than a
+     * shared trait since this is its only caller so far, unlike the
+     * vocabulary notebook flow which two different steps already use.
+     *
+     * @var array<int, bool> keyed by index into speakingPromptCandidates()
+     */
+    public array $speakingPromptsToTrack = [];
+
+    public bool $trackedSpeakingPrompts = false;
 
     public function mount(): void
     {
@@ -178,6 +192,48 @@ new class extends Component
             ->all();
     }
 
+    /**
+     * Real questions this mission actually asked — Mission Brief's warm-up
+     * questions and the AI Conversation interview questions — offered as
+     * the starting set for Speaking Recall (see EOS-009 §8). Deduplicated
+     * in case a mission happens to reuse a question in both places.
+     *
+     * @return list<string>
+     */
+    public function speakingPromptCandidates(): array
+    {
+        $warmUp = $this->run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
+        $interview = $this->run->mission->stepContent('ai_conversation_1')['interview_questions'] ?? [];
+
+        return collect($warmUp)->merge($interview)->unique()->values()->all();
+    }
+
+    /**
+     * firstOrCreate per checked question, same idea as
+     * TracksVocabularyNotebook::addWordsToNotebook() — re-adding a
+     * question already on the learner's list (from this mission or a
+     * past one) never resets its review schedule.
+     */
+    public function addSpeakingPromptsToRecall(): void
+    {
+        foreach ($this->speakingPromptCandidates() as $index => $prompt) {
+            if (! ($this->speakingPromptsToTrack[$index] ?? false)) {
+                continue;
+            }
+
+            SpeakingPrompt::firstOrCreate(
+                ['learner_id' => $this->run->learner_id, 'prompt' => $prompt],
+                [
+                    'source_mission_run_id' => $this->run->id,
+                    'mission_code' => $this->run->mission->code,
+                    'next_review_at' => now(),
+                ],
+            );
+        }
+
+        $this->trackedSpeakingPrompts = true;
+    }
+
     public function getResult(): void
     {
         $this->error = null;
@@ -219,6 +275,7 @@ new class extends Component
             $weakStep = $data['weak_step'] ?? null;
             $this->weakStep = in_array($weakStep, $this->run->mission->stepKeys(), true) ? $weakStep : null;
             $this->milestoneJustReached = $this->run->learner->streakMilestoneJustReached();
+            $this->speakingPromptsToTrack = array_fill(0, count($this->speakingPromptCandidates()), true);
         } catch (Throwable $e) {
             $this->error = "Couldn't get your result from the AI Instructor: {$e->getMessage()}";
         } finally {
@@ -549,6 +606,38 @@ new class extends Component
                         <span class="text-success dark:text-success-dark">{{ $this->recurringError->correction }}</span>
                     </p>
                     <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — worth extra attention next time.</p>
+                </div>
+            @endif
+
+            @if (! $readOnly && count($this->speakingPromptCandidates()))
+                <div class="mt-4">
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speaking Recall</p>
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to hear these questions again someday? Pick which ones join your spaced-repetition speaking practice.</p>
+
+                    <div class="mt-2 space-y-2">
+                        @foreach ($this->speakingPromptCandidates() as $index => $prompt)
+                            <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
+                                <input
+                                    type="checkbox"
+                                    wire:model="speakingPromptsToTrack.{{ $index }}"
+                                    class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
+                                >
+                                <span class="text-sm text-ink dark:text-ink-dark">{{ $prompt }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    @if ($trackedSpeakingPrompts)
+                        <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
+                            @svg('heroicon-o-check-circle', 'h-4 w-4') Added to Speaking Recall
+                        </span>
+                    @else
+                        <button
+                            type="button"
+                            wire:click="addSpeakingPromptsToRecall"
+                            class="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        >@svg('heroicon-o-microphone', 'h-4 w-4') Add to Speaking Recall</button>
+                    @endif
                 </div>
             @endif
 

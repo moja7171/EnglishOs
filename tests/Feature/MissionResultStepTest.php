@@ -8,6 +8,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\Reflection;
 use App\Models\SelfAssessment;
+use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -796,5 +797,130 @@ class MissionResultStepTest extends TestCase
 
         $component->call('finish')
             ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:mission_result:");
+    }
+
+    private function makeRunWithSpeakingPromptCandidates(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'foundation',
+                    'steps' => [
+                        ['key' => 'mission_brief', 'warm_up_questions' => ['What time do you usually wake up?', 'What do you do after work?']],
+                        ['key' => 'ai_conversation_1', 'interview_questions' => ['How often do you exercise?']],
+                        [
+                            'key' => 'mission_result',
+                            'label' => 'Mission Result',
+                            'skills' => ['Speaking'],
+                            'reflection_questions' => ['became_easier' => 'What became easier?'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_speaking_prompt_candidates_come_from_mission_brief_and_ai_conversation(): void
+    {
+        $run = $this->makeRunWithSpeakingPromptCandidates();
+
+        $candidates = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->instance()
+            ->speakingPromptCandidates();
+
+        $this->assertSame([
+            'What time do you usually wake up?',
+            'What do you do after work?',
+            'How often do you exercise?',
+        ], $candidates);
+    }
+
+    public function test_the_speaking_recall_checklist_is_offered_after_a_result_and_never_blocks_finish(): void
+    {
+        $run = $this->makeRunWithSpeakingPromptCandidates();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->call('getResult')
+            ->assertSee('Speaking Recall')
+            ->assertSee('What time do you usually wake up?')
+            ->call('finish');
+
+        $this->assertDatabaseCount('speaking_prompts', 0);
+    }
+
+    public function test_adding_speaking_prompts_enrolls_every_checked_question(): void
+    {
+        $run = $this->makeRunWithSpeakingPromptCandidates();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->call('getResult')
+            ->call('addSpeakingPromptsToRecall')
+            ->assertSet('trackedSpeakingPrompts', true);
+
+        $this->assertSame(3, SpeakingPrompt::where('learner_id', $run->learner_id)->count());
+
+        $prompt = SpeakingPrompt::where('prompt', 'How often do you exercise?')->firstOrFail();
+        $this->assertSame($run->id, $prompt->source_mission_run_id);
+        $this->assertSame('M01', $prompt->mission_code);
+        $this->assertTrue($prompt->isDue());
+    }
+
+    public function test_unchecking_a_speaking_prompt_leaves_it_out(): void
+    {
+        $run = $this->makeRunWithSpeakingPromptCandidates();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->call('getResult')
+            ->set('speakingPromptsToTrack.0', false)
+            ->call('addSpeakingPromptsToRecall');
+
+        $this->assertSame(2, SpeakingPrompt::where('learner_id', $run->learner_id)->count());
+        $this->assertDatabaseMissing('speaking_prompts', ['learner_id' => $run->learner_id, 'prompt' => 'What time do you usually wake up?']);
+    }
+
+    public function test_no_speaking_recall_section_renders_in_read_only_mode(): void
+    {
+        $run = $this->makeRunWithSpeakingPromptCandidates();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_result',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['status' => 'complete', 'reason' => 'Nice work.']),
+        ]);
+        SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
+            ->assertDontSee('Speaking Recall');
     }
 }

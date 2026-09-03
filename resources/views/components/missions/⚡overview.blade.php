@@ -13,6 +13,12 @@ new class extends Component
     }
 
     #[Computed]
+    public function duePromptsCount(): int
+    {
+        return auth()->user()->speakingPrompts()->where('next_review_at', '<=', now())->count();
+    }
+
+    #[Computed]
     public function justBenefitedFromGrace(): bool
     {
         return auth()->user()->justBenefitedFromGrace();
@@ -86,6 +92,23 @@ new class extends Component
             <span class="flex-1">
                 <span class="block text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->dueWordsCount }} {{ Str::plural('word', $this->dueWordsCount) }} ready for review</span>
                 <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">A couple of minutes keeps them fresh.</span>
+            </span>
+            @svg('heroicon-o-chevron-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark shrink-0')
+        </a>
+    @endif
+
+    @if ($this->duePromptsCount)
+        <a
+            href="{{ route('speaking.index') }}"
+            wire:navigate
+            class="flex items-center gap-3 rounded-2xl border border-accent-soft bg-accent-soft/40 p-4 transition-colors hover:bg-accent-soft dark:border-accent-soft-dark dark:bg-accent-soft-dark/40 dark:hover:bg-accent-soft-dark"
+        >
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-o-microphone', 'h-4 w-4')
+            </span>
+            <span class="flex-1">
+                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->duePromptsCount }} {{ Str::plural('speaking question', $this->duePromptsCount) }} ready for review</span>
+                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">A couple of minutes keeps your speaking sharp too.</span>
             </span>
             @svg('heroicon-o-chevron-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark shrink-0')
         </a>

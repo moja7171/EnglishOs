@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
         return view('vocabulary');
     })->name('vocabulary.index');
 
+    Route::get('/speaking', function () {
+        return view('speaking');
+    })->name('speaking.index');
+
     Route::get('/friends', function () {
         return view('friends');
     })->name('friends.index');

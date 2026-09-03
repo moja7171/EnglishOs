@@ -77,6 +77,21 @@
                             @endif
                         </a>
                         <a
+                            href="{{ route('speaking.index') }}"
+                            wire:navigate
+                            x-on:click="open = false"
+                            class="flex items-center gap-2 px-3 py-2 font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                        >
+                            @svg('heroicon-o-microphone', 'h-4 w-4')
+                            <span class="flex-1">Speaking Recall</span>
+                            @php
+                                $duePromptsCount = auth()->user()->speakingPrompts()->where('next_review_at', '<=', now())->count();
+                            @endphp
+                            @if ($duePromptsCount)
+                                <span class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark">{{ $duePromptsCount }}</span>
+                            @endif
+                        </a>
+                        <a
                             href="{{ route('profile') }}"
                             wire:navigate
                             x-on:click="open = false"

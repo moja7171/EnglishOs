@@ -193,6 +193,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<SpeakingPrompt, $this>
+     */
+    public function speakingPrompts(): HasMany
+    {
+        return $this->hasMany(SpeakingPrompt::class, 'learner_id');
+    }
+
+    /**
      * Every distinct word/phrase this learner has ever picked in
      * Vocabulary Builder, across every mission — reuses
      * MissionRun::selectedVocabularyWords() per run rather than
