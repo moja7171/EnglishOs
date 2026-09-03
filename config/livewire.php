@@ -209,7 +209,21 @@ return [
     |
     */
 
-    'inject_morph_markers' => true,
+    // Disabled: Livewire's own root-element detection (Drawer\Utils::
+    // insertAttributesIntoHtmlRoot) finds "the first tag after a real
+    // newline" with a plain regex that doesn't understand these injected
+    // HTML comments. When a comment lands on the SAME line as a
+    // component's true root tag (any component whose root is itself
+    // wrapped in a top-level @if/@unless — a common pattern here, see
+    // e.g. vocabulary-builder's `@if ($completed) ... @else <div ...>`),
+    // the regex skips right past it and wrongly stamps wire:id on some
+    // unrelated bare tag deeper in the markup instead. That silently
+    // desyncs the browser's morph boundary from the real component root,
+    // which is what caused the "Public method [toggleWord] not found on
+    // component" reports — the client was tracking the wrong element.
+    // Confirmed by reproducing a real HTTP round-trip and reading the
+    // literal wire:id placement in the response HTML.
+    'inject_morph_markers' => false,
 
     /*
     |---------------------------------------------------------------------------
