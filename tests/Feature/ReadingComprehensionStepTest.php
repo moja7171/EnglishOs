@@ -86,6 +86,17 @@ class ReadingComprehensionStepTest extends TestCase
             ->assertSee('Aisha lives in Manchester and works at a hospital.');
     }
 
+    public function test_the_page_is_split_into_2_sub_steps(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])->html();
+
+        $this->assertStringContainsString('activeSubstep === 0', $html);
+        $this->assertStringContainsString('activeSubstep === 1', $html);
+        $this->assertStringContainsString('Part', $html);
+    }
+
     public function test_a_passage_with_an_image_query_shows_a_header_image(): void
     {
         $run = $this->makeRunWithImageQuery();

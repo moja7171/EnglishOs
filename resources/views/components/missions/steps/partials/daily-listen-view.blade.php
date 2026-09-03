@@ -96,7 +96,7 @@
     </div>
 
     @unless ($readOnly)
-        <div>
+        <x-sticky-bar>
             <button
                 wire:click="save"
                 :disabled="!hasListened || !recall.trim()"
@@ -106,6 +106,6 @@
             </button>
             <p x-show="!hasListened" x-cloak class="mt-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">Listen at least once to continue.</p>
             <p x-show="hasListened && !recall.trim()" x-cloak class="mt-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">Write a word or phrase above to continue.</p>
-        </div>
+        </x-sticky-bar>
     @endunless
 </div>

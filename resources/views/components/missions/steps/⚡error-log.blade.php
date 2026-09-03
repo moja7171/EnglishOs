@@ -204,9 +204,11 @@ new class extends Component
             No recurring mistakes found — nice work!
         </div>
         @unless ($readOnly)
-            <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
-                Continue
-            </button>
+            <x-sticky-bar>
+                <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
+                    Continue
+                </button>
+            </x-sticky-bar>
         @endunless
     @else
         <div class="space-y-4" x-data="{ dismissed: {} }">
@@ -269,9 +271,11 @@ new class extends Component
         @enderror
 
         @unless ($readOnly)
-            <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
-                Continue
-            </button>
+            <x-sticky-bar>
+                <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
+                    Continue
+                </button>
+            </x-sticky-bar>
         @endunless
     @endif
 </div>

@@ -154,11 +154,13 @@ new class extends Component
     </div>
 
     @unless ($readOnly)
-        <button
-            wire:click="save"
-            class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-        >
-            Continue
-        </button>
+        <x-sticky-bar>
+            <button
+                wire:click="save"
+                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >
+                Continue
+            </button>
+        </x-sticky-bar>
     @endunless
 </div>

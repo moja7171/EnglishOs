@@ -68,6 +68,17 @@ class VideoShadowingStepTest extends TestCase
         $this->assertStringContainsString('youtube-nocookie.com/embed/KfVfjL8-R-0', $html);
     }
 
+    public function test_the_page_is_split_into_2_sub_steps(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
+
+        $this->assertStringContainsString('activeSubstep === 0', $html);
+        $this->assertStringContainsString('activeSubstep === 1', $html);
+        $this->assertStringContainsString('Part', $html);
+    }
+
     public function test_continue_is_blocked_until_both_watch_checkboxes_are_ticked(): void
     {
         $run = $this->makeRun();

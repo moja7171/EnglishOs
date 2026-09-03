@@ -225,83 +225,114 @@ new class extends Component
 @php
     $reading = $run->mission->stepContent('reading_comprehension');
     $draftPrefix = $this->draftPrefix();
+    // Two focused sub-steps instead of one long scroll (EOS-009 §8's
+    // UI/UX review) — read + warm-up first, the AI-checked questions
+    // second. Nothing here needs a next-disabled gate (the quick-round
+    // warm-up is always skippable), unlike Listening's gist/expression gate.
+    $totalSubsteps = 2;
 @endphp
 
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ activeSubstep: 0 }">
     <x-hook :text="$reading['hook'] ?? null" />
 
-    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-        <div class="flex items-start gap-3">
-            @if ($imageUrl = $this->passageImageUrl())
-                <img src="{{ $imageUrl }}" alt="" class="h-16 w-16 shrink-0 rounded-full object-cover">
-            @endif
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
-                <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{{ $reading['passage'] ?? '' }}</p>
-            </div>
-        </div>
+    <div class="mb-2">
+        <x-progress-bar>
+            <div
+                class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                :style="`width: ${(activeSubstep + 1) / {{ $totalSubsteps }} * 100}%`"
+            ></div>
+            <x-slot:label>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                    Part <span x-text="activeSubstep + 1"></span> of {{ $totalSubsteps }}
+                </p>
+            </x-slot:label>
+        </x-progress-bar>
     </div>
 
-    @unless ($readOnly)
-        <div>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">True or false — just a warm-up, skip anytime.</p>
-            <div class="mt-2">
-                <x-quick-round :cards="$this->comprehensionCards()" />
+    {{-- Sub-step: the passage itself + the ungraded warm-up --}}
+    <div x-show="activeSubstep === 0" x-cloak>
+        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <div class="flex items-start gap-3">
+                @if ($imageUrl = $this->passageImageUrl())
+                    <img src="{{ $imageUrl }}" alt="" class="h-16 w-16 shrink-0 rounded-full object-cover">
+                @endif
+                <div>
+                    <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
+                    <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{{ $reading['passage'] ?? '' }}</p>
+                </div>
             </div>
         </div>
-    @endunless
 
-    <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="space-y-3">
-        @foreach ($reading['questions'] ?? [] as $index => $question)
-            @php $itemFeedback = $feedback[$index] ?? null; @endphp
-            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                <p class="text-sm text-ink dark:text-ink-dark">{{ $question }}</p>
-                <div class="mt-2 flex items-center gap-2">
-                    <input
-                        type="text"
-                        wire:model="answers.{{ $index }}"
+        @unless ($readOnly)
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">True or false — just a warm-up, skip anytime.</p>
+                <div class="mt-2">
+                    <x-quick-round :cards="$this->comprehensionCards()" />
+                </div>
+            </div>
+        @endunless
+    </div>
+
+    {{-- Sub-step: the AI-checked comprehension questions --}}
+    <div x-show="activeSubstep === 1" x-cloak>
+        <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="space-y-3">
+            @foreach ($reading['questions'] ?? [] as $index => $question)
+                @php $itemFeedback = $feedback[$index] ?? null; @endphp
+                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                    <p class="text-sm text-ink dark:text-ink-dark">{{ $question }}</p>
+                    <div class="mt-2 flex items-center gap-2">
+                        <input
+                            type="text"
+                            wire:model="answers.{{ $index }}"
+                            @unless ($readOnly)
+                                x-draft="{ key: '{{ $draftPrefix }}answers.{{ $index }}', field: 'answers.{{ $index }}' }"
+                            @endunless
+                            @readonly($readOnly)
+                            wire:loading.attr="disabled"
+                            wire:target="checkOne,revealCorrection,declineReveal,save"
+                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+                        >
                         @unless ($readOnly)
-                            x-draft="{ key: '{{ $draftPrefix }}answers.{{ $index }}', field: 'answers.{{ $index }}' }"
+                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
                         @endunless
-                        @readonly($readOnly)
-                        wire:loading.attr="disabled"
-                        wire:target="checkOne,revealCorrection,declineReveal,save"
-                        class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                    >
+                    </div>
+
                     @unless ($readOnly)
-                        <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
+                        <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
+                    @endunless
+
+                    <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$index] ?? null" />
+
+                    @unless ($readOnly)
+                        <x-almost-reveal-notice :show="($checkAttempts[$index] ?? 0) === 2" />
+                        <x-reveal-offer
+                            :show="$offerReveal[$index] ?? false"
+                            reveal-method="revealCorrection"
+                            decline-method="declineReveal"
+                            :index="$index"
+                            wire-target="checkOne,revealCorrection,declineReveal,save"
+                        />
                     @endunless
                 </div>
+            @endforeach
+        </div>
+        @error('answers')
+            <p class="text-sm text-red-600">{{ $message }}</p>
+        @enderror
 
-                @unless ($readOnly)
-                    <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
-                @endunless
-
-                <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$index] ?? null" />
-
-                @unless ($readOnly)
-                    <x-almost-reveal-notice :show="($checkAttempts[$index] ?? 0) === 2" />
-                    <x-reveal-offer
-                        :show="$offerReveal[$index] ?? false"
-                        reveal-method="revealCorrection"
-                        decline-method="declineReveal"
-                        :index="$index"
-                        wire-target="checkOne,revealCorrection,declineReveal,save"
-                    />
-                @endunless
+        @unless ($readOnly)
+            <div class="mt-4">
+                <x-continue-button
+                    on-click="$wire.save()"
+                    wire-target="checkOne,revealCorrection,declineReveal,save"
+                    loading-label="Checking your answers…"
+                />
             </div>
-        @endforeach
+        @endunless
     </div>
-    @error('answers')
-        <p class="text-sm text-red-600">{{ $message }}</p>
-    @enderror
 
-    @unless ($readOnly)
-        <x-continue-button
-            on-click="$wire.save()"
-            wire-target="checkOne,revealCorrection,declineReveal,save"
-            loading-label="Checking your answers…"
-        />
-    @endunless
+    <div class="mt-4">
+        <x-substep-nav index-var="activeSubstep" :total="$totalSubsteps" />
+    </div>
 </div>

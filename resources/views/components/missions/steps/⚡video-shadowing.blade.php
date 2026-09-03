@@ -163,9 +163,14 @@ new class extends Component
     $video = $run->mission->stepContent('video_shadowing');
     $shadowLines = $video['shadow_lines'] ?? [];
     $targetPhrases = $video['target_phrases'] ?? [];
+    // Two focused sub-steps instead of one long scroll (EOS-009 §8's
+    // UI/UX review) — watch/setup first, the actual shadowing (a full
+    // voice-recorder per line) second, so the recorders never bury the
+    // watch checkboxes and quick check below the fold.
+    $totalSubsteps = 2;
 @endphp
 
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ activeSubstep: 0 }">
     <x-hook :text="$video['hook'] ?? null" />
 
     <div>
@@ -191,98 +196,124 @@ new class extends Component
             </button>
         </div>
     @else
-        <div class="space-y-6" wire:loading.class="pointer-events-none" wire:target="save">
-            @unless ($readOnly)
-                <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">True or false — just a warm-up, skip anytime.</p>
-                    <div class="mt-2">
-                        <x-quick-round :cards="$this->comprehensionCards()" />
+        <div class="mb-2">
+            <x-progress-bar>
+                <div
+                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                    :style="`width: ${(activeSubstep + 1) / {{ $totalSubsteps }} * 100}%`"
+                ></div>
+                <x-slot:label>
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                        Part <span x-text="activeSubstep + 1"></span> of {{ $totalSubsteps }}
+                    </p>
+                </x-slot:label>
+            </x-progress-bar>
+        </div>
+
+        <div wire:loading.class="pointer-events-none" wire:target="save">
+            {{-- Sub-step: quick check, watch checkboxes, expressions to notice --}}
+            <div x-show="activeSubstep === 0" x-cloak class="space-y-6">
+                @unless ($readOnly)
+                    <div>
+                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">True or false — just a warm-up, skip anytime.</p>
+                        <div class="mt-2">
+                            <x-quick-round :cards="$this->comprehensionCards()" />
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex flex-wrap gap-4">
-                    <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
-                        <input
-                            type="checkbox"
-                            wire:model="watchedWithCaptions"
-                            class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                        >
-                        I watched with captions on
-                    </label>
-                    <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
-                        <input
-                            type="checkbox"
-                            wire:model="watchedWithoutCaptions"
-                            class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                        >
-                        I watched again with captions off
-                    </label>
-                </div>
-                @error('watched')
-                    <p class="text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            @endunless
-
-            @if (count($targetPhrases))
-                <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Expressions to notice</p>
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        @foreach ($targetPhrases as $item)
-                            <span
-                                title="{{ $item['meaning'] }}"
-                                class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark"
-                            >{{ $item['phrase'] }}</span>
-                        @endforeach
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
+                            <input
+                                type="checkbox"
+                                wire:model="watchedWithCaptions"
+                                class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
+                            >
+                            I watched with captions on
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
+                            <input
+                                type="checkbox"
+                                wire:model="watchedWithoutCaptions"
+                                class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
+                            >
+                            I watched again with captions off
+                        </label>
                     </div>
-                </div>
-            @endif
-
-            @if (count($shadowLines))
-                <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
-                    @unless ($readOnly)
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                            Replay just that moment and repeat it out loud until your rhythm matches.
-                            Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
-                            ({{ $this->shadowedCount() }} done so far).
-                        </p>
-                    @endunless
-
-                    <div class="mt-2 space-y-3">
-                        @foreach ($shadowLines as $index => $line)
-                            <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
-                                <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
-                                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
-
-                                @if ($readOnly)
-                                    @if ($url = $savedShadowUrls[$index] ?? null)
-                                        <div class="mt-2"><x-audio-player :url="$url" /></div>
-                                    @else
-                                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
-                                    @endif
-                                @else
-                                    <div class="mt-2" wire:key="shadow-recorder-{{ $index }}">
-                                        <x-voice-recorder field="shadowRecordings.{{ $index }}" :file="$shadowRecordings[$index] ?? null" file-name="video-shadow-{{ $index }}.webm" />
-                                    </div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                    @error('shadowRecordings')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @error('watched')
+                        <p class="text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                </div>
-            @endif
+                @endunless
 
-            @unless ($readOnly)
-                <x-continue-button
-                    on-click="$wire.save()"
-                    wire-target="save"
-                    loading-label="Saving…"
-                />
-            @endunless
+                @if (count($targetPhrases))
+                    <div>
+                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Expressions to notice</p>
+                        <div class="mt-2 flex flex-wrap gap-1.5">
+                            @foreach ($targetPhrases as $item)
+                                <span
+                                    title="{{ $item['meaning'] }}"
+                                    class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark"
+                                >{{ $item['phrase'] }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Sub-step: the actual shadowing — one full recorder per line --}}
+            <div x-show="activeSubstep === 1" x-cloak>
+                @if (count($shadowLines))
+                    <div>
+                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
+                        @unless ($readOnly)
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+                                Replay just that moment and repeat it out loud until your rhythm matches.
+                                Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
+                                ({{ $this->shadowedCount() }} done so far).
+                            </p>
+                        @endunless
+
+                        <div class="mt-2 space-y-3">
+                            @foreach ($shadowLines as $index => $line)
+                                <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
+                                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+                                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
+
+                                    @if ($readOnly)
+                                        @if ($url = $savedShadowUrls[$index] ?? null)
+                                            <div class="mt-2"><x-audio-player :url="$url" /></div>
+                                        @else
+                                            <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
+                                        @endif
+                                    @else
+                                        <div class="mt-2" wire:key="shadow-recorder-{{ $index }}">
+                                            <x-voice-recorder field="shadowRecordings.{{ $index }}" :file="$shadowRecordings[$index] ?? null" file-name="video-shadow-{{ $index }}.webm" />
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                        @error('shadowRecordings')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
+
+                @unless ($readOnly)
+                    <div class="mt-4">
+                        <x-continue-button
+                            on-click="$wire.save()"
+                            wire-target="save"
+                            loading-label="Saving…"
+                        />
+                    </div>
+                @endunless
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <x-substep-nav index-var="activeSubstep" :total="$totalSubsteps" />
         </div>
     @endif
 </div>
