@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\MissionRun;
@@ -8,6 +9,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksAiUsage;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -101,6 +104,7 @@ new class extends Component
                     .'"drills": [{"sentence": "...___...", "answer": "..."}, {"sentence": "...___...", "answer": "..."}]}. '
                     .'If the learner made no real mistakes, reply with an empty JSON array: []'
             );
+            $this->recordGeminiCall();
 
             $data = json_decode(trim($raw), true);
 

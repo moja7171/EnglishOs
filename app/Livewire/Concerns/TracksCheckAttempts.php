@@ -84,6 +84,7 @@ trait TracksCheckAttempts
 
         try {
             $corrected = app(SentenceChecker::class)->correct($context, $text);
+            $this->run->increment('gemini_calls'); // see App\Livewire\Concerns\TracksAiUsage
             $onCorrected($corrected);
             $this->clearCheckAttempt($key);
         } catch (ConnectionException|RequestException) {

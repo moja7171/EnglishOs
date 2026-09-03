@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\SentenceChecker;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksAiUsage;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -267,6 +270,7 @@ new class extends Component
             if ($data === null) {
                 return;
             }
+            $this->recordGeminiCall();
 
             $this->aiFeedback[$section][$index] = $data + ['checkedText' => $text];
         } catch (ConnectionException|RequestException) {
@@ -309,6 +313,7 @@ new class extends Component
                 text: $answer,
                 extraGuidance: $this->run->aiToneGuidance(),
             );
+            $this->recordGeminiCall();
         } catch (ConnectionException|RequestException) {
             $this->recurringPracticeError = "Couldn't reach the AI service — please try again.";
         } catch (Throwable $e) {

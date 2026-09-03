@@ -154,6 +154,126 @@ class AiConversation2StepTest extends TestCase
             ->assertSet('checklist.5+ vocabulary expressions', true);
     }
 
+    /**
+     * A real run (2026-09-03) had "1+ BBC expression" marked false despite
+     * the transcript genuinely containing "oversleep" and "morning
+     * person" — the AI had no way to know what "BBC expression" meant as
+     * a bare label. Grounds it in the mission's own Listening target_phrases,
+     * same pattern as the vocabulary-words grounding above.
+     */
+    public function test_the_bbc_expression_requirement_is_grounded_in_listenings_target_phrases(): void
+    {
+        Storage::fake('local');
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'mission',
+                    'steps' => [
+                        [
+                            'key' => 'listening',
+                            'target_phrases' => [
+                                ['phrase' => 'get up', 'meaning' => 'to stand up and leave your bed'],
+                                ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident'],
+                                ['phrase' => 'morning person', 'meaning' => 'someone with a lot of energy at the start of the day'],
+                            ],
+                        ],
+                        [
+                            'key' => 'ai_conversation_2',
+                            'rounds' => ['Describe your typical weekday.', 'Compare weekday and weekend.'],
+                            'final_prompt' => 'Speak for 3 minutes about your daily life.',
+                            'requirements' => ['Present Simple', '1+ BBC expression'],
+                        ],
+                        ['key' => 'active_recall'],
+                    ],
+                ],
+            ],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')
+                ->times(3)
+                ->andReturn('answer 1', 'answer 2', 'I never oversleep because I am a morning person.');
+        });
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->times(5)
+                ->andReturn(
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'a follow-up question',
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'a follow-up question',
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                )
+                ->ordered();
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function (array $messages, ?string $systemPrompt) {
+                    return str_contains($systemPrompt, 'BBC expression')
+                        && str_contains($systemPrompt, 'oversleep')
+                        && str_contains($systemPrompt, 'morning person')
+                        && str_contains($systemPrompt, 'Listening episode');
+                })
+                ->andReturn(json_encode([
+                    'requirements' => ['Present Simple' => true, '1+ BBC expression' => true],
+                    'note' => 'Nice use of "oversleep" and "morning person".',
+                ]))
+                ->ordered();
+        });
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $component->set('audioFile', UploadedFile::fake()->create('r1.webm', 100, 'audio/webm'))->call('submitRoundAnswer');
+        $component->set('audioFile', UploadedFile::fake()->create('r2.webm', 100, 'audio/webm'))->call('submitRoundAnswer');
+        $component->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
+            ->call('submitFinalChallenge')
+            ->assertSet('checklist.1+ BBC expression', true);
+    }
+
+    public function test_the_raw_ai_checklist_response_is_stored_for_future_auditing(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribe')->times(3)->andReturn('a1', 'a2', 'a3');
+        });
+        $rawChecklistJson = json_encode([
+            'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false],
+            'note' => 'Good use of Present Simple.',
+        ]);
+        $this->mock(GeminiClient::class, function ($mock) use ($rawChecklistJson) {
+            $mock->shouldReceive('chat')
+                ->times(5)
+                ->andReturn(
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'follow-up',
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'follow-up',
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                )
+                ->ordered();
+            $mock->shouldReceive('chat')->once()->andReturn($rawChecklistJson)->ordered();
+        });
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $component->set('audioFile', UploadedFile::fake()->create('r1.webm', 100, 'audio/webm'))->call('submitRoundAnswer');
+        $component->set('audioFile', UploadedFile::fake()->create('r2.webm', 100, 'audio/webm'))->call('submitRoundAnswer');
+        $component->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
+            ->call('submitFinalChallenge')
+            ->assertSet('checklistRawResponse', $rawChecklistJson)
+            ->call('finishConversation');
+
+        $evidence = Evidence::where('phase', 'ai_conversation_2')->first();
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertSame($rawChecklistJson, $content['raw_ai_response']);
+    }
+
     public function test_shows_its_hook_alongside_the_alpine_recorder_widget(): void
     {
         $learner = User::factory()->create();

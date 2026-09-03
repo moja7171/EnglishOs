@@ -408,6 +408,67 @@ class MissionResultStepTest extends TestCase
             ->assertSee('Get an updated result');
     }
 
+    /**
+     * A real run (2026-09-03) had the AI pick 'ai_feedback_1' as weak_step
+     * and the app rendered a "Redo AI Feedback #1" button leading nowhere
+     * useful — that step takes zero learner input, there is nothing to
+     * redo. Even though 'ai_feedback_1' IS a real step in this mission
+     * (unlike the hallucinated-key test above), it must still be rejected.
+     */
+    public function test_an_informational_ai_feedback_step_is_never_offered_as_the_weak_step(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'mission',
+                    'steps' => [
+                        ['key' => 'ai_feedback_1', 'label' => 'AI Feedback #1'],
+                        [
+                            'key' => 'mission_result',
+                            'label' => 'Mission Result',
+                            'skills' => ['Speaking', 'Writing'],
+                            'reflection_questions' => [
+                                'became_easier' => 'What became easier?',
+                                'still_difficult' => 'What is still difficult?',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function (array $messages, ?string $systemPrompt) {
+                    // The candidate list offered to the AI must not even
+                    // mention the informational step in the first place.
+                    return ! str_contains($systemPrompt, 'ai_feedback_1');
+                })
+                ->andReturn(json_encode([
+                    'status' => 'needs_review',
+                    'reason' => 'Needs a bit more practice.',
+                    'weak_step' => 'ai_feedback_1',
+                ]));
+        });
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSet('weakStep', null)
+            ->assertDontSee('Redo AI Feedback #1');
+    }
+
     public function test_no_redo_links_when_status_is_complete_even_with_a_weak_step(): void
     {
         $run = $this->makeRun();

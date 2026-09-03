@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
@@ -11,6 +12,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksAiUsage;
     use TracksCheckAttempts;
     use TracksVocabularyNotebook;
 
@@ -187,6 +189,7 @@ new class extends Component
                 text: $example,
                 extraGuidance: $this->run->aiToneGuidance(),
             );
+            $this->recordGeminiCall();
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
             $this->trackCheckAttempt($word, $data['severity']);

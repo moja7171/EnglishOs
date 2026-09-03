@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
@@ -13,6 +14,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use TracksAiUsage;
     use TracksCheckAttempts;
     use TracksVocabularyNotebook;
     use WithFileUploads;
@@ -200,6 +202,7 @@ new class extends Component
                     .'is debatable — never claim the learner\'s facts are wrong, since you were only given a '
                     .'short summary, not the full listening.'.$this->run->aiToneGuidance(),
             );
+            $this->recordGeminiCall();
 
             $this->feedback[$key] = $data + ['checkedText' => $text];
             $this->trackCheckAttempt($key, $data['severity']);

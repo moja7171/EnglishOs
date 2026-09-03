@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\MissionRun;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksAiUsage;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -262,6 +265,21 @@ new class extends Component
         $this->trackedSpeakingPrompts = true;
     }
 
+    /**
+     * Steps with zero learner input (pure AI-generated summaries, like AI
+     * Feedback) are never offered as "the step most worth revisiting" —
+     * there is nothing for the learner to actually redo there. A real run
+     * (2026-09-03) had the AI pick 'ai_feedback_1' and render a "Redo AI
+     * Feedback #1" button that led nowhere useful. Matches the
+     * str_starts_with('ai_feedback') convention already used by the
+     * runner's stepIcon() for the same family of steps — covers any
+     * future mission's ai_feedback_2 etc. too, not just this one key.
+     */
+    private function isRedoable(string $stepKey): bool
+    {
+        return ! str_starts_with($stepKey, 'ai_feedback');
+    }
+
     public function getResult(): void
     {
         $this->error = null;
@@ -277,7 +295,11 @@ new class extends Component
         $this->loading = true;
 
         try {
-            $stepKeys = implode(', ', $this->run->mission->stepKeys());
+            // Only genuinely redoable steps are ever offered to the AI as
+            // candidates in the first place — cheaper and cleaner than
+            // just rejecting a bad pick after the fact (still done below
+            // too, in case the AI ignores this list).
+            $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), $this->isRedoable(...)));
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $this->buildSummary()]],
@@ -286,9 +308,11 @@ new class extends Component
                     .'mission. Based on the summary, reply with ONLY valid JSON, no markdown fences: '
                     .'{"status": "complete" or "needs_review" or "retry_evidence", "reason": "one short, clear, '
                     .'encouraging sentence explaining the decision to the learner", "weak_step": "if status is '
-                    .'not complete, the single step key most worth revisiting — exactly one of: '.$stepKeys
-                    .' — otherwise null"}'
+                    .'not complete, the single step key most worth revisiting — exactly one of: '.$redoableStepKeys
+                    .' — never a step that is just an automatic AI-generated summary with no learner input, '
+                    .'otherwise null"}'
             );
+            $this->recordGeminiCall();
 
             $data = json_decode(trim($raw), true);
 
@@ -299,9 +323,10 @@ new class extends Component
             $this->status = $data['status'];
             $this->reason = $data['reason'];
             // Never trust the AI's step key blindly — only a real,
-            // existing step in this mission is ever offered as a link.
+            // existing, redoable step in this mission is ever offered as a link.
             $weakStep = $data['weak_step'] ?? null;
-            $this->weakStep = in_array($weakStep, $this->run->mission->stepKeys(), true) ? $weakStep : null;
+            $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && $this->isRedoable($weakStep))
+                ? $weakStep : null;
             $this->milestoneJustReached = $this->run->learner->streakMilestoneJustReached();
             $this->speakingPromptsToTrack = array_fill(0, count($this->speakingPromptCandidates()), true);
         } catch (Throwable $e) {

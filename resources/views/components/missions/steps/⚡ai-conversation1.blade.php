@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
@@ -13,6 +14,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use WithFileUploads;
+    use TracksAiUsage;
     use TracksCheckAttempts;
 
     public MissionRun $run;
@@ -77,6 +79,7 @@ new class extends Component
 
         try {
             $answer = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $this->recordGroqCall();
             $this->audioFile = null;
 
             $check = app(SpokenAnswerChecker::class)->checkRelevance(
@@ -85,6 +88,7 @@ new class extends Component
                 $this->run->learner->levelDescription(),
                 $this->run->aiToneGuidance(),
             );
+            $this->recordGeminiCall();
 
             $this->trackCheckAttempt($round, $check['severity']);
 
@@ -105,6 +109,7 @@ new class extends Component
                     .'quotation marks, just the question.'
                     .$this->run->aiToneGuidance()
             ));
+            $this->recordGeminiCall();
 
             $this->turns[] = [
                 'question' => $this->currentQuestion,
@@ -136,6 +141,7 @@ new class extends Component
                 $this->questions[$round],
                 $this->run->learner->levelDescription(),
             );
+            $this->recordGeminiCall();
             $this->clearCheckAttempt($round);
         } catch (\Throwable $e) {
             $this->error = "Couldn't get an example: {$e->getMessage()}";

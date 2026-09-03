@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
@@ -13,6 +14,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use WithFileUploads;
+    use TracksAiUsage;
     use TracksCheckAttempts;
 
     public MissionRun $run;
@@ -30,6 +32,15 @@ new class extends Component
     public ?array $checklist = null;
 
     public ?string $checklistNote = null;
+
+    /**
+     * The raw, undecoded Gemini response behind $checklist — stored
+     * alongside it in Evidence purely so a mis-graded requirement (a real
+     * false negative was observed on "1+ BBC expression" in a live
+     * 2026-09-03 run) can be audited later without being able to
+     * reproduce the exact same non-deterministic call.
+     */
+    public ?string $checklistRawResponse = null;
 
     public ?UploadedFile $audioFile = null;
 
@@ -55,6 +66,7 @@ new class extends Component
         $this->finalTranscript = $data['final_transcript'] ?? null;
         $this->checklist = $data['requirements'] ?? null;
         $this->checklistNote = $data['note'] ?? null;
+        $this->checklistRawResponse = $data['raw_ai_response'] ?? null;
     }
 
     public function getRoundsProperty(): array
@@ -92,6 +104,7 @@ new class extends Component
 
         try {
             $answer = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $this->recordGroqCall();
             $this->audioFile = null;
 
             $check = app(SpokenAnswerChecker::class)->checkRelevance(
@@ -100,6 +113,7 @@ new class extends Component
                 $this->run->learner->levelDescription(),
                 $this->run->aiToneGuidance(),
             );
+            $this->recordGeminiCall();
 
             $this->trackCheckAttempt($roundIndex, $check['severity']);
 
@@ -118,6 +132,7 @@ new class extends Component
                     .'follow-up question (max 15 words) that shows you listened — no preamble, no quotation marks.'
                     .$this->run->aiToneGuidance()
             ));
+            $this->recordGeminiCall();
 
             $this->turns[] = ['prompt' => $this->currentRoundPrompt, 'answer' => $answer, 'followup' => $followup];
             $this->roundIndex++;
@@ -143,6 +158,7 @@ new class extends Component
                 $prompt,
                 $this->run->learner->levelDescription(),
             );
+            $this->recordGeminiCall();
             $this->clearCheckAttempt($key);
         } catch (\Throwable $e) {
             $this->error = "Couldn't get an example: {$e->getMessage()}";
@@ -163,6 +179,7 @@ new class extends Component
 
         try {
             $transcript = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $this->recordGroqCall();
             $this->audioFile = null;
 
             $check = app(SpokenAnswerChecker::class)->checkRelevance(
@@ -171,6 +188,7 @@ new class extends Component
                 $this->run->learner->levelDescription(),
                 $this->run->aiToneGuidance(),
             );
+            $this->recordGeminiCall();
 
             $this->trackCheckAttempt('final', $check['severity']);
 
@@ -197,15 +215,29 @@ new class extends Component
                     .'form of them) appear in the transcript — do not judge vocabulary in general.'
                 : '';
 
+            // "1+ BBC expression" is meaningless to the AI as a bare label
+            // — it has no way to know what "BBC" refers to. Ground it in
+            // the mission's own Listening target_phrases explicitly, same
+            // pattern as the vocabulary grounding above. A real run
+            // (2026-09-03) marked this false despite the transcript
+            // genuinely containing "oversleep" and "morning person".
+            $bbcPhrases = collect($this->run->mission->stepContent('listening')['target_phrases'] ?? [])->pluck('phrase');
+            $bbcContext = $bbcPhrases->isNotEmpty()
+                ? ' For any requirement mentioning a "BBC expression", it means one of these exact phrases from '
+                    .'the mission\'s Listening episode: '.$bbcPhrases->map(fn ($p) => "\"{$p}\"")->implode(', ')
+                    .' — check whether the transcript naturally uses any of them (or a natural form of them).'
+                : '';
+
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Transcript: \"{$this->finalTranscript}\""]],
                 systemPrompt: 'You are an English teacher checking the 3-minute speaking challenge transcript of '
                     .$this->run->learner->levelDescription()
-                    ." against a requirements checklist.{$vocabularyContext} For each of these requirements: "
-                    ."[{$requirementList}], decide if the transcript satisfies it. Reply with ONLY valid JSON, no "
-                    .'markdown fences: {"requirements": {"<requirement label exactly as given>": true or false, '
-                    .'...}, "note": "one short encouraging sentence about their overall performance"}'
+                    ." against a requirements checklist.{$vocabularyContext}{$bbcContext} For each of these "
+                    ."requirements: [{$requirementList}], decide if the transcript satisfies it. Reply with ONLY "
+                    .'valid JSON, no markdown fences: {"requirements": {"<requirement label exactly as given>": '
+                    .'true or false, ...}, "note": "one short encouraging sentence about their overall performance"}'
             );
+            $this->recordGeminiCall();
 
             $data = json_decode(trim($raw), true);
 
@@ -215,6 +247,7 @@ new class extends Component
 
             $this->checklist = $data['requirements'];
             $this->checklistNote = $data['note'];
+            $this->checklistRawResponse = $raw;
         } catch (\Throwable $e) {
             $this->error = "Something went wrong talking to the AI Instructor: {$e->getMessage()}";
         } finally {
@@ -237,6 +270,7 @@ new class extends Component
                 'final_transcript' => $this->finalTranscript,
                 'requirements' => $this->checklist,
                 'note' => $this->checklistNote,
+                'raw_ai_response' => $this->checklistRawResponse,
             ]),
         ]);
 

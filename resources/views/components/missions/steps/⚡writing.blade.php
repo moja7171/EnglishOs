@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\GeminiClient;
@@ -7,6 +8,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use TracksAiUsage;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -91,6 +94,7 @@ new class extends Component
                     .'"expression": "one good word or phrase they actually used", '
                     .'"correction": "one grammar or vocabulary mistake to fix, one sentence, phrased kindly"}'
             );
+            $this->recordGeminiCall();
 
             $data = json_decode(trim($raw), true);
 

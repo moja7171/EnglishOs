@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
@@ -15,6 +16,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use TracksAiUsage;
     use TracksCheckAttempts;
     use WithFileUploads;
 
@@ -115,6 +117,7 @@ new class extends Component
                 text: $sentence,
                 extraGuidance: $this->run->aiToneGuidance(),
             );
+            $this->recordGeminiCall();
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
             $this->trackCheckAttempt($index, $data['severity']);
@@ -247,6 +250,7 @@ new class extends Component
     {
         try {
             $result = app(GroqClient::class)->transcribeWithConfidence($this->audioFile->getRealPath());
+            $this->recordGroqCall();
             $this->transcript = trim($result['text']);
             $this->segments = $result['segments'];
 
@@ -278,6 +282,7 @@ new class extends Component
                     .'Keep both simple, plain Persian, no jargon, no English words mixed in unless quoting a '
                     .'specific English word or phrase they actually said.'
             );
+            $this->recordGeminiCall();
 
             $data = json_decode(trim($raw), true);
 

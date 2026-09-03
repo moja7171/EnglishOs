@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\InstructorMessage;
 use App\Models\MissionRun;
 use App\Services\GeminiClient;
@@ -13,6 +14,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use WithFileUploads;
+    use TracksAiUsage;
 
     public MissionRun $run;
 
@@ -95,6 +97,7 @@ new class extends Component
 
         try {
             $question = trim(app(GroqClient::class)->transcribe($this->voiceQuestion->getRealPath()));
+            $this->recordGroqCall();
         } catch (Throwable) {
             $question = '';
         }
@@ -166,6 +169,7 @@ new class extends Component
                 [...$history, ['role' => 'user', 'text' => $learnerText]],
                 systemPrompt: $this->systemPrompt(),
             ));
+            $this->recordGeminiCall();
 
             $instructorMessage = InstructorMessage::create([
                 'learner_id' => auth()->id(),
