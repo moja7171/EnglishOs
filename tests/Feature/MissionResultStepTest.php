@@ -118,6 +118,32 @@ class MissionResultStepTest extends TestCase
             ->assertSee('3 → 3 (0)');
     }
 
+    public function test_self_assessment_scores_never_reach_the_ai_status_prompt(): void
+    {
+        $run = $this->makeRun();
+
+        // A self-report that would push a naive average toward "complete"
+        // (huge before/after jump) must have zero influence on the prompt
+        // — only objective Evidence is allowed to decide status.
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function (array $messages) {
+                    $text = $messages[0]['text'] ?? '';
+
+                    return ! str_contains($text, 'self-assessment')
+                        && ! str_contains($text, '/5');
+                })
+                ->andReturn(json_encode(['status' => 'complete', 'reason' => 'Nice work.']));
+        });
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 1)->set('scores.Speaking.after', 5)
+            ->set('scores.Writing.before', 1)->set('scores.Writing.after', 5)
+            ->call('getResult')
+            ->assertHasNoErrors();
+    }
+
     public function test_the_result_shows_which_target_vocabulary_words_were_actually_used(): void
     {
         $run = $this->makeRun();
@@ -338,7 +364,7 @@ class MissionResultStepTest extends TestCase
         $this->assertSame(0, $run->learner->fresh()->celebrated_streak_milestone);
     }
 
-    public function test_a_non_complete_status_offers_to_review_the_flagged_step(): void
+    public function test_a_non_complete_status_offers_to_redo_the_flagged_step(): void
     {
         $run = $this->makeRun();
 
@@ -355,8 +381,9 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
             ->assertSet('weakStep', 'mission_result')
-            ->assertSeeHtml(route('missions.show', [$run->mission, 'mission_result']))
-            ->assertSee('Review Mission Result');
+            ->assertSeeHtml(route('missions.show', ['mission' => $run->mission, 'step' => 'mission_result', 'retry' => 1]))
+            ->assertSee('Redo Mission Result')
+            ->assertSee('Get an updated result');
     }
 
     public function test_a_hallucinated_step_key_is_never_trusted(): void
@@ -376,10 +403,12 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
             ->assertSet('weakStep', null)
-            ->assertDontSee('Review Mission Result');
+            ->assertDontSee('Redo Mission Result')
+            // Still offered — recovering doesn't require a named weak step.
+            ->assertSee('Get an updated result');
     }
 
-    public function test_no_review_link_when_status_is_complete_even_with_a_weak_step(): void
+    public function test_no_redo_links_when_status_is_complete_even_with_a_weak_step(): void
     {
         $run = $this->makeRun();
 
@@ -395,7 +424,8 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertDontSee('Review Mission Result');
+            ->assertDontSee('Redo Mission Result')
+            ->assertDontSee('Get an updated result');
     }
 
     public function test_a_complete_status_offers_to_share_with_a_mutual_friend(): void
@@ -596,7 +626,7 @@ class MissionResultStepTest extends TestCase
 
         Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
             ->assertSet('weakStep', 'mission_result')
-            ->assertSee('Review Mission Result');
+            ->assertSee('Redo Mission Result');
     }
 
     public function test_the_result_shows_the_day_1_comfort_score_from_mission_brief(): void

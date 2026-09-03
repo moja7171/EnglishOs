@@ -311,13 +311,17 @@ new class extends Component
         }
     }
 
+    /**
+     * Deliberately excludes the learner's own before/after skill sliders —
+     * self-assessment is tone-only (see EOS-009) and must never influence
+     * this AI's status decision, only objective Evidence produced during
+     * the mission. The scores are still collected, stored, and shown back
+     * to the learner (see the "Self-assessment" block in the Blade below);
+     * they simply never reach this prompt.
+     */
     private function buildSummary(): string
     {
         $parts = [];
-
-        $avgBefore = round(collect($this->scores)->avg('before'), 1);
-        $avgAfter = round(collect($this->scores)->avg('after'), 1);
-        $parts[] = "Average self-assessment across 5 skills: before {$avgBefore}/5, after {$avgAfter}/5.";
 
         if ($feedback = $this->run->evidence()->where('phase', 'ai_feedback_1')->latest()->first()) {
             $parts[] = 'AI feedback from the first conversation: '.$feedback->content_ref;
@@ -686,15 +690,25 @@ new class extends Component
                 </div>
             @endif
 
-            @if ($status !== 'complete' && $weakStep)
-                <div class="mt-4">
+            @if ($status !== 'complete')
+                <div class="mt-4 flex flex-wrap gap-2">
+                    @if ($weakStep)
+                        <a
+                            href="{{ route('missions.show', ['mission' => $run->mission, 'step' => $weakStep, 'retry' => 1]) }}"
+                            wire:navigate
+                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        >
+                            @svg('heroicon-o-arrow-uturn-left', 'h-3.5 w-3.5')
+                            Redo {{ $run->mission->stepLabel($weakStep) }}
+                        </a>
+                    @endif
                     <a
-                        href="{{ route('missions.show', [$run->mission, $weakStep]) }}"
+                        href="{{ route('missions.show', ['mission' => $run->mission, 'step' => 'mission_result', 'retry' => 1]) }}"
                         wire:navigate
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                     >
-                        @svg('heroicon-o-arrow-uturn-left', 'h-3.5 w-3.5')
-                        Review {{ $run->mission->stepLabel($weakStep) }}
+                        @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')
+                        Get an updated result
                     </a>
                 </div>
             @endif

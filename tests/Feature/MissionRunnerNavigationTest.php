@@ -72,6 +72,27 @@ class MissionRunnerNavigationTest extends TestCase
         $this->assertSame('vocabulary_builder', $run->fresh()->currentStepKey());
     }
 
+    public function test_retry_reopens_an_already_evidenced_step_as_live_and_editable(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
+            ->set('retry', true)
+            ->assertSet('activeStepKey', 'mission_brief')
+            ->assertSet('isReviewing', false);
+    }
+
     public function test_previous_and_next_step_keys_only_span_reachable_steps(): void
     {
         $learner = User::factory()->create();

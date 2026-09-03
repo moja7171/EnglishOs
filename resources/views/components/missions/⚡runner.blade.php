@@ -2,6 +2,7 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 new class extends Component
@@ -11,6 +12,17 @@ new class extends Component
     public MissionRun $run;
 
     public ?string $viewStep = null;
+
+    /**
+     * ?retry=1 re-opens an already-evidenced step as live/editable instead
+     * of the default read-only review — the mechanism behind Mission
+     * Result's "Redo this step" / "Get an updated result" links (EOS-001
+     * Article 3's retry_evidence path). Submitting the step's normal save
+     * flow creates a fresh Evidence row; nothing here needs to know about
+     * that, since every step already reads Evidence via ->latest().
+     */
+    #[Url]
+    public bool $retry = false;
 
     public function mount(Mission $mission, ?string $step = null): void
     {
@@ -93,10 +105,14 @@ new class extends Component
      * contains done steps + the current one), but if that ever changes —
      * e.g. a future or not-yet-done step becomes reachable some other way —
      * it must still render as live/editable, not as an inert "already
-     * reviewed" shell.
+     * reviewed" shell. ?retry=1 overrides this entirely — see $retry.
      */
     public function getIsReviewingProperty(): bool
     {
+        if ($this->retry) {
+            return false;
+        }
+
         return $this->activeStepKey !== null && $this->run->latestEvidence($this->activeStepKey) !== null;
     }
 
