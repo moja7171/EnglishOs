@@ -99,7 +99,7 @@ class AskInstructorTest extends TestCase
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('question', 'Help?')
             ->call('ask')
-            ->assertSee("Couldn't reach the AI Assistant")
+            ->assertSee("Couldn't reach Sage")
             ->assertDontSee('cURL error');
     }
 
@@ -192,14 +192,37 @@ class AskInstructorTest extends TestCase
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
             ->call('askWithVoice')
             ->assertSee('What does "articles" mean?')
-            ->assertSee('Sent by voice')
             ->assertSee('"A", "an", and "the" are articles.');
 
         $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
         Storage::disk('local')->assertExists($message->attachment_path);
     }
 
-    public function test_a_failed_voice_transcription_asks_the_learner_to_try_again(): void
+    public function test_a_recorded_voice_message_is_playable_from_the_thread(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('A question.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('An answer.'));
+
+        $html = Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+            ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('askWithVoice')
+            ->html();
+
+        $saved = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
+        $this->assertStringContainsString(route('instructor.attachment', $saved), $html);
+    }
+
+    /**
+     * A transcription failure used to silently throw the whole recording
+     * away — the file was already uploaded and stored, then orphaned with
+     * nothing in the database pointing to it, and the learner had no way
+     * to even hear their own attempt back. It must now be saved as a real,
+     * playable message instead, with no AI call for text that doesn't exist.
+     */
+    public function test_a_failed_voice_transcription_still_saves_the_recording(): void
     {
         Storage::fake('local');
         $run = $this->makeRun();
@@ -212,7 +235,9 @@ class AskInstructorTest extends TestCase
             ->call('askWithVoice')
             ->assertSee("Couldn't hear that clearly");
 
-        $this->assertDatabaseCount('instructor_messages', 0);
+        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
+        $this->assertSame(InstructorMessage::ROLE_LEARNER, $message->role);
+        Storage::disk('local')->assertExists($message->attachment_path);
     }
 
     public function test_sending_a_file_attaches_it_and_tells_the_ai_it_cannot_see_it(): void

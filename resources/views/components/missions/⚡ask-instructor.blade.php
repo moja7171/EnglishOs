@@ -76,10 +76,16 @@ new class extends Component
 
     /**
      * Same idea as every other step's voice input: record, auto-upload,
-     * transcribe — the transcript becomes the question text. Non-blocking
-     * on a transcription failure, same as everywhere else, but here there
-     * is nothing useful to fall back to, so it just asks the learner to
-     * try again rather than silently asking an empty question.
+     * transcribe — the transcript becomes the question text.
+     *
+     * A transcription failure never throws the recording away (it used
+     * to — a real bug: the file was already uploaded and stored, then
+     * silently orphaned with nothing pointing to it, and the learner had
+     * to re-record from scratch with no way to even hear their own
+     * attempt back). It's saved as a real message with a fallback
+     * caption instead, so it stays visible and playable in the thread —
+     * see the failure branch below. Sage just never gets asked to answer
+     * text that doesn't exist.
      */
     public function askWithVoice(): void
     {
@@ -98,7 +104,20 @@ new class extends Component
         $this->voiceQuestion = null;
 
         if ($question === '') {
-            $this->error = "Couldn't hear that clearly — please try again.";
+            $message = InstructorMessage::create([
+                'learner_id' => auth()->id(),
+                'mission_run_id' => $this->run->id,
+                'step_key' => $this->stepKey,
+                'role' => InstructorMessage::ROLE_LEARNER,
+                'body' => "Couldn't transcribe this recording.",
+                'type' => InstructorMessage::TYPE_VOICE,
+                'attachment_path' => $path,
+                'attachment_name' => 'question.webm',
+                'attachment_mime' => 'audio/webm',
+            ]);
+
+            $this->messages[] = $this->toDisplay($message);
+            $this->error = "Couldn't hear that clearly — listen back above, or just type it instead.";
 
             return;
         }
@@ -163,7 +182,7 @@ new class extends Component
 
             $this->messages[] = $this->toDisplay($instructorMessage);
         } catch (ConnectionException|RequestException) {
-            $this->error = "Couldn't reach the AI Assistant — please try again.";
+            $this->error = "Couldn't reach Sage — please try again.";
         } catch (Throwable $e) {
             $this->error = "Couldn't get an answer: {$e->getMessage()}";
         } finally {
@@ -189,7 +208,7 @@ new class extends Component
     {
         $stepLabel = $this->stepKey ? $this->run->mission->stepLabel($this->stepKey) : null;
 
-        $prompt = 'You are a friendly, encouraging AI English Instructor helping '.$this->run->learner->levelDescription()
+        $prompt = 'Your name is Sage. You are a friendly, encouraging AI English Instructor helping '.$this->run->learner->levelDescription()
             .' who is in the middle of a lesson (mission outcome: "'.$this->run->mission->outcome.'"'
             .($stepLabel ? ", currently on the \"{$stepLabel}\" step" : '').'). '
             .'Answer their English-related question clearly, simply, and briefly (a few short sentences, no '
@@ -230,7 +249,7 @@ new class extends Component
     <button
         type="button"
         x-on:click="open = !open; if (open) $nextTick(() => scrollToBottom())"
-        title="AI Assistant"
+        title="Sage — your AI Instructor"
         class="fixed right-5 bottom-5 z-40 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-lg transition-transform hover:scale-105 active:scale-95 dark:bg-accent-dark"
     >
         <span x-show="!open">@svg('heroicon-o-sparkles', 'h-6 w-6')</span>
@@ -249,7 +268,7 @@ new class extends Component
                 @svg('heroicon-o-sparkles', 'h-4 w-4')
             </span>
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">AI Assistant</p>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Sage</p>
                 <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask about this step — I'll explain, not solve it for you.</p>
             </div>
             <button
@@ -273,16 +292,19 @@ new class extends Component
                             ? 'rounded-br-sm bg-accent text-white dark:bg-accent-dark'
                             : 'rounded-bl-sm border border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark' }}">
                         @if ($message['type'] === 'voice')
-                            <p class="mb-1 inline-flex items-center gap-1 text-xs {{ $mine ? 'text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">
-                                @svg('heroicon-o-microphone', 'h-3 w-3') Sent by voice
-                            </p>
-                        @elseif ($message['type'] === 'file')
-                            <p class="mb-1 inline-flex items-center gap-1 text-xs {{ $mine ? 'text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">
-                                @svg('heroicon-o-paper-clip', 'h-3 w-3')
-                                <a href="{{ route('instructor.attachment', $message['id']) }}" class="underline decoration-dotted underline-offset-2">{{ $message['attachmentName'] }}</a>
-                            </p>
+                            <x-audio-player-compact :url="route('instructor.attachment', $message['id'])" :mine="$mine" />
+                            @if ($message['text'] !== "Couldn't transcribe this recording.")
+                                <p class="mt-1.5 break-words {{ $mine ? 'text-white' : 'text-ink dark:text-ink-dark' }}">{{ $message['text'] }}</p>
+                            @endif
+                        @else
+                            @if ($message['type'] === 'file')
+                                <p class="mb-1 inline-flex items-center gap-1 text-xs {{ $mine ? 'text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+                                    @svg('heroicon-o-paper-clip', 'h-3 w-3')
+                                    <a href="{{ route('instructor.attachment', $message['id']) }}" class="underline decoration-dotted underline-offset-2">{{ $message['attachmentName'] }}</a>
+                                </p>
+                            @endif
+                            <span class="break-words">{{ $message['text'] }}</span>
                         @endif
-                        <span class="break-words">{{ $message['text'] }}</span>
                     </div>
                 </div>
             @empty
@@ -293,7 +315,7 @@ new class extends Component
             @endforelse
 
             <div wire:loading.delay wire:target="ask,askWithVoice,sendFile">
-                <x-ai-thinking label="The AI Assistant is answering…" class="bg-surface dark:bg-surface-dark" />
+                <x-ai-thinking label="Sage is answering…" class="bg-surface dark:bg-surface-dark" />
             </div>
         </div>
 
@@ -343,7 +365,7 @@ new class extends Component
                 </form>
 
                 <div wire:key="ask-voice-recorder-{{ count($messages) }}" class="shrink-0">
-                    <x-voice-recorder field="voiceQuestion" :file="$voiceQuestion" on-recorded="askWithVoice" file-name="question.webm" />
+                    <x-voice-recorder field="voiceQuestion" :file="$voiceQuestion" on-recorded="askWithVoice" file-name="question.webm" :compact="true" />
                 </div>
             </div>
         </div>
