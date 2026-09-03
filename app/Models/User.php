@@ -512,17 +512,20 @@ class User extends Authenticatable
     }
 
     /**
-     * People this user follows — instant, no approval needed. Following
-     * alone unlocks seeing the other person's high-level activity (see
-     * their controller/view — never the raw Evidence content, just
-     * streak/missions-completed); it does NOT by itself unlock messaging,
-     * see canMessageWith().
+     * People this user has an ACCEPTED, confirmed follow of — a fresh
+     * follow() request sits as 'pending' (see pendingFollowRequests())
+     * until the other side accepts it, so it does NOT show up here yet.
+     * Following alone unlocks seeing the other person's high-level
+     * activity (see their controller/view — never the raw Evidence
+     * content, just streak/missions-completed); it does NOT by itself
+     * unlock messaging, see canMessageWith().
      *
      * @return BelongsToMany<User, $this>
      */
     public function following(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')
+            ->wherePivot('status', Follow::STATUS_ACCEPTED)
             ->withTimestamps();
     }
 
@@ -532,6 +535,7 @@ class User extends Authenticatable
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')
+            ->wherePivot('status', Follow::STATUS_ACCEPTED)
             ->withTimestamps();
     }
 
@@ -546,27 +550,138 @@ class User extends Authenticatable
     }
 
     /**
+     * A follow() already sent to $user that's still awaiting their
+     * accept/reject — lets the UI show "Requested" instead of "Follow"
+     * without letting a second click queue up a duplicate request.
+     */
+    public function hasPendingRequestTo(User $user): bool
+    {
+        return Follow::query()
+            ->where('follower_id', $this->id)
+            ->where('followed_id', $user->id)
+            ->where('status', Follow::STATUS_PENDING)
+            ->exists();
+    }
+
+    /**
+     * Incoming requests to follow THIS user, newest first — surfaced on
+     * the Friends page with Accept/Reject actions, and counted for the
+     * notification badge on the Friends nav icon (see
+     * pendingFollowRequestsCount()).
+     *
+     * @return Collection<int, User>
+     */
+    public function pendingFollowRequests(): Collection
+    {
+        return $this->followerRelationRows()
+            ->where('status', Follow::STATUS_PENDING)
+            ->with('follower')
+            ->latest()
+            ->get()
+            ->pluck('follower');
+    }
+
+    public function pendingFollowRequestsCount(): int
+    {
+        return $this->followerRelationRows()->where('status', Follow::STATUS_PENDING)->count();
+    }
+
+    /**
+     * @return Builder<Follow>
+     */
+    private function followerRelationRows(): Builder
+    {
+        return Follow::query()->where('followed_id', $this->id);
+    }
+
+    /**
      * Both directions of follow exist — the one thing that actually gates
      * a conversation (see canMessageWith()), by explicit product decision:
      * a one-way follow (e.g. following a stranger) must not open a DM.
+     * In practice this is automatic once a request is accepted (see
+     * acceptFollowRequest(), which creates both directions at once) —
+     * this stays useful for any older, pre-request one-directional data.
      */
     public function isMutualWith(User $user): bool
     {
         return $this->isFollowing($user) && $this->isFollowedBy($user);
     }
 
+    /**
+     * Sends a follow request — sits 'pending' until $user accepts or
+     * rejects it (see acceptFollowRequest()/rejectFollowRequest()). A
+     * no-op if a request or an accepted follow already exists in this
+     * direction, so re-clicking "Follow"/"Requested" never queues a
+     * duplicate row.
+     */
     public function follow(User $user): void
     {
-        if ($user->is($this) || $this->isFollowing($user)) {
+        if ($user->is($this)) {
             return;
         }
 
-        $this->following()->attach($user->id);
+        $exists = Follow::query()
+            ->where('follower_id', $this->id)
+            ->where('followed_id', $user->id)
+            ->exists();
+
+        if ($exists) {
+            return;
+        }
+
+        Follow::create([
+            'follower_id' => $this->id,
+            'followed_id' => $user->id,
+            'status' => Follow::STATUS_PENDING,
+        ]);
     }
 
+    /**
+     * Removes any follow row this user has toward $user, pending or
+     * accepted — doubles as both "cancel my pending request" and "unfollow
+     * someone I already follow". $user's own follow of this user (if any)
+     * is untouched.
+     */
     public function unfollow(User $user): void
     {
-        $this->following()->detach($user->id);
+        Follow::query()
+            ->where('follower_id', $this->id)
+            ->where('followed_id', $user->id)
+            ->delete();
+    }
+
+    /**
+     * Accepting makes it mutual right away — both directions become
+     * 'accepted' in one step, per product decision: there's no such thing
+     * as a one-way *accepted* follow born from a request, only the
+     * request itself is ever one-directional. If $follower had somehow
+     * also already sent (or been sent) a request in the other direction,
+     * that row is normalized to accepted too rather than left stale.
+     */
+    public function acceptFollowRequest(User $follower): void
+    {
+        Follow::query()
+            ->where('follower_id', $follower->id)
+            ->where('followed_id', $this->id)
+            ->where('status', Follow::STATUS_PENDING)
+            ->update(['status' => Follow::STATUS_ACCEPTED]);
+
+        $reverse = Follow::firstOrNew(['follower_id' => $this->id, 'followed_id' => $follower->id]);
+        $reverse->status = Follow::STATUS_ACCEPTED;
+        $reverse->save();
+    }
+
+    /**
+     * Declines a pending request — the row is simply removed, leaving
+     * $follower free to send another one later if they want to.
+     */
+    public function rejectFollowRequest(User $follower): void
+    {
+        Follow::query()
+            ->where('follower_id', $follower->id)
+            ->where('followed_id', $this->id)
+            ->where('status', Follow::STATUS_PENDING)
+            ->delete();
     }
 
     public function hasBlocked(User $user): bool

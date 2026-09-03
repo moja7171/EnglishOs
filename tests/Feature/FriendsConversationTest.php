@@ -46,7 +46,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -58,7 +58,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -81,7 +81,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -96,7 +96,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $unread = DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Unread one.']);
         $read = DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Already read.', 'read_at' => now()]);
@@ -114,7 +114,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'First.']);
         DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Second, right after.']);
@@ -133,7 +133,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create(['name' => 'Priya']);
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $mission = Mission::create([
             'code' => 'M01',
@@ -161,7 +161,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -175,7 +175,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -189,7 +189,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -205,7 +205,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
 
@@ -228,7 +228,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $mission = Mission::create([
             'code' => 'M01',
@@ -258,7 +258,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->mock(GeminiClient::class, function ($mock) use ($me) {
             $mock->shouldReceive('chat')
@@ -287,7 +287,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $message = DirectMessage::create([
             'sender_id' => $bob->id,
@@ -307,7 +307,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -323,7 +323,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'rude thing']);
 
@@ -346,7 +346,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         FriendBlock::create(['blocker_id' => $bob->id, 'blocked_id' => $me->id]);
 
@@ -363,7 +363,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -383,7 +383,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('See you at the park tomorrow.'));
 
@@ -407,7 +407,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('down')));
 
@@ -428,7 +428,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hey!']);
 
@@ -446,7 +446,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'I goes to school every day.']);
         DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Nice, me too.']);
@@ -478,7 +478,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hello!']);
 
@@ -498,7 +498,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -520,7 +520,7 @@ class FriendsConversationTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
@@ -540,7 +540,7 @@ class FriendsConversationTest extends TestCase
         $bob = User::factory()->create();
         $stranger = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
         Livewire::test('friends.conversation', ['other' => $bob])

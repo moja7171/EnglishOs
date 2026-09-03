@@ -403,7 +403,7 @@ class MissionResultStepTest extends TestCase
         $run = $this->makeRun();
         $friend = User::factory()->create(['name' => 'Priya']);
         $run->learner->follow($friend);
-        $friend->follow($run->learner);
+        $friend->acceptFollowRequest($run->learner);
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'complete',
@@ -425,7 +425,7 @@ class MissionResultStepTest extends TestCase
         $run = $this->makeRun();
         $friend = User::factory()->create();
         $run->learner->follow($friend);
-        $friend->follow($run->learner);
+        $friend->acceptFollowRequest($run->learner);
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'needs_review',

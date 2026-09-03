@@ -117,7 +117,7 @@ class PartnerSessionTest extends TestCase
         $alice = User::factory()->create();
         $bob = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $this->actingAs($alice);
 
@@ -134,7 +134,7 @@ class PartnerSessionTest extends TestCase
         $bob = User::factory()->create();
         $stranger = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
 
@@ -148,7 +148,7 @@ class PartnerSessionTest extends TestCase
         $alice = User::factory()->create();
         $bob = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
 
@@ -170,7 +170,7 @@ class PartnerSessionTest extends TestCase
         $alice = User::factory()->create();
         $bob = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
 
@@ -188,7 +188,7 @@ class PartnerSessionTest extends TestCase
         $alice = User::factory()->create();
         $bob = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
 
@@ -210,7 +210,7 @@ class PartnerSessionTest extends TestCase
         $alice = User::factory()->create();
         $bob = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
 
@@ -236,7 +236,7 @@ class PartnerSessionTest extends TestCase
         $bob = User::factory()->create();
         $stranger = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
 
@@ -262,7 +262,7 @@ class PartnerSessionTest extends TestCase
         $alice = User::factory()->create();
         $bob = User::factory()->create();
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
 

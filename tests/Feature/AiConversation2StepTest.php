@@ -198,7 +198,7 @@ class AiConversation2StepTest extends TestCase
         $run = $this->makeRun();
         $friend = User::factory()->create(['name' => 'Priya']);
         $run->learner->follow($friend);
-        $friend->follow($run->learner);
+        $friend->acceptFollowRequest($run->learner);
 
         $this->mock(GroqClient::class, function ($mock) {
             $mock->shouldReceive('transcribe')

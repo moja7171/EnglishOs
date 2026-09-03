@@ -56,7 +56,7 @@ class ListeningStepTest extends TestCase
         $run = $this->makeRun();
         $friend = User::factory()->create(['name' => 'Priya']);
         $run->learner->follow($friend);
-        $friend->follow($run->learner);
+        $friend->acceptFollowRequest($run->learner);
 
         Livewire::test('missions.steps.listening', ['run' => $run])
             ->assertSee('Discuss this with a friend')

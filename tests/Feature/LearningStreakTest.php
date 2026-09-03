@@ -348,9 +348,9 @@ class LearningStreakTest extends TestCase
         $notMutual = User::factory()->create();
 
         $learner->follow($friendActive);
-        $friendActive->follow($learner);
+        $friendActive->acceptFollowRequest($learner);
         $learner->follow($friendInactive);
-        $friendInactive->follow($learner);
+        $friendInactive->acceptFollowRequest($learner);
         $learner->follow($notMutual); // one-way only
 
         $mission = $this->makeMission();

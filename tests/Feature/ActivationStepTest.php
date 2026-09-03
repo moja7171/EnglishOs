@@ -77,7 +77,7 @@ class ActivationStepTest extends TestCase
         $run = $this->makeRun();
         $friend = User::factory()->create(['name' => 'Priya']);
         $run->learner->follow($friend);
-        $friend->follow($run->learner);
+        $friend->acceptFollowRequest($run->learner);
 
         $this->mock(GroqClient::class, function ($mock) {
             $mock->shouldReceive('transcribeWithDuration')->once()->andReturn(['text' => 'I wake up at seven.', 'duration' => 90.0]);

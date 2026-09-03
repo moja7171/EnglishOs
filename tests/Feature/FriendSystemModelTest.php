@@ -12,17 +12,49 @@ class FriendSystemModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_following_is_one_directional_until_the_other_side_follows_back(): void
+    public function test_a_fresh_follow_is_pending_until_the_other_side_accepts_it(): void
     {
         $alice = User::factory()->create();
         $bob = User::factory()->create();
 
         $alice->follow($bob);
 
-        $this->assertTrue($alice->isFollowing($bob));
+        $this->assertFalse($alice->isFollowing($bob));
+        $this->assertTrue($alice->hasPendingRequestTo($bob));
+        $this->assertTrue($bob->pendingFollowRequests()->pluck('id')->contains($alice->id));
+        $this->assertSame(1, $bob->pendingFollowRequestsCount());
         $this->assertFalse($bob->isFollowing($alice));
         $this->assertFalse($alice->isMutualWith($bob));
         $this->assertFalse($alice->canMessageWith($bob));
+    }
+
+    public function test_a_second_follow_call_never_queues_a_duplicate_request(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+
+        $alice->follow($bob);
+        $alice->follow($bob);
+
+        $this->assertSame(1, $bob->pendingFollowRequestsCount());
+    }
+
+    public function test_rejecting_a_request_removes_it_without_creating_any_follow(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+
+        $alice->follow($bob);
+        $bob->rejectFollowRequest($alice);
+
+        $this->assertFalse($alice->hasPendingRequestTo($bob));
+        $this->assertSame(0, $bob->pendingFollowRequestsCount());
+        $this->assertFalse($alice->isFollowing($bob));
+        $this->assertFalse($bob->isFollowing($alice));
+
+        // Alice is free to try again later.
+        $alice->follow($bob);
+        $this->assertTrue($alice->hasPendingRequestTo($bob));
     }
 
     public function test_mutual_follow_unlocks_messaging(): void
@@ -31,7 +63,7 @@ class FriendSystemModelTest extends TestCase
         $bob = User::factory()->create();
 
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         $this->assertTrue($alice->isMutualWith($bob));
         $this->assertTrue($alice->canMessageWith($bob));
@@ -60,7 +92,7 @@ class FriendSystemModelTest extends TestCase
         $bob = User::factory()->create();
 
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
         $this->assertTrue($alice->canMessageWith($bob));
 
         $alice->unfollow($bob);
@@ -77,7 +109,7 @@ class FriendSystemModelTest extends TestCase
         $bob = User::factory()->create();
 
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
 
         FriendBlock::create(['blocker_id' => $bob->id, 'blocked_id' => $alice->id]);
 
@@ -96,10 +128,10 @@ class FriendSystemModelTest extends TestCase
         $dave = User::factory()->create(); // mutual, but blocked
 
         $alice->follow($bob);
-        $bob->follow($alice);
+        $bob->acceptFollowRequest($alice);
         $alice->follow($carol);
         $alice->follow($dave);
-        $dave->follow($alice);
+        $dave->acceptFollowRequest($alice);
         FriendBlock::create(['blocker_id' => $alice->id, 'blocked_id' => $dave->id]);
 
         $this->assertTrue($alice->mutualFriends()->contains($bob));

@@ -134,7 +134,7 @@ class SpeakingRecallTest extends TestCase
         $this->makeDuePrompt($learner);
         $friend = User::factory()->create(['name' => 'Priya']);
         $learner->follow($friend);
-        $friend->follow($learner);
+        $friend->acceptFollowRequest($learner);
 
         $this->actingAs($learner);
 

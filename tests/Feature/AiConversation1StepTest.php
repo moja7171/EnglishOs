@@ -179,7 +179,7 @@ class AiConversation1StepTest extends TestCase
         $run = $this->makeRun(questionCount: 2);
         $friend = User::factory()->create(['name' => 'Priya']);
         $run->learner->follow($friend);
-        $friend->follow($run->learner);
+        $friend->acceptFollowRequest($run->learner);
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->assertSee('Priya')
@@ -204,7 +204,7 @@ class AiConversation1StepTest extends TestCase
         $run = $this->makeRun(questionCount: 1);
         $friend = User::factory()->create(['name' => 'Priya']);
         $run->learner->follow($friend);
-        $friend->follow($run->learner);
+        $friend->acceptFollowRequest($run->learner);
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
         $this->mock(GeminiClient::class, function ($mock) {

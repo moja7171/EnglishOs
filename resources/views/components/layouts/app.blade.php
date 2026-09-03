@@ -25,12 +25,11 @@
                 @svg('heroicon-o-user-group', 'h-4 w-4')
                 Friends
                 @php
-                    $unread = auth()->check()
-                        ? \App\Models\DirectMessage::where('recipient_id', auth()->id())->whereNull('read_at')->count()
-                        : 0;
+                    $unread = \App\Models\DirectMessage::where('recipient_id', auth()->id())->whereNull('read_at')->count();
+                    $friendsBadge = $unread + auth()->user()->pendingFollowRequestsCount();
                 @endphp
-                @if ($unread)
-                    <span class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark">{{ $unread }}</span>
+                @if ($friendsBadge)
+                    <span class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark">{{ $friendsBadge }}</span>
                 @endif
             </a>
 

@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // One-directional by design — following someone is instant, no
-        // approval step, matching "follow as many as you want" (Twitter-
-        // style). A conversation additionally requires BOTH directions to
-        // exist (see User::isMutualWith()) — that's what actually gates
-        // messaging, not this table alone.
+        // Originally one-directional and instant (Twitter-style, no
+        // approval step) — superseded by the 'status' column added in
+        // 2026_09_03_140000_add_status_to_follows_table.php, which makes
+        // a follow a pending request the other side must accept. See
+        // User::follow()/acceptFollowRequest() for the current behavior.
         Schema::create('follows', function (Blueprint $table) {
             $table->id();
             $table->foreignId('follower_id')->constrained('users')->cascadeOnDelete();

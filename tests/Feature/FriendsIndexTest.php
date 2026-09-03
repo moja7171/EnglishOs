@@ -28,7 +28,7 @@ class FriendsIndexTest extends TestCase
             ->assertDontSee('Alice');
     }
 
-    public function test_following_someone_adds_them_to_the_following_list(): void
+    public function test_following_someone_queues_a_pending_request_not_an_instant_follow(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create(['name' => 'Bob']);
@@ -36,31 +36,54 @@ class FriendsIndexTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.index')
+            ->set('search', 'Bob')
             ->call('follow', $bob->id)
-            ->assertSee('Bob');
+            ->assertSee('Requested');
 
-        $this->assertTrue($me->fresh()->isFollowing($bob));
+        $this->assertFalse($me->fresh()->isFollowing($bob));
+        $this->assertTrue($me->fresh()->hasPendingRequestTo($bob));
     }
 
-    public function test_a_one_way_follow_shows_no_message_button_but_a_mutual_one_does(): void
+    public function test_accepting_a_request_makes_both_sides_mutual_and_shows_a_message_button(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create(['name' => 'Bob']);
         $carol = User::factory()->create(['name' => 'Carol']);
 
-        $me->follow($bob);
+        $me->follow($bob); // still pending — Bob hasn't accepted
         $me->follow($carol);
-        $carol->follow($me); // only Carol follows back
+        $carol->acceptFollowRequest($me); // Carol accepts — both sides become mutual
 
         $this->actingAs($me);
 
         $component = Livewire::test('friends.index');
 
-        // false = don't escape the expected string — it's plain literal
-        // Blade text (not passed through {{ }}), so the raw apostrophe
-        // in the rendered HTML would never match an auto-escaped needle.
-        $component->assertSee("They don't follow you back yet", false)
+        $component->assertDontSee($bob->name)
             ->assertSeeHtml(route('friends.conversation', $carol));
+    }
+
+    public function test_incoming_requests_can_be_accepted_or_rejected(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob']);
+        $carol = User::factory()->create(['name' => 'Carol']);
+
+        $bob->follow($me);
+        $carol->follow($me);
+
+        $this->actingAs($me);
+
+        $component = Livewire::test('friends.index')
+            ->assertSee('Follow requests (2)')
+            ->call('acceptRequest', $bob->id)
+            ->call('rejectRequest', $carol->id);
+
+        $this->assertTrue($me->fresh()->isFollowing($bob));
+        $this->assertTrue($bob->fresh()->isFollowing($me));
+        $this->assertFalse($carol->fresh()->hasPendingRequestTo($me));
+        $this->assertFalse($me->fresh()->isFollowing($carol));
+
+        $component->assertDontSee('Follow requests');
     }
 
     public function test_blocking_someone_removes_them_from_the_following_list(): void
@@ -135,9 +158,9 @@ class FriendsIndexTest extends TestCase
         $oneWay = User::factory()->create();
 
         $me->follow($mutualActive);
-        $mutualActive->follow($me);
+        $mutualActive->acceptFollowRequest($me);
         $me->follow($mutualInactive);
-        $mutualInactive->follow($me);
+        $mutualInactive->acceptFollowRequest($me);
         $me->follow($oneWay);
 
         $mission = Mission::create([
@@ -168,7 +191,7 @@ class FriendsIndexTest extends TestCase
         $me = User::factory()->create();
         $bob = User::factory()->create();
         $me->follow($bob);
-        $bob->follow($me);
+        $bob->acceptFollowRequest($me);
 
         $this->actingAs($me);
 
