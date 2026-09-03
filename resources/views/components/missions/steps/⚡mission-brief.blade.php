@@ -3,21 +3,43 @@
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use WithFileUploads;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
 
     public ?int $score = null;
 
+    /**
+     * A short, optional, ungraded recording of one warm-up question — a
+     * real "Day 1" artifact to look back on later (see Mission Result's
+     * recap), not just a mood number. Never required, never graded, and
+     * never blocks Continue — same philosophy as Listening's shadowing
+     * practice.
+     */
+    public ?UploadedFile $warmUpRecording = null;
+
+    public ?string $savedWarmUpRecordingUrl = null;
+
     public function mount(): void
     {
-        if ($this->readOnly && $evidence = $this->run->latestEvidence('mission_brief')) {
-            $this->score = (int) $evidence->content_ref;
+        if (! $this->readOnly) {
+            return;
         }
+
+        $scoreEvidence = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_SCORE)->latest()->first();
+        $this->score = $scoreEvidence ? (int) $scoreEvidence->content_ref : null;
+
+        $recordingEvidence = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
+        $this->savedWarmUpRecordingUrl = $recordingEvidence?->content_ref;
     }
 
     public function save(): void
@@ -32,6 +54,17 @@ new class extends Component
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => (string) $this->score,
         ]);
+
+        if ($this->warmUpRecording) {
+            $path = $this->warmUpRecording->store('missions/'.strtolower($this->run->mission->code).'/evidence', 'public');
+
+            Evidence::create([
+                'mission_run_id' => $this->run->id,
+                'phase' => 'mission_brief',
+                'type' => Evidence::TYPE_AUDIO,
+                'content_ref' => Storage::disk('public')->url($path),
+            ]);
+        }
 
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
@@ -74,6 +107,25 @@ new class extends Component
                 </li>
             @endforeach
         </ul>
+
+        @if ($readOnly)
+            @if ($savedWarmUpRecordingUrl)
+                <div class="mt-3">
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Your Day 1 answer</p>
+                    <div class="mt-1">
+                        <x-audio-player :url="$savedWarmUpRecordingUrl" />
+                    </div>
+                </div>
+            @endif
+        @else
+            <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record yourself answering one</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Never graded, never required — just something real to look back on later in this mission.</p>
+                <div class="mt-2">
+                    <x-voice-recorder field="warmUpRecording" :file="$warmUpRecording" file-name="mission-brief-warmup.webm" />
+                </div>
+            </div>
+        @endif
     </div>
 
     <div>
