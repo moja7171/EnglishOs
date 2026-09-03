@@ -406,6 +406,56 @@ class MissionSeeder extends Seeder
                                 'hook' => 'A second pair of ears just heard everything you said — here\'s what stood out.',
                             ],
                             [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                // New — a genuine reading-comprehension pillar (Listening's
+                                // counterpart), not just the vocabulary story's side effect.
+                                // Placed right before Writing on purpose: read a model text
+                                // about someone else's day, then write about your own.
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Aisha — her morning looks a lot like yours. Can you follow her day in English?',
+                                'passage_title' => 'Meet Aisha',
+                                // Written fresh for this app (see EOS-009 §14: content stays
+                                // original, no licensing/piracy risk) — deliberately reuses
+                                // several Vocabulary Builder pool words/phrases (wakes up,
+                                // gets up, morning person, skips breakfast, stay in, does
+                                // the shopping, sleep in, has a shower, goes to sleep) so
+                                // whichever words a learner picked there, they meet again
+                                // here in a fresh context, third person instead of first.
+                                'passage' => 'Aisha lives in Manchester and works at a hospital. On '
+                                    .'weekdays, she wakes up at six and gets up straight away — '
+                                    ."she's a real morning person! She never skips breakfast: she "
+                                    .'usually has cereal and a cup of tea before she leaves for '
+                                    .'work. After a long shift, she comes home tired, so most '
+                                    .'evenings she likes to stay in and watch a film instead of '
+                                    .'going out. On Saturdays, she does the shopping with her '
+                                    .'sister, and on Sundays she likes to sleep in until nearly '
+                                    ."ten o'clock. \"It's the only day I don't set an alarm,\" she "
+                                    .'says. In the evening, she always has a shower before bed, '
+                                    .'and she goes to sleep by eleven, ready for another early '
+                                    .'start.',
+                                // Grounds the AI check in what the passage actually says, same
+                                // pattern as Listening's topic_summary — background for a coarse
+                                // topic-relevance check, never a source to fact-check against.
+                                'topic_summary' => 'A short profile of Aisha, who works at a '
+                                    .'hospital in Manchester: her weekday morning routine (waking '
+                                    .'up early, never skipping breakfast), her quiet weekday '
+                                    .'evenings at home, and her different weekend routine '
+                                    .'(shopping with her sister on Saturday, sleeping in on Sunday).',
+                                // An ungraded true/false <x-quick-round> warm-up, same pattern
+                                // as Listening's comprehension_check — engages with the text
+                                // before the real AI-checked questions below.
+                                'comprehension_check' => [
+                                    ['statement' => 'Aisha works at a hospital.', 'correct' => true],
+                                    ['statement' => 'She usually skips breakfast.', 'correct' => false],
+                                    ['statement' => 'She goes shopping with her sister on Saturdays.', 'correct' => true],
+                                ],
+                                'questions' => [
+                                    "What is Aisha's morning usually like on a weekday?",
+                                    "What is different about Aisha's Sunday, compared to a normal weekday?",
+                                ],
+                            ],
+                            [
                                 'key' => 'writing',
                                 'label' => 'Writing',
                                 // Was 12 — bumped for the AI feedback recap (strength/expression/correction).

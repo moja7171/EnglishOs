@@ -30,10 +30,12 @@ class MissionHookContentTest extends TestCase
      * 09-10, both *before* the Final Challenge on page 11 — not after it.
      * The app itself splits the book's single Partner/AI day into two
      * balanced phases (Practice, then Challenge — see MissionSeeder), but
-     * the underlying step order still matches the book exactly. A
-     * daily_listen_N gate (see DailyListenStep) now opens every day after
-     * Day 1 — not part of the book, an app-only addition for daily ear
-     * training.
+     * the underlying step order still matches the book exactly. Two things
+     * are app-only additions, not part of the original book: a
+     * daily_listen_N gate (see DailyListenStep) that now opens every day
+     * after Day 1 for daily ear training, and reading_comprehension (the
+     * 2026-09-03 UX-review Story C), inserted right before Writing —
+     * read a model text about someone else's day, then write your own.
      */
     public function test_m01_step_order_matches_the_real_3_day_plan(): void
     {
@@ -54,6 +56,7 @@ class MissionHookContentTest extends TestCase
             'daily_listen_3',
             'ai_conversation_1',
             'ai_feedback_1',
+            'reading_comprehension',
             'writing',
             'daily_listen_4',
             'active_recall',
