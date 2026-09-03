@@ -70,7 +70,7 @@ class AuthTest extends TestCase
         ]);
     }
 
-    public function test_registration_defaults_to_b1_and_no_target_band_if_left_untouched(): void
+    public function test_registration_defaults_to_pre_intermediate_and_no_target_band_if_left_untouched(): void
     {
         Livewire::test('auth.register')
             ->set('name', 'Ada Lovelace')
@@ -81,7 +81,7 @@ class AuthTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'ada@example.com',
-            'cefr_level' => 'B1',
+            'cefr_level' => 'A2+',
             'target_band' => null,
         ]);
     }

@@ -14,7 +14,7 @@ new class extends Component
 
     public string $name = '';
 
-    public string $cefr_level = 'B1';
+    public string $cefr_level = 'A2+';
 
     public string $target_band = '';
 
@@ -42,7 +42,7 @@ new class extends Component
         $user = auth()->user();
 
         $this->name = $user->name;
-        $this->cefr_level = $user->cefr_level ?? 'B1';
+        $this->cefr_level = $user->cefr_level ?? 'A2+';
         $this->target_band = $user->target_band ?? '';
         $this->gender = $user->gender ?? 'unspecified';
         $this->weeklyGoalDays = $user->weekly_goal_days ? (string) $user->weekly_goal_days : '';
@@ -100,7 +100,7 @@ new class extends Component
 
         $data = $this->validate([
             'name' => 'required|string|max:255',
-            'cefr_level' => 'required|in:A1,A2,B1,B2,C1',
+            'cefr_level' => 'required|in:A1,A2,A2+,B1,B2,C1',
             'target_band' => 'nullable|string|max:10',
             'gender' => 'required|in:male,female,unspecified',
         ]);

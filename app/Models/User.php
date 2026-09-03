@@ -63,6 +63,7 @@ class User extends Authenticatable
         return [
             'A1' => 'Beginner — I know a few basic words and phrases',
             'A2' => 'Elementary — I can introduce myself and ask simple questions',
+            'A2+' => 'Pre-Intermediate — I can handle familiar topics, but I hesitate a lot',
             'B1' => 'Intermediate — I can talk about daily life and familiar topics',
             'B2' => 'Upper-Intermediate — I can discuss most topics fairly fluently',
             'C1' => 'Advanced — I can express myself fluently on almost anything',
@@ -225,6 +226,7 @@ class User extends Authenticatable
         return match ($this->cefr_level) {
             'A1' => 'an absolute beginner (A1) English learner who is just starting out',
             'A2' => 'an elementary (A2) English learner who knows basic phrases and simple sentences',
+            'A2+' => 'a pre-intermediate (A2+) English learner who can handle familiar topics but still hesitates with anything more complex',
             'B2' => 'a B2 (upper-intermediate) English learner who is fairly fluent already',
             'C1' => 'a C1 (advanced) English learner who is highly fluent',
             default => 'a B1 (intermediate) English learner',

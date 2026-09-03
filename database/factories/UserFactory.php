@@ -35,7 +35,7 @@ class UserFactory extends Factory
             // insert(), so a freshly created instance would otherwise
             // read these as null in the very same request/test instead
             // of their real value until the next fresh query.
-            'cefr_level' => 'B1',
+            'cefr_level' => 'A2+',
             'avatar_color' => 'accent',
             'avatar_style' => 'initial',
             'gender' => 'unspecified',

@@ -14,7 +14,7 @@ new class extends Component
 
     public string $password_confirmation = '';
 
-    public string $cefr_level = 'B1';
+    public string $cefr_level = 'A2+';
 
     public string $target_band = '';
 
@@ -26,7 +26,7 @@ new class extends Component
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'cefr_level' => 'required|in:A1,A2,B1,B2,C1',
+            'cefr_level' => 'required|in:A1,A2,A2+,B1,B2,C1',
             'target_band' => 'nullable|string|max:10',
             'gender' => 'required|in:male,female,unspecified',
         ]);

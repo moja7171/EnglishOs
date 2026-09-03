@@ -19,6 +19,7 @@ class UserLevelDescriptionTest extends TestCase
         return [
             'A1' => ['A1', 'an absolute beginner (A1)'],
             'A2' => ['A2', 'an elementary (A2)'],
+            'A2+' => ['A2+', 'a pre-intermediate (A2+)'],
             'B1' => ['B1', 'a B1 (intermediate)'],
             'B2' => ['B2', 'a B2 (upper-intermediate)'],
             'C1' => ['C1', 'a C1 (advanced)'],
