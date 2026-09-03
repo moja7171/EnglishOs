@@ -221,7 +221,7 @@ class VocabularyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('1 word ready for review');
+            ->assertSee('1 item ready for Daily Review');
     }
 
     public function test_the_missions_overview_shows_no_nudge_when_nothing_is_due(): void
@@ -230,7 +230,7 @@ class VocabularyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('ready for review');
+            ->assertDontSee('ready for Daily Review');
     }
 
     public function test_the_browsable_list_shows_every_tracked_word(): void
