@@ -153,6 +153,13 @@ new class extends Component
         </div>
     </header>
 
+    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+        Prefer to focus on just one?
+        <a href="{{ route('vocabulary.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">My Words</a>
+        ·
+        <a href="{{ route('speaking.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">Speaking Recall</a>
+    </p>
+
     @if (! $this->currentItem)
         <div class="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-8 text-center dark:border-line-dark dark:bg-surface-dark">
             @svg('heroicon-o-check-badge', 'h-6 w-6 text-success dark:text-success-dark')

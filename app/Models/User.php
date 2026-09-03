@@ -209,6 +209,44 @@ class User extends Authenticatable
     }
 
     /**
+     * Every actively-tracked spaced-repetition item (repetitions > 0 —
+     * see HasSpacedRepetition::needsWrittenReview()) across all three
+     * review systems, with its current freshness() — sorted so the most
+     * decayed item comes first, since that's the one worth surfacing.
+     * Feeds the "My Progress" page's memory-freshness section.
+     *
+     * @return list<array{type: string, label: string, freshness: int}>
+     */
+    public function memoryFreshnessItems(): array
+    {
+        $words = $this->vocabularyWords()->where('repetitions', '>', 0)->get()
+            ->map(fn (VocabularyWord $item) => ['type' => 'Word', 'label' => $item->word, 'freshness' => $item->freshness()]);
+
+        $prompts = $this->speakingPrompts()->where('repetitions', '>', 0)->get()
+            ->map(fn (SpeakingPrompt $item) => ['type' => 'Speaking', 'label' => $item->prompt, 'freshness' => $item->freshness()]);
+
+        $errors = $this->errorPatternReviews()->where('repetitions', '>', 0)->get()
+            ->map(fn (ErrorPatternReview $item) => ['type' => 'Grammar', 'label' => $item->last_correction, 'freshness' => $item->freshness()]);
+
+        return $words->concat($prompts)->concat($errors)
+            ->sortBy('freshness')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The average freshness() across every item memoryFreshnessItems()
+     * returns — null (not 0) when nothing has been reviewed even once
+     * yet, so callers can tell "no data" apart from "fully decayed".
+     */
+    public function averageMemoryFreshness(): ?int
+    {
+        $items = collect($this->memoryFreshnessItems());
+
+        return $items->isEmpty() ? null : (int) round($items->avg('freshness'));
+    }
+
+    /**
      * Called once per newly-logged mistake (see Error Log's save()). A
      * category only starts being tracked here once recurringErrorCategories()
      * says it has actually recurred across 2+ missions — a single one-off

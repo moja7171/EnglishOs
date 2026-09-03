@@ -43,6 +43,28 @@ trait HasSpacedRepetition
     }
 
     /**
+     * A 0-100 "memory freshness" indicator — 100 right after a review,
+     * decaying to 0 by twice the current interval overdue (Duolingo-style
+     * skill-strength decay). Deliberately NOT tied to isDue(): an item can
+     * read as, say, 40% fresh well before its next_review_at arrives,
+     * since decay is continuous while isDue() is a hard cutoff. Only
+     * meaningful once repetitions > 0 (see needsWrittenReview()) — a
+     * brand-new item hasn't started decaying yet, so this returns 100 for
+     * it rather than a number that would misleadingly suggest otherwise.
+     */
+    public function freshness(): int
+    {
+        if ($this->repetitions === 0 || ! $this->last_reviewed_at) {
+            return 100;
+        }
+
+        $elapsedDays = $this->last_reviewed_at->diffInDays(now());
+        $decayWindow = max(1, $this->interval_days * 2);
+
+        return (int) max(0, round(100 - ($elapsedDays / $decayWindow) * 100));
+    }
+
+    /**
      * $quality is a 0-5 recall score, clamped: <3 is a failed recall
      * (back to day 1, repetitions reset to 0 — see needsWrittenReview());
      * >=3 grows the interval, using ease_factor to adapt per item rather

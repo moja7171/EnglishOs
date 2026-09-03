@@ -114,4 +114,32 @@ class VocabularyWordSm2Test extends TestCase
         $this->assertTrue($due->isDue());
         $this->assertFalse($notDue->isDue());
     }
+
+    public function test_a_brand_new_word_reads_as_fully_fresh(): void
+    {
+        $word = $this->makeWord();
+
+        $this->assertSame(100, $word->freshness());
+    }
+
+    public function test_freshness_is_100_right_after_a_review(): void
+    {
+        $word = $this->makeWord(['repetitions' => 1, 'interval_days' => 6, 'last_reviewed_at' => now()]);
+
+        $this->assertSame(100, $word->freshness());
+    }
+
+    public function test_freshness_is_50_halfway_through_the_interval(): void
+    {
+        $word = $this->makeWord(['repetitions' => 1, 'interval_days' => 10, 'last_reviewed_at' => now()->subDays(10)]);
+
+        $this->assertSame(50, $word->freshness());
+    }
+
+    public function test_freshness_bottoms_out_at_0_once_twice_overdue(): void
+    {
+        $word = $this->makeWord(['repetitions' => 1, 'interval_days' => 5, 'last_reviewed_at' => now()->subDays(30)]);
+
+        $this->assertSame(0, $word->freshness());
+    }
 }

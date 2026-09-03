@@ -22,6 +22,27 @@ new class extends Component
             + auth()->user()->errorPatternReviews()->where('next_review_at', '<=', now())->count();
     }
 
+    /**
+     * A dense glance-able strip atop the home page linking to the full
+     * /progress page — that page's own progressStats()/averageMemoryFreshness()
+     * data existed before but was buried in Profile Settings (tab 3 of 5),
+     * nowhere a learner would check daily. Only the 3 numbers worth a
+     * glance live here; everything else stays on the full page.
+     *
+     * @return array{streak: int, missionsCompleted: int, freshness: ?int}
+     */
+    #[Computed]
+    public function progressSummary(): array
+    {
+        $user = auth()->user();
+
+        return [
+            'streak' => $user->currentStreak(),
+            'missionsCompleted' => $user->missionsCompletedCount(),
+            'freshness' => $user->averageMemoryFreshness(),
+        ];
+    }
+
     #[Computed]
     public function justBenefitedFromGrace(): bool
     {
@@ -73,6 +94,33 @@ new class extends Component
     <header class="border-b border-line pb-4 dark:border-line-dark">
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
     </header>
+
+    <a
+        href="{{ route('progress.index') }}"
+        wire:navigate
+        class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-3.5 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark"
+    >
+        <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
+                @svg('heroicon-s-fire', 'h-3.5 w-3.5') {{ $this->progressSummary['streak'] }}
+            </span>
+            <span class="inline-flex items-center gap-1 font-semibold text-ink dark:text-ink-dark">
+                @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') {{ $this->progressSummary['missionsCompleted'] }} {{ Str::plural('mission', $this->progressSummary['missionsCompleted']) }}
+            </span>
+            @if (($freshness = $this->progressSummary['freshness']) !== null)
+                @php
+                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-amber-600' : 'text-red-600');
+                @endphp
+                <span class="inline-flex items-center gap-1 font-semibold {{ $freshnessColor }}">
+                    @svg('heroicon-o-bolt', 'h-3.5 w-3.5') {{ $freshness }}% fresh
+                </span>
+            @endif
+        </div>
+        <span class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+            My Progress
+            @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
+        </span>
+    </a>
 
     @if ($this->justBenefitedFromGrace)
         <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
