@@ -129,24 +129,27 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual'],
                                     // Food
                                     ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do'],
-                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk'],
+                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'image_query' => 'bowl of cereal breakfast'],
                                     ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food'],
                                     ['phrase' => "don't bother", 'meaning' => "to not do something because it's too much effort"],
-                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home'],
+                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'image_query' => 'takeaway food box'],
                                     ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal'],
-                                    // Bathroom routines
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water'],
+                                    // Bathroom routines — image_query marks the concrete-noun words
+                                    // worth a picture flashcard (dual coding — see EOS-009 §8); an
+                                    // abstract phrase like "have a wash" gets no query and simply
+                                    // shows no image, on purpose.
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'shower bathroom'],
                                     ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body'],
                                     ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth'],
                                     ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face'],
-                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water'],
+                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath'],
                                     // Housework
                                     ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck'],
-                                    ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home'],
+                                    ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house'],
                                     ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy'],
-                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth'],
-                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need'],
+                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'ironing clothes'],
+                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'image_query' => 'grocery shopping'],
                                     ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes'],
                                     // Spare time
                                     ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out'],

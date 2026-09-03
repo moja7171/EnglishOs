@@ -48,4 +48,11 @@ return [
         'whisper_model' => env('GROQ_WHISPER_MODEL', 'whisper-large-v3-turbo'),
     ],
 
+    'pexels' => [
+        // Free tier, instant key approval, generous limits (200 req/hour) —
+        // see App\Services\PexelsClient. Optional feature: absent key just
+        // means vocabulary flashcards silently skip images, nothing breaks.
+        'key' => env('PEXELS_API_KEY'),
+    ],
+
 ];

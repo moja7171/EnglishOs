@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Services\GeminiClient;
+use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Livewire\Livewire;
@@ -848,5 +849,68 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.2', 'Sunday is my day off.')
             ->call('save')
             ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:vocabulary_builder:");
+    }
+
+    private function makeMissionAndRunWithImageWord(): array
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [[
+                    'key' => 'vocabulary_builder',
+                    'story' => [['heading' => 'Food', 'text' => 'I always eat **cereal** but never **relax**.']],
+                    'story_words' => [
+                        ['phrase' => 'cereal', 'meaning' => 'a breakfast food', 'image_query' => 'bowl of cereal breakfast'],
+                        ['phrase' => 'relax', 'meaning' => 'to rest'],
+                    ],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        return [$learner, $mission, $run];
+    }
+
+    public function test_a_word_with_an_image_query_shows_a_picture_flashcard(): void
+    {
+        [, , $run] = $this->makeMissionAndRunWithImageWord();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')
+            ->with('cereal', 'bowl of cereal breakfast')
+            ->once()
+            ->andReturn('http://localhost/storage/vocabulary-images/cereal.jpg'));
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->call('toggleWord', 'cereal')
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/cereal.jpg');
+    }
+
+    public function test_a_word_without_an_image_query_shows_no_picture_flashcard(): void
+    {
+        [, , $run] = $this->makeMissionAndRunWithImageWord();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->call('toggleWord', 'relax')
+            ->assertDontSeeHtml('<img');
+    }
+
+    public function test_a_failed_image_fetch_never_breaks_the_step(): void
+    {
+        [, , $run] = $this->makeMissionAndRunWithImageWord();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->once()->andReturn(null));
+
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->call('toggleWord', 'cereal')
+            ->assertOk()
+            ->assertDontSeeHtml('<img');
     }
 }

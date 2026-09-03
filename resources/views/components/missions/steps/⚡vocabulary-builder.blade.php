@@ -5,6 +5,7 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -117,6 +118,26 @@ new class extends Component
         $storyWords = collect($this->run->mission->stepContent('vocabulary_builder')['story_words'] ?? []);
 
         return $storyWords->firstWhere('phrase', $phrase)['meaning'] ?? '';
+    }
+
+    /**
+     * A picture flashcard for concrete-noun words only — see the
+     * 'image_query' story_word entries this pulls from and PexelsClient's
+     * docblock. Null (no image shown) for every abstract word/phrase that
+     * was never authored with one, and also null on any fetch failure —
+     * this is a dual-coding nice-to-have, never something worth an error
+     * state or a blocked step.
+     */
+    public function wordImageUrl(string $phrase): ?string
+    {
+        $storyWords = collect($this->run->mission->stepContent('vocabulary_builder')['story_words'] ?? []);
+        $query = $storyWords->firstWhere('phrase', $phrase)['image_query'] ?? null;
+
+        if (! $query) {
+            return null;
+        }
+
+        return app(PexelsClient::class)->imageUrlFor($phrase, $query);
     }
 
     /**
@@ -518,6 +539,9 @@ new class extends Component
                     @foreach ($indices as $index)
                         @php $word = $selectedWords[$index]; $itemFeedback = $feedback[$word] ?? null; @endphp
                         <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                            @if ($imageUrl = $this->wordImageUrl($word))
+                                <img src="{{ $imageUrl }}" alt="{{ $word }}" class="mb-2 h-28 w-full rounded-lg object-cover">
+                            @endif
                             <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</p>
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $this->wordMeaning($word) }}</p>
                             @unless ($readOnly)
