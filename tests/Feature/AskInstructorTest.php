@@ -139,7 +139,15 @@ class AskInstructorTest extends TestCase
         ]);
     }
 
-    public function test_returning_to_the_same_step_reloads_its_prior_conversation(): void
+    /**
+     * A Livewire full-page navigation (Next/Previous between steps) tears
+     * this component down and remounts it fresh regardless of scoping —
+     * so if history were still filtered to $stepKey, an in-progress
+     * conversation would visibly change or shrink the moment the learner
+     * navigated mid-chat, even though nothing about the actual
+     * conversation changed. It must now show the whole run's thread.
+     */
+    public function test_the_full_conversation_persists_across_a_step_change_mid_chat(): void
     {
         $run = $this->makeRun();
 
@@ -159,72 +167,84 @@ class AskInstructorTest extends TestCase
             'body' => 'It shows a relationship, like "in" or "on".',
             'type' => InstructorMessage::TYPE_TEXT,
         ]);
-        // A different step's history must never bleed into this one.
+        // Asked from a different step, mid the same run — must still show.
         InstructorMessage::create([
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
             'step_key' => 'listening',
             'role' => InstructorMessage::ROLE_LEARNER,
-            'body' => 'Unrelated question',
+            'body' => 'Can you give another example?',
             'type' => InstructorMessage::TYPE_TEXT,
         ]);
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->assertSee('What is a preposition?')
             ->assertSee('It shows a relationship')
-            ->assertDontSee('Unrelated question');
+            ->assertSee('Can you give another example?');
     }
 
-    public function test_asking_by_voice_transcribes_and_persists_the_recording(): void
+    public function test_a_new_question_is_answered_with_the_prior_conversation_as_context(): void
     {
-        Storage::fake('local');
         $run = $this->makeRun();
 
-        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('What does "articles" mean?'));
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'grammar_in_context',
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'What is a preposition?',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'grammar_in_context',
+            'role' => InstructorMessage::ROLE_INSTRUCTOR,
+            'body' => 'It shows a relationship, like "in" or "on".',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
                 ->once()
-                ->withArgs(fn ($messages) => $messages[0]['text'] === 'What does "articles" mean?')
-                ->andReturn('"A", "an", and "the" are articles.');
+                ->withArgs(function ($messages) {
+                    return count($messages) === 3
+                        && $messages[0] === ['role' => 'user', 'text' => 'What is a preposition?']
+                        && $messages[1] === ['role' => 'model', 'text' => 'It shows a relationship, like "in" or "on".']
+                        && $messages[2] === ['role' => 'user', 'text' => 'Give me another example.'];
+                })
+                ->andReturn('Sure — "under the table" is another one!');
         });
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
-            ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('askWithVoice')
-            ->assertSee('What does "articles" mean?')
-            ->assertSee('"A", "an", and "the" are articles.');
-
-        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
-        Storage::disk('local')->assertExists($message->attachment_path);
+            ->set('question', 'Give me another example.')
+            ->call('ask')
+            ->assertSee('under the table');
     }
 
-    public function test_a_recorded_voice_message_is_playable_from_the_thread(): void
+    public function test_recording_a_voice_question_only_fills_the_text_box_and_sends_nothing(): void
     {
-        Storage::fake('local');
         $run = $this->makeRun();
 
-        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('A question.'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('An answer.'));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('What does "articles" mean?'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
-        $html = Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('askWithVoice')
-            ->html();
+            ->call('transcribeVoiceQuestion')
+            ->assertSet('question', 'What does "articles" mean?')
+            ->assertSet('messages', []);
 
-        $saved = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
-        $this->assertStringContainsString(route('instructor.attachment', $saved), $html);
+        $this->assertDatabaseCount('instructor_messages', 0);
     }
 
     /**
-     * A transcription failure used to silently throw the whole recording
-     * away — the file was already uploaded and stored, then orphaned with
-     * nothing in the database pointing to it, and the learner had no way
-     * to even hear their own attempt back. It must now be saved as a real,
-     * playable message instead, with no AI call for text that doesn't exist.
+     * The recording is never persisted or lost either way — transcribing
+     * it is only ever a shortcut for filling the text box, never a "send"
+     * of its own, so a failure just means "try again" with nothing saved.
      */
-    public function test_a_failed_voice_transcription_still_saves_the_recording(): void
+    public function test_a_failed_voice_transcription_leaves_the_question_box_untouched(): void
     {
-        Storage::fake('local');
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('down')));
@@ -232,12 +252,11 @@ class AskInstructorTest extends TestCase
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('askWithVoice')
-            ->assertSee("Couldn't hear that clearly");
+            ->call('transcribeVoiceQuestion')
+            ->assertSee("Couldn't hear that clearly")
+            ->assertSet('question', '');
 
-        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
-        $this->assertSame(InstructorMessage::ROLE_LEARNER, $message->role);
-        Storage::disk('local')->assertExists($message->attachment_path);
+        $this->assertDatabaseCount('instructor_messages', 0);
     }
 
     public function test_sending_a_file_attaches_it_and_tells_the_ai_it_cannot_see_it(): void
@@ -283,14 +302,19 @@ class AskInstructorTest extends TestCase
         $run = $this->makeRun();
         $stranger = User::factory()->create();
 
-        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('A question.'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('An answer.'));
+        Storage::disk('local')->put('instructor-messages/'.$run->learner_id.'/question.webm', 'fake audio');
 
-        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
-            ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('askWithVoice');
-
-        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
+        $message = InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'grammar_in_context',
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'A question.',
+            'type' => InstructorMessage::TYPE_VOICE,
+            'attachment_path' => 'instructor-messages/'.$run->learner_id.'/question.webm',
+            'attachment_name' => 'question.webm',
+            'attachment_mime' => 'audio/webm',
+        ]);
 
         $this->actingAs($stranger);
         $this->get(route('instructor.attachment', $message))->assertForbidden();

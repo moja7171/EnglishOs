@@ -26,12 +26,16 @@ new class extends Component
 
     /**
      * Persisted (see InstructorMessage — scoped to the learner, kept
-     * forever, not just this run) so a future feature can mine everything
-     * a learner has ever asked, not just what this one panel shows right
-     * now. Reloaded on mount() scoped to THIS run+step, so returning to a
-     * step already asked about shows that history again — but the wider,
-     * cross-step/cross-mission record lives in the table regardless of
-     * what any one visit displays.
+     * forever, not just this run). Loaded scoped to the whole RUN, not
+     * just the current step — a Livewire full-page navigation (Next/
+     * Previous between steps) tears down and remounts this component
+     * from scratch either way, so scoping to just $stepKey used to make
+     * an in-progress conversation visibly reset or jump to a different
+     * (smaller) history the moment the learner navigated, even mid-chat.
+     * step_key is still recorded per message (see recordAndRespond) —
+     * only the *display* scope widened, for a continuous thread. See
+     * systemPrompt() for how per-message step grounding still works
+     * without that continuity constantly getting yanked around.
      *
      * @var array<int, array{id: int, role: string, text: string, type: string, attachmentName: ?string}>
      */
@@ -46,7 +50,6 @@ new class extends Component
         $this->messages = InstructorMessage::query()
             ->where('learner_id', auth()->id())
             ->where('mission_run_id', $this->run->id)
-            ->where('step_key', $this->stepKey)
             ->orderBy('created_at')
             ->get()
             ->map(fn (InstructorMessage $m) => $this->toDisplay($m))
@@ -75,25 +78,20 @@ new class extends Component
     }
 
     /**
-     * Same idea as every other step's voice input: record, auto-upload,
-     * transcribe — the transcript becomes the question text.
-     *
-     * A transcription failure never throws the recording away (it used
-     * to — a real bug: the file was already uploaded and stored, then
-     * silently orphaned with nothing pointing to it, and the learner had
-     * to re-record from scratch with no way to even hear their own
-     * attempt back). It's saved as a real message with a fallback
-     * caption instead, so it stays visible and playable in the thread —
-     * see the failure branch below. Sage just never gets asked to answer
-     * text that doesn't exist.
+     * Voice is a dictation shortcut, not a separate "send" action —
+     * record, auto-upload, transcribe, drop the transcript into the
+     * question box so the learner can read it back and fix anything
+     * before it actually goes anywhere. Nothing is sent, saved, or
+     * shown to Sage here; a real send only ever happens through ask(),
+     * same as if they'd typed it. The recording itself is discarded
+     * either way (transcribed or not) — it was only ever a means to
+     * fill the text box, never a message in its own right.
      */
-    public function askWithVoice(): void
+    public function transcribeVoiceQuestion(): void
     {
         if (! $this->voiceQuestion) {
             return;
         }
-
-        $path = $this->voiceQuestion->store('instructor-messages/'.auth()->id(), 'local');
 
         try {
             $question = trim(app(GroqClient::class)->transcribe($this->voiceQuestion->getRealPath()));
@@ -104,25 +102,13 @@ new class extends Component
         $this->voiceQuestion = null;
 
         if ($question === '') {
-            $message = InstructorMessage::create([
-                'learner_id' => auth()->id(),
-                'mission_run_id' => $this->run->id,
-                'step_key' => $this->stepKey,
-                'role' => InstructorMessage::ROLE_LEARNER,
-                'body' => "Couldn't transcribe this recording.",
-                'type' => InstructorMessage::TYPE_VOICE,
-                'attachment_path' => $path,
-                'attachment_name' => 'question.webm',
-                'attachment_mime' => 'audio/webm',
-            ]);
-
-            $this->messages[] = $this->toDisplay($message);
-            $this->error = "Couldn't hear that clearly — listen back above, or just type it instead.";
+            $this->error = "Couldn't hear that clearly — try again, or just type it.";
 
             return;
         }
 
-        $this->recordAndRespond($question, InstructorMessage::TYPE_VOICE, $path, 'question.webm', 'audio/webm');
+        $this->error = null;
+        $this->question = $question;
     }
 
     public function sendFile(): void
@@ -151,6 +137,16 @@ new class extends Component
         $this->error = null;
         $this->loading = true;
 
+        // Real conversation memory — every prior turn (this run, any
+        // step), not just the newest question in isolation. Capped so a
+        // long-lived chat can't grow the prompt without bound; the most
+        // recent turns matter far more than the first ones from days ago.
+        $history = collect($this->messages)
+            ->slice(-20)
+            ->map(fn (array $m) => ['role' => $m['role'] === 'instructor' ? 'model' : 'user', 'text' => $m['text']])
+            ->values()
+            ->all();
+
         $learnerMessage = InstructorMessage::create([
             'learner_id' => auth()->id(),
             'mission_run_id' => $this->run->id,
@@ -167,7 +163,7 @@ new class extends Component
 
         try {
             $answer = trim(app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => $learnerText]],
+                [...$history, ['role' => 'user', 'text' => $learnerText]],
                 systemPrompt: $this->systemPrompt(),
             ));
 
@@ -208,16 +204,24 @@ new class extends Component
     {
         $stepLabel = $this->stepKey ? $this->run->mission->stepLabel($this->stepKey) : null;
 
-        $prompt = 'Your name is Sage. You are a friendly, encouraging AI English Instructor helping '.$this->run->learner->levelDescription()
-            .' who is in the middle of a lesson (mission outcome: "'.$this->run->mission->outcome.'"'
-            .($stepLabel ? ", currently on the \"{$stepLabel}\" step" : '').'). '
-            .'Answer their English-related question clearly, simply, and briefly (a few short sentences, no '
-            .'long essays). If they ask you to just give them the answer to the exercise they are currently '
-            .'working on, politely decline and explain the underlying grammar or vocabulary rule in general '
-            .'terms instead, so they can work out the specific answer themselves — never solve their current '
-            .'exercise for them. If the question has nothing to do with English or this lesson, gently steer '
-            .'them back to the topic. If they mention or attach a file, you cannot see its contents — kindly '
-            .'ask them to describe it or paste the relevant text directly in the chat.';
+        $prompt = 'Your name is Sage. You are a warm, genuinely fun AI English Instructor with real personality — '
+            .'not a stiff textbook voice. Be playful, use a light joke or a vivid everyday example when it helps '
+            .'something click, react like a real person would ("Ooh, good question!", "Ha, English is weird '
+            .'about that one too"), and make the learner enjoy stopping by, not just tolerate it. Still concise '
+            .'(a few short sentences, no long essays) and still substantive — charm never replaces a clear answer. '
+            .'You are helping '.$this->run->learner->levelDescription().' who is in the middle of a lesson '
+            .'(mission outcome: "'.$this->run->mission->outcome.'"'
+            .($stepLabel ? ", currently viewing the \"{$stepLabel}\" step" : '').'). '
+            .'Use that step as background for a NEW question, but never let it override an ongoing conversation: '
+            .'if this question is clearly a continuation of what you were just discussing, stay on that thread — '
+            .'the learner may have simply navigated to a different step mid-chat, which is not a signal to change '
+            .'the subject on them. If they ask you to just give them the answer to the exercise they are '
+            .'currently working on, politely decline and explain the underlying grammar or vocabulary rule in '
+            .'general terms instead, so they can work out the specific answer themselves — never solve their '
+            .'current exercise for them. If the question has nothing to do with English or this lesson, gently '
+            .'steer them back to the topic — warmly, not like a scold. If they mention or attach a file, you '
+            .'cannot see its contents — kindly ask them to describe it or paste the relevant text directly in '
+            .'the chat.';
 
         return $prompt.' '.$this->run->aiToneGuidance();
     }
@@ -269,7 +273,7 @@ new class extends Component
             </span>
             <div class="min-w-0 flex-1">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Sage</p>
-                <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask about this step — I'll explain, not solve it for you.</p>
+                <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask me anything about English — I'll explain, never just solve it for you.</p>
             </div>
             <button
                 type="button"
@@ -314,7 +318,7 @@ new class extends Component
                 </div>
             @endforelse
 
-            <div wire:loading.delay wire:target="ask,askWithVoice,sendFile">
+            <div wire:loading.delay wire:target="ask,transcribeVoiceQuestion,sendFile">
                 <x-ai-thinking label="Sage is answering…" class="bg-surface dark:bg-surface-dark" />
             </div>
         </div>
@@ -334,7 +338,7 @@ new class extends Component
                         type="button"
                         wire:click="sendFile"
                         wire:loading.attr="disabled"
-                        wire:target="ask,askWithVoice,sendFile"
+                        wire:target="ask,transcribeVoiceQuestion,sendFile"
                         class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
                     >Send file</button>
                 </div>
@@ -352,20 +356,20 @@ new class extends Component
                         wire:model="question"
                         placeholder="Ask a question…"
                         wire:loading.attr="disabled"
-                        wire:target="ask,askWithVoice,sendFile"
+                        wire:target="ask,transcribeVoiceQuestion,sendFile"
                         class="w-full rounded-full border border-line bg-transparent px-3 py-1.5 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                     >
                     <button
                         type="submit"
                         title="Send"
                         wire:loading.attr="disabled"
-                        wire:target="ask,askWithVoice,sendFile"
+                        wire:target="ask,transcribeVoiceQuestion,sendFile"
                         class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
                     >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
                 </form>
 
                 <div wire:key="ask-voice-recorder-{{ count($messages) }}" class="shrink-0">
-                    <x-voice-recorder field="voiceQuestion" :file="$voiceQuestion" on-recorded="askWithVoice" file-name="question.webm" :compact="true" />
+                    <x-voice-recorder field="voiceQuestion" :file="$voiceQuestion" on-recorded="transcribeVoiceQuestion" file-name="question.webm" :compact="true" />
                 </div>
             </div>
         </div>

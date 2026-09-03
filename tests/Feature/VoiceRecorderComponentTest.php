@@ -24,4 +24,13 @@ class VoiceRecorderComponentTest extends TestCase
         $this->assertStringNotContainsString('Listen back', $html);
         $this->assertStringContainsString('Record a voice message', $html);
     }
+
+    public function test_both_styles_offer_a_way_to_cancel_a_recording_in_progress(): void
+    {
+        $default = Blade::render('<x-voice-recorder field="audioFile" />');
+        $compact = Blade::render('<x-voice-recorder field="audioFile" :compact="true" />');
+
+        $this->assertStringContainsString('cancelRecording', $default);
+        $this->assertStringContainsString('cancelRecording', $compact);
+    }
 }

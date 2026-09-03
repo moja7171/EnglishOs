@@ -25,6 +25,7 @@
 <div
     x-data="{
         recording: false,
+        cancelled: false,
         seconds: 0,
         timer: null,
         mediaRecorder: null,
@@ -33,6 +34,7 @@
         error: null,
         async startRecording() {
             this.error = null;
+            this.cancelled = false;
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 this.chunks = [];
@@ -40,6 +42,7 @@
                 this.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) this.chunks.push(e.data); };
                 this.mediaRecorder.onstop = () => {
                     stream.getTracks().forEach((t) => t.stop());
+                    if (this.cancelled) return;
                     const blob = new Blob(this.chunks, { type: 'audio/webm' });
                     const file = new File([blob], '{{ $fileName }}', { type: 'audio/webm' });
                     this.uploading = true;
@@ -68,6 +71,12 @@
             this.recording = false;
             clearInterval(this.timer);
         },
+        cancelRecording() {
+            this.cancelled = true;
+            this.mediaRecorder.stop();
+            this.recording = false;
+            clearInterval(this.timer);
+        },
         get formattedTime() {
             const m = Math.floor(this.seconds / 60).toString().padStart(2, '0');
             const s = (this.seconds % 60).toString().padStart(2, '0');
@@ -84,6 +93,15 @@
                 title="Record a voice message"
                 class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
             >@svg('heroicon-o-microphone', 'h-4 w-4')</button>
+
+            <button
+                type="button"
+                x-show="recording"
+                x-cloak
+                x-on:click="cancelRecording"
+                title="Cancel"
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+            >@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
 
             <button
                 type="button"
@@ -116,6 +134,14 @@
                 x-on:click="stopRecording"
                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
             >@svg('heroicon-s-stop-circle', 'h-4 w-4') Stop (<span x-text="formattedTime"></span>)</button>
+
+            <button
+                type="button"
+                x-show="recording"
+                x-on:click="cancelRecording"
+                title="Cancel"
+                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+            >@svg('heroicon-o-x-mark', 'h-4 w-4') Cancel</button>
 
             <span x-show="uploading" class="text-sm text-ink-faint dark:text-ink-faint-dark">Uploading…</span>
             <span x-show="!uploading && !recording && {{ $file ? 'true' : 'false' }}" class="inline-flex items-center gap-1 text-sm text-success dark:text-success-dark">
