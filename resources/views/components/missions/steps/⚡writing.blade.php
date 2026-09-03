@@ -4,6 +4,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\GeminiClient;
+use App\Services\PexelsClient;
 use Livewire\Component;
 
 new class extends Component
@@ -46,6 +47,30 @@ new class extends Component
     public function getWordCountProperty(): int
     {
         return count(array_filter(preg_split('/\s+/', trim($this->text))));
+    }
+
+    /**
+     * One small inspirational thumbnail per writing prompt — dual-coding,
+     * same principle as Vocabulary Builder/Reading Comprehension. Purely
+     * decorative, fails soft like every PexelsClient call.
+     *
+     * @return array<string, string> keyed by prompt label
+     */
+    public function promptImageUrls(): array
+    {
+        $prompts = $this->run->mission->stepContent('writing')['prompts'] ?? [];
+        $client = app(PexelsClient::class);
+
+        return collect($prompts)
+            ->filter(fn ($prompt) => is_array($prompt) && ($prompt['image_query'] ?? null))
+            ->mapWithKeys(fn ($prompt) => [
+                $prompt['label'] => $client->imageUrlFor(
+                    $this->run->mission->code.'-writing-'.$prompt['label'],
+                    $prompt['image_query'],
+                ),
+            ])
+            ->filter()
+            ->all();
     }
 
     public function save(): void
@@ -110,7 +135,7 @@ new class extends Component
                 'type' => Evidence::TYPE_TEXT,
                 'content_ref' => json_encode($data),
             ]);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Silent by design — see method docblock.
         }
     }
@@ -135,6 +160,8 @@ new class extends Component
     $writing = $run->mission->stepContent('writing');
     $vocabularyWords = $run->selectedVocabularyWords();
     $draftPrefix = $this->draftPrefix();
+    $prompts = $writing['prompts'] ?? [];
+    $promptImages = $this->promptImageUrls();
 @endphp
 
 <div class="space-y-4">
@@ -186,10 +213,20 @@ new class extends Component
         <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $writing['title'] ?? 'Writing' }}</h2>
     </div>
 
-    <div class="flex flex-wrap gap-4 text-xs text-ink-faint dark:text-ink-faint-dark">
-        <div>
-            <span class="font-semibold uppercase">Write about:</span>
-            {{ implode(' · ', $writing['prompts'] ?? []) }}
+    <div>
+        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Write about:</p>
+        <div class="mt-2 flex gap-3 overflow-x-auto pb-1">
+            @foreach ($prompts as $prompt)
+                @php $label = is_array($prompt) ? ($prompt['label'] ?? '') : $prompt; @endphp
+                <div class="flex shrink-0 flex-col items-center gap-1">
+                    @if ($imageUrl = $promptImages[$label] ?? null)
+                        <img src="{{ $imageUrl }}" alt="" class="h-14 w-14 rounded-xl object-cover">
+                    @else
+                        <div class="flex h-14 w-14 items-center justify-center rounded-xl border border-line dark:border-line-dark"></div>
+                    @endif
+                    <span class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $label }}</span>
+                </div>
+            @endforeach
         </div>
     </div>
 

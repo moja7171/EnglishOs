@@ -7,6 +7,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
+use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -51,6 +52,31 @@ class ReadingComprehensionStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
+    private function makeRunWithImageQuery(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [[
+                    'key' => 'reading_comprehension',
+                    'passage_title' => 'Meet Aisha',
+                    'passage' => 'Aisha lives in Manchester.',
+                    'image_query' => 'young woman morning portrait smiling',
+                    'questions' => ['What is Aisha like?'],
+                ]],
+            ]],
+        ]);
+
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
     public function test_it_shows_the_passage(): void
     {
         $run = $this->makeRun();
@@ -58,6 +84,40 @@ class ReadingComprehensionStepTest extends TestCase
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->assertSee('Meet Aisha')
             ->assertSee('Aisha lives in Manchester and works at a hospital.');
+    }
+
+    public function test_a_passage_with_an_image_query_shows_a_header_image(): void
+    {
+        $run = $this->makeRunWithImageQuery();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')
+            ->with('M01-reading', 'young woman morning portrait smiling')
+            ->once()
+            ->andReturn('http://localhost/storage/vocabulary-images/m01-reading.jpg'));
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-reading.jpg');
+    }
+
+    public function test_a_passage_without_an_image_query_shows_no_header_image(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertDontSeeHtml('<img');
+    }
+
+    public function test_a_failed_image_fetch_never_breaks_the_step(): void
+    {
+        $run = $this->makeRunWithImageQuery();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->once()->andReturn(null));
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertOk()
+            ->assertDontSeeHtml('<img');
     }
 
     public function test_it_shows_an_ungraded_true_false_warm_up(): void

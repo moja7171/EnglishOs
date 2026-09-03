@@ -47,6 +47,15 @@ class QuickRoundComponentTest extends TestCase
         $this->assertStringContainsString('markSkipped', $html);
     }
 
+    public function test_a_correct_pick_plays_the_success_sound(): void
+    {
+        $cards = [['prompt' => 'word', 'options' => ['a', 'b'], 'correct' => 0]];
+
+        $html = Blade::render('<x-quick-round :cards="$cards" />', ['cards' => $cards]);
+
+        $this->assertStringContainsString('window.eosSound?.playSuccess()', $html);
+    }
+
     public function test_an_empty_card_list_renders_nothing(): void
     {
         $html = Blade::render('<x-quick-round :cards="$cards" />', ['cards' => []]);

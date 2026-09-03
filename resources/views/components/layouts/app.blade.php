@@ -60,6 +60,18 @@
                     </span>
                 @endif
 
+                <button
+                    type="button"
+                    x-data="{ enabled: true }"
+                    x-init="try { enabled = localStorage.getItem('eosSoundEnabled') !== 'false' } catch (e) {}"
+                    x-on:click="enabled = !enabled; try { localStorage.setItem('eosSoundEnabled', enabled) } catch (e) {}"
+                    x-bind:title="enabled ? 'Mute sound effects' : 'Unmute sound effects'"
+                    class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                >
+                    <span x-show="enabled">@svg('heroicon-o-speaker-wave', 'h-4 w-4')</span>
+                    <span x-show="!enabled" x-cloak>@svg('heroicon-o-speaker-x-mark', 'h-4 w-4')</span>
+                </button>
+
                 <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
                     <button
                         type="button"

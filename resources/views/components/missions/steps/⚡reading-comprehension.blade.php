@@ -4,6 +4,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -141,6 +142,22 @@ new class extends Component
     }
 
     /**
+     * A decorative header image for the passage's subject — dual-coding,
+     * same principle as Vocabulary Builder's flashcards. Cached per
+     * mission (not per learner), fails soft like every PexelsClient call.
+     */
+    public function passageImageUrl(): ?string
+    {
+        $query = $this->run->mission->stepContent('reading_comprehension')['image_query'] ?? null;
+
+        if (! $query) {
+            return null;
+        }
+
+        return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-reading', $query);
+    }
+
+    /**
      * @return list<array{prompt: string, options: list<string>, correct: int}>
      */
     public function comprehensionCards(): array
@@ -214,8 +231,15 @@ new class extends Component
     <x-hook :text="$reading['hook'] ?? null" />
 
     <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-        <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
-        <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{{ $reading['passage'] ?? '' }}</p>
+        <div class="flex items-start gap-3">
+            @if ($imageUrl = $this->passageImageUrl())
+                <img src="{{ $imageUrl }}" alt="" class="h-16 w-16 shrink-0 rounded-full object-cover">
+            @endif
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
+                <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{{ $reading['passage'] ?? '' }}</p>
+            </div>
+        </div>
     </div>
 
     @unless ($readOnly)

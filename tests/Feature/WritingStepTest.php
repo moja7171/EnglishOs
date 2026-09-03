@@ -7,6 +7,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
+use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -40,6 +41,67 @@ class WritingStepTest extends TestCase
         ]);
 
         return MissionRun::findOrStart($learner, $mission);
+    }
+
+    private function makeRunWithPromptImages(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'mission',
+                'steps' => [[
+                    'key' => 'writing',
+                    'title' => 'A typical day in my life',
+                    'min_words' => 5,
+                    'max_words' => 10,
+                    'prompts' => [
+                        ['label' => 'Morning', 'image_query' => 'sunrise morning coffee'],
+                        ['label' => 'Weekend', 'image_query' => 'weekend park friends'],
+                    ],
+                ]],
+            ]],
+        ]);
+
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_prompts_with_an_image_query_show_a_thumbnail_each(): void
+    {
+        $run = $this->makeRunWithPromptImages();
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')
+                ->with('M01-writing-Morning', 'sunrise morning coffee')
+                ->once()
+                ->andReturn('http://localhost/storage/vocabulary-images/m01-writing-morning.jpg');
+            $mock->shouldReceive('imageUrlFor')
+                ->with('M01-writing-Weekend', 'weekend park friends')
+                ->once()
+                ->andReturn('http://localhost/storage/vocabulary-images/m01-writing-weekend.jpg');
+        });
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->assertSee('Morning')
+            ->assertSee('Weekend')
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-writing-morning.jpg')
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-writing-weekend.jpg');
+    }
+
+    public function test_prompts_without_image_queries_still_render_their_labels(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->assertOk()
+            ->assertDontSeeHtml('<img');
     }
 
     public function test_word_count_below_minimum_is_rejected(): void

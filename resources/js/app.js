@@ -77,3 +77,108 @@ window.eosVoice = {
         } catch (e) {}
     },
 };
+
+/**
+ * A tiny two-note "success" chime, synthesized with the Web Audio API —
+ * no audio file, no licensing question, nothing to download. Used by
+ * <x-quick-round> on a correct pick, the single most-reused low-pressure
+ * check across the app (see EOS-009 §8), instead of wiring a sound into
+ * every individual AI-checked field (which would fire on every retry and
+ * get noisy fast). Respects a per-viewer localStorage mute preference —
+ * see the sound-toggle button in layouts/app.blade.php. Silently does
+ * nothing without Web Audio support, or if it throws for any reason.
+ */
+window.eosSound = {
+    enabled() {
+        try {
+            return localStorage.getItem('eosSoundEnabled') !== 'false';
+        } catch (e) {
+            return true;
+        }
+    },
+    playSuccess() {
+        try {
+            if (!this.enabled()) return;
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            const ctx = new Ctx();
+            const now = ctx.currentTime;
+
+            [523.25, 783.99].forEach((frequency, i) => {
+                const oscillator = ctx.createOscillator();
+                const gain = ctx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.value = frequency;
+                const start = now + i * 0.09;
+                gain.gain.setValueAtTime(0, start);
+                gain.gain.linearRampToValueAtTime(0.15, start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+                oscillator.connect(gain).connect(ctx.destination);
+                oscillator.start(start);
+                oscillator.stop(start + 0.25);
+            });
+
+            setTimeout(() => ctx.close(), 500);
+        } catch (e) {}
+    },
+};
+
+/**
+ * A short, pure-Canvas confetti burst — no external library, nothing to
+ * load. Fired exactly once by <x-mission-result> the moment a mission
+ * first completes (see that component's own docblock for why the
+ * condition it's gated behind can only ever be true once). Respects
+ * prefers-reduced-motion by doing nothing at all.
+ */
+window.eosConfetti = {
+    burst() {
+        try {
+            if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+            const canvas = document.createElement('canvas');
+            canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            document.body.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+
+            const colors = ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6'];
+            const pieces = Array.from({ length: 120 }, () => ({
+                x: Math.random() * canvas.width,
+                y: -20 - Math.random() * canvas.height * 0.5,
+                size: 4 + Math.random() * 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: 2 + Math.random() * 3,
+                speedX: -1 + Math.random() * 2,
+                rotation: Math.random() * 360,
+                spin: -6 + Math.random() * 12,
+            }));
+
+            const start = performance.now();
+            const duration = 2600;
+
+            const frame = (now) => {
+                const elapsed = now - start;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach((p) => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    p.rotation += p.spin;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                    ctx.restore();
+                });
+                if (elapsed < duration) {
+                    requestAnimationFrame(frame);
+                } else {
+                    canvas.remove();
+                }
+            };
+
+            requestAnimationFrame(frame);
+        } catch (e) {}
+    },
+};

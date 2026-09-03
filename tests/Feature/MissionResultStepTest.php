@@ -99,6 +99,101 @@ class MissionResultStepTest extends TestCase
         $this->assertNull($run->currentStepKey());
     }
 
+    public function test_getting_a_complete_result_triggers_the_confetti_burst_only_once(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->call('getResult')
+            ->assertSeeHtml('window.eosConfetti?.burst()');
+    }
+
+    public function test_confetti_never_fires_for_a_non_complete_result(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'needs_review',
+            'reason' => 'Almost there.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 3)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 3)
+            ->call('getResult')
+            ->assertDontSeeHtml('window.eosConfetti?.burst()');
+    }
+
+    public function test_confetti_never_fires_when_reviewing_an_already_completed_result(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_result',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['status' => 'complete', 'reason' => 'Nice work.']),
+        ]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
+            ->assertDontSeeHtml('window.eosConfetti?.burst()');
+    }
+
+    public function test_friends_who_completed_this_mission_are_shown(): void
+    {
+        $run = $this->makeRun();
+
+        $friend = User::factory()->create();
+        $run->learner->follow($friend);
+        $friend->acceptFollowRequest($run->learner);
+
+        MissionRun::create([
+            'learner_id' => $friend->id,
+            'mission_id' => $run->mission_id,
+            'status' => MissionRun::STATUS_COMPLETE,
+            'started_at' => now(),
+            'completed_at' => now(),
+        ]);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->call('getResult')
+            ->assertSee('1 of your friends has completed this mission too.');
+    }
+
+    public function test_no_friends_block_shown_when_no_mutual_friend_has_completed_it(): void
+    {
+        $run = $this->makeRun();
+
+        $friend = User::factory()->create();
+        $run->learner->follow($friend);
+        $friend->acceptFollowRequest($run->learner);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->call('getResult')
+            ->assertDontSee('completed this mission too');
+    }
+
     public function test_the_result_shows_a_before_after_comparison_per_skill(): void
     {
         $run = $this->makeRun();

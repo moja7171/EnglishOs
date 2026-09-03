@@ -134,23 +134,23 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food'],
                                     ['phrase' => "don't bother", 'meaning' => "to not do something because it's too much effort"],
                                     ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'image_query' => 'takeaway food box'],
-                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal'],
+                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal', 'image_query' => 'feeding cat pet'],
                                     // Bathroom routines — image_query marks the concrete-noun words
                                     // worth a picture flashcard (dual coding — see EOS-009 §8); an
                                     // abstract phrase like "have a wash" gets no query and simply
                                     // shows no image, on purpose.
                                     ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'shower bathroom'],
                                     ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body'],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth'],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'toothbrush brushing teeth'],
                                     ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face'],
                                     ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath'],
                                     // Housework
                                     ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck'],
                                     ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house'],
-                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy'],
+                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'image_query' => 'cleaning house vacuum'],
                                     ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'ironing clothes'],
                                     ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'image_query' => 'grocery shopping'],
-                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes'],
+                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'image_query' => 'laundry basket washing clothes'],
                                     // Spare time
                                     ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out'],
                                     ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun'],
@@ -466,6 +466,11 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 12,
                                 'hook' => 'Meet Aisha — her morning looks a lot like yours. Can you follow her day in English?',
                                 'passage_title' => 'Meet Aisha',
+                                // Dual-coding, same principle as Vocabulary Builder's flashcards
+                                // (EOS-009 §8) — a face for the passage's subject, purely
+                                // decorative/humanizing, never something the reading questions
+                                // depend on. Fails soft like every other PexelsClient call.
+                                'image_query' => 'young woman morning portrait smiling',
                                 // Written fresh for this app (see EOS-009 §14: content stays
                                 // original, no licensing/piracy risk) — deliberately reuses
                                 // several Vocabulary Builder pool words/phrases (wakes up,
@@ -513,7 +518,18 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 14,
                                 'hook' => 'Putting it on paper often reveals what you actually think about your own day.',
                                 'title' => 'A typical day in my life',
-                                'prompts' => ['Morning', 'Work / Study', 'Afternoon', 'Evening', 'Free Time', 'Weekend'],
+                                // image_query on each — small inspirational thumbnails so a blank
+                                // page feels less intimidating. Purely decorative, same fail-soft
+                                // PexelsClient pattern as Vocabulary Builder/Reading Comprehension
+                                // — never blocks writing.
+                                'prompts' => [
+                                    ['label' => 'Morning', 'image_query' => 'sunrise morning coffee'],
+                                    ['label' => 'Work / Study', 'image_query' => 'office desk work laptop'],
+                                    ['label' => 'Afternoon', 'image_query' => 'afternoon lunch break'],
+                                    ['label' => 'Evening', 'image_query' => 'evening dinner family'],
+                                    ['label' => 'Free Time', 'image_query' => 'relaxing hobby leisure'],
+                                    ['label' => 'Weekend', 'image_query' => 'weekend park friends'],
+                                ],
                                 'try_to_use' => ['usually', 'normally', 'often', 'sometimes', 'rarely', 'after that', 'then'],
                                 'min_words' => 100,
                                 'max_words' => 150,

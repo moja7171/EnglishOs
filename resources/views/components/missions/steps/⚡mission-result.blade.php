@@ -199,6 +199,29 @@ new class extends Component
     }
 
     /**
+     * How many of the learner's mutual friends have completed THIS SAME
+     * mission — a friendly, non-competitive nudge (presence only, never a
+     * score or a leaderboard), reusing the existing follow system rather
+     * than building any new social plumbing. Shown regardless of this
+     * learner's own status/readOnly state, since it's about the friends,
+     * not about this particular review.
+     */
+    public function getFriendsCompletedCountProperty(): int
+    {
+        $friendIds = $this->run->learner->mutualFriends()->pluck('id');
+
+        if ($friendIds->isEmpty()) {
+            return 0;
+        }
+
+        return MissionRun::query()
+            ->where('mission_id', $this->run->mission_id)
+            ->where('status', MissionRun::STATUS_COMPLETE)
+            ->whereIn('learner_id', $friendIds)
+            ->count();
+    }
+
+    /**
      * Which of the learner's own Vocabulary Builder picks actually turned
      * up somewhere in their real output this mission (AI Conversation,
      * Writing, Activation, Active Recall — see MissionRun::allLearnerText())
@@ -556,6 +579,15 @@ new class extends Component
             </p>
             <p class="mt-2 text-sm text-ink dark:text-ink-dark">{{ $reason }}</p>
 
+            @if ($this->friendsCompletedCount > 0)
+                <p class="mt-2 inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                    @svg('heroicon-o-user-group', 'h-3.5 w-3.5')
+                    {{ $this->friendsCompletedCount === 1
+                        ? '1 of your friends has completed this mission too.'
+                        : "{$this->friendsCompletedCount} of your friends have completed this mission too." }}
+                </p>
+            @endif
+
             @if (collect($scores)->every(fn ($pair) => $pair['before'] && $pair['after']))
                 <div class="mt-4 space-y-2.5">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Self-assessment</p>
@@ -739,6 +771,11 @@ new class extends Component
             @endif
 
             @if ($status === 'complete' && ! $readOnly)
+                {{-- Fires once — this exact condition (freshly graded, own
+                     live session, never a later review) can only render
+                     true the one time a mission actually completes. --}}
+                <div x-init="window.eosConfetti?.burst()"></div>
+
                 <div class="mt-4">
                     <x-practice-with-friend
                         :text="$run->mission->title"

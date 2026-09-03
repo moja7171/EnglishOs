@@ -37,6 +37,7 @@
                 if (i === this.card.correct) {
                     this.correctCount++;
                     this.correctStreak++;
+                    window.eosSound?.playSuccess();
                 } else {
                     this.correctStreak = 0;
                 }
