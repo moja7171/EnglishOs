@@ -33,9 +33,11 @@ class MissionHookContentTest extends TestCase
      * the underlying step order still matches the book exactly. Two things
      * are app-only additions, not part of the original book: a
      * daily_listen_N gate (see DailyListenStep) that now opens every day
-     * after Day 1 for daily ear training, and reading_comprehension (the
-     * 2026-09-03 UX-review Story C), inserted right before Writing —
-     * read a model text about someone else's day, then write your own.
+     * after Day 1 for daily ear training, reading_comprehension (the
+     * 2026-09-03 UX-review Story C), inserted right before Writing — read
+     * a model text about someone else's day, then write your own — and
+     * video_shadowing (2026-09-03), appended to the end of Day 2: watch a
+     * real YouTube video with captions then without, then shadow a line.
      */
     public function test_m01_step_order_matches_the_real_3_day_plan(): void
     {
@@ -52,6 +54,7 @@ class MissionHookContentTest extends TestCase
             'daily_listen_2',
             'grammar_in_context',
             'activation',
+            'video_shadowing',
             // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge
             'daily_listen_3',
             'ai_conversation_1',

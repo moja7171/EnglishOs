@@ -366,6 +366,54 @@ class MissionSeeder extends Seeder
                                 'hook' => "Say it once here, alone — it'll come out easier when someone's actually listening.",
                                 'task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
                             ],
+                            [
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Real people, real English, real speed — watch how an English speaker actually talks about her morning, then try to sound just like her.',
+                                'source' => "Rachel's English — \"My Morning Routine\"",
+                                'video_id' => 'KfVfjL8-R-0',
+                                'video_url' => 'https://youtu.be/KfVfjL8-R-0',
+                                // Summarized in Claude's own words from the real video's own
+                                // published transcript (rachelsenglish.com/my-morning-routine) —
+                                // the video is embedded live from YouTube, but its transcript is
+                                // never copied verbatim into this app (see EOS-009 §14: content
+                                // stays original, no licensing/piracy risk), same principle as
+                                // the vocabulary story never copying Cambridge textbook text.
+                                'topic_summary' => 'An English-speaking mother shows her family\'s '
+                                    .'morning routine on camera: getting her kids breakfast (one '
+                                    .'child doesn\'t feel like having cereal, so she makes an egg '
+                                    .'instead), getting everyone together to eat, and getting the '
+                                    .'kids dressed and their teeth brushed before school — while '
+                                    .'explaining some of the real English she naturally uses along '
+                                    .'the way.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The video shows someone\'s morning routine.', 'correct' => true],
+                                    ['statement' => 'Everyone in the family wants exactly the same breakfast.', 'correct' => false],
+                                    ['statement' => 'The speaker also explains some real English vocabulary and pronunciation.', 'correct' => true],
+                                ],
+                                // Real vocabulary the video itself teaches, in Claude's own
+                                // words — "snack" and "skip" deliberately echo the exact same
+                                // meanings already used in Vocabulary Builder/Listening's own
+                                // pools (see EOS-009 §8 content-authoring convention).
+                                'target_phrases' => [
+                                    ['phrase' => 'feel like (something)', 'meaning' => 'to want something at that particular moment'],
+                                    ['phrase' => 'get together', 'meaning' => 'to meet up and spend time with someone'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals'],
+                                    ['phrase' => 'skip (something)', 'meaning' => 'to not do a usual part of your routine'],
+                                    ['phrase' => 'chaotic', 'meaning' => 'in a state of complete confusion and disorder'],
+                                ],
+                                // Original short lines written by Claude for this app — inspired
+                                // by real moments in the video, not copied from its transcript
+                                // (see the topic_summary comment above). Bold marks naturally-
+                                // stressed content words, same convention as Listening's
+                                // shadow_lines — rendered by <x-stress-marked-line>.
+                                'shadow_lines' => [
+                                    "I don't **feel like** having **cereal** this **morning**.",
+                                    'What **time** are you guys **getting together**?',
+                                    'We always have a quick **snack** in the **afternoon**.',
+                                ],
+                            ],
                         ],
                     ],
                     [
