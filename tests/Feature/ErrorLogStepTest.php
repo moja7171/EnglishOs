@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ErrorLogItem;
+use App\Models\ErrorPatternReview;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
@@ -248,5 +249,76 @@ class ErrorLogStepTest extends TestCase
 
         $item = ErrorLogItem::first();
         $this->assertSame([['sentence' => 'He ___ to the gym.', 'answer' => 'goes']], $item->drills);
+    }
+
+    public function test_a_newly_recurring_category_starts_a_speaking_recall_style_error_review(): void
+    {
+        $learner = User::factory()->create();
+
+        // The minimum for User::recurringErrorCategories() to flag it —
+        // one prior mission already logged this exact category.
+        $earlierMission = Mission::create([
+            'code' => 'M-EARLIER',
+            'title' => 'Earlier Mission',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [],
+        ]);
+        $earlierRun = MissionRun::findOrStart($learner, $earlierMission);
+        ErrorLogItem::create([
+            'mission_run_id' => $earlierRun->id,
+            'error' => 'He walk fast.',
+            'correction' => 'He walks fast.',
+            'category' => 'third-person-s',
+        ]);
+
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                ['phase' => 'mission', 'steps' => [['key' => 'error_log'], ['key' => 'mission_result']]],
+            ],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'writing',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => 'She go to work.',
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                ['error' => 'She go to work.', 'correction' => 'She goes to work.', 'category' => 'third-person-s'],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->set('newExamples.0', 'She goes to work every day.')
+            ->call('save');
+
+        $review = ErrorPatternReview::where('learner_id', $learner->id)->firstOrFail();
+        $this->assertSame('third-person-s', $review->category);
+        $this->assertSame('She go to work.', $review->last_error);
+        $this->assertTrue($review->isDue());
+    }
+
+    public function test_a_one_off_category_never_starts_an_error_review(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                ['error' => 'She go to work.', 'correction' => 'She goes to work.', 'category' => 'third-person-s'],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->set('newExamples.0', 'She goes to work every day by bus.')
+            ->call('save');
+
+        $this->assertDatabaseCount('error_pattern_reviews', 0);
     }
 }

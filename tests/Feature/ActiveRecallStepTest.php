@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ErrorLogItem;
+use App\Models\ErrorPatternReview;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
@@ -373,6 +374,12 @@ class ActiveRecallStepTest extends TestCase
                 'category' => 'third-person-s',
             ]);
         }
+
+        // Normally done by Error Log's save() the moment recurrence is
+        // detected (see User::syncErrorPatternReview()) — done directly
+        // here since these ErrorLogItem rows are seeded straight into the
+        // database, bypassing that step entirely.
+        $learner->syncErrorPatternReview('third-person-s', 'He walk fast 1.', 'He walks fast 1.');
     }
 
     public function test_no_spaced_practice_card_shows_without_a_recurring_error(): void
@@ -468,5 +475,38 @@ class ActiveRecallStepTest extends TestCase
         // This extra phase is never a real step key, so it can't block or
         // advance mission progress.
         $this->assertSame('error_log', $run->fresh()->currentStepKey());
+    }
+
+    public function test_completing_the_spaced_practice_advances_its_real_review_schedule(): void
+    {
+        $learner = User::factory()->create();
+        $this->seedRecurringError($learner);
+        $run = $this->makeRun($learner);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $component = Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'get up')
+            ->set('recurringPracticeAnswer', 'She works hard every day.');
+        $this->fillOtherSections($component);
+
+        $component->call('save');
+
+        $review = ErrorPatternReview::where('learner_id', $learner->id)->firstOrFail();
+        $this->assertSame(1, $review->repetitions);
+        $this->assertFalse($review->isDue());
+    }
+
+    public function test_no_spaced_practice_card_when_the_recurring_pattern_is_not_yet_due(): void
+    {
+        $learner = User::factory()->create();
+        $this->seedRecurringError($learner);
+        ErrorPatternReview::where('learner_id', $learner->id)->update(['next_review_at' => now()->addWeek()]);
+        $run = $this->makeRun($learner);
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->assertDontSee('Spaced practice');
     }
 }

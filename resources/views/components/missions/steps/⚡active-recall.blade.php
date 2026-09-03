@@ -20,10 +20,11 @@ new class extends Component
     public array $expressionFeedback = [];
 
     /**
+     * Keyed by section then index — AI verdicts for "listening_facts" and
+     * "present_simple_sentences", the two sections with no fixed ground
+     * truth to compare against locally.
+     *
      * @var array<string, array<int, array{severity: string, hint: string, checkedText: string}>>
-     *   keyed by section then index — AI verdicts for "listening_facts" and
-     *   "present_simple_sentences", the two sections with no fixed ground
-     *   truth to compare against locally.
      */
     public array $aiFeedback = [];
 
@@ -48,13 +49,15 @@ new class extends Component
     public ?array $presentSimpleResult = null;
 
     /**
-     * The learner's single most-recurring error pattern (see
-     * User::topRecurringError()) — null when nothing recurs yet, which is
-     * the common case until they've completed 2+ missions. Deliberately
-     * NOT one of the paginated sections() above: it's cross-mission
-     * spaced-repetition practice, entirely separate from this mission's
-     * own recall content, so it's shown as its own small optional card
-     * and saved as its own Evidence phase (never blocks Continue).
+     * The learner's next DUE recurring-error pattern (see
+     * ErrorPatternReview / User::syncErrorPatternReview()) — null until a
+     * pattern has both recurred across 2+ missions AND is actually due on
+     * its own spaced-repetition schedule, not just "whatever the single
+     * worst pattern happens to be right now". Deliberately NOT one of the
+     * paginated sections() above: it's cross-mission spaced-repetition
+     * practice, entirely separate from this mission's own recall content,
+     * so it's shown as its own small optional card and saved as its own
+     * Evidence phase (never blocks Continue).
      */
     public ?string $recurringErrorCategory = null;
 
@@ -92,28 +95,39 @@ new class extends Component
     }
 
     /**
-     * Recomputed fresh on every visit (unlike the sections above, which
-     * are frozen once saved) — this is purely informational spaced
-     * practice, so it's fine if which pattern shows up here drifts as
-     * more Error Log entries are logged in later missions. A prior
-     * attempt is reloaded from its own separate Evidence phase so
-     * reviewing a completed run doesn't lose what was written, but the
-     * PATTERN shown always reflects the learner's current top recurring
-     * error, not a frozen snapshot.
+     * Live: whichever recurring pattern is actually due right now (real
+     * SM-2 scheduling, see ErrorPatternReview) — recomputed fresh on
+     * every visit, so it's fine if which one shows up here drifts as more
+     * Error Log entries are logged in later missions. Read-only: replays
+     * exactly what was shown and submitted at the time, from this run's
+     * own saved Evidence, regardless of whether that category still
+     * happens to be due today (its schedule may well have moved on by a
+     * later, separate review elsewhere).
      */
     private function loadRecurringPractice(): void
     {
-        $topError = $this->run->learner->topRecurringError();
-        $this->recurringErrorCategory = $topError?->category;
-        $this->recurringErrorExample = $topError?->error;
-        $this->recurringErrorCorrection = $topError?->correction;
+        if ($this->readOnly) {
+            $saved = json_decode($this->run->latestEvidence('active_recall_spaced_practice')?->content_ref ?? 'null', true);
 
-        $saved = json_decode($this->run->latestEvidence('active_recall_spaced_practice')?->content_ref ?? 'null', true);
+            if (is_array($saved)) {
+                $this->recurringErrorCategory = $saved['category'] ?? null;
+                $this->recurringErrorExample = $saved['example'] ?? null;
+                $this->recurringErrorCorrection = $saved['correction'] ?? null;
+                $this->recurringPracticeAnswer = $saved['answer'] ?? '';
+                $this->recurringPracticeFeedback = $saved['feedback'] ?? null;
+            }
 
-        if (is_array($saved) && ($saved['category'] ?? null) === $this->recurringErrorCategory) {
-            $this->recurringPracticeAnswer = $saved['answer'] ?? '';
-            $this->recurringPracticeFeedback = $saved['feedback'] ?? null;
+            return;
         }
+
+        $due = $this->run->learner->errorPatternReviews()
+            ->where('next_review_at', '<=', now())
+            ->orderBy('next_review_at')
+            ->first();
+
+        $this->recurringErrorCategory = $due?->category;
+        $this->recurringErrorExample = $due?->last_error;
+        $this->recurringErrorCorrection = $due?->last_correction;
     }
 
     /**
@@ -260,7 +274,7 @@ new class extends Component
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$section][$index] = "Couldn't reach the AI service — please try again.";
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->checkErrors[$section][$index] = "Couldn't check this one: {$e->getMessage()}";
         }
     }
@@ -297,14 +311,14 @@ new class extends Component
             );
         } catch (ConnectionException|RequestException) {
             $this->recurringPracticeError = "Couldn't reach the AI service — please try again.";
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->recurringPracticeError = "Couldn't check this one: {$e->getMessage()}";
         }
     }
 
     private function listeningRecallContext(): string
     {
-        $context = "a sentence recalling something the learner remembers from a B1-level listening, without looking back at it";
+        $context = 'a sentence recalling something the learner remembers from a B1-level listening, without looking back at it';
         $summary = $this->run->mission->stepContent('listening')['topic_summary'] ?? null;
 
         return $summary ? "{$context}. The listening was about: {$summary}" : $context;
@@ -429,12 +443,27 @@ new class extends Component
             $this->checkRecurringPractice();
         }
 
+        // Advances the real spaced-repetition schedule exactly once per
+        // submission (not per "Check" click) — severity maps onto SM-2's
+        // quality scale the same way My Words' own AI-checked review does.
+        if ($this->recurringPracticeFeedback !== null) {
+            $review = $this->run->learner->errorPatternReviews()->where('category', $this->recurringErrorCategory)->first();
+
+            $review?->review(match ($this->recurringPracticeFeedback['severity']) {
+                'major' => 1,
+                'minor' => 4,
+                default => 5,
+            });
+        }
+
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'active_recall_spaced_practice',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'category' => $this->recurringErrorCategory,
+                'example' => $this->recurringErrorExample,
+                'correction' => $this->recurringErrorCorrection,
                 'answer' => trim($this->recurringPracticeAnswer),
                 'feedback' => $this->recurringPracticeFeedback,
             ]),

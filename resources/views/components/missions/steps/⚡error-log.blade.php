@@ -112,7 +112,7 @@ new class extends Component
                 ->map(fn ($item) => $item + ['drills' => [], 'category' => null])
                 ->all();
             $this->newExamples = array_fill(0, count($data), '');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error = "Couldn't get the error log from the AI Instructor: {$e->getMessage()}";
         } finally {
             $this->loading = false;
@@ -144,6 +144,13 @@ new class extends Component
                 'drills' => $item['drills'] ?? [],
                 'category' => $item['category'] ?? null,
             ]);
+
+            // Only actually starts tracking a spaced-repetition item once
+            // this category has recurred across 2+ missions — see
+            // User::syncErrorPatternReview().
+            if ($item['category'] ?? null) {
+                $this->run->learner->syncErrorPatternReview($item['category'], $item['error'], $item['correction']);
+            }
         }
 
         Evidence::create([

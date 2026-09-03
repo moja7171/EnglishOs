@@ -201,6 +201,40 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<ErrorPatternReview, $this>
+     */
+    public function errorPatternReviews(): HasMany
+    {
+        return $this->hasMany(ErrorPatternReview::class, 'learner_id');
+    }
+
+    /**
+     * Called once per newly-logged mistake (see Error Log's save()). A
+     * category only starts being tracked here once recurringErrorCategories()
+     * says it has actually recurred across 2+ missions — a single one-off
+     * mistake never creates a review item. Every further recurrence
+     * refreshes the example (grounding the next prompt in the CURRENT
+     * wrong/correct pair, not a stale one) and makes it immediately due —
+     * this is just "surface fresh practice material", not itself a graded
+     * review event, so it deliberately does NOT touch the SM-2 fields
+     * (ease_factor/interval_days/repetitions); those only move via
+     * ErrorPatternReview::review(), called once the learner actually
+     * completes the practice sentence (see Active Recall's
+     * saveRecurringPractice()).
+     */
+    public function syncErrorPatternReview(string $category, string $error, string $correction): void
+    {
+        if (! $this->recurringErrorCategories()->contains($category)) {
+            return;
+        }
+
+        ErrorPatternReview::updateOrCreate(
+            ['learner_id' => $this->id, 'category' => $category],
+            ['last_error' => $error, 'last_correction' => $correction, 'next_review_at' => now()],
+        );
+    }
+
+    /**
      * Every distinct word/phrase this learner has ever picked in
      * Vocabulary Builder, across every mission — reuses
      * MissionRun::selectedVocabularyWords() per run rather than
