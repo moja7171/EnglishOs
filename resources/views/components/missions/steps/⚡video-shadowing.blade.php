@@ -1,12 +1,7 @@
 <?php
 
-use App\Livewire\Concerns\TracksAiUsage;
-use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -14,8 +9,6 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
-    use TracksAiUsage;
-    use TracksCheckAttempts;
     use WithFileUploads;
 
     public MissionRun $run;
@@ -29,16 +22,6 @@ new class extends Component
      */
     public bool $completed = false;
 
-    public string $noticedSentence = '';
-
-    public string $expressionSentence = '';
-
-    /** @var array<string, array{severity: string, hint: string, checkedText: string}> keyed by field key */
-    public array $feedback = [];
-
-    /** @var array<string, string> keyed by field key — per-input check failure message */
-    public array $checkErrors = [];
-
     /**
      * Self-reported — a YouTube embed has no reliable native "ended"
      * event the way Listening's <audio> element does (see its real
@@ -49,11 +32,21 @@ new class extends Component
 
     public bool $watchedWithoutCaptions = false;
 
-    public ?int $activeShadowLine = null;
+    /** @var array<int, ?UploadedFile> keyed by shadow_lines index */
+    public array $shadowRecordings = [];
 
-    public ?UploadedFile $shadowRecording = null;
+    /** @var array<int, string> keyed by shadow_lines index — saved recording URLs, for read-only review */
+    public array $savedShadowUrls = [];
 
-    public ?string $savedShadowUrl = null;
+    /**
+     * This step's whole point is pronunciation practice — earlier this
+     * required only 1 line plus two AI-checked comprehension sentences,
+     * which made it structurally identical to Listening's gist/expression
+     * shape (see EOS-009 §7 v3.16 note). Dropping the AI-checked writing
+     * entirely and requiring more real shadowing instead keeps the two
+     * steps genuinely different in form, not just in source material.
+     */
+    private const REQUIRED_SHADOWED_LINES = 2;
 
     public function mount(): void
     {
@@ -62,156 +55,16 @@ new class extends Component
         }
 
         $data = json_decode($this->run->latestEvidence('video_shadowing')?->content_ref ?? '{}', true);
-
-        $this->noticedSentence = $data['noticed_sentence'] ?? '';
-        $this->expressionSentence = $data['expression_sentence'] ?? '';
         $this->watchedWithCaptions = $data['watched_with_captions'] ?? false;
         $this->watchedWithoutCaptions = $data['watched_without_captions'] ?? false;
-        $this->activeShadowLine = $data['shadow_line_index'] ?? null;
 
-        $audioEvidence = $this->run->evidence()->where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
-        $this->savedShadowUrl = $audioEvidence?->content_ref;
-    }
+        foreach ($this->run->evidence()->where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
+            $decoded = json_decode($audio->content_ref, true);
 
-    public function checkNoticed(int $index = 0): void
-    {
-        $text = trim($this->noticedSentence);
-
-        if ($text === '') {
-            $this->checkErrors['noticed'] = 'Write something first.';
-
-            return;
+            if (is_array($decoded) && isset($decoded['line_index'], $decoded['url'])) {
+                $this->savedShadowUrls[$decoded['line_index']] = $decoded['url'];
+            }
         }
-
-        $this->runCheck('noticed', $this->noticedContext(), $text);
-    }
-
-    public function checkExpression(int $index = 0): void
-    {
-        $text = trim($this->expressionSentence);
-
-        if ($text === '') {
-            $this->checkErrors['expression'] = 'Write something first.';
-
-            return;
-        }
-
-        $this->runCheck('expression', $this->expressionContext(), $text);
-    }
-
-    /**
-     * A faithful summary of the real video (seeded per mission) so the AI
-     * check can catch an answer that is fluent English but unrelated to
-     * what was actually shown, not just judge grammar in isolation.
-     */
-    private function topicSummary(): ?string
-    {
-        return $this->run->mission->stepContent('video_shadowing')['topic_summary'] ?? null;
-    }
-
-    private function noticedContext(): string
-    {
-        $context = 'a complete English sentence describing one thing the learner noticed in a short B1-level video';
-
-        return $this->topicSummary() ? "{$context}. The video was about: {$this->topicSummary()}" : $context;
-    }
-
-    private function expressionContext(): string
-    {
-        $context = 'a personal sentence using an expression the learner noticed in a short B1-level video';
-
-        return $this->topicSummary() ? "{$context}. The video was about: {$this->topicSummary()}" : $context;
-    }
-
-    /**
-     * Same shared SentenceChecker pattern as Listening/Reading
-     * Comprehension — see EOS-009 §8 "الگوی چک جمله".
-     */
-    private function runCheck(string $key, string $context, string $text): void
-    {
-        unset($this->checkErrors[$key]);
-
-        try {
-            $data = app(SentenceChecker::class)->check(
-                judgment: 'Judge whether what the learner wrote is a genuine, natural, complete English '
-                    .'sentence about the SAME GENERAL TOPIC as the video (not just a bare word or fragment, '
-                    .'and not about a completely different topic). This is a coarse topic check only — do NOT '
-                    .'fact-check specific details against the topic summary (who did what, exact wording, '
-                    .'etc.); the summary is background, not a source to grade accuracy against.',
-                majorCriteria: 'it is just a bare word or fragment (not a real sentence), it is about a '
-                    .'completely different topic than the video',
-                context: $context,
-                text: $text,
-                extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small detail '
-                    .'is debatable — never claim the learner\'s facts are wrong, since you were only given a '
-                    .'short summary, not the full video.'.$this->run->aiToneGuidance(),
-            );
-            $this->recordGeminiCall();
-
-            $this->feedback[$key] = $data + ['checkedText' => $text];
-            $this->trackCheckAttempt($key, $data['severity']);
-        } catch (ConnectionException|RequestException) {
-            // RequestException's message carries the raw HTTP response body
-            // (which can be an arbitrarily large error page, not a clean
-            // API message) — never show that to the learner.
-            $this->checkErrors[$key] = "Couldn't reach the AI service — please try again.";
-        } catch (Throwable $e) {
-            $this->checkErrors[$key] = "Couldn't check this one: {$e->getMessage()}";
-        }
-    }
-
-    /**
-     * After 3 failed attempts on the same field, the learner can ask the AI
-     * to just write the corrected sentence — see TracksCheckAttempts.
-     */
-    public function revealNoticed(int $index = 0): void
-    {
-        $text = trim($this->noticedSentence);
-
-        if ($text === '') {
-            return;
-        }
-
-        $this->revealCorrectionFor(
-            key: 'noticed',
-            context: $this->noticedContext(),
-            text: $text,
-            errorBagKey: 'noticed',
-            onCorrected: function (string $corrected) {
-                $this->noticedSentence = $corrected;
-                $this->feedback['noticed'] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
-            },
-        );
-    }
-
-    public function declineNoticed(int $index = 0): void
-    {
-        $this->declineCheckReveal('noticed');
-    }
-
-    public function revealExpression(int $index = 0): void
-    {
-        $text = trim($this->expressionSentence);
-
-        if ($text === '') {
-            return;
-        }
-
-        $this->revealCorrectionFor(
-            key: 'expression',
-            context: $this->expressionContext(),
-            text: $text,
-            errorBagKey: 'expression',
-            onCorrected: function (string $corrected) {
-                $this->expressionSentence = $corrected;
-                $this->feedback['expression'] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
-            },
-        );
-    }
-
-    public function declineExpression(int $index = 0): void
-    {
-        $this->declineCheckReveal('expression');
     }
 
     /**
@@ -226,15 +79,15 @@ new class extends Component
             ->all();
     }
 
-    /**
-     * Selecting a new line to shadow clears any previous recording so an
-     * old take is never mistaken for a take of the newly-picked line —
-     * same rule as Listening's selectShadowLine().
-     */
-    public function selectShadowLine(int $index): void
+    public function shadowedCount(): int
     {
-        $this->activeShadowLine = $index;
-        $this->shadowRecording = null;
+        return collect($this->shadowRecordings)->filter()->count();
+    }
+
+    /** Exposed for the Blade template — a bare `self::CONST` isn't reachable there. */
+    public function requiredShadowedLines(): int
+    {
+        return self::REQUIRED_SHADOWED_LINES;
     }
 
     public function save(): void
@@ -245,70 +98,49 @@ new class extends Component
             return;
         }
 
-        $this->validate([
-            'shadowRecording' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
-        ], [
-            'shadowRecording.required' => 'Pick a line to shadow and record yourself saying it before continuing.',
-        ]);
-
-        $entries = [
-            'noticed' => ['context' => $this->noticedContext(), 'text' => trim($this->noticedSentence)],
-            'expression' => ['context' => $this->expressionContext(), 'text' => trim($this->expressionSentence)],
-        ];
-
-        if (collect($entries)->contains(fn ($entry) => $entry['text'] === '')) {
-            $this->addError('sentences', 'Write both sentences before continuing.');
-
-            return;
-        }
-
-        // Every field needs a fresh Gemini verdict before Continue is
-        // allowed through — reuse an existing one only if it was checked
-        // against this exact text (an edit since the last check invalidates it).
-        foreach ($entries as $key => $entry) {
-            $alreadyChecked = ($this->feedback[$key]['checkedText'] ?? null) === $entry['text'];
-
-            if (! $alreadyChecked) {
-                $this->runCheck($key, $entry['context'], $entry['text']);
-            }
-        }
-
-        $hasMajorIssue = collect($entries)->keys()->contains(
-            fn ($key) => ($this->feedback[$key]['severity'] ?? null) === 'major'
-        );
-
-        if ($hasMajorIssue) {
-            $this->addError('sentences', 'Fix the highlighted sentence before continuing.');
+        if ($this->shadowedCount() < self::REQUIRED_SHADOWED_LINES) {
+            $this->addError('shadowRecordings', 'Shadow at least '.self::REQUIRED_SHADOWED_LINES.' lines before continuing.');
 
             return;
         }
 
         $mission = $this->run->mission;
-        $path = $this->shadowRecording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'video_shadowing',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                'noticed_sentence' => trim($this->noticedSentence),
-                'expression_sentence' => trim($this->expressionSentence),
                 'watched_with_captions' => $this->watchedWithCaptions,
                 'watched_without_captions' => $this->watchedWithoutCaptions,
-                'shadow_line_index' => $this->activeShadowLine,
+                'shadowed_line_indices' => collect($this->shadowRecordings)->filter()->keys()->values(),
             ]),
         ]);
 
-        Evidence::create([
-            'mission_run_id' => $this->run->id,
-            'phase' => 'video_shadowing',
-            'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => Storage::disk('public')->url($path),
-        ]);
+        // One AUDIO Evidence row per shadowed line — content_ref is JSON
+        // here (unlike most other steps' plain-URL audio Evidence) since
+        // this step can produce more than one recording; line_index is
+        // what lets mount() map each saved file back to its line on review.
+        foreach ($this->shadowRecordings as $index => $recording) {
+            if (! $recording) {
+                continue;
+            }
+
+            $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
+            $url = Storage::disk('public')->url($path);
+
+            Evidence::create([
+                'mission_run_id' => $this->run->id,
+                'phase' => 'video_shadowing',
+                'type' => Evidence::TYPE_AUDIO,
+                'content_ref' => json_encode(['line_index' => $index, 'url' => $url]),
+            ]);
+
+            $this->savedShadowUrls[$index] = $url;
+        }
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
-        $this->savedShadowUrl = Storage::disk('public')->url($path);
     }
 
     public function proceed(): void
@@ -331,8 +163,6 @@ new class extends Component
     $video = $run->mission->stepContent('video_shadowing');
     $shadowLines = $video['shadow_lines'] ?? [];
     $targetPhrases = $video['target_phrases'] ?? [];
-    $draftPrefix = $this->draftPrefix();
-    $checkTargets = 'checkNoticed,checkExpression,revealNoticed,declineNoticed,revealExpression,declineExpression,save';
 @endphp
 
 <div class="space-y-6">
@@ -353,13 +183,6 @@ new class extends Component
                 Video Shadowing complete
             </p>
 
-            @if ($savedShadowUrl)
-                <div>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your shadowing recording</p>
-                    <div class="mt-1"><x-audio-player :url="$savedShadowUrl" /></div>
-                </div>
-            @endif
-
             <button
                 wire:click="proceed"
                 class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
@@ -368,7 +191,7 @@ new class extends Component
             </button>
         </div>
     @else
-        <div wire:loading.class="pointer-events-none" wire:target="{{ $checkTargets }}" class="space-y-6">
+        <div class="space-y-6" wire:loading.class="pointer-events-none" wire:target="save">
             @unless ($readOnly)
                 <div>
                     <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
@@ -415,132 +238,49 @@ new class extends Component
                 </div>
             @endif
 
-            <div class="space-y-3">
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-sm text-ink dark:text-ink-dark">Write one sentence about something you noticed in the video.</p>
-                    <div class="mt-2 flex items-center gap-2">
-                        <input
-                            type="text"
-                            wire:model="noticedSentence"
-                            @unless ($readOnly)
-                                x-draft="{ key: '{{ $draftPrefix }}noticedSentence', field: 'noticedSentence' }"
-                            @endunless
-                            @readonly($readOnly)
-                            wire:loading.attr="disabled"
-                            wire:target="{{ $checkTargets }}"
-                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                        >
-                        @unless ($readOnly)
-                            <x-check-button method="checkNoticed" :index="0" key-prefix="noticed_" wire-target="{{ $checkTargets }}" />
-                        @endunless
-                    </div>
-
-                    @unless ($readOnly)
-                        <x-ai-thinking wire:loading wire:target="checkNoticed, revealNoticed" class="mt-2" />
-                    @endunless
-
-                    <x-severity-feedback :feedback="$feedback['noticed'] ?? null" :error="$checkErrors['noticed'] ?? null" />
-
-                    @unless ($readOnly)
-                        <x-almost-reveal-notice :show="($checkAttempts['noticed'] ?? 0) === 2" />
-                        <x-reveal-offer
-                            :show="$offerReveal['noticed'] ?? false"
-                            reveal-method="revealNoticed"
-                            decline-method="declineNoticed"
-                            :index="0"
-                            wire-target="{{ $checkTargets }}"
-                        />
-                    @endunless
-                </div>
-
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-sm text-ink dark:text-ink-dark">Write a sentence using one of the expressions above.</p>
-                    <div class="mt-2 flex items-center gap-2">
-                        <input
-                            type="text"
-                            wire:model="expressionSentence"
-                            @unless ($readOnly)
-                                x-draft="{ key: '{{ $draftPrefix }}expressionSentence', field: 'expressionSentence' }"
-                            @endunless
-                            @readonly($readOnly)
-                            wire:loading.attr="disabled"
-                            wire:target="{{ $checkTargets }}"
-                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                        >
-                        @unless ($readOnly)
-                            <x-check-button method="checkExpression" :index="0" key-prefix="expression_" wire-target="{{ $checkTargets }}" />
-                        @endunless
-                    </div>
-
-                    @unless ($readOnly)
-                        <x-ai-thinking wire:loading wire:target="checkExpression, revealExpression" class="mt-2" />
-                    @endunless
-
-                    <x-severity-feedback :feedback="$feedback['expression'] ?? null" :error="$checkErrors['expression'] ?? null" />
-
-                    @unless ($readOnly)
-                        <x-almost-reveal-notice :show="($checkAttempts['expression'] ?? 0) === 2" />
-                        <x-reveal-offer
-                            :show="$offerReveal['expression'] ?? false"
-                            reveal-method="revealExpression"
-                            decline-method="declineExpression"
-                            :index="0"
-                            wire-target="{{ $checkTargets }}"
-                        />
-                    @endunless
-                </div>
-            </div>
-            @error('sentences')
-                <p class="text-sm text-red-600">{{ $message }}</p>
-            @enderror
-
             @if (count($shadowLines))
-                <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow a line</p>
+                <div>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
                     @unless ($readOnly)
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Pick a real line, replay just that moment, and repeat it out loud until your rhythm matches.</p>
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+                            Replay just that moment and repeat it out loud until your rhythm matches.
+                            Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
+                            ({{ $this->shadowedCount() }} done so far).
+                        </p>
                     @endunless
 
-                    @unless ($readOnly)
-                        <div class="mt-2 flex flex-wrap gap-1.5">
-                            @foreach ($shadowLines as $index => $line)
-                                <button
-                                    type="button"
-                                    wire:click="selectShadowLine({{ $index }})"
-                                    @class([
-                                        'cursor-pointer rounded-full border px-2.5 py-1 text-xs transition-colors',
-                                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $activeShadowLine === $index,
-                                        'border-line text-ink-soft hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark' => $activeShadowLine !== $index,
-                                    ])
-                                >Line {{ $index + 1 }}</button>
-                            @endforeach
-                        </div>
-                    @endunless
+                    <div class="mt-2 space-y-3">
+                        @foreach ($shadowLines as $index => $line)
+                            <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
+                                <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+                                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
 
-                    @if ($activeShadowLine !== null)
-                        <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$shadowLines[$activeShadowLine]" />"</p>
-                        @if ($readOnly)
-                            <div class="mt-2">
-                                <x-audio-player :url="$savedShadowUrl" />
+                                @if ($readOnly)
+                                    @if ($url = $savedShadowUrls[$index] ?? null)
+                                        <div class="mt-2"><x-audio-player :url="$url" /></div>
+                                    @else
+                                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
+                                    @endif
+                                @else
+                                    <div class="mt-2" wire:key="shadow-recorder-{{ $index }}">
+                                        <x-voice-recorder field="shadowRecordings.{{ $index }}" :file="$shadowRecordings[$index] ?? null" file-name="video-shadow-{{ $index }}.webm" />
+                                    </div>
+                                @endif
                             </div>
-                        @else
-                            <div class="mt-2" wire:key="shadow-recorder-{{ $activeShadowLine }}">
-                                <x-voice-recorder field="shadowRecording" :file="$shadowRecording" file-name="video-shadow.webm" />
-                            </div>
-                        @endif
-                    @endif
+                        @endforeach
+                    </div>
+                    @error('shadowRecordings')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
             @endif
-            @error('shadowRecording')
-                <p class="text-sm text-red-600">{{ $message }}</p>
-            @enderror
 
             @unless ($readOnly)
                 <x-continue-button
                     on-click="$wire.save()"
-                    wire-target="{{ $checkTargets }}"
-                    loading-label="Checking your work…"
+                    wire-target="save"
+                    loading-label="Saving…"
                 />
             @endunless
         </div>

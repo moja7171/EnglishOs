@@ -260,8 +260,16 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<GrammarPoint, $this>
+     */
+    public function grammarPoints(): HasMany
+    {
+        return $this->hasMany(GrammarPoint::class, 'learner_id');
+    }
+
+    /**
      * Every actively-tracked spaced-repetition item (repetitions > 0 —
-     * see HasSpacedRepetition::needsWrittenReview()) across all three
+     * see HasSpacedRepetition::needsWrittenReview()) across all four
      * review systems, with its current freshness() — sorted so the most
      * decayed item comes first, since that's the one worth surfacing.
      * Feeds the "My Progress" page's memory-freshness section.
@@ -276,10 +284,16 @@ class User extends Authenticatable
         $prompts = $this->speakingPrompts()->where('repetitions', '>', 0)->get()
             ->map(fn (SpeakingPrompt $item) => ['type' => 'Speaking', 'label' => $item->prompt, 'freshness' => $item->freshness()]);
 
+        // Labeled "Grammar" (a recurring MISTAKE pattern, not a taught rule)
+        // — kept distinct from GrammarPoint's "Grammar point" label below,
+        // since the two track genuinely different things.
         $errors = $this->errorPatternReviews()->where('repetitions', '>', 0)->get()
             ->map(fn (ErrorPatternReview $item) => ['type' => 'Grammar', 'label' => $item->last_correction, 'freshness' => $item->freshness()]);
 
-        return $words->concat($prompts)->concat($errors)
+        $grammarPoints = $this->grammarPoints()->where('repetitions', '>', 0)->get()
+            ->map(fn (GrammarPoint $item) => ['type' => 'Grammar point', 'label' => $item->focus, 'freshness' => $item->freshness()]);
+
+        return $words->concat($prompts)->concat($errors)->concat($grammarPoints)
             ->sortBy('freshness')
             ->values()
             ->all();
@@ -320,6 +334,29 @@ class User extends Authenticatable
         ErrorPatternReview::updateOrCreate(
             ['learner_id' => $this->id, 'category' => $category],
             ['last_error' => $error, 'last_correction' => $correction, 'next_review_at' => now()],
+        );
+    }
+
+    /**
+     * Called once per completed Grammar in Context step (see that step's
+     * save()) — unlike syncErrorPatternReview(), enrolled unconditionally
+     * every time, since a mission only ever teaches its grammar focus
+     * once (there's no "has this recurred" signal to gate on the way
+     * error categories have). Re-teaching the same focus in a later
+     * mission just refreshes the example/reminder and makes it
+     * immediately due again, same idea as the error-pattern sync.
+     */
+    public function syncGrammarPoint(string $focus, string $exampleSentence, string $ruleReminder, string $missionCode, ?int $sourceMissionRunId = null): void
+    {
+        GrammarPoint::updateOrCreate(
+            ['learner_id' => $this->id, 'focus' => $focus],
+            [
+                'example_sentence' => $exampleSentence,
+                'rule_reminder' => $ruleReminder,
+                'mission_code' => $missionCode,
+                'source_mission_run_id' => $sourceMissionRunId,
+                'next_review_at' => now(),
+            ],
         );
     }
 

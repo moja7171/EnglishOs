@@ -6,7 +6,6 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
-use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
@@ -32,9 +31,6 @@ class VideoShadowingStepTest extends TestCase
                             'key' => 'video_shadowing',
                             'video_id' => 'KfVfjL8-R-0',
                             'source' => "Rachel's English — \"My Morning Routine\"",
-                            'topic_summary' => 'An English-speaking mother shows her morning routine: '
-                                .'making breakfast, getting together with her family, and getting the kids '
-                                .'ready for school.',
                             'target_phrases' => [
                                 ['phrase' => 'feel like (something)', 'meaning' => 'to want something at that particular moment'],
                                 ['phrase' => 'get together', 'meaning' => 'to meet up and spend time with someone'],
@@ -42,6 +38,7 @@ class VideoShadowingStepTest extends TestCase
                             'shadow_lines' => [
                                 "I don't **feel like** having **cereal** this **morning**.",
                                 'What **time** are you guys **getting together**?',
+                                'We always have a quick **snack** in the **afternoon**.',
                             ],
                         ],
                         ['key' => 'daily_listen_3'],
@@ -55,15 +52,11 @@ class VideoShadowingStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
-    private function fillRequiredFields($component)
+    private function fillWatchedFlags($component)
     {
         return $component
             ->set('watchedWithCaptions', true)
-            ->set('watchedWithoutCaptions', true)
-            ->set('noticedSentence', 'She makes her son an egg instead of cereal.')
-            ->set('expressionSentence', 'I never feel like cereal in winter.')
-            ->call('selectShadowLine', 0)
-            ->set('shadowRecording', UploadedFile::fake()->create('video-shadow.webm', 500, 'audio/webm'));
+            ->set('watchedWithoutCaptions', true);
     }
 
     public function test_the_youtube_video_is_embedded(): void
@@ -80,125 +73,84 @@ class VideoShadowingStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->set('noticedSentence', 'She makes her son an egg instead of cereal.')
-            ->set('expressionSentence', 'I never feel like cereal in winter.')
-            ->call('selectShadowLine', 0)
-            ->set('shadowRecording', UploadedFile::fake()->create('video-shadow.webm', 500, 'audio/webm'))
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
+            ->set('shadowRecordings.1', UploadedFile::fake()->create('video-shadow-1.webm', 500, 'audio/webm'))
             ->call('save')
             ->assertHasErrors(['watched']);
 
         $this->assertDatabaseCount('evidences', 0);
     }
 
-    public function test_continue_is_blocked_without_a_shadow_recording(): void
+    public function test_continue_is_blocked_with_fewer_than_2_shadowed_lines(): void
     {
         $run = $this->makeRun();
 
-        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->set('watchedWithCaptions', true)
-            ->set('watchedWithoutCaptions', true)
-            ->set('noticedSentence', 'She makes her son an egg instead of cereal.')
-            ->set('expressionSentence', 'I never feel like cereal in winter.')
+        $this->fillWatchedFlags(Livewire::test('missions.steps.video-shadowing', ['run' => $run]))
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
             ->call('save')
-            ->assertHasErrors(['shadowRecording']);
+            ->assertHasErrors(['shadowRecordings']);
 
         $this->assertDatabaseCount('evidences', 0);
     }
 
-    public function test_continue_is_blocked_until_both_sentences_are_written(): void
+    public function test_saving_with_2_shadowed_lines_records_evidence_and_advances_the_run(): void
     {
         $run = $this->makeRun();
 
-        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->set('watchedWithCaptions', true)
-            ->set('watchedWithoutCaptions', true)
-            ->set('noticedSentence', 'She makes her son an egg instead of cereal.')
-            ->call('selectShadowLine', 0)
-            ->set('shadowRecording', UploadedFile::fake()->create('video-shadow.webm', 500, 'audio/webm'))
-            ->call('save')
-            ->assertHasErrors(['sentences']);
-
-        $this->assertDatabaseCount('evidences', 0);
-    }
-
-    public function test_saving_records_two_evidence_rows_and_advances_the_run(): void
-    {
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->twice()->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        $component = $this->fillRequiredFields(Livewire::test('missions.steps.video-shadowing', ['run' => $run]))
+        $component = $this->fillWatchedFlags(Livewire::test('missions.steps.video-shadowing', ['run' => $run]))
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
+            ->set('shadowRecordings.2', UploadedFile::fake()->create('video-shadow-2.webm', 500, 'audio/webm'))
             ->call('save')
             ->assertHasNoErrors()
             ->assertSet('completed', true);
 
-        $this->assertSame(2, Evidence::where('mission_run_id', $run->id)->where('phase', 'video_shadowing')->count());
+        $this->assertSame(3, Evidence::where('mission_run_id', $run->id)->where('phase', 'video_shadowing')->count());
 
         $textEvidence = Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_TEXT)->first();
         $content = json_decode($textEvidence->content_ref, true);
         $this->assertTrue($content['watched_with_captions']);
         $this->assertTrue($content['watched_without_captions']);
-        $this->assertSame(0, $content['shadow_line_index']);
+        $this->assertSame([0, 2], $content['shadowed_line_indices']);
 
-        $audioEvidence = Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->first();
-        $this->assertNotNull($audioEvidence->content_ref);
+        $audioEvidences = Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->get();
+        $this->assertCount(2, $audioEvidences);
+        $lineIndices = $audioEvidences->map(fn ($e) => json_decode($e->content_ref, true)['line_index'])->sort()->values();
+        $this->assertSame([0, 2], $lineIndices->all());
 
         $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
         $this->assertSame('daily_listen_3', $run->fresh()->currentStepKey());
     }
 
-    public function test_a_major_issue_on_either_sentence_blocks_continue(): void
+    public function test_shadowing_all_3_lines_still_works(): void
     {
         $run = $this->makeRun();
 
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')
-                ->once()
-                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']))
-                ->ordered();
-            $mock->shouldReceive('chat')
-                ->once()
-                ->andReturn(json_encode(['severity' => 'major', 'hint' => 'This is unrelated to the video.']))
-                ->ordered();
-        });
-
-        $this->fillRequiredFields(Livewire::test('missions.steps.video-shadowing', ['run' => $run]))
-            ->set('expressionSentence', 'I really enjoy playing video games at night.')
+        $this->fillWatchedFlags(Livewire::test('missions.steps.video-shadowing', ['run' => $run]))
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
+            ->set('shadowRecordings.1', UploadedFile::fake()->create('video-shadow-1.webm', 500, 'audio/webm'))
+            ->set('shadowRecordings.2', UploadedFile::fake()->create('video-shadow-2.webm', 500, 'audio/webm'))
             ->call('save')
-            ->assertHasErrors(['sentences']);
+            ->assertHasNoErrors()
+            ->assertSet('completed', true);
 
-        $this->assertDatabaseCount('evidences', 0);
+        $this->assertSame(3, Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->count());
     }
 
-    public function test_selecting_a_shadow_line_clears_any_previous_recording(): void
+    public function test_every_shadow_line_renders_with_its_own_recorder(): void
     {
         $run = $this->makeRun();
 
-        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->assertSee('Line 1')
-            ->assertSee('Line 2')
-            ->call('selectShadowLine', 1)
-            ->assertSet('activeShadowLine', 1)
-            ->assertSet('shadowRecording', null)
-            ->assertSee('getting together');
-    }
+        $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
 
-    public function test_a_selected_shadow_lines_stressed_words_render_bolded(): void
-    {
-        $run = $this->makeRun();
-
-        $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->call('selectShadowLine', 0)
-            ->html();
-
-        $this->assertStringContainsString('<strong', $html);
+        $this->assertStringContainsString('Line 1', $html);
+        $this->assertStringContainsString('Line 2', $html);
+        $this->assertStringContainsString('Line 3', $html);
         $this->assertStringContainsString('>feel like</strong>', $html);
+        $this->assertStringContainsString('>getting together</strong>', $html);
         $this->assertStringNotContainsString('**', $html);
     }
 
-    public function test_read_only_mode_maps_saved_answers_back(): void
+    public function test_read_only_mode_maps_saved_answers_and_recordings_back(): void
     {
         $run = $this->makeRun();
 
@@ -207,24 +159,31 @@ class VideoShadowingStepTest extends TestCase
             'phase' => 'video_shadowing',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                'noticed_sentence' => 'She makes her son an egg.',
-                'expression_sentence' => 'I never feel like cereal in winter.',
                 'watched_with_captions' => true,
                 'watched_without_captions' => true,
-                'shadow_line_index' => 1,
+                'shadowed_line_indices' => [0, 1],
             ]),
         ]);
         Evidence::create([
             'mission_run_id' => $run->id,
             'phase' => 'video_shadowing',
             'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => 'http://localhost/storage/missions/m01/evidence/video-shadow.webm',
+            'content_ref' => json_encode(['line_index' => 0, 'url' => 'http://localhost/storage/missions/m01/evidence/video-shadow-0.webm']),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'video_shadowing',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => json_encode(['line_index' => 1, 'url' => 'http://localhost/storage/missions/m01/evidence/video-shadow-1.webm']),
         ]);
 
-        Livewire::test('missions.steps.video-shadowing', ['run' => $run, 'readOnly' => true])
-            ->assertSet('noticedSentence', 'She makes her son an egg.')
-            ->assertSet('expressionSentence', 'I never feel like cereal in winter.')
+        $component = Livewire::test('missions.steps.video-shadowing', ['run' => $run, 'readOnly' => true])
             ->assertSet('watchedWithCaptions', true)
-            ->assertDontSee('Quick check');
+            ->assertSet('watchedWithoutCaptions', true)
+            ->assertSet('savedShadowUrls.0', 'http://localhost/storage/missions/m01/evidence/video-shadow-0.webm')
+            ->assertSet('savedShadowUrls.1', 'http://localhost/storage/missions/m01/evidence/video-shadow-1.webm');
+
+        $component->assertSee('Not shadowed.');
+        $component->assertDontSee('Quick check');
     }
 }

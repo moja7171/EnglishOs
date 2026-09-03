@@ -372,7 +372,13 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'video_shadowing',
                                 'label' => 'Video Shadowing',
-                                'duration_minutes' => 12,
+                                // Was 12, when this required 2 AI-checked comprehension
+                                // sentences (same shape as Listening's gist/expression) plus 1
+                                // shadowed line; now 10 — those sentences were dropped in favor
+                                // of shadowing 2 of 3 lines instead, keeping this step's format
+                                // genuinely distinct from Listening's (both real work, different
+                                // shape).
+                                'duration_minutes' => 10,
                                 'hook' => 'Real people, real English, real speed — watch how an English speaker actually talks about her morning, then try to sound just like her.',
                                 'source' => "Rachel's English — \"My Morning Routine\"",
                                 'video_id' => 'KfVfjL8-R-0',

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Evidence;
+use App\Models\GrammarPoint;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
@@ -111,6 +112,57 @@ class GrammarInContextStepTest extends TestCase
             ->assertHasErrors(['frequencySentences']);
 
         $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_completing_the_step_enrolls_the_grammar_focus_into_spaced_repetition(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->call('save');
+
+        $point = GrammarPoint::where('learner_id', $run->learner_id)->first();
+
+        $this->assertNotNull($point);
+        $this->assertSame('Present Simple + Adverbs of Frequency', $point->focus);
+        $this->assertSame('I usually wake up at 7.', $point->example_sentence);
+        $this->assertSame('M01', $point->mission_code);
+        $this->assertSame($run->id, $point->source_mission_run_id);
+        $this->assertTrue($point->isDue());
+    }
+
+    public function test_re_completing_grammar_in_context_refreshes_the_same_grammar_point(): void
+    {
+        $run = $this->makeRun();
+        $existing = GrammarPoint::create([
+            'learner_id' => $run->learner_id,
+            'mission_code' => 'M01',
+            'focus' => 'Present Simple + Adverbs of Frequency',
+            'example_sentence' => 'An old example.',
+            'rule_reminder' => 'An old reminder.',
+            'next_review_at' => now()->addDays(5),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->call('save');
+
+        $this->assertSame(1, GrammarPoint::where('learner_id', $run->learner_id)->count());
+        $this->assertSame($existing->id, GrammarPoint::first()->id);
+        $this->assertSame('I usually wake up at 7.', $existing->fresh()->example_sentence);
     }
 
     public function test_the_quick_check_is_optional_and_never_blocks_continue(): void

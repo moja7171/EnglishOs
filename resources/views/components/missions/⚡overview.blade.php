@@ -8,18 +8,19 @@ use Livewire\Component;
 new class extends Component
 {
     /**
-     * Words, speaking prompts, and recurring grammar patterns combined —
-     * one nudge into Daily Review instead of a separate card per system
-     * (see review/⚡index.blade.php). The dedicated pages (My Words,
-     * Speaking Recall) stay reachable from the nav for anyone who wants
-     * to focus on just one.
+     * Words, speaking prompts, recurring grammar-mistake patterns, and
+     * taught grammar points combined — one nudge into Daily Review
+     * instead of a separate card per system (see review/⚡index.blade.php).
+     * The dedicated pages (My Words, Speaking Recall) stay reachable from
+     * the nav for anyone who wants to focus on just one.
      */
     #[Computed]
     public function dueReviewCount(): int
     {
         return auth()->user()->vocabularyWords()->where('next_review_at', '<=', now())->count()
             + auth()->user()->speakingPrompts()->where('next_review_at', '<=', now())->count()
-            + auth()->user()->errorPatternReviews()->where('next_review_at', '<=', now())->count();
+            + auth()->user()->errorPatternReviews()->where('next_review_at', '<=', now())->count()
+            + auth()->user()->grammarPoints()->where('next_review_at', '<=', now())->count();
     }
 
     /**

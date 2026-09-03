@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ErrorPatternReview;
+use App\Models\GrammarPoint;
 use App\Models\SpeakingPrompt;
 use App\Models\VocabularyWord;
 use Illuminate\Http\UploadedFile;
@@ -27,14 +28,14 @@ new class extends Component
 
     /**
      * A fast, mixed session across every review system the app has —
-     * vocabulary (My Words), Speaking Recall, and recurring grammar
-     * patterns (Active Recall's spaced practice) — interleaved into one
-     * queue instead of three separate places to check. Deliberately the
-     * LIGHT self-assessment interaction for every type here (Again/Good/
-     * Easy), even for a brand-new word or pattern that would normally get
-     * My Words' or Active Recall's deeper AI-checked writing flow — this
-     * is the fast daily pass; that deeper practice still lives on those
-     * dedicated pages for whoever wants it.
+     * vocabulary (My Words), Speaking Recall, recurring grammar-mistake
+     * patterns, and taught grammar points (Grammar in Context) —
+     * interleaved into one queue instead of four separate places to
+     * check. Deliberately the LIGHT self-assessment interaction for every
+     * type here (Again/Good/Easy), even for a brand-new word or pattern
+     * that would normally get My Words' or Active Recall's deeper
+     * AI-checked writing flow — this is the fast daily pass; that deeper
+     * practice still lives on those dedicated pages for whoever wants it.
      *
      * @return list<array{type: string, id: int}>
      */
@@ -50,11 +51,14 @@ new class extends Component
         $errors = auth()->user()->errorPatternReviews()->where('next_review_at', '<=', now())->get()
             ->map(fn ($item) => ['type' => 'error', 'id' => $item->id]);
 
-        return $words->concat($prompts)->concat($errors)->shuffle()->values()->all();
+        $grammarPoints = auth()->user()->grammarPoints()->where('next_review_at', '<=', now())->get()
+            ->map(fn ($item) => ['type' => 'grammar', 'id' => $item->id]);
+
+        return $words->concat($prompts)->concat($errors)->concat($grammarPoints)->shuffle()->values()->all();
     }
 
     /**
-     * @return array{type: string, model: VocabularyWord|SpeakingPrompt|ErrorPatternReview}|null
+     * @return array{type: string, model: VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint}|null
      */
     #[Computed]
     public function currentItem(): ?array
@@ -69,6 +73,7 @@ new class extends Component
             'word' => VocabularyWord::find($entry['id']),
             'speaking' => SpeakingPrompt::find($entry['id']),
             'error' => ErrorPatternReview::find($entry['id']),
+            'grammar' => GrammarPoint::find($entry['id']),
         };
 
         return $model ? ['type' => $entry['type'], 'model' => $model] : null;
@@ -149,7 +154,7 @@ new class extends Component
         </span>
         <div>
             <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Daily Review</h1>
-            <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Words, speaking, and grammar patterns — one fast mixed session.</p>
+            <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Words, speaking, and grammar — one fast mixed session.</p>
         </div>
     </header>
 
@@ -164,7 +169,7 @@ new class extends Component
         <div class="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-8 text-center dark:border-line-dark dark:bg-surface-dark">
             @svg('heroicon-o-check-badge', 'h-6 w-6 text-success dark:text-success-dark')
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">You're all caught up!</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing due across My Words, Speaking Recall, or grammar patterns — come back later.</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing due across My Words, Speaking Recall, grammar patterns, or grammar points — come back later.</p>
         </div>
     @else
         @php
@@ -178,8 +183,10 @@ new class extends Component
                     @svg('heroicon-o-book-open', 'h-3.5 w-3.5') Word
                 @elseif ($type === 'speaking')
                     @svg('heroicon-o-microphone', 'h-3.5 w-3.5') Speaking
-                @else
+                @elseif ($type === 'error')
                     @svg('heroicon-o-pencil', 'h-3.5 w-3.5') Grammar pattern
+                @else
+                    @svg('heroicon-o-academic-cap', 'h-3.5 w-3.5') Grammar point
                 @endif
                 · {{ count($this->queue) }} left today
             </p>
@@ -207,7 +214,7 @@ new class extends Component
                 @endif
 
                 <x-voice-recorder field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
-            @else
+            @elseif ($type === 'error')
                 <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
                     You've mixed this up before: <span class="text-red-600 line-through decoration-red-500">{{ $model->last_error }}</span>
                 </p>
@@ -219,6 +226,18 @@ new class extends Component
                     >@svg('heroicon-o-eye', 'h-4 w-4') Show the fix</button>
                 @else
                     <p class="text-sm text-success dark:text-success-dark">{{ $model->last_correction }}</p>
+                @endif
+            @else
+                <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
+                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Can you still write a sentence like this? <span class="text-ink-faint italic dark:text-ink-faint-dark">"{{ $model->example_sentence }}"</span></p>
+                @if (! $revealed)
+                    <button
+                        type="button"
+                        wire:click="reveal"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >@svg('heroicon-o-eye', 'h-4 w-4') Show a quick reminder</button>
+                @else
+                    <p class="text-sm text-success dark:text-success-dark">{{ $model->rule_reminder }}</p>
                 @endif
             @endif
 

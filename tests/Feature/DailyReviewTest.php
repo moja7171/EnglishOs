@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ErrorPatternReview;
+use App\Models\GrammarPoint;
 use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
@@ -46,6 +47,18 @@ class DailyReviewTest extends TestCase
         ]);
     }
 
+    private function makeDueGrammarPoint(User $learner): GrammarPoint
+    {
+        return GrammarPoint::create([
+            'learner_id' => $learner->id,
+            'mission_code' => 'M01',
+            'focus' => 'Present Simple + Adverbs of Frequency',
+            'example_sentence' => 'I usually wake up at 7.',
+            'rule_reminder' => 'The adverb goes before the main verb.',
+            'next_review_at' => now()->subMinute(),
+        ]);
+    }
+
     public function test_a_learner_with_nothing_due_anywhere_sees_the_caught_up_state(): void
     {
         $learner = User::factory()->create();
@@ -61,12 +74,13 @@ class DailyReviewTest extends TestCase
         $this->makeDueWord($learner);
         $this->makeDuePrompt($learner);
         $this->makeDueError($learner);
+        $this->makeDueGrammarPoint($learner);
         $this->actingAs($learner);
 
         $queue = Livewire::test('review.index')->instance()->queue();
 
-        $this->assertCount(3, $queue);
-        $this->assertEqualsCanonicalizing(['word', 'speaking', 'error'], array_column($queue, 'type'));
+        $this->assertCount(4, $queue);
+        $this->assertEqualsCanonicalizing(['word', 'speaking', 'error', 'grammar'], array_column($queue, 'type'));
     }
 
     public function test_a_word_requires_revealing_the_meaning_before_grading(): void
@@ -123,6 +137,35 @@ class DailyReviewTest extends TestCase
             ->call('gradeSelf', 5);
 
         $this->assertSame(1, $error->fresh()->repetitions);
+    }
+
+    public function test_a_grammar_point_requires_revealing_the_reminder_before_grading(): void
+    {
+        $learner = User::factory()->create();
+        $point = $this->makeDueGrammarPoint($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSee('Present Simple + Adverbs of Frequency')
+            ->assertSee('I usually wake up at 7.')
+            ->assertDontSee('The adverb goes before the main verb.')
+            ->call('gradeSelf', 5);
+
+        $this->assertSame(0, $point->fresh()->repetitions);
+    }
+
+    public function test_revealing_a_grammar_point_then_grading_advances_its_schedule(): void
+    {
+        $learner = User::factory()->create();
+        $point = $this->makeDueGrammarPoint($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->call('reveal')
+            ->assertSee('The adverb goes before the main verb.')
+            ->call('gradeSelf', 5);
+
+        $this->assertSame(1, $point->fresh()->repetitions);
     }
 
     public function test_a_speaking_prompt_requires_a_fresh_recording_before_grading(): void

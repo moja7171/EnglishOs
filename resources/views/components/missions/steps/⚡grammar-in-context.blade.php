@@ -128,7 +128,7 @@ new class extends Component
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->checkErrors[$index] = "Couldn't check this one: {$e->getMessage()}";
         }
     }
@@ -233,8 +233,46 @@ new class extends Component
             ]),
         ]);
 
+        $this->syncGrammarPoint($filledSentences->first());
+
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * Enrolls this mission's grammar focus into the learner's spaced-
+     * repetition queue (see User::syncGrammarPoint(), and the Review page)
+     * — unconditional, every time, unlike the error-pattern system's
+     * recurrence gate (a mission only ever teaches its own focus once).
+     */
+    private function syncGrammarPoint(array $firstFilledSentence): void
+    {
+        $content = $this->run->mission->stepContent('grammar_in_context');
+        $focus = $content['focus'] ?? null;
+
+        if (! $focus) {
+            return;
+        }
+
+        // The starter (e.g. "I usually") is shown as a label next to the
+        // input, not enforced as an excluded prefix — a learner may type
+        // just the continuation OR the whole sentence starter-and-all.
+        // Only prepend the starter when the typed text doesn't already
+        // start with it, so the example reads naturally either way.
+        $starter = $firstFilledSentence['starter'] ?? '';
+        $text = trim($firstFilledSentence['text'] ?? '');
+        $exampleSentence = ($starter !== '' && ! str_starts_with(strtolower($text), strtolower($starter)))
+            ? trim("{$starter} {$text}")
+            : $text;
+        $ruleReminder = $content['lesson']['intro'] ?? $focus;
+
+        $this->run->learner->syncGrammarPoint(
+            focus: $focus,
+            exampleSentence: $exampleSentence,
+            ruleReminder: $ruleReminder,
+            missionCode: $this->run->mission->code,
+            sourceMissionRunId: $this->run->id,
+        );
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Evidence;
+use App\Models\GrammarPoint;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
@@ -137,6 +138,23 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertDontSee('Practice today to keep your');
+    }
+
+    public function test_a_due_grammar_point_counts_toward_the_daily_review_nudge(): void
+    {
+        $learner = User::factory()->create();
+        GrammarPoint::create([
+            'learner_id' => $learner->id,
+            'mission_code' => 'M01',
+            'focus' => 'Present Simple + Adverbs of Frequency',
+            'example_sentence' => 'I usually wake up at 7.',
+            'rule_reminder' => 'The adverb goes before the main verb.',
+            'next_review_at' => now()->subMinute(),
+        ]);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('1 item ready for Daily Review');
     }
 
     public function test_the_course_progress_bar_shows_mission_1_of_24_for_a_new_learner(): void
