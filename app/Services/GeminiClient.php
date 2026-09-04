@@ -45,7 +45,13 @@ class GeminiClient
             $payload['systemInstruction'] = ['parts' => [['text' => $systemPrompt]]];
         }
 
+        // Gemini's flash tier occasionally returns 503 ("high demand") or
+        // hangs outright under load — a short timeout + 2 retries clears
+        // most of these transient blips without leaving the learner
+        // waiting the full round-trip 3 times over on a hard failure.
         $response = Http::withHeaders(['x-goog-api-key' => $this->apiKey])
+            ->timeout(20)
+            ->retry(2, 500, throw: false)
             ->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent", $payload)
             ->throw();
 

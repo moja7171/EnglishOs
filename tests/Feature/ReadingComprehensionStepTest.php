@@ -245,6 +245,79 @@ class ReadingComprehensionStepTest extends TestCase
             ->assertSet('offerReveal.0', true);
     }
 
+    public function test_a_seeded_difficulty_tag_is_threaded_through_to_the_comprehension_cards(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [[
+                    'key' => 'reading_comprehension',
+                    'passage' => 'Aisha lives in Manchester.',
+                    'comprehension_check' => [
+                        ['statement' => 'Aisha works at a hospital.', 'correct' => true, 'difficulty' => 'easy'],
+                        ['statement' => 'She goes shopping on Saturdays.', 'correct' => true, 'difficulty' => 'hard'],
+                    ],
+                    'questions' => ['What is Aisha like?'],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $cards = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->instance()
+            ->comprehensionCards();
+
+        $this->assertSame('easy', $cards[0]['difficulty']);
+        $this->assertSame('hard', $cards[1]['difficulty']);
+    }
+
+    public function test_reused_and_new_phrases_are_highlighted_with_distinct_tooltips(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [[
+                    'key' => 'reading_comprehension',
+                    'passage' => 'Aisha wakes up at six and feels exhausted after a long shift.',
+                    'highlighted_phrases' => [
+                        ['phrase' => 'wakes up', 'type' => 'reused'],
+                        ['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired'],
+                    ],
+                    'questions' => ['What is Aisha like?'],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSeeHtml('<mark')
+            ->assertSeeHtml('title="این کلمه رو توی Vocabulary Builder دیدی"')
+            ->assertSeeHtml('title="very tired"')
+            // The rest of the passage around the highlights must still render, unescaped-HTML-safe.
+            ->assertSee('Aisha')
+            ->assertSee('after a long shift');
+    }
+
+    public function test_a_passage_without_highlighted_phrases_renders_plainly(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertDontSeeHtml('<mark');
+    }
+
     public function test_read_only_mode_reloads_the_saved_answers_and_hides_the_warm_up(): void
     {
         $run = $this->makeRun();

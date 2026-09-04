@@ -34,11 +34,20 @@ class PexelsClient
      * twice for it. Returns null (never throws) if there's no API key, no
      * search results, or the request fails for any reason.
      */
-    public function imageUrlFor(string $word, string $query): ?string
+    /**
+     * $orientation defaults to 'square' (right for the small circular/
+     * cropped thumbnails most callers use — vocab flashcards, portraits,
+     * cover images). Pass 'landscape' for a wide banner that needs to show
+     * a whole multi-subject scene rather than one centered subject — e.g.
+     * Picture Description, where a square crop keeps returning sparse
+     * still-life results instead of a scene with people actually doing
+     * things.
+     */
+    public function imageUrlFor(string $word, string $query, string $orientation = 'square'): ?string
     {
         return $this->fetchAndCache(
             'vocabulary-images/'.Str::slug($word).'.jpg',
-            fn () => $this->searchPhotoUrl($query),
+            fn () => $this->searchPhotoUrl($query, $orientation),
         );
     }
 
@@ -96,7 +105,7 @@ class PexelsClient
         }
     }
 
-    private function searchPhotoUrl(string $query): ?string
+    private function searchPhotoUrl(string $query, string $orientation = 'square'): ?string
     {
         if ($this->apiKey === '') {
             return null;
@@ -107,7 +116,7 @@ class PexelsClient
                 ->get('https://api.pexels.com/v1/search', [
                     'query' => $query,
                     'per_page' => 1,
-                    'orientation' => 'square',
+                    'orientation' => $orientation,
                 ])
                 ->throw();
         } catch (Throwable) {

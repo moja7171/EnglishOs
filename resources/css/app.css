@@ -7,6 +7,10 @@
     --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
     --font-display: 'Fraunces', ui-serif, Georgia, serif;
+    /* Persian-script text only (AI Feedback #1 + Error Log's Persian
+       feedback content) — pair with dir="rtl" on the same element. Not the
+       app-wide default: every English UI label/button keeps --font-sans. */
+    --font-fa: 'Vazirmatn', 'Figtree', ui-sans-serif, system-ui, sans-serif;
 
     /* "A Day, Well Spent" — the app's design direction: grounded in the
        mission's own subject (a day, lived well) rather than a generic

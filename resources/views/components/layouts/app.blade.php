@@ -7,6 +7,13 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    {{-- Vazirmatn: the only Persian-script font in the app, scoped to the
+         two steps (AI Feedback #1, Error Log) that render real Persian
+         feedback text via the .font-fa utility below — everything else
+         keeps using --font-sans (Figtree/system), untouched. --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -63,7 +70,7 @@
                 <button
                     type="button"
                     x-data="{ enabled: true }"
-                    x-init="try { enabled = localStorage.getItem('eosSoundEnabled') !== 'false' } catch (e) {}"
+                    x-init="enabled = (() => { try { return localStorage.getItem('eosSoundEnabled') !== 'false' } catch (e) { return true } })()"
                     x-on:click="enabled = !enabled; try { localStorage.setItem('eosSoundEnabled', enabled) } catch (e) {}"
                     x-bind:title="enabled ? 'Mute sound effects' : 'Unmute sound effects'"
                     class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"

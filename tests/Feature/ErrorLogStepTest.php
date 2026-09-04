@@ -47,18 +47,77 @@ class ErrorLogStepTest extends TestCase
         return $run;
     }
 
-    public function test_mount_generates_errors_from_prior_evidence(): void
+    public function test_mount_does_not_call_gemini(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldNotReceive('chat');
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->assertSet('generated', false)
+            ->assertSet('mistakes', [])
+            ->assertSee('Review my mistakes');
+    }
+
+    public function test_clicking_generate_calls_gemini_and_fills_mistakes(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                ['error' => 'She go to work.', 'correction' => 'She goes to work.', 'why' => 'فعل نیاز به s سوم شخص دارد.'],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
+            ->assertSet('generated', true)
+            ->assertSet('mistakes', [[
+                'error' => 'She go to work.',
+                'correction' => 'She goes to work.',
+                'why' => 'فعل نیاز به s سوم شخص دارد.',
+                'drills' => [],
+                'category' => null,
+            ]]);
+    }
+
+    public function test_the_why_explanation_and_recurrence_note_are_shown(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                [
+                    'error' => 'She go to work.',
+                    'correction' => 'She goes to work.',
+                    'why' => 'فعل نیاز به s سوم شخص دارد.',
+                    'category' => 'third-person-s',
+                ],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
+            ->assertSee('فعل نیاز به s سوم شخص دارد.')
+            ->assertSee('این الگو رو دوباره توی مرور روزانه می‌بینی');
+    }
+
+    public function test_end_of_page_summary_counts_the_mistakes(): void
     {
         $run = $this->makeRunWithEvidence();
 
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->once()->andReturn(json_encode([
                 ['error' => 'She go to work.', 'correction' => 'She goes to work.'],
+                ['error' => 'I usually goes.', 'correction' => 'I usually go.'],
             ]));
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
-            ->assertSet('mistakes', [['error' => 'She go to work.', 'correction' => 'She goes to work.', 'drills' => [], 'category' => null]]);
+            ->call('generate')
+            ->assertSee('امروز 2 الگوی تکراری رو شناسایی و اصلاح کردی');
     }
 
     public function test_the_ai_assigned_category_is_persisted_for_recurrence_detection(): void
@@ -72,10 +131,29 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('newExamples.0', 'She goes to work every day by bus.')
             ->call('save');
 
         $this->assertSame('third-person-s', ErrorLogItem::first()->category);
+    }
+
+    public function test_the_why_field_is_persisted_on_the_error_log_item(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                ['error' => 'She go to work.', 'correction' => 'She goes to work.', 'why' => 'فعل نیاز به s سوم شخص دارد.'],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
+            ->set('newExamples.0', 'She goes to work every day by bus.')
+            ->call('save');
+
+        $this->assertSame('فعل نیاز به s سوم شخص دارد.', ErrorLogItem::first()->why);
     }
 
     public function test_new_example_required_for_every_error_before_saving(): void
@@ -90,6 +168,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('newExamples.0', 'She goes to work every day.')
             ->call('save')
             ->assertHasErrors(['newExamples']);
@@ -109,6 +188,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->assertDontSeeHtml('wire:click="save"')
             ->set('newExamples.0', 'She goes to work every day.')
             ->assertDontSeeHtml('wire:click="save"')
@@ -127,6 +207,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('newExamples.0', 'She goes to work every day by bus.')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
@@ -147,6 +228,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->assertSet('mistakes', [])
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
@@ -163,6 +245,7 @@ class ErrorLogStepTest extends TestCase
             'mission_run_id' => $run->id,
             'error' => 'She go to work.',
             'correction' => 'She goes to work.',
+            'why' => 'فعل نیاز به s سوم شخص دارد.',
             'new_example' => 'She goes to work every day.',
         ]);
         Evidence::create([
@@ -177,7 +260,14 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run, 'readOnly' => true])
-            ->assertSet('mistakes', [['error' => 'She go to work.', 'correction' => 'She goes to work.', 'category' => null, 'drills' => []]])
+            ->assertSet('generated', true)
+            ->assertSet('mistakes', [[
+                'error' => 'She go to work.',
+                'correction' => 'She goes to work.',
+                'why' => 'فعل نیاز به s سوم شخص دارد.',
+                'category' => null,
+                'drills' => [],
+            ]])
             ->assertSet('newExamples', ['She goes to work every day.'])
             ->assertDontSee('Continue');
     }
@@ -200,6 +290,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->assertSee('Extra practice')
             ->assertSee('to the gym every morning.')
             ->assertSee('dinner every night.');
@@ -220,6 +311,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('drillAnswers.0.0', 'Goes.') // capitalization/punctuation shouldn't matter
             ->call('checkDrill', 0, 0)
             ->assertSet('drillChecked.0.0', true)
@@ -241,6 +333,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('drillAnswers.0.0', 'go')
             ->call('checkDrill', 0, 0)
             ->assertSet('drillChecked.0.0', false)
@@ -262,6 +355,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('newExamples.0', 'She goes to work every day by bus.')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));
@@ -315,6 +409,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('newExamples.0', 'She goes to work every day.')
             ->call('save');
 
@@ -335,6 +430,7 @@ class ErrorLogStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
             ->set('newExamples.0', 'She goes to work every day by bus.')
             ->call('save');
 

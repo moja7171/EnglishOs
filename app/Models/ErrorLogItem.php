@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['mission_run_id', 'error', 'correction', 'new_example', 'drills', 'category'])]
+#[Fillable(['mission_run_id', 'error', 'correction', 'why', 'new_example', 'drills', 'category'])]
 class ErrorLogItem extends Model
 {
     use HasFactory;

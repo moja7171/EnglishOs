@@ -123,52 +123,58 @@ class MissionSeeder extends Seeder
                                             .'**once a week** just to **chat**.',
                                     ],
                                 ],
+                                // difficulty (Story 4, requirements review, 2026-09-04) drives
+                                // <x-quick-round>'s adaptive mode in meaningCheckCards() — a
+                                // genuine judgment call per phrase, not alphabetical: short,
+                                // transparent, high-frequency words/phrases are "easy"; idiomatic
+                                // collocations or words easily confused with a close relative
+                                // (e.g. "have a wash" vs "have a shower") are "hard".
                                 'story_words' => [
                                     // Sleep
-                                    ['phrase' => 'wake up', 'meaning' => 'to stop sleeping and become conscious'],
-                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up'],
-                                    ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep'],
-                                    ['phrase' => 'go to sleep', 'meaning' => 'to start sleeping'],
-                                    ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual'],
-                                    ['phrase' => 'have a sleep', 'meaning' => 'to rest for a short period during the day'],
+                                    ['phrase' => 'wake up', 'meaning' => 'to stop sleeping and become conscious', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up', 'difficulty' => 'easy'],
+                                    ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep', 'difficulty' => 'easy'],
+                                    ['phrase' => 'go to sleep', 'meaning' => 'to start sleeping', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual', 'difficulty' => 'medium'],
+                                    ['phrase' => 'have a sleep', 'meaning' => 'to rest for a short period during the day', 'difficulty' => 'medium'],
                                     // Same 4 words/phrases the real Listening episode uses (see the
                                     // "story" comment above) — same meanings as Listening's own
                                     // target_phrases, so the definition never contradicts itself
                                     // between the two steps.
-                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day'],
-                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident'],
-                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual'],
+                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'difficulty' => 'medium'],
+                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'difficulty' => 'hard'],
                                     // Food
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do'],
-                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'image_query' => 'bowl of cereal breakfast'],
-                                    ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food'],
-                                    ['phrase' => "don't bother", 'meaning' => "to not do something because it's too much effort"],
-                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'image_query' => 'takeaway food box'],
-                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal', 'image_query' => 'feeding cat pet'],
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday', 'difficulty' => 'medium'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => "don't bother", 'meaning' => "to not do something because it's too much effort", 'difficulty' => 'hard'],
+                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
+                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal', 'image_query' => 'feeding cat pet', 'difficulty' => 'easy'],
                                     // Bathroom routines — image_query marks the concrete-noun words
                                     // worth a picture flashcard (dual coding — see EOS-009 §8); an
                                     // abstract phrase like "have a wash" gets no query and simply
                                     // shows no image, on purpose.
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'shower bathroom'],
-                                    ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body'],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'toothbrush brushing teeth'],
-                                    ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face'],
-                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath'],
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'shower bathroom', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body', 'difficulty' => 'hard'],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'toothbrush brushing teeth', 'difficulty' => 'easy'],
+                                    ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face', 'difficulty' => 'medium'],
+                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath', 'difficulty' => 'easy'],
                                     // Housework
-                                    ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck'],
-                                    ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house'],
-                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'image_query' => 'cleaning house vacuum'],
-                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'ironing clothes'],
-                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'image_query' => 'grocery shopping'],
-                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'image_query' => 'laundry basket washing clothes'],
+                                    ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck', 'difficulty' => 'medium'],
+                                    ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house', 'difficulty' => 'easy'],
+                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'ironing clothes', 'difficulty' => 'easy'],
+                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
+                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'image_query' => 'laundry basket washing clothes', 'difficulty' => 'medium'],
                                     // Spare time
-                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out'],
-                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home'],
-                                    ['phrase' => 'come round', 'meaning' => 'to visit someone at their home'],
-                                    ['phrase' => 'once a week', 'meaning' => 'happening one time every week'],
-                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation'],
+                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'difficulty' => 'easy'],
+                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'difficulty' => 'easy'],
+                                    ['phrase' => 'come round', 'meaning' => 'to visit someone at their home', 'difficulty' => 'hard'],
+                                    ['phrase' => 'once a week', 'meaning' => 'happening one time every week', 'difficulty' => 'easy'],
+                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -283,10 +289,17 @@ class MissionSeeder extends Seeder
                                 // client-side <x-quick-round> cards (see EOS-009 §8), ungraded and
                                 // always skippable, just to get the ear engaged before the real
                                 // gist/expressions writing starts.
+                                // difficulty (Story 4, requirements review, 2026-09-04) drives
+                                // <x-quick-round>'s adaptive mode: (1) the episode's whole topic,
+                                // stated in the first exchange — easy; (2) a direct contradiction
+                                // of a clearly stated fact ("Never. Unless there's a very, very
+                                // good reason.") — medium; (3) needs remembering WHO said the
+                                // "morning person" line, not just that the phrase was used by
+                                // someone — hard.
                                 'comprehension_check' => [
-                                    ['statement' => 'Neil and Georgie are talking about their morning routines.', 'correct' => true],
-                                    ['statement' => 'Neil says he often skips breakfast.', 'correct' => false],
-                                    ['statement' => 'Georgie describes herself as a morning person.', 'correct' => true],
+                                    ['statement' => 'Neil and Georgie are talking about their morning routines.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Neil says he often skips breakfast.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Georgie describes herself as a morning person.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 // A one-tap <x-quick-round> bonus in the Wrap-up sub-step (not a
                                 // required field — never blocks Continue) with one real, checkable
@@ -361,21 +374,32 @@ class MissionSeeder extends Seeder
                                 // learner picks the correct fix among the real error plus one more
                                 // plausible wrong attempt, instead of typing it out. Ungraded and
                                 // skippable, like every other Quick Round.
+                                // difficulty (Story 4, requirements review, 2026-09-04) drives
+                                // <x-quick-round>'s adaptive mode: (1) one distractor is a bare
+                                // spelling slip ("gos") — easy to rule out on sight; (2) both
+                                // wrong options closely mimic the original do/does + third-person
+                                // -s error pattern — medium; (3) the wrong distractor
+                                // ("wake ups") is a subtler trap since it's the phrasal verb's
+                                // second word that (wrongly) takes the -s, not the verb itself —
+                                // easy to miss for a learner still forming the general rule — hard.
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She go to work at eight.',
                                         'options' => ['She goes to work at eight.', 'She gos to work at eight.', 'She go to work at eight.'],
                                         'correct' => 0,
+                                        'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => "I doesn't exercise every day.",
                                         'options' => ["I don't exercise every day.", "I doesn't exercises every day.", 'I not exercise every day.'],
                                         'correct' => 0,
+                                        'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'He usually wake up late.',
                                         'options' => ['He usually wakes up late.', 'He usually waking up late.', 'He usually wake ups late.'],
                                         'correct' => 0,
+                                        'difficulty' => 'hard',
                                     ],
                                 ],
                             ],
@@ -515,13 +539,31 @@ class MissionSeeder extends Seeder
                                 // practices describing someone else's scene objectively: present
                                 // continuous for what's happening right now, "there is/are",
                                 // prepositions of place. A genuine skill gap, not a repeat.
-                                'duration_minutes' => 8,
+                                // Was 8 — bumped for the hotspot-driven guiding questions and the
+                                // visual overhaul (blur-to-focus, magazine-style result layout).
+                                'duration_minutes' => 10,
                                 'hook' => 'Forget your own morning for a minute — what\'s happening in this one?',
-                                'image_query' => 'family breakfast table morning kitchen busy',
+                                'image_query' => 'family eating breakfast morning kitchen',
                                 'guiding_questions' => [
-                                    'What do you see in the picture?',
-                                    'What is each person doing right now?',
-                                    'Where do you think this is?',
+                                    'What is the man doing?',
+                                    'What is the woman doing, and where is she standing?',
+                                    'Where is the baby, and what is different about her spot at the table?',
+                                    'What food can you see on the counter?',
+                                ],
+                                // Story 5 (requirements review, 2026-09-04) — numbered markers
+                                // overlaid on the image at these x/y percentages (from the
+                                // top-left), each pointing at the guiding_questions entry it's
+                                // about. Hand-verified against the real cached Pexels photo for
+                                // this exact query+orientation (landscape) — a dad and mom eating
+                                // breakfast standing at a kitchen island on the left/center, a
+                                // baby in a yellow high chair on the right, and fruit/food on the
+                                // counter in the foreground bottom-left. Changing the query or
+                                // orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 17, 'y' => 32, 'question_index' => 0],
+                                    ['x' => 29, 'y' => 32, 'question_index' => 1],
+                                    ['x' => 62, 'y' => 58, 'question_index' => 2],
+                                    ['x' => 15, 'y' => 85, 'question_index' => 3],
                                 ],
                             ],
                             [
@@ -549,15 +591,37 @@ class MissionSeeder extends Seeder
                                 'passage' => 'Aisha lives in Manchester and works at a hospital. On '
                                     .'weekdays, she wakes up at six and gets up straight away — '
                                     ."she's a real morning person! She never skips breakfast: she "
-                                    .'usually has cereal and a cup of tea before she leaves for '
-                                    .'work. After a long shift, she comes home tired, so most '
-                                    .'evenings she likes to stay in and watch a film instead of '
-                                    .'going out. On Saturdays, she does the shopping with her '
-                                    .'sister, and on Sundays she likes to sleep in until nearly '
-                                    ."ten o'clock. \"It's the only day I don't set an alarm,\" she "
-                                    .'says. In the evening, she always has a shower before bed, '
-                                    .'and she goes to sleep by eleven, ready for another early '
-                                    .'start.',
+                                    .'usually has cereal and a cup of tea before her short commute '
+                                    .'to work. After a long shift, she comes home exhausted, so '
+                                    .'most evenings she likes to stay in and unwind by watching a '
+                                    .'film instead of going out. On Saturdays, she does the '
+                                    .'shopping with her sister, and on Sundays she likes to sleep '
+                                    ."in until nearly ten o'clock. \"It's the only day I don't set "
+                                    .'an alarm," she says. In the evening, she always has a shower '
+                                    .'before bed, and she goes to sleep by eleven, ready for '
+                                    .'another early start.',
+                                // Story 3 (requirements review, 2026-09-04): marks exactly which
+                                // literal substrings above are the reused Vocabulary Builder
+                                // pool words/phrases ("reused", tooltip says so) vs. 3 brand-new
+                                // A2+ words added to the passage on purpose ("new", tooltip shows
+                                // a short definition) — rendered as highlighted spans by
+                                // ⚡reading-comprehension.blade.php's highlightedPassageHtml().
+                                // Every phrase here must appear verbatim (exact case) in the
+                                // passage text above, or it silently fails to highlight.
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'wakes up', 'type' => 'reused'],
+                                    ['phrase' => 'gets up', 'type' => 'reused'],
+                                    ['phrase' => 'morning person', 'type' => 'reused'],
+                                    ['phrase' => 'skips breakfast', 'type' => 'reused'],
+                                    ['phrase' => 'stay in', 'type' => 'reused'],
+                                    ['phrase' => 'does the shopping', 'type' => 'reused'],
+                                    ['phrase' => 'sleep in', 'type' => 'reused'],
+                                    ['phrase' => 'has a shower', 'type' => 'reused'],
+                                    ['phrase' => 'goes to sleep', 'type' => 'reused'],
+                                    ['phrase' => 'commute', 'type' => 'new', 'definition' => 'a regular journey to and from work'],
+                                    ['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired'],
+                                    ['phrase' => 'unwind', 'type' => 'new', 'definition' => 'to relax after being busy or stressed'],
+                                ],
                                 // Grounds the AI check in what the passage actually says, same
                                 // pattern as Listening's topic_summary — background for a coarse
                                 // topic-relevance check, never a source to fact-check against.
@@ -569,10 +633,17 @@ class MissionSeeder extends Seeder
                                 // An ungraded true/false <x-quick-round> warm-up, same pattern
                                 // as Listening's comprehension_check — engages with the text
                                 // before the real AI-checked questions below.
+                                // difficulty (Story 4, requirements review, 2026-09-04) drives
+                                // <x-quick-round>'s adaptive mode — a genuine easy→hard spread,
+                                // not alphabetical: (1) copies the passage's own wording almost
+                                // verbatim, (2) needs the learner to flip "never skips" into
+                                // "usually skips" being false, (3) needs both a paraphrase
+                                // ("does the shopping" → "goes shopping") AND recalling which
+                                // specific day among several mentioned.
                                 'comprehension_check' => [
-                                    ['statement' => 'Aisha works at a hospital.', 'correct' => true],
-                                    ['statement' => 'She usually skips breakfast.', 'correct' => false],
-                                    ['statement' => 'She goes shopping with her sister on Saturdays.', 'correct' => true],
+                                    ['statement' => 'Aisha works at a hospital.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'She usually skips breakfast.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'She goes shopping with her sister on Saturdays.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 'questions' => [
                                     "What is Aisha's morning usually like on a weekday?",

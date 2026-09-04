@@ -579,6 +579,39 @@ class ListeningStepTest extends TestCase
         $this->assertStringNotContainsString('activeSubstep === 0 &amp;&amp;', $html);
     }
 
+    public function test_a_seeded_difficulty_tag_is_threaded_through_to_the_quick_round_cards(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [[
+                    'key' => 'listening',
+                    'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
+                    'comprehension_check' => [
+                        ['statement' => 'They are talking about morning routines.', 'correct' => true, 'difficulty' => 'easy'],
+                        ['statement' => 'Neil often skips breakfast.', 'correct' => false, 'difficulty' => 'hard'],
+                    ],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
+
+        // <x-quick-round>'s cards are embedded via Blade's @js(), which
+        // unicode-escapes quotes (and Livewire's wire:snapshot re-escapes
+        // those again) — match loosely through however many backslashes
+        // wrap each ".
+        $this->assertMatchesRegularExpression('/difficulty.*?u0022:.*?u0022easy/', $html);
+        $this->assertMatchesRegularExpression('/difficulty.*?u0022:.*?u0022hard/', $html);
+    }
+
     public function test_the_comprehension_check_does_not_render_in_read_only_mode(): void
     {
         $run = $this->makeRunWithComprehensionCheck();

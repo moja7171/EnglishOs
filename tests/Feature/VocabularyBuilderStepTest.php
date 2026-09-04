@@ -196,6 +196,41 @@ class VocabularyBuilderStepTest extends TestCase
         $component->assertSee('Quick check before you write')->assertSee('quick-round-completed');
     }
 
+    public function test_a_seeded_difficulty_tag_is_threaded_through_to_the_meaning_check_cards(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [[
+                    'key' => 'vocabulary_builder',
+                    'story' => [],
+                    'story_words' => [
+                        ['phrase' => 'wake up', 'meaning' => 'to stop sleeping', 'difficulty' => 'easy'],
+                        ['phrase' => 'oversleep', 'meaning' => 'to sleep too long by accident', 'difficulty' => 'hard'],
+                        ['phrase' => 'routine', 'meaning' => 'the usual things you do'],
+                    ],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
+            ->set('selectedWords', ['wake up', 'oversleep', 'routine']);
+
+        $cards = collect($component->instance()->meaningCheckCards())->keyBy('prompt');
+
+        $this->assertSame('easy', $cards['wake up']['difficulty']);
+        $this->assertSame('hard', $cards['oversleep']['difficulty']);
+        // Not authored in the fixture — must not fabricate one.
+        $this->assertArrayNotHasKey('difficulty', $cards['routine']);
+    }
+
     public function test_an_image_match_round_is_offered_for_words_with_an_image_query(): void
     {
         $learner = User::factory()->create();

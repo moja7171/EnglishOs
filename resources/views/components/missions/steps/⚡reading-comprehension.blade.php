@@ -142,6 +142,49 @@ new class extends Component
     }
 
     /**
+     * The passage text with its reused Vocabulary-Builder phrases and
+     * brand-new bonus words wrapped in a highlighted <mark>, built from
+     * `highlighted_phrases` in the seeder content (Story 3). Longest
+     * phrase first so a shorter phrase that happens to be a substring of
+     * a longer one never steals the match. Escapes everything except the
+     * `<mark>` wrapper itself, so this is the one place in this file that
+     * needs {!! !!} rather than {{ }}.
+     */
+    public function highlightedPassageHtml(): string
+    {
+        $passage = $this->run->mission->stepContent('reading_comprehension')['passage'] ?? '';
+        $phrases = $this->run->mission->stepContent('reading_comprehension')['highlighted_phrases'] ?? [];
+
+        if ($passage === '' || empty($phrases)) {
+            return e($passage);
+        }
+
+        $sorted = collect($phrases)->sortByDesc(fn ($p) => mb_strlen($p['phrase']))->values();
+        $byPhrase = $sorted->keyBy('phrase');
+        $pattern = '/('.$sorted->map(fn ($p) => preg_quote($p['phrase'], '/'))->implode('|').')/u';
+
+        $parts = preg_split($pattern, $passage, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$passage];
+
+        return collect($parts)->map(function (string $part) use ($byPhrase) {
+            $match = $byPhrase->get($part);
+
+            if (! $match) {
+                return e($part);
+            }
+
+            $isNew = ($match['type'] ?? 'reused') === 'new';
+            $tooltip = $isNew
+                ? ($match['definition'] ?? '')
+                : 'این کلمه رو توی Vocabulary Builder دیدی';
+            $classes = $isNew
+                ? 'rounded bg-accent/15 px-0.5 text-accent-ink cursor-help dark:bg-accent-dark/25 dark:text-accent-ink-dark'
+                : 'rounded bg-success/15 px-0.5 text-success cursor-help dark:bg-success-dark/25 dark:text-success-dark';
+
+            return '<mark class="'.$classes.'" title="'.e($tooltip).'">'.e($part).'</mark>';
+        })->implode('');
+    }
+
+    /**
      * A decorative header image for the passage's subject — dual-coding,
      * same principle as Vocabulary Builder's flashcards. Cached per
      * mission (not per learner), fails soft like every PexelsClient call.
@@ -158,14 +201,19 @@ new class extends Component
     }
 
     /**
-     * @return list<array{prompt: string, options: list<string>, correct: int}>
+     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
      */
     public function comprehensionCards(): array
     {
         $items = $this->run->mission->stepContent('reading_comprehension')['comprehension_check'] ?? [];
 
         return collect($items)
-            ->map(fn ($item) => ['prompt' => $item['statement'], 'options' => ['True', 'False'], 'correct' => $item['correct'] ? 0 : 1])
+            ->map(fn ($item) => [
+                'prompt' => $item['statement'],
+                'options' => ['True', 'False'],
+                'correct' => $item['correct'] ? 0 : 1,
+                ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
+            ])
             ->all();
     }
 
@@ -224,6 +272,7 @@ new class extends Component
 
 @php
     $reading = $run->mission->stepContent('reading_comprehension');
+    $passageHtml = $this->highlightedPassageHtml();
     $draftPrefix = $this->draftPrefix();
     // Two focused sub-steps instead of one long scroll (EOS-009 §8's
     // UI/UX review) — read + warm-up first, the AI-checked questions
@@ -258,7 +307,13 @@ new class extends Component
                 @endif
                 <div>
                     <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
-                    <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{{ $reading['passage'] ?? '' }}</p>
+                    <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
+                    @if (! empty($reading['highlighted_phrases'] ?? []))
+                        <p class="mt-2 flex items-center gap-3 text-[11px] text-ink-faint dark:text-ink-faint-dark">
+                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-success/60 dark:bg-success-dark/60"></span> words you already know</span>
+                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-accent/60 dark:bg-accent-dark/60"></span> new words — tap for meaning</span>
+                        </p>
+                    @endif
                 </div>
             </div>
         </div>

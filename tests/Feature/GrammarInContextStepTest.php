@@ -50,8 +50,8 @@ class GrammarInContextStepTest extends TestCase
                             ],
                             'frequency_starters' => ['I usually', 'I often', 'I sometimes', 'I rarely'],
                             'quick_check' => [
-                                ['wrong' => 'She go to work.', 'options' => ['She goes to work.', 'She gos to work.'], 'correct' => 0],
-                                ['wrong' => 'He wake up late.', 'options' => ['He wakes up late.', 'He waking up late.'], 'correct' => 0],
+                                ['wrong' => 'She go to work.', 'options' => ['She goes to work.', 'She gos to work.'], 'correct' => 0, 'difficulty' => 'easy'],
+                                ['wrong' => 'He wake up late.', 'options' => ['He wakes up late.', 'He waking up late.'], 'correct' => 0, 'difficulty' => 'hard'],
                             ],
                         ],
                         ['key' => 'activation'],
@@ -218,6 +218,18 @@ class GrammarInContextStepTest extends TestCase
 
         $this->assertStringContainsString('She go to work.', $html);
         $this->assertStringContainsString('quick-round-completed', $html);
+    }
+
+    public function test_the_seeded_difficulty_tag_is_threaded_through_to_the_quick_check_cards(): void
+    {
+        $run = $this->makeRun();
+
+        $cards = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->instance()
+            ->quickCheckCards();
+
+        $this->assertSame('easy', $cards[0]['difficulty']);
+        $this->assertSame('hard', $cards[1]['difficulty']);
     }
 
     public function test_the_lesson_highlights_the_adverb_and_shows_the_bridge_note(): void

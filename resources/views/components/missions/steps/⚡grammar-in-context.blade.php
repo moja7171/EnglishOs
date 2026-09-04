@@ -63,14 +63,19 @@ new class extends Component
     }
 
     /**
-     * @return list<array{prompt: string, options: list<string>, correct: int}>
+     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
      */
     public function quickCheckCards(): array
     {
         $items = $this->run->mission->stepContent('grammar_in_context')['quick_check'] ?? [];
 
         return collect($items)
-            ->map(fn ($item) => ['prompt' => $item['wrong'], 'options' => $item['options'], 'correct' => $item['correct']])
+            ->map(fn ($item) => [
+                'prompt' => $item['wrong'],
+                'options' => $item['options'],
+                'correct' => $item['correct'],
+                ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
+            ])
             ->all();
     }
 

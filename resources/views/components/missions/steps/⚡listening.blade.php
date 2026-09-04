@@ -417,7 +417,12 @@ new class extends Component
     // it to replay).
     $comprehensionCards = ! $readOnly
         ? collect($listening['comprehension_check'] ?? [])
-            ->map(fn ($item) => ['prompt' => $item['statement'], 'options' => ['True', 'False'], 'correct' => $item['correct'] ? 0 : 1])
+            ->map(fn ($item) => [
+                'prompt' => $item['statement'],
+                'options' => ['True', 'False'],
+                'correct' => $item['correct'] ? 0 : 1,
+                ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
+            ])
             ->all()
         : [];
 

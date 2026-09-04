@@ -49,22 +49,79 @@ class AiFeedback1StepTest extends TestCase
         return $run;
     }
 
-    public function test_mount_generates_feedback_from_the_conversation(): void
+    /** @return array{strength: string, expression: string, correction: array{original: string, corrected: string, why: string, suggestion: string}, severity: string} */
+    private function sampleAiResponse(string $severity = 'minor'): array
+    {
+        return [
+            'strength' => 'نقطه قوت تو این بود که واضح جواب دادی.',
+            'expression' => 'از عبارت wake up درست استفاده کردی.',
+            'correction' => [
+                'original' => 'I wake up at seven.',
+                'corrected' => 'I usually wake up at seven.',
+                'why' => 'برای توصیف عادت‌های روزمره باید از قید تکرار استفاده کنی.',
+                'suggestion' => 'برای تمرین بیشتر، چند جمله با usually بنویس.',
+            ],
+            'severity' => $severity,
+        ];
+    }
+
+    public function test_mount_does_not_call_gemini(): void
     {
         $run = $this->makeRunWithConversation();
 
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                'strength' => 'You answered clearly and confidently.',
-                'expression' => 'wake up',
-                'correction' => 'Try using "usually" to describe routines.',
-            ]));
+            $mock->shouldNotReceive('chat');
         });
 
         Livewire::test('missions.steps.ai-feedback1', ['run' => $run])
-            ->assertSet('strength', 'You answered clearly and confidently.')
-            ->assertSet('expression', 'wake up')
+            ->assertSet('generated', false)
+            ->assertSet('strength', null)
+            ->assertSee('Get my feedback');
+    }
+
+    public function test_clicking_generate_calls_gemini_and_fills_the_report_card(): void
+    {
+        $run = $this->makeRunWithConversation();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode($this->sampleAiResponse()));
+        });
+
+        Livewire::test('missions.steps.ai-feedback1', ['run' => $run])
+            ->call('generate')
+            ->assertSet('generated', true)
+            ->assertSet('strength', 'نقطه قوت تو این بود که واضح جواب دادی.')
+            ->assertSet('correctionOriginal', 'I wake up at seven.')
+            ->assertSet('correctionCorrected', 'I usually wake up at seven.')
             ->assertSet('error', null);
+    }
+
+    public function test_major_severity_records_a_struggle_signal_for_tone_adaptation(): void
+    {
+        $run = $this->makeRunWithConversation();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode($this->sampleAiResponse('major')));
+        });
+
+        Livewire::test('missions.steps.ai-feedback1', ['run' => $run])
+            ->call('generate');
+
+        $this->assertSame(1, $run->fresh()->struggle_signal_count);
+    }
+
+    public function test_minor_severity_does_not_record_a_struggle_signal(): void
+    {
+        $run = $this->makeRunWithConversation();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode($this->sampleAiResponse('minor')));
+        });
+
+        Livewire::test('missions.steps.ai-feedback1', ['run' => $run])
+            ->call('generate');
+
+        $this->assertSame(0, $run->fresh()->struggle_signal_count);
     }
 
     public function test_continue_saves_evidence_and_ai_feedback_and_advances_the_run(): void
@@ -72,14 +129,11 @@ class AiFeedback1StepTest extends TestCase
         $run = $this->makeRunWithConversation();
 
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                'strength' => 'Good clear answer.',
-                'expression' => 'wake up',
-                'correction' => 'Add more detail next time.',
-            ]));
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode($this->sampleAiResponse()));
         });
 
         Livewire::test('missions.steps.ai-feedback1', ['run' => $run])
+            ->call('generate')
             ->call('continueMission')
             ->assertRedirect(route('missions.show', $run->mission));
 
@@ -88,6 +142,11 @@ class AiFeedback1StepTest extends TestCase
 
         $conversationEvidence = Evidence::where('phase', 'ai_conversation_1')->first();
         $this->assertSame($conversationEvidence->id, AIFeedback::first()->evidence_id);
+
+        $savedEvidence = Evidence::where('phase', 'ai_feedback_1')->first();
+        $saved = json_decode($savedEvidence->content_ref, true);
+        $this->assertSame('I wake up at seven.', $saved['correction']['original']);
+        $this->assertSame('I usually wake up at seven.', $saved['correction']['corrected']);
 
         $this->assertSame('writing', $run->fresh()->currentStepKey());
     }
@@ -101,8 +160,10 @@ class AiFeedback1StepTest extends TestCase
         });
 
         Livewire::test('missions.steps.ai-feedback1', ['run' => $run])
+            ->call('generate')
             ->assertSet('error', fn ($error) => str_contains($error, "Couldn't get feedback"))
-            ->assertSet('strength', null);
+            ->assertSet('strength', null)
+            ->assertSet('generated', false);
 
         $this->assertDatabaseCount('evidences', 1); // only the conversation evidence from setup
     }
@@ -115,11 +176,7 @@ class AiFeedback1StepTest extends TestCase
             'mission_run_id' => $run->id,
             'phase' => 'ai_feedback_1',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode([
-                'strength' => 'Saved strength.',
-                'expression' => 'wake up',
-                'correction' => 'Saved correction.',
-            ]),
+            'content_ref' => json_encode($this->sampleAiResponse()),
         ]);
 
         $this->mock(GeminiClient::class, function ($mock) {
@@ -127,8 +184,9 @@ class AiFeedback1StepTest extends TestCase
         });
 
         Livewire::test('missions.steps.ai-feedback1', ['run' => $run, 'readOnly' => true])
-            ->assertSet('strength', 'Saved strength.')
-            ->assertSet('correction', 'Saved correction.')
+            ->assertSet('generated', true)
+            ->assertSet('strength', 'نقطه قوت تو این بود که واضح جواب دادی.')
+            ->assertSet('correctionCorrected', 'I usually wake up at seven.')
             ->assertDontSee('Continue');
     }
 }

@@ -98,4 +98,90 @@ class QuickRoundComponentTest extends TestCase
         $this->assertStringContainsString('mt-4', $html);
         $this->assertStringContainsString('rounded-2xl', $html);
     }
+
+    public function test_a_card_with_a_difficulty_field_embeds_the_adaptive_selection_logic(): void
+    {
+        $cards = [
+            ['prompt' => 'easy one', 'options' => ['a', 'b'], 'correct' => 0, 'difficulty' => 'easy'],
+            ['prompt' => 'hard one', 'options' => ['a', 'b'], 'correct' => 0, 'difficulty' => 'hard'],
+        ];
+
+        $html = Blade::render('<x-quick-round :cards="$cards" />', ['cards' => $cards]);
+
+        // The adaptive-mode functions are always present in the markup (the
+        // decision of whether to USE them is made at runtime by Alpine's
+        // `adaptive` getter) — what must vary per-invocation is the actual
+        // difficulty data reaching the client.
+        $this->assertStringContainsString('pickNextIndex', $html);
+        $this->assertStringContainsString('get adaptive()', $html);
+        $this->assertStringContainsString('easy', $html);
+        $this->assertStringContainsString('hard', $html);
+    }
+
+    public function test_the_adaptive_selection_rule_prefers_hard_after_a_two_streak_and_easy_after_a_miss(): void
+    {
+        // This is the exact algorithm embedded in quick-round.blade.php's
+        // x-data (pickNextIndex/advance) — re-implemented here so the
+        // selection RULE itself has a real assertion behind it, since this
+        // project has no browser/JS test runner to execute the Alpine code
+        // directly (see composer.json / package.json — no Dusk, no Node
+        // test runner configured).
+        $pickNextIndex = function (array $cards, array $shown, array $levels) {
+            $remaining = array_values(array_diff(array_keys($cards), $shown));
+            foreach ($levels as $level) {
+                foreach ($remaining as $i) {
+                    if (($cards[$i]['difficulty'] ?? 'medium') === $level) {
+                        return $i;
+                    }
+                }
+            }
+
+            return $remaining[0] ?? null;
+        };
+
+        $cards = [
+            ['difficulty' => 'easy'],
+            ['difficulty' => 'easy'],
+            ['difficulty' => 'medium'],
+            ['difficulty' => 'medium'],
+            ['difficulty' => 'hard'],
+        ];
+
+        // First card always starts easy.
+        $first = $pickNextIndex($cards, [], ['easy', 'medium', 'hard']);
+        $this->assertSame('easy', $cards[$first]['difficulty']);
+
+        // After a streak of 2+ correct answers, the next card prefers hard.
+        $shown = [0, 1];
+        $next = $pickNextIndex($cards, $shown, ['hard', 'medium', 'easy']);
+        $this->assertSame('hard', $cards[$next]['difficulty']);
+
+        // A wrong answer (streak reset to 0) prefers easy/medium over hard,
+        // even though a hard card is still unshown.
+        $shown = [0, 1, 4];
+        $next = $pickNextIndex($cards, $shown, ['easy', 'medium', 'hard']);
+        $this->assertSame('medium', $cards[$next]['difficulty']); // both easy cards already shown
+
+        // Once every easy/medium/hard-preferred option is exhausted, it
+        // still falls back to whatever's left rather than returning null.
+        $shown = [0, 1, 2, 3];
+        $next = $pickNextIndex($cards, $shown, ['easy', 'medium']);
+        $this->assertSame('hard', $cards[$next]['difficulty']);
+    }
+
+    public function test_a_card_without_any_difficulty_field_never_triggers_adaptive_mode(): void
+    {
+        $cards = [
+            ['prompt' => 'a', 'options' => ['x', 'y'], 'correct' => 0],
+            ['prompt' => 'b', 'options' => ['x', 'y'], 'correct' => 1],
+        ];
+
+        $html = Blade::render('<x-quick-round :cards="$cards" />', ['cards' => $cards]);
+
+        // No card in this set carries `difficulty`, so cards.some(c =>
+        // c.difficulty !== undefined) evaluates false at runtime — the
+        // `card` getter's non-adaptive branch (cards[this.index]) is what
+        // actually serves cards, same as before this feature existed.
+        $this->assertStringContainsString('this.cards[this.index]', $html);
+    }
 }

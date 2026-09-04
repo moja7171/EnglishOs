@@ -146,7 +146,7 @@ new class extends Component
      * OTHER story words so they're always plausible-sounding, never random
      * unrelated text.
      *
-     * @return list<array{prompt: string, options: list<string>, correct: int}>
+     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
      */
     public function meaningCheckCards(): array
     {
@@ -154,7 +154,8 @@ new class extends Component
 
         return collect($this->selectedWords)
             ->map(function (string $word) use ($storyWords) {
-                $meaning = $storyWords->firstWhere('phrase', $word)['meaning'] ?? '';
+                $entry = $storyWords->firstWhere('phrase', $word);
+                $meaning = $entry['meaning'] ?? '';
 
                 $distractors = $storyWords
                     ->where('phrase', '!=', $word)
@@ -165,7 +166,12 @@ new class extends Component
 
                 $options = collect([$meaning, ...$distractors])->shuffle()->values();
 
-                return ['prompt' => $word, 'options' => $options->all(), 'correct' => $options->search($meaning)];
+                return [
+                    'prompt' => $word,
+                    'options' => $options->all(),
+                    'correct' => $options->search($meaning),
+                    ...(isset($entry['difficulty']) ? ['difficulty' => $entry['difficulty']] : []),
+                ];
             })
             ->values()
             ->all();
