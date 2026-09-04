@@ -40,6 +40,12 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 5,
                                 'hook' => "Imagine a new coworker turns to you and asks: \"So, what's your day usually "
                                     .'like?" Could you answer right now, without stopping to think?',
+                                // A wide cover banner, not the small circular portrait style
+                                // Reading uses for Aisha specifically — this represents the
+                                // mission's theme in general (starting the day), not one person.
+                                // Dual-coding, purely decorative, fails soft like every other
+                                // PexelsClient call.
+                                'image_query' => 'sunrise alarm clock bedroom window',
                                 'warm_up_questions' => [
                                     'What time do you usually wake up?',
                                     'What do you usually do in the morning?',
@@ -363,6 +369,28 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
+                                'key' => 'story_sequence',
+                                'label' => 'Picture Story',
+                                // New (2026-09-04) — wires <x-sequential-picture-story>, built
+                                // earlier but never used: its own docblock assumed it needed a
+                                // past-narrative mission, but a routine sequence narrates just as
+                                // naturally in Present Simple, exactly what Grammar in Context
+                                // just taught. Placed right after it on purpose — fresh applied
+                                // practice for the tense, before Activation's personal speaking.
+                                'duration_minutes' => 10,
+                                'hook' => 'You just learned how Present Simple works. Now use it to tell someone '
+                                    .'else\'s morning, one picture at a time.',
+                                // Captions are ground truth for the AI feedback prompt only —
+                                // never rendered to the learner (see the step's own docblock).
+                                'sequence_images' => [
+                                    ['image_query' => 'alarm clock ringing bedroom morning', 'caption' => 'She wakes up'],
+                                    ['image_query' => 'woman brushing teeth bathroom mirror', 'caption' => 'She has a shower and gets ready'],
+                                    ['image_query' => 'woman eating breakfast kitchen table', 'caption' => 'She has breakfast'],
+                                    ['image_query' => 'woman walking out front door leaving house', 'caption' => 'She leaves for work'],
+                                ],
+                                'sequencing_words' => ['First', 'Then', 'After that', 'Finally'],
+                            ],
+                            [
                                 'key' => 'activation',
                                 'label' => 'Activation',
                                 'duration_minutes' => 12,
@@ -465,6 +493,24 @@ class MissionSeeder extends Seeder
                                 'label' => 'AI Feedback #1',
                                 'duration_minutes' => 3,
                                 'hook' => 'A second pair of ears just heard everything you said — here\'s what stood out.',
+                            ],
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                // New (2026-09-04) — a real CEFR/IELTS "describe this picture"
+                                // task. Everything else in M01 narrates the learner's OWN routine
+                                // (Activation, ai_conversation_1/2) — this is the only step that
+                                // practices describing someone else's scene objectively: present
+                                // continuous for what's happening right now, "there is/are",
+                                // prepositions of place. A genuine skill gap, not a repeat.
+                                'duration_minutes' => 8,
+                                'hook' => 'Forget your own morning for a minute — what\'s happening in this one?',
+                                'image_query' => 'family breakfast table morning kitchen busy',
+                                'guiding_questions' => [
+                                    'What do you see in the picture?',
+                                    'What is each person doing right now?',
+                                    'Where do you think this is?',
+                                ],
                             ],
                             [
                                 'key' => 'reading_comprehension',

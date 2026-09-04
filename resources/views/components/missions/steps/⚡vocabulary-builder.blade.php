@@ -171,6 +171,63 @@ new class extends Component
             ->all();
     }
 
+    /**
+     * A second, image-based round right after the meaning-check one —
+     * "which picture means this word?" tests the word→image link directly
+     * (no text crutch), a different retrieval pathway than matching a word
+     * to its written meaning. Only covers words that actually have an
+     * image_query (dual-coding is for concrete nouns only, same rule
+     * wordImageUrl() already follows); distractor images are drawn from
+     * the OTHER image-bearing story words, same "always plausible, never
+     * random" principle as meaningCheckCards().
+     *
+     * @return list<array{prompt: string, options: list<string>, correct: int, optionType: string}>
+     */
+    public function imageMatchCards(): array
+    {
+        $storyWords = collect($this->run->mission->stepContent('vocabulary_builder')['story_words'] ?? []);
+        $imageWords = $storyWords->filter(fn ($w) => $w['image_query'] ?? null);
+        $client = app(PexelsClient::class);
+
+        return collect($this->selectedWords)
+            ->filter(fn (string $word) => $imageWords->firstWhere('phrase', $word))
+            // Enough OTHER image-bearing words to draw 2 distractors from —
+            // checked before any fetch, so a mission with too few image
+            // words to build a fair round never wastes a PexelsClient call.
+            ->filter(fn (string $word) => $imageWords->where('phrase', '!=', $word)->count() >= 2)
+            ->map(function (string $word) use ($imageWords, $client) {
+                $entry = $imageWords->firstWhere('phrase', $word);
+                $correctImage = $client->imageUrlFor($word, $entry['image_query']);
+
+                if (! $correctImage) {
+                    return null;
+                }
+
+                $distractorImages = $imageWords
+                    ->where('phrase', '!=', $word)
+                    ->shuffle()
+                    ->take(2)
+                    ->map(fn ($w) => $client->imageUrlFor($w['phrase'], $w['image_query']))
+                    ->filter();
+
+                if ($distractorImages->count() < 2) {
+                    return null;
+                }
+
+                $options = collect([$correctImage, ...$distractorImages])->shuffle()->values();
+
+                return [
+                    'prompt' => $word,
+                    'options' => $options->all(),
+                    'correct' => $options->search($correctImage),
+                    'optionType' => 'image',
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
     public function checkOne(int $index): void
     {
         $word = $this->selectedWords[$index] ?? null;
@@ -466,10 +523,10 @@ new class extends Component
         <div x-show="phase === 'meaning_check'" x-cloak class="space-y-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick check before you write</p>
-                <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Match each word to its meaning — just a warm-up, skip anytime.</p>
+                <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Match each word to its meaning, then its picture — just a warm-up, skip anytime.</p>
             </div>
             <x-quick-round
-                :cards="$this->meaningCheckCards()"
+                :cards="[...$this->meaningCheckCards(), ...$this->imageMatchCards()]"
                 on-complete="$wire.call('startPractice'); phase = 'practice'"
                 on-skip="$wire.call('startPractice'); phase = 'practice'"
             />

@@ -12,7 +12,10 @@
     dispatched "quick-round-completed" / "quick-round-skipped" browser
     events, or supplies raw Alpine via $onComplete/$onSkip.
 
-    @param list<array{prompt: string, options: list<string>, correct: int}> $cards
+    @param list<array{prompt: string, options: list<string>, correct: int, optionType?: 'text'|'image'}> $cards
+        optionType defaults to 'text'; 'image' renders each option as a
+        picture (options holds image URLs, not label strings) instead of a
+        text button — same tap/color-feedback mechanics either way.
     @param string|null $onComplete Raw Alpine statement(s) run when the
         round finishes naturally, e.g. "$wire.call('unlockWriting')".
     @param string|null $onSkip Raw Alpine statement(s) run when skipped.
@@ -94,14 +97,30 @@
                             type="button"
                             x-on:click="pick(i)"
                             :disabled="selected !== null"
-                            :class="{
-                                'border-success bg-success-soft text-success dark:border-success-dark dark:bg-success-soft-dark dark:text-success-dark': selected !== null && i === card.correct,
-                                'border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950': selected === i && i !== card.correct,
-                                'border-line text-ink hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark': selected === null || (i !== card.correct && selected !== i),
-                            }"
-                            class="cursor-pointer rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition-colors disabled:cursor-not-allowed"
-                            x-text="option"
-                        ></button>
+                            :class="[
+                                {
+                                    'border-success bg-success-soft text-success dark:border-success-dark dark:bg-success-soft-dark dark:text-success-dark': selected !== null && i === card.correct,
+                                    'border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950': selected === i && i !== card.correct,
+                                    'border-line text-ink hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark': selected === null || (i !== card.correct && selected !== i),
+                                },
+                                card.optionType === 'image' ? 'p-1.5' : 'px-3 py-2.5 text-left',
+                            ]"
+                            class="cursor-pointer overflow-hidden rounded-xl border text-sm font-semibold transition-colors disabled:cursor-not-allowed"
+                        >
+                            {{-- The `<img>` markup only ships in the server-rendered HTML when
+                                 THIS invocation actually has an image card — every caller that
+                                 never uses optionType:'image' (My Words, Listening, Grammar in
+                                 Context, Mission Brief) keeps emitting exactly the same output
+                                 as before this feature existed, not a dead `<template>` block. --}}
+                            @if (collect($cards)->contains('optionType', 'image'))
+                            <template x-if="card.optionType === 'image'">
+                                <img :src="option" alt="" class="h-20 w-full rounded-lg object-cover">
+                            </template>
+                            @endif
+                            <template x-if="card.optionType !== 'image'">
+                                <span x-text="option"></span>
+                            </template>
+                        </button>
                     </template>
                 </div>
             </div>

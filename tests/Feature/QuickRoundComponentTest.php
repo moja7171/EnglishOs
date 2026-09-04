@@ -56,6 +56,32 @@ class QuickRoundComponentTest extends TestCase
         $this->assertStringContainsString('window.eosSound?.playSuccess()', $html);
     }
 
+    public function test_an_image_option_type_renders_pictures_not_text_buttons(): void
+    {
+        $cards = [
+            [
+                'prompt' => 'cereal',
+                'options' => ['http://localhost/a.jpg', 'http://localhost/b.jpg', 'http://localhost/c.jpg'],
+                'correct' => 0,
+                'optionType' => 'image',
+            ],
+        ];
+
+        $html = Blade::render('<x-quick-round :cards="$cards" />', ['cards' => $cards]);
+
+        $this->assertStringContainsString(':src="option"', $html);
+        $this->assertStringContainsString("card.optionType === 'image'", $html);
+    }
+
+    public function test_a_card_without_option_type_still_renders_as_text(): void
+    {
+        $cards = [['prompt' => 'word', 'options' => ['a', 'b'], 'correct' => 0]];
+
+        $html = Blade::render('<x-quick-round :cards="$cards" />', ['cards' => $cards]);
+
+        $this->assertStringContainsString('x-text="option"', $html);
+    }
+
     public function test_an_empty_card_list_renders_nothing(): void
     {
         $html = Blade::render('<x-quick-round :cards="$cards" />', ['cards' => []]);

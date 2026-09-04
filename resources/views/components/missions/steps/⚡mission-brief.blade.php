@@ -3,6 +3,7 @@
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -42,6 +43,22 @@ new class extends Component
         $this->savedWarmUpRecordingUrl = $recordingEvidence?->content_ref;
     }
 
+    /**
+     * The mission's cover image — dual-coding, same principle as every
+     * other PexelsClient call. Cached per mission (not per learner), fails
+     * soft (null) on no query/no key/any error.
+     */
+    public function heroImageUrl(): ?string
+    {
+        $query = $this->run->mission->stepContent('mission_brief')['image_query'] ?? null;
+
+        if (! $query) {
+            return null;
+        }
+
+        return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-brief', $query);
+    }
+
     public function save(): void
     {
         $this->validate([
@@ -78,6 +95,10 @@ new class extends Component
 @endphp
 
 <div class="space-y-6">
+    @if ($imageUrl = $this->heroImageUrl())
+        <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
+    @endif
+
     <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
         <p class="font-display text-sm font-semibold text-ink dark:text-ink-dark">{{ $run->mission->outcome }}</p>
     </div>

@@ -196,6 +196,50 @@ class VocabularyBuilderStepTest extends TestCase
         $component->assertSee('Quick check before you write')->assertSee('quick-round-completed');
     }
 
+    public function test_an_image_match_round_is_offered_for_words_with_an_image_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [[
+                    'key' => 'vocabulary_builder',
+                    'story' => [['heading' => 'Morning', 'text' => 'A short story.']],
+                    'story_words' => [
+                        ['phrase' => 'cereal', 'meaning' => 'a breakfast food', 'image_query' => 'bowl of cereal'],
+                        ['phrase' => 'shower', 'meaning' => 'to wash', 'image_query' => 'shower bathroom'],
+                        ['phrase' => 'ironing', 'meaning' => 'smoothing clothes', 'image_query' => 'ironing clothes'],
+                        ['phrase' => 'routine', 'meaning' => 'the usual things you do'], // no image_query — abstract
+                    ],
+                ]],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')
+                ->andReturnUsing(fn (string $word, string $query) => "http://localhost/storage/{$word}.jpg");
+        });
+
+        $component = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run]);
+        $component->call('toggleWord', 'cereal')->call('toggleWord', 'shower')->call('toggleWord', 'ironing')->call('toggleWord', 'routine');
+
+        $cards = $component->instance()->imageMatchCards();
+
+        // 'routine' has no image_query, so only the 3 image-bearing words get a card.
+        $this->assertCount(3, $cards);
+
+        foreach ($cards as $card) {
+            $this->assertSame('image', $card['optionType']);
+            $this->assertCount(3, $card['options']);
+            $this->assertSame("http://localhost/storage/{$card['prompt']}.jpg", $card['options'][$card['correct']]);
+        }
+    }
+
     public function test_read_only_mode_skips_selection_but_shows_the_story_as_reference(): void
     {
         [, , $run] = $this->makeMissionAndRun();

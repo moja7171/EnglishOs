@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\PexelsClient;
 use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -50,6 +51,49 @@ class MissionBriefStepTest extends TestCase
         ]);
 
         $this->assertSame('vocabulary_builder', $run->fresh()->currentStepKey());
+    }
+
+    public function test_a_cover_image_shows_when_the_mission_has_an_image_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [['key' => 'mission_brief', 'image_query' => 'sunrise alarm clock bedroom window']],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')
+                ->with('M01-brief', 'sunrise alarm clock bedroom window')
+                ->once()
+                ->andReturn('http://localhost/storage/vocabulary-images/m01-brief.jpg');
+        });
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-brief.jpg');
+    }
+
+    public function test_no_cover_image_without_an_image_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])->assertDontSeeHtml('<img');
     }
 
     public function test_continue_is_hidden_until_a_score_is_picked(): void
