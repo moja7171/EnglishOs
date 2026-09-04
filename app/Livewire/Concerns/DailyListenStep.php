@@ -4,6 +4,7 @@ namespace App\Livewire\Concerns;
 
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\PexelsClient;
 
 /**
  * Shared logic for the "Daily Listening" gate that opens Day 2/3/4 of a
@@ -105,6 +106,24 @@ trait DailyListenStep
     public function hook(): ?string
     {
         return $this->run->mission->stepContent($this->phaseKey())['hook'] ?? null;
+    }
+
+    /**
+     * This day's own cover image — each day gets its own image_query (for
+     * visual variety across the 4 listens of the same episode), fetched
+     * and cached the same fetch-once principle as every other
+     * PexelsClient call. Purely decorative, fails soft (null) on no
+     * query/no key/any error.
+     */
+    public function heroImageUrl(): ?string
+    {
+        $query = $this->run->mission->stepContent($this->phaseKey())['image_query'] ?? null;
+
+        if (! $query) {
+            return null;
+        }
+
+        return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-'.$this->phaseKey(), $query);
     }
 
     public function recallPrompt(): string

@@ -24,6 +24,10 @@
     }"
     x-on:audio-ended="hasListened = true; $wire.markListened()"
 >
+    @if ($imageUrl = $this->heroImageUrl())
+        <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
+    @endif
+
     <x-hook :text="$this->hook()" />
 
     <div>

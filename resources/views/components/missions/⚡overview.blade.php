@@ -2,6 +2,7 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Services\PexelsClient;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -105,6 +106,18 @@ new class extends Component
      *
      * @return list<array{code: string, mission: ?Mission, blockedBy: ?Mission}>
      */
+    /**
+     * The mission's cover image, reused from Mission Brief's own cache
+     * (see ⚡mission-brief.blade.php's heroImageUrl()) — this reads the
+     * exact same cache key so it never triggers a fresh Pexels fetch,
+     * it's a zero-cost reuse of whatever's already cached (or null on a
+     * cache miss, which simply renders no thumbnail).
+     */
+    public function missionCoverUrl(Mission $mission): ?string
+    {
+        return app(PexelsClient::class)->cachedImageUrl($mission->code.'-brief');
+    }
+
     #[Computed]
     public function missionSlots(): array
     {
@@ -256,12 +269,18 @@ new class extends Component
                 >@svg('heroicon-o-lock-closed', 'h-4 w-4')</a>
             </div>
         @else
+            @php $coverUrl = $this->missionCoverUrl($slot['mission']); @endphp
             <a href="{{ route('missions.show', $slot['mission']) }}"
                data-mood="{{ $slot['mission']->moodKey() }}"
-               class="block rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
-                <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $slot['mission']->title }}</h2>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $slot['mission']->outcome }}</p>
+               class="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
+                @if ($coverUrl)
+                    <img src="{{ $coverUrl }}" alt="" class="h-14 w-14 shrink-0 rounded-xl object-cover">
+                @endif
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
+                    <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $slot['mission']->title }}</h2>
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $slot['mission']->outcome }}</p>
+                </div>
             </a>
         @endif
     @endforeach

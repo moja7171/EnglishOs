@@ -159,7 +159,25 @@ new class extends Component
 
         @if (count($this->friendCards) === 0)
             <div class="mt-2 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-8 text-center dark:border-line-dark">
-                @svg('heroicon-o-user-group', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
+                {{-- Two not-yet-connected busts (same vetted heroicon-s-user
+                     silhouette <x-illustrated-avatar> reuses) with a dashed
+                     line and a "+" between them — plain primitives only,
+                     matching this app's no-freehand-bezier illustration
+                     style, no external asset. --}}
+                <svg viewBox="0 0 160 90" class="h-16 w-32" aria-hidden="true">
+                    <circle cx="34" cy="45" r="30" class="fill-accent-soft dark:fill-accent-soft-dark" />
+                    <circle cx="126" cy="45" r="30" class="fill-surface-sunken dark:fill-surface-sunken-dark" />
+                    <g transform="translate(20, 31) scale(1.15)" class="fill-accent-ink dark:fill-accent-ink-dark">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" />
+                    </g>
+                    <g transform="translate(112, 31) scale(1.15)" class="fill-ink-faint dark:fill-ink-faint-dark">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" />
+                    </g>
+                    <line x1="64" y1="45" x2="96" y2="45" stroke-width="2.5" stroke-dasharray="1 7" stroke-linecap="round" class="stroke-line dark:stroke-line-dark" />
+                    <circle cx="80" cy="45" r="10" class="fill-accent dark:fill-accent-dark" />
+                    <line x1="80" y1="40" x2="80" y2="50" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    <line x1="75" y1="45" x2="85" y2="45" stroke="white" stroke-width="2" stroke-linecap="round" />
+                </svg>
                 <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Once you and a friend follow each other back, they'll show up here.</p>
                 <a href="{{ route('friends.index') }}" wire:navigate class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
                     Find friends @svg('heroicon-o-arrow-right', 'h-3 w-3')

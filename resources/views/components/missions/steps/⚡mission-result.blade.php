@@ -559,8 +559,23 @@ new class extends Component
     @else
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             @if ($milestoneJustReached)
-                <div class="mb-3 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 text-center dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
-                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
+                {{-- Reuses the exact same full-screen confetti burst the
+                     "mission complete" moment below already triggers (see
+                     window.eosConfetti in resources/js/app.js — it already
+                     honors prefers-reduced-motion, so this doesn't need its
+                     own check) plus a small pop on the badge itself. Fires
+                     once: this property is only ever set live inside
+                     getResult(), never restored on a later page load, so
+                     this block can't render true again on a plain review.
+                     Skipped when the "mission complete" block below will
+                     also render (same page load) — that block already
+                     bursts confetti, so firing here too would stack two
+                     canvases at once. --}}
+                <div
+                    x-init="{{ $status === 'complete' && ! $readOnly ? '' : 'window.eosConfetti?.burst()' }}"
+                    class="mb-3 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 text-center dark:border-accent-soft-dark dark:bg-accent-soft-dark/60"
+                >
+                    <span class="animate-trophy-pop inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
                         @svg('heroicon-s-trophy', 'h-5 w-5')
                     </span>
                     <p class="mt-1.5 text-sm font-bold text-accent-ink dark:text-accent-ink-dark">{{ $milestoneJustReached }}-day streak!</p>

@@ -56,6 +56,22 @@ class PexelsClient
     }
 
     /**
+     * Reads back an image already cached under a given identifier (e.g.
+     * "M01-brief", as fetched once by imageUrlFor()) WITHOUT ever
+     * triggering a fresh Pexels search — for a second caller that wants
+     * to reuse the exact same asset (e.g. Mission Overview's cover
+     * thumbnail reusing Mission Brief's hero image) at zero API cost.
+     * Returns null on a cache miss rather than fetching, unlike
+     * imageUrlFor().
+     */
+    public function cachedImageUrl(string $identifier): ?string
+    {
+        $path = 'vocabulary-images/'.Str::slug($identifier).'.jpg';
+
+        return Storage::disk('public')->exists($path) ? Storage::disk('public')->url($path) : null;
+    }
+
+    /**
      * @param  callable(): ?string  $resolveRemoteUrl
      */
     private function fetchAndCache(string $path, callable $resolveRemoteUrl): ?string

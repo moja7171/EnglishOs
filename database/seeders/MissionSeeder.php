@@ -46,6 +46,11 @@ class MissionSeeder extends Seeder
                                 // Dual-coding, purely decorative, fails soft like every other
                                 // PexelsClient call.
                                 'image_query' => 'sunrise alarm clock bedroom window',
+                                // Silent, looping background clip for the mission's own hero panel
+                                // (see ⚡runner.blade.php) — mood-setting only, matches the same
+                                // "starting the day" theme as the cover image above. Fails soft
+                                // like every other PexelsClient call.
+                                'ambient_video_query' => 'quiet morning coffee sunrise',
                                 'warm_up_questions' => [
                                     'What time do you usually wake up?',
                                     'What do you usually do in the morning?',
@@ -178,6 +183,9 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 24,
                                 'hook' => 'Neil and Georgie are chatting about their mornings right now — how much can you catch without reading along?',
                                 'source' => 'BBC Learning English — Real Easy English: Mornings (2025)',
+                                // Purely decorative episode cover — dual-coding, same principle
+                                // as Mission Brief's own image_query. Doesn't affect duration.
+                                'image_query' => 'morning coffee',
                                 'audio_url' => $audioUrl,
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
                                 // Full real transcript (BBC Learning English, "Real Easy English:
@@ -314,6 +322,9 @@ class MissionSeeder extends Seeder
                                 // episode to play through, which 3 never accounted for.
                                 'duration_minutes' => 8,
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
+                                // Purely decorative — a different image than Day 1's own for
+                                // visual variety across the 4 listens of the same episode.
+                                'image_query' => 'sunrise bedroom window',
                                 'recall_prompt' => 'Write one word or phrase you remember hearing.',
                             ],
                             [
@@ -470,6 +481,7 @@ class MissionSeeder extends Seeder
                                 // (ffprobe-verified) audio-ended gate as daily_listen_2.
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
+                                'image_query' => 'alarm clock wake up bed',
                                 'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
                             ],
                             [
@@ -609,6 +621,7 @@ class MissionSeeder extends Seeder
                                 // (ffprobe-verified) audio-ended gate as daily_listen_2.
                                 'duration_minutes' => 8,
                                 'hook' => 'Last time hearing this one — notice how much easier it sounds now.',
+                                'image_query' => 'cozy morning breakfast table',
                                 'recall_prompt' => "One more — this time, are you sure you'll remember it?",
                             ],
                             [

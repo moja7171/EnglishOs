@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Services\GeminiClient;
+use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Livewire\Livewire;
@@ -765,5 +766,48 @@ class ListeningStepTest extends TestCase
         $this->assertStringContainsString('>like</strong>', $html);
         $this->assertStringContainsString('>get up</strong>', $html);
         $this->assertStringNotContainsString('**', $html);
+    }
+
+    public function test_a_cover_image_shows_when_the_episode_has_an_image_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [['key' => 'listening', 'image_query' => 'morning coffee']],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')
+                ->with('M01-listening', 'morning coffee')
+                ->once()
+                ->andReturn('http://localhost/storage/vocabulary-images/m01-listening.jpg');
+        });
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-listening.jpg');
+    }
+
+    public function test_no_cover_image_without_an_image_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'listening']]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+
+        Livewire::test('missions.steps.listening', ['run' => $run])->assertDontSeeHtml('<img');
     }
 }

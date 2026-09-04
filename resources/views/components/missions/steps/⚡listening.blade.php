@@ -5,6 +5,7 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -65,6 +66,23 @@ new class extends Component
     public ?UploadedFile $shadowRecording = null;
 
     public ?int $activeShadowLine = null;
+
+    /**
+     * The episode's cover image — same dual-coding, fetch-once-cache-
+     * forever principle as every other PexelsClient call (see
+     * ⚡mission-brief.blade.php's heroImageUrl()). Purely decorative,
+     * fails soft (null) on no query/no key/any error.
+     */
+    public function heroImageUrl(): ?string
+    {
+        $query = $this->run->mission->stepContent('listening')['image_query'] ?? null;
+
+        if (! $query) {
+            return null;
+        }
+
+        return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-listening', $query);
+    }
 
     public function mount(): void
     {
@@ -435,6 +453,10 @@ new class extends Component
     }"
     x-on:audio-ended="listenCount++"
 >
+    @if ($imageUrl = $this->heroImageUrl())
+        <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
+    @endif
+
     <x-hook :text="$listening['hook'] ?? null" />
 
     <div>

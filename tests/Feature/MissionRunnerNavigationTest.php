@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\PexelsClient;
 use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -329,5 +330,44 @@ class MissionRunnerNavigationTest extends TestCase
             // A later day's steps must stay invisible-as-content on Day 1 — the
             // checklist only ever lists the active day's own steps.
             ->assertDontSee('Mission Result');
+    }
+
+    public function test_the_hero_panel_shows_an_ambient_video_when_the_mission_has_a_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [['key' => 'mission_brief', 'ambient_video_query' => 'quiet morning coffee sunrise']],
+            ]],
+        ]);
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('videoUrlFor')
+                ->with('M01-ambient', 'quiet morning coffee sunrise')
+                ->once()
+                ->andReturn('http://localhost/storage/ambient-videos/m01-ambient.mp4');
+        });
+
+        Livewire::test('missions.runner', ['mission' => $mission])
+            ->assertSeeHtml('http://localhost/storage/ambient-videos/m01-ambient.mp4');
+    }
+
+    public function test_no_ambient_video_without_a_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('videoUrlFor'));
+
+        Livewire::test('missions.runner', ['mission' => $mission])->assertDontSeeHtml('<video');
     }
 }

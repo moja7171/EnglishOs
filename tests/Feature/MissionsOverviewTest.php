@@ -7,6 +7,7 @@ use App\Models\GrammarPoint;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -269,5 +270,39 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertDontSee('Finish M01 first to unlock this one.');
+    }
+
+    public function test_a_mission_card_shows_its_cached_cover_image(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        // Reads back the exact asset Mission Brief itself would have
+        // cached under "M01-brief" — never triggers a fresh Pexels fetch.
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('cachedImageUrl')
+                ->with('M01-brief')
+                ->once()
+                ->andReturn('http://localhost/storage/vocabulary-images/m01-brief.jpg');
+        });
+
+        Livewire::test('missions.overview')
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-brief.jpg');
+    }
+
+    public function test_no_thumbnail_without_a_cached_cover_image(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('cachedImageUrl')->with('M01-brief')->once()->andReturn(null);
+        });
+
+        Livewire::test('missions.overview')->assertDontSeeHtml('<img');
     }
 }

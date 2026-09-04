@@ -434,6 +434,87 @@ class MissionResultStepTest extends TestCase
         $this->assertSame(7, $run->learner->fresh()->celebrated_streak_milestone);
     }
 
+    public function test_the_milestone_trophy_pops_and_reuses_the_shared_confetti_burst_even_when_the_mission_needs_review(): void
+    {
+        // A streak milestone is a learner-level fact (consecutive days
+        // active), independent of whether THIS particular mission's result
+        // came back "complete" — so the celebration must render on its own,
+        // not only alongside the separate "mission complete" confetti
+        // trigger further down the page.
+        $run = $this->makeRun();
+
+        for ($i = 1; $i < 7; $i++) {
+            $evidence = Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => 'mission_brief',
+                'type' => Evidence::TYPE_SCORE,
+                'content_ref' => '3',
+            ]);
+            $evidence->forceFill(['created_at' => now()->subDays($i)])->saveQuietly();
+        }
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]); // today, completes the 7-day streak
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'needs_review',
+            'reason' => 'Almost there.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 3)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 3)
+            ->call('getResult')
+            ->assertSee('7-day streak!')
+            ->assertSeeHtml('animate-trophy-pop')
+            ->assertSeeHtml('window.eosConfetti?.burst()');
+    }
+
+    public function test_completing_a_mission_on_a_milestone_day_bursts_confetti_only_once(): void
+    {
+        // When a mission both completes AND lands on a streak milestone in
+        // the same render, the milestone block and the "mission complete"
+        // block sit side by side on the page — without dedup, each would
+        // independently call window.eosConfetti.burst(), stacking two
+        // full-screen canvases. Only one call should ever reach the page.
+        $run = $this->makeRun();
+
+        for ($i = 1; $i < 7; $i++) {
+            $evidence = Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => 'mission_brief',
+                'type' => Evidence::TYPE_SCORE,
+                'content_ref' => '3',
+            ]);
+            $evidence->forceFill(['created_at' => now()->subDays($i)])->saveQuietly();
+        }
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]); // today, completes the 7-day streak
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        $html = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult')
+            ->assertSee('7-day streak!')
+            ->html();
+
+        $this->assertSame(1, substr_count($html, 'window.eosConfetti?.burst()'));
+    }
+
     public function test_reaching_a_milestone_also_creates_a_persistent_notification(): void
     {
         Notification::fake();

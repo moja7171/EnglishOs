@@ -37,6 +37,16 @@ class FriendsBoardTest extends TestCase
         return $friend;
     }
 
+    public function test_the_empty_state_shows_an_illustration_when_there_are_no_friends(): void
+    {
+        $me = User::factory()->create();
+        $this->actingAs($me);
+
+        Livewire::test('friends.board')
+            ->assertSee('Once you and a friend follow each other back')
+            ->assertSeeHtml('<svg viewBox="0 0 160 90"');
+    }
+
     public function test_only_mutual_friends_appear_on_the_board(): void
     {
         $me = User::factory()->create();

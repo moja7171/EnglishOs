@@ -2,6 +2,7 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Services\PexelsClient;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -230,6 +231,25 @@ new class extends Component
      * Heroicons throughout, via blade-ui-kit/blade-heroicons) for use with
      * the @svg() Blade directive, e.g. @svg($this->stepIcon($key), '...').
      */
+    /**
+     * A silent, looping background clip for the mission hero panel below —
+     * purely decorative/mood-setting (see <x-ambient-video>'s own
+     * docblock), NOT tied to any specific grammar point or listening
+     * source. Sourced from Mission Brief's own content since it's a
+     * mission-wide (not per-step) decoration. Fails soft (null) on no
+     * query/no key/any error, same as every other PexelsClient call.
+     */
+    public function heroVideoUrl(): ?string
+    {
+        $query = $this->mission->stepContent('mission_brief')['ambient_video_query'] ?? null;
+
+        if (! $query) {
+            return null;
+        }
+
+        return app(PexelsClient::class)->videoUrlFor($this->mission->code.'-ambient', $query);
+    }
+
     public function stepIcon(string $key): string
     {
         return match (true) {
@@ -262,6 +282,12 @@ new class extends Component
     </a>
 
     <div class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-8 text-white sm:p-9">
+        @if ($videoUrl = $this->heroVideoUrl())
+            <div class="absolute inset-0 -z-30 overflow-hidden">
+                <x-ambient-video :url="$videoUrl" class="opacity-25" />
+                <div class="absolute inset-0 bg-linear-to-br from-hero/95 to-hero-2/90"></div>
+            </div>
+        @endif
         <div class="pointer-events-none absolute -top-24 -right-10 -z-10 h-72 w-72 rounded-full bg-dawn opacity-40 blur-3xl"></div>
         <div class="pointer-events-none absolute -bottom-28 -left-10 -z-10 h-60 w-60 rounded-full bg-dusk opacity-30 blur-3xl"></div>
         <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-white/70 uppercase">

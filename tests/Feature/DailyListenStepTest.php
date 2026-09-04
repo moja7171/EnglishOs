@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -238,5 +239,41 @@ class DailyListenStepTest extends TestCase
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run, 'readOnly' => true])
             ->assertSet('listened', true)
             ->assertDontSee('Continue');
+    }
+
+    public function test_a_cover_image_shows_when_the_day_has_its_own_image_query(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'build',
+                'steps' => [['key' => 'daily_listen_2', 'image_query' => 'sunrise bedroom window']],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')
+                ->with('M01-daily_listen_2', 'sunrise bedroom window')
+                ->once()
+                ->andReturn('http://localhost/storage/vocabulary-images/m01-daily_listen_2.jpg');
+        });
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-daily_listen_2.jpg');
+    }
+
+    public function test_no_cover_image_without_a_day_image_query(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])->assertDontSeeHtml('<img');
     }
 }
