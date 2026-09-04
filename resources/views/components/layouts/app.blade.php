@@ -72,6 +72,8 @@
                     <span x-show="!enabled" x-cloak>@svg('heroicon-o-speaker-x-mark', 'h-4 w-4')</span>
                 </button>
 
+                <livewire:notifications.bell />
+
                 <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
                     <button
                         type="button"

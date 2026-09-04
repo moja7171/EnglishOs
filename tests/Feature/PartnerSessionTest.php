@@ -6,9 +6,11 @@ use App\Models\Mission;
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
+use App\Notifications\PartnerAnswerReceived;
 use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -162,6 +164,47 @@ class PartnerSessionTest extends TestCase
             ->assertSee('Seven in the morning.')
             ->assertSee('Waiting for '.$alice->name)
             ->assertDontSee('Waiting for '.$bob->name);
+    }
+
+    public function test_saving_a_new_answer_notifies_the_partner(): void
+    {
+        Notification::fake();
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+
+        $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        $this->actingAs($alice);
+        Livewire::test('partner-session', ['session' => $session])
+            ->set('textAnswers.0', 'Seven in the morning.')
+            ->call('saveTextAnswer', 0);
+
+        Notification::assertSentTo($bob, PartnerAnswerReceived::class);
+        Notification::assertNotSentTo($alice, PartnerAnswerReceived::class);
+    }
+
+    public function test_resaving_an_answer_does_not_notify_again(): void
+    {
+        Notification::fake();
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+
+        $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        $this->actingAs($alice);
+        $component = Livewire::test('partner-session', ['session' => $session])
+            ->set('textAnswers.0', 'First try.')
+            ->call('saveTextAnswer', 0);
+
+        $component->set('textAnswers.0', 'Better answer.')->call('saveTextAnswer', 0);
+
+        Notification::assertSentToTimes($bob, PartnerAnswerReceived::class, 1);
     }
 
     public function test_an_empty_text_answer_is_a_no_op(): void

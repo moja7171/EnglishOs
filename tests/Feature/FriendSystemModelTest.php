@@ -5,7 +5,10 @@ namespace Tests\Feature;
 use App\Models\DirectMessage;
 use App\Models\FriendBlock;
 use App\Models\User;
+use App\Notifications\FollowRequestAccepted;
+use App\Notifications\FollowRequestReceived;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class FriendSystemModelTest extends TestCase
@@ -26,6 +29,33 @@ class FriendSystemModelTest extends TestCase
         $this->assertFalse($bob->isFollowing($alice));
         $this->assertFalse($alice->isMutualWith($bob));
         $this->assertFalse($alice->canMessageWith($bob));
+    }
+
+    public function test_a_follow_request_notifies_the_followed_user(): void
+    {
+        Notification::fake();
+
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+
+        $alice->follow($bob);
+
+        Notification::assertSentTo($bob, FollowRequestReceived::class);
+        Notification::assertNotSentTo($alice, FollowRequestReceived::class);
+    }
+
+    public function test_accepting_a_request_notifies_the_original_follower(): void
+    {
+        Notification::fake();
+
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+
+        $bob->acceptFollowRequest($alice);
+
+        Notification::assertSentTo($alice, FollowRequestAccepted::class);
+        Notification::assertNotSentTo($bob, FollowRequestAccepted::class);
     }
 
     public function test_a_second_follow_call_never_queues_a_duplicate_request(): void

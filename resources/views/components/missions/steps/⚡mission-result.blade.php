@@ -7,6 +7,7 @@ use App\Models\MissionRun;
 use App\Models\Reflection;
 use App\Models\SelfAssessment;
 use App\Models\SpeakingPrompt;
+use App\Notifications\StreakMilestoneReached;
 use App\Services\GeminiClient;
 use Livewire\Component;
 
@@ -351,6 +352,13 @@ new class extends Component
             $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && $this->isRedoable($weakStep))
                 ? $weakStep : null;
             $this->milestoneJustReached = $this->run->learner->streakMilestoneJustReached();
+
+            if ($this->milestoneJustReached !== null) {
+                // The page already celebrates this live (the trophy banner
+                // below) — the notification is what lets the learner find
+                // this moment again later, in the bell's history.
+                $this->run->learner->notify(new StreakMilestoneReached($this->milestoneJustReached));
+            }
             $this->speakingPromptsToTrack = array_fill(0, count($this->speakingPromptCandidates()), true);
         } catch (Throwable $e) {
             $this->error = "Couldn't get your result from the AI Instructor: {$e->getMessage()}";

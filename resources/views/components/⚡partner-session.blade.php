@@ -3,6 +3,7 @@
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
+use App\Notifications\PartnerAnswerReceived;
 use App\Services\GroqClient;
 use Illuminate\Http\UploadedFile;
 use Livewire\Attributes\Computed;
@@ -69,7 +70,7 @@ new class extends Component
             return;
         }
 
-        PartnerSessionAnswer::updateOrCreate(
+        $answer = PartnerSessionAnswer::updateOrCreate(
             [
                 'partner_session_id' => $this->session->id,
                 'question_index' => $index,
@@ -78,7 +79,21 @@ new class extends Component
             ['type' => PartnerSessionAnswer::TYPE_TEXT, 'body' => $text]
         );
 
+        $this->notifyPartnerIfNew($answer);
+
         unset($this->answersByQuestion);
+    }
+
+    /**
+     * Only the FIRST answer to a given question notifies the partner — an
+     * edit to an already-answered question (updateOrCreate's update path)
+     * never re-fires, so fixing a typo doesn't spam them again.
+     */
+    private function notifyPartnerIfNew(PartnerSessionAnswer $answer): void
+    {
+        if ($answer->wasRecentlyCreated) {
+            $this->partner->notify(new PartnerAnswerReceived($this->session, auth()->user()));
+        }
     }
 
     /**
@@ -103,7 +118,7 @@ new class extends Component
 
         $body = $text !== '' ? $text : 'Voice answer';
 
-        PartnerSessionAnswer::updateOrCreate(
+        $answer = PartnerSessionAnswer::updateOrCreate(
             [
                 'partner_session_id' => $this->session->id,
                 'question_index' => $index,
@@ -117,6 +132,8 @@ new class extends Component
                 'attachment_mime' => $this->voiceAnswer->getMimeType(),
             ]
         );
+
+        $this->notifyPartnerIfNew($answer);
 
         $this->textAnswers[$index] = $body;
         $this->voiceAnswer = null;

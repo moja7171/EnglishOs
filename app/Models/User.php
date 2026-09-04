@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\FollowRequestAccepted;
+use App\Notifications\FollowRequestReceived;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -919,6 +921,8 @@ class User extends Authenticatable
             'followed_id' => $user->id,
             'status' => Follow::STATUS_PENDING,
         ]);
+
+        $user->notify(new FollowRequestReceived($this));
     }
 
     /**
@@ -954,6 +958,8 @@ class User extends Authenticatable
         $reverse = Follow::firstOrNew(['follower_id' => $this->id, 'followed_id' => $follower->id]);
         $reverse->status = Follow::STATUS_ACCEPTED;
         $reverse->save();
+
+        $follower->notify(new FollowRequestAccepted($this));
     }
 
     /**

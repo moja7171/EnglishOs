@@ -10,8 +10,10 @@ use App\Models\Reflection;
 use App\Models\SelfAssessment;
 use App\Models\SpeakingPrompt;
 use App\Models\User;
+use App\Notifications\StreakMilestoneReached;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -430,6 +432,42 @@ class MissionResultStepTest extends TestCase
             ->assertSee('A full week of practice');
 
         $this->assertSame(7, $run->learner->fresh()->celebrated_streak_milestone);
+    }
+
+    public function test_reaching_a_milestone_also_creates_a_persistent_notification(): void
+    {
+        Notification::fake();
+        $run = $this->makeRun();
+
+        for ($i = 1; $i < 7; $i++) {
+            $evidence = Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => 'mission_brief',
+                'type' => Evidence::TYPE_SCORE,
+                'content_ref' => '3',
+            ]);
+            $evidence->forceFill(['created_at' => now()->subDays($i)])->saveQuietly();
+        }
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]); // today, completes the 7-day streak
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'Nice work.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->set('reflection.became_easier', 'x')
+            ->set('reflection.still_difficult', 'y')
+            ->call('getResult');
+
+        Notification::assertSentTo($run->learner, StreakMilestoneReached::class);
     }
 
     public function test_the_milestone_celebration_is_never_shown_in_read_only_mode(): void

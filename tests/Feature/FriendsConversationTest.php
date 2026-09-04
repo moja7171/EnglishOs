@@ -8,10 +8,12 @@ use App\Models\FriendBlock;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Notifications\DirectMessageReceived;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -74,6 +76,25 @@ class FriendsConversationTest extends TestCase
             'body' => 'Hey, want to practice today?',
             'type' => DirectMessage::TYPE_MESSAGE,
         ]);
+    }
+
+    public function test_sending_a_message_notifies_the_recipient(): void
+    {
+        Notification::fake();
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('body', 'Hey, want to practice today?')
+            ->call('send');
+
+        Notification::assertSentTo($bob, DirectMessageReceived::class);
+        Notification::assertNotSentTo($me, DirectMessageReceived::class);
     }
 
     public function test_the_emoji_picker_is_wired_with_the_curated_set(): void
@@ -221,6 +242,24 @@ class FriendsConversationTest extends TestCase
             'type' => DirectMessage::TYPE_NUDGE,
             'body' => 'Come practice with me today!',
         ]);
+    }
+
+    public function test_sending_a_nudge_notifies_the_recipient_too(): void
+    {
+        Notification::fake();
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])->call('sendNudge');
+
+        Notification::assertSentTo($bob, DirectMessageReceived::class);
     }
 
     public function test_a_streak_holder_gets_the_streak_preset_as_a_fallback(): void

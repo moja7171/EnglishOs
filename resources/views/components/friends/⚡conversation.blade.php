@@ -4,6 +4,7 @@ use App\Models\DirectMessage;
 use App\Models\FriendBlock;
 use App\Models\FriendReport;
 use App\Models\User;
+use App\Notifications\DirectMessageReceived;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Illuminate\Http\UploadedFile;
@@ -78,15 +79,25 @@ new class extends Component
 
         abort_unless(auth()->user()->canMessageWith($this->other), 403);
 
-        DirectMessage::create([
+        $this->notifyRecipient(DirectMessage::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $this->other->id,
             'type' => DirectMessage::TYPE_MESSAGE,
             'body' => $text,
-        ]);
+        ]));
 
         $this->body = '';
         unset($this->thread);
+    }
+
+    /**
+     * Shared by every send*() method below — a friend only ever needs to
+     * hear about a message once, regardless of whether it arrived as text,
+     * voice, a file, or a nudge.
+     */
+    private function notifyRecipient(DirectMessage $message): void
+    {
+        $this->other->notify(new DirectMessageReceived($message));
     }
 
     /**
@@ -119,7 +130,7 @@ new class extends Component
             // Keep the generic fallback label.
         }
 
-        DirectMessage::create([
+        $this->notifyRecipient(DirectMessage::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $this->other->id,
             'type' => DirectMessage::TYPE_AUDIO,
@@ -127,7 +138,7 @@ new class extends Component
             'attachment_path' => $path,
             'attachment_name' => 'voice-message.webm',
             'attachment_mime' => $this->voiceMessage->getMimeType(),
-        ]);
+        ]));
 
         $this->voiceMessage = null;
         unset($this->thread);
@@ -146,7 +157,7 @@ new class extends Component
 
         $path = $this->attachment->store('direct-messages/'.auth()->id(), 'local');
 
-        DirectMessage::create([
+        $this->notifyRecipient(DirectMessage::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $this->other->id,
             'type' => DirectMessage::TYPE_FILE,
@@ -154,7 +165,7 @@ new class extends Component
             'attachment_path' => $path,
             'attachment_name' => $this->attachment->getClientOriginalName(),
             'attachment_mime' => $this->attachment->getMimeType(),
-        ]);
+        ]));
 
         $this->attachment = null;
         unset($this->thread);
@@ -170,12 +181,12 @@ new class extends Component
     {
         abort_unless(auth()->user()->canMessageWith($this->other), 403);
 
-        DirectMessage::create([
+        $this->notifyRecipient(DirectMessage::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $this->other->id,
             'type' => DirectMessage::TYPE_NUDGE,
             'body' => $this->nudgeMessage(),
-        ]);
+        ]));
 
         unset($this->thread);
     }
