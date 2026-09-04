@@ -240,6 +240,8 @@ class UserVocabularyAndProgressTest extends TestCase
         $learner = User::factory()->create();
         $run1 = $this->makeRun($learner, 'M01');
         $run2 = $this->makeRun($learner, 'M02');
+        $run1->update(['status' => MissionRun::STATUS_COMPLETE]);
+        $run2->update(['status' => MissionRun::STATUS_COMPLETE]);
 
         SelfAssessment::create(['mission_run_id' => $run1->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
         SelfAssessment::create(['mission_run_id' => $run2->id, 'skill' => 'Speaking', 'before' => 3, 'after' => 2]);
@@ -252,6 +254,30 @@ class UserVocabularyAndProgressTest extends TestCase
         $learner = User::factory()->create();
 
         $this->assertSame([], $learner->skillAverages());
+    }
+
+    /**
+     * Regression test: Mission Result writes a SelfAssessment row whenever
+     * the AI verdict comes back at all — 'needs_review' and
+     * 'retry_evidence' included, not just 'complete' (see
+     * ⚡mission-result.blade.php's finish()). Before this fix,
+     * skillAverages() had no status filter at all, so a mission that
+     * didn't pass still populated the Progress page's Skills radar next to
+     * a genuine "0 missions completed" stat.
+     */
+    public function test_skill_averages_excludes_self_assessments_from_non_completed_runs(): void
+    {
+        $learner = User::factory()->create();
+
+        $needsReview = $this->makeRun($learner, 'M01');
+        $needsReview->update(['status' => MissionRun::STATUS_NEEDS_REVIEW]);
+        SelfAssessment::create(['mission_run_id' => $needsReview->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
+
+        $inProgress = $this->makeRun($learner, 'M02');
+        SelfAssessment::create(['mission_run_id' => $inProgress->id, 'skill' => 'Writing', 'before' => 2, 'after' => 3]);
+
+        $this->assertSame([], $learner->skillAverages());
+        $this->assertSame(0, $learner->missionsCompletedCount());
     }
 
     public function test_total_practice_minutes_sums_only_recorded_steps(): void

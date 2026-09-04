@@ -217,27 +217,33 @@ new class extends Component
                 <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $expression }}</p>
             </div>
 
-            @if ($severity === 'major')
-                <div class="rounded-xl border-l-4 border-red-500 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
-                    <p class="flex items-center gap-1.5 text-xs font-semibold text-red-600 uppercase dark:text-red-400">
-                        @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                        Something to fix
+            {{-- Evidence saved under the old flat-string `correction` shape
+                 resolves all four sub-fields to null — omit the card
+                 entirely rather than showing an alarming red/amber box
+                 with no body text. --}}
+            @if (collect([$correctionOriginal, $correctionCorrected, $correctionWhy, $correctionSuggestion])->filter(fn ($v) => filled($v))->isNotEmpty())
+                @if ($severity === 'major')
+                    <div class="rounded-xl border-l-4 border-red-500 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
+                        <p class="flex items-center gap-1.5 text-xs font-semibold text-red-600 uppercase dark:text-red-400">
+                            @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
+                            Something to fix
+                        </p>
+                @else
+                    <div class="rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                        <p class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 uppercase dark:text-amber-400">
+                            @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
+                            Something to fix
+                        </p>
+                @endif
+                    <p class="mt-2 text-sm text-red-600 line-through decoration-red-500">{{ $correctionOriginal }}</p>
+                    <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $correctionCorrected }}</p>
+                    <p class="font-fa mt-2 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $correctionWhy }}</p>
+                    <p class="font-fa mt-1 flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
+                        @svg('heroicon-o-arrow-trending-up', 'h-4 w-4 shrink-0 mt-0.5')
+                        {{ $correctionSuggestion }}
                     </p>
-            @else
-                <div class="rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
-                    <p class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 uppercase dark:text-amber-400">
-                        @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                        Something to fix
-                    </p>
+                </div>
             @endif
-                <p class="mt-2 text-sm text-red-600 line-through decoration-red-500">{{ $correctionOriginal }}</p>
-                <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $correctionCorrected }}</p>
-                <p class="font-fa mt-2 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $correctionWhy }}</p>
-                <p class="font-fa mt-1 flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
-                    @svg('heroicon-o-arrow-trending-up', 'h-4 w-4 shrink-0 mt-0.5')
-                    {{ $correctionSuggestion }}
-                </p>
-            </div>
         </div>
 
         @unless ($readOnly)

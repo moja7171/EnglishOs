@@ -199,6 +199,70 @@ class ActiveRecallStepTest extends TestCase
         return $run;
     }
 
+    /**
+     * Unlike makeRunWithSelectedWords() above, this also embeds a real
+     * 'vocabulary_builder' step (with 'story_words', each optionally
+     * carrying 'accepted_paraphrases') in the mission's own phases —
+     * checkExpression()'s acceptedParaphrasesFor() reads that content
+     * directly from the mission, separately from the Evidence-based
+     * $selectedWords list, so tests that exercise accepted_paraphrases
+     * need both. Placed in the same 'earlier' phase as 'listening' (both
+     * marked done via Evidence) so it doesn't sit between active_recall
+     * and error_log in currentStepKey()'s sequential order.
+     */
+    private function makeRunWithVocabularyContent(array $storyWords, array $selectedWords): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'mission',
+                    'steps' => [
+                        [
+                            'key' => 'active_recall',
+                            'instruction' => 'Without looking at the previous pages.',
+                            'sections' => [
+                                ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
+                                ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
+                                ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
+                            ],
+                        ],
+                        ['key' => 'error_log'],
+                    ],
+                ],
+                [
+                    'phase' => 'earlier',
+                    'steps' => [
+                        ['key' => 'vocabulary_builder', 'story_words' => $storyWords],
+                        ['key' => 'listening', 'topic_summary' => 'Neil and Georgie talk about their morning routines.'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['selected_words' => $selectedWords]),
+        ]);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'listening',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => '{}',
+        ]);
+
+        return $run;
+    }
+
     public function test_checking_an_expression_that_matches_a_real_selected_word_is_marked_correct(): void
     {
         $run = $this->makeRunWithSelectedWords();
@@ -217,6 +281,181 @@ class ActiveRecallStepTest extends TestCase
             ->set('answers.expressions.0', 'go swimming') // not one of the learner's real words
             ->call('checkExpression', 0)
             ->assertSet('expressionFeedback.0.severity', 'minor');
+    }
+
+    /**
+     * Regression test for the exact-match bug — final design (3rd round):
+     * an article-only difference ("skip the breakfast" for "skip
+     * breakfast") is handled by normalization alone; a genuine paraphrase
+     * of a DIFFERENT word ("shower" for "have a shower", "sleep late" for
+     * "sleep in") is only ever accepted via an explicit, hand-authored
+     * 'accepted_paraphrases' entry on that exact vocabulary item (see
+     * MissionSeeder) — never inferred generically. This is a local (no
+     * AI call) check — the step stays intentionally non-AI.
+     */
+    public function test_checking_an_expression_tolerates_common_paraphrases(): void
+    {
+        $run = $this->makeRunWithVocabularyContent(
+            storyWords: [
+                ['phrase' => 'have a shower', 'meaning' => 'to wash', 'difficulty' => 'easy', 'accepted_paraphrases' => ['shower']],
+                ['phrase' => 'sleep in', 'meaning' => 'to sleep late', 'difficulty' => 'hard', 'accepted_paraphrases' => ['sleep late']],
+                ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast', 'difficulty' => 'easy'],
+            ],
+            selectedWords: ['have a shower', 'sleep in', 'skip breakfast'],
+        );
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'shower')
+            ->call('checkExpression', 0)
+            ->assertSet('expressionFeedback.0.severity', 'none')
+            ->set('answers.expressions.1', 'sleep late')
+            ->call('checkExpression', 1)
+            ->assertSet('expressionFeedback.1.severity', 'none')
+            ->set('answers.expressions.2', 'skip the breakfast') // article-only difference, no paraphrase needed
+            ->call('checkExpression', 2)
+            ->assertSet('expressionFeedback.2.severity', 'none');
+    }
+
+    /**
+     * Regression test for a genuine embedded-idiom sentence built around
+     * a 2-word target — accepted via the literal whole-word substring
+     * check. This rule is opt-in per word now (round 4): only "come
+     * round" and "once a week" carry 'allow_embedded_match' => true in
+     * MissionSeeder, since they're the two words explicitly verified safe
+     * (see test_an_embedded_match_is_never_credited_without_the_opt_in_flag
+     * below for why this can't be a blanket default).
+     */
+    public function test_checking_an_expression_accepts_the_target_embedded_in_a_natural_sentence(): void
+    {
+        $run = $this->makeRunWithVocabularyContent(
+            storyWords: [
+                ['phrase' => 'come round', 'meaning' => 'to visit someone at their home', 'difficulty' => 'hard', 'allow_embedded_match' => true],
+                ['phrase' => 'once a week', 'meaning' => 'happening one time every week', 'difficulty' => 'easy', 'allow_embedded_match' => true],
+            ],
+            selectedWords: ['come round', 'once a week'],
+        );
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'he might come round later')
+            ->call('checkExpression', 0)
+            ->assertSet('expressionFeedback.0.severity', 'none')
+            ->set('answers.expressions.1', 'we do it once a week usually')
+            ->call('checkExpression', 1)
+            ->assertSet('expressionFeedback.1.severity', 'none');
+    }
+
+    /**
+     * Regression test for the false positive QA caught live in round 4:
+     * target "stay in" (real M01 vocabulary, meaning "spend an evening
+     * at home") must NOT be credited by "I want to stay in touch with my
+     * friends" — a completely different, extremely common idiom ("stay
+     * in touch") that just happens to start with the same two words.
+     * "stay in" deliberately carries no 'allow_embedded_match' flag (only
+     * "come round"/"once a week" do), so the substring rule never even
+     * runs for it — exact match or an authored paraphrase only.
+     */
+    public function test_an_embedded_match_is_never_credited_without_the_opt_in_flag(): void
+    {
+        $run = $this->makeRunWithVocabularyContent(
+            storyWords: [
+                ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'difficulty' => 'easy'],
+            ],
+            selectedWords: ['stay in'],
+        );
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'I want to stay in touch with my friends')
+            ->call('checkExpression', 0)
+            ->assertSet('expressionFeedback.0.severity', 'minor');
+    }
+
+    /**
+     * Regression test for the overcorrection QA caught live in round 2
+     * against the real seeded vocabulary (database/seeders/MissionSeeder.php):
+     * a generic content-word-stripping heuristic let a single common word
+     * ("sleep", "go") turn up in a totally unrelated, much longer
+     * sentence, AND (round 3's finding) collide with a neighbouring
+     * vocabulary item that legitimately shares that same word ("go out"
+     * vs "go to bed"/"go to sleep" — a phrasal verb's particle is
+     * load-bearing, not strippable). The final design has no generic
+     * word-stripping at all, so all of these correctly stay NOT matching.
+     */
+    public function test_an_unrelated_or_neighbouring_vocabulary_answer_does_not_match(): void
+    {
+        $run = $this->makeRunWithVocabularyContent(
+            storyWords: [
+                ['phrase' => 'sleep in', 'meaning' => 'to sleep late', 'difficulty' => 'hard', 'accepted_paraphrases' => ['sleep late']],
+                ['phrase' => 'go out', 'meaning' => 'to leave home for fun', 'difficulty' => 'easy'],
+                ['phrase' => 'morning person', 'meaning' => 'someone energetic in the morning', 'difficulty' => 'medium'],
+                ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep', 'difficulty' => 'easy'],
+                ['phrase' => 'go to sleep', 'meaning' => 'to start sleeping', 'difficulty' => 'easy'],
+            ],
+            selectedWords: ['sleep in', 'go out', 'morning person'],
+        );
+
+        $component = Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'I need more sleep')
+            ->call('checkExpression', 0)
+            ->assertSet('expressionFeedback.0.severity', 'minor')
+            ->set('answers.expressions.1', 'I go to school by bus')
+            ->call('checkExpression', 1)
+            ->assertSet('expressionFeedback.1.severity', 'minor')
+            ->set('answers.expressions.2', 'I met a person this morning')
+            ->call('checkExpression', 2)
+            ->assertSet('expressionFeedback.2.severity', 'minor');
+
+        // The neighbouring-vocabulary collision QA specifically flagged:
+        // "go to bed"/"go to sleep" must not be accepted as recall of the
+        // unrelated target "go out", even though both share the word "go"
+        // (a fixed light-word-stripping heuristic previously let this
+        // through — "go out" and "go to bed" both reduced to just "go").
+        $component
+            ->set('answers.expressions.3', 'go to bed')
+            ->call('checkExpression', 3)
+            ->assertSet('expressionFeedback.3.severity', 'minor')
+            ->set('answers.expressions.4', 'go to sleep')
+            ->call('checkExpression', 4)
+            ->assertSet('expressionFeedback.4.severity', 'minor');
+    }
+
+    /**
+     * A genuine near-miss (recalls PART of a multi-word target, not
+     * enough to fully accept) gets softer, more specific copy naming the
+     * real phrase, instead of a flat "doesn't match" — still not accepted
+     * (severity stays 'minor'), but reads as encouraging rather than as
+     * simply being told you were wrong.
+     */
+    public function test_a_near_miss_expression_gets_softer_copy_naming_the_real_phrase(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['selected_words' => ['skip breakfast']]),
+        ]);
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'skip') // recalls half the idiom, not the whole thing
+            ->call('checkExpression', 0)
+            ->assertSet('expressionFeedback.0.severity', 'minor')
+            ->assertSet('expressionFeedback.0.hint', 'Close — the exact phrase was "skip breakfast".');
+    }
+
+    /**
+     * A totally unrelated answer still gets the plain "doesn't match"
+     * copy — the softer "close" copy is reserved for genuine near-misses.
+     */
+    public function test_a_completely_unrelated_expression_keeps_the_plain_hint(): void
+    {
+        $run = $this->makeRunWithSelectedWords(); // 'wake up', 'get up', 'have a shower'
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.expressions.0', 'go swimming')
+            ->call('checkExpression', 0)
+            ->assertSet('expressionFeedback.0.severity', 'minor')
+            ->assertSet('expressionFeedback.0.hint', "That doesn't match one of your own words — try again.");
     }
 
     public function test_checking_without_any_known_selection_does_not_falsely_mark_answers_wrong(): void

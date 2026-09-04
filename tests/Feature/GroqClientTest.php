@@ -77,6 +77,27 @@ class GroqClientTest extends TestCase
         $this->assertCount(1, $result['segments']);
     }
 
+    /**
+     * Regression test for the missing-timeout/retry fix — same treatment
+     * GeminiClient::chat() already has. A transient 503 (Groq's Whisper
+     * tier occasionally returns this under load, same as Gemini's flash
+     * tier) should be retried and recover, not surface as a hard failure
+     * on the first blip.
+     */
+    public function test_a_transient_503_is_retried_and_recovers(): void
+    {
+        Http::fake([
+            'api.groq.com/*' => Http::sequence()
+                ->push(['error' => 'service unavailable'], 503)
+                ->push(['text' => 'Recovered after retry.', 'duration' => 3.0, 'segments' => []]),
+        ]);
+
+        $result = (new GroqClient('test-key'))->transcribe($this->fakeAudioPath());
+
+        $this->assertSame('Recovered after retry.', $result);
+        Http::assertSentCount(2);
+    }
+
     public function test_the_request_asks_for_segment_level_timestamp_granularity(): void
     {
         $this->fakeVerboseResponse([['text' => 'Hi.', 'avg_logprob' => -0.1]]);

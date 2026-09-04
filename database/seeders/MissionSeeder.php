@@ -143,7 +143,13 @@ class MissionSeeder extends Seeder
                                     // between the two steps.
                                     ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'difficulty' => 'medium'],
                                     ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'difficulty' => 'medium'],
-                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'difficulty' => 'hard'],
+                                    // accepted_paraphrases: a hand-picked, safe alternate wording
+                                    // Active Recall's local (non-AI) check also accepts for this
+                                    // exact phrase — never inferred generically (a phrasal verb's
+                                    // particle is load-bearing, so it can't be stripped the way an
+                                    // article can), just an author's judgment call per word. See
+                                    // ⚡active-recall.blade.php's matches().
+                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'difficulty' => 'hard', 'accepted_paraphrases' => ['sleep late']],
                                     // Food
                                     ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'difficulty' => 'easy'],
                                     ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
@@ -156,11 +162,11 @@ class MissionSeeder extends Seeder
                                     // worth a picture flashcard (dual coding — see EOS-009 §8); an
                                     // abstract phrase like "have a wash" gets no query and simply
                                     // shows no image, on purpose.
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'shower bathroom', 'difficulty' => 'easy'],
-                                    ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body', 'difficulty' => 'hard'],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'toothbrush brushing teeth', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'shower bathroom', 'difficulty' => 'easy', 'accepted_paraphrases' => ['shower']],
+                                    ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body', 'difficulty' => 'hard', 'accepted_paraphrases' => ['wash']],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'toothbrush brushing teeth', 'difficulty' => 'easy', 'accepted_paraphrases' => ['brush my teeth', 'brush teeth']],
                                     ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face', 'difficulty' => 'medium'],
-                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath', 'difficulty' => 'easy', 'accepted_paraphrases' => ['bath']],
                                     // Housework
                                     ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck', 'difficulty' => 'medium'],
                                     ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house', 'difficulty' => 'easy'],
@@ -172,8 +178,16 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'difficulty' => 'easy'],
                                     ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'difficulty' => 'easy'],
                                     ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'difficulty' => 'easy'],
-                                    ['phrase' => 'come round', 'meaning' => 'to visit someone at their home', 'difficulty' => 'hard'],
-                                    ['phrase' => 'once a week', 'meaning' => 'happening one time every week', 'difficulty' => 'easy'],
+                                    // allow_embedded_match: opt-in ONLY, per word — Active Recall's
+                                    // local check may credit this phrase when it appears verbatim
+                                    // inside a longer natural sentence ("he might come round later").
+                                    // Verified safe specifically for these two: neither is a common
+                                    // prefix of a different fixed idiom (unlike e.g. "stay in", which
+                                    // would wrongly match "stay in touch" if this were a blanket
+                                    // default — see ⚡active-recall.blade.php's matches()). Every
+                                    // other word deliberately has no such flag.
+                                    ['phrase' => 'come round', 'meaning' => 'to visit someone at their home', 'difficulty' => 'hard', 'allow_embedded_match' => true],
+                                    ['phrase' => 'once a week', 'meaning' => 'happening one time every week', 'difficulty' => 'easy', 'allow_embedded_match' => true],
                                     ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'difficulty' => 'easy'],
                                 ],
                             ],

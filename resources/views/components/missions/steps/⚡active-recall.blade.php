@@ -191,16 +191,158 @@ new class extends Component
             return;
         }
 
-        $isCorrect = collect($target)->contains(fn ($word) => $this->normalize($word) === $this->normalize($answer));
+        if (collect($target)->contains(fn ($word) => $this->matches($word, $answer, $this->acceptedParaphrasesFor($word), $this->allowsEmbeddedMatchFor($word)))) {
+            $this->expressionFeedback[$index] = ['severity' => 'none', 'hint' => ''];
 
-        $this->expressionFeedback[$index] = $isCorrect
-            ? ['severity' => 'none', 'hint' => '']
-            : ['severity' => 'minor', 'hint' => "That doesn't match one of your own words — try again."];
+            return;
+        }
+
+        // Not a full match — but if the answer shares at least one real
+        // word with one of the target phrases (recalled part of the
+        // idea), that's a genuine near-miss worth naming, not a flat
+        // "wrong" — the step is honest self-testing of the concept, not
+        // exact-string recall. This is purely cosmetic (which hint copy
+        // to show) and never affects whether the answer is accepted.
+        $closest = collect($target)->sortByDesc(fn ($word) => $this->sharedWordCount($word, $answer))->first();
+
+        $hint = $this->sharedWordCount($closest, $answer) > 0
+            ? "Close — the exact phrase was \"{$closest}\"."
+            : "That doesn't match one of your own words — try again.";
+
+        $this->expressionFeedback[$index] = ['severity' => 'minor', 'hint' => $hint];
     }
+
+    /**
+     * Articles are the ONE function-word class it's always safe to strip
+     * generically — they never carry the distinguishing meaning a
+     * phrasal verb's particle does ("in"/"out"/"round" change the whole
+     * meaning of "sleep in"/"go out"/"come round"; "a"/"the" never do).
+     * An earlier version of this check also stripped prepositions/
+     * particles/light verbs generically, which caused real collisions
+     * between neighbouring M01 vocabulary items (e.g. "go out" and "go
+     * to bed" both reducing to just "go") — see the fix history in this
+     * method's git blame. That whole mechanism is gone; only articles
+     * are stripped now, everything else is either an exact match or an
+     * explicit, hand-authored accepted_paraphrases entry (below).
+     */
+    private const ARTICLES = ['a', 'an', 'the'];
 
     private function normalize(string $text): string
     {
-        return trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
+        $collapsed = trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
+        $words = array_filter(explode(' ', $collapsed), fn ($w) => $w !== '' && ! in_array($w, self::ARTICLES, true));
+
+        return implode(' ', $words);
+    }
+
+    /**
+     * Hand-authored safe paraphrases for one exact target phrase — see
+     * 'accepted_paraphrases' on vocabulary_builder's story_words in
+     * MissionSeeder. Deliberate content-author judgment per word (same
+     * kind of call as its difficulty tag or stress-marked shadow line),
+     * never inferred generically — it can only ever accept exactly what
+     * was explicitly decided, so it can't accidentally collide with a
+     * neighbouring vocabulary item the way generic word-stripping did.
+     *
+     * @return array<int, string>
+     */
+    private function acceptedParaphrasesFor(string $phrase): array
+    {
+        return $this->storyWordEntryFor($phrase)['accepted_paraphrases'] ?? [];
+    }
+
+    /**
+     * Whether this exact target phrase may be credited when it appears
+     * verbatim inside a longer answer (rule c in matches() below) — see
+     * 'allow_embedded_match' on vocabulary_builder's story_words in
+     * MissionSeeder. Opt-in per word, same reasoning as
+     * acceptedParaphrasesFor(): a blanket "substring anywhere" rule
+     * applied to all 33 vocabulary words risks colliding with some real
+     * idiom we haven't thought to check (target "stay in" wrongly
+     * matched "I want to stay in touch with my friends" — a different,
+     * extremely common idiom that happens to start the same way). Only
+     * words explicitly verified safe get this flag.
+     */
+    private function allowsEmbeddedMatchFor(string $phrase): bool
+    {
+        return ($this->storyWordEntryFor($phrase)['allow_embedded_match'] ?? false) === true;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function storyWordEntryFor(string $phrase): array
+    {
+        $storyWords = $this->run->mission->stepContent('vocabulary_builder')['story_words'] ?? [];
+
+        foreach ($storyWords as $word) {
+            if ($this->normalize($word['phrase'] ?? '') === $this->normalize($phrase)) {
+                return $word;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Accepts, in order: an exact match once articles/case/punctuation
+     * are normalized away ("skip the breakfast" for "skip breakfast");
+     * one of the target's explicit, hand-authored accepted_paraphrases
+     * ("shower" for "have a shower", "sleep late" for "sleep in"); or —
+     * ONLY for the specific words explicitly opted in via
+     * allow_embedded_match — the target's exact phrase appearing verbatim
+     * as a whole-word substring inside a longer answer, a natural
+     * sentence built around the idiom ("he might come round later"
+     * contains "come round"; "we do it once a week usually" contains
+     * "once a week"). That substring rule is NOT a blanket default: it
+     * would wrongly credit "stay in" for "I want to stay in touch with my
+     * friends" (a different, unrelated idiom) if applied to every word,
+     * so it's gated behind an explicit per-word opt-in the same way
+     * accepted_paraphrases is. No fuzzy word-counting, no generic
+     * particle/preposition stripping — see ARTICLES above for why that
+     * approach was abandoned.
+     *
+     * @param  array<int, string>  $acceptedParaphrases
+     */
+    private function matches(string $target, string $answer, array $acceptedParaphrases = [], bool $allowEmbeddedMatch = false): bool
+    {
+        $normalizedTarget = $this->normalize($target);
+        $normalizedAnswer = $this->normalize($answer);
+
+        if ($normalizedTarget === '' || $normalizedAnswer === '') {
+            return false;
+        }
+
+        if ($normalizedTarget === $normalizedAnswer) {
+            return true;
+        }
+
+        foreach ($acceptedParaphrases as $paraphrase) {
+            if ($this->normalize($paraphrase) === $normalizedAnswer) {
+                return true;
+            }
+        }
+
+        if (! $allowEmbeddedMatch) {
+            return false;
+        }
+
+        return str_contains(" {$normalizedAnswer} ", " {$normalizedTarget} ");
+    }
+
+    /**
+     * How many whole words the answer shares with the target, after the
+     * same article-stripping normalization — used only to pick which
+     * target to name in the "close" hint above and to tell a genuine
+     * near-miss from an answer that shares nothing at all. Purely
+     * cosmetic: never used to accept or reject an answer.
+     */
+    private function sharedWordCount(string $target, string $answer): int
+    {
+        $targetWords = array_filter(explode(' ', $this->normalize($target)));
+        $answerWords = array_filter(explode(' ', $this->normalize($answer)));
+
+        return count(array_intersect($targetWords, $answerWords));
     }
 
     /**
@@ -377,7 +519,7 @@ new class extends Component
         }
 
         $correct = $filled->filter(
-            fn ($answer) => collect($target)->contains(fn ($word) => $this->normalize($word) === $this->normalize($answer))
+            fn ($answer) => collect($target)->contains(fn ($word) => $this->matches($word, $answer, $this->acceptedParaphrasesFor($word), $this->allowsEmbeddedMatchFor($word)))
         )->count();
 
         $this->recallResult = ['correct' => $correct, 'total' => $filled->count()];

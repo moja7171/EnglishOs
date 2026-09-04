@@ -168,6 +168,37 @@ class AiFeedback1StepTest extends TestCase
         $this->assertDatabaseCount('evidences', 1); // only the conversation evidence from setup
     }
 
+    /**
+     * Regression test: Evidence saved under the OLD flat-string
+     * `correction` shape (before it became the nested {original,
+     * corrected, why, suggestion} object) used to still render an empty,
+     * alarming "SOMETHING TO FIX" card with no body text. It should now
+     * be omitted entirely — the rest of the recap still renders fine.
+     */
+    public function test_read_only_mode_with_old_flat_string_correction_shape_omits_the_empty_card(): void
+    {
+        $run = $this->makeRunWithConversation();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_feedback_1',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'strength' => 'نقطه قوت تو این بود که واضح جواب دادی.',
+                'expression' => 'از عبارت wake up درست استفاده کردی.',
+                'correction' => 'I wake up at seven. -> I usually wake up at seven.', // old flat-string shape
+                'severity' => 'minor',
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.ai-feedback1', ['run' => $run, 'readOnly' => true])
+            ->assertSet('generated', true)
+            ->assertSet('correctionOriginal', null)
+            ->assertSet('correctionCorrected', null)
+            ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
+            ->assertDontSee('Something to fix');
+    }
+
     public function test_read_only_mode_loads_saved_feedback_without_calling_gemini(): void
     {
         $run = $this->makeRunWithConversation();

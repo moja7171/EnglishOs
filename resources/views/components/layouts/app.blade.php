@@ -22,17 +22,22 @@
          nav cluster genuinely centered on the row regardless of how wide
          the logo or the profile group end up being, instead of "centered"
          only by coincidence. Friends and Review live together in that
-         middle column so adding Review didn't need a 4th column. --}}
-    <div class="mx-auto grid max-w-2xl grid-cols-3 items-center px-6 pt-4 text-xs text-ink-faint dark:text-ink-faint-dark">
-        <a href="{{ route('home') }}" wire:navigate class="inline-flex w-fit transition-opacity hover:opacity-80">
-            <x-logo icon-class="h-8 w-8" text-class="text-base" />
+         middle column so adding Review didn't need a 4th column.
+         The side columns use `1fr` (not a fixed third each) so the middle
+         column only ever takes the room its own content needs — below
+         `sm:` that's icon-only, which is what keeps the logo and the
+         right-hand cluster from being squeezed into an equal third and
+         overlapping on narrow screens. --}}
+    <div class="mx-auto grid max-w-2xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 pt-4 text-xs text-ink-faint sm:px-6 dark:text-ink-faint-dark">
+        <a href="{{ route('home') }}" wire:navigate class="inline-flex w-fit min-w-0 transition-opacity hover:opacity-80">
+            <x-logo icon-class="h-7 w-7 sm:h-8 sm:w-8" text-class="text-sm sm:text-base" />
         </a>
 
         @auth
-            <div class="flex items-center justify-self-center gap-4">
-                <a href="{{ route('friends.index') }}" wire:navigate class="relative inline-flex items-center gap-1 transition-colors hover:text-ink dark:hover:text-ink-dark">
+            <div class="flex items-center justify-self-center gap-2 sm:gap-4">
+                <a href="{{ route('friends.index') }}" wire:navigate title="Friends" class="relative inline-flex items-center gap-1 transition-colors hover:text-ink dark:hover:text-ink-dark">
                     @svg('heroicon-o-user-group', 'h-4 w-4')
-                    Friends
+                    <span class="hidden sm:inline">Friends</span>
                     @php
                         $unread = \App\Models\DirectMessage::where('recipient_id', auth()->id())->whereNull('read_at')->count();
                         $friendsBadge = $unread + auth()->user()->pendingFollowRequestsCount();
@@ -42,9 +47,9 @@
                     @endif
                 </a>
 
-                <a href="{{ route('review.index') }}" wire:navigate class="relative inline-flex items-center gap-1 transition-colors hover:text-ink dark:hover:text-ink-dark">
+                <a href="{{ route('review.index') }}" wire:navigate title="Review" class="relative inline-flex items-center gap-1 transition-colors hover:text-ink dark:hover:text-ink-dark">
                     @svg('heroicon-o-bolt', 'h-4 w-4')
-                    Review
+                    <span class="hidden sm:inline">Review</span>
                     @php
                         $dueReviewCount = auth()->user()->vocabularyWords()->where('next_review_at', '<=', now())->count()
                             + auth()->user()->speakingPrompts()->where('next_review_at', '<=', now())->count()
@@ -56,7 +61,7 @@
                 </a>
             </div>
 
-            <div class="flex items-center justify-self-end gap-3">
+            <div class="flex items-center justify-self-end gap-1.5 sm:gap-3">
                 @if ($streak = auth()->user()->currentStreak())
                     <span
                         class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark"

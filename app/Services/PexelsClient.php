@@ -96,7 +96,11 @@ class PexelsClient
         }
 
         try {
-            $bytes = Http::get($remoteUrl)->throw()->body();
+            // No retry needed here (unlike GeminiClient/GroqClient) — this
+            // class already fails soft everywhere on a missing key or
+            // network error, so a bounded timeout alone is enough to stop
+            // a slow/hanging asset download from holding up the request.
+            $bytes = Http::timeout(20)->get($remoteUrl)->throw()->body();
             Storage::disk('public')->put($path, $bytes);
 
             return Storage::disk('public')->url($path);

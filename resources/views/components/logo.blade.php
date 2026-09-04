@@ -38,6 +38,6 @@
     </svg>
 
     @if ($withText)
-        <span class="font-display font-bold text-ink dark:text-ink-dark {{ $textClass }}">English <span class="text-accent-ink dark:text-accent-ink-dark">OS</span></span>
+        <span class="whitespace-nowrap font-display font-bold text-ink dark:text-ink-dark {{ $textClass }}">English <span class="text-accent-ink dark:text-accent-ink-dark">OS</span></span>
     @endif
 </span>

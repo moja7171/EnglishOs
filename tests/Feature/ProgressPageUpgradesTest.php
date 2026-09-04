@@ -87,6 +87,7 @@ class ProgressPageUpgradesTest extends TestCase
     {
         $learner = User::factory()->create();
         $run = $this->makeRun($learner);
+        $run->update(['status' => MissionRun::STATUS_COMPLETE]);
         SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
         SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Writing', 'before' => 3, 'after' => 3]);
         SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Listening', 'before' => 3, 'after' => 4]);

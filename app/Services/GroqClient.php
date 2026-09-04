@@ -99,7 +99,16 @@ class GroqClient
             $payload['timestamp_granularities[]'] = 'segment';
         }
 
+        // Same treatment as GeminiClient::chat() — Groq's Whisper endpoint
+        // occasionally 503s or hangs outright under load too, and this
+        // backs every transcription call site (Activation, Story Sequence,
+        // Picture Description, both AI Conversation steps, partner
+        // sessions, friends conversation). file_get_contents() above reads
+        // the audio into an in-memory string (not a stream handle), so the
+        // multipart body is safe to resend on retry.
         $response = Http::withToken($this->apiKey)
+            ->timeout(20)
+            ->retry(2, 500, throw: false)
             ->attach('file', file_get_contents($audioPath), basename($audioPath))
             ->post('https://api.groq.com/openai/v1/audio/transcriptions', $payload)
             ->throw();

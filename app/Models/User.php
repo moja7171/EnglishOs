@@ -743,6 +743,15 @@ class User extends Authenticatable
         return SelfAssessment::query()
             ->join('mission_runs', 'mission_runs.id', '=', 'self_assessments.mission_run_id')
             ->where('mission_runs.learner_id', $this->id)
+            // Mission Result writes a SelfAssessment row whenever the AI
+            // verdict comes back at all — 'needs_review' and
+            // 'retry_evidence' included, not just 'complete' — so without
+            // this filter a mission that DIDN'T pass still fed the radar,
+            // producing a populated "Skills" chart next to a genuine
+            // "0 missions completed" stat. This is the one query that
+            // actually needs the completed-only filter; missionsCompletedCount()
+            // already had it right.
+            ->where('mission_runs.status', MissionRun::STATUS_COMPLETE)
             ->whereNotNull('self_assessments.after')
             ->selectRaw('self_assessments.skill as skill, AVG(self_assessments.after) as avg_after')
             ->groupBy('self_assessments.skill')
