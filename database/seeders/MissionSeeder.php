@@ -1215,27 +1215,32 @@ class MissionSeeder extends Seeder
                                 'label' => 'Picture Description',
                                 'duration_minutes' => 10,
                                 'hook' => "Forget your own friends for a minute — what's happening in this one?",
-                                'image_query' => 'friends having picnic park laughing together',
+                                // Re-queried (2026-09-05, once Pexels access came back) —
+                                // the original query returned a 2-person food-plate photo
+                                // that didn't match the guiding_questions below (no seated
+                                // group, no visible food/drinks). This query returns a real
+                                // 5-friend picnic scene: 4 people sitting cross-legged on a
+                                // checked blanket plus one sitting separately in a folding
+                                // chair, a fruit basket + orange juice bottle + flowers on
+                                // the blanket, one person laughing with a plush toy.
+                                'image_query' => 'group friends picnic blanket park sitting',
                                 'guiding_questions' => [
                                     'What are the friends doing right now?',
                                     'How many people are in the group, and where are they sitting?',
                                     'What food or drinks can you see in the picture?',
                                     'How do the people in the picture seem to feel?',
                                 ],
-                                // TODO — UNVERIFIED PLACEHOLDER, unlike M01's hand-placed
-                                // hotspots: the sandbox this was authored in cannot reach
-                                // api.pexels.com (network egress blocks it specifically —
-                                // other hosts resolve fine), so the real cached photo for this
-                                // query+orientation was never actually viewed. These x/y guesses
-                                // are a plausible generic layout only (center/left/bottom/right)
-                                // — before relying on this step, fetch the real image for this
-                                // query, view it, and replace these with real hand-placed
-                                // coordinates the way M01's picture_description entry was done.
+                                // Hand-verified against the real cached photo for this exact
+                                // query+orientation (landscape) — see the docblock note on
+                                // M01's own picture_description entry for the same convention.
+                                // Q1 deliberately points at the one friend sitting in a chair
+                                // (not on the blanket like the other four) — a genuine detail
+                                // worth noticing for "where are they sitting."
                                 'hotspots' => [
-                                    ['x' => 50, 'y' => 45, 'question_index' => 0],
-                                    ['x' => 25, 'y' => 55, 'question_index' => 1],
-                                    ['x' => 60, 'y' => 75, 'question_index' => 2],
-                                    ['x' => 78, 'y' => 40, 'question_index' => 3],
+                                    ['x' => 45, 'y' => 60, 'question_index' => 0],
+                                    ['x' => 80, 'y' => 42, 'question_index' => 1],
+                                    ['x' => 42, 'y' => 80, 'question_index' => 2],
+                                    ['x' => 42, 'y' => 38, 'question_index' => 3],
                                 ],
                             ],
                             [
