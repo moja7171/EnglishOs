@@ -340,6 +340,27 @@ class ErrorLogStepTest extends TestCase
             ->assertSee('Not quite — try again.');
     }
 
+    public function test_checking_a_drill_with_no_answer_shows_a_message_instead_of_doing_nothing(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                [
+                    'error' => 'She go to work.',
+                    'correction' => 'She goes to work.',
+                    'drills' => [['sentence' => 'He ___ to the gym.', 'answer' => 'goes']],
+                ],
+            ]));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
+            ->call('checkDrill', 0, 0)
+            ->assertSet('drillChecked.0.0', null)
+            ->assertSee('Write something first.');
+    }
+
     public function test_drills_never_block_saving_even_if_never_attempted(): void
     {
         $run = $this->makeRunWithEvidence();

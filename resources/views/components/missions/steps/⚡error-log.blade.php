@@ -27,6 +27,9 @@ new class extends Component
     /** @var array<int, array<int, bool>> keyed the same way — whether the last-checked attempt was correct */
     public array $drillChecked = [];
 
+    /** @var array<int, array<int, string>> keyed the same way — set only for an empty attempt, so Check never silently does nothing */
+    public array $drillErrors = [];
+
     public bool $generated = false;
 
     public ?string $error = null;
@@ -65,10 +68,17 @@ new class extends Component
         $expected = $this->mistakes[$mistakeIndex]['drills'][$drillIndex]['answer'] ?? null;
         $given = trim($this->drillAnswers[$mistakeIndex][$drillIndex] ?? '');
 
-        if ($expected === null || $given === '') {
+        if ($expected === null) {
             return;
         }
 
+        if ($given === '') {
+            $this->drillErrors[$mistakeIndex][$drillIndex] = 'Write something first.';
+
+            return;
+        }
+
+        unset($this->drillErrors[$mistakeIndex][$drillIndex]);
         $this->drillChecked[$mistakeIndex][$drillIndex] = $this->normalizeAnswer($given) === $this->normalizeAnswer($expected);
     }
 
@@ -266,6 +276,7 @@ new class extends Component
                                     $drillKey = "drill_{$i}_{$d}";
                                     [$before, $after] = array_pad(explode('___', $drill['sentence'] ?? '', 2), 2, '');
                                     $checked = $drillChecked[$i][$d] ?? null;
+                                    $drillError = $drillErrors[$i][$d] ?? null;
                                 @endphp
                                 <div>
                                     <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
@@ -278,7 +289,7 @@ new class extends Component
                                         >{{ $after }}
                                         <button
                                             type="button"
-                                            wire:click="checkDrill({{ $i }}, {{ $d }})"
+                                            x-on:click="dismissed['{{ $drillKey }}'] = true; $wire.checkDrill({{ $i }}, {{ $d }}).then(() => { dismissed['{{ $drillKey }}'] = false })"
                                             class="cursor-pointer rounded-full border border-line px-2 py-0.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                                         >Check</button>
                                     </p>
@@ -286,7 +297,9 @@ new class extends Component
                                         x-show="!dismissed['{{ $drillKey }}']"
                                         class="mt-1 text-xs {{ $checked ? 'text-success dark:text-success-dark' : 'text-amber-600' }}"
                                     >
-                                        @if ($checked === true)
+                                        @if ($drillError)
+                                            {{ $drillError }}
+                                        @elseif ($checked === true)
                                             @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Nice — that's it.
                                         @elseif ($checked === false)
                                             Not quite — try again.

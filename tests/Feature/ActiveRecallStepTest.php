@@ -486,7 +486,18 @@ class ActiveRecallStepTest extends TestCase
         Livewire::test('missions.steps.active-recall', ['run' => $run])
             ->set('answers.expressions.0', 'get up')
             ->call('checkExpression', 0)
-            ->assertSet('expressionFeedback.0', null);
+            ->assertSet('expressionFeedback.0', null)
+            ->assertSee('Finish Vocabulary Builder first');
+    }
+
+    public function test_clicking_check_on_an_empty_expression_shows_an_error_instead_of_doing_nothing(): void
+    {
+        $run = $this->makeRunWithSelectedWords();
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->call('checkExpression', 0)
+            ->assertSet('expressionFeedback.0', null)
+            ->assertSee('Write something first.');
     }
 
     public function test_incorrect_expressions_do_not_block_continue(): void

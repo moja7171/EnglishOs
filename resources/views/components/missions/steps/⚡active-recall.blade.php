@@ -184,6 +184,8 @@ new class extends Component
         $answer = trim($this->answers['expressions'][$index] ?? '');
 
         if ($answer === '') {
+            $this->checkErrors['expressions'][$index] = 'Write something first.';
+
             return;
         }
 
@@ -194,11 +196,16 @@ new class extends Component
     {
         $target = $this->run->selectedVocabularyWords();
 
-        // Nothing to verify against yet — stay silent rather than falsely
-        // marking every answer wrong.
+        // Nothing to verify against yet (Vocabulary Builder hasn't been
+        // completed in this run) — surface that instead of silently doing
+        // nothing, which otherwise reads as "the Check button is broken".
         if (! $target) {
+            $this->checkErrors['expressions'][$index] = 'Finish Vocabulary Builder first so there are words to check against.';
+
             return;
         }
+
+        unset($this->checkErrors['expressions'][$index]);
 
         if (collect($target)->contains(fn ($word) => $this->matches($word, $answer, $this->acceptedParaphrasesFor($word), $this->allowsEmbeddedMatchFor($word)))) {
             $this->expressionFeedback[$index] = ['severity' => 'none', 'hint' => ''];
