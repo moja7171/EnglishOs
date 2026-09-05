@@ -1,0 +1,25 @@
+{
+    "name": "English OS",
+    "short_name": "English OS",
+    "description": "Mission-based English learning for real, spoken fluency.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#211d3f",
+    "theme_color": "#211d3f",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ]
+}

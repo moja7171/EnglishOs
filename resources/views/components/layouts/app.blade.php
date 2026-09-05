@@ -7,6 +7,16 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    {{-- PWA: installable on a phone home screen (manifest + a minimal
+         service worker, see public/sw.js — no offline-first caching,
+         this is a server-rendered Livewire app with nothing meaningful
+         to serve offline). theme-color tints the OS status bar/task
+         switcher to match the app's own navy, not the browser default. --}}
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#211d3f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="English OS">
     {{-- Vazirmatn: the only Persian-script font in the app, scoped to the
          two steps (AI Feedback #1, Error Log) that render real Persian
          feedback text via the .font-fa utility below — everything else
@@ -129,5 +139,18 @@
 
     {{ $slot }}
     @livewireScripts
+    <script>
+        // Service workers require a secure context (HTTPS, or exactly
+        // "localhost") — this check keeps a plain-HTTP dev visit from
+        // throwing in the console instead of silently no-op'ing.
+        if ('serviceWorker' in navigator && window.isSecureContext) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {
+                    // Installability is a progressive enhancement — a
+                    // failed registration should never block the app.
+                });
+            });
+        }
+    </script>
 </body>
 </html>
