@@ -7,7 +7,22 @@
 @props(['url', 'onEnded' => null])
 
 @if (! empty($url))
+    {{--
+        wire:ignore (+ a wire:key scoped to the URL itself) so a Livewire
+        re-render triggered by ANYTHING ELSE in the same component — an AI
+        check, a wire:model sync, any action call — never touches this
+        subtree while audio is mid-playback. Without it, Livewire's morph
+        can tear down and recreate the <audio> element on every unrelated
+        round-trip, aborting an in-flight play() with
+        "AbortError: The play() request was interrupted by a call to
+        pause()" — a real bug hit in production, not a hypothetical one.
+        The wire:key still lets Livewire fully replace this element (new
+        DOM node, ignore doesn't block that) whenever $url itself actually
+        changes, e.g. voice-recorder's re-record-then-preview-again flow.
+    --}}
     <div
+        wire:ignore
+        wire:key="audio-player-{{ md5($url) }}"
         class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark"
         x-data="{
             playing: false,
