@@ -40,12 +40,22 @@ return [
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
+        // Used only when the primary model's own timeout+retry is exhausted
+        // (e.g. the 2026-09-04 outage where the pinned model hung outright
+        // while this alias, on the same key, responded fine). A moving
+        // "-latest" alias on purpose — uptime over behavioral pinning,
+        // since its only job here is "something that works".
+        'fallback_model' => env('GEMINI_FALLBACK_MODEL', 'gemini-flash-latest'),
     ],
 
     // Speech-to-text for recorded Evidence audio — EOS-009 §11.
     'groq' => [
         'key' => env('GROQ_API_KEY'),
         'whisper_model' => env('GROQ_WHISPER_MODEL', 'whisper-large-v3-turbo'),
+        // Same fallback treatment as gemini.fallback_model above — a
+        // different, genuinely available Whisper variant on Groq (verified
+        // against Groq's model docs 2026-09-04), not a guessed name.
+        'fallback_model' => env('GROQ_FALLBACK_MODEL', 'whisper-large-v3'),
     ],
 
     'pexels' => [

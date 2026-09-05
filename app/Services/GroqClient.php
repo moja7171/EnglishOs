@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Throwable;
 
 /**
  * Thin wrapper around Groq's OpenAI-compatible Whisper transcription API —
@@ -15,10 +17,13 @@ class GroqClient
 
     private readonly string $whisperModel;
 
-    public function __construct(?string $apiKey = null, ?string $whisperModel = null)
+    private readonly string $fallbackModel;
+
+    public function __construct(?string $apiKey = null, ?string $whisperModel = null, ?string $fallbackModel = null)
     {
         $this->apiKey = $apiKey ?? (string) config('services.groq.key');
         $this->whisperModel = $whisperModel ?? (string) config('services.groq.whisper_model', 'whisper-large-v3-turbo');
+        $this->fallbackModel = $fallbackModel ?? (string) config('services.groq.fallback_model', 'whisper-large-v3');
     }
 
     /**
@@ -91,7 +96,6 @@ class GroqClient
         }
 
         $payload = [
-            'model' => $this->whisperModel,
             'response_format' => $verbose ? 'verbose_json' : 'json',
         ];
 
@@ -99,17 +103,57 @@ class GroqClient
             $payload['timestamp_granularities[]'] = 'segment';
         }
 
+        // file_get_contents() reads the audio into an in-memory string (not
+        // a stream handle), so the same bytes are safe to resend both across
+        // a single model's attempt() AND, if that model is the one that's
+        // down, across the fallback attempt below.
+        $fileBody = file_get_contents($audioPath);
+        $filename = basename($audioPath);
+
         // Same treatment as GeminiClient::chat() — Groq's Whisper endpoint
         // occasionally 503s or hangs outright under load too, and this
         // backs every transcription call site (Activation, Story Sequence,
         // Picture Description, both AI Conversation steps, partner
-        // sessions, friends conversation). file_get_contents() above reads
-        // the audio into an in-memory string (not a stream handle), so the
-        // multipart body is safe to resend on retry.
+        // sessions, friends conversation). Once the primary model's own
+        // attempt is exhausted, fall back to a single attempt against a
+        // second, genuinely available Whisper variant before giving up.
+        // Each model gets exactly 1 attempt (see attempt()'s retry(1, ...))
+        // — the fallback model IS the retry, keeping the worst case at ~40s
+        // (2 models × 1 attempt × 20s) instead of doubling again per model.
+        try {
+            return $this->attempt($this->whisperModel, $payload, $fileBody, $filename);
+        } catch (Throwable $e) {
+            if ($this->fallbackModel === '' || $this->fallbackModel === $this->whisperModel) {
+                throw $e;
+            }
+
+            Log::warning('GroqClient: primary whisper model failed, retrying with fallback model.', [
+                'primary_model' => $this->whisperModel,
+                'fallback_model' => $this->fallbackModel,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->attempt($this->fallbackModel, $payload, $fileBody, $filename);
+        }
+    }
+
+    /**
+     * One full timeout+retry attempt against a single Whisper model. Left
+     * to throw on failure — request() decides whether that's the end of
+     * the road or a cue to try the fallback model.
+     *
+     * @return array{text: string, duration: float, segments: array}
+     */
+    private function attempt(string $model, array $payload, string $fileBody, string $filename): array
+    {
+        $payload['model'] = $model;
+
+        // 1 attempt per model — see the worst-case-latency note in
+        // request() above.
         $response = Http::withToken($this->apiKey)
             ->timeout(20)
-            ->retry(2, 500, throw: false)
-            ->attach('file', file_get_contents($audioPath), basename($audioPath))
+            ->retry(1, 500, throw: false)
+            ->attach('file', $fileBody, $filename)
             ->post('https://api.groq.com/openai/v1/audio/transcriptions', $payload)
             ->throw();
 
