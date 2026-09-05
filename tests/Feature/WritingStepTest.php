@@ -164,6 +164,37 @@ class WritingStepTest extends TestCase
         $this->assertSame('ai_conversation_2', $run->fresh()->currentStepKey());
     }
 
+    public function test_feedback_is_grounded_in_the_learners_own_selected_vocabulary(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'vocabulary_builder',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'selected_words' => ['wake up', 'have a shower'],
+                'examples' => [],
+            ]),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()
+                ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, '"wake up"')
+                    && str_contains($systemPrompt, '"have a shower"'))
+                ->andReturn(json_encode([
+                    'strength' => 'Clear, simple sentences.',
+                    'expression' => 'wake up',
+                    'correction' => 'Try "wake up early" instead of "wake early".',
+                ]));
+        });
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->set('text', 'I usually wake up early and then have breakfast.')
+            ->call('save')
+            ->assertSet('completed', true);
+    }
+
     public function test_a_failed_feedback_call_never_blocks_saving_the_essay(): void
     {
         $run = $this->makeRun();

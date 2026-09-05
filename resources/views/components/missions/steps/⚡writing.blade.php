@@ -110,10 +110,16 @@ new class extends Component
     private function generateFeedback(): void
     {
         try {
+            $vocabularyWords = $this->run->selectedVocabularyWords();
+            $vocabularyContext = $vocabularyWords
+                ? ' If any of these words appear naturally, you can mention that warmly: '
+                    .collect($vocabularyWords)->map(fn ($w) => "\"{$w}\"")->implode(', ').'.'
+                : '';
+
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $this->text]],
                 systemPrompt: 'You are an encouraging English teacher reviewing a short piece of writing by '
-                    .$this->run->learner->levelDescription().'. '
+                    .$this->run->learner->levelDescription().'. '.$vocabularyContext.' '
                     .'Reply with ONLY valid JSON, no markdown fences, no extra text, in exactly this shape: '
                     .'{"strength": "one specific thing they did well, one sentence", '
                     .'"expression": "one good word or phrase they actually used", '
