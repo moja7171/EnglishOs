@@ -21,7 +21,7 @@
         slowTimer: null,
         pollTimer: null,
         init() {
-            // A plain object method named "init" is Alpine's own
+            // A plain object method named 'init' is Alpine's own
             // auto-called lifecycle hook (fires once per mount, same as
             // the directive form would) — used here instead of that
             // directive form specifically because some step tests do a
@@ -32,7 +32,7 @@
             this.pollTimer = setInterval(() => this.checkVisible(), 250);
         },
         // Alpine calls this automatically when the element is removed from
-        // the DOM (same "destroy" lifecycle hook Livewire's own bundled
+        // the DOM (same 'destroy' lifecycle hook Livewire's own bundled
         // Alpine checks for) — without it, pollTimer's setInterval has no
         // way to know this node is gone (Livewire fires no event on
         // removal/replacement either) and would tick forever, once per
