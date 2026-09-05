@@ -3,7 +3,7 @@
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\GeminiClient;
+use App\Services\AiFeedbackCard;
 use App\Services\PexelsClient;
 use Livewire\Component;
 
@@ -111,27 +111,20 @@ new class extends Component
     {
         try {
             $vocabularyWords = $this->run->selectedVocabularyWords();
-            $vocabularyContext = $vocabularyWords
-                ? ' If any of these words appear naturally, you can mention that warmly: '
-                    .collect($vocabularyWords)->map(fn ($w) => "\"{$w}\"")->implode(', ').'.'
-                : '';
+            $card = app(AiFeedbackCard::class);
+            $vocabularyContext = $card->vocabularyContext($vocabularyWords);
 
-            $raw = app(GeminiClient::class)->chat(
+            $data = $card->generate(
                 [['role' => 'user', 'text' => $this->text]],
                 systemPrompt: 'You are an encouraging English teacher reviewing a short piece of writing by '
                     .$this->run->learner->levelDescription().'. '.$vocabularyContext.' '
                     .'Reply with ONLY valid JSON, no markdown fences, no extra text, in exactly this shape: '
                     .'{"strength": "one specific thing they did well, one sentence", '
                     .'"expression": "one good word or phrase they actually used", '
-                    .'"correction": "one grammar or vocabulary mistake to fix, one sentence, phrased kindly"}'
+                    .'"correction": "one grammar or vocabulary mistake to fix, one sentence, phrased kindly"}',
+                requiredKeys: ['strength', 'expression', 'correction'],
+                onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
-            $this->recordGeminiCall();
-
-            $data = json_decode(trim($raw), true);
-
-            if (! is_array($data) || ! isset($data['strength'], $data['expression'], $data['correction'])) {
-                return;
-            }
 
             $this->feedback = $data;
 

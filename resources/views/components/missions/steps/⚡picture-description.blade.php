@@ -3,7 +3,7 @@
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\GeminiClient;
+use App\Services\AiFeedbackCard;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
@@ -132,12 +132,10 @@ new class extends Component
             }
 
             $vocabularyWords = $this->run->selectedVocabularyWords();
-            $vocabularyContext = $vocabularyWords
-                ? ' If any of these words appear naturally, you can mention that warmly: '
-                    .collect($vocabularyWords)->map(fn ($w) => "\"{$w}\"")->implode(', ').'.'
-                : '';
+            $card = app(AiFeedbackCard::class);
+            $vocabularyContext = $card->vocabularyContext($vocabularyWords);
 
-            $raw = app(GeminiClient::class)->chat(
+            $data = $card->generate(
                 [['role' => 'user', 'text' => "Transcript of the learner describing a picture: \"{$this->transcript}\""]],
                 systemPrompt: 'You are an encouraging English speaking coach. '.ucfirst($this->run->learner->levelDescription())
                     .' just described a picture out loud — a real IELTS/CEFR-style "describe what you see" task, '
@@ -148,20 +146,17 @@ new class extends Component
                     .'"one good word or phrase they actually used", "correction": "one grammar or vocabulary '
                     .'mistake to fix, one sentence, phrased kindly — prefer a present-continuous or preposition-of-'
                     .'place slip if there is one", "severity": "minor or major — how serious this grammar/'
-                    .'vocabulary issue is"}'
+                    .'vocabulary issue is"}',
+                requiredKeys: ['strength', 'expression', 'correction'],
+                onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
-            $this->recordGeminiCall();
 
-            $data = json_decode(trim($raw), true);
+            $this->feedback = $data;
 
-            if (is_array($data) && isset($data['strength'], $data['expression'], $data['correction'])) {
-                $this->feedback = $data;
-
-                // Same signal TracksCheckAttempts feeds from every AI-checked
-                // sentence step — see MissionRun::aiToneGuidance().
-                if (($data['severity'] ?? null) === 'major') {
-                    $this->run->recordStruggleSignal();
-                }
+            // Same signal TracksCheckAttempts feeds from every AI-checked
+            // sentence step — see MissionRun::aiToneGuidance().
+            if (($data['severity'] ?? null) === 'major') {
+                $this->run->recordStruggleSignal();
             }
         } catch (Throwable) {
             // Silent by design — see method docblock.

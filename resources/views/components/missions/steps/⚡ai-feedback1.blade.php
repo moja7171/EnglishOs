@@ -4,7 +4,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\AIFeedback;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\GeminiClient;
+use App\Services\AiFeedbackCard;
 use Livewire\Component;
 
 new class extends Component
@@ -60,7 +60,7 @@ new class extends Component
                 ->map(fn ($t) => "Q: {$t['question']}\nA: {$t['answer']}")
                 ->implode("\n\n");
 
-            $raw = app(GeminiClient::class)->chat(
+            $data = app(AiFeedbackCard::class)->generate(
                 [['role' => 'user', 'text' => $transcript]],
                 systemPrompt: 'You are an encouraging English teacher reviewing the spoken interview answers of '
                     .$this->run->learner->levelDescription().'. '
@@ -80,20 +80,10 @@ new class extends Component
                     .'"severity": "minor or major — how serious this grammar/vocabulary issue is"}. '
                     .'Only the "original" and "corrected" fields are in English (quoting the learner\'s own words); '
                     .'every other field must be written in plain Persian, no English words mixed in unless quoting '
-                    .'a specific English word or phrase.'
+                    .'a specific English word or phrase.',
+                requiredKeys: ['strength', 'expression', 'severity', 'correction.original', 'correction.corrected', 'correction.why', 'correction.suggestion'],
+                onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
-            $this->recordGeminiCall();
-
-            $data = json_decode(trim($raw), true);
-
-            if (
-                ! is_array($data)
-                || ! isset($data['strength'], $data['expression'], $data['severity'])
-                || ! is_array($data['correction'] ?? null)
-                || ! isset($data['correction']['original'], $data['correction']['corrected'], $data['correction']['why'], $data['correction']['suggestion'])
-            ) {
-                throw new RuntimeException('Unexpected AI response format.');
-            }
 
             $this->applyData($data);
             $this->generated = true;

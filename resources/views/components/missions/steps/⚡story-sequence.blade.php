@@ -3,7 +3,7 @@
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\GeminiClient;
+use App\Services\AiFeedbackCard;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
@@ -133,7 +133,7 @@ new class extends Component
                 ? ' Sequencing words they were encouraged to use: '.implode(', ', $sequencingWords).'.'
                 : '';
 
-            $raw = app(GeminiClient::class)->chat(
+            $this->feedback = app(AiFeedbackCard::class)->generate(
                 [['role' => 'user', 'text' => "Transcript of the learner narrating the picture sequence: \"{$this->transcript}\""]],
                 systemPrompt: 'You are an encouraging English speaking coach. '.ucfirst($this->run->learner->levelDescription())
                     .' just narrated a sequence of pictures showing this real order of events: "'.$captions.'". '
@@ -142,15 +142,10 @@ new class extends Component
                     .'sequencing words. Reply with ONLY valid JSON, no markdown fences: {"strength": "one specific '
                     .'thing they did well, one sentence", "expression": "one good sequencing word or phrase they '
                     .'actually used", "correction": "one grammar or vocabulary mistake to fix, one sentence, '
-                    .'phrased kindly — prefer a tense slip (e.g. past instead of present simple) if there is one"}'
+                    .'phrased kindly — prefer a tense slip (e.g. past instead of present simple) if there is one"}',
+                requiredKeys: ['strength', 'expression', 'correction'],
+                onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
-            $this->recordGeminiCall();
-
-            $data = json_decode(trim($raw), true);
-
-            if (is_array($data) && isset($data['strength'], $data['expression'], $data['correction'])) {
-                $this->feedback = $data;
-            }
         } catch (Throwable) {
             // Silent by design — see method docblock.
         }
