@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 #[Fillable(['mission_id', 'step_key', 'user_a_id', 'user_b_id'])]
 class PartnerSession extends Model
@@ -76,5 +77,38 @@ class PartnerSession extends Model
             'user_a_id' => $lowId,
             'user_b_id' => $highId,
         ]);
+    }
+
+    /**
+     * Finds the one shared session for this mission+step+pair WITHOUT
+     * starting one — used by a mission step to detect "the learner already
+     * started a partner session for this step elsewhere" (via
+     * findOrStartFor()'s route) without ever creating one just by looking.
+     * $user may be either participant; order-independent like
+     * findOrStartFor(), but never mints a new row.
+     */
+    public static function findFor(Mission $mission, string $stepKey, User $user): ?self
+    {
+        return static::query()
+            ->where('mission_id', $mission->id)
+            ->where('step_key', $stepKey)
+            ->where(fn ($q) => $q->where('user_a_id', $user->id)->orWhere('user_b_id', $user->id))
+            ->first();
+    }
+
+    /**
+     * The last time $partner (never the current learner) actually answered
+     * something in this session — real activity, not just the session
+     * existing. Falls back to when the session itself was started if the
+     * partner hasn't answered anything yet, so a brand-new session never
+     * looks "stale" the instant it's created. Used to offer switching to
+     * solo practice when a partner has gone quiet (see
+     * partner-speaking-session.blade.php's 48h banner).
+     */
+    public function partnerLastActivityAt(User $partner): Carbon
+    {
+        $lastAnsweredAt = $this->answers()->where('responder_id', $partner->id)->max('created_at');
+
+        return $lastAnsweredAt ? Carbon::parse($lastAnsweredAt) : $this->created_at;
     }
 }

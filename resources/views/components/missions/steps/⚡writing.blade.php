@@ -210,6 +210,9 @@ new class extends Component
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Writing</p>
         <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $writing['title'] ?? 'Writing' }}</h2>
+        @if ($writing['structure_note'] ?? null)
+            <p class="mt-1 text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $writing['structure_note'] }}</p>
+        @endif
     </div>
 
     <div>

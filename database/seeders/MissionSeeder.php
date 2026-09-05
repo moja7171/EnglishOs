@@ -850,6 +850,594 @@ class MissionSeeder extends Seeder
                 ],
             ]
         );
+
+        $this->seedM02();
+    }
+
+    /**
+     * Seeds M02 with its real content from document/M02/ (M02.pdf, BBC
+     * Learning English "6 Minute English: Making Male Friends"), matching
+     * the phase/step map in EOS-009 §7. Split into its own method (unlike
+     * M01's inline run()) purely for readability given its size — no
+     * behavioral difference.
+     *
+     * grammar_in_context and active_recall were generalized (commit
+     * 42608a8) specifically so this mission could reuse them for a
+     * different grammar focus/extra grammar-check section — see
+     * grammar-in-context.blade.php's lesson.sections shape and
+     * active-recall.blade.php's per-section 'judgment' shape.
+     */
+    private function seedM02(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M02', '6_minute_english_making_male_friends.mp3');
+
+        Mission::updateOrCreate(
+            ['code' => 'M02'],
+            [
+                'title' => 'People I Know',
+                'module' => 'Relationships',
+                'outcome' => 'I can describe people I know, talk about friendships, and explain what makes a good relationship.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Foundation',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Mission Brief',
+                                'duration_minutes' => 5,
+                                'hook' => 'You already talk about the people in your life every day — this mission just gives you the English to do it properly.',
+                                'image_query' => 'two friends laughing coffee shop',
+                                'ambient_video_query' => 'friends laughing together outdoors slow motion',
+                                'warm_up_questions' => [
+                                    'Who are you closest to?',
+                                    'What is this person like?',
+                                    'How did you become friends?',
+                                    'What makes someone a good friend?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder',
+                                'label' => 'Vocabulary Builder',
+                                'duration_minutes' => 14,
+                                'hook' => 'Next time someone asks about the people in your life, will these words be ready — or will you go quiet?',
+                                // Word selection follows Cambridge English Vocabulary in Use's
+                                // "Relationships" territory (friends, friendship, family, exes) —
+                                // the story and every meaning below are written fresh for this
+                                // app, not copied from it (see EOS-009 §14: content stays
+                                // original, no licensing/piracy risk).
+                                // "times are tough", "get through", "drift away", "Billy No-Mates",
+                                // and "double-edged sword" are deliberately woven in here too, not
+                                // just their own vocabulary — the real BBC Listening audio right
+                                // after this step uses these same 5 words/phrases, so every learner
+                                // reads them here first regardless of which words they personally
+                                // select, then hears them again in context (same content-authoring
+                                // convention as M01).
+                                'story' => [
+                                    [
+                                        'heading' => 'Friends',
+                                        'text' => "I'm quite an **outgoing** person, so making friends has never felt "
+                                            .'like hard work for me — though I know that isn\'t true for everyone. '
+                                            .'My **best friend**, Dan, is actually an **old friend**: we met on our '
+                                            .'first day of university, and it took us about a month to really '
+                                            .'**get to know each other** properly. Now, more than ten years later, '
+                                            .'we still **get on well with** each other, even though we live in '
+                                            .'different cities. Before I met Dan, my flatmate used to joke that I '
+                                            .'was turning into **Billy No-Mates**, because I hardly ever went out! '
+                                            .'These days it\'s the opposite — most weekends I\'m meeting up with a '
+                                            .'**mate** from work or catching up with someone from my old football '
+                                            .'team. Of course, having a big social life is a bit of a '
+                                            .'**double-edged sword**: I love seeing everyone, but some weeks I '
+                                            .'barely have an evening free. Sadly, not every friendship lasts. A '
+                                            .'couple of my school friends and I have gradually **drifted away** '
+                                            .'from each other since we stopped living in the same town — nobody\'s '
+                                            .'fault, it just happens.',
+                                    ],
+                                    [
+                                        'heading' => 'Family & Keeping In Touch',
+                                        'text' => 'My **close family** is quite small — just my parents, my sister, '
+                                            .'and a few **relatives** who live nearby. My sister\'s **current** '
+                                            .'boyfriend is actually really funny, much better than her '
+                                            .'**ex-partner**, who I never really liked! Whenever **times are '
+                                            .'tough** — like the year my grandmother was ill — it\'s usually '
+                                            .'family who help me **get through** it, more than anyone else. '
+                                            .'That\'s probably why I try to see my relatives at least once a '
+                                            .'month, even when life gets busy.',
+                                    ],
+                                ],
+                                'story_words' => [
+                                    // Friends
+                                    ['phrase' => 'best friend', 'meaning' => 'the friend you are closest to and trust the most', 'difficulty' => 'easy'],
+                                    ['phrase' => 'old friend', 'meaning' => 'a friend you have known for a long time (not necessarily an elderly friend)', 'difficulty' => 'medium'],
+                                    ['phrase' => 'friendship', 'meaning' => 'the relationship between friends', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get to know each other', 'meaning' => 'to gradually become familiar with a person', 'difficulty' => 'medium'],
+                                    // accepted_paraphrases: hand-picked, safe alternate wording
+                                    // Active Recall's local (non-AI) check also accepts for this
+                                    // exact phrase — same author's-judgment-call convention as M01.
+                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly, easy relationship with someone', 'difficulty' => 'hard', 'accepted_paraphrases' => ['get along with', 'get along well with']],
+                                    ['phrase' => 'mate', 'meaning' => '(British informal) a friend', 'image_query' => 'two friends high five outdoors', 'difficulty' => 'medium'],
+                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and enjoys meeting/talking to people', 'difficulty' => 'medium'],
+                                    ['phrase' => 'Billy No-Mates', 'meaning' => '(slang) a person with no friends', 'difficulty' => 'hard'],
+                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with both good and bad consequences', 'difficulty' => 'hard'],
+                                    ['phrase' => 'drift away', 'meaning' => 'to gradually grow apart from someone until the relationship ends', 'difficulty' => 'medium', 'accepted_paraphrases' => ['grow apart'], 'allow_embedded_match' => true],
+                                    // Family & Keeping In Touch
+                                    ['phrase' => 'close family', 'meaning' => 'your nearest family members (parents, siblings, etc.)', 'image_query' => 'family dinner table together', 'difficulty' => 'easy'],
+                                    ['phrase' => 'relatives', 'meaning' => 'members of your family', 'image_query' => 'extended family reunion', 'difficulty' => 'easy'],
+                                    ['phrase' => 'current', 'meaning' => 'happening or existing now (as opposed to before)', 'difficulty' => 'medium'],
+                                    ['phrase' => 'ex-partner', 'meaning' => "a person's former boyfriend/girlfriend/husband/wife", 'difficulty' => 'hard'],
+                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness, or financial difficulty in life', 'difficulty' => 'medium', 'accepted_paraphrases' => ['times are hard']],
+                                    ['phrase' => 'get through', 'meaning' => 'to manage to live through a difficult period of time', 'difficulty' => 'hard', 'allow_embedded_match' => true],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 22,
+                                'hook' => 'Neil and Beth are asking why British men have fewer close friends than women — do you agree?',
+                                'source' => 'BBC Learning English — 6 Minute English: Making Male Friends (2023)',
+                                'image_query' => 'two friends talking coffee shop',
+                                'audio_url' => $audioUrl,
+                                'transcript_ref' => 'document/M02/6_minute_english_making_male_friends.pdf',
+                                // Full real transcript (BBC Learning English, "6 Minute English:
+                                // Making Male Friends", 2023 — the PDF's own disclaimer notes it's
+                                // "not a word-for-word transcript", i.e. this already IS the BBC's
+                                // own published paraphrase) — shown in-app only after the learner
+                                // has genuinely listened twice (see ⚡listening.blade.php), so it's
+                                // a check, not a shortcut. ffprobe-verified real audio: 374.4s (6:14).
+                                'transcript' => [
+                                    ['speaker' => 'Neil', 'text' => "Hello. This is 6 Minute English from BBC Learning English. I'm Neil."],
+                                    ['speaker' => 'Beth', 'text' => "And I'm Beth. There's a famous English saying, 'a friend in need is a friend indeed', and it's true - everyone needs friends to share life's ups and downs. Do you have many friends, Neil?"],
+                                    ['speaker' => 'Neil', 'text' => 'Yes, I have some close friends, but maybe not as many as I\'d like.'],
+                                    ['speaker' => 'Beth', 'text' => "That's interesting because often it's women who have many friends while men find it harder to maintain strong friendships, especially as they get older. In fact, according to one recent survey, only 27% of British men say they have at least six close friends."],
+                                    ['speaker' => 'Neil', 'text' => "So, is it true that men find it difficult to make friends? We'll be hearing from Max Dickins, author of a new book on male friendships called 'Billy No-Mates', and, as usual, we'll be learning some useful new vocabulary as well."],
+                                    ['speaker' => 'Beth', 'text' => "But first I have a question for you. We know that close friends are important, not just for having fun but for good mental health as well. So according to research by Oxford University's Institute of Cognitive Anthropology, how many close friends do we need for our mental wellbeing? Is it: a) five? b) ten? or, c) twenty?"],
+                                    ['speaker' => 'Neil', 'text' => "I'll say we need at least five close friends."],
+                                    ['speaker' => 'Beth', 'text' => "OK, Neil. I'll reveal the answer at the end of the programme. Now, however many friends you have, it's a stereotype that women are better than men at making and keeping close friends. Here's Claudia Hammond outlining the problem for BBC Radio 4 programme, All in the Mind:"],
+                                    ['speaker' => 'Claudia Hammond', 'text' => "Now, when times are tough, friends are often the people who get us through, who are there to listen, to reassure, maybe to advise us, if that's what we want. So why do we sometimes find it hard to make friends, or that the friends we used to have seemed to have somehow drifted away? Now, there is an idea that women are much better at maintaining their friendships, and that men are more likely to hang out with whoever is around rather than to nurture those relationships, and we were wondering whether this was really true or is that just a stereotype?"],
+                                    ['speaker' => 'Neil', 'text' => 'Claudia uses the phrase, times are tough, to describe a situation of trouble, unhappiness or financial difficulty. Friends help us get through these difficult periods of life. The phrasal verb, get through, has several meanings, but here it means manage to live through an unpleasant period of time.'],
+                                    ['speaker' => 'Beth', 'text' => "The problem may be that your friends have drifted away – gradually moved further and further away until your connection with them has broken. And it seems that's especially true for men."],
+                                    ['speaker' => 'Neil', 'text' => "That's right. When author Max Dickins was getting married, he realised he didn't have any close male friends he could ask to be his 'best man', the person who helps the groom at a wedding. This led him to write the book 'Billy No-Mates', looking at why he didn't have any close male friends. Here's Claudia Hammond again talking with Max for BBC Radio 4 programme, All in the Mind:"],
+                                    ['speaker' => 'Claudia Hammond', 'text' => "Max, it's interesting that you kind of went public on this, if you like… Your book is even called 'Billy No-Mates', the very thing that, you know, a lot of us would dread being. It can't have been easy to decide to say this publicly…"],
+                                    ['speaker' => 'Max Dickins', 'text' => "No, it's a real double-edged sword being the face of a book called 'Billy No-Mates', I've gotta say… but I think… so loneliness doesn't look like me. I'm in my early to mid-30s, I'm pretty outgoing, I'm quick to buy my round, it shouldn't look like me, but increasingly it does. So loneliness isn't just the elderly anymore, it's younger people…"],
+                                    ['speaker' => 'Beth', 'text' => "Max called his book Billy No-Mates, slang for a person with no friends. It's a memorable book title, but Max says being the public face of a book called 'Billy No-Mates' is a double-edged sword - something with unfavourable as well as favourable consequences."],
+                                    ['speaker' => 'Neil', 'text' => "In fact, Max doesn't look like someone with no friends: he's young, generous, and outgoing – an adjective describing someone who's friendly and enjoys meeting people. But increasingly, loneliness is affecting younger men, thanks partly to social media which can make it seem as though everyone is having a great time with their mates, except you!"],
+                                    ['speaker' => 'Beth', 'text' => "Max thinks the answer is getting out and meeting people in 'third spaces', places like sports clubs or reading groups which are separate from either home or work."],
+                                    ['speaker' => 'Neil', 'text' => "All of which helps get closer to the magical number of friends needed for good mental health. I think it's time you revealed the answer to your question, Beth."],
+                                    ['speaker' => 'Beth', 'text' => "Yes, I asked how many close friends we need for our mental wellbeing. You said it was five, which was… the correct answer! According to Oxford University's Professor Robin Dunbar, we need a core circle of five close friends, plus a wider support network of about ten, making a total number of fifteen friends for good mental health. OK, let's recap the vocabulary from the programme, starting with the phrase times are tough, which describes periods of trouble or difficulty in life."],
+                                    ['speaker' => 'Neil', 'text' => 'If you get through something, you manage to live through a difficult situation.'],
+                                    ['speaker' => 'Beth', 'text' => 'To drift away means to gradually move further apart from someone until your relationship with them eventually ends.'],
+                                    ['speaker' => 'Neil', 'text' => 'Billy No-Mates is slang for someone who has no friends.'],
+                                    ['speaker' => 'Beth', 'text' => 'A double-edged sword describes something with unfavourable as well as favourable consequences.'],
+                                    ['speaker' => 'Neil', 'text' => 'And finally, the adjective outgoing describes someone who is very friendly and enjoys talking to people. Once again, our six minutes are up. Goodbye for now!'],
+                                    ['speaker' => 'Beth', 'text' => 'Bye!'],
+                                ],
+                                // The exact 5 expressions, with the meanings Neil & Beth themselves
+                                // gave in the podcast's own end-of-episode recap (page 5).
+                                'target_phrases' => [
+                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness or financial difficulty in life'],
+                                    ['phrase' => 'get through', 'meaning' => 'manage to live through a difficult situation'],
+                                    ['phrase' => 'drift away', 'meaning' => 'gradually move further and further apart from someone until your relationship with them is broken'],
+                                    ['phrase' => 'Billy No-Mates', 'meaning' => 'slang for someone who has no friends'],
+                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with unfavourable as well as favourable consequences'],
+                                    ['phrase' => 'outgoing', 'meaning' => 'very friendly; enjoys meeting and talking to people'],
+                                ],
+                                'topic_summary' => 'Neil and Beth discuss why British men often have fewer close friends '
+                                    .'than women, especially as they get older — a survey found only 27% of British '
+                                    .'men have at least six close friends. They hear from Claudia Hammond on why '
+                                    .'friendships can drift apart, and from author Max Dickins about his book '
+                                    ."'Billy No-Mates', on male loneliness. The episode ends with Professor Robin "
+                                    .'Dunbar\'s research on the ideal number of friends for good mental health: 5 '
+                                    .'close friends plus a wider network of 10, for a total of 15.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The programme says women generally find it easier than men to keep close friendships.', 'correct' => true],
+                                    ['statement' => 'Max Dickins wrote his book because he had too many close friends to choose just one as his best man.', 'correct' => false],
+                                    ['statement' => 'According to Professor Robin Dunbar, the ideal total number of friends for good mental health is fifteen.', 'correct' => true],
+                                ],
+                                'shadow_lines' => [
+                                    'So, **is** it **true** that **men** find it **difficult** to **make friends**?',
+                                    'To **drift away** means to **gradually** move **further apart** from **someone** until your **relationship** with them **eventually ends**.',
+                                    "He's **young**, **generous**, and **outgoing** – he's **quick** to **buy** his **round**.",
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Build',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 8,
+                                'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
+                                'image_query' => 'two friends chatting park bench',
+                                'recall_prompt' => 'Write one word or phrase you remember hearing.',
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar in Context',
+                                'duration_minutes' => 12,
+                                'hook' => 'Every "she\'s living" you get right here is one less pause when you\'re talking about someone real.',
+                                'focus' => 'Present Simple vs Present Continuous',
+                                'lesson' => [
+                                    'intro' => "We'll cover three things: what each tense is for, how to ask and "
+                                        .'answer in each, and how to spot which one a sentence needs.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · What each tense is for',
+                                            'body' => '<strong>Present Simple</strong> describes habits, routines, and '
+                                                .'general facts about a person — things that are usually true. '
+                                                .'<strong>Present Continuous</strong> describes something temporary, '
+                                                .'or happening around now, not necessarily this exact second.',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        [
+                                                            'label' => 'Present Simple — habits & facts',
+                                                            'items' => ['My friend usually helps me.', 'She lives near me.', 'They get on well with each other.'],
+                                                        ],
+                                                        [
+                                                            'label' => 'Present Continuous — temporary & now',
+                                                            'items' => ["She's working a lot these days.", "He's living with his friends at the moment.", "We're getting to know each other."],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · Asking and answering',
+                                            'body' => 'Present Simple questions/negatives use <strong>do/does</strong>; '
+                                                .'Present Continuous questions/negatives use <strong>am/is/are</strong>.',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        [
+                                                            'label' => 'Questions',
+                                                            'items' => ['Does she get on well with her sister?', 'Is he still working abroad?'],
+                                                        ],
+                                                        [
+                                                            'label' => 'Negatives',
+                                                            'items' => ["They don't see each other very often.", "She isn't living at home right now."],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · Spotting which tense a sentence needs',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Present Simple time expressions', 'words' => ['usually', 'always', 'every week', 'never']],
+                                                        ['label' => 'Present Continuous time expressions', 'words' => ['at the moment', 'these days', 'right now', 'currently']],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'rule_examples',
+                                                    'items' => [
+                                                        ['rule' => 'A general fact about a person → Present Simple', 'example' => 'My best friend lives in Manchester.', 'highlight' => 'lives'],
+                                                        ['rule' => 'A temporary situation right now → Present Continuous', 'example' => 'My best friend is living in Manchester for a few months.', 'highlight' => 'is living'],
+                                                        ['rule' => 'A habit → Present Simple', 'example' => 'She usually calls me on Sundays.', 'highlight' => 'calls'],
+                                                        ['rule' => 'Something happening around now, not necessarily this second → Present Continuous', 'example' => "She's calling me a lot more since the wedding.", 'highlight' => 'calling'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'bridge_note' => "You'll use this straight away — in Activation, describing someone you're close to.",
+                                ],
+                                'frequency_starters' => [
+                                    'My friend usually', 'These days, my friend is', 'He/She often', 'At the moment, he/she is',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence, correctly using either present simple (for '
+                                    .'habits/general facts) or present continuous (for temporary/current situations) '
+                                    .'as appropriate to the sentence starter given.',
+                                'grammar_major_criteria' => 'the verb is not in an appropriate tense for the starter '
+                                    .'given (present simple for a habit/general-fact starter, present continuous for '
+                                    .'a temporary/current-situation starter), the sentence does not actually continue '
+                                    .'the given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues appropriately in either the present simple or present '
+                                    .'continuous tense, whichever fits the sentence starter given',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'She is knowing him for ten years.',
+                                        'options' => ["She's known him for ten years.", 'She is knowing him for ten years.', 'She know him for ten years.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'My friend works in London this month, just for a project.',
+                                        'options' => ['My friend is working in London this month, just for a project.', 'My friend works in London this month, just for a project.', 'My friend working in London this month.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'She usually is getting on well with her sister.',
+                                        'options' => ['She usually gets on well with her sister.', 'She usually is getting on well with her sister.', 'She usually get on well with her sister.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'key' => 'activation',
+                                'label' => 'Activation',
+                                'duration_minutes' => 12,
+                                'hook' => 'Say it here, alone, before you have to say it to a real person tomorrow.',
+                                'task' => 'Choose a friend or someone close to you. Write at least 3 Present Simple '
+                                    .'sentences, 2 Present Continuous sentences, and use at least 3 vocabulary '
+                                    .'expressions describing them — then record 2 minutes of solo speaking about '
+                                    .'them without reading.',
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Practice',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 8,
+                                'hook' => 'Same audio, one more time — familiar is exactly the point.',
+                                'image_query' => 'friends walking together talking',
+                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'AI Conversation #1',
+                                'duration_minutes' => 12,
+                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                'interview_questions' => [
+                                    'Tell me about someone in your family — what are they like?',
+                                    'Who do you get on well with these days?',
+                                    "Is there a friend you've known for a long time? How did you get to know them?",
+                                    'What is one of your friends doing at the moment — for work, study, or something else?',
+                                    'How do you usually keep in touch with an old friend who lives far away?',
+                                    'What personality trait do you like most in the people close to you?',
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_feedback_1',
+                                'label' => 'AI Feedback #1',
+                                'duration_minutes' => 3,
+                                'hook' => "A second pair of ears just heard how you talk about the people in your life — here's what stood out.",
+                            ],
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => "Forget your own friends for a minute — what's happening in this one?",
+                                'image_query' => 'friends having picnic park laughing together',
+                                'guiding_questions' => [
+                                    'What are the friends doing right now?',
+                                    'How many people are in the group, and where are they sitting?',
+                                    'What food or drinks can you see in the picture?',
+                                    'How do the people in the picture seem to feel?',
+                                ],
+                                // TODO — UNVERIFIED PLACEHOLDER, unlike M01's hand-placed
+                                // hotspots: the sandbox this was authored in cannot reach
+                                // api.pexels.com (network egress blocks it specifically —
+                                // other hosts resolve fine), so the real cached photo for this
+                                // query+orientation was never actually viewed. These x/y guesses
+                                // are a plausible generic layout only (center/left/bottom/right)
+                                // — before relying on this step, fetch the real image for this
+                                // query, view it, and replace these with real hand-placed
+                                // coordinates the way M01's picture_description entry was done.
+                                'hotspots' => [
+                                    ['x' => 50, 'y' => 45, 'question_index' => 0],
+                                    ['x' => 25, 'y' => 55, 'question_index' => 1],
+                                    ['x' => 60, 'y' => 75, 'question_index' => 2],
+                                    ['x' => 78, 'y' => 40, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Sara — her friendships probably look a lot like yours. Can you follow her story in English?',
+                                'passage_title' => 'Meet Sara',
+                                'image_query' => 'young woman smiling portrait friendly',
+                                // Written fresh for this app (see EOS-009 §14) — deliberately
+                                // reuses several Vocabulary Builder pool words/phrases (close,
+                                // best friends, gets on well with, outgoing, old friend,
+                                // friendship, drifted away, getting to know, close family,
+                                // relatives, times are tough, get through) so whichever words a
+                                // learner picked there, they meet again here in a fresh context.
+                                'passage' => 'Sara has three very close school friends, and they\'ve stayed best '
+                                    .'friends for almost fifteen years. She usually sees them once a month for '
+                                    .'dinner, but these days it\'s harder to plan, because two of them are '
+                                    .'working abroad for a few months. Sara says she gets on well with all three '
+                                    .'of them, even though they\'re very different people — one is quiet and '
+                                    .'careful, and another is much more outgoing and always wants to organise '
+                                    .'something new. Sara also has an old friend, Mina, who she met at her first '
+                                    ."job. They don't talk every week anymore, but Sara doesn't think their "
+                                    .'friendship has drifted away — she thinks a good friendship can survive a '
+                                    .'few quiet months. At the moment, Sara is actually getting to know a new '
+                                    .'colleague, Priya, who just joined her team. They\'re having lunch together '
+                                    .'most days this week, and Sara already thinks Priya could become a good '
+                                    ."friend. Outside of friends, Sara's close family live nearby: her parents, "
+                                    .'her brother, and a few relatives who often come round on Sundays. Sara says '
+                                    .'that when times are tough, her family are the people who help her get '
+                                    .'through it.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'close', 'type' => 'reused'],
+                                    ['phrase' => 'best friends', 'type' => 'reused'],
+                                    ['phrase' => 'gets on well with', 'type' => 'reused'],
+                                    ['phrase' => 'outgoing', 'type' => 'reused'],
+                                    ['phrase' => 'old friend', 'type' => 'reused'],
+                                    ['phrase' => 'friendship', 'type' => 'reused'],
+                                    ['phrase' => 'drifted away', 'type' => 'reused'],
+                                    ['phrase' => 'getting to know', 'type' => 'reused'],
+                                    ['phrase' => 'close family', 'type' => 'reused'],
+                                    ['phrase' => 'relatives', 'type' => 'reused'],
+                                    ['phrase' => 'times are tough', 'type' => 'reused'],
+                                    ['phrase' => 'get through', 'type' => 'reused'],
+                                    ['phrase' => 'colleague', 'type' => 'new', 'definition' => 'a person you work with'],
+                                    ['phrase' => 'organise', 'type' => 'new', 'definition' => 'to plan and arrange an event or activity'],
+                                    ['phrase' => 'survive', 'type' => 'new', 'definition' => 'to continue existing despite a difficult situation'],
+                                ],
+                                'topic_summary' => 'A short profile of Sara and her friendships: her three '
+                                    .'long-time school friends (usually seen monthly, though two are currently '
+                                    .'working abroad), her old friend Mina from her first job (a friendship she '
+                                    .'believes can survive quiet periods), a new colleague, Priya, she\'s getting '
+                                    .'to know this week, and her close family and relatives nearby who help her '
+                                    .'through hard times.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Sara has three close friends from school.', 'correct' => true],
+                                    ['statement' => 'Sara sees her school friends every week.', 'correct' => false],
+                                    ['statement' => 'Sara thinks a friendship can survive a few quiet months without contact.', 'correct' => true],
+                                ],
+                                'questions' => [
+                                    "How does Sara feel about her friendship with Mina, even though they don't talk every week anymore?",
+                                    "What is different about Sara's routine with her school friends these days, compared to usual?",
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Everyone has an opinion about what makes a good friend — now explain yours, with real reasons and real examples.',
+                                'title' => 'What makes a good friend?',
+                                'structure_note' => "Don't just list qualities. Build each idea as Opinion → Reason → Example.",
+                                'prompts' => [
+                                    ['label' => 'Trust', 'image_query' => 'two friends trust support'],
+                                    ['label' => 'Fun & Laughter', 'image_query' => 'friends laughing together'],
+                                    ['label' => 'Honesty', 'image_query' => 'friends honest conversation'],
+                                    ['label' => 'Support', 'image_query' => 'friend comforting supporting another'],
+                                ],
+                                'try_to_use' => ['because', 'for example', 'another important quality is', 'I think', 'in my opinion'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Challenge',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'active_recall',
+                                'label' => 'Active Recall',
+                                'duration_minutes' => 9,
+                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
+                                'instruction' => 'Without looking at the previous pages.',
+                                'sections' => [
+                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
+                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the BBC episode', 'count' => 3],
+                                    [
+                                        'key' => 'present_simple_sentences',
+                                        'label' => '1 Present Simple sentence about someone I know',
+                                        'count' => 1,
+                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal '
+                                            .'sentence about someone they know, correctly using the present simple tense.',
+                                        'major_criteria' => 'the verb is not in the present simple tense, or it is not '
+                                            .'a genuine personal statement about someone the learner knows',
+                                        'context' => 'a personal sentence about someone the learner knows, using the present simple tense',
+                                        'recap_label' => 'sentences correctly used the present simple',
+                                    ],
+                                    [
+                                        'key' => 'present_continuous_sentences',
+                                        'label' => '1 Present Continuous sentence about what someone is doing these days',
+                                        'count' => 1,
+                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal '
+                                            .'sentence correctly using present continuous tense for something '
+                                            .'happening now or temporarily (not a general habit).',
+                                        'major_criteria' => 'the verb is not in the present continuous tense, it '
+                                            .'describes a general habit rather than something temporary/current, or '
+                                            .'it is not a genuine personal statement',
+                                        'context' => 'a personal sentence about something someone is doing now or '
+                                            .'temporarily, using the present continuous tense',
+                                        'recap_label' => 'sentences correctly used the present continuous',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'Error Log',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'partner_speaking_session',
+                                'label' => 'Partner Speaking Session',
+                                'duration_minutes' => 15,
+                                'hook' => 'Time to actually talk to someone — a real friend, or yourself, out loud.',
+                                'round_groups' => [
+                                    [
+                                        'label' => 'Your Friends',
+                                        'questions' => [
+                                            'Who is your closest friend?',
+                                            'How did you get to know each other?',
+                                            'How long have you known each other?',
+                                            'What do you usually do together?',
+                                        ],
+                                    ],
+                                    [
+                                        'label' => 'Personality',
+                                        'questions' => [
+                                            'What is your friend like?',
+                                            'What personality traits do you like?',
+                                            'What makes someone a good friend?',
+                                        ],
+                                    ],
+                                    [
+                                        'label' => 'Deeper',
+                                        'questions' => [
+                                            'Is it harder to make friends as you get older? Why?',
+                                            "How do people maintain friendships when they're busy?",
+                                            'Can online friendships be as strong as real-life ones?',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'AI Conversation #2 — Final Challenge',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — describe someone who matters, with no script to hide behind.",
+                                'rounds' => [
+                                    'Introduce this person and explain how you know them.',
+                                    'Describe what they\'re like as a person, and what you usually do together.',
+                                    'Talk about what they\'re doing these days, and why they matter to you.',
+                                ],
+                                'final_prompt' => 'Speak for 3 minutes without stopping about someone important in your life.',
+                                'requirements' => [
+                                    'Present Simple',
+                                    'Present Continuous',
+                                    '5+ vocabulary expressions',
+                                    'Examples',
+                                    'Reasons',
+                                    'Talks about who this person is and how you know them',
+                                    'Talks about what they are doing these days',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
     }
 
     /**

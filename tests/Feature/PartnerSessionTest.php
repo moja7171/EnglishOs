@@ -100,6 +100,56 @@ class PartnerSessionTest extends TestCase
         $this->assertTrue($alice->is($session->partnerFor($bob)));
     }
 
+    public function test_find_for_returns_null_when_no_session_exists_yet(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+
+        $this->assertNull(PartnerSession::findFor($mission, 'ai_conversation_1', $alice));
+    }
+
+    public function test_find_for_finds_the_existing_session_without_creating_a_new_one(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $started = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        $this->assertTrue($started->is(PartnerSession::findFor($mission, 'ai_conversation_1', $alice)));
+        $this->assertTrue($started->is(PartnerSession::findFor($mission, 'ai_conversation_1', $bob)));
+        $this->assertSame(1, PartnerSession::count());
+    }
+
+    public function test_partner_last_activity_at_falls_back_to_when_the_session_started(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        $this->assertTrue($session->created_at->equalTo($session->partnerLastActivityAt($bob)));
+    }
+
+    public function test_partner_last_activity_at_reflects_that_participants_latest_answer_only(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        PartnerSessionAnswer::create([
+            'partner_session_id' => $session->id,
+            'question_index' => 0,
+            'responder_id' => $bob->id,
+            'type' => PartnerSessionAnswer::TYPE_TEXT,
+            'body' => 'Seven in the morning.',
+        ]);
+
+        $this->assertTrue($session->partnerLastActivityAt($bob)->greaterThanOrEqualTo($session->created_at));
+        // Alice never answered — her "last activity" is still just the session's start.
+        $this->assertTrue($session->created_at->equalTo($session->partnerLastActivityAt($alice)));
+    }
+
     public function test_the_start_route_requires_mutual_follow(): void
     {
         $mission = $this->makeMission();

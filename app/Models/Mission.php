@@ -146,6 +146,12 @@ class Mission extends Model
                 ...$content['rounds'],
                 ...(isset($content['final_prompt']) ? [$content['final_prompt']] : []),
             ],
+            // Partner Speaking Session's shape: 3 labeled groups of
+            // questions (e.g. "Your Friends" / "Personality" / "Deeper"),
+            // flattened into one ordered list the same way the other two
+            // shapes are — a Partner Session (see PartnerSession) just
+            // works through them in order, unaware they were grouped.
+            isset($content['round_groups']) => collect($content['round_groups'])->flatMap(fn ($g) => $g['questions'])->all(),
             default => [],
         };
     }
