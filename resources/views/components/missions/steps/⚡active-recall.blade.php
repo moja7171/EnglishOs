@@ -48,8 +48,17 @@ new class extends Component
     /** @var array{good: int, total: int}|null */
     public ?array $listeningFactsResult = null;
 
-    /** @var array{good: int, total: int}|null */
-    public ?array $presentSimpleResult = null;
+    /**
+     * Recap counts for every "type a sentence using X grammar point"
+     * section — keyed by section key, e.g. 'present_simple_sentences' and
+     * (from M02 on) 'present_continuous_sentences'. Any mission can define
+     * as many of these as it needs by declaring a 'judgment' string per
+     * section in its seeded active_recall content (see
+     * runGrammarSentenceCheck()) — no per-tense PHP method required.
+     *
+     * @var array<string, array{good: int, total: int}|null>
+     */
+    public array $grammarCheckResults = [];
 
     /**
      * The learner's next DUE recurring-error pattern (see
@@ -346,22 +355,47 @@ new class extends Component
     }
 
     /**
-     * "listening_facts" and "present_simple_sentences" have no fixed ground
-     * truth to compare against locally, so they use the standard AI check
-     * pattern instead (see EOS-009 §8) — grounded in the real Listening
-     * topic summary for the first, and the standard present-simple
-     * judgment (reused verbatim from Grammar in Context) for the second.
-     * Deliberately non-blocking, same as the "expressions" section: this
-     * step is honest self-testing, not a pass/fail gate.
+     * "listening_facts" and every "type a sentence using X grammar point"
+     * section have no fixed ground truth to compare against locally, so
+     * they use the standard AI check pattern instead (see EOS-009 §8) —
+     * grounded in the real Listening topic summary for the first, and a
+     * judgment declared in the mission's own seeded content (see
+     * runGrammarSentenceCheck()) for the rest, however many a given
+     * mission defines (M01 has one, present_simple_sentences; M02 adds a
+     * second, present_continuous_sentences — no new PHP method needed for
+     * that or any future one). Deliberately non-blocking, same as the
+     * "expressions" section: this step is honest self-testing, not a
+     * pass/fail gate.
      */
     public function checkListeningFact(int $index): void
     {
         $this->checkOpenField('listening_facts', $index);
     }
 
+    /**
+     * Kept as its own thin, still publicly-callable method (rather than
+     * folded entirely into checkGrammarSentence()) purely for backward
+     * compatibility — existing callers/tests calling this exact method
+     * name keep working unchanged. Internally it's just one call among
+     * many into the same generic dispatch as any other declared grammar-
+     * check section.
+     */
     public function checkPresentSimpleSentence(int $index): void
     {
         $this->checkOpenField('present_simple_sentences', $index);
+    }
+
+    /**
+     * Generic entry point for any grammar-check-type section that isn't
+     * "expressions", "listening_facts", or one of the older sections with
+     * its own thin wrapper above — e.g. M02's present_continuous_sentences.
+     * A future mission can add as many of these as it needs purely by
+     * declaring a new section with a 'judgment' key in its seeded content;
+     * no new PHP method is required.
+     */
+    public function checkGrammarSentence(int $index, string $section): void
+    {
+        $this->checkOpenField($section, $index);
     }
 
     private function checkOpenField(string $section, int $index): void
@@ -381,8 +415,8 @@ new class extends Component
     private function runSentenceCheck(string $section, int $index, string $text): void
     {
         try {
-            $data = match ($section) {
-                'listening_facts' => app(SentenceChecker::class)->check(
+            $data = $section === 'listening_facts'
+                ? app(SentenceChecker::class)->check(
                     judgment: 'Judge whether what the learner wrote is a genuine, natural, complete English '
                         .'sentence about the SAME GENERAL TOPIC as a B1-level listening they heard earlier — '
                         .'recalled from memory, without looking back at it (not just a bare word or fragment, '
@@ -396,18 +430,8 @@ new class extends Component
                     extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small '
                         .'detail is debatable — never claim the learner\'s facts are wrong, since you were only '
                         .'given a short summary, not the full listening.'.$this->run->aiToneGuidance(),
-                ),
-                'present_simple_sentences' => app(SentenceChecker::class)->check(
-                    judgment: 'Judge whether the learner wrote a genuine, natural personal sentence, correctly '
-                        .'using the present simple tense.',
-                    majorCriteria: 'the verb is not in the present simple tense, or it is not a genuine personal '
-                        .'statement',
-                    context: 'a personal sentence using the present simple tense',
-                    text: $text,
-                    extraGuidance: $this->run->aiToneGuidance(),
-                ),
-                default => null,
-            };
+                )
+                : $this->runGrammarSentenceCheck($section, $text);
 
             if ($data === null) {
                 return;
@@ -423,6 +447,54 @@ new class extends Component
         } catch (Throwable $e) {
             $this->checkErrors[$section][$index] = "Couldn't check this one: {$e->getMessage()}";
         }
+    }
+
+    /**
+     * Data-driven check for any "type a sentence using X grammar point"
+     * section — the mission's seeded active_recall content declares a
+     * 'judgment' string per section (the same "AI judgment lives in seeded
+     * content, not hardcoded PHP" convention as grammar_in_context's
+     * 'grammar_judgment', see EOS-009 §8), optionally alongside
+     * 'major_criteria', 'context', and 'recap_label' overrides. A section
+     * with no declared 'judgment' isn't a grammar-check section at all
+     * (e.g. "expressions") — returns null, same as the old default => null
+     * arm this replaces, so runSentenceCheck() above silently no-ops.
+     */
+    private function runGrammarSentenceCheck(string $section, string $text): ?array
+    {
+        $config = collect($this->sections())->firstWhere('key', $section);
+
+        if (! isset($config['judgment'])) {
+            return null;
+        }
+
+        return app(SentenceChecker::class)->check(
+            judgment: $config['judgment'],
+            majorCriteria: $config['major_criteria']
+                ?? 'the sentence does not correctly follow the grammar point being tested, or it is not a genuine personal statement',
+            context: $config['context'] ?? 'a personal sentence for this grammar practice',
+            text: $text,
+            extraGuidance: $this->run->aiToneGuidance(),
+        );
+    }
+
+    /**
+     * Every section (other than "expressions" and "listening_facts", each
+     * handled by its own dedicated path above) that declares a 'judgment'
+     * in the mission's seeded active_recall content — however many a given
+     * mission defines. Explicitly excludes "listening_facts" too, in case a
+     * content author ever mistakenly adds a 'judgment' key to it — that
+     * section always uses its own dedicated topic-grounded check, never
+     * this generic one.
+     *
+     * @return array<int, string>
+     */
+    private function grammarCheckSectionKeys(): array
+    {
+        return collect($this->sections())
+            ->filter(fn (array $section) => $section['key'] !== 'listening_facts' && isset($section['judgment']))
+            ->pluck('key')
+            ->all();
     }
 
     /**
@@ -551,7 +623,10 @@ new class extends Component
 
         $this->scoreExpressions();
         $this->listeningFactsResult = $this->scoreOpenSection('listening_facts');
-        $this->presentSimpleResult = $this->scoreOpenSection('present_simple_sentences');
+
+        foreach ($this->grammarCheckSectionKeys() as $key) {
+            $this->grammarCheckResults[$key] = $this->scoreOpenSection($key);
+        }
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
@@ -670,11 +745,15 @@ new class extends Component
                         {{ $listeningFactsResult['good'] }} of {{ $listeningFactsResult['total'] }} things you recalled about the listening were clear and on-topic.
                     </p>
                 @endif
-                @if ($presentSimpleResult && $presentSimpleResult['total'] > 0)
+                @foreach ($grammarCheckResults as $sectionKey => $result)
+                    @continue(! $result || $result['total'] === 0)
+                    @php
+                        $recapLabel = collect($sections)->firstWhere('key', $sectionKey)['recap_label'] ?? 'sentences were correct';
+                    @endphp
                     <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                        {{ $presentSimpleResult['good'] }} of {{ $presentSimpleResult['total'] }} sentences correctly used the present simple.
+                        {{ $result['good'] }} of {{ $result['total'] }} {{ $recapLabel }}.
                     </p>
-                @endif
+                @endforeach
             </div>
             @unless ($readOnly)
                 <button
@@ -767,18 +846,30 @@ new class extends Component
                 @endunless
 
                 @php
-                    $checkMethod = match ($section['key']) {
-                        'expressions' => 'checkExpression',
-                        'listening_facts' => 'checkListeningFact',
-                        'present_simple_sentences' => 'checkPresentSimpleSentence',
+                    // 'present_simple_sentences' keeps calling its own thin
+                    // wrapper method (checkPresentSimpleSentence) purely for
+                    // backward compatibility with existing callers/tests —
+                    // every OTHER declared grammar-check section (e.g. M02's
+                    // present_continuous_sentences) dispatches through the
+                    // generic checkGrammarSentence(section, index) instead,
+                    // which needs the section key passed as an extra arg.
+                    $checkMethod = match (true) {
+                        $section['key'] === 'expressions' => 'checkExpression',
+                        $section['key'] === 'listening_facts' => 'checkListeningFact',
+                        $section['key'] === 'present_simple_sentences' => 'checkPresentSimpleSentence',
+                        isset($section['judgment']) => 'checkGrammarSentence',
                         default => null,
                     };
-                    $isAiChecked = in_array($section['key'], ['listening_facts', 'present_simple_sentences'], true);
+                    $isAiChecked = $section['key'] === 'listening_facts' || isset($section['judgment']);
+                    // x-check-button always calls $wire.{method}(index) with
+                    // index first — checkGrammarSentence() takes the section
+                    // key as a trailing second arg so it slots in after that.
+                    $checkExtraArgs = $checkMethod === 'checkGrammarSentence' ? ", '{$section['key']}'" : '';
                 @endphp
 
                 <div
                     wire:loading.class="pointer-events-none"
-                    wire:target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save"
+                    wire:target="checkExpression,checkListeningFact,checkPresentSimpleSentence,checkGrammarSentence,save"
                     class="mt-2 space-y-2"
                 >
                     @for ($i = 0; $i < $section['count']; $i++)
@@ -802,17 +893,17 @@ new class extends Component
                                     @endunless
                                     @readonly($readOnly)
                                     wire:loading.attr="disabled"
-                                    wire:target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save"
+                                    wire:target="checkExpression,checkListeningFact,checkPresentSimpleSentence,checkGrammarSentence,save"
                                     class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                                 >
                                 <x-filled-check show="filled['{{ $section['key'] }}'][{{ $i }}]" />
                                 @if ($checkMethod && ! $readOnly)
-                                    <x-check-button :method="$checkMethod" :index="$i" :key-prefix="$section['key'].'_'" wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save" />
+                                    <x-check-button :method="$checkMethod" :index="$i" :key-prefix="$section['key'].'_'" :extra-args="$checkExtraArgs" wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,checkGrammarSentence,save" />
                                 @endif
                             </div>
 
                             @if ($isAiChecked && ! $readOnly)
-                                <x-ai-thinking wire:loading wire:target="{{ $checkMethod }}({{ $i }}), save" class="mt-2" />
+                                <x-ai-thinking wire:loading wire:target="{{ $checkMethod }}({{ $i }}{!! $checkExtraArgs !!}), save" class="mt-2" />
                             @endif
 
                             @if ($checkMethod)
@@ -834,7 +925,7 @@ new class extends Component
             @unless ($readOnly)
                 <x-continue-button
                     on-click="Object.keys(dismissed).forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
-                    wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,save"
+                    wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,checkGrammarSentence,save"
                     loading-label="Checking your answers…"
                     ready-when="Object.keys(filled).every(section => countFilled(section) >= 1)"
                 />

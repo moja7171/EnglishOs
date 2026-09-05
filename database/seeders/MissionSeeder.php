@@ -360,30 +360,91 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 12,
                                 'hook' => "Every \"I usually...\" you get right here is one less pause when you're speaking for real.",
                                 'focus' => 'Present Simple + Adverbs of Frequency',
+                                // The lesson is fully data-driven (see grammar-in-context.blade.php)
+                                // so this same step can teach any grammar point a mission seeds it
+                                // with — a `sections` list of {heading, body, blocks[]}, each block
+                                // one of the component's generic shapes: pairs / examples / chips /
+                                // rule_examples. M01 below still renders byte-identically to the
+                                // pre-generalization hardcoded Blade version — only the *source* of
+                                // this content moved, not what it says.
                                 'lesson' => [
                                     'intro' => "We'll cover three things here: how the verb form changes for "
                                         .'he / she / it, how to ask and answer with do / does, and where words '
                                         .'like always, usually, and never go in a sentence.',
-                                    'conjugation_examples' => [
-                                        ['base' => 'I wake up early.', 'third_person' => 'She wakes up early.'],
-                                        ['base' => 'I go to work by bus.', 'third_person' => 'He goes to work by bus.'],
-                                        ['base' => 'I have breakfast at eight.', 'third_person' => 'She has breakfast at eight.'],
-                                    ],
-                                    'question_example' => 'Do you usually wake up early?',
-                                    'question_example_does' => 'Does she work on Saturdays?',
-                                    'negative_example' => "I don't usually wake up before seven.",
-                                    'negative_example_does' => "He doesn't work on Sundays.",
-                                    'frequency_scale' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never'],
-                                    'word_order_examples' => [
-                                        ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.', 'adverb' => 'always'],
-                                        ['rule' => 'With am/is/are → the adverb goes after it', 'example' => "I'm usually tired in the morning.", 'adverb' => 'usually'],
-                                        ['rule' => 'Two-word verb → the adverb goes after the first word', 'example' => "I don't usually work at night.", 'adverb' => 'usually'],
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · The verb changes with he / she / it',
+                                            'body' => 'With <strong>I / we / you / they</strong> the verb stays simple. '
+                                                .'With <strong>he / she / it</strong> it takes an <strong>-s</strong> '
+                                                .'(or an irregular form, like <em>have → has</em>).',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'I wake up early.', 'right' => 'She wakes up early.'],
+                                                        ['left' => 'I go to work by bus.', 'right' => 'He goes to work by bus.'],
+                                                        ['left' => 'I have breakfast at eight.', 'right' => 'She has breakfast at eight.'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · Questions and negatives use do / does',
+                                            'body' => "Use <strong>do</strong>/<strong>don't</strong> with I/we/you/they, "
+                                                .'and <strong>does</strong>/<strong>doesn\'t</strong> with he/she/it — '
+                                                .'the main verb goes back to its simple form.',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        [
+                                                            'items' => [
+                                                                'Do you usually wake up early?',
+                                                                'Does she work on Saturdays?',
+                                                                "I don't usually wake up before seven.",
+                                                                "He doesn't work on Sundays.",
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · Where the frequency word goes',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['words' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never']],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'rule_examples',
+                                                    'items' => [
+                                                        ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.', 'highlight' => 'always'],
+                                                        ['rule' => 'With am/is/are → the adverb goes after it', 'example' => "I'm usually tired in the morning.", 'highlight' => 'usually'],
+                                                        ['rule' => 'Two-word verb → the adverb goes after the first word', 'example' => "I don't usually work at night.", 'highlight' => 'usually'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
                                     ],
                                     'bridge_note' => "You'll put this straight to use next — in Activation, when you talk about your real daily routine out loud.",
                                 ],
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
                                 ],
+                                // Feeds SentenceChecker::check()'s judgment/majorCriteria params and
+                                // the "continues ___" tail of its context string (see
+                                // grammar-in-context.blade.php's sentenceContext()) — kept in seeded
+                                // content, not hardcoded, so a different mission's grammar focus gets
+                                // its own AI judgment without touching the component.
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence, correctly using the present simple tense.',
+                                'grammar_major_criteria' => 'the verb is not in the present simple tense, the '
+                                    .'sentence does not actually continue the given starter, or it is not a genuine '
+                                    .'personal statement',
+                                'grammar_context' => 'continues in the present simple tense',
                                 // Rendered as a tap-card <x-quick-round> (see EOS-009 §8) — the
                                 // learner picks the correct fix among the real error plus one more
                                 // plausible wrong attempt, instead of typing it out. Ungraded and
@@ -719,7 +780,22 @@ class MissionSeeder extends Seeder
                                 'sections' => [
                                     ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
                                     ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
-                                    ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
+                                    [
+                                        'key' => 'present_simple_sentences',
+                                        'label' => '3 Present Simple sentences',
+                                        'count' => 3,
+                                        // Moved verbatim from the old hardcoded PHP case in
+                                        // ⚡active-recall.blade.php's runSentenceCheck() — see
+                                        // EOS-009 §8 for the "AI judgment lives in seeded content"
+                                        // convention (mirrored from grammar_in_context's
+                                        // grammar_judgment) this generalizes active_recall onto.
+                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal sentence, correctly '
+                                            .'using the present simple tense.',
+                                        'major_criteria' => 'the verb is not in the present simple tense, or it is not a genuine personal '
+                                            .'statement',
+                                        'context' => 'a personal sentence using the present simple tense',
+                                        'recap_label' => 'sentences correctly used the present simple',
+                                    ],
                                 ],
                             ],
                             [

@@ -35,20 +35,62 @@ class GrammarInContextStepTest extends TestCase
                             'key' => 'grammar_in_context',
                             'focus' => 'Present Simple + Adverbs of Frequency',
                             'lesson' => [
-                                'conjugation_examples' => [
-                                    ['base' => 'I wake up early.', 'third_person' => 'She wakes up early.'],
-                                ],
-                                'question_example' => 'Do you usually wake up early?',
-                                'question_example_does' => 'Does she work on Saturdays?',
-                                'negative_example' => "I don't usually wake up before seven.",
-                                'negative_example_does' => "He doesn't work on Sundays.",
-                                'frequency_scale' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never'],
-                                'word_order_examples' => [
-                                    ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.', 'adverb' => 'always'],
+                                'sections' => [
+                                    [
+                                        'heading' => 'A · The verb changes with he / she / it',
+                                        'blocks' => [
+                                            [
+                                                'type' => 'pairs',
+                                                'pairs' => [
+                                                    ['left' => 'I wake up early.', 'right' => 'She wakes up early.'],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'heading' => 'B · Questions and negatives use do / does',
+                                        'blocks' => [
+                                            [
+                                                'type' => 'examples',
+                                                'groups' => [
+                                                    [
+                                                        'items' => [
+                                                            'Do you usually wake up early?',
+                                                            'Does she work on Saturdays?',
+                                                            "I don't usually wake up before seven.",
+                                                            "He doesn't work on Sundays.",
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'heading' => 'C · Where the frequency word goes',
+                                        'blocks' => [
+                                            [
+                                                'type' => 'chips',
+                                                'groups' => [
+                                                    ['words' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never']],
+                                                ],
+                                            ],
+                                            [
+                                                'type' => 'rule_examples',
+                                                'items' => [
+                                                    ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.', 'highlight' => 'always'],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
                                 ],
                                 'bridge_note' => "You'll use this next in Activation.",
                             ],
                             'frequency_starters' => ['I usually', 'I often', 'I sometimes', 'I rarely'],
+                            'grammar_judgment' => 'Judge whether the learner finished this sentence starter into a '
+                                .'true, natural personal sentence, correctly using the present simple tense.',
+                            'grammar_major_criteria' => 'the verb is not in the present simple tense, the sentence '
+                                .'does not actually continue the given starter, or it is not a genuine personal statement',
+                            'grammar_context' => 'continues in the present simple tense',
                             'quick_check' => [
                                 ['wrong' => 'She go to work.', 'options' => ['She goes to work.', 'She gos to work.'], 'correct' => 0, 'difficulty' => 'easy'],
                                 ['wrong' => 'He wake up late.', 'options' => ['He wakes up late.', 'He waking up late.'], 'correct' => 0, 'difficulty' => 'hard'],
@@ -407,5 +449,179 @@ class GrammarInContextStepTest extends TestCase
             ->set('frequencySentences.2', 'I sometimes exercise.')
             ->call('save')
             ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:grammar_in_context:");
+    }
+
+    /**
+     * Proves the step is genuinely generic — not just still working for
+     * M01's own present-simple content — by seeding a completely different
+     * grammar point (past simple vs present perfect, a plausible future M03)
+     * and checking it renders through the same generic section/block shape:
+     * grouped examples with labels, grouped chips with labels, and a
+     * rule_examples item that deliberately omits 'highlight' (M01's fixture
+     * always supplies one) to prove that path degrades gracefully.
+     */
+    private function makeGenericGrammarRun(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M-GENERIC',
+            'title' => 'A Different Grammar Point',
+            'module' => 'Test',
+            'outcome' => 'I can talk about the past.',
+            'phases' => [
+                [
+                    'phase' => 'build',
+                    'steps' => [
+                        [
+                            'key' => 'grammar_in_context',
+                            'focus' => 'Past Simple vs Present Perfect',
+                            'lesson' => [
+                                'intro' => 'A different lesson entirely.',
+                                'sections' => [
+                                    [
+                                        'heading' => 'A · What each tense is for',
+                                        'body' => 'Use <strong>Past Simple</strong> for a finished time. Use <strong>Present Perfect</strong> for a link to now.',
+                                        'blocks' => [
+                                            [
+                                                'type' => 'examples',
+                                                'groups' => [
+                                                    ['label' => 'Past Simple', 'items' => ['I visited Paris last year.']],
+                                                    ['label' => 'Present Perfect', 'items' => ["I've visited Paris."]],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'heading' => 'B · Time words',
+                                        'blocks' => [
+                                            [
+                                                'type' => 'chips',
+                                                'groups' => [
+                                                    ['label' => 'Past Simple', 'words' => ['yesterday', 'last week']],
+                                                    ['label' => 'Present Perfect', 'words' => ['ever', 'already']],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'heading' => 'C · Choosing the right one',
+                                        'blocks' => [
+                                            [
+                                                'type' => 'rule_examples',
+                                                // Deliberately no 'highlight' key — proves the
+                                                // no-highlight path renders plain, escaped text.
+                                                'items' => [
+                                                    ['rule' => 'A specific finished time → Past Simple', 'example' => 'I saw that film last night.'],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                'bridge_note' => 'Bridge note for a different grammar point.',
+                            ],
+                            'frequency_starters' => ['I have', 'Last week I'],
+                            'grammar_judgment' => 'Judge whether the learner correctly chose between the past '
+                                .'simple and the present perfect for this sentence starter.',
+                            'grammar_major_criteria' => 'the wrong tense is used for the described time reference, '
+                                .'or the sentence does not continue the given starter',
+                            'grammar_context' => 'continues using either the past simple or the present perfect '
+                                .'tense, whichever fits',
+                            'quick_check' => [
+                                ['wrong' => 'I have seen that film yesterday.', 'options' => ['I saw that film yesterday.', 'I have seen that film yesterday.'], 'correct' => 0],
+                            ],
+                        ],
+                        ['key' => 'activation'],
+                    ],
+                ],
+            ],
+        ]);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_a_different_grammar_points_lesson_renders_via_the_generic_section_shape(): void
+    {
+        $run = $this->makeGenericGrammarRun();
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run]);
+
+        $component
+            ->assertSee('A · What each tense is for')
+            ->assertSee('B · Time words')
+            ->assertSee('C · Choosing the right one')
+            ->assertSeeHtml('Use <strong>Past Simple</strong> for a finished time.')
+            ->assertSee('Past Simple') // group label
+            ->assertSee('Present Perfect') // group label
+            ->assertSee('I visited Paris last year.')
+            ->assertSee("I've visited Paris.")
+            ->assertSee('yesterday')
+            ->assertSee('already')
+            ->assertSee('A specific finished time → Past Simple')
+            ->assertSee('I saw that film last night.')
+            ->assertSee('Bridge note for a different grammar point.');
+
+        // No 'highlight' key was supplied for the rule_examples item — the
+        // highlight <strong> wrapper (used elsewhere, e.g. M01's "always")
+        // must not appear for this one, proving the guard in highlightWord()
+        // degrades to plain escaped text instead of a broken regex.
+        $component->assertDontSeeHtml(
+            '<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">'
+        );
+
+        // The bridge note is attached to the lesson as a whole, not
+        // per-section — it must render exactly once even though 3 sections
+        // are all present in the DOM (only one visible at a time via
+        // x-show/x-cloak).
+        $this->assertSame(1, substr_count($component->html(), 'Bridge note for a different grammar point.'));
+    }
+
+    public function test_the_seeded_judgment_and_major_criteria_drive_the_ai_check_for_a_different_grammar_point(): void
+    {
+        $run = $this->makeGenericGrammarRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function (array $messages, ?string $systemPrompt) {
+                    return str_contains($messages[0]['text'], 'continues using either the past simple or the present perfect tense, whichever fits')
+                        && str_contains($systemPrompt, 'Judge whether the learner correctly chose between the past simple and the present perfect')
+                        && str_contains($systemPrompt, 'the wrong tense is used for the described time reference')
+                        // The M01-specific wording must NOT leak into a
+                        // different mission's check — proves this isn't
+                        // still hardcoded.
+                        && ! str_contains($systemPrompt, 'present simple tense');
+                })
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', "I've visited Paris three times.")
+            ->call('checkOne', 0);
+    }
+
+    public function test_the_seeded_context_is_used_when_revealing_a_correction_for_a_different_grammar_point(): void
+    {
+        $run = $this->makeGenericGrammarRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages) => str_contains(
+                    $messages[0]['text'],
+                    'continues using either the past simple or the present perfect tense, whichever fits'
+                ))
+                ->andReturn('I have visited Paris three times.');
+        });
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'bad fragment');
+
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0);
+        $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
+
+        $component->call('revealCorrection', 0)
+            ->assertSet('frequencySentences.0', 'I have visited Paris three times.');
     }
 }

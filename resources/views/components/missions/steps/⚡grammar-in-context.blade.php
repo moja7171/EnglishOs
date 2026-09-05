@@ -105,22 +105,45 @@ new class extends Component
     }
 
     /**
+     * Builds the "what this text is meant to be" context handed to the AI —
+     * shared by both check() and correct() so a check and a later reveal
+     * always describe the same target. The tail ("continues in the present
+     * simple tense", "continues appropriately in either the present simple
+     * or present continuous tense", …) is mission-specific and comes from
+     * the seeded `grammar_context` key so a different grammar point never
+     * needs a Blade/PHP change here — see stepContent('grammar_in_context').
+     */
+    private function sentenceContext(array $grammar, string $starter): string
+    {
+        $tail = trim($grammar['grammar_context'] ?? '');
+
+        return $tail !== ''
+            ? "a personal sentence that starts with \"{$starter}\" and {$tail}"
+            : "a personal sentence that starts with \"{$starter}\"";
+    }
+
+    /**
      * Asks the shared SentenceChecker to judge one frequency sentence,
      * storing the verdict tagged with the exact text it applies to, so a
      * later edit doesn't leave a stale verdict attached to different text.
      * See EOS-009 §8 "الگوی چک جمله" for the shared rules.
+     *
+     * The judgment/majorCriteria/context tail all come from the seeded
+     * content (grammar_judgment / grammar_major_criteria / grammar_context)
+     * rather than being hardcoded here, so this step can teach any grammar
+     * point a mission seeds it with — not just M01's present simple focus.
      */
     private function runCheck(int $index, string $starter, string $sentence): void
     {
         unset($this->checkErrors[$index]);
 
+        $grammar = $this->run->mission->stepContent('grammar_in_context');
+
         try {
             $data = app(SentenceChecker::class)->check(
-                judgment: 'Judge whether the learner finished this sentence starter into a true, natural '
-                    .'personal sentence, correctly using the present simple tense.',
-                majorCriteria: 'the verb is not in the present simple tense, the sentence does not actually '
-                    .'continue the given starter, or it is not a genuine personal statement',
-                context: "a personal sentence that starts with \"{$starter}\" and continues in the present simple tense",
+                judgment: $grammar['grammar_judgment'] ?? '',
+                majorCriteria: $grammar['grammar_major_criteria'] ?? '',
+                context: $this->sentenceContext($grammar, $starter),
                 text: $sentence,
                 extraGuidance: $this->run->aiToneGuidance(),
             );
@@ -144,7 +167,8 @@ new class extends Component
      */
     public function revealCorrection(int $index): void
     {
-        $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
+        $grammar = $this->run->mission->stepContent('grammar_in_context');
+        $starters = $grammar['frequency_starters'] ?? [];
         $starter = $starters[$index] ?? null;
         $sentence = trim($this->frequencySentences[$index] ?? '');
 
@@ -154,7 +178,7 @@ new class extends Component
 
         $this->revealCorrectionFor(
             key: $index,
-            context: "a personal sentence that starts with \"{$starter}\" and continues in the present simple tense",
+            context: $this->sentenceContext($grammar, $starter),
             text: $sentence,
             errorBagKey: $index,
             onCorrected: function (string $corrected) use ($index) {
@@ -169,20 +193,21 @@ new class extends Component
         $this->declineCheckReveal($index);
     }
 
-    private function normalize(string $text): string
-    {
-        return trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
-    }
-
     /**
-     * Wraps the first occurrence of the adverb in an example sentence with
-     * a highlight so its position in the sentence — the whole point of the
-     * word-order rule — is visible at a glance, not just stated in prose.
+     * Wraps the first occurrence of $word in an example sentence with a
+     * highlight so its position in the sentence is visible at a glance, not
+     * just stated in prose. $word is empty for lesson content that has
+     * nothing to highlight (e.g. a contrast rule with no single word to
+     * point at) — in that case the sentence is shown plain, still escaped.
      */
-    public function highlightAdverb(string $example, string $adverb): string
+    public function highlightWord(string $example, string $word): string
     {
+        if ($word === '') {
+            return e($example);
+        }
+
         return preg_replace(
-            '/\b'.preg_quote($adverb, '/').'\b/',
+            '/\b'.preg_quote($word, '/').'\b/',
             '<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">$0</strong>',
             e($example),
             1
@@ -294,7 +319,14 @@ new class extends Component
 @php
     $grammar = $run->mission->stepContent('grammar_in_context');
     $lesson = $grammar['lesson'] ?? [];
-    $lessonSections = ['conjugation', 'questions', 'frequency'];
+    // The lesson's whole point/structure lives in seeded content now, not
+    // hardcoded Blade prose — this is what lets grammar_in_context teach any
+    // grammar point a mission seeds it with (M01's Present Simple + Adverbs
+    // of Frequency, M02's Present Simple vs Present Continuous, a future
+    // Past Simple vs Present Perfect, …) without another component edit.
+    // Each section is {heading, body, blocks[]}; each block is one of the
+    // generic shapes handled below (pairs / examples / chips / rule_examples).
+    $lessonSectionsData = $lesson['sections'] ?? [];
     $initialFilled = collect($frequencySentences)->map(fn ($s) => trim((string) $s) !== '')->values();
     $draftPrefix = $this->draftPrefix();
 @endphp
@@ -304,7 +336,7 @@ new class extends Component
     x-data="{
         phase: '{{ $readOnly || $practiceStarted ? 'practice' : 'lesson' }}',
         lessonStep: 0,
-        lessonSections: {{ count($lessonSections) }},
+        lessonSections: {{ count($lessonSectionsData) }},
         filled: {{ $initialFilled->toJson() }},
         dismissed: {},
         get filledCount() { return this.filled.filter(Boolean).length },
@@ -341,58 +373,85 @@ new class extends Component
                 </x-progress-bar>
             </div>
 
-            {{-- A: how the verb changes --}}
-            <div x-show="lessonStep === 0" x-cloak class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                <p class="text-sm font-bold">A · The verb changes with he / she / it</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                    With <strong>I / we / you / they</strong> the verb stays simple. With <strong>he / she / it</strong> it takes an <strong>-s</strong> (or an irregular form, like <em>have → has</em>).
-                </p>
-                <div class="mt-3 space-y-2">
-                    @foreach ($lesson['conjugation_examples'] ?? [] as $example)
-                        <div class="grid grid-cols-2 gap-2 rounded-lg border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-                            <p>{{ $example['base'] }}</p>
-                            <p class="font-semibold">{{ $example['third_person'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
+            @foreach ($lessonSectionsData as $sectionIndex => $section)
+                <div x-show="lessonStep === {{ $sectionIndex }}" x-cloak class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                    @if (! empty($section['heading']))
+                        <p class="text-sm font-bold">{{ $section['heading'] }}</p>
+                    @endif
 
-            {{-- B: questions and negatives --}}
-            <div x-show="lessonStep === 1" x-cloak class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                <p class="text-sm font-bold">B · Questions and negatives use do / does</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                    Use <strong>do</strong>/<strong>don't</strong> with I/we/you/they, and <strong>does</strong>/<strong>doesn't</strong> with he/she/it — the main verb goes back to its simple form.
-                </p>
-                <div class="mt-3 space-y-2 text-sm">
-                    <p class="rounded-lg border border-line p-2 text-ink dark:border-line-dark dark:text-ink-dark">{{ $lesson['question_example'] ?? '' }}</p>
-                    <p class="rounded-lg border border-line p-2 text-ink dark:border-line-dark dark:text-ink-dark">{{ $lesson['question_example_does'] ?? '' }}</p>
-                    <p class="rounded-lg border border-line p-2 text-ink dark:border-line-dark dark:text-ink-dark">{{ $lesson['negative_example'] ?? '' }}</p>
-                    <p class="rounded-lg border border-line p-2 text-ink dark:border-line-dark dark:text-ink-dark">{{ $lesson['negative_example_does'] ?? '' }}</p>
-                </div>
-            </div>
+                    @if (! empty($section['body']))
+                        {{-- Trusted, developer-authored seed content (like reading_comprehension's
+                             $passageHtml) — never learner input — so a light <strong>/<em> markup
+                             is allowed through untouched. --}}
+                        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{!! $section['body'] !!}</p>
+                    @endif
 
-            {{-- C: word order for frequency adverbs --}}
-            <div x-show="lessonStep === 2" x-cloak class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                <p class="text-sm font-bold">C · Where the frequency word goes</p>
-                <div class="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
-                    @foreach ($lesson['frequency_scale'] ?? [] as $word)
-                        <span class="rounded-full border border-line px-2 py-0.5 dark:border-line-dark">{{ $word }}</span>
-                        @if (! $loop->last) <span class="text-ink-faint dark:text-ink-faint-dark">@svg('heroicon-o-chevron-right', 'inline h-3 w-3')</span> @endif
-                    @endforeach
-                </div>
-                <div class="mt-3 space-y-2">
-                    @foreach ($lesson['word_order_examples'] ?? [] as $rule)
-                        <div class="rounded-lg border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $rule['rule'] }}</p>
-                            <p class="font-semibold">{!! $this->highlightAdverb($rule['example'], $rule['adverb'] ?? '') !!}</p>
-                        </div>
-                    @endforeach
-                </div>
+                    @foreach ($section['blocks'] ?? [] as $block)
+                        @switch($block['type'] ?? null)
+                            @case('pairs')
+                                {{-- Two-column transformation examples, e.g. base verb vs its
+                                     he/she/it form. --}}
+                                <div class="mt-3 space-y-2">
+                                    @foreach ($block['pairs'] ?? [] as $pair)
+                                        <div class="grid grid-cols-2 gap-2 rounded-lg border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
+                                            <p>{{ $pair['left'] }}</p>
+                                            <p class="font-semibold">{{ $pair['right'] }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @break
 
-                @if (! empty($lesson['bridge_note']))
-                    <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark italic">{{ $lesson['bridge_note'] }}</p>
-                @endif
-            </div>
+                            @case('examples')
+                                {{-- Standalone example sentences, each in its own box, optionally
+                                     grouped under a label (e.g. one group per tense). --}}
+                                <div class="mt-3 space-y-2 text-sm">
+                                    @foreach ($block['groups'] ?? [] as $group)
+                                        @if (! empty($group['label']))
+                                            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $group['label'] }}</p>
+                                        @endif
+                                        @foreach ($group['items'] ?? [] as $item)
+                                            <p class="rounded-lg border border-line p-2 text-ink dark:border-line-dark dark:text-ink-dark">{{ $item }}</p>
+                                        @endforeach
+                                    @endforeach
+                                </div>
+                                @break
+
+                            @case('chips')
+                                {{-- A horizontal scale of words (e.g. a frequency scale, or a set
+                                     of time expressions), optionally grouped under a label. --}}
+                                @foreach ($block['groups'] ?? [] as $group)
+                                    @if (! empty($group['label']))
+                                        <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark {{ ! $loop->first ? 'mt-2' : '' }}">{{ $group['label'] }}</p>
+                                    @endif
+                                    <div class="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
+                                        @foreach ($group['words'] ?? [] as $word)
+                                            <span class="rounded-full border border-line px-2 py-0.5 dark:border-line-dark">{{ $word }}</span>
+                                            @if (! $loop->last) <span class="text-ink-faint dark:text-ink-faint-dark">@svg('heroicon-o-chevron-right', 'inline h-3 w-3')</span> @endif
+                                        @endforeach
+                                    </div>
+                                @endforeach
+                                @break
+
+                            @case('rule_examples')
+                                {{-- A rule paired with an example sentence, optionally
+                                     highlighting the word the rule is about. --}}
+                                <div class="mt-3 space-y-2">
+                                    @foreach ($block['items'] ?? [] as $rule)
+                                        <div class="rounded-lg border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
+                                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $rule['rule'] }}</p>
+                                            <p class="font-semibold">{!! $this->highlightWord($rule['example'], $rule['highlight'] ?? '') !!}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @break
+                        @endswitch
+                    @endforeach
+
+                    @if ($loop->last && ! empty($lesson['bridge_note']))
+                        <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark italic">{{ $lesson['bridge_note'] }}</p>
+                    @endif
+                </div>
+            @endforeach
 
             {{-- <x-substep-nav> is deliberately a small muted grouped pill,
                  not the app's bold filled-pill "Next" language used for
@@ -401,7 +460,7 @@ new class extends Component
                  other. "Start practice" is the real, prominent commitment,
                  so it keeps the app's normal primary-button treatment. --}}
             <div class="flex items-center justify-between gap-2">
-                <x-substep-nav index-var="lessonStep" :total="count($lessonSections)" />
+                <x-substep-nav index-var="lessonStep" :total="count($lessonSectionsData)" />
 
                 <button
                     type="button"

@@ -17,6 +17,35 @@ class ActiveRecallStepTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * The real active_recall section shapes M01 uses (mirroring
+     * MissionSeeder.php) — present_simple_sentences declares its own
+     * 'judgment' (moved verbatim from the old hardcoded PHP case) plus
+     * 'major_criteria'/'context'/'recap_label' overrides, proving the
+     * generic checkOpenField() dispatch above reproduces the exact old
+     * behavior from seeded content alone, not a hardcoded PHP case.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function activeRecallSections(): array
+    {
+        return [
+            ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
+            ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
+            [
+                'key' => 'present_simple_sentences',
+                'label' => '3 Present Simple sentences',
+                'count' => 3,
+                'judgment' => 'Judge whether the learner wrote a genuine, natural personal sentence, correctly '
+                    .'using the present simple tense.',
+                'major_criteria' => 'the verb is not in the present simple tense, or it is not a genuine personal '
+                    .'statement',
+                'context' => 'a personal sentence using the present simple tense',
+                'recap_label' => 'sentences correctly used the present simple',
+            ],
+        ];
+    }
+
     private function makeRun(?User $learner = null): MissionRun
     {
         $learner ??= User::factory()->create();
@@ -32,11 +61,7 @@ class ActiveRecallStepTest extends TestCase
                         [
                             'key' => 'active_recall',
                             'instruction' => 'Without looking at the previous pages.',
-                            'sections' => [
-                                ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
-                                ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
-                                ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
-                            ],
+                            'sections' => $this->activeRecallSections(),
                         ],
                         ['key' => 'error_log'],
                     ],
@@ -225,11 +250,7 @@ class ActiveRecallStepTest extends TestCase
                         [
                             'key' => 'active_recall',
                             'instruction' => 'Without looking at the previous pages.',
-                            'sections' => [
-                                ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
-                                ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
-                                ['key' => 'present_simple_sentences', 'label' => '3 Present Simple sentences', 'count' => 3],
-                            ],
+                            'sections' => $this->activeRecallSections(),
                         ],
                         ['key' => 'error_log'],
                     ],
@@ -554,6 +575,88 @@ class ActiveRecallStepTest extends TestCase
             ->set('answers.present_simple_sentences.0', 'I woke up at seven.')
             ->call('checkPresentSimpleSentence', 0)
             ->assertSet('aiFeedback.present_simple_sentences.0.severity', 'major');
+    }
+
+    /**
+     * Regression test for the exact bug class this generalization fixes:
+     * before checkOpenField() dispatched generically off a declared
+     * 'judgment' key, ANY section besides the two hardcoded ones
+     * ('listening_facts', 'present_simple_sentences') silently rendered as
+     * a plain input with NO Check button and NO AI verdict — a learner
+     * could type anything and it would be accepted with no feedback at
+     * all. This proves a THIRD, differently-declared section (M02's real
+     * present_continuous_sentences, with its own real judgment text) gets
+     * a real Check button in the rendered markup AND a real SentenceChecker
+     * call carrying that exact judgment text — not just that the one
+     * pre-existing present_simple_sentences case still works.
+     */
+    public function test_a_newly_declared_grammar_check_section_gets_a_real_check_button_and_ai_call(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M02',
+            'title' => 'Test Mission',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [
+                [
+                    'phase' => 'mission',
+                    'steps' => [
+                        [
+                            'key' => 'active_recall',
+                            'instruction' => 'Without looking at the previous pages.',
+                            'sections' => [
+                                ...$this->activeRecallSections(),
+                                [
+                                    'key' => 'present_continuous_sentences',
+                                    'label' => '1 Present Continuous sentence about what someone is doing these days',
+                                    'count' => 1,
+                                    'judgment' => 'Judge whether the learner wrote a true, natural sentence correctly '
+                                        .'using present continuous tense for something happening now or temporarily '
+                                        .'(not a general habit).',
+                                ],
+                            ],
+                        ],
+                        ['key' => 'error_log'],
+                    ],
+                ],
+                [
+                    'phase' => 'earlier',
+                    'steps' => [
+                        ['key' => 'listening', 'topic_summary' => 'Neil and Georgie talk about their morning routines.'],
+                    ],
+                ],
+            ],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'listening',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => '{}',
+        ]);
+
+        // Proves the bug is fixed at the rendering level: a real Check
+        // button (wired to the generic checkGrammarSentence dispatch,
+        // carrying this section's own key) exists for this brand-new
+        // section — not a plain, silently-accepting input.
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->assertSeeHtml("\$wire.checkGrammarSentence(0, 'present_continuous_sentences')");
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($_messages, $systemPrompt) => str_contains(
+                    $systemPrompt,
+                    'using present continuous tense for something happening now or temporarily'
+                ))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.active-recall', ['run' => $run])
+            ->set('answers.present_continuous_sentences.0', 'She is studying for her exam this week.')
+            ->call('checkGrammarSentence', 0, 'present_continuous_sentences')
+            ->assertSet('aiFeedback.present_continuous_sentences.0.severity', 'none');
     }
 
     public function test_clicking_check_on_an_empty_listening_fact_shows_an_error(): void
