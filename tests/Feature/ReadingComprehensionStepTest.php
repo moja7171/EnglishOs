@@ -97,6 +97,26 @@ class ReadingComprehensionStepTest extends TestCase
         $this->assertStringContainsString('Part', $html);
     }
 
+    /**
+     * Regression test for a bug where clicking Check did nothing: the root
+     * x-data declared `activeSubstep` but not `dismissed`, which
+     * <x-check-button> reads/writes on click. A missing `dismissed` key
+     * throws "Alpine Expression Error: dismissed is not defined" client-side
+     * and aborts the click handler before $wire.checkOne() ever runs — a
+     * failure PHP-level Livewire tests can't see directly (no real Alpine
+     * runtime here), so this only checks the cheap proxy: the root x-data
+     * actually declares `dismissed` alongside `activeSubstep`, matching the
+     * same pattern already used by Listening/Active Recall/Error Log.
+     */
+    public function test_root_x_data_declares_dismissed_for_the_check_button(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])->html();
+
+        $this->assertMatchesRegularExpression('/x-data="\{[^"]*\bdismissed\b[^"]*\}"/', $html);
+    }
+
     public function test_continue_is_hidden_until_both_answers_are_filled(): void
     {
         $run = $this->makeRun();

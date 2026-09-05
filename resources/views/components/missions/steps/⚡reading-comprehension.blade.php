@@ -281,7 +281,7 @@ new class extends Component
     $totalSubsteps = 2;
 @endphp
 
-<div class="space-y-6" x-data="{ activeSubstep: 0 }">
+<div class="space-y-6" x-data="{ activeSubstep: 0, dismissed: {} }">
     <x-hook :text="$reading['hook'] ?? null" />
 
     <div class="mb-2">
