@@ -24,11 +24,13 @@ if [ ! -d "$WORKTREE" ]; then
     exit 1
 fi
 
-cd "$MAIN_REPO"
-git fetch origin main
-
 cd "$WORKTREE"
-git merge origin/main --no-edit
+# Merges the LOCAL main branch, not origin/main — this worktree shares
+# the same repo/refs as $MAIN_REPO, so local commits on main are
+# already visible here without needing a push to GitHub first. Merging
+# origin/main instead was a real bug: any local main commit not yet
+# pushed to GitHub silently never made it into a deploy.
+git merge main --no-edit
 
 echo "--- composer install ---"
 composer install --no-dev --optimize-autoloader --no-interaction
