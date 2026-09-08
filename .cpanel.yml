@@ -3,3 +3,4 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/growwi/englishos.growwise.ir/
     - /bin/cp -R * $DEPLOYPATH
+    - curl -sk --connect-to englishos.growwise.ir:443:127.0.0.1:443 https://englishos.growwise.ir/deploy.php || true
