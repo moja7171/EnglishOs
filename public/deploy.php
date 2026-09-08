@@ -55,7 +55,7 @@ $app = require $root.'/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-foreach (['storage:link', 'migrate --force', 'db:seed --force', 'config:cache', 'route:cache', 'view:cache'] as $command) {
+foreach (['storage:link', 'migrate --force', 'db:seed --force'] as $command) {
     echo "--- php artisan $command ---\n";
 
     try {
@@ -67,32 +67,33 @@ foreach (['storage:link', 'migrate --force', 'db:seed --force', 'config:cache', 
     }
 }
 
-// Ensures the one admin account exists on every deploy — idempotent,
-// and deliberately does NOT reset the password on an existing account.
-// The password itself can't be hardcoded here (this repo is public on
-// GitHub): generated fresh only the first time, printed once to this
-// log (private — cPanel's own deployment log, never committed to git).
+// Ensures the one admin account exists (and its password matches
+// ADMIN_PASSWORD) on every deploy — idempotent. The real password
+// lives only in .env (never committed — this repo is public on
+// GitHub), with a fixed fallback so this still works before that
+// variable is ever set. Deliberately BEFORE config:cache below — once
+// config is cached, raw env() calls for anything not baked into a
+// config/*.php file return null instead of reading .env directly.
 echo "--- ensure admin account ---\n";
-$admin = App\Models\User::where('email', 'admin@englishos.local')->first();
+$password = env('ADMIN_PASSWORD', 'EnglishOsAdmin2026!');
+$admin = App\Models\User::updateOrCreate(
+    ['email' => 'admin@englishos.local'],
+    ['name' => 'Admin', 'email_verified_at' => now(), 'cefr_level' => 'B1', 'password' => $password]
+);
+$admin->is_admin = true;
+$admin->save();
+echo "admin@englishos.local ensured, password synced from ADMIN_PASSWORD.\n";
 
-if (! $admin) {
-    $password = bin2hex(random_bytes(12));
-    $admin = App\Models\User::create([
-        'name' => 'Admin',
-        'email' => 'admin@englishos.local',
-        'password' => $password,
-        'email_verified_at' => now(),
-        'cefr_level' => 'B1',
-    ]);
-    echo "Created admin@englishos.local — password (shown once, save it now): {$password}\n";
-} else {
-    echo "admin@englishos.local already exists, password left untouched.\n";
-}
+foreach (['config:cache', 'route:cache', 'view:cache'] as $command) {
+    echo "--- php artisan $command ---\n";
 
-if (! $admin->is_admin) {
-    $admin->is_admin = true;
-    $admin->save();
-    echo "is_admin set to true.\n";
+    try {
+        Illuminate\Support\Facades\Artisan::call($command);
+        echo Illuminate\Support\Facades\Artisan::output()."\n";
+    } catch (Throwable $e) {
+        echo 'EXCEPTION: '.get_class($e).': '.$e->getMessage()."\n";
+        echo $e->getTraceAsString()."\n\n";
+    }
 }
 
 echo "=== done ===\n";
