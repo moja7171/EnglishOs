@@ -101,8 +101,8 @@ new class extends Component
      * 'in_progress', or 'retry_evidence' — renders as gated instead of
      * clickable. A learner who already has ANY run of their own for that
      * mission is exempt, so this never retroactively locks progress made
-     * before the gate existed (or while TESTING_UNLOCK_ALL_STEPS bypasses
-     * it entirely below).
+     * before the gate existed (or while an admin's Evidence-gating bypass
+     * was on — see User::bypassesEvidenceGating() — entirely below).
      *
      * @return list<array{code: string, mission: ?Mission, blockedBy: ?Mission}>
      */

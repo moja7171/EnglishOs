@@ -95,10 +95,9 @@ class MissionRunnerNavigationTest extends TestCase
     }
 
     /**
-     * Only exercises real behavior once TESTING_UNLOCK_ALL_STEPS is false
-     * — see project_testing_unlock_all_steps memory. Direct-URL access is
-     * the path the overview page's own gated card can't cover, since it
-     * never renders a link to a gated mission in the first place.
+     * Direct-URL access is the path the overview page's own gated card
+     * can't cover, since it never renders a link to a gated mission in
+     * the first place.
      */
     public function test_direct_url_access_to_a_gated_mission_redirects_home(): void
     {

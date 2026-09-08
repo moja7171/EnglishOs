@@ -200,17 +200,9 @@ class MissionRunLifecycleTest extends TestCase
         $this->assertNull($m03->previousMission());
     }
 
-    /**
-     * Documents the current, deliberate bypass — see
-     * project_testing_unlock_all_steps memory. This test itself must be
-     * updated (not just left failing) when TESTING_UNLOCK_ALL_STEPS
-     * reverts to false, since it's asserting the bypass, not the gate.
-     */
-    public function test_gating_mission_bypasses_entirely_while_testing_unlock_all_steps_is_on(): void
+    public function test_gating_mission_blocks_a_regular_learner_from_an_unstarted_predecessor(): void
     {
-        $this->assertTrue(MissionRun::TESTING_UNLOCK_ALL_STEPS);
-
-        $learner = User::factory()->create();
+        $learner = User::factory()->create(['is_admin' => false]);
         $m01 = $this->makeMission();
         $m02 = Mission::create([
             'code' => 'M02',
@@ -220,7 +212,22 @@ class MissionRunLifecycleTest extends TestCase
             'phases' => [],
         ]);
 
-        $this->assertNull(MissionRun::gatingMission($learner, $m02));
+        $this->assertTrue($m01->is(MissionRun::gatingMission($learner, $m02)));
+    }
+
+    public function test_gating_mission_bypasses_entirely_for_an_admin(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $m01 = $this->makeMission();
+        $m02 = Mission::create([
+            'code' => 'M02',
+            'title' => 'My Neighborhood',
+            'module' => 'Me',
+            'outcome' => 'I can describe where I live.',
+            'phases' => [],
+        ]);
+
+        $this->assertNull(MissionRun::gatingMission($admin, $m02));
     }
 
     public function test_progress_percent_is_zero_for_a_fresh_run(): void

@@ -35,6 +35,7 @@ class User extends Authenticatable
      */
     protected $attributes = [
         'celebrated_streak_milestone' => 0,
+        'is_admin' => false,
     ];
 
     /**
@@ -48,7 +49,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'discoverable' => 'boolean',
+            'is_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Admin accounts skip Evidence Before Progress (EOS-001 Article 3)
+     * entirely — every mission/day/step reachable regardless of actual
+     * Evidence, for testing the whole app freely. Named for what it means
+     * at each MissionRun call site, not the underlying `is_admin` column,
+     * so a future non-testing meaning for "admin" doesn't have to imply
+     * this bypass too.
+     */
+    public function bypassesEvidenceGating(): bool
+    {
+        return $this->is_admin;
     }
 
     /**

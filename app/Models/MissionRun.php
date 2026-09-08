@@ -24,15 +24,6 @@ class MissionRun extends Model
 
     public const STATUS_RETRY_EVIDENCE = 'retry_evidence';
 
-    /**
-     * TEMPORARY — testing only. Must be reverted (set back to false) before
-     * this is left as-is — it bypasses Evidence Before Progress (EOS-003
-     * §7 / Article 3) by marking every day unlocked in dayProgress(),
-     * regardless of actual Evidence. Kept in sync with the matching flag
-     * in ⚡runner.blade.php.
-     */
-    public const TESTING_UNLOCK_ALL_STEPS = true;
-
     protected function casts(): array
     {
         return [
@@ -295,7 +286,7 @@ class MissionRun extends Model
                 'completedAt' => $done ? $dayEvidence->last()?->created_at : null,
                 'done' => $done,
                 'current' => $isCurrent,
-                'locked' => ! $done && ! $isCurrent && ! self::TESTING_UNLOCK_ALL_STEPS,
+                'locked' => ! $done && ! $isCurrent && ! $this->learner->bypassesEvidenceGating(),
             ];
         }
 
@@ -336,11 +327,11 @@ class MissionRun extends Model
      * 'in_progress', or 'retry_evidence' all block). A learner who already
      * has ANY run of their own for $mission is exempt — this must never
      * retroactively lock progress made before this gate existed, or made
-     * while TESTING_UNLOCK_ALL_STEPS bypassed it (also checked here).
+     * while the learner's own admin bypass was on (also checked here).
      */
     public static function gatingMission(User $learner, Mission $mission): ?Mission
     {
-        if (self::TESTING_UNLOCK_ALL_STEPS) {
+        if ($learner->bypassesEvidenceGating()) {
             return null;
         }
 

@@ -60,15 +60,14 @@ new class extends Component
     /**
      * Steps the learner has already reached — done steps plus the current
      * one. Evidence Before Progress (EOS-003 §7) still applies: you can
-     * look back at any of these, but never jump ahead of the current step.
-     *
-     * TEMPORARY — testing only: MissionRun::TESTING_UNLOCK_ALL_STEPS
-     * bypasses this entirely while true. Revert it there (single source
-     * of truth — also used by dayProgress()'s 'locked' flag below).
+     * look back at any of these, but never jump ahead of the current step
+     * — except for an admin account (User::bypassesEvidenceGating()),
+     * which reaches everything. Single source of truth for this bypass,
+     * also used by dayProgress()'s 'locked' flag below.
      */
     public function getReachableStepKeysProperty(): array
     {
-        if (MissionRun::TESTING_UNLOCK_ALL_STEPS) {
+        if ($this->run->learner->bypassesEvidenceGating()) {
             return $this->stepKeys;
         }
 
@@ -311,7 +310,7 @@ new class extends Component
                         ? $day['stepKeys'][0]
                         : ($day['current']
                             ? $this->currentStepKey
-                            : (MissionRun::TESTING_UNLOCK_ALL_STEPS ? $day['stepKeys'][0] : null));
+                            : ($run->learner->bypassesEvidenceGating() ? $day['stepKeys'][0] : null));
                 @endphp
                 <div class="relative mb-3.5">
                     <div class="absolute top-3.5 -left-11 flex h-9 w-9 items-center justify-center rounded-full border-2 font-display text-sm font-semibold
