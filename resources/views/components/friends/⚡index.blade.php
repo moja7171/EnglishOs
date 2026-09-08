@@ -165,8 +165,12 @@ new class extends Component
             ->where('id', '!=', auth()->id())
             ->whereNotIn('id', $this->blockedUserIds())
             ->where('discoverable', true)
-            // ilike, not like — Postgres' LIKE is case-sensitive by default.
-            ->where('name', 'ilike', "%{$term}%")
+            // Plain 'like', not 'ilike' — MySQL's LIKE is already
+            // case-insensitive under the app's utf8mb4_unicode_ci
+            // collation (unlike Postgres, where LIKE is case-sensitive
+            // and ILIKE — a Postgres-only operator MySQL's parser
+            // rejects outright — was needed for this same effect).
+            ->where('name', 'like', "%{$term}%")
             ->orderBy('name')
             ->limit(20)
             ->get();

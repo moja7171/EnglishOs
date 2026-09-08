@@ -191,13 +191,6 @@ class MissionsOverviewTest extends TestCase
         ]);
     }
 
-    /**
-     * These 4 gating tests only exercise real behavior once
-     * MissionRun::TESTING_UNLOCK_ALL_STEPS is false — see
-     * project_testing_unlock_all_steps memory. Expected to fail alongside
-     * the other 4 known TESTING_UNLOCK_ALL_STEPS-caused failures until
-     * that flag is reverted.
-     */
     public function test_a_mission_is_gated_until_its_predecessor_is_cleared(): void
     {
         $learner = User::factory()->create();
@@ -262,8 +255,8 @@ class MissionsOverviewTest extends TestCase
         $second = $this->makeSecondMission();
 
         // The learner already has a run of their own for M02 — from
-        // before this gate existed, or made while TESTING_UNLOCK_ALL_STEPS
-        // bypassed it — and must never be retroactively locked out of it.
+        // before this gate existed, or made while an admin bypass was on
+        // — and must never be retroactively locked out of it.
         MissionRun::findOrStart($learner, $second);
 
         $this->actingAs($learner);
