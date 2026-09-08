@@ -23,7 +23,10 @@ return new class extends Migration
             // Each person answers each question at most once — resaving
             // (retyping, re-recording) updates that same row rather than
             // ever piling up duplicates.
-            $table->unique(['partner_session_id', 'question_index', 'responder_id']);
+            // Named explicitly — the auto-generated name from these column
+            // names exceeds MySQL's 64-character identifier limit (Postgres
+            // only silently truncates the same long name instead of erroring).
+            $table->unique(['partner_session_id', 'question_index', 'responder_id'], 'partner_session_answers_unique');
         });
     }
 

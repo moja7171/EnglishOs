@@ -382,7 +382,10 @@ class ErrorLogStepTest extends TestCase
             ->assertRedirect(route('missions.show', $run->mission));
 
         $item = ErrorLogItem::first();
-        $this->assertSame([['sentence' => 'He ___ to the gym.', 'answer' => 'goes']], $item->drills);
+        // assertEquals, not assertSame — MySQL's native JSON type normalizes
+        // object key order on storage (Postgres's json type preserves it
+        // verbatim), and nothing in the app depends on key order here.
+        $this->assertEquals([['sentence' => 'He ___ to the gym.', 'answer' => 'goes']], $item->drills);
     }
 
     public function test_a_newly_recurring_category_starts_a_speaking_recall_style_error_review(): void

@@ -20,6 +20,14 @@ return new class extends Migration
             // this question, independent of the run itself still existing.
             $table->string('mission_code')->nullable();
             $table->text('prompt');
+            // MySQL can't index a TEXT column without an explicit prefix
+            // length, and a prefix-only unique index would enforce
+            // uniqueness on just that prefix — a real risk here, since
+            // these prompts commonly share a long lead-in ("Describe a
+            // time when..."). A short hash of the full text (kept in sync
+            // by the model, see SpeakingPrompt) sidesteps both problems and
+            // works identically on Postgres.
+            $table->string('prompt_hash', 64)->nullable();
             // The learner's most recent recorded answer — deliberately just
             // the latest, not a full history per attempt (keeps this simple
             // and consistent with how every other mission step's voice
@@ -38,7 +46,7 @@ return new class extends Migration
             // the same question again from a later mission just means it
             // was already on the list, not a second, separately-scheduled
             // card.
-            $table->unique(['learner_id', 'prompt']);
+            $table->unique(['learner_id', 'prompt_hash']);
         });
     }
 

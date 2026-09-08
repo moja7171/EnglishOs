@@ -15,12 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            User::factory()->raw(['name' => 'Test User', 'email' => 'test@example.com'])
-        );
+        // Dev/testing convenience only — User::factory() needs Faker,
+        // which is a require-dev package and correctly absent from a
+        // `composer install --no-dev` production build. Gating this also
+        // means a real production deploy's db:seed never creates a bogus
+        // test@example.com account on the live site.
+        if (app()->environment('local', 'testing')) {
+            User::firstOrCreate(
+                ['email' => 'test@example.com'],
+                User::factory()->raw(['name' => 'Test User', 'email' => 'test@example.com'])
+            );
+        }
 
         $this->call(MissionSeeder::class);
     }

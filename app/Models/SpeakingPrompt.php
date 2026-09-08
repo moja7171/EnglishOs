@@ -36,6 +36,19 @@ class SpeakingPrompt extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        // Kept in sync automatically so every call site (firstOrCreate()
+        // in Mission Result, factories, tinker) gets a correct value for
+        // free — see the migration for why this exists instead of
+        // indexing/uniquing the prompt text column directly.
+        static::saving(function (self $prompt) {
+            if ($prompt->isDirty('prompt')) {
+                $prompt->prompt_hash = sha1($prompt->prompt);
+            }
+        });
+    }
+
     /**
      * @return BelongsTo<User, $this>
      */
