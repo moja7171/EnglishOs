@@ -51,8 +51,12 @@
                 }
 
                 document.addEventListener('fullscreenchange', () => {
-                    this.fullscreen = document.fullscreenElement === this.$el;
+                    this.fullscreen = document.fullscreenElement === video;
                 });
+                // iOS's non-standard fullscreen path fires its own events
+                // instead of the standard fullscreenchange above.
+                video.addEventListener('webkitbeginfullscreen', () => this.fullscreen = true);
+                video.addEventListener('webkitendfullscreen', () => this.fullscreen = false);
             },
             togglePlay() { this.playing ? this.$refs.video.pause() : this.$refs.video.play() },
             cycleSpeed() {
@@ -69,30 +73,33 @@
                 if (this.$refs.track) this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
             },
             toggleFullscreen() {
-                // iOS Safari has no support at all for fullscreening an
-                // arbitrary element (only the standard API on this wrapper
-                // div) — it silently no-ops there, which reads as a plain
-                // black screen (the on-video overlay staying its normal
-                // small size against a suddenly-black page). Its only
-                // fullscreen support is this non-standard method on the
-                // <video> itself, which drops the custom overlay controls
-                // for the OS's own native ones — real tradeoff, but a
-                // working video beats a broken custom UI.
+                // Fullscreens the <video> element itself, not this wrapper
+                // — tried fullscreening the wrapper first (to keep the
+                // custom overlay visible), but Android Chrome has a real,
+                // separate reliability problem there: a <video> inside an
+                // arbitrary fullscreened element sometimes never
+                // composites its hardware decode surface at all, showing
+                // solid black regardless of any CSS on the wrapper (this
+                // was tried — overflow-hidden wasn't actually the cause).
+                // Fullscreening the <video> directly is the standard,
+                // hardware-optimized path every browser gets right; the
+                // real cost is losing the custom overlay for the OS's own
+                // native video controls during fullscreen (see the
+                // :controls binding below) — reliability over polish.
                 const video = this.$refs.video;
 
-                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.fullscreenElement === video || document.webkitFullscreenElement === video) {
                     (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
                     return;
                 }
 
-                if (this.$el.requestFullscreen) {
-                    this.$el.requestFullscreen().catch(() => {
-                        if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-                    });
-                } else if (video.webkitEnterFullscreen) {
-                    video.webkitEnterFullscreen();
-                } else if (video.requestFullscreen) {
+                if (video.requestFullscreen) {
                     video.requestFullscreen();
+                } else if (video.webkitEnterFullscreen) {
+                    // iOS Safari: the only fullscreen path it has at all.
+                    video.webkitEnterFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
                 }
             },
             skip(seconds) {
@@ -136,17 +143,7 @@
         x-on:keydown="onKeydown($event)"
         x-on:mousemove="showControls()"
         x-on:mouseleave="if (playing) controlsVisible = false"
-        class="group relative aspect-video w-full bg-black outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark"
-        {{--
-            overflow-hidden + rounded-2xl are dropped the instant this div
-            enters real fullscreen — Chrome on Android renders a solid
-            black frame instead of the video when the element promoted to
-            :fullscreen has `overflow: hidden` (its hardware video-decode
-            surface never gets composited). Desktop/iOS don't show this,
-            only Android Chrome, but the class is harmless everywhere and
-            a fullscreen view has no reason to keep clipped corners anyway.
-        --}}
-        :class="fullscreen ? 'overflow-visible' : 'overflow-hidden rounded-2xl'"
+        class="group relative aspect-video w-full overflow-hidden rounded-2xl bg-black outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark"
     >
         <video
             x-ref="video"
@@ -155,7 +152,8 @@
             preload="metadata"
             playsinline
             crossorigin="anonymous"
-            x-on:click="togglePlay()"
+            :controls="fullscreen"
+            x-on:click="if (!fullscreen) togglePlay()"
         >
             <source src="{{ $url }}" type="video/mp4">
             @if ($captionsUrl)
@@ -168,7 +166,7 @@
              bottom-bar button to be found first. --}}
         <button
             type="button"
-            x-show="!playing"
+            x-show="!playing && !fullscreen"
             x-on:click="togglePlay()"
             class="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity"
         >
@@ -181,7 +179,7 @@
              so it never lingers as a translucent strip over black bars on
              a differently-shaped video. --}}
         <div
-            x-show="controlsVisible || !playing"
+            x-show="(controlsVisible || !playing) && !fullscreen"
             x-transition.opacity.duration.200ms
             class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-8 pb-2"
         >
