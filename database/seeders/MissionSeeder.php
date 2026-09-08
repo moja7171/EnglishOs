@@ -21,6 +21,8 @@ class MissionSeeder extends Seeder
     public function run(): void
     {
         $audioUrl = $this->publishMissionAsset('M01', 'BBC Learning English - Real Easy English Talking about mornings.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M01', 'Everyday Grammar - Beating Problems with Adverbs.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M01', 'Everyday Grammar - Beating Problems with Adverbs.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M01'],
@@ -517,48 +519,49 @@ class MissionSeeder extends Seeder
                                 // genuinely distinct from Listening's (both real work, different
                                 // shape).
                                 'duration_minutes' => 10,
-                                'hook' => 'Real people, real English, real speed — watch how an English speaker actually talks about her morning, then try to sound just like her.',
-                                'source' => "Rachel's English — \"My Morning Routine\"",
-                                'video_id' => 'KfVfjL8-R-0',
-                                'video_url' => 'https://youtu.be/KfVfjL8-R-0',
-                                // Summarized in Claude's own words from the real video's own
-                                // published transcript (rachelsenglish.com/my-morning-routine) —
-                                // the video is embedded live from YouTube, but its transcript is
-                                // never copied verbatim into this app (see EOS-009 §14: content
-                                // stays original, no licensing/piracy risk), same principle as
-                                // the vocabulary story never copying Cambridge textbook text.
-                                'topic_summary' => 'An English-speaking mother shows her family\'s '
-                                    .'morning routine on camera: getting her kids breakfast (one '
-                                    .'child doesn\'t feel like having cereal, so she makes an egg '
-                                    .'instead), getting everyone together to eat, and getting the '
-                                    .'kids dressed and their teeth brushed before school — while '
-                                    .'explaining some of the real English she naturally uses along '
-                                    .'the way.',
+                                'hook' => 'Quickly or slowly? English speakers describe HOW an action happens with adverbs — watch a real teacher explain it, then make your own voice do the same.',
+                                'source' => 'VOA Learning English — "Everyday Grammar: Beating Problems with Adverbs"',
+                                // Self-hosted (public domain — VOA-produced content, confirmed via
+                                // VOA's own Copyright Statement) via <x-video-player> instead of a
+                                // YouTube embed — see EOS-009 §8 (video-hosting note) for why.
+                                // captions_url is a real, word-timed WebVTT transcribed from this
+                                // exact file's own audio (Groq Whisper, not the video's separate
+                                // on-page article — that text turned out to be a differently-worded
+                                // companion piece, not a literal transcript).
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                // Summarized in Claude's own words from the real video's own audio
+                                // (transcribed, not copied from VOA's on-page article — see above)
+                                // — never copied verbatim into this app (see EOS-009 §14: content
+                                // stays original), same principle as the vocabulary story never
+                                // copying Cambridge textbook text.
+                                'topic_summary' => 'VOA teacher John Russell explains one common use '
+                                    .'of adverbs: modifying a verb to answer a "how" question. Using '
+                                    .'two real examples — a man who speaks so quickly he\'s hard to '
+                                    .'understand, and a turtle that moves slowly — he shows how many '
+                                    .'English adverbs describing verbs end in "-ly".',
                                 'comprehension_check' => [
-                                    ['statement' => 'The video shows someone\'s morning routine.', 'correct' => true],
-                                    ['statement' => 'Everyone in the family wants exactly the same breakfast.', 'correct' => false],
-                                    ['statement' => 'The speaker also explains some real English vocabulary and pronunciation.', 'correct' => true],
+                                    ['statement' => 'This video is part of a series called "Everyday Grammar".', 'correct' => true],
+                                    ['statement' => 'The turtle in the example moves quickly.', 'correct' => false],
+                                    ['statement' => 'An adverb describing a verb often answers a "how" question.', 'correct' => true],
                                 ],
-                                // Real vocabulary the video itself teaches, in Claude's own
-                                // words — "snack" and "skip" deliberately echo the exact same
-                                // meanings already used in Vocabulary Builder/Listening's own
-                                // pools (see EOS-009 §8 content-authoring convention).
+                                // Real vocabulary the video itself teaches, in Claude's own words —
+                                // "quickly"/"slowly" are the video's own two worked examples.
                                 'target_phrases' => [
-                                    ['phrase' => 'feel like (something)', 'meaning' => 'to want something at that particular moment'],
-                                    ['phrase' => 'get together', 'meaning' => 'to meet up and spend time with someone'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals'],
-                                    ['phrase' => 'skip (something)', 'meaning' => 'to not do a usual part of your routine'],
-                                    ['phrase' => 'chaotic', 'meaning' => 'in a state of complete confusion and disorder'],
+                                    ['phrase' => 'quickly', 'meaning' => 'in a fast way — describes how an action is done'],
+                                    ['phrase' => 'slowly', 'meaning' => 'in an unhurried, gradual way — describes how an action is done'],
+                                    ['phrase' => 'modify', 'meaning' => '(grammar) to describe or add detail to another word'],
+                                    ['phrase' => 'a "how" question', 'meaning' => 'the question an adverb like this answers — e.g. "How does she speak?"'],
                                 ],
-                                // Original short lines written by Claude for this app — inspired
-                                // by real moments in the video, not copied from its transcript
-                                // (see the topic_summary comment above). Bold marks naturally-
-                                // stressed content words, same convention as Listening's
-                                // shadow_lines — rendered by <x-stress-marked-line>.
+                                // Original short lines written by Claude for this app — inspired by
+                                // the video's two real examples (a fast speaker, a slow turtle), not
+                                // copied from its transcript (see the topic_summary comment above).
+                                // Bold marks naturally-stressed content words, same convention as
+                                // Listening's shadow_lines — rendered by <x-stress-marked-line>.
                                 'shadow_lines' => [
-                                    "I don't **feel like** having **cereal** this **morning**.",
-                                    'What **time** are you guys **getting together**?',
-                                    'We always have a quick **snack** in the **afternoon**.',
+                                    'He **speaks** so **quickly** I can **barely understand** him.',
+                                    'Watch how **slowly** the **turtle moves** across the **yard**.',
+                                    'Most **adverbs** that **modify** a **verb end** in **-ly**.',
                                 ],
                             ],
                         ],

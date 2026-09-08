@@ -29,7 +29,8 @@ class VideoShadowingStepTest extends TestCase
                     'steps' => [
                         [
                             'key' => 'video_shadowing',
-                            'video_id' => 'KfVfjL8-R-0',
+                            'video_url' => '/storage/missions/m01/test-video.mp4',
+                            'captions_url' => '/storage/missions/m01/test-video.en.vtt',
                             'source' => "Rachel's English — \"My Morning Routine\"",
                             'target_phrases' => [
                                 ['phrase' => 'feel like (something)', 'meaning' => 'to want something at that particular moment'],
@@ -59,13 +60,14 @@ class VideoShadowingStepTest extends TestCase
             ->set('watchedWithoutCaptions', true);
     }
 
-    public function test_the_youtube_video_is_embedded(): void
+    public function test_the_video_is_embedded_with_its_captions(): void
     {
         $run = $this->makeRun();
 
         $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
 
-        $this->assertStringContainsString('youtube-nocookie.com/embed/KfVfjL8-R-0', $html);
+        $this->assertStringContainsString('/storage/missions/m01/test-video.mp4', $html);
+        $this->assertStringContainsString('/storage/missions/m01/test-video.en.vtt', $html);
     }
 
     public function test_the_page_is_split_into_2_sub_steps(): void

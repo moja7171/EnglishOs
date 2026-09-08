@@ -176,7 +176,11 @@ new class extends Component
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $video['source'] ?? 'Video' }}</p>
         <div class="mt-2">
-            <x-youtube-embed :video-id="$video['video_id'] ?? ''" :title="$video['source'] ?? 'Video'" />
+            <x-video-player
+                :url="$video['video_url'] ?? ''"
+                :captions-url="$video['captions_url'] ?? null"
+                :title="$video['source'] ?? 'Video'"
+            />
         </div>
         <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>
     </div>
