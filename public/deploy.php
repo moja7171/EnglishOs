@@ -67,4 +67,32 @@ foreach (['storage:link', 'migrate --force', 'db:seed --force', 'config:cache', 
     }
 }
 
+// Ensures the one admin account exists on every deploy — idempotent,
+// and deliberately does NOT reset the password on an existing account.
+// The password itself can't be hardcoded here (this repo is public on
+// GitHub): generated fresh only the first time, printed once to this
+// log (private — cPanel's own deployment log, never committed to git).
+echo "--- ensure admin account ---\n";
+$admin = App\Models\User::where('email', 'admin@englishos.local')->first();
+
+if (! $admin) {
+    $password = bin2hex(random_bytes(12));
+    $admin = App\Models\User::create([
+        'name' => 'Admin',
+        'email' => 'admin@englishos.local',
+        'password' => $password,
+        'email_verified_at' => now(),
+        'cefr_level' => 'B1',
+    ]);
+    echo "Created admin@englishos.local — password (shown once, save it now): {$password}\n";
+} else {
+    echo "admin@englishos.local already exists, password left untouched.\n";
+}
+
+if (! $admin->is_admin) {
+    $admin->is_admin = true;
+    $admin->save();
+    echo "is_admin set to true.\n";
+}
+
 echo "=== done ===\n";
