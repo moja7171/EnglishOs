@@ -112,6 +112,7 @@ class MissionHookContentTest extends TestCase
             'daily_listen_2',
             'grammar_in_context',
             'activation',
+            'video_shadowing',
             // Day 3 · Practice
             'daily_listen_3',
             'ai_conversation_1',

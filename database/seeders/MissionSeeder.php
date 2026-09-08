@@ -873,6 +873,10 @@ class MissionSeeder extends Seeder
     private function seedM02(): void
     {
         $audioUrl = $this->publishMissionAsset('M02', '6_minute_english_making_male_friends.mp3');
+        // PLACEHOLDER — M01's own video/captions, reused until M02 gets its
+        // own (see the video_shadowing step below for why).
+        $shadowingVideoUrl = $this->publishMissionAsset('M01', 'Everyday Grammar - Beating Problems with Adverbs.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M01', 'Everyday Grammar - Beating Problems with Adverbs.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M02'],
@@ -1177,6 +1181,38 @@ class MissionSeeder extends Seeder
                                     .'sentences, 2 Present Continuous sentences, and use at least 3 vocabulary '
                                     .'expressions describing them — then record 2 minutes of solo speaking about '
                                     .'them without reading.',
+                            ],
+                            [
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 10,
+                                'hook' => 'Real people, real English — watch, then make your own voice do the same.',
+                                // PLACEHOLDER — reusing M01's video/captions until a real
+                                // M02-specific one is picked (user is sourcing it themselves).
+                                // target_phrases/shadow_lines below are M01's own content,
+                                // kept only so the step is genuinely completable end-to-end
+                                // while placeholder; all of this needs rewriting once the
+                                // real video is in, same as M01's own content was rewritten
+                                // when its video changed (see EOS-009 §8 v3.36).
+                                'source' => 'PLACEHOLDER — VOA Learning English: "Everyday Grammar: Beating Problems with Adverbs" (M01\'s video, reused)',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'topic_summary' => 'PLACEHOLDER content from M01 — VOA teacher John Russell explains '
+                                    .'one common use of adverbs: modifying a verb to answer a "how" question.',
+                                'comprehension_check' => [
+                                    ['statement' => 'This video is part of a series called "Everyday Grammar".', 'correct' => true],
+                                    ['statement' => 'The turtle in the example moves quickly.', 'correct' => false],
+                                    ['statement' => 'An adverb describing a verb often answers a "how" question.', 'correct' => true],
+                                ],
+                                'target_phrases' => [
+                                    ['phrase' => 'quickly', 'meaning' => 'in a fast way — describes how an action is done'],
+                                    ['phrase' => 'slowly', 'meaning' => 'in an unhurried, gradual way — describes how an action is done'],
+                                ],
+                                'shadow_lines' => [
+                                    'He **speaks** so **quickly** I can **barely understand** him.',
+                                    'Watch how **slowly** the **turtle moves** across the **yard**.',
+                                    'Most **adverbs** that **modify** a **verb end** in **-ly**.',
+                                ],
                             ],
                         ],
                     ],
