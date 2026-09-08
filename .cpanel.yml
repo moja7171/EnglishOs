@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/growwi/englishos.growwise.ir/
+    - /bin/cp -R * $DEPLOYPATH
