@@ -69,10 +69,30 @@
                 if (this.$refs.track) this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
             },
             toggleFullscreen() {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    this.$el.requestFullscreen();
+                // iOS Safari has no support at all for fullscreening an
+                // arbitrary element (only the standard API on this wrapper
+                // div) — it silently no-ops there, which read as "opens a
+                // plain black screen" (the on-video overlay staying its
+                // normal small size against a suddenly-black page). Its
+                // only fullscreen support is this non-standard method on
+                // the <video> itself, which drops the custom overlay
+                // controls for the OS's own native ones — real tradeoff,
+                // but a working video beats a broken custom UI.
+                const video = this.$refs.video;
+
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+                    return;
+                }
+
+                if (this.$el.requestFullscreen) {
+                    this.$el.requestFullscreen().catch(() => {
+                        if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+                    });
+                } else if (video.webkitEnterFullscreen) {
+                    video.webkitEnterFullscreen();
+                } else if (video.requestFullscreen) {
+                    video.requestFullscreen();
                 }
             },
             skip(seconds) {
