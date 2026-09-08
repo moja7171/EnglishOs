@@ -136,7 +136,17 @@
         x-on:keydown="onKeydown($event)"
         x-on:mousemove="showControls()"
         x-on:mouseleave="if (playing) controlsVisible = false"
-        class="group relative aspect-video w-full overflow-hidden rounded-2xl bg-black outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark"
+        class="group relative aspect-video w-full bg-black outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark"
+        {{--
+            overflow-hidden + rounded-2xl are dropped the instant this div
+            enters real fullscreen — Chrome on Android renders a solid
+            black frame instead of the video when the element promoted to
+            :fullscreen has `overflow: hidden` (its hardware video-decode
+            surface never gets composited). Desktop/iOS don't show this,
+            only Android Chrome, but the class is harmless everywhere and
+            a fullscreen view has no reason to keep clipped corners anyway.
+        --}}
+        :class="fullscreen ? 'overflow-visible' : 'overflow-hidden rounded-2xl'"
     >
         <video
             x-ref="video"
