@@ -125,6 +125,29 @@ $admin->is_admin = true;
 $admin->save();
 echo "admin@englishos.local ensured, password synced from ADMIN_PASSWORD.\n";
 
+// TEMPORARY — the user still couldn't log in with the account above
+// despite this block running successfully. A second, freshly-created
+// account with its own known password rules out anything specific to
+// the FIRST account (stale browser-saved credentials, some quirk tied
+// to that one row) — if this one also fails to log in, the problem is
+// the login mechanism itself, not that account. Auth::attempt() run
+// directly here checks the credentials work at the auth layer,
+// independent of the actual login form/session/CSRF. Remove once
+// diagnosed.
+echo "--- create a second admin account + test Auth::attempt directly ---\n";
+$admin2 = App\Models\User::updateOrCreate(
+    ['email' => 'admin2@englishos.local'],
+    ['name' => 'Admin Two', 'email_verified_at' => now(), 'cefr_level' => 'B1', 'password' => 'EnglishOsAdmin2Fresh!']
+);
+$admin2->is_admin = true;
+$admin2->save();
+echo "admin2@englishos.local created/ensured — password: EnglishOsAdmin2Fresh!\n";
+foreach ([['admin@englishos.local', $password], ['admin2@englishos.local', 'EnglishOsAdmin2Fresh!']] as [$email, $pw]) {
+    $ok = Illuminate\Support\Facades\Auth::attempt(['email' => $email, 'password' => $pw]);
+    Illuminate\Support\Facades\Auth::logout();
+    echo "Auth::attempt($email, <password>) = ".($ok ? 'TRUE (credentials work)' : 'FALSE (credentials rejected)')."\n";
+}
+
 // TEMPORARY diagnostic for the AI relay — Sage fails with a generic
 // "Couldn't reach Sage" on the live site and ask-instructor.blade.php's
 // catch(ConnectionException|RequestException) swallows the real reason
