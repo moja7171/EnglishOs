@@ -19,6 +19,17 @@ if (($_SERVER['REMOTE_ADDR'] ?? '') !== '127.0.0.1') {
     exit('Forbidden');
 }
 
+// TEMPORARY canary — the AI-relay diagnostic below never wrote its log
+// file on the last two deploys, with no clue why (storage/logs might not
+// exist/be writable, deploy.php might not be running the latest version
+// at all — e.g. opcache, or the .cpanel.yml curl might not even be
+// reaching this file). This write has zero dependencies (no Laravel
+// bootstrap, no storage/ dir) and lands in public/ specifically so it's
+// checkable by just visiting the URL directly, no File Manager needed:
+// https://englishos.growwise.ir/deploy-canary.txt
+// Remove once diagnosed.
+file_put_contents(__DIR__.'/deploy-canary.txt', date('Y-m-d H:i:s')." deploy.php reached this point\n");
+
 set_time_limit(0);
 ini_set('max_execution_time', '0');
 ini_set('memory_limit', '512M');
