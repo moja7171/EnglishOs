@@ -63,7 +63,7 @@ class User extends Authenticatable
      */
     public function bypassesEvidenceGating(): bool
     {
-        return $this->is_admin;
+        return (bool) $this->is_admin;
     }
 
     /**
