@@ -279,6 +279,10 @@ class MissionsOverviewTest extends TestCase
                 ->with('M01-brief')
                 ->once()
                 ->andReturn('http://localhost/storage/vocabulary-images/m01-brief.jpg');
+            // The other 23 roadmap slots are all unbuilt here, each
+            // asking for their own "coming soon" placeholder image —
+            // irrelevant to this test, just needs to not throw.
+            $mock->shouldReceive('imageUrlFor')->andReturn(null);
         });
 
         Livewire::test('missions.overview')
@@ -294,6 +298,11 @@ class MissionsOverviewTest extends TestCase
 
         $this->mock(PexelsClient::class, function ($mock) {
             $mock->shouldReceive('cachedImageUrl')->with('M01-brief')->once()->andReturn(null);
+            // The other 23 roadmap slots are all unbuilt here — their own
+            // "coming soon" placeholder image must also stay absent, or
+            // this test's <img>-free assertion would be testing the
+            // wrong thing.
+            $mock->shouldReceive('imageUrlFor')->andReturn(null);
         });
 
         Livewire::test('missions.overview')->assertDontSeeHtml('<img');

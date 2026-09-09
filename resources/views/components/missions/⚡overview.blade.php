@@ -132,6 +132,70 @@ new class extends Component
             ])
             ->all();
     }
+
+    /**
+     * The full 24-mission roadmap's real title + a thematic Pexels query,
+     * for the "coming soon" placeholder cards below — the user's own
+     * planning list (EOS-009 §15), not yet built means not yet a real
+     * Mission row. A slot whose mission IS already seeded never consults
+     * this (its own real title/cover renders instead), so a title here
+     * intentionally may not match what a mission ends up actually seeded
+     * as (M02 shipped as "People I Know", not "People & Relationships") —
+     * this is just the forward-looking plan, not a source of truth once
+     * a mission is real.
+     *
+     * @return array<string, array{title: string, image_query: string}>
+     */
+    private function roadmap(): array
+    {
+        return [
+            'M01' => ['title' => 'My Daily Life', 'image_query' => 'morning routine sunrise coffee'],
+            'M02' => ['title' => 'People & Relationships', 'image_query' => 'two friends laughing coffee shop'],
+            'M03' => ['title' => 'Work & Study', 'image_query' => 'people working office study'],
+            'M04' => ['title' => 'Food & Lifestyle', 'image_query' => 'healthy meal fresh vegetables table'],
+            'M05' => ['title' => 'Hobbies & Free Time', 'image_query' => 'hobby painting guitar leisure'],
+            'M06' => ['title' => 'Learning English', 'image_query' => 'open notebook studying language'],
+            'M07' => ['title' => 'Family', 'image_query' => 'family together home smiling'],
+            'M08' => ['title' => 'Friends', 'image_query' => 'friends group laughing outdoors'],
+            'M09' => ['title' => 'Personality', 'image_query' => 'thoughtful portrait person'],
+            'M10' => ['title' => 'Relationships', 'image_query' => 'couple holding hands walking'],
+            'M11' => ['title' => 'Work', 'image_query' => 'office desk laptop work'],
+            'M12' => ['title' => 'Education', 'image_query' => 'university classroom students'],
+            'M13' => ['title' => 'Technology', 'image_query' => 'laptop smartphone technology desk'],
+            'M14' => ['title' => 'Money', 'image_query' => 'money coins wallet savings'],
+            'M15' => ['title' => 'Shopping', 'image_query' => 'shopping bags store mall'],
+            'M16' => ['title' => 'Travel', 'image_query' => 'airplane travel suitcase passport'],
+            'M17' => ['title' => 'Culture', 'image_query' => 'museum art culture'],
+            'M18' => ['title' => 'Environment', 'image_query' => 'nature forest green environment'],
+            'M19' => ['title' => 'Media', 'image_query' => 'newspaper television media'],
+            'M20' => ['title' => 'Opinions', 'image_query' => 'people discussion table talking'],
+            'M21' => ['title' => 'Problems & Solutions', 'image_query' => 'lightbulb idea solution'],
+            'M22' => ['title' => 'Decision Making', 'image_query' => 'crossroads decision choice path'],
+            'M23' => ['title' => 'Future Plans', 'image_query' => 'calendar planning goals notebook'],
+            'M24' => ['title' => 'Debate & Discussion', 'image_query' => 'group discussion meeting table'],
+        ];
+    }
+
+    /**
+     * Fetched once per code, cached forever (same PexelsClient
+     * fetch-once-cache-forever pattern as every other image_query in the
+     * app) — a "-roadmap" suffix on the cache key keeps this permanently
+     * distinct from that same mission's real "-brief" cover once it's
+     * actually built, so seeding it later can never collide with or be
+     * shadowed by this placeholder's cached file.
+     */
+    public function roadmapPlaceholder(string $code): ?array
+    {
+        $entry = $this->roadmap()[$code] ?? null;
+
+        if (! $entry) {
+            return null;
+        }
+
+        return $entry + [
+            'image_url' => app(PexelsClient::class)->imageUrlFor("{$code}-roadmap", $entry['image_query']),
+        ];
+    }
 };
 ?>
 
@@ -247,10 +311,15 @@ new class extends Component
 
     @foreach ($this->missionSlots as $slot)
         @if (! $slot['mission'])
-            <div class="flex items-center justify-between rounded-2xl border border-line bg-surface-sunken p-4 opacity-60 dark:border-line-dark dark:bg-surface-sunken-dark">
-                <div>
+            @php $placeholder = $this->roadmapPlaceholder($slot['code']); @endphp
+            <div class="flex items-center gap-3.5 rounded-2xl border border-line bg-surface-sunken p-4 opacity-60 dark:border-line-dark dark:bg-surface-sunken-dark">
+                @if ($placeholder && $placeholder['image_url'])
+                    <img src="{{ $placeholder['image_url'] }}" alt="" class="h-14 w-14 shrink-0 rounded-xl object-cover grayscale">
+                @endif
+                <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['code'] }}</p>
-                    <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">Coming soon</p>
+                    <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">{{ $placeholder['title'] ?? 'Coming soon' }}</p>
+                    <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Coming soon</p>
                 </div>
                 <span class="shrink-0 text-ink-faint dark:text-ink-faint-dark">@svg('heroicon-o-lock-closed', 'h-4 w-4')</span>
             </div>
