@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -14,6 +15,8 @@ use Throwable;
  */
 class GeminiClient
 {
+    use UsesOutboundProxy;
+
     private readonly string $apiKey;
 
     private readonly string $model;
@@ -94,10 +97,15 @@ class GeminiClient
         // second model to try IS the retry now, so 1 attempt per model
         // keeps the same "give the request two real chances" behavior
         // while halving the worst case to ~40s.
-        $response = Http::withHeaders(['x-goog-api-key' => $this->apiKey])
-            ->timeout(20)
-            ->retry(1, 500, throw: false)
-            ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", $payload)
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+
+        $response = $this->withOutboundProxy(
+            Http::withHeaders(['x-goog-api-key' => $this->apiKey])
+                ->timeout(20)
+                ->retry(1, 500, throw: false),
+            $url,
+        )
+            ->post($this->outboundUrl($url), $payload)
             ->throw();
 
         return data_get($response->json(), 'candidates.0.content.parts.0.text', '');
