@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Mission;
+use App\Services\PexelsClient;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -858,6 +859,73 @@ class MissionSeeder extends Seeder
         );
 
         $this->seedM02();
+
+        $this->warmPexelsCache();
+    }
+
+    /**
+     * Fetches and caches every Pexels image this app will ever need to
+     * show a real visitor — run once, right here at the end of seeding
+     * (a build step, whether that's this machine or production's own
+     * `db:seed --force` during a deploy), so a live page view NEVER
+     * triggers a fresh Pexels call. See
+     * [[feedback_never_fetch_pexels_live_on_site]]: production is on
+     * filtered/slow-to-Pexels hosting, so the first visitor to hit an
+     * uncached image_query used to eat that live-fetch latency
+     * themselves — now it's paid for here instead, once, up front.
+     *
+     * PexelsClient::imageUrlFor() already fails soft (network error, no
+     * API key, no results all just return null) and is idempotent
+     * (checks the on-disk cache before ever calling out), so calling it
+     * again here for an image a real page view already warmed is a
+     * free no-op — safe to just always run this in full on every seed.
+     *
+     * Every cache key formula below must stay in exact lockstep with the
+     * step component that actually renders it (mission-brief.blade.php,
+     * listening.blade.php, etc.) — a mismatched key silently defeats the
+     * whole point (warms a key nobody reads, the real page still fetches
+     * live). Add a new arm here whenever a new step type gains its own
+     * image_query-driven PexelsClient call.
+     */
+    private function warmPexelsCache(): void
+    {
+        $client = app(PexelsClient::class);
+
+        foreach (Mission::all() as $mission) {
+            $code = $mission->code;
+
+            foreach ($mission->phases as $phase) {
+                foreach ($phase['steps'] as $step) {
+                    $key = $step['key'];
+                    $query = $step['image_query'] ?? null;
+
+                    match (true) {
+                        $key === 'mission_brief' && $query => $client->imageUrlFor("{$code}-brief", $query),
+                        $key === 'listening' && $query => $client->imageUrlFor("{$code}-listening", $query),
+                        in_array($key, ['daily_listen_2', 'daily_listen_3', 'daily_listen_4'], true) && $query => $client->imageUrlFor("{$code}-{$key}", $query),
+                        $key === 'picture_description' && $query => $client->imageUrlFor("{$code}-picture-description", $query, 'landscape'),
+                        $key === 'reading_comprehension' && $query => $client->imageUrlFor("{$code}-reading", $query),
+                        $key === 'writing' => collect($step['prompts'] ?? [])
+                            ->filter(fn ($prompt) => is_array($prompt) && ($prompt['image_query'] ?? null))
+                            ->each(fn ($prompt) => $client->imageUrlFor("{$code}-writing-{$prompt['label']}", $prompt['image_query'])),
+                        $key === 'vocabulary_builder' => collect($step['story_words'] ?? [])
+                            ->filter(fn ($word) => $word['image_query'] ?? null)
+                            ->each(fn ($word) => $client->imageUrlFor($word['phrase'], $word['image_query'], null)),
+                        $key === 'story_sequence' => collect($step['sequence_images'] ?? [])
+                            ->each(fn ($item, $index) => $client->imageUrlFor("{$code}-story-{$index}", $item['image_query'] ?? '')),
+                        default => null,
+                    };
+                }
+            }
+        }
+
+        $builtCodes = Mission::all()->pluck('code')->all();
+
+        foreach (Mission::roadmapCatalog() as $code => $entry) {
+            if (! in_array($code, $builtCodes, true)) {
+                $client->imageUrlFor("{$code}-roadmap", $entry['image_query']);
+            }
+        }
     }
 
     /**

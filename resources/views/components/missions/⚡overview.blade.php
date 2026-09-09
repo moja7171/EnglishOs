@@ -137,43 +137,14 @@ new class extends Component
      * The full 24-mission roadmap's real title + a thematic Pexels query,
      * for the "coming soon" placeholder cards below — the user's own
      * planning list (EOS-009 §15), not yet built means not yet a real
-     * Mission row. A slot whose mission IS already seeded never consults
-     * this (its own real title/cover renders instead), so a title here
-     * intentionally may not match what a mission ends up actually seeded
-     * as (M02 shipped as "People I Know", not "People & Relationships") —
-     * this is just the forward-looking plan, not a source of truth once
-     * a mission is real.
+     * Mission row — see Mission::roadmapCatalog(), the single source of
+     * truth this and MissionSeeder's Pexels cache warmer both read from.
      *
      * @return array<string, array{title: string, image_query: string}>
      */
     private function roadmap(): array
     {
-        return [
-            'M01' => ['title' => 'My Daily Life', 'image_query' => 'morning routine sunrise coffee'],
-            'M02' => ['title' => 'People & Relationships', 'image_query' => 'two friends laughing coffee shop'],
-            'M03' => ['title' => 'Work & Study', 'image_query' => 'people working office study'],
-            'M04' => ['title' => 'Food & Lifestyle', 'image_query' => 'healthy meal fresh vegetables table'],
-            'M05' => ['title' => 'Hobbies & Free Time', 'image_query' => 'hobby painting guitar leisure'],
-            'M06' => ['title' => 'Learning English', 'image_query' => 'open notebook studying language'],
-            'M07' => ['title' => 'Family', 'image_query' => 'family together home smiling'],
-            'M08' => ['title' => 'Friends', 'image_query' => 'friends group laughing outdoors'],
-            'M09' => ['title' => 'Personality', 'image_query' => 'thoughtful portrait person'],
-            'M10' => ['title' => 'Relationships', 'image_query' => 'couple holding hands walking'],
-            'M11' => ['title' => 'Work', 'image_query' => 'office desk laptop work'],
-            'M12' => ['title' => 'Education', 'image_query' => 'university classroom students'],
-            'M13' => ['title' => 'Technology', 'image_query' => 'laptop smartphone technology desk'],
-            'M14' => ['title' => 'Money', 'image_query' => 'money coins wallet savings'],
-            'M15' => ['title' => 'Shopping', 'image_query' => 'shopping bags store mall'],
-            'M16' => ['title' => 'Travel', 'image_query' => 'airplane travel suitcase passport'],
-            'M17' => ['title' => 'Culture', 'image_query' => 'museum art culture'],
-            'M18' => ['title' => 'Environment', 'image_query' => 'nature forest green environment'],
-            'M19' => ['title' => 'Media', 'image_query' => 'newspaper television media'],
-            'M20' => ['title' => 'Opinions', 'image_query' => 'people discussion table talking'],
-            'M21' => ['title' => 'Problems & Solutions', 'image_query' => 'lightbulb idea solution'],
-            'M22' => ['title' => 'Decision Making', 'image_query' => 'crossroads decision choice path'],
-            'M23' => ['title' => 'Future Plans', 'image_query' => 'calendar planning goals notebook'],
-            'M24' => ['title' => 'Debate & Discussion', 'image_query' => 'group discussion meeting table'],
-        ];
+        return Mission::roadmapCatalog();
     }
 
     /**

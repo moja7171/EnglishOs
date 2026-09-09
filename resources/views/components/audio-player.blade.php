@@ -43,7 +43,7 @@
                 // instead of waiting for the learner to play it through once.
                 // Without this, the seek bar tracks currentTime against that
                 // wrong Infinity/placeholder duration and never reads back
-                // as "finished" even though the audio itself plays fine.
+                // as finished even though the audio itself plays fine.
                 const resolveDuration = () => {
                     if (audio.duration === Infinity || isNaN(audio.duration)) {
                         audio.currentTime = 1e101;
