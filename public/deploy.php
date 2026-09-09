@@ -67,6 +67,14 @@ foreach (['storage:link', 'migrate --force', 'db:seed --force'] as $command) {
     }
 }
 
+// Belt-and-suspenders: some existing rows ended up with a genuine NULL
+// is_admin despite the migration declaring NOT NULL DEFAULT 0 (seen on
+// production for userId=1, cause not fully understood) — normalize
+// those before anything reads the column. Idempotent, no-op once clean.
+echo "--- normalize null is_admin ---\n";
+$nullAdminsFixed = Illuminate\Support\Facades\DB::table('users')->whereNull('is_admin')->update(['is_admin' => false]);
+echo "fixed {$nullAdminsFixed} row(s) with null is_admin\n\n";
+
 // Ensures the one admin account exists (and its password matches
 // ADMIN_PASSWORD) on every deploy — idempotent. The real password
 // lives only in .env (never committed — this repo is public on
