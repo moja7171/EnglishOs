@@ -14,21 +14,23 @@
 // written there is visible to anyone, so a "secret" baked in there
 // wouldn't be secret at all.
 
+// TEMPORARY canary — written UNCONDITIONALLY, before the REMOTE_ADDR
+// gate below, specifically to see the exact value that check is
+// comparing against. Two prior canaries (this one included, originally
+// placed after the gate) never appeared, despite public/ being fully
+// world-writable (0777, confirmed) — the only remaining explanation is
+// the gate itself rejecting every request before any write is reached,
+// most likely because the deployment task's curl doesn't actually
+// arrive as the literal string '127.0.0.1' (e.g. '::1' for IPv6
+// loopback, or something a reverse proxy rewrites). Checkable directly:
+// https://englishos.growwise.ir/deploy-canary.txt
+// Remove once diagnosed.
+file_put_contents(__DIR__.'/deploy-canary.txt', date('Y-m-d H:i:s').' REMOTE_ADDR='.($_SERVER['REMOTE_ADDR'] ?? '(unset)')."\n");
+
 if (($_SERVER['REMOTE_ADDR'] ?? '') !== '127.0.0.1') {
     http_response_code(403);
     exit('Forbidden');
 }
-
-// TEMPORARY canary — the AI-relay diagnostic below never wrote its log
-// file on the last two deploys, with no clue why (storage/logs might not
-// exist/be writable, deploy.php might not be running the latest version
-// at all — e.g. opcache, or the .cpanel.yml curl might not even be
-// reaching this file). This write has zero dependencies (no Laravel
-// bootstrap, no storage/ dir) and lands in public/ specifically so it's
-// checkable by just visiting the URL directly, no File Manager needed:
-// https://englishos.growwise.ir/deploy-canary.txt
-// Remove once diagnosed.
-file_put_contents(__DIR__.'/deploy-canary.txt', date('Y-m-d H:i:s')." deploy.php reached this point\n");
 
 set_time_limit(0);
 ini_set('max_execution_time', '0');
