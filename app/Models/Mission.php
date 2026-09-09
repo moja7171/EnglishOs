@@ -161,14 +161,18 @@ class Mission extends Model
      * varies per mission in the app's hybrid design system (shared
      * typography/layout/components everywhere, only the accent hue shifts
      * to match each mission's own subject). Drives the `data-mood`
-     * attribute consumed by the mood tokens in resources/css/app.css. New
-     * missions default to the app's base identity (M01's "daily-life"
-     * coral) until they earn their own entry here — see EOS-009 §8.
+     * attribute consumed by the mood tokens in resources/css/app.css. Every
+     * built mission needs its own entry here (never left on the fallback
+     * once real content exists) — see EOS-009 §8. New missions fall back to
+     * the app's base identity (M01's "daily-life" coral) only until they're
+     * actually built.
      */
     public function moodKey(): string
     {
         return match ($this->code) {
             'M02' => 'connection',
+            'M03' => 'focus',
+            'M04' => 'nourish',
             default => 'daily-life',
         };
     }

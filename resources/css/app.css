@@ -88,6 +88,43 @@
     --mood-texture-size: auto;
 }
 
+/* M03 "Work & Study" — a confident, focused indigo-blue (a desk lamp,
+   not a warning), paired with a fine graph-paper crosshatch (notebook
+   pages, structured work) instead of connection's loose diagonal
+   threads or daily-life's soft speckle. */
+[data-mood='focus'] {
+    --color-accent: #4a5fd6;
+    --color-accent-dark: #7c8bf2;
+    --color-accent-soft: #e1e3fb;
+    --color-accent-soft-dark: #201f3f;
+    --color-accent-ink: #2d3aa0;
+    --color-accent-ink-dark: #b6c0ff;
+    --color-dawn: #7c94ff;
+    --color-dusk: #35408f;
+    --mood-texture: repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-accent) 9%, transparent) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 9%, transparent) 0 1px, transparent 1px 24px);
+    --mood-texture-size: auto;
+}
+
+/* M04 "Food & Lifestyle" — a warm mustard/amber (spice, a kitchen
+   table), paired with staggered scattered dots of two sizes (seeds,
+   bubbles in a pot) — deliberately looser and larger-scale than
+   daily-life's uniform speckle grid so the two never read as the same
+   texture at a glance. */
+[data-mood='nourish'] {
+    --color-accent: #d9932e;
+    --color-accent-dark: #f0ad4e;
+    --color-accent-soft: #faecd3;
+    --color-accent-soft-dark: #3a2c15;
+    --color-accent-ink: #8a5a12;
+    --color-accent-ink-dark: #ffd694;
+    --color-dawn: #f2b25c;
+    --color-dusk: #b5741f;
+    --mood-texture: radial-gradient(circle at 25% 25%, color-mix(in srgb, var(--color-accent) 14%, transparent) 2px, transparent 0),
+        radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--color-accent) 10%, transparent) 1.5px, transparent 0);
+    --mood-texture-size: 28px 28px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);
