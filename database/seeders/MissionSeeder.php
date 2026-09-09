@@ -876,10 +876,8 @@ class MissionSeeder extends Seeder
     private function seedM02(): void
     {
         $audioUrl = $this->publishMissionAsset('M02', '6_minute_english_making_male_friends.mp3');
-        // PLACEHOLDER — M01's own video/captions, reused until M02 gets its
-        // own (see the video_shadowing step below for why).
-        $shadowingVideoUrl = $this->publishMissionAsset('M01', 'Everyday Grammar - Beating Problems with Adverbs.mp4');
-        $shadowingCaptionsUrl = $this->publishMissionAsset('M01', 'Everyday Grammar - Beating Problems with Adverbs.en.vtt');
+        $shadowingVideoUrl = $this->publishMissionAsset('M02', 'Family Members + Practice ｜ American English for Adult Beginners.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'Family Members + Practice ｜ American English for Adult Beginners.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M02'],
@@ -1188,33 +1186,27 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'video_shadowing',
                                 'label' => 'Video Shadowing',
-                                'duration_minutes' => 10,
+                                'duration_minutes' => 12,
                                 'hook' => 'Real people, real English — watch, then make your own voice do the same.',
-                                // PLACEHOLDER — reusing M01's video/captions until a real
-                                // M02-specific one is picked (user is sourcing it themselves).
-                                // target_phrases/shadow_lines below are M01's own content,
-                                // kept only so the step is genuinely completable end-to-end
-                                // while placeholder; all of this needs rewriting once the
-                                // real video is in, same as M01's own content was rewritten
-                                // when its video changed (see EOS-009 §8 v3.36).
-                                'source' => 'PLACEHOLDER — VOA Learning English: "Everyday Grammar: Beating Problems with Adverbs" (M01\'s video, reused)',
+                                'source' => 'American English for Adult Beginners: "Family Members + Practice"',
                                 'video_url' => $shadowingVideoUrl,
                                 'captions_url' => $shadowingCaptionsUrl,
-                                'topic_summary' => 'PLACEHOLDER content from M01 — VOA teacher John Russell explains '
-                                    .'one common use of adverbs: modifying a verb to answer a "how" question.',
+                                'topic_summary' => 'A simple animated story follows one family across two generations — '
+                                    .'Victor and Sarah become parents, then grandparents — to teach the English words '
+                                    .'for family members (parents, children, siblings, grandparents, grandchildren).',
                                 'comprehension_check' => [
-                                    ['statement' => 'This video is part of a series called "Everyday Grammar".', 'correct' => true],
-                                    ['statement' => 'The turtle in the example moves quickly.', 'correct' => false],
-                                    ['statement' => 'An adverb describing a verb often answers a "how" question.', 'correct' => true],
+                                    ["statement" => "Jason is Victor and Sarah's son.", 'correct' => true],
+                                    ['statement' => 'Nyla is older than Jason.', 'correct' => false],
+                                    ["statement" => "Victor and Sarah are Noah and Luna's grandparents.", 'correct' => true],
                                 ],
                                 'target_phrases' => [
-                                    ['phrase' => 'quickly', 'meaning' => 'in a fast way — describes how an action is done'],
-                                    ['phrase' => 'slowly', 'meaning' => 'in an unhurried, gradual way — describes how an action is done'],
+                                    ['phrase' => 'get married', 'meaning' => "to become someone's husband or wife in a wedding ceremony"],
+                                    ['phrase' => 'grandchildren', 'meaning' => 'the children of your son or daughter'],
                                 ],
                                 'shadow_lines' => [
-                                    'He **speaks** so **quickly** I can **barely understand** him.',
-                                    'Watch how **slowly** the **turtle moves** across the **yard**.',
-                                    'Most **adverbs** that **modify** a **verb end** in **-ly**.',
+                                    'Victor and Sarah **get married**.',
+                                    "Baby Jason is Victor and Sarah's **son**.",
+                                    'Victor and Sarah are the **grandparents**.',
                                 ],
                             ],
                         ],
