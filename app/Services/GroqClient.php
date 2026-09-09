@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -13,6 +14,8 @@ use Throwable;
  */
 class GroqClient
 {
+    use UsesOutboundProxy;
+
     private readonly string $apiKey;
 
     private readonly string $whisperModel;
@@ -150,11 +153,16 @@ class GroqClient
 
         // 1 attempt per model — see the worst-case-latency note in
         // request() above.
-        $response = Http::withToken($this->apiKey)
-            ->timeout(20)
-            ->retry(1, 500, throw: false)
+        $url = 'https://api.groq.com/openai/v1/audio/transcriptions';
+
+        $response = $this->withOutboundProxy(
+            Http::withToken($this->apiKey)
+                ->timeout(20)
+                ->retry(1, 500, throw: false),
+            $url,
+        )
             ->attach('file', $fileBody, $filename)
-            ->post('https://api.groq.com/openai/v1/audio/transcriptions', $payload)
+            ->post($this->outboundUrl($url), $payload)
             ->throw();
 
         return [

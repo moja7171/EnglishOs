@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -20,6 +21,8 @@ use Throwable;
  */
 class PexelsClient
 {
+    use UsesOutboundProxy;
+
     private readonly string $apiKey;
 
     public function __construct(?string $apiKey = null)
@@ -105,7 +108,10 @@ class PexelsClient
             // class already fails soft everywhere on a missing key or
             // network error, so a bounded timeout alone is enough to stop
             // a slow/hanging asset download from holding up the request.
-            $bytes = Http::timeout(20)->get($remoteUrl)->throw()->body();
+            $bytes = $this->withOutboundProxy(Http::timeout(20), $remoteUrl)
+                ->get($this->outboundUrl($remoteUrl))
+                ->throw()
+                ->body();
             Storage::disk('public')->put($path, $bytes);
 
             return Storage::disk('public')->url($path);
@@ -120,13 +126,18 @@ class PexelsClient
             return null;
         }
 
+        // Query string built in first (not passed as a separate ->get()
+        // param array) so it's already part of the URL the relay is told
+        // to fetch — the relay has no notion of "params", only a full URL.
+        $url = 'https://api.pexels.com/v1/search?'.http_build_query(array_filter([
+            'query' => $query,
+            'per_page' => 1,
+            'orientation' => $orientation,
+        ]));
+
         try {
-            $response = Http::withHeaders(['Authorization' => $this->apiKey])
-                ->get('https://api.pexels.com/v1/search', array_filter([
-                    'query' => $query,
-                    'per_page' => 1,
-                    'orientation' => $orientation,
-                ]))
+            $response = $this->withOutboundProxy(Http::withHeaders(['Authorization' => $this->apiKey]), $url)
+                ->get($this->outboundUrl($url))
                 ->throw();
         } catch (Throwable) {
             return null;
@@ -146,13 +157,15 @@ class PexelsClient
             return null;
         }
 
+        $url = 'https://api.pexels.com/videos/search?'.http_build_query([
+            'query' => $query,
+            'per_page' => 1,
+            'orientation' => 'landscape',
+        ]);
+
         try {
-            $response = Http::withHeaders(['Authorization' => $this->apiKey])
-                ->get('https://api.pexels.com/videos/search', [
-                    'query' => $query,
-                    'per_page' => 1,
-                    'orientation' => 'landscape',
-                ])
+            $response = $this->withOutboundProxy(Http::withHeaders(['Authorization' => $this->apiKey]), $url)
+                ->get($this->outboundUrl($url))
                 ->throw();
         } catch (Throwable) {
             return null;

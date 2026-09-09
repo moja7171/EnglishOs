@@ -65,4 +65,21 @@ return [
         'key' => env('PEXELS_API_KEY'),
     ],
 
+    // Routes GeminiClient/GroqClient/PexelsClient's outbound calls through
+    // a small HTTP relay instead of connecting directly — for when the app
+    // runs somewhere that can't reach these providers itself (e.g.
+    // Iran-based shared hosting, where Gemini/Groq/Pexels are filtered).
+    // Not a real forward proxy (that needs the CONNECT method over a raw
+    // TCP tunnel — infra that turned out to need paid/verified services);
+    // this relay speaks plain HTTP request/response instead, so it works
+    // over a simple HTTP tunnel (e.g. a free localhost.run/ngrok HTTP
+    // tunnel to the relay script in scripts/ai-relay.py, run on a machine
+    // that CAN reach these providers). See
+    // App\Services\Concerns\UsesOutboundProxy. Empty by default: every
+    // call connects directly, same as before this existed.
+    'ai_proxy' => [
+        'url' => env('AI_PROXY_URL'),
+        'secret' => env('AI_PROXY_SECRET'),
+    ],
+
 ];
