@@ -961,7 +961,7 @@ class VocabularyBuilderStepTest extends TestCase
         [, , $run] = $this->makeMissionAndRunWithImageWord();
 
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')
-            ->with('cereal', 'bowl of cereal breakfast')
+            ->with('cereal', 'bowl of cereal breakfast', null)
             ->once()
             ->andReturn('http://localhost/storage/vocabulary-images/cereal.jpg'));
 

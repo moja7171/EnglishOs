@@ -137,7 +137,7 @@ new class extends Component
             return null;
         }
 
-        return app(PexelsClient::class)->imageUrlFor($phrase, $query);
+        return app(PexelsClient::class)->imageUrlFor($phrase, $query, null);
     }
 
     /**
@@ -203,7 +203,7 @@ new class extends Component
             ->filter(fn (string $word) => $imageWords->where('phrase', '!=', $word)->count() >= 2)
             ->map(function (string $word) use ($imageWords, $client) {
                 $entry = $imageWords->firstWhere('phrase', $word);
-                $correctImage = $client->imageUrlFor($word, $entry['image_query']);
+                $correctImage = $client->imageUrlFor($word, $entry['image_query'], null);
 
                 if (! $correctImage) {
                     return null;
@@ -213,7 +213,7 @@ new class extends Component
                     ->where('phrase', '!=', $word)
                     ->shuffle()
                     ->take(2)
-                    ->map(fn ($w) => $client->imageUrlFor($w['phrase'], $w['image_query']))
+                    ->map(fn ($w) => $client->imageUrlFor($w['phrase'], $w['image_query'], null))
                     ->filter();
 
                 if ($distractorImages->count() < 2) {
