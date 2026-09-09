@@ -23,6 +23,12 @@ set_time_limit(0);
 ini_set('max_execution_time', '0');
 ini_set('memory_limit', '512M');
 
+// Buffered so the whole run's output can ALSO be written to a file below
+// (cPanel's own UI doesn't surface the deployment task's stdout anywhere
+// visible) — still echoed exactly as before, this just adds a second,
+// reliably readable copy.
+ob_start();
+
 function chmodRecursive(string $path, int $perm): void
 {
     @chmod($path, $perm);
@@ -39,9 +45,6 @@ function chmodRecursive(string $path, int $perm): void
     }
 }
 
-// Echoed, not written to a file — .cpanel.yml's curl call captures
-// stdout straight into cPanel's own deployment log, so there's no
-// separate deploy.log to remember to clean up.
 echo '=== '.date('Y-m-d H:i:s')." ===\n";
 
 $root = dirname(__DIR__);
@@ -141,3 +144,7 @@ foreach (['config:cache', 'route:cache', 'view:cache'] as $command) {
 }
 
 echo "=== done ===\n";
+
+$output = ob_get_clean();
+echo $output;
+file_put_contents($root.'/storage/logs/deploy-output.log', $output);
