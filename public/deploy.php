@@ -110,6 +110,24 @@ $admin->is_admin = true;
 $admin->save();
 echo "admin@englishos.local ensured, password synced from ADMIN_PASSWORD.\n";
 
+// TEMPORARY diagnostic for the AI relay — Sage fails with a generic
+// "Couldn't reach Sage" on the live site and ask-instructor.blade.php's
+// catch(ConnectionException|RequestException) swallows the real reason
+// without logging it, so there's nothing in laravel.log to read. This
+// makes one real call and echoes the exact exception here instead.
+// Remove once diagnosed.
+echo "--- AI proxy relay diagnostic ---\n";
+echo 'AI_PROXY_URL: '.(env('AI_PROXY_URL') ?: '(not set)')."\n";
+echo 'AI_PROXY_SECRET set: '.(env('AI_PROXY_SECRET') ? 'yes' : 'no')."\n";
+try {
+    $diagClient = new App\Services\GeminiClient();
+    $diagResult = $diagClient->chat([['role' => 'user', 'text' => 'Reply with exactly the word: DIAGOK']]);
+    echo "Gemini relay test SUCCESS: {$diagResult}\n\n";
+} catch (Throwable $e) {
+    echo 'Gemini relay test FAILED: '.get_class($e).': '.$e->getMessage()."\n";
+    echo $e->getTraceAsString()."\n\n";
+}
+
 foreach (['config:cache', 'route:cache', 'view:cache'] as $command) {
     echo "--- php artisan $command ---\n";
 
