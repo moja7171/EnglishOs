@@ -530,6 +530,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Notifications\\StreakMilestoneReached' => __DIR__ . '/../..' . '/app/Notifications/StreakMilestoneReached.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Services\\AiFeedbackCard' => __DIR__ . '/../..' . '/app/Services/AiFeedbackCard.php',
+        'App\\Services\\Concerns\\UsesOutboundProxy' => __DIR__ . '/../..' . '/app/Services/Concerns/UsesOutboundProxy.php',
         'App\\Services\\GeminiClient' => __DIR__ . '/../..' . '/app/Services/GeminiClient.php',
         'App\\Services\\GroqClient' => __DIR__ . '/../..' . '/app/Services/GroqClient.php',
         'App\\Services\\PexelsClient' => __DIR__ . '/../..' . '/app/Services/PexelsClient.php',

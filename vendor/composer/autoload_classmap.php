@@ -40,6 +40,7 @@ return array(
     'App\\Notifications\\StreakMilestoneReached' => $baseDir . '/app/Notifications/StreakMilestoneReached.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'App\\Services\\AiFeedbackCard' => $baseDir . '/app/Services/AiFeedbackCard.php',
+    'App\\Services\\Concerns\\UsesOutboundProxy' => $baseDir . '/app/Services/Concerns/UsesOutboundProxy.php',
     'App\\Services\\GeminiClient' => $baseDir . '/app/Services/GeminiClient.php',
     'App\\Services\\GroqClient' => $baseDir . '/app/Services/GroqClient.php',
     'App\\Services\\PexelsClient' => $baseDir . '/app/Services/PexelsClient.php',
