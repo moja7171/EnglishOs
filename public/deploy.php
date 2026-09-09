@@ -23,12 +23,6 @@ set_time_limit(0);
 ini_set('max_execution_time', '0');
 ini_set('memory_limit', '512M');
 
-// Buffered so the whole run's output can ALSO be written to a file below
-// (cPanel's own UI doesn't surface the deployment task's stdout anywhere
-// visible) — still echoed exactly as before, this just adds a second,
-// reliably readable copy.
-ob_start();
-
 function chmodRecursive(string $path, int $perm): void
 {
     @chmod($path, $perm);
@@ -117,19 +111,30 @@ echo "admin@englishos.local ensured, password synced from ADMIN_PASSWORD.\n";
 // "Couldn't reach Sage" on the live site and ask-instructor.blade.php's
 // catch(ConnectionException|RequestException) swallows the real reason
 // without logging it, so there's nothing in laravel.log to read. This
-// makes one real call and echoes the exact exception here instead.
+// makes one real call and writes the exact exception here instead.
 // Remove once diagnosed.
-echo "--- AI proxy relay diagnostic ---\n";
-echo 'AI_PROXY_URL: '.(env('AI_PROXY_URL') ?: '(not set)')."\n";
-echo 'AI_PROXY_SECRET set: '.(env('AI_PROXY_SECRET') ? 'yes' : 'no')."\n";
+//
+// Written straight to the file as each piece happens (not buffered and
+// written once at the end) — GeminiClient's own primary+fallback retry
+// chain can take up to ~40-45s, long enough to hit this shared host's
+// own request timeout and have the whole process killed externally
+// before a final "write everything now" ever ran, which is exactly what
+// happened the first time this diagnostic shipped: the log file was
+// never created at all.
+$diagLog = $root.'/storage/logs/deploy-output.log';
+file_put_contents($diagLog, '=== '.date('Y-m-d H:i:s')." AI proxy relay diagnostic ===\n");
+file_put_contents($diagLog, 'AI_PROXY_URL: '.(env('AI_PROXY_URL') ?: '(not set)')."\n", FILE_APPEND);
+file_put_contents($diagLog, 'AI_PROXY_SECRET set: '.(env('AI_PROXY_SECRET') ? 'yes' : 'no')."\n", FILE_APPEND);
+file_put_contents($diagLog, "calling Gemini through the relay now...\n", FILE_APPEND);
 try {
     $diagClient = new App\Services\GeminiClient();
     $diagResult = $diagClient->chat([['role' => 'user', 'text' => 'Reply with exactly the word: DIAGOK']]);
-    echo "Gemini relay test SUCCESS: {$diagResult}\n\n";
+    file_put_contents($diagLog, "SUCCESS: {$diagResult}\n", FILE_APPEND);
 } catch (Throwable $e) {
-    echo 'Gemini relay test FAILED: '.get_class($e).': '.$e->getMessage()."\n";
-    echo $e->getTraceAsString()."\n\n";
+    file_put_contents($diagLog, 'FAILED: '.get_class($e).': '.$e->getMessage()."\n", FILE_APPEND);
+    file_put_contents($diagLog, $e->getTraceAsString()."\n", FILE_APPEND);
 }
+echo "--- AI proxy relay diagnostic written to storage/logs/deploy-output.log ---\n\n";
 
 foreach (['config:cache', 'route:cache', 'view:cache'] as $command) {
     echo "--- php artisan $command ---\n";
@@ -144,7 +149,3 @@ foreach (['config:cache', 'route:cache', 'view:cache'] as $command) {
 }
 
 echo "=== done ===\n";
-
-$output = ob_get_clean();
-echo $output;
-file_put_contents($root.'/storage/logs/deploy-output.log', $output);
