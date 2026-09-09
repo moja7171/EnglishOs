@@ -47,6 +47,27 @@ else
     git commit -m "Deploy snapshot: refresh vendor/public-build"
 fi
 
+# Ships whatever Pexels has already cached HERE (this machine has clean,
+# direct access to Pexels — production doesn't) as real files, so
+# production's disk already has them before Laravel ever boots a
+# request. PexelsClient::fetchAndCache() checks the file's existence
+# before ever calling out — a file already on disk means production's
+# `db:seed --force` (MissionSeeder::warmPexelsCache()) finds a cache hit
+# and never touches Pexels' API itself. See
+# feedback_never_fetch_pexels_live_on_site (memory) — the host must
+# NEVER connect to Pexels, not even during a deploy's own seed step.
+# Force-added the same way as vendor/public-build above: both stay
+# gitignored on main (storage/app/public/.gitignore's blanket "*" also
+# keeps genuinely dynamic content — avatars, user recordings — out of
+# git on every branch), this is deploy-branch-only.
+git add -Af storage/app/public/vocabulary-images storage/app/public/ambient-videos
+
+if git diff --cached --quiet; then
+    echo "Pexels image/video cache unchanged — nothing new to commit there."
+else
+    git commit -m "Deploy snapshot: refresh cached Pexels images/videos"
+fi
+
 echo "--- pushing deploy branch ---"
 git push origin deploy
 

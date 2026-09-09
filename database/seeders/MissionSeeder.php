@@ -865,20 +865,29 @@ class MissionSeeder extends Seeder
 
     /**
      * Fetches and caches every Pexels image this app will ever need to
-     * show a real visitor — run once, right here at the end of seeding
-     * (a build step, whether that's this machine or production's own
-     * `db:seed --force` during a deploy), so a live page view NEVER
-     * triggers a fresh Pexels call. See
-     * [[feedback_never_fetch_pexels_live_on_site]]: production is on
-     * filtered/slow-to-Pexels hosting, so the first visitor to hit an
-     * uncached image_query used to eat that live-fetch latency
-     * themselves — now it's paid for here instead, once, up front.
+     * show a real visitor — run once, right here at the end of seeding.
+     * See [[feedback_never_fetch_pexels_live_on_site]]: the host must
+     * NEVER connect to Pexels itself, not a real visitor's page view,
+     * not even production's own `db:seed --force` during a deploy.
      *
-     * PexelsClient::imageUrlFor() already fails soft (network error, no
-     * API key, no results all just return null) and is idempotent
-     * (checks the on-disk cache before ever calling out), so calling it
-     * again here for an image a real page view already warmed is a
-     * free no-op — safe to just always run this in full on every seed.
+     * The actual acquisition happens HERE, on a dev machine with clean
+     * direct Pexels access (production's is filtered/slow — see
+     * [[project_ai_relay_for_filtered_host]]) — running this locally
+     * after building a mission is what does the real fetching.
+     * scripts/deploy-push.sh then force-adds whatever's now cached under
+     * storage/app/public/{vocabulary-images,ambient-videos} onto the
+     * `deploy` branch (gitignored on every branch otherwise, same as
+     * vendor/public-build), so those files already exist on production's
+     * disk before Laravel ever boots a request. Calling this again
+     * during production's own `db:seed --force` is then a pure no-op
+     * safety net, never a real network call: PexelsClient::imageUrlFor()
+     * checks the on-disk cache before ever calling out, and a file
+     * shipped via the deploy branch is already there.
+     *
+     * PexelsClient::imageUrlFor() fails soft (network error, no API key,
+     * no results all just return null) and is idempotent, so re-running
+     * this on a seed that's already fully cached is always a fast no-op
+     * — safe to just always run this in full on every seed.
      *
      * Every cache key formula below must stay in exact lockstep with the
      * step component that actually renders it (mission-brief.blade.php,
