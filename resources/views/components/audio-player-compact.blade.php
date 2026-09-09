@@ -23,7 +23,29 @@
             init() {
                 const audio = this.$refs.audio;
                 const seek = this.$refs.seek;
-                audio.addEventListener('loadedmetadata', () => this.duration = audio.duration);
+                // MediaRecorder-produced webm (every voice recording in this
+                // app) commonly reports duration as Infinity/NaN right after
+                // loadedmetadata — the container has no real duration in its
+                // header, only the actual byte length. The browser only
+                // learns the true duration once it's scanned the whole file,
+                // which a bare seek to a huge time forces immediately
+                // (fires 'durationchange' with the real value once known)
+                // instead of waiting for the learner to play it through once.
+                // Without this, the seek bar tracks currentTime against that
+                // wrong Infinity/placeholder duration and never reads back
+                // as "finished" even though the audio itself plays fine.
+                const resolveDuration = () => {
+                    if (audio.duration === Infinity || isNaN(audio.duration)) {
+                        audio.currentTime = 1e101;
+                        audio.addEventListener('timeupdate', () => { audio.currentTime = 0; }, {once: true});
+                    } else {
+                        this.duration = audio.duration;
+                    }
+                };
+                audio.addEventListener('durationchange', () => {
+                    if (audio.duration !== Infinity && ! isNaN(audio.duration)) this.duration = audio.duration;
+                });
+                audio.addEventListener('loadedmetadata', resolveDuration);
                 audio.addEventListener('timeupdate', () => {
                     this.currentTime = audio.currentTime;
                     if (! this.dragging) seek.value = audio.currentTime;
@@ -31,7 +53,9 @@
                 audio.addEventListener('play', () => this.playing = true);
                 audio.addEventListener('pause', () => this.playing = false);
                 audio.addEventListener('ended', () => this.playing = false);
-                if (audio.readyState >= 1) this.duration = audio.duration;
+                // Metadata may already have loaded before these listeners
+                // were attached.
+                if (audio.readyState >= 1) resolveDuration();
             },
             togglePlay() { this.playing ? this.$refs.audio.pause() : this.$refs.audio.play() },
             seekTo(value) {
