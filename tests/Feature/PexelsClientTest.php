@@ -25,6 +25,32 @@ class PexelsClientTest extends TestCase
         Storage::disk('public')->assertExists('vocabulary-images/have-a-shower.jpg');
     }
 
+    /**
+     * Vocabulary Builder passes orientation: null deliberately — Pexels'
+     * square-cropped pool for action-verb queries (ironing, vacuuming, ...)
+     * is thin enough that the orientation filter hurts relevance more than
+     * it helps, and every caller crops with object-cover anyway so the
+     * source aspect ratio was never load-bearing. Confirmed once with real
+     * words: "ironing clothes" under orientation=square returned a photo of
+     * someone washing clothes in a stream, no iron in sight; unconstrained,
+     * it returned a real ironing-board photo.
+     */
+    public function test_a_null_orientation_omits_the_filter_entirely(): void
+    {
+        Storage::fake('public');
+        Http::fake([
+            'api.pexels.com/*' => Http::response([
+                'photos' => [['src' => ['medium' => 'https://images.pexels.com/photos/1/ironing.jpg']]],
+            ]),
+            'images.pexels.com/*' => Http::response('fake-image-bytes'),
+        ]);
+
+        (new PexelsClient('test-key'))->imageUrlFor('ironing', 'ironing clothes', null);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'api.pexels.com')
+            && ! array_key_exists('orientation', $request->data()));
+    }
+
     public function test_a_second_call_for_the_same_word_never_hits_the_api_again(): void
     {
         Storage::fake('public');

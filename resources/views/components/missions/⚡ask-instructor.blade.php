@@ -254,11 +254,21 @@ new class extends Component
         },
     }"
 >
+    {{--
+        bottom-24 on mobile, not bottom-5 — on a narrow viewport the
+        content column spans nearly the full width (no max-w-2xl margin
+        like desktop gets), so this trigger otherwise sits directly on
+        top of the mission's own Next link and the sticky Continue bar,
+        both anchored to that same bottom-right corner. Raising it here
+        stacks it cleanly above them instead of covering them; desktop
+        never has this collision (the centered column keeps real
+        clearance), so it stays at bottom-5 from sm: up.
+    --}}
     <button
         type="button"
         x-on:click="open = !open; if (open) $nextTick(() => scrollToBottom())"
         title="Sage — your AI Instructor"
-        class="fixed right-5 bottom-5 z-40 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-lg transition-transform hover:scale-105 active:scale-95 dark:bg-accent-dark"
+        class="fixed right-5 bottom-24 z-40 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-5 dark:bg-accent-dark"
     >
         <span x-show="!open">@svg('heroicon-o-sparkles', 'h-6 w-6')</span>
         <span x-show="open" x-cloak>@svg('heroicon-o-x-mark', 'h-6 w-6')</span>
@@ -269,7 +279,7 @@ new class extends Component
         x-cloak
         x-transition.opacity.duration.150ms
         x-on:click.outside="open = false"
-        class="fixed right-5 bottom-24 z-40 flex h-[28rem] max-h-[calc(100vh-8rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl dark:border-line-dark dark:bg-surface-dark"
+        class="fixed right-5 bottom-40 z-40 flex h-[28rem] max-h-[calc(100vh-8rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl sm:bottom-24 dark:border-line-dark dark:bg-surface-dark"
     >
         <div class="flex shrink-0 items-center gap-2.5 border-b border-line px-4 py-3 dark:border-line-dark">
             <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">

@@ -41,9 +41,14 @@ class PexelsClient
      * a whole multi-subject scene rather than one centered subject — e.g.
      * Picture Description, where a square crop keeps returning sparse
      * still-life results instead of a scene with people actually doing
-     * things.
+     * things. Pass null to search across all orientations — worth doing
+     * for an action/verb query (ironing, vacuuming, ...) where Pexels'
+     * square-cropped pool is thin enough that the orientation filter
+     * degrades relevance rather than helping; every caller already crops
+     * with `object-cover` at a fixed size, so the source aspect ratio
+     * never actually mattered for layout.
      */
-    public function imageUrlFor(string $word, string $query, string $orientation = 'square'): ?string
+    public function imageUrlFor(string $word, string $query, ?string $orientation = 'square'): ?string
     {
         return $this->fetchAndCache(
             'vocabulary-images/'.Str::slug($word).'.jpg',
@@ -109,7 +114,7 @@ class PexelsClient
         }
     }
 
-    private function searchPhotoUrl(string $query, string $orientation = 'square'): ?string
+    private function searchPhotoUrl(string $query, ?string $orientation = 'square'): ?string
     {
         if ($this->apiKey === '') {
             return null;
@@ -117,11 +122,11 @@ class PexelsClient
 
         try {
             $response = Http::withHeaders(['Authorization' => $this->apiKey])
-                ->get('https://api.pexels.com/v1/search', [
+                ->get('https://api.pexels.com/v1/search', array_filter([
                     'query' => $query,
                     'per_page' => 1,
                     'orientation' => $orientation,
-                ])
+                ]))
                 ->throw();
         } catch (Throwable) {
             return null;
