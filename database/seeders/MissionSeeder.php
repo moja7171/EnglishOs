@@ -876,8 +876,8 @@ class MissionSeeder extends Seeder
     private function seedM02(): void
     {
         $audioUrl = $this->publishMissionAsset('M02', '6_minute_english_making_male_friends.mp3');
-        $shadowingVideoUrl = $this->publishMissionAsset('M02', 'Family Members + Practice ｜ American English for Adult Beginners.mp4');
-        $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'Family Members + Practice ｜ American English for Adult Beginners.en.vtt');
+        $shadowingVideoUrl = $this->publishMissionAsset('M02', 'Family Members and Practice - American English for Adult Beginners.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'Family Members and Practice - American English for Adult Beginners.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M02'],
