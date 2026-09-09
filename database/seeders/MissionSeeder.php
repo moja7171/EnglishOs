@@ -1477,6 +1477,1276 @@ class MissionSeeder extends Seeder
                 ],
             ]
         );
+
+        $this->seedM04();
+    }
+
+    /**
+     * Seeds M04 with its real content from document/M04/ (M04.pdf, the
+     * "Eat Clean Without Stress" B1 podcast, and the BBC Ideas video
+     * "Five Ways to Eat More Healthily"), matching M04.pdf's own 3-day/
+     * 10-page compact workbook plan (it names 10 pages — this seeds
+     * exactly those 10, plus video_shadowing as an 11th, added once its
+     * source video arrived — not M01/M02's fuller line-up otherwise).
+     */
+    private function seedM04(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M04', 'Eat Clean Without Stress - Simple Habits for Everyday Life.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M04', 'Five Ways to Eat More Healthily - BBC Ideas.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M04', 'Five Ways to Eat More Healthily - BBC Ideas.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M04'],
+            [
+                'title' => 'Food & Lifestyle',
+                'module' => 'Food',
+                'outcome' => 'I can talk about what I eat, my eating habits, my preferences, and the lifestyle choices I make.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Foundation',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Mission Brief',
+                                'duration_minutes' => 5,
+                                'hook' => "Someone asks what you usually eat in a day — could you actually describe it in English, or would you just say \"normal food\"?",
+                                'image_query' => 'healthy meal fresh vegetables table',
+                                'ambient_video_query' => 'fresh food preparation kitchen slow motion',
+                                // Real questions from M04.pdf page 01 "Before you start".
+                                'warm_up_questions' => [
+                                    'What do you usually eat in a normal day?',
+                                    "What's your favourite meal?",
+                                    'Do you think you have a healthy diet?',
+                                    'What would you like to change?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder',
+                                'label' => 'Vocabulary Builder',
+                                'duration_minutes' => 16,
+                                'hook' => 'Next time someone asks about your diet, will these words be ready — or will you just say "I eat normal food"?',
+                                // Word selection follows English Vocabulary in Use Unit 34
+                                // "Food" (per M04.pdf's own "exact resource" table) — meals,
+                                // ingredients, snacks, fresh/frozen food, spicy/sweet food,
+                                // healthy/unhealthy food, diet. Story and every meaning below
+                                // are written fresh for this app (see EOS-009 §14: content
+                                // stays original, no licensing/piracy risk). "eating clean",
+                                // "skip breakfast", "craving", "balanced diet" are deliberately
+                                // woven in here too — the real Listening podcast right after
+                                // this step uses these same words/phrases, so every learner
+                                // reads them here first, then hears them again in context.
+                                'story' => [
+                                    [
+                                        'heading' => 'Meals & Habits',
+                                        'text' => "I try not to **skip breakfast**, even on busy mornings, because I "
+                                            .'always feel worse by lunchtime if I do. Most days I eat a **home-cooked** '
+                                            .'dinner, but once or twice a week we **eat out** instead, usually '
+                                            .'somewhere simple. I\'m trying to follow a more **balanced diet** overall '
+                                            .'— not perfect, just better than before.',
+                                    ],
+                                    [
+                                        'heading' => 'Fresh & Frozen',
+                                        'text' => 'I prefer cooking with **fresh** vegetables when I have time, but '
+                                            .'**frozen** ones are honestly just as healthy and save a lot of effort '
+                                            .'on a tired evening. Whatever fresh **ingredient** I buy too much of '
+                                            .'usually ends up as **leftovers** the next day, which I don\'t mind at all.',
+                                    ],
+                                    [
+                                        'heading' => 'Snacks & Cravings',
+                                        'text' => 'In the afternoon I sometimes get a real **craving** for something '
+                                            .'sweet — I definitely have a **sweet tooth**. Instead of chocolate, I try '
+                                            ."to reach for a healthier **snack** like fruit and nuts. My sister is the "
+                                            .'opposite: she\'d always choose something **spicy** over something '
+                                            .'sweet.',
+                                    ],
+                                    [
+                                        'heading' => 'Healthy Choices',
+                                        'text' => 'I\'m not trying to eat only "**healthy food**" and never touch '
+                                            .'"**unhealthy food**" again — that never lasts. I\'m just trying to '
+                                            .'**cut down on** **junk food** and **processed food**, one small change '
+                                            .'at a time, instead of banning it completely.',
+                                    ],
+                                ],
+                                'story_words' => [
+                                    // Meals & Habits
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'difficulty' => 'easy'],
+                                    ['phrase' => 'home-cooked', 'meaning' => 'made at home, not bought ready-made or from a restaurant', 'image_query' => 'home cooked dinner family table', 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'difficulty' => 'easy'],
+                                    ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'difficulty' => 'medium'],
+                                    // Fresh & Frozen
+                                    ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
+                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'image_query' => 'frozen vegetables bag', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'difficulty' => 'medium'],
+                                    ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
+                                    // Snacks & Cravings
+                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sweet tooth', 'meaning' => 'a strong liking for sweet food', 'difficulty' => 'hard'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => 'spicy', 'meaning' => 'having a strong, hot taste, like chilli', 'image_query' => 'spicy food chilli', 'difficulty' => 'easy'],
+                                    // Healthy Choices
+                                    ['phrase' => 'healthy food', 'meaning' => 'food that is good for your body', 'image_query' => 'healthy food bowl vegetables', 'difficulty' => 'easy'],
+                                    ['phrase' => 'unhealthy food', 'meaning' => 'food that is bad for your body if eaten often', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cut down on', 'meaning' => 'to reduce how much of something you eat or do', 'difficulty' => 'hard', 'allow_embedded_match' => true],
+                                    ['phrase' => 'junk food', 'meaning' => 'cheap food that is quick to eat but bad for your health', 'image_query' => 'junk food fast food', 'difficulty' => 'medium'],
+                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => "Jessica and Lisa are talking honestly about eating clean, mistakes included — how much can you catch?",
+                                'source' => 'B1 Podcast — "Eat Clean Without Stress: Simple Habits for Everyday Life"',
+                                'image_query' => 'healthy breakfast oatmeal fruit',
+                                'audio_url' => $audioUrl,
+                                'transcript_ref' => 'document/M04/Eat Clean Without Stress - Simple Habits for Everyday Life.transcript.pdf',
+                                // Full real transcript, reconstructed from the podcast's own
+                                // auto-captions (no built-in speaker diarization, so a few
+                                // mid-paragraph turn boundaries are a best-effort judgment call,
+                                // not verified against the raw audio word-for-word) — shown
+                                // in-app only after the learner has genuinely listened twice
+                                // (see ⚡listening.blade.php), same gate as M01/M02.
+                                'transcript' => [
+                                    ['speaker' => 'Jessica', 'text' => "Hi everyone. Welcome back to the five minute English practice. I'm Jessica and I'm really happy you decided to spend some time with us today. Today we're talking about a topic that comes up a lot when people start caring more about their health, their energy, and the way they feel every day. And that topic is eating clean. Some people feel very excited when they hear this phrase because they think it means a fresh start and better habits, while other people feel stressed right away because they imagine strict rules, boring food, and a lifestyle that feels hard to maintain. So today, instead of giving advice or telling you what you should or shouldn't eat, we're simply going to talk honestly about food habits, mistakes, and what eating clean actually looks like in real life, not in a perfect online world. I'm not doing this episode alone. I'm here with Lisa, who has tried eating clean in a very realistic way while working, feeling tired, craving snacks, and still wanting to enjoy food. Hi, Lisa. How are you today?"],
+                                    ['speaker' => 'Lisa', 'text' => "Hi, Jessica. Hi, everyone. I'm doing really well, thank you. And I love this topic because eating clean didn't just change what I eat. It really changed how I think about food and how I listen to my body."],
+                                    ['speaker' => 'Jessica', 'text' => "I really like that you said that because eating clean is not just about meals. It's also about awareness and daily choices. Let's go back to the beginning for a moment. Lisa, when you first heard the phrase eat clean, what did you imagine?"],
+                                    ['speaker' => 'Lisa', 'text' => 'To be honest, I imagined a very boring life. I thought eating clean meant eating plain food with no flavor, no sugar, no fun, and no comfort. And I honestly thought I would feel hungry, tired, and unhappy all the time if I tried to eat that way.'],
+                                    ['speaker' => 'Jessica', 'text' => 'That image is very common, and I had the exact same thought. I believed eating clean meant giving up food that makes life enjoyable.'],
+                                    ['speaker' => 'Lisa', 'text' => 'Yes. And because of that, I avoided it for a long time. Even though deep down I knew my eating habits were not making me feel very good.'],
+                                    ['speaker' => 'Jessica', 'text' => 'So what made you finally decide to try eating clean?'],
+                                    ['speaker' => 'Lisa', 'text' => "I started noticing that after most meals I felt heavy, sleepy, and unfocused, especially in the afternoon. And I realized that even though I was eating enough, my body didn't feel satisfied or energized."],
+                                    ['speaker' => 'Jessica', 'text' => 'That moment is very important because many people start eating clean not because they want to change how they look but because they want to change how they feel.'],
+                                    ['speaker' => 'Lisa', 'text' => "Exactly. I didn't want a perfect diet. I just wanted to feel better during the day."],
+                                    ['speaker' => 'Jessica', 'text' => 'So now after some time, how would you describe eating clean in your own words?'],
+                                    ['speaker' => 'Lisa', 'text' => "For me, eating clean means choosing simple food that feels natural, cooking more meals at home, and eating things that make me feel good after I finish eating instead of feeling uncomfortable or tired."],
+                                    ['speaker' => 'Jessica', 'text' => "I love that description because it feels very realistic and very kind. For me, eating clean means I try to slow down and think about what my body actually needs instead of eating something just because it's fast or easy."],
+                                    ['speaker' => 'Lisa', 'text' => 'Yes. And that mindset already changes a lot.'],
+                                    ['speaker' => 'Jessica', 'text' => 'Let\'s talk about breakfast because the way we start the day often affects everything else. What does a typical clean breakfast look like for you?'],
+                                    ['speaker' => 'Lisa', 'text' => 'Most mornings I eat oatmeal and I like to take my time preparing it, adding fruit, nuts, maybe a little honey or peanut butter because it feels warm, filling and comforting, especially on busy mornings.'],
+                                    ['speaker' => 'Jessica', 'text' => 'I really like oatmeal for the same reason. It feels gentle on the body, but it also gives enough energy to start the day without feeling heavy.'],
+                                    ['speaker' => 'Lisa', 'text' => 'On other days, I choose eggs, usually scrambled eggs with avocado or eggs with toast because it keeps me full and focused for a long time.'],
+                                    ['speaker' => 'Jessica', 'text' => "Yes, eggs made a big difference for me. Before, I often skipped breakfast or just had coffee and I didn't realize how much that affected my mood and energy later in the day."],
+                                    ['speaker' => 'Lisa', 'text' => "That's such an important point. When you eat real breakfast, your whole day feels more balanced."],
+                                    ['speaker' => 'Lisa', 'text' => 'Exactly. I feel more calm and less rushed when I start the day with proper food.'],
+                                    ['speaker' => 'Jessica', 'text' => "Now, let's move to lunch because lunch is often eaten in a hurry. What do you usually eat for lunch when you try to eat clean?"],
+                                    ['speaker' => 'Lisa', 'text' => 'I try to keep lunch very simple and satisfying, usually with grilled chicken or fish, a lot of vegetables and something warm and comforting like roasted potatoes or a big salad with olive oil.'],
+                                    ['speaker' => 'Jessica', 'text' => "That sounds very similar to what I eat. I often prepare chicken or fish in advance and then add vegetables and potatoes because it's easy, filling, and doesn't make me feel sleepy afterward."],
+                                    ['speaker' => 'Lisa', 'text' => 'Yes, that sleepy feeling after lunch disappeared when I stopped eating heavy and processed food.'],
+                                    ['speaker' => 'Jessica', 'text' => "That's something many people notice. Clean food doesn't make you feel slow."],
+                                    ['speaker' => 'Lisa', 'text' => "Exactly. And I also learned that clean food doesn't need to be fancy. It just needs to be simple and cooked with care."],
+                                    ['speaker' => 'Jessica', 'text' => 'Now, let\'s talk about snacks because snacks are where many people feel they fail. Lisa, do you snack during the day?'],
+                                    ['speaker' => 'Lisa', 'text' => 'Yes, I do. Especially in the afternoon when my energy drops and I start craving something sweet or crunchy.'],
+                                    ['speaker' => 'Jessica', 'text' => 'That time of day is very dangerous.'],
+                                    ['speaker' => 'Lisa', 'text' => 'Very dangerous. In the past, I ate cookies or chips without thinking. When I started eating clean, I tried to stop snacking completely, but that only made me feel frustrated.'],
+                                    ['speaker' => 'Jessica', 'text' => 'That never works for long.'],
+                                    ['speaker' => 'Lisa', 'text' => "Exactly. So now I still snack, but I choose things that actually help my body, like a fruit with peanut butter, yogurt, nuts, or boiled eggs."],
+                                    ['speaker' => 'Jessica', 'text' => "That's exactly what I do, too. I don't try to be perfect. I just try to make better choices most of the time."],
+                                    ['speaker' => 'Lisa', 'text' => 'And that made eating clean feel much more realistic.'],
+                                    ['speaker' => 'Jessica', 'text' => 'Let\'s talk about dinner because many people think dinner should be very small or boring when eating clean. What do you think?'],
+                                    ['speaker' => 'Lisa', 'text' => "I don't agree with that at all. Dinner is the time when I want to relax, slow down, and enjoy my food. So, I still eat a proper meal."],
+                                    ['speaker' => 'Jessica', 'text' => 'Same here. I often eat baked fish with vegetables or chicken with roasted potatoes and salad because it feels complete and satisfying.'],
+                                    ['speaker' => 'Lisa', 'text' => 'Yes. And sometimes I eat pasta, but I keep it simple with olive oil, garlic, vegetables, and maybe some cheese instead of heavy sauce.'],
+                                    ['speaker' => 'Jessica', 'text' => "That's such a good example. Eating clean doesn't mean cutting food out. It means choosing a simpler version."],
+                                    ['speaker' => 'Jessica', 'text' => "Exactly. Now, let's talk about processed food. How do you see it?"],
+                                    ['speaker' => 'Lisa', 'text' => "Now processed food is something I still eat sometimes but it's no longer part of my daily routine and I feel the difference very clearly."],
+                                    ['speaker' => 'Jessica', 'text' => 'That difference is huge. It becomes a choice not a habit.'],
+                                    ['speaker' => 'Lisa', 'text' => "Yes. And when it's a choice you don't feel guilty."],
+                                    ['speaker' => 'Jessica', 'text' => "Let's talk about eating out because food is social. How do you handle eating clean when you eat out?"],
+                                    ['speaker' => 'Lisa', 'text' => "I stop stressing about it when I eat out. I choose something simple if I can and if I can't I enjoy the meal and move on."],
+                                    ['speaker' => 'Jessica', 'text' => 'No guilt, no punishment the next day.'],
+                                    ['speaker' => 'Lisa', 'text' => 'Exactly. Guilt only makes things worse.'],
+                                    ['speaker' => 'Jessica', 'text' => 'Do you prepare food in advance?'],
+                                    ['speaker' => 'Lisa', 'text' => "Yes, but only basics. I prepare protein, vegetables, and potatoes. So, I don't need to think too much during the week."],
+                                    ['speaker' => 'Jessica', 'text' => 'That already saves a lot of time and energy and it makes eating clean much easier. After eating this way for some time, what changes did you notice?'],
+                                    ['speaker' => 'Lisa', 'text' => 'I had more energy, better digestion, clearer skin, and I felt more connected to my body and my needs.'],
+                                    ['speaker' => 'Jessica', 'text' => "That's beautiful."],
+                                    ['speaker' => 'Lisa', 'text' => 'And mentally, I felt proud because I was taking care of myself.'],
+                                    ['speaker' => 'Jessica', 'text' => 'That feeling matters more than numbers on a scale.'],
+                                    ['speaker' => 'Lisa', 'text' => 'Absolutely.'],
+                                    ['speaker' => 'Jessica', 'text' => 'Before we end, what advice would you give to someone who wants to start eating clean?'],
+                                    ['speaker' => 'Lisa', 'text' => "Start small, be patient, and don't try to be perfect. Focus on how food makes you feel, not just what it looks like."],
+                                    ['speaker' => 'Jessica', 'text' => "That's perfect advice. Thank you so much, Lisa, for this honest and calm conversation. And thank you to everyone listening. Remember, eating clean is about simple food, balance, and listening to your body. Take care and I'll see you next time."],
+                                ],
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'eating clean', 'meaning' => 'choosing simple, natural food instead of processed food',
+                                        'gap_before' => "we're simply going to talk honestly about food habits, mistakes, and what ",
+                                        'gap_after' => ' actually looks like in real life',
+                                    ],
+                                    [
+                                        'phrase' => 'skipped breakfast', 'meaning' => 'did not eat breakfast, when usually would',
+                                        'gap_before' => 'Yes, eggs made a big difference for me. Before, I often ',
+                                        'gap_after' => ' or just had coffee',
+                                    ],
+                                    [
+                                        'phrase' => 'craving something sweet', 'meaning' => 'having a strong desire to eat something sweet',
+                                        'gap_before' => 'Especially in the afternoon when my energy drops and I start ',
+                                        'gap_after' => ' or crunchy.',
+                                    ],
+                                    [
+                                        'phrase' => 'start small, be patient', 'meaning' => 'begin with easy changes and give it time, instead of rushing',
+                                        'gap_before' => '', 'gap_after' => ", and don't try to be perfect.",
+                                    ],
+                                    [
+                                        'phrase' => 'listening to your body', 'meaning' => 'paying attention to how your body actually feels',
+                                        'gap_before' => 'Remember, eating clean is about simple food, balance, and ',
+                                        'gap_after' => '.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Jessica and Lisa talk honestly about "eating clean" — what Lisa imagined '
+                                    .'before trying it, what a real (not perfect) clean breakfast/lunch/dinner looks '
+                                    .'like for her, how she still snacks but chooses better options, why she doesn\'t '
+                                    .'stress about eating out, and her advice to start small and be patient rather '
+                                    .'than trying to be perfect.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Jessica and Lisa talk about eating clean.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Lisa thinks dinner should be small and boring when eating clean.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Lisa still eats snacks, but chooses healthier ones.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What does Lisa snack on now, instead of cookies or chips?',
+                                    'options' => ['Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Cake and ice cream', 'Nothing — she stopped snacking completely'],
+                                    'correct' => 0,
+                                ],
+                                'shadow_lines' => [
+                                    "**Start** small, be **patient**, and don't **try** to be **perfect**.",
+                                    "**Focus** on how **food** makes you **feel**, not just what it **looks** like.",
+                                    '**Eating** clean is about **simple** food, **balance**, and **listening** to your **body**.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Build',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 8,
+                                'hook' => 'Same podcast, one more time — familiar is exactly the point.',
+                                'image_query' => 'healthy breakfast bowl oatmeal',
+                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar in Context',
+                                'duration_minutes' => 12,
+                                'hook' => "Every \"I don't eat much...\" you get right here is one less pause when you're talking about your own diet.",
+                                'focus' => 'Countable and Uncountable Nouns',
+                                'lesson' => [
+                                    'intro' => "We'll cover three things: which food nouns are countable and which "
+                                        .'are uncountable, which quantifier words go with each, and how to talk '
+                                        .'about your own eating habits using them.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · Countable vs uncountable',
+                                            'body' => '<strong>Countable</strong> nouns can be counted one by one, and '
+                                                .'have a plural form. <strong>Uncountable</strong> nouns are treated '
+                                                .'as one whole amount — no plural, no "a/an" on their own.',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Countable', 'items' => ['an apple', 'two apples', 'an egg', 'three eggs']],
+                                                        ['label' => 'Uncountable', 'items' => ['rice', 'water', 'bread', 'cheese']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · Quantifier words',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['words' => ['a / an', 'some', 'any', 'much', 'many', 'a lot of', 'a few', 'a little']],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'rule_examples',
+                                                    'items' => [
+                                                        ['rule' => 'many + plural countable noun', 'example' => "I don't eat many vegetables.", 'highlight' => 'many'],
+                                                        ['rule' => 'much + uncountable noun', 'example' => "I don't drink much coffee.", 'highlight' => 'much'],
+                                                        ['rule' => 'a few + plural countable noun', 'example' => 'I eat a few eggs every week.', 'highlight' => 'a few'],
+                                                        ['rule' => 'a little + uncountable noun', 'example' => 'I add a little sugar to my coffee.', 'highlight' => 'a little'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · Make it personal',
+                                            'body' => 'These sentence starters from M04.pdf are exactly what you\'ll '
+                                                .'finish below — and reuse out loud in Activation right after.',
+                                        ],
+                                    ],
+                                    'bridge_note' => "You'll put this straight to use next — in Activation, talking about your own eating habits.",
+                                ],
+                                // Real starters from M04.pdf page 04 "Make it personal".
+                                'frequency_starters' => [
+                                    'I usually eat some', "I don't eat much", 'I eat a lot of',
+                                    'I usually have a few', "I don't eat many", 'I need some',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence, using a countable or uncountable food noun '
+                                    .'correctly with the quantifier already given in the starter.',
+                                'grammar_major_criteria' => 'the noun given after the quantifier is grammatically wrong '
+                                    .'for that quantifier (e.g. "much" or "many" with the wrong noun type, a plural '
+                                    .'-s added to an uncountable noun), the sentence does not actually continue the '
+                                    .'given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues with a correct countable or uncountable food noun for '
+                                    .'the quantifier already given',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => "I don't eat many rice.",
+                                        'options' => ["I don't eat much rice.", "I don't eat many rice.", "I don't eat many rices."],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'She drinks a lot of coffees every morning.',
+                                        'options' => ['She drinks a lot of coffee every morning.', 'She drinks a lot of coffees every morning.', 'She drink a lot of coffee every morning.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'I need a few water.',
+                                        'options' => ['I need a little water.', 'I need a few water.', 'I need a few waters.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'key' => 'activation',
+                                'label' => 'Activation',
+                                'duration_minutes' => 10,
+                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                // Real questions from M04.pdf page 05 "Food in my life".
+                                'task' => 'Answer these questions about your own eating habits — what you normally '
+                                    .'eat for breakfast, what you usually have for lunch, what snacks you eat, what '
+                                    .'food you avoid, and what you\'d like to eat more or less of — then record 2 '
+                                    .'minutes of solo speaking describing your normal eating habits, using some '
+                                    .'countable and uncountable nouns, without reading.',
+                            ],
+                            [
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Real advice, real English — watch, then make your own voice do the same.',
+                                'source' => 'BBC Ideas: "Five Ways to Eat More Healthily"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'topic_summary' => 'A BBC Ideas video giving 5 evidence-based tips for healthy '
+                                    .'eating: eat a treat after a meal rather than on its own, to control glucose '
+                                    .'spikes; not all calories behave the same way in the body (natural foods take '
+                                    .'more energy to digest); a diverse gut microbiome matters for health; most UK '
+                                    .'calories come from ultra-processed food, which isn\'t clearly labelled; and '
+                                    .'while personalised nutrition is on the rise, general advice — choosing foods '
+                                    .'close to their natural state — still applies to everyone.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The video says eating a treat after a meal is better than eating it on its own.', 'correct' => true],
+                                    ['statement' => 'The video says all calories affect the body in exactly the same way.', 'correct' => false],
+                                    ['statement' => 'In the UK, more than half of the calories people eat come from ultra-processed foods.', 'correct' => true],
+                                ],
+                                'target_phrases' => [
+                                    ['phrase' => 'glucose spikes', 'meaning' => 'sharp rises (and falls) in blood sugar level'],
+                                    ['phrase' => 'ultra-processed foods', 'meaning' => 'food that has been heavily changed by manufacturing, often with unfamiliar ingredients'],
+                                ],
+                                'shadow_lines' => [
+                                    "It's much **better** to **eat** it **after** a **meal** than on its **own**.",
+                                    '**Aim** for **foods** which are **close** to their **natural** **state**.',
+                                    'And **remember**, you **are** what you **eat**.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Practice',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 8,
+                                'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
+                                'image_query' => 'fresh food kitchen preparation',
+                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'AI Conversation #1',
+                                'duration_minutes' => 12,
+                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                'interview_questions' => [
+                                    'What do you usually eat for breakfast?',
+                                    'How often do you cook at home?',
+                                    "What's the healthiest meal you eat regularly?",
+                                    'Do you prefer eating alone or with other people?',
+                                    "What do you eat when you're busy or stressed?",
+                                    'How has your diet changed in the last few years?',
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_feedback_1',
+                                'label' => 'AI Feedback #1',
+                                'duration_minutes' => 3,
+                                'hook' => "A second pair of ears just heard everything you said — here's what stood out.",
+                            ],
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => "Forget your own plate for a minute — what's happening at this one?",
+                                'image_query' => 'family sharing dinner table home',
+                                'guiding_questions' => [
+                                    'What are the people doing together?',
+                                    'What is the older man on the left wearing, and what is he doing?',
+                                    'What different dishes of food can you see on the table?',
+                                    "What does the room in the background look like?",
+                                ],
+                                // Hand-verified against the real cached Pexels photo for this
+                                // exact query+orientation (landscape) — a large family seated
+                                // around a table full of dishes, the older man in glasses on
+                                // the left, food spread across the middle/bottom, a decorated
+                                // living room (wall clock, candelabra, sofa) in the background.
+                                // Changing the query or orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 50, 'y' => 50, 'question_index' => 0],
+                                    ['x' => 30, 'y' => 45, 'question_index' => 1],
+                                    ['x' => 30, 'y' => 85, 'question_index' => 2],
+                                    ['x' => 18, 'y' => 18, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => "Meet Marco — his eating habits change with his shift. Can you follow his day in English?",
+                                'passage_title' => 'Meet Marco',
+                                'image_query' => 'young man portrait smiling kitchen',
+                                // Written fresh for this app (see EOS-009 §14) — reuses several
+                                // Vocabulary Builder pool words/phrases (skips breakfast,
+                                // home-cooked, fresh, sweet tooth, cut down on, processed
+                                // food, junk food) so whichever words a learner picked there,
+                                // they meet again here in a fresh context, third person
+                                // instead of first.
+                                'passage' => 'Marco works long hours as a nurse in Rome, so his eating habits change '
+                                    .'a lot depending on his shift. On a normal day, he never skips breakfast — he '
+                                    .'always has a home-cooked bowl of oats before leaving the house, because he '
+                                    ."knows a quick snack won't last through a busy morning. At work, he brings "
+                                    .'fresh fruit and nuts instead of relying on the vending machine, though he '
+                                    .'admits he still has a sweet tooth and sometimes gives in to a chocolate bar '
+                                    .'around 3pm. For dinner, he tries to cook something simple with fresh '
+                                    .'ingredients, but on his busiest nights he can\'t resist ordering takeaway '
+                                    .'instead. Marco says he is slowly trying to cut down on processed food and '
+                                    .'junk food, not by banning them completely, but by choosing them a little '
+                                    .'less often. His only rule: never eat a heavy meal right before a night '
+                                    .'shift — it leaves him feeling sluggish for hours.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'skips breakfast', 'type' => 'reused'],
+                                    ['phrase' => 'home-cooked', 'type' => 'reused'],
+                                    ['phrase' => 'fresh', 'type' => 'reused'],
+                                    ['phrase' => 'sweet tooth', 'type' => 'reused'],
+                                    ['phrase' => 'cut down on', 'type' => 'reused'],
+                                    ['phrase' => 'processed food', 'type' => 'reused'],
+                                    ['phrase' => 'junk food', 'type' => 'reused'],
+                                    ['phrase' => 'vending machine', 'type' => 'new', 'definition' => 'a machine that sells snacks or drinks when you put money in'],
+                                    ['phrase' => 'sluggish', 'type' => 'new', 'definition' => 'slow-moving and lacking energy'],
+                                ],
+                                'topic_summary' => 'A short profile of Marco, a nurse in Rome, whose eating habits '
+                                    .'change with his shift: he never skips breakfast, brings fresh fruit and nuts '
+                                    .'to work despite his sweet tooth, cooks simple dinners but sometimes orders '
+                                    .'takeaway on busy nights, and is slowly trying to cut down on processed and '
+                                    .'junk food rather than banning them completely.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Marco works as a nurse.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Marco never eats junk food.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Marco tries not to eat a heavy meal before a night shift.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What does Marco usually eat for breakfast, and why?',
+                                    "What is Marco's one rule about eating before a night shift?",
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Putting it on paper often reveals what you actually think about your own eating habits.',
+                                'title' => 'My eating habits',
+                                // Real "include" list from M04.pdf page 07.
+                                'prompts' => [
+                                    ['label' => 'What you normally eat', 'image_query' => 'healthy meal plate'],
+                                    ['label' => 'Your favourite food', 'image_query' => 'favourite comfort food'],
+                                    ['label' => 'What you eat at home', 'image_query' => 'home cooked dinner table'],
+                                    ['label' => 'What you eat outside', 'image_query' => 'restaurant meal eating out'],
+                                    ['label' => 'Healthy / unhealthy habits', 'image_query' => 'healthy unhealthy food comparison'],
+                                    ['label' => 'One thing you want to change', 'image_query' => 'fresh salad vegetables'],
+                                ],
+                                'try_to_use' => ['usually', 'normally', 'often', 'some', 'a lot of', 'a little', 'not many', 'not much'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Challenge',
+                        'mode' => 'partner',
+                        'steps' => [
+                            [
+                                'key' => 'active_recall',
+                                'label' => 'Active Recall',
+                                'duration_minutes' => 8,
+                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
+                                'instruction' => 'Without looking at the previous pages.',
+                                // Real sections from M04.pdf page 09 — the grammar recap is
+                                // 3 separate typed prompts there (one countable example, one
+                                // uncountable example, one much/many example), not one bucket
+                                // of 3 generic sentences like M01/M02's active_recall — so each
+                                // gets its own section here instead.
+                                'sections' => [
+                                    ['key' => 'expressions', 'label' => '5 vocabulary items', 'count' => 5],
+                                    [
+                                        'key' => 'countable_example',
+                                        'label' => 'One countable noun example',
+                                        'count' => 1,
+                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
+                                            .'sentence about food, correctly using a countable noun (with an '
+                                            .'article, a number, or a plural form, as appropriate).',
+                                        'major_criteria' => 'the noun used is not a countable food noun, or it is '
+                                            .'not used correctly as one, or the sentence is not a genuine example',
+                                        'context' => 'an example sentence correctly using a countable food noun',
+                                        'recap_label' => 'example correctly used a countable noun',
+                                    ],
+                                    [
+                                        'key' => 'uncountable_example',
+                                        'label' => 'One uncountable noun example',
+                                        'count' => 1,
+                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
+                                            .'sentence about food, correctly using an uncountable noun (no plural '
+                                            .'-s, no "a/an" on its own).',
+                                        'major_criteria' => 'the noun used is not an uncountable food noun, it '
+                                            .'wrongly has a plural -s or an "a/an" on its own, or the sentence is '
+                                            .'not a genuine example',
+                                        'context' => 'an example sentence correctly using an uncountable food noun',
+                                        'recap_label' => 'example correctly used an uncountable noun',
+                                    ],
+                                    [
+                                        'key' => 'much_many_example',
+                                        'label' => 'One example using much / many',
+                                        'count' => 1,
+                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
+                                            .'sentence about food correctly using "much" (with an uncountable '
+                                            .'noun) or "many" (with a plural countable noun).',
+                                        'major_criteria' => '"much" or "many" is paired with the wrong noun type, or '
+                                            .'the sentence is not a genuine example',
+                                        'context' => 'an example sentence correctly using "much" or "many"',
+                                        'recap_label' => 'example correctly used much/many',
+                                    ],
+                                    ['key' => 'listening_facts', 'label' => 'One thing I learned from the listening', 'count' => 1],
+                                ],
+                            ],
+                            [
+                                'key' => 'partner_speaking_session',
+                                'label' => 'Partner Speaking Session',
+                                'duration_minutes' => 15,
+                                'hook' => 'Time to actually talk to someone — a real friend, or yourself, out loud.',
+                                // Real rounds from M04.pdf page 06 "Speaking Session".
+                                'round_groups' => [
+                                    [
+                                        'label' => 'Food',
+                                        'questions' => [
+                                            "What's your favourite food?",
+                                            'What do you normally eat for breakfast?',
+                                            'Do you prefer eating at home or eating out?',
+                                            'How often do you cook?',
+                                        ],
+                                    ],
+                                    [
+                                        'label' => 'Lifestyle',
+                                        'questions' => [
+                                            'What makes a diet healthy?',
+                                            "Is it difficult to eat healthily when you're busy?",
+                                            'What food could you never give up?',
+                                            'What eating habit would you like to change?',
+                                        ],
+                                    ],
+                                    [
+                                        'label' => 'Deeper',
+                                        'questions' => [
+                                            'Do you think people care too much about healthy eating?',
+                                            'Is eating healthy expensive? Why or why not?',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'Error Log',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'AI Conversation #2 — Final Challenge',
+                                'duration_minutes' => 10,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'rounds' => [
+                                    'Describe what you usually eat in a normal day, with no preparation.',
+                                    'Talk about your favourite food and why you like it.',
+                                    'Explain one eating habit you would like to change, and why.',
+                                ],
+                                // Real prompt + requirements checklist from M04.pdf page 08
+                                // "3-Minute Speaking".
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your food and lifestyle.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'Countable nouns',
+                                    'Uncountable nouns',
+                                    'Examples',
+                                    'One opinion',
+                                    'One reason',
+                                    'Talks about one personal goal',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $this->seedM03();
+    }
+
+    /**
+     * Seeds M03 with its real content from document/M03/ (M03.pdf, the
+     * "How to Talk About Your Work" B1 podcast, and the BBC Ideas video
+     * "6 Tips to Improve Your Work-Life Balance"). Matches M02's full
+     * 4-phase/~18-step template exactly, per the standing rule that every
+     * mission does — NOT M03.pdf's own compact 3-day plan, which only
+     * outlines 10 of these (the rest — daily_listen_2/3, ai_conversation_1,
+     * ai_feedback_1, picture_description, reading_comprehension, error_log
+     * — are extrapolated in the same style/quality, grounded in this
+     * mission's real Work & Study topic, same as M04 was corrected to do).
+     */
+    private function seedM03(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M03', 'How to Talk About Your Work - English Listening and Speaking Practice.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M03', '6 Tips to Improve Your Work-Life Balance - BBC Ideas.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M03', '6 Tips to Improve Your Work-Life Balance - BBC Ideas.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M03'],
+            [
+                'title' => 'Work & Study',
+                'module' => 'Work',
+                'outcome' => 'I can talk about my work or studies, describe my responsibilities, and explain what I am working on.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Foundation',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Mission Brief',
+                                'duration_minutes' => 5,
+                                'hook' => "Someone asks what you do for work or study — could you actually explain it in English, with real details, not just the job title?",
+                                'image_query' => 'people working office study',
+                                'ambient_video_query' => 'office desk typing slow motion',
+                                // Real questions from M03.pdf page 01 "Before you start".
+                                'warm_up_questions' => [
+                                    'What do you do?',
+                                    'What does a normal day at work/study look like?',
+                                    'What do you like about what you do?',
+                                    'What is difficult about it?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder',
+                                'label' => 'Vocabulary Builder',
+                                'duration_minutes' => 16,
+                                'hook' => 'Next time someone asks about your job or studies, will these words be ready — or will you just say "it\'s complicated"?',
+                                // Word selection follows English Vocabulary in Use Unit 17
+                                // "Work" (per M03.pdf's own "exact resource" table) — jobs,
+                                // workplaces, colleagues, responsibilities, working hours,
+                                // salary, full-time/part-time, career. Story and every
+                                // meaning below are written fresh for this app (see EOS-009
+                                // §14: content stays original, no licensing/piracy risk).
+                                'story' => [
+                                    [
+                                        'heading' => 'My Job',
+                                        'text' => "I've had a few different **jobs** since I started my **career**, "
+                                            .'but I\'ve always worked **full-time** — I don\'t think I\'d enjoy '
+                                            .'**part-time** work, even though some of my friends prefer it.',
+                                    ],
+                                    [
+                                        'heading' => 'The Workplace',
+                                        'text' => 'My **workplace** is small, so I know all my **colleagues** well. '
+                                            .'We work as a close **team**, which makes even a stressful day easier '
+                                            .'to get through.',
+                                    ],
+                                    [
+                                        'heading' => 'Responsibilities',
+                                        'text' => 'One of my main **responsibilities** is training new staff. I\'m '
+                                            ."also **in charge of** the weekly schedule, and I usually **deal with** "
+                                            .'any customer complaints that come in.',
+                                    ],
+                                    [
+                                        'heading' => 'Hours & Pay',
+                                        'text' => 'My **working hours** are pretty standard, nine to five, though I '
+                                            ."sometimes do **overtime** if we're busy. The **salary** isn't amazing, "
+                                            .'but it\'s fair for the work.',
+                                    ],
+                                ],
+                                'story_words' => [
+                                    // My Job
+                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'difficulty' => 'easy'],
+                                    ['phrase' => 'career', 'meaning' => 'the jobs someone has over a long period, usually in one field', 'difficulty' => 'medium'],
+                                    ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'difficulty' => 'easy'],
+                                    ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'difficulty' => 'easy'],
+                                    // The Workplace
+                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'image_query' => 'modern office workplace', 'difficulty' => 'easy'],
+                                    ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
+                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'difficulty' => 'easy'],
+                                    // Responsibilities
+                                    ['phrase' => 'responsibility', 'meaning' => 'a duty or task that is part of your job', 'difficulty' => 'medium'],
+                                    ['phrase' => 'in charge of', 'meaning' => 'responsible for managing something', 'difficulty' => 'hard'],
+                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'difficulty' => 'hard', 'allow_embedded_match' => true],
+                                    // Hours & Pay
+                                    ['phrase' => 'working hours', 'meaning' => 'the times of day someone is at work', 'difficulty' => 'medium'],
+                                    ['phrase' => 'overtime', 'meaning' => 'extra hours worked beyond the usual schedule', 'difficulty' => 'medium'],
+                                    ['phrase' => 'salary', 'meaning' => 'the fixed amount of money someone is paid for their job', 'image_query' => 'salary paycheck money', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Lisa and Emily, old university friends, run into each other and catch up about work — how much can you catch?',
+                                'source' => 'B1 Podcast — "How to Talk About Your Work: English Listening and Speaking Practice"',
+                                'image_query' => 'two friends talking cafe',
+                                'audio_url' => $audioUrl,
+                                'transcript_ref' => 'document/M03/How to Talk About Your Work - English Listening and Speaking Practice.transcript.pdf',
+                                // Full real transcript, reconstructed from the podcast's own
+                                // captions — narration bookends the dialogue (intro, vocabulary
+                                // recap, outro), Lisa/Emily have the actual conversation in the
+                                // middle. Shown in-app only after the learner has genuinely
+                                // listened twice (see ⚡listening.blade.php), same gate as
+                                // every other mission.
+                                'transcript' => [
+                                    ['speaker' => 'Narrator', 'text' => "Hi there and welcome to the Five Minute English Podcast. The place where you learn real English for real life in just 5 minutes a day. Here we keep things simple, practical, and easy to follow. You'll hear clear English, useful conversations, and everyday vocabulary that you can actually use."],
+                                    ['speaker' => 'Narrator', 'text' => "Today's episode is called Talking About Your Job. We'll listen to Lisa and her old university friend Emily who meet again at a cafe after a long time. They talk about their current jobs, what they do every day, and how they feel about work."],
+                                    ['speaker' => 'Lisa', 'text' => "Wow, it's so good to see you. I didn't expect to run into you here."],
+                                    ['speaker' => 'Emily', 'text' => 'What a surprise. I was just grabbing a coffee before heading back to the office. How have you been?'],
+                                    ['speaker' => 'Lisa', 'text' => 'Pretty good, thanks. Just busy with work. You know how it is. Are you still in marketing?'],
+                                    ['speaker' => 'Emily', 'text' => "Yes, I am. I've been working as a marketing assistant at a tech company for almost 2 years now."],
+                                    ['speaker' => 'Lisa', 'text' => 'Nice. What exactly do you do there?'],
+                                    ['speaker' => 'Emily', 'text' => 'Well, I help manage our social media accounts, write content for the website, and support the team during product launches. Sometimes I even work on creating short videos for our campaigns.'],
+                                    ['speaker' => 'Lisa', 'text' => 'That sounds creative. Do you like it?'],
+                                    ['speaker' => 'Emily', 'text' => "Most of the time, yes. The team is great and I get to learn new things every day, but it can get stressful, especially when we're close to a deadline or launching a new product."],
+                                    ['speaker' => 'Lisa', 'text' => 'I totally get that. I work in customer service for an online clothing store. I deal with customer emails and help people track their orders or solve delivery problems.'],
+                                    ['speaker' => 'Emily', 'text' => 'Wow, that must be intense. Do you do that in the office?'],
+                                    ['speaker' => 'Lisa', 'text' => "Not always. It's a hybrid role, so I work from home 3 days a week and go to the office twice a week. I actually like the flexibility. It saves time and helps with work life balance."],
+                                    ['speaker' => 'Emily', 'text' => "I wish I had that. I work from the office most days, although we're allowed to work remotely once a week. If I had to go in every day, I'd probably spend half my time stuck in traffic."],
+                                    ['speaker' => 'Lisa', 'text' => 'Exactly. Sometimes I listen to podcasts on the way. Actually, this one called Five Minute English is great.'],
+                                    ['speaker' => 'Emily', 'text' => "No way. I've heard of it, too. Maybe we should start one about our work lives."],
+                                    ['speaker' => 'Narrator', 'text' => "Great job listening. Now, let's take a moment to go over some useful words and expressions from the conversation."],
+                                    ['speaker' => 'Narrator', 'text' => 'One, marketing assistant. This is someone who works with the marketing team. They help with different tasks like writing, posting on social media, or helping with events and promotions.'],
+                                    ['speaker' => 'Narrator', 'text' => "Two, product launch. When a company is ready to show and sell a new product to the public, that's called a product launch. It's often a big event or campaign."],
+                                    ['speaker' => 'Narrator', 'text' => 'Three, hybrid role. This kind of job lets you work in two places, partly from home and partly at the office. It gives people more flexibility during the week.'],
+                                    ['speaker' => 'Narrator', 'text' => "Four, work life balance. This means having a healthy mix between your work and your personal time. When you have good work life balance, you're not too stressed and still have time to relax or be with your family and friends."],
+                                    ['speaker' => 'Narrator', 'text' => 'Five, deadline. A deadline is the latest time or date when something must be done. When people say they have a deadline, it means they need to finish their work by that time.'],
+                                    ['speaker' => 'Narrator', 'text' => "Six, customer service. This is a type of job where you help people who have questions or problems with a product or service. It's about making sure customers are happy and supported."],
+                                    ['speaker' => 'Narrator', 'text' => "Seven, content. Content is anything you create and share online, like writing, photos, or videos. It's often used for websites, blogs, or social media."],
+                                    ['speaker' => 'Narrator', 'text' => 'Eight, campaign. A campaign is a set of planned actions to promote or advertise something. It often includes emails, social media posts, videos, and more.'],
+                                    ['speaker' => 'Narrator', 'text' => "Nine, intense. When something is intense, it feels strong or difficult. A job or day can be intense if there's a lot to do or if it's stressful or fast-paced."],
+                                    ['speaker' => 'Narrator', 'text' => "That's it for today's episode of the Five Minute English Podcast. Want more daily English practice? Subscribe for more beginner lessons every week. See you next time. And remember, practice a little every day."],
+                                ],
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'marketing assistant', 'meaning' => 'someone who helps the marketing team with tasks like writing, social media, and promotions',
+                                        'gap_before' => "I've been working as a ",
+                                        'gap_after' => ' at a tech company for almost 2 years now.',
+                                    ],
+                                    [
+                                        'phrase' => 'hybrid role', 'meaning' => 'a job that lets you work partly from home and partly at the office',
+                                        'gap_before' => "Not always. It's a ",
+                                        'gap_after' => ', so I work from home 3 days a week and go to the office twice a week.',
+                                    ],
+                                    [
+                                        'phrase' => 'work life balance', 'meaning' => 'a healthy mix between your work and your personal time',
+                                        'gap_before' => 'It saves time and helps with ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'deadline', 'meaning' => 'the latest time or date when something must be done',
+                                        'gap_before' => "it can get stressful, especially when we're close to a ",
+                                        'gap_after' => ' or launching a new product.',
+                                    ],
+                                    [
+                                        'phrase' => 'customer service', 'meaning' => 'a job helping people who have questions or problems with a product or service',
+                                        'gap_before' => 'I work in ',
+                                        'gap_after' => ' for an online clothing store.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Lisa and Emily, old university friends, meet by chance at a cafe and '
+                                    .'catch up about their jobs — Emily works as a marketing assistant at a tech '
+                                    .'company (social media, content, product launches), while Lisa works in '
+                                    .'customer service for an online clothing store with a hybrid schedule (home '
+                                    .'3 days, office 2). They talk about stress, deadlines, work-life balance, and '
+                                    .'commuting, and both listen to the same podcast on the way to work.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Emily works as a marketing assistant.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Lisa works in the office every day.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Both Lisa and Emily listen to the Five Minute English podcast.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'How many days a week does Lisa work from home?',
+                                    'options' => ['3 days', '5 days', '0 days'],
+                                    'correct' => 0,
+                                ],
+                                'shadow_lines' => [
+                                    "I've been **working** as a **marketing assistant** at a **tech company** for almost **two years** now.",
+                                    "It's a **hybrid role**, so I **work** from **home** **three days** a week.",
+                                    'It **saves** time and **helps** with **work life balance**.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Build',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 8,
+                                'hook' => 'Same podcast, one more time — familiar is exactly the point.',
+                                'image_query' => 'people working office study',
+                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar in Context',
+                                'duration_minutes' => 12,
+                                'hook' => "Every \"At the moment, I'm...\" you get right here is one less pause when you're talking about your own work.",
+                                'focus' => 'Present Simple vs Present Continuous (Work & Study)',
+                                'lesson' => [
+                                    'intro' => "We'll cover three things: when to use present simple for routines "
+                                        .'and facts about your work or study, when to use present continuous for '
+                                        .'temporary situations or things happening around now, and how to talk '
+                                        .'about your own current projects using both.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · What each tense is for',
+                                            'body' => '<strong>Present Simple</strong> describes routines, habits, '
+                                                .'and general facts about your job or studies — things that are '
+                                                .'usually true. <strong>Present Continuous</strong> describes '
+                                                .'something temporary, or happening around now, not necessarily '
+                                                .'this exact second.',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Present Simple — routines & facts', 'items' => ['I work from home.', 'She studies engineering.', 'He starts at nine every day.']],
+                                                        ['label' => 'Present Continuous — temporary & now', 'items' => ["I'm working from home this week.", "She's studying for an exam right now.", "He's covering a colleague's shift today."]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · Asking and answering',
+                                            'body' => 'Present Simple questions/negatives use <strong>do/does</strong>; '
+                                                .'Present Continuous questions/negatives use <strong>am/is/are</strong>.',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Questions', 'items' => ['Do you usually work weekends?', 'Is she still studying for her exam?']],
+                                                        ['label' => 'Negatives', 'items' => ["I don't usually do overtime.", "He isn't working today."]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · Make it personal',
+                                            'body' => 'These sentence starters from M03.pdf are exactly what you\'ll '
+                                                .'finish below — and reuse out loud in Activation right after.',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Present Simple time expressions', 'words' => ['usually', 'normally', 'often']],
+                                                        ['label' => 'Present Continuous time expressions', 'words' => ['this week', 'at the moment', 'these days']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'bridge_note' => "You'll put this straight to use next — in Activation, talking about your own work or studies.",
+                                ],
+                                // Real starters from M03.pdf page 04 "Make it personal".
+                                'frequency_starters' => [
+                                    'I usually', "This week, I'm", 'I normally',
+                                    "At the moment, I'm", 'I often', "These days, I'm",
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about their work or studies, using the '
+                                    .'tense (present simple for a routine/habit starter, present continuous for a '
+                                    .'temporary/current-situation starter) that the starter itself calls for.',
+                                'grammar_major_criteria' => 'the verb is not in an appropriate tense for the starter '
+                                    .'given, the sentence does not actually continue the given starter, or it is '
+                                    .'not a genuine personal statement',
+                                'grammar_context' => 'continues appropriately in either the present simple or present '
+                                    .'continuous tense, whichever fits the sentence starter given',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I working from home this week.',
+                                        'options' => ["I'm working from home this week.", 'I working from home this week.', 'I am work from home this week.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => "She's usually starting work at 9am.",
+                                        'options' => ['She usually starts work at 9am.', "She's usually starting work at 9am.", 'She usual starts work at 9am.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'These days, I working on a new project.',
+                                        'options' => ["These days, I'm working on a new project.", 'These days, I working on a new project.', 'These days, I works on a new project.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'key' => 'activation',
+                                'label' => 'Activation',
+                                'duration_minutes' => 10,
+                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                // Real questions from M03.pdf page 05 "Work / Study".
+                                'task' => 'Answer these questions about your work or studies — what you normally '
+                                    .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
+                                    .'to improve — then record 2 minutes of solo speaking about your work/study '
+                                    .'life, using both present simple and present continuous, without reading.',
+                            ],
+                            [
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Real advice, real English — watch, then make your own voice do the same.',
+                                'source' => 'BBC Ideas: "6 Tips to Improve Your Work-Life Balance" (Bruce Daisley)',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'topic_summary' => 'Bruce Daisley, a workplace-culture writer, gives 6 tips to reduce '
+                                    .'work stress and improve work-life balance: turn off email notification badges; '
+                                    .'take a real lunch break instead of eating at your desk; try a "monk mode '
+                                    .'morning" — a quiet, uninterrupted block of focused work; increase casual '
+                                    .'workplace chat (even moving the coffee machine helps) because it boosts '
+                                    .'creativity; take a "digital Sabbath" away from work emails at the weekend; '
+                                    .'and stop glorifying overwork — around 40 hours a week is enough.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The video says turning off your email notification badge can help reduce stress.', 'correct' => true],
+                                    ['statement' => 'The video says eating lunch at your desk is a good habit.', 'correct' => false],
+                                    ['statement' => 'The video says working very long hours is the best way to succeed.', 'correct' => false],
+                                ],
+                                'target_phrases' => [
+                                    ['phrase' => 'monk mode morning', 'meaning' => 'a quiet block of time with no interruptions, used for focused work'],
+                                    ['phrase' => 'digital Sabbath', 'meaning' => 'a period of time (often a day) spent away from work emails and devices'],
+                                ],
+                                'shadow_lines' => [
+                                    'The **very** **easiest** thing you can **do** to **reduce** your **stress** **levels** is take the **number** off your **email** app.',
+                                    'You need to **give** yourself **permission** to have a **digital** **Sabbath**.',
+                                    'Maybe **forty** hours of **work** a **week** is the **right** **amount**.',
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Practice',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Daily Listening',
+                                'duration_minutes' => 8,
+                                'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
+                                'image_query' => 'colleagues office coffee break',
+                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'AI Conversation #1',
+                                'duration_minutes' => 12,
+                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                'interview_questions' => [
+                                    'What do you do for work or study?',
+                                    'What does a typical day look like for you?',
+                                    'What is the most challenging part of your work/study?',
+                                    'How do you usually get to work or school?',
+                                    'Do you prefer working alone or in a team?',
+                                    'What are you working on at the moment?',
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_feedback_1',
+                                'label' => 'AI Feedback #1',
+                                'duration_minutes' => 3,
+                                'hook' => "A second pair of ears just heard everything you said — here's what stood out.",
+                            ],
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => "Forget your own desk for a minute — what's happening at this one?",
+                                'image_query' => 'team meeting office discussion',
+                                'guiding_questions' => [
+                                    'What are the people doing together?',
+                                    'What is the man in the center wearing, and what is he doing with his hands?',
+                                    'What can you see on the table?',
+                                    'What does the room in the background look like?',
+                                ],
+                                // Hand-verified against the real cached Pexels photo for this
+                                // exact query+orientation (landscape) — four colleagues around
+                                // a wooden table in a bright loft-style office/kitchen space,
+                                // one man in a patterned beanie gesturing with his hands in the
+                                // center, papers and folders spread across the table, kitchen
+                                // cabinets visible in the upper-right background. Changing the
+                                // query or orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 50, 'y' => 55, 'question_index' => 0],
+                                    ['x' => 48, 'y' => 35, 'question_index' => 1],
+                                    ['x' => 42, 'y' => 78, 'question_index' => 2],
+                                    ['x' => 80, 'y' => 15, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Sara — her days depend on her timetable. Can you follow her routine in English?',
+                                'passage_title' => 'Meet Sara',
+                                'image_query' => 'young woman student portrait smiling',
+                                // Written fresh for this app (see EOS-009 §14) — reuses several
+                                // Vocabulary Builder pool words/phrases (team, responsibility,
+                                // deal with, part-time, working hours, in charge of) so
+                                // whichever words a learner picked there, they meet again here
+                                // in a fresh context, third person instead of first.
+                                'passage' => 'Sara is a second-year student at a university in Leeds. Her days '
+                                    .'depend a lot on her timetable — some days she has lectures from nine until '
+                                    .'four, while on others she spends most of the day in the library instead. '
+                                    .'She\'s currently working with her project team on a group assignment, which '
+                                    .'means she often meets her classmates online in the evening to divide up the '
+                                    .'responsibilities. Sara says the most difficult part of her course is having '
+                                    .'to deal with several assignments due in the same week, but what she enjoys '
+                                    .'most is finally understanding something she found confusing only a few days '
+                                    .'earlier. Outside class, she has a part-time job at a cafe, where her working '
+                                    .'hours are usually two evenings a week. She\'s in charge of closing the till '
+                                    .'at the end of her shift, which she says has taught her more about '
+                                    .'responsibility than any lecture has.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'team', 'type' => 'reused'],
+                                    ['phrase' => 'responsibilities', 'type' => 'reused'],
+                                    ['phrase' => 'deal with', 'type' => 'reused'],
+                                    ['phrase' => 'part-time', 'type' => 'reused'],
+                                    ['phrase' => 'working hours', 'type' => 'reused'],
+                                    ['phrase' => 'in charge of', 'type' => 'reused'],
+                                    ['phrase' => 'responsibility', 'type' => 'reused'],
+                                    ['phrase' => 'timetable', 'type' => 'new', 'definition' => 'a plan showing when classes or events happen'],
+                                    ['phrase' => 'assignment', 'type' => 'new', 'definition' => 'a piece of work given as part of a course'],
+                                ],
+                                'topic_summary' => 'A short profile of Sara, a university student in Leeds, whose '
+                                    .'days depend on her timetable — some full of lectures, others spent mostly in '
+                                    .'the library. She\'s working with her project team on a group assignment, '
+                                    .'finds overlapping deadlines the hardest part but loves finally understanding '
+                                    .'something confusing, and also has a part-time cafe job where she\'s in '
+                                    .'charge of closing the till.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Sara is a university student.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => "Sara's timetable is exactly the same every day.", 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Sara has a part-time job at a cafe.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What does Sara find most difficult about her course, and what does she enjoy most?',
+                                    'What is Sara in charge of at her part-time job?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Putting it on paper often reveals what you actually think about your own work or studies.',
+                                'title' => 'My work / study life',
+                                // Real "include" list from M03.pdf page 07.
+                                'prompts' => [
+                                    ['label' => 'What you do', 'image_query' => 'person working laptop desk'],
+                                    ['label' => 'Your normal day', 'image_query' => 'daily routine schedule'],
+                                    ['label' => 'Your responsibilities', 'image_query' => 'checklist tasks notebook'],
+                                    ['label' => 'What you enjoy', 'image_query' => 'happy at work colleagues'],
+                                    ['label' => 'What is difficult', 'image_query' => 'stressed deadline work'],
+                                    ['label' => 'What you are working on these days', 'image_query' => 'project planning whiteboard'],
+                                ],
+                                'try_to_use' => ['usually', 'normally', 'often', 'this week', 'at the moment', 'these days'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Challenge',
+                        'mode' => 'partner',
+                        'steps' => [
+                            [
+                                'key' => 'active_recall',
+                                'label' => 'Active Recall',
+                                'duration_minutes' => 8,
+                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
+                                'instruction' => 'Without looking at the previous pages.',
+                                // Real sections from M03.pdf page 09 — the grammar recap is 2
+                                // separate typed prompts there (a Present Simple example and a
+                                // Present Continuous example), plus 2 more single-item recall
+                                // boxes (one thing learned from the listening, one expression
+                                // to keep using) — each gets its own section here, same pattern
+                                // as M04's active_recall.
+                                'sections' => [
+                                    ['key' => 'expressions', 'label' => '5 vocabulary items', 'count' => 5],
+                                    [
+                                        'key' => 'present_simple_example',
+                                        'label' => 'Present Simple example',
+                                        'count' => 1,
+                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
+                                            .'sentence about their work or studies, correctly using the present '
+                                            .'simple tense.',
+                                        'major_criteria' => 'the verb is not in the present simple tense, or the '
+                                            .'sentence is not a genuine personal example',
+                                        'context' => 'a personal example sentence using the present simple tense',
+                                        'recap_label' => 'example correctly used the present simple',
+                                    ],
+                                    [
+                                        'key' => 'present_continuous_example',
+                                        'label' => 'Present Continuous example',
+                                        'count' => 1,
+                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
+                                            .'sentence about their work or studies, correctly using the present '
+                                            .'continuous tense.',
+                                        'major_criteria' => 'the verb is not in the present continuous tense, or '
+                                            .'the sentence is not a genuine personal example',
+                                        'context' => 'a personal example sentence using the present continuous tense',
+                                        'recap_label' => 'example correctly used the present continuous',
+                                    ],
+                                    ['key' => 'listening_facts', 'label' => 'One thing I learned from the listening', 'count' => 1],
+                                    ['key' => 'expression_to_keep', 'label' => 'One expression I want to keep using', 'count' => 1],
+                                ],
+                            ],
+                            [
+                                'key' => 'partner_speaking_session',
+                                'label' => 'Partner Speaking Session',
+                                'duration_minutes' => 15,
+                                'hook' => 'Time to actually talk to someone — a real friend, or yourself, out loud.',
+                                // Real rounds from M03.pdf page 06 "Speaking Session" — the
+                                // "Follow-up Questions" reference chips are folded in as a
+                                // third round_group (round_groups is the only shape this step
+                                // has; no separate "chips" field exists) so they're still part
+                                // of the seeded content instead of silently dropped.
+                                'round_groups' => [
+                                    [
+                                        'label' => 'Your Work / Study',
+                                        'questions' => [
+                                            'What do you do?',
+                                            'What does a normal day look like?',
+                                            'What do you usually do?',
+                                            'Who do you work/study with?',
+                                        ],
+                                    ],
+                                    [
+                                        'label' => 'Current Situation',
+                                        'questions' => [
+                                            'What are you working on these days?',
+                                            'What is the most interesting part of your work/study?',
+                                            'What is the most difficult part?',
+                                            'What would you like to improve?',
+                                        ],
+                                    ],
+                                    [
+                                        'label' => 'Follow-up Questions (ask at least one after each answer)',
+                                        'questions' => [
+                                            'Why?', 'How?', 'How often?', 'What about you?',
+                                            'What do you mean?', 'Can you give me an example?', 'How do you feel about it?',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'Error Log',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'AI Conversation #2 — Final Challenge',
+                                'duration_minutes' => 10,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'rounds' => [
+                                    'Describe what you do for work or study, with no preparation.',
+                                    'Talk about something you are currently working on.',
+                                    'Explain one thing you find difficult, and one thing you enjoy.',
+                                ],
+                                // Real prompt + requirements checklist from M03.pdf page 08
+                                // "3-Minute Speaking".
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your work or studies.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'Present Simple',
+                                    'Present Continuous',
+                                    'Talk about something current',
+                                    'Give examples',
+                                    'Explain one difficulty',
+                                    'Explain one thing you enjoy',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
     }
 
     /**
