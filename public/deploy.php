@@ -1,33 +1,38 @@
 <?php
 
-// Permanent, but locked down to server-local requests only (see the
-// REMOTE_ADDR check below) — triggered automatically by .cpanel.yml's
-// deployment task via `curl` right after every file copy, so a real
-// database change (migration/seed) needs no manual browser visit or
-// temporary file upload anymore. Safe to leave in place: every command
-// below is idempotent (migrate/seed/cache all no-op cleanly on a
-// second run), and the IP check means no outside visitor can reach it
-// no matter how many times this file is deployed.
+// Permanent, but locked down (see the guard below) — triggered
+// automatically by .cpanel.yml's deployment task via `curl` right after
+// every file copy, so a real database change (migration/seed) needs no
+// manual browser visit or temporary file upload anymore. Safe to leave
+// in place: every command below is idempotent (migrate/seed/cache all
+// no-op cleanly on a second run).
 //
-// Can't use a shared-secret token instead (the more common pattern for
-// this) because .cpanel.yml lives in a PUBLIC GitHub repo — anything
-// written there is visible to anyone, so a "secret" baked in there
-// wouldn't be secret at all.
+// Two ways in: the internal curl (REMOTE_ADDR === 127.0.0.1) as before,
+// OR a ?token=... matching DEPLOY_TOKEN in .env — added after the
+// internal curl path repeatedly could not be confirmed working (a
+// canary written right after the REMOTE_ADDR check never appeared
+// across several deploys) with no way to see why (no SSH/Terminal on
+// this host, cPanel's own UI doesn't surface the deployment task's
+// output). The token lets this be triggered directly by visiting the
+// URL in a browser instead, which shows the real output right on the
+// page — the .cpanel.yml curl call itself never sends one, so that path
+// is completely unaffected. Read straight out of .env with a raw parse
+// since this all happens before Laravel (and its env() helper) boots.
+$deployToken = null;
+$envPath = dirname(__DIR__).'/.env';
+if (is_file($envPath)) {
+    foreach (file($envPath) as $line) {
+        if (preg_match('/^DEPLOY_TOKEN=(.*)$/', trim($line), $m)) {
+            $deployToken = trim($m[1], " \t\n\r\0\x0B\"'");
+            break;
+        }
+    }
+}
 
-// TEMPORARY canary — written UNCONDITIONALLY, before the REMOTE_ADDR
-// gate below, specifically to see the exact value that check is
-// comparing against. Two prior canaries (this one included, originally
-// placed after the gate) never appeared, despite public/ being fully
-// world-writable (0777, confirmed) — the only remaining explanation is
-// the gate itself rejecting every request before any write is reached,
-// most likely because the deployment task's curl doesn't actually
-// arrive as the literal string '127.0.0.1' (e.g. '::1' for IPv6
-// loopback, or something a reverse proxy rewrites). Checkable directly:
-// https://englishos.growwise.ir/deploy-canary.txt
-// Remove once diagnosed.
-file_put_contents(__DIR__.'/deploy-canary.txt', date('Y-m-d H:i:s').' REMOTE_ADDR='.($_SERVER['REMOTE_ADDR'] ?? '(unset)')."\n");
+$isLocal = ($_SERVER['REMOTE_ADDR'] ?? '') === '127.0.0.1';
+$hasValidToken = $deployToken && hash_equals($deployToken, $_GET['token'] ?? '');
 
-if (($_SERVER['REMOTE_ADDR'] ?? '') !== '127.0.0.1') {
+if (! $isLocal && ! $hasValidToken) {
     http_response_code(403);
     exit('Forbidden');
 }
@@ -123,31 +128,20 @@ echo "admin@englishos.local ensured, password synced from ADMIN_PASSWORD.\n";
 // TEMPORARY diagnostic for the AI relay — Sage fails with a generic
 // "Couldn't reach Sage" on the live site and ask-instructor.blade.php's
 // catch(ConnectionException|RequestException) swallows the real reason
-// without logging it, so there's nothing in laravel.log to read. This
-// makes one real call and writes the exact exception here instead.
-// Remove once diagnosed.
-//
-// Written straight to the file as each piece happens (not buffered and
-// written once at the end) — GeminiClient's own primary+fallback retry
-// chain can take up to ~40-45s, long enough to hit this shared host's
-// own request timeout and have the whole process killed externally
-// before a final "write everything now" ever ran, which is exactly what
-// happened the first time this diagnostic shipped: the log file was
-// never created at all.
-$diagLog = $root.'/storage/logs/deploy-output.log';
-file_put_contents($diagLog, '=== '.date('Y-m-d H:i:s')." AI proxy relay diagnostic ===\n");
-file_put_contents($diagLog, 'AI_PROXY_URL: '.(env('AI_PROXY_URL') ?: '(not set)')."\n", FILE_APPEND);
-file_put_contents($diagLog, 'AI_PROXY_SECRET set: '.(env('AI_PROXY_SECRET') ? 'yes' : 'no')."\n", FILE_APPEND);
-file_put_contents($diagLog, "calling Gemini through the relay now...\n", FILE_APPEND);
+// without logging it. Visiting this page directly (with ?token=...) now
+// shows this echo right in the browser response, so no more file-writing
+// workarounds needed. Remove once diagnosed.
+echo "--- AI proxy relay diagnostic ---\n";
+echo 'AI_PROXY_URL: '.(env('AI_PROXY_URL') ?: '(not set)')."\n";
+echo 'AI_PROXY_SECRET set: '.(env('AI_PROXY_SECRET') ? 'yes' : 'no')."\n";
 try {
     $diagClient = new App\Services\GeminiClient();
     $diagResult = $diagClient->chat([['role' => 'user', 'text' => 'Reply with exactly the word: DIAGOK']]);
-    file_put_contents($diagLog, "SUCCESS: {$diagResult}\n", FILE_APPEND);
+    echo "Gemini relay test SUCCESS: {$diagResult}\n\n";
 } catch (Throwable $e) {
-    file_put_contents($diagLog, 'FAILED: '.get_class($e).': '.$e->getMessage()."\n", FILE_APPEND);
-    file_put_contents($diagLog, $e->getTraceAsString()."\n", FILE_APPEND);
+    echo 'Gemini relay test FAILED: '.get_class($e).': '.$e->getMessage()."\n";
+    echo $e->getTraceAsString()."\n\n";
 }
-echo "--- AI proxy relay diagnostic written to storage/logs/deploy-output.log ---\n\n";
 
 foreach (['config:cache', 'route:cache', 'view:cache'] as $command) {
     echo "--- php artisan $command ---\n";
