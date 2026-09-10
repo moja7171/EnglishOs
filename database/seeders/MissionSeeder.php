@@ -1429,7 +1429,17 @@ class MissionSeeder extends Seeder
                                     ['label' => 'Honesty', 'image_query' => 'friends honest conversation'],
                                     ['label' => 'Support', 'image_query' => 'friend comforting supporting another'],
                                 ],
-                                'try_to_use' => ['because', 'for example', 'another important quality is', 'I think', 'in my opinion'],
+                                // Kept the essay's own connectors (because, for example, in my
+                                // opinion — matching structure_note's Opinion → Reason →
+                                // Example shape) and added Present Simple / Present Continuous
+                                // markers so this mission's own grammar point threads into
+                                // Writing too, same as M01/M03/M04 already do — this step was
+                                // the one mission missing that (see
+                                // feedback_content_authoring_conventions rule 6, memory).
+                                // "always"/"usually" fit the essay's general-truths-about-
+                                // friendship register (Present Simple); "these days"/"right now"
+                                // fit giving one concrete, specific example (Present Continuous).
+                                'try_to_use' => ['because', 'for example', 'in my opinion', 'always', 'usually', 'these days', 'right now'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -1746,30 +1756,42 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Lisa', 'text' => "Start small, be patient, and don't try to be perfect. Focus on how food makes you feel, not just what it looks like."],
                                     ['speaker' => 'Jessica', 'text' => "That's perfect advice. Thank you so much, Lisa, for this honest and calm conversation. And thank you to everyone listening. Remember, eating clean is about simple food, balance, and listening to your body. Take care and I'll see you next time."],
                                 ],
+                                // Chosen to overlap with vocabulary_builder's own story_words
+                                // (skip breakfast, eat out, craving, processed food, snack) —
+                                // all 5 appear as real substrings in this transcript (the last 3
+                                // exactly, the first 2 as natural tense/gerund variants), so this
+                                // mission reaches full vocab/listening overlap where M03 could
+                                // only get 3/5 (its vocab list wasn't drawn from its own
+                                // transcript). "start small, be patient" and "listening to your
+                                // body" — the previous non-overlapping picks — stay in this
+                                // step's shadow_lines below, so they're not lost, just no longer
+                                // the gap-fill targets. See feedback_content_authoring_conventions
+                                // rule 5 (memory).
                                 'target_phrases' => [
-                                    [
-                                        'phrase' => 'eating clean', 'meaning' => 'choosing simple, natural food instead of processed food',
-                                        'gap_before' => "we're simply going to talk honestly about food habits, mistakes, and what ",
-                                        'gap_after' => ' actually looks like in real life',
-                                    ],
                                     [
                                         'phrase' => 'skipped breakfast', 'meaning' => 'did not eat breakfast, when usually would',
                                         'gap_before' => 'Yes, eggs made a big difference for me. Before, I often ',
                                         'gap_after' => ' or just had coffee',
                                     ],
                                     [
-                                        'phrase' => 'craving something sweet', 'meaning' => 'having a strong desire to eat something sweet',
+                                        'phrase' => 'eating out', 'meaning' => 'eating a meal at a restaurant instead of at home',
+                                        'gap_before' => "Let's talk about ",
+                                        'gap_after' => ' because food is social.',
+                                    ],
+                                    [
+                                        'phrase' => 'craving', 'meaning' => 'having a strong desire to eat something',
                                         'gap_before' => 'Especially in the afternoon when my energy drops and I start ',
-                                        'gap_after' => ' or crunchy.',
+                                        'gap_after' => ' something sweet or crunchy.',
                                     ],
                                     [
-                                        'phrase' => 'start small, be patient', 'meaning' => 'begin with easy changes and give it time, instead of rushing',
-                                        'gap_before' => '', 'gap_after' => ", and don't try to be perfect.",
+                                        'phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before being sold',
+                                        'gap_before' => 'Now ',
+                                        'gap_after' => " is something I still eat sometimes but it's no longer part of my daily routine",
                                     ],
                                     [
-                                        'phrase' => 'listening to your body', 'meaning' => 'paying attention to how your body actually feels',
-                                        'gap_before' => 'Remember, eating clean is about simple food, balance, and ',
-                                        'gap_after' => '.',
+                                        'phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals',
+                                        'gap_before' => 'Exactly. So now I still ',
+                                        'gap_after' => ', but I choose things that actually help my body',
                                     ],
                                 ],
                                 'topic_summary' => 'Jessica and Lisa talk honestly about "eating clean" — what Lisa imagined '
@@ -2359,21 +2381,31 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Narrator', 'text' => "Nine, intense. When something is intense, it feels strong or difficult. A job or day can be intense if there's a lot to do or if it's stressful or fast-paced."],
                                     ['speaker' => 'Narrator', 'text' => "That's it for today's episode of the Five Minute English Podcast. Want more daily English practice? Subscribe for more beginner lessons every week. See you next time. And remember, practice a little every day."],
                                 ],
+                                // Chosen to overlap with vocabulary_builder's own story_words
+                                // (job, team, deal with) wherever the real transcript actually
+                                // allows it — only 3 of these 5 vocab words appear naturally in
+                                // this specific podcast's dialogue, the other vocab words
+                                // (career, full-time, part-time, workplace, colleague,
+                                // responsibility, in charge of, working hours, overtime, salary)
+                                // never come up in this particular conversation, so the
+                                // remaining 2 slots stay non-overlapping (deadline, work life
+                                // balance) rather than force a phrase the transcript never says.
+                                // See feedback_content_authoring_conventions (memory).
                                 'target_phrases' => [
                                     [
-                                        'phrase' => 'marketing assistant', 'meaning' => 'someone who helps the marketing team with tasks like writing, social media, and promotions',
-                                        'gap_before' => "I've been working as a ",
-                                        'gap_after' => ' at a tech company for almost 2 years now.',
+                                        'phrase' => 'jobs', 'meaning' => 'the work someone does regularly to earn money',
+                                        'gap_before' => 'They talk about their current ',
+                                        'gap_after' => ', what they do every day, and how they feel about work.',
                                     ],
                                     [
-                                        'phrase' => 'hybrid role', 'meaning' => 'a job that lets you work partly from home and partly at the office',
-                                        'gap_before' => "Not always. It's a ",
-                                        'gap_after' => ', so I work from home 3 days a week and go to the office twice a week.',
+                                        'phrase' => 'team', 'meaning' => 'a group of people working together on the same goal',
+                                        'gap_before' => 'write content for the website, and support the ',
+                                        'gap_after' => ' during product launches.',
                                     ],
                                     [
-                                        'phrase' => 'work life balance', 'meaning' => 'a healthy mix between your work and your personal time',
-                                        'gap_before' => 'It saves time and helps with ',
-                                        'gap_after' => '.',
+                                        'phrase' => 'deal with', 'meaning' => 'to handle a task or problem',
+                                        'gap_before' => 'for an online clothing store. I ',
+                                        'gap_after' => ' customer emails and help people track their orders or solve delivery problems.',
                                     ],
                                     [
                                         'phrase' => 'deadline', 'meaning' => 'the latest time or date when something must be done',
@@ -2381,9 +2413,9 @@ class MissionSeeder extends Seeder
                                         'gap_after' => ' or launching a new product.',
                                     ],
                                     [
-                                        'phrase' => 'customer service', 'meaning' => 'a job helping people who have questions or problems with a product or service',
-                                        'gap_before' => 'I work in ',
-                                        'gap_after' => ' for an online clothing store.',
+                                        'phrase' => 'work life balance', 'meaning' => 'a healthy mix between your work and your personal time',
+                                        'gap_before' => 'It saves time and helps with ',
+                                        'gap_after' => '.',
                                     ],
                                 ],
                                 'topic_summary' => 'Lisa and Emily, old university friends, meet by chance at a cafe and '
@@ -2427,55 +2459,66 @@ class MissionSeeder extends Seeder
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
                                 'duration_minutes' => 12,
-                                'hook' => "Every \"At the moment, I'm...\" you get right here is one less pause when you're talking about your own work.",
-                                'focus' => 'Present Simple vs Present Continuous (Work & Study)',
+                                // Grammar point changed 2026-09-10 from "Present Simple vs
+                                // Present Continuous" (a straight repeat of M02's own focus,
+                                // with no real content difference beyond the title) to Modals
+                                // of Obligation & Ability — genuine variety across the roadmap,
+                                // and a very natural fit for Work & Study (describing job
+                                // duties/rules and what you can/can't do). See
+                                // feedback_content_authoring_conventions rule 7 (memory).
+                                'hook' => "Every \"I have to...\" you get right here is one less pause when you're talking about your own work.",
+                                'focus' => 'Modals of Obligation & Ability (Work & Study)',
                                 'lesson' => [
-                                    'intro' => "We'll cover three things: when to use present simple for routines "
-                                        .'and facts about your work or study, when to use present continuous for '
-                                        .'temporary situations or things happening around now, and how to talk '
-                                        .'about your own current projects using both.',
+                                    'intro' => "We'll cover three things: how to talk about what's required at "
+                                        .'work or study using have to/need to/must, how to say something is NOT '
+                                        .'required using don\'t have to, and how to talk about ability or '
+                                        .'permission using can/can\'t.',
                                     'sections' => [
                                         [
-                                            'heading' => 'A · What each tense is for',
-                                            'body' => '<strong>Present Simple</strong> describes routines, habits, '
-                                                .'and general facts about your job or studies — things that are '
-                                                .'usually true. <strong>Present Continuous</strong> describes '
-                                                .'something temporary, or happening around now, not necessarily '
-                                                .'this exact second.',
+                                            'heading' => 'A · What each modal is for',
+                                            'body' => '<strong>Have to / need to / must</strong> describe something '
+                                                .'required — a rule, a duty, something you can\'t avoid. '
+                                                .'<strong>Don\'t have to</strong> means something is optional, not '
+                                                .'required. <strong>Can / can\'t</strong> describe ability or '
+                                                .'permission — what you are (or aren\'t) able or allowed to do.',
                                             'blocks' => [
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
-                                                        ['label' => 'Present Simple — routines & facts', 'items' => ['I work from home.', 'She studies engineering.', 'He starts at nine every day.']],
-                                                        ['label' => 'Present Continuous — temporary & now', 'items' => ["I'm working from home this week.", "She's studying for an exam right now.", "He's covering a colleague's shift today."]],
+                                                        ['label' => 'Obligation — have to / need to / must', 'items' => ['I have to finish this report by Friday.', 'You need to attend the training.', 'We must follow the safety rules.']],
+                                                        ['label' => 'No obligation — don\'t have to', 'items' => ["I don't have to work on Saturdays.", "You don't need to bring your own laptop."]],
+                                                        ['label' => 'Ability & permission — can / can\'t', 'items' => ['I can speak two languages.', 'You can leave early today.', "I can't work overtime this week."]],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                         [
                                             'heading' => 'B · Asking and answering',
-                                            'body' => 'Present Simple questions/negatives use <strong>do/does</strong>; '
-                                                .'Present Continuous questions/negatives use <strong>am/is/are</strong>.',
+                                            'body' => 'After a modal, the next verb stays in its bare form — never '
+                                                .'"to work", never "working". Questions/negatives use '
+                                                .'<strong>do/does</strong> with have to/need to, or the modal itself '
+                                                .'directly with can.',
                                             'blocks' => [
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
-                                                        ['label' => 'Questions', 'items' => ['Do you usually work weekends?', 'Is she still studying for her exam?']],
-                                                        ['label' => 'Negatives', 'items' => ["I don't usually do overtime.", "He isn't working today."]],
+                                                        ['label' => 'Questions', 'items' => ['Do you have to work weekends?', 'Can you help me with this?']],
+                                                        ['label' => 'Negatives', 'items' => ["I don't have to attend every meeting.", "I can't finish this today."]],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                         [
                                             'heading' => 'C · Make it personal',
-                                            'body' => 'These sentence starters from M03.pdf are exactly what you\'ll '
-                                                .'finish below — and reuse out loud in Activation right after.',
+                                            'body' => 'Finish each starter below with something true about your '
+                                                .'own work or studies — and reuse them out loud in Activation right '
+                                                .'after.',
                                             'blocks' => [
                                                 [
                                                     'type' => 'chips',
                                                     'groups' => [
-                                                        ['label' => 'Present Simple time expressions', 'words' => ['usually', 'normally', 'often']],
-                                                        ['label' => 'Present Continuous time expressions', 'words' => ['this week', 'at the moment', 'these days']],
+                                                        ['label' => 'Obligation', 'words' => ['I have to', 'I need to', 'I must']],
+                                                        ['label' => 'No obligation / ability', 'words' => ["I don't have to", 'I can', "I can't"]],
                                                     ],
                                                 ],
                                             ],
@@ -2483,36 +2526,36 @@ class MissionSeeder extends Seeder
                                     ],
                                     'bridge_note' => "You'll put this straight to use next — in Activation, talking about your own work or studies.",
                                 ],
-                                // Real starters from M03.pdf page 04 "Make it personal".
                                 'frequency_starters' => [
-                                    'I usually', "This week, I'm", 'I normally',
-                                    "At the moment, I'm", 'I often', "These days, I'm",
+                                    'I have to', 'I need to', "I don't have to",
+                                    'I can', "I can't", 'I must',
                                 ],
                                 'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
-                                    .'a true, natural personal sentence about their work or studies, using the '
-                                    .'tense (present simple for a routine/habit starter, present continuous for a '
-                                    .'temporary/current-situation starter) that the starter itself calls for.',
-                                'grammar_major_criteria' => 'the verb is not in an appropriate tense for the starter '
-                                    .'given, the sentence does not actually continue the given starter, or it is '
-                                    .'not a genuine personal statement',
-                                'grammar_context' => 'continues appropriately in either the present simple or present '
-                                    .'continuous tense, whichever fits the sentence starter given',
+                                    .'a true, natural personal sentence about their work or studies, correctly '
+                                    .'using the modal (obligation or ability/permission) that the starter itself '
+                                    .'calls for, with the following verb in its bare form.',
+                                'grammar_major_criteria' => 'the modal is used incorrectly (wrong verb form after '
+                                    .'it, e.g. "to work" or "working" instead of "work"), the sentence does not '
+                                    .'actually continue the given starter, or it is not a genuine personal '
+                                    .'statement',
+                                'grammar_context' => 'continues appropriately using a modal of obligation (have to/'
+                                    .'need to/must) or ability/permission (can/can\'t), matching the starter given',
                                 'quick_check' => [
                                     [
-                                        'wrong' => 'I working from home this week.',
-                                        'options' => ["I'm working from home this week.", 'I working from home this week.', 'I am work from home this week.'],
+                                        'wrong' => 'I have to finishing this report today.',
+                                        'options' => ['I have to finish this report today.', 'I have to finishing this report today.', 'I has to finish this report today.'],
                                         'correct' => 0,
                                         'difficulty' => 'easy',
                                     ],
                                     [
-                                        'wrong' => "She's usually starting work at 9am.",
-                                        'options' => ['She usually starts work at 9am.', "She's usually starting work at 9am.", 'She usual starts work at 9am.'],
+                                        'wrong' => 'She can to speak three languages.',
+                                        'options' => ['She can speak three languages.', 'She can to speak three languages.', 'She cans speak three languages.'],
                                         'correct' => 0,
                                         'difficulty' => 'medium',
                                     ],
                                     [
-                                        'wrong' => 'These days, I working on a new project.',
-                                        'options' => ["These days, I'm working on a new project.", 'These days, I working on a new project.', 'These days, I works on a new project.'],
+                                        'wrong' => 'Do you have to worked on weekends?',
+                                        'options' => ['Do you have to work on weekends?', 'Do you have to worked on weekends?', 'Have you to work on weekends?'],
                                         'correct' => 0,
                                         'difficulty' => 'hard',
                                     ],
@@ -2527,7 +2570,8 @@ class MissionSeeder extends Seeder
                                 'task' => 'Answer these questions about your work or studies — what you normally '
                                     .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
                                     .'to improve — then record 2 minutes of solo speaking about your work/study '
-                                    .'life, using both present simple and present continuous, without reading.',
+                                    .'life, using modals of obligation (have to, need to, must) and ability (can, '
+                                    .'can\'t), without reading.',
                             ],
                             [
                                 'key' => 'video_shadowing',
@@ -2686,7 +2730,7 @@ class MissionSeeder extends Seeder
                                     ['label' => 'What is difficult', 'image_query' => 'stressed deadline work'],
                                     ['label' => 'What you are working on these days', 'image_query' => 'project planning whiteboard'],
                                 ],
-                                'try_to_use' => ['usually', 'normally', 'often', 'this week', 'at the moment', 'these days'],
+                                'try_to_use' => ['have to', 'need to', "don't have to", 'can', "can't", 'must'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -2703,37 +2747,35 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
                                 'instruction' => 'Without looking at the previous pages.',
-                                // Real sections from M03.pdf page 09 — the grammar recap is 2
-                                // separate typed prompts there (a Present Simple example and a
-                                // Present Continuous example), plus 2 more single-item recall
-                                // boxes (one thing learned from the listening, one expression
-                                // to keep using) — each gets its own section here, same pattern
-                                // as M04's active_recall.
+                                // Grammar recap updated 2026-09-10 to match this mission's
+                                // Modals of Obligation & Ability focus (was Present Simple/
+                                // Continuous — see grammar_in_context above) — same 2-typed-
+                                // prompt + 2 single-item-box pattern as before, same as M04's
+                                // active_recall.
                                 'sections' => [
                                     ['key' => 'expressions', 'label' => '5 vocabulary items', 'count' => 5],
                                     [
-                                        'key' => 'present_simple_example',
-                                        'label' => 'Present Simple example',
+                                        'key' => 'obligation_example',
+                                        'label' => 'Obligation example (have to / need to / must)',
                                         'count' => 1,
                                         'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about their work or studies, correctly using the present '
-                                            .'simple tense.',
-                                        'major_criteria' => 'the verb is not in the present simple tense, or the '
-                                            .'sentence is not a genuine personal example',
-                                        'context' => 'a personal example sentence using the present simple tense',
-                                        'recap_label' => 'example correctly used the present simple',
+                                            .'sentence about their work or studies, correctly using have to, need '
+                                            .'to, or must.',
+                                        'major_criteria' => 'the modal is missing or used incorrectly (wrong verb '
+                                            .'form after it), or the sentence is not a genuine personal example',
+                                        'context' => 'a personal example sentence using have to, need to, or must',
+                                        'recap_label' => 'example correctly used a modal of obligation',
                                     ],
                                     [
-                                        'key' => 'present_continuous_example',
-                                        'label' => 'Present Continuous example',
+                                        'key' => 'ability_example',
+                                        'label' => 'Ability/permission example (can / can\'t)',
                                         'count' => 1,
                                         'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about their work or studies, correctly using the present '
-                                            .'continuous tense.',
-                                        'major_criteria' => 'the verb is not in the present continuous tense, or '
-                                            .'the sentence is not a genuine personal example',
-                                        'context' => 'a personal example sentence using the present continuous tense',
-                                        'recap_label' => 'example correctly used the present continuous',
+                                            .'sentence about their work or studies, correctly using can or can\'t.',
+                                        'major_criteria' => 'the modal is missing or used incorrectly (wrong verb '
+                                            .'form after it), or the sentence is not a genuine personal example',
+                                        'context' => 'a personal example sentence using can or can\'t',
+                                        'recap_label' => 'example correctly used can/can\'t',
                                     ],
                                     ['key' => 'listening_facts', 'label' => 'One thing I learned from the listening', 'count' => 1],
                                     ['key' => 'expression_to_keep', 'label' => 'One expression I want to keep using', 'count' => 1],
@@ -2798,8 +2840,8 @@ class MissionSeeder extends Seeder
                                 'final_prompt' => 'Speak for 3 minutes without stopping about your work or studies.',
                                 'requirements' => [
                                     '5+ vocabulary expressions',
-                                    'Present Simple',
-                                    'Present Continuous',
+                                    'Modals of obligation (have to/need to/must)',
+                                    'Modals of ability (can/can\'t)',
                                     'Talk about something current',
                                     'Give examples',
                                     'Explain one difficulty',
