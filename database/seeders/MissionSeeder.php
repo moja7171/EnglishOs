@@ -953,8 +953,8 @@ class MissionSeeder extends Seeder
     private function seedM02(): void
     {
         $audioUrl = $this->publishMissionAsset('M02', '6_minute_english_making_male_friends.mp3');
-        $shadowingVideoUrl = $this->publishMissionAsset('M02', 'Family Members and Practice - American English for Adult Beginners.mp4');
-        $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'Family Members and Practice - American English for Adult Beginners.en.vtt');
+        $shadowingVideoUrl = $this->publishMissionAsset('M02', 'The Surprising Benefits of Exercising with Friends - BBC Ideas.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'The Surprising Benefits of Exercising with Friends - BBC Ideas.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M02'],
@@ -1261,29 +1261,42 @@ class MissionSeeder extends Seeder
                                     .'them without reading.',
                             ],
                             [
+                                // Replaced 2026-09-10 — the previous video (a simple animated
+                                // family-tree cartoon) didn't match this mission's real content
+                                // quality bar (real speakers, documentary style, same as M01's
+                                // Rachel's English and M03/M04's BBC Ideas videos), and it was
+                                // about family while this mission's Listening is about
+                                // friendship — two different subtopics under one broad "People &
+                                // Relationships" theme. This BBC Ideas film is squarely about
+                                // friendship/social connection, closing that gap too.
                                 'key' => 'video_shadowing',
                                 'label' => 'Video Shadowing',
                                 'duration_minutes' => 12,
                                 'hook' => 'Real people, real English — watch, then make your own voice do the same.',
-                                'source' => 'American English for Adult Beginners: "Family Members + Practice"',
+                                'source' => 'BBC Ideas: "The Surprising Benefits of Exercising with Friends"',
                                 'video_url' => $shadowingVideoUrl,
                                 'captions_url' => $shadowingCaptionsUrl,
-                                'topic_summary' => 'A simple animated story follows one family across two generations — '
-                                    .'Victor and Sarah become parents, then grandparents — to teach the English words '
-                                    .'for family members (parents, children, siblings, grandparents, grandchildren).',
+                                'topic_summary' => 'A BBC Ideas documentary explains why exercising with friends is '
+                                    .'better than exercising alone: feeling socially supported makes people less '
+                                    .'fatigued and more energised (shown in a real experiment with teenage rowers), '
+                                    .'and exercising together releases endorphins that build "social bonding" — '
+                                    .'feelings of closeness that last long after the exercise ends. It also notes '
+                                    .'that lacking social connection can be as harmful to health as smoking, and '
+                                    .'gives tips (exercise groups, clubs, walking with a friend) for anyone who '
+                                    .'doesn\'t have people nearby to exercise with.',
                                 'comprehension_check' => [
-                                    ["statement" => "Jason is Victor and Sarah's son.", 'correct' => true],
-                                    ['statement' => 'Nyla is older than Jason.', 'correct' => false],
-                                    ["statement" => "Victor and Sarah are Noah and Luna's grandparents.", 'correct' => true],
+                                    ['statement' => 'Exercising with friends can make you feel less tired.', 'correct' => true],
+                                    ['statement' => 'The video says exercising alone is always better than exercising with others.', 'correct' => false],
+                                    ['statement' => 'The video says lacking social connection can be as harmful as smoking.', 'correct' => true],
                                 ],
                                 'target_phrases' => [
-                                    ['phrase' => 'get married', 'meaning' => "to become someone's husband or wife in a wedding ceremony"],
-                                    ['phrase' => 'grandchildren', 'meaning' => 'the children of your son or daughter'],
+                                    ['phrase' => 'social bonding', 'meaning' => 'the feeling of closeness and connection that forms between people'],
+                                    ['phrase' => 'feel closer and more connected', 'meaning' => 'to feel more emotionally close to someone'],
                                 ],
                                 'shadow_lines' => [
-                                    'Victor and Sarah **get married**.',
-                                    "Baby Jason is Victor and Sarah's **son**.",
-                                    'Victor and Sarah are the **grandparents**.',
+                                    "I **feel** like it's just so **nice** to have the **support** of your **friends** and your **team-mates**.",
+                                    'The **more** we **exercise** with our **friends**, the **closer** we **feel** to them.',
+                                    '**Lacking** **social** **connection** can be as **dangerous** for our **health** as **smoking** **cigarettes**.',
                                 ],
                             ],
                         ],
