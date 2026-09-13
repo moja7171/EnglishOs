@@ -55,6 +55,24 @@ document.addEventListener('livewire:init', () => {
     Livewire.on('clear-draft', ({ prefix }) => window.eosDraft.clearPrefix(prefix));
 
     window.eosProgress.attach();
+
+    // Livewire's morph copies every attribute of the freshly-rendered
+    // server HTML onto the live element — x-cloak included, because
+    // Alpine only strips x-cloak a microtask later, after the morph has
+    // already run synchronously. Livewire's own injected
+    // `[x-cloak]{display:none!important}` then hid a currently-visible
+    // x-show block for a few ms on every round-trip: the page collapsed
+    // to viewport height, the browser clamped scrollY to 0, and the
+    // learner was thrown to the top (Vocabulary Builder's story, on every
+    // word pick, on any viewport where the rest of the page is shorter
+    // than the window). Once Alpine is running, x-show owns display via
+    // inline style and x-cloak has no job left on an existing element, so
+    // drop it from the incoming node before its attributes are patched.
+    // Newly ADDED nodes are left alone: there x-cloak still does its real
+    // job of hiding until Alpine evaluates their x-show.
+    Livewire.hook('morph.updating', ({ toEl }) => {
+        if (toEl.hasAttribute?.('x-cloak')) toEl.removeAttribute('x-cloak');
+    });
 });
 
 /**
