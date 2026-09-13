@@ -371,12 +371,20 @@ class MissionRun extends Model
      */
     public static function findOrStart(User $learner, Mission $mission): self
     {
-        return static::firstOrCreate(
+        $run = static::firstOrCreate(
             [
                 'learner_id' => $learner->id,
                 'mission_id' => $mission->id,
             ],
             ['status' => self::STATUS_IN_PROGRESS, 'started_at' => now()]
         );
+
+        // The learner's very first run is day 1 of their 120-day program
+        // (see App\Services\ProgramPlanner) — stamped once, never moved.
+        if ($run->wasRecentlyCreated && $learner->program_started_at === null) {
+            $learner->forceFill(['program_started_at' => $run->started_at])->save();
+        }
+
+        return $run;
     }
 }
