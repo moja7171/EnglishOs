@@ -368,6 +368,8 @@ new class extends Component
             <button
                 type="button"
                 wire:click="block"
+                wire:loading.attr="disabled"
+                wire:target="block"
                 wire:confirm="Block {{ $other->name }}? They won't be able to message you."
                 title="Block"
                 class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-red-100 hover:text-red-600 dark:text-ink-faint-dark dark:hover:bg-red-950"
@@ -385,7 +387,7 @@ new class extends Component
                 class="w-full rounded-lg border border-red-300 bg-transparent px-2 py-1 text-sm text-ink dark:border-red-800 dark:text-ink-dark"
             ></textarea>
             <div class="flex gap-2">
-                <button type="button" wire:click="submitReport" class="cursor-pointer rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:border-red-800 dark:hover:bg-red-950">Submit report</button>
+                <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport" class="cursor-pointer rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:border-red-800 dark:hover:bg-red-950 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"> <span wire:loading.remove wire:target="submitReport">Submit report</span> <span wire:loading wire:target="submitReport">Submitting…</span></button>
                 <button type="button" wire:click="$set('reporting', false)" class="cursor-pointer text-xs text-ink-faint underline dark:text-ink-faint-dark">Cancel</button>
             </div>
         </div>
@@ -484,8 +486,10 @@ new class extends Component
             <button
                 type="button"
                 wire:click="sendNudge"
+                wire:loading.attr="disabled"
+                wire:target="sendNudge"
                 title="Send an encouragement nudge"
-                class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark"
+                class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
             >@svg('heroicon-s-fire', 'h-4 w-4')</button>
 
             <label title="Attach a file" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
@@ -556,8 +560,10 @@ new class extends Component
                 >
                 <button
                     type="submit"
+                    wire:loading.attr="disabled"
+                    wire:target="send"
                     title="Send"
-                    class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
             </form>
 
@@ -578,9 +584,14 @@ new class extends Component
                     <button
                         type="button"
                         wire:click="generateFeedback"
+                        wire:loading.attr="disabled"
+                        wire:target="generateFeedback"
                         title="Refresh feedback"
-                        class="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-                    >@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')</button>
+                        class="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')</span>
+                        <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5 animate-spin')</span>
+                    </button>
                 </div>
                 <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                     <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>

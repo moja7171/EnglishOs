@@ -182,8 +182,13 @@ new class extends Component
                 <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your feedback hasn't been generated yet.</p>
                 <button
                     wire:click="generate"
-                    class="mt-3 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >Get my feedback</button>
+                    wire:loading.attr="disabled"
+                    wire:target="generate"
+                    class="mt-3 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <span wire:loading.remove wire:target="generate">Get my feedback</span>
+                    <span wire:loading wire:target="generate">Getting feedback…</span>
+                </button>
             </div>
             <div wire:loading wire:target="generate">
                 <x-ai-thinking label="Reading your answers…" class="mx-auto max-w-xs" />
@@ -240,9 +245,12 @@ new class extends Component
             <x-sticky-bar>
                 <button
                     wire:click="continueMission"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    wire:loading.attr="disabled"
+                    wire:target="continueMission"
+                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    Continue
+                    <span wire:loading.remove wire:target="continueMission">Continue</span>
+                    <span wire:loading wire:target="continueMission">Please wait…</span>
                 </button>
             </x-sticky-bar>
         @endunless

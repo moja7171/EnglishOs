@@ -227,8 +227,13 @@ new class extends Component
                 <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your mistakes haven't been reviewed yet.</p>
                 <button
                     wire:click="generate"
-                    class="mt-3 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >Review my mistakes</button>
+                    wire:loading.attr="disabled"
+                    wire:target="generate"
+                    class="mt-3 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <span wire:loading.remove wire:target="generate">Review my mistakes</span>
+                    <span wire:loading wire:target="generate">Reviewing…</span>
+                </button>
             </div>
             <div wire:loading wire:target="generate">
                 <x-ai-thinking label="Reviewing everything you said and wrote…" class="mx-auto max-w-xs" />
@@ -240,8 +245,9 @@ new class extends Component
         </div>
         @unless ($readOnly)
             <x-sticky-bar>
-                <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
-                    Continue
+                <button wire:click="save" wire:loading.attr="disabled" wire:target="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50">
+                    <span wire:loading.remove wire:target="save">Continue</span>
+                    <span wire:loading wire:target="save">Please wait…</span>
                 </button>
             </x-sticky-bar>
         @endunless
@@ -325,8 +331,9 @@ new class extends Component
              server-side on every keystroke — no extra Alpine tracking. --}}
         @if (! $readOnly && collect($newExamples)->every(fn ($e) => trim((string) $e) !== ''))
             <x-sticky-bar>
-                <button wire:click="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">
-                    Continue
+                <button wire:click="save" wire:loading.attr="disabled" wire:target="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50">
+                    <span wire:loading.remove wire:target="save">Continue</span>
+                    <span wire:loading wire:target="save">Please wait…</span>
                 </button>
             </x-sticky-bar>
         @endif

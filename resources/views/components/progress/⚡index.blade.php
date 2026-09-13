@@ -258,8 +258,13 @@ new class extends Component
                     </select>
                     <button
                         type="submit"
-                        class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                    >Save</button>
+                        wire:loading.attr="disabled"
+                        wire:target="updateWeeklyGoal"
+                        class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="updateWeeklyGoal">Save</span>
+                        <span wire:loading wire:target="updateWeeklyGoal">Saving…</span>
+                    </button>
                 </form>
             </div>
 

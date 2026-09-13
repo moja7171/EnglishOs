@@ -230,20 +230,26 @@ new class extends Component
                             <button
                                 type="button"
                                 wire:click="unfollow({{ $user->id }})"
-                                class="shrink-0 cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                                wire:loading.attr="disabled"
+                                wire:target="unfollow({{ $user->id }})"
+                                class="shrink-0 cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                             >Following</button>
                         @elseif (auth()->user()->hasPendingRequestTo($user))
                             <button
                                 type="button"
                                 wire:click="unfollow({{ $user->id }})"
+                                wire:loading.attr="disabled"
+                                wire:target="unfollow({{ $user->id }})"
                                 title="Cancel request"
-                                class="shrink-0 cursor-pointer rounded-full border border-dashed border-line px-3 py-1 text-xs font-semibold text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark"
+                                class="shrink-0 cursor-pointer rounded-full border border-dashed border-line px-3 py-1 text-xs font-semibold text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                             >Requested</button>
                         @else
                             <button
                                 type="button"
                                 wire:click="follow({{ $user->id }})"
-                                class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                                wire:loading.attr="disabled"
+                                wire:target="follow({{ $user->id }})"
+                                class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                             >Follow</button>
                         @endif
                     </div>
@@ -268,14 +274,18 @@ new class extends Component
                         <button
                             type="button"
                             wire:click="acceptRequest({{ $requester->id }})"
+                            wire:loading.attr="disabled"
+                            wire:target="acceptRequest({{ $requester->id }})"
                             title="Accept"
-                            class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                            class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                         >@svg('heroicon-o-check', 'h-4 w-4')</button>
                         <button
                             type="button"
                             wire:click="rejectRequest({{ $requester->id }})"
+                            wire:loading.attr="disabled"
+                            wire:target="rejectRequest({{ $requester->id }})"
                             title="Reject"
-                            class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-line text-ink-faint transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark"
+                            class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-line text-ink-faint transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                         >@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
                     </div>
                 @endforeach
@@ -318,7 +328,9 @@ new class extends Component
                             <button
                                 type="button"
                                 wire:click="unfollow({{ $friend->id }})"
-                                class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                                wire:loading.attr="disabled"
+                                wire:target="unfollow({{ $friend->id }})"
+                                class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                             >Unfollow</button>
                         </div>
                     </div>
@@ -335,6 +347,8 @@ new class extends Component
                             <button
                                 type="button"
                                 wire:click="block({{ $friend->id }})"
+                                wire:loading.attr="disabled"
+                                wire:target="block({{ $friend->id }})"
                                 wire:confirm="Block {{ $friend->name }}? They won't be able to message you, and you won't see each other's activity."
                                 title="Block"
                                 class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-red-100 hover:text-red-600 dark:text-ink-faint-dark dark:hover:bg-red-950"
@@ -342,8 +356,10 @@ new class extends Component
                             <button
                                 type="button"
                                 wire:click="startReport({{ $friend->id }})"
+                                wire:loading.attr="disabled"
+                                wire:target="startReport({{ $friend->id }})"
                                 title="Report"
-                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                             >@svg('heroicon-o-flag', 'h-3.5 w-3.5')</button>
                         </div>
                     @else
@@ -358,12 +374,16 @@ new class extends Component
                                 <button
                                     type="button"
                                     wire:click="submitReport({{ $friend->id }})"
-                                    class="cursor-pointer rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:border-red-800 dark:hover:bg-red-950"
+                                    wire:loading.attr="disabled"
+                                    wire:target="submitReport({{ $friend->id }})"
+                                    class="cursor-pointer rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:border-red-800 dark:hover:bg-red-950 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                                 >Submit report</button>
                                 <button
                                     type="button"
                                     wire:click="cancelReport({{ $friend->id }})"
-                                    class="cursor-pointer text-xs text-ink-faint underline dark:text-ink-faint-dark"
+                                    wire:loading.attr="disabled"
+                                    wire:target="cancelReport({{ $friend->id }})"
+                                    class="cursor-pointer text-xs text-ink-faint underline dark:text-ink-faint-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                                 >Cancel</button>
                             </div>
                         </div>

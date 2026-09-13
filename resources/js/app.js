@@ -53,7 +53,91 @@ document.addEventListener('alpine:init', () => {
 // failed save (validation errors) must never wipe the learner's local backup.
 document.addEventListener('livewire:init', () => {
     Livewire.on('clear-draft', ({ prefix }) => window.eosDraft.clearPrefix(prefix));
+
+    window.eosProgress.attach();
 });
+
+/**
+ * A thin progress bar pinned to the top of the viewport, shown for the
+ * duration of ANY Livewire request (every wire:click / wire:submit /
+ * wire:model round-trip) — so a click that has to wait on the server is
+ * never silent, even on buttons that don't carry their own
+ * wire:loading state. On the shared host a plain Livewire round-trip is
+ * often a full second, which without this read as "nothing happened".
+ * Buttons that are slow or must not be double-clicked (sign in, AI
+ * generation, saves) ALSO disable themselves and swap their label via
+ * wire:loading — this bar is the app-wide baseline underneath that, not
+ * a replacement for it. Only appears once a request has taken longer
+ * than a short delay, so fast responses never flash a bar.
+ */
+window.eosProgress = {
+    pending: 0,
+    element: null,
+    showTimer: null,
+    hideTimer: null,
+
+    attach() {
+        if (typeof Livewire === 'undefined' || !Livewire.hook) return;
+
+        Livewire.hook('request', ({ respond, fail }) => {
+            this.start();
+            let finished = false;
+            const done = () => {
+                if (finished) return;
+                finished = true;
+                this.finish();
+            };
+            respond(done);
+            fail(done);
+        });
+    },
+
+    bar() {
+        if (this.element) return this.element;
+        const el = document.createElement('div');
+        el.setAttribute('role', 'progressbar');
+        el.setAttribute('aria-hidden', 'true');
+        el.style.cssText = [
+            'position:fixed', 'top:0', 'left:0', 'height:3px', 'width:0',
+            'background:var(--color-accent, #f97316)', 'z-index:10000',
+            'opacity:0', 'pointer-events:none',
+            'transition:width 400ms ease-out, opacity 200ms ease-in',
+        ].join(';');
+        document.body.appendChild(el);
+        this.element = el;
+        return el;
+    },
+
+    start() {
+        this.pending += 1;
+        if (this.pending > 1) return;
+        clearTimeout(this.hideTimer);
+        this.showTimer = setTimeout(() => {
+            const el = this.bar();
+            el.style.transition = 'none';
+            el.style.width = '0';
+            el.style.opacity = '1';
+            // Two frames so the width reset above lands before the
+            // animated grow — otherwise the browser coalesces both.
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                el.style.transition = 'width 6s cubic-bezier(0.1, 0.6, 0.2, 1), opacity 200ms ease-in';
+                el.style.width = '85%';
+            }));
+        }, 150);
+    },
+
+    finish() {
+        this.pending = Math.max(0, this.pending - 1);
+        if (this.pending > 0) return;
+        clearTimeout(this.showTimer);
+        if (!this.element || this.element.style.opacity !== '1') return;
+        const el = this.element;
+        el.style.transition = 'width 200ms ease-out, opacity 300ms ease-in 150ms';
+        el.style.width = '100%';
+        el.style.opacity = '0';
+        this.hideTimer = setTimeout(() => { el.style.width = '0'; }, 500);
+    },
+};
 
 /**
  * Reads a question/prompt aloud via the browser's built-in

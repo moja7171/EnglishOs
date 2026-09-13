@@ -165,18 +165,21 @@ class MissionSeeder extends Seeder
                                     // worth a picture flashcard (dual coding — see EOS-009 §8); an
                                     // abstract phrase like "have a wash" gets no query and simply
                                     // shows no image, on purpose.
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'shower bathroom', 'difficulty' => 'easy', 'accepted_paraphrases' => ['shower']],
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy', 'accepted_paraphrases' => ['shower']],
                                     ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body', 'difficulty' => 'hard', 'accepted_paraphrases' => ['wash']],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'toothbrush brushing teeth', 'difficulty' => 'easy', 'accepted_paraphrases' => ['brush my teeth', 'brush teeth']],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy', 'accepted_paraphrases' => ['brush my teeth', 'brush teeth']],
                                     ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face', 'difficulty' => 'medium'],
                                     ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath', 'difficulty' => 'easy', 'accepted_paraphrases' => ['bath']],
                                     // Housework
                                     ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck', 'difficulty' => 'medium'],
                                     ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house', 'difficulty' => 'easy'],
                                     ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
-                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'ironing clothes', 'difficulty' => 'easy'],
+                                    // "ironing clothes" returned a still-life (board + hanging
+                                    // clothes, iron barely visible) — a person actually ironing
+                                    // reads unambiguously as the verb on a flashcard.
+                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'woman ironing shirt', 'difficulty' => 'easy'],
                                     ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
-                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'image_query' => 'laundry basket washing clothes', 'difficulty' => 'medium'],
+                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'image_query' => 'loading clothes into washing machine', 'difficulty' => 'medium'],
                                     // Spare time
                                     ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'difficulty' => 'easy'],
                                     ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'difficulty' => 'easy'],
@@ -499,7 +502,7 @@ class MissionSeeder extends Seeder
                                     ['image_query' => 'alarm clock ringing bedroom morning', 'caption' => 'She wakes up'],
                                     ['image_query' => 'woman brushing teeth bathroom mirror', 'caption' => 'She has a shower and gets ready'],
                                     ['image_query' => 'woman eating breakfast kitchen table', 'caption' => 'She has breakfast'],
-                                    ['image_query' => 'woman walking out front door leaving house', 'caption' => 'She leaves for work'],
+                                    ['image_query' => 'woman commuting to work walking', 'caption' => 'She leaves for work'],
                                 ],
                                 'sequencing_words' => ['First', 'Then', 'After that', 'Finally'],
                             ],
@@ -1440,7 +1443,7 @@ class MissionSeeder extends Seeder
                                     ['label' => 'Trust', 'image_query' => 'two friends trust support'],
                                     ['label' => 'Fun & Laughter', 'image_query' => 'friends laughing together'],
                                     ['label' => 'Honesty', 'image_query' => 'friends honest conversation'],
-                                    ['label' => 'Support', 'image_query' => 'friend comforting supporting another'],
+                                    ['label' => 'Support', 'image_query' => 'friend consoling friend holding hands'],
                                 ],
                                 // Kept the essay's own connectors (because, for example, in my
                                 // opinion — matching structure_note's Opinion → Reason →
@@ -1677,7 +1680,7 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'difficulty' => 'medium'],
                                     // Fresh & Frozen
                                     ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
-                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'image_query' => 'frozen vegetables bag', 'difficulty' => 'easy'],
+                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'image_query' => 'frozen food in freezer drawer', 'difficulty' => 'easy'],
                                     ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'difficulty' => 'medium'],
                                     ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
                                     // Snacks & Cravings
@@ -2097,7 +2100,7 @@ class MissionSeeder extends Seeder
                                     ['label' => 'Your favourite food', 'image_query' => 'favourite comfort food'],
                                     ['label' => 'What you eat at home', 'image_query' => 'home cooked dinner table'],
                                     ['label' => 'What you eat outside', 'image_query' => 'restaurant meal eating out'],
-                                    ['label' => 'Healthy / unhealthy habits', 'image_query' => 'healthy unhealthy food comparison'],
+                                    ['label' => 'Healthy / unhealthy habits', 'image_query' => 'junk food and healthy food side by side'],
                                     ['label' => 'One thing you want to change', 'image_query' => 'fresh salad vegetables'],
                                 ],
                                 'try_to_use' => ['usually', 'normally', 'often', 'some', 'a lot of', 'a little', 'not many', 'not much'],
@@ -2337,7 +2340,7 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'difficulty' => 'easy'],
                                     ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'difficulty' => 'easy'],
                                     // The Workplace
-                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'image_query' => 'modern office workplace', 'difficulty' => 'easy'],
+                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'image_query' => 'colleagues working in open office', 'difficulty' => 'easy'],
                                     ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
                                     ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'difficulty' => 'easy'],
                                     // Responsibilities

@@ -139,8 +139,13 @@ new class extends Component
                 >
                 <button
                     type="submit"
-                    class="shrink-0 cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >Save</button>
+                    wire:loading.attr="disabled"
+                    wire:target="savePinnedHighlight"
+                    class="shrink-0 cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <span wire:loading.remove wire:target="savePinnedHighlight">Save</span>
+                    <span wire:loading wire:target="savePinnedHighlight">Saving…</span>
+                </button>
             </form>
             @if ($pinnedHighlightSaved)
                 <p class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">

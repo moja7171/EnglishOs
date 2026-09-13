@@ -391,9 +391,12 @@ new class extends Component
             @unless ($readOnly)
                 <button
                     wire:click="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    wire:loading.attr="disabled"
+                    wire:target="proceed"
+                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    Continue
+                    <span wire:loading.remove wire:target="proceed">Continue</span>
+                    <span wire:loading wire:target="proceed">Please wait…</span>
                 </button>
             @endunless
         </div>
