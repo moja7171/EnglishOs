@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '5018482400863e04dbd837613dcdf032c55e2f21',
+        'reference' => '8ab0e050a38815b096a238e5bd830c8db01bc26d',
         'name' => 'laravel/laravel',
         'dev' => false,
     ),
@@ -382,7 +382,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '5018482400863e04dbd837613dcdf032c55e2f21',
+            'reference' => '8ab0e050a38815b096a238e5bd830c8db01bc26d',
             'dev_requirement' => false,
         ),
         'laravel/prompts' => array(

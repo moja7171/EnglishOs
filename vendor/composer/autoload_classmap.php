@@ -44,6 +44,7 @@ return array(
     'App\\Services\\GeminiClient' => $baseDir . '/app/Services/GeminiClient.php',
     'App\\Services\\GroqClient' => $baseDir . '/app/Services/GroqClient.php',
     'App\\Services\\PexelsClient' => $baseDir . '/app/Services/PexelsClient.php',
+    'App\\Services\\ProgramPlanner' => $baseDir . '/app/Services/ProgramPlanner.php',
     'App\\Services\\SentenceChecker' => $baseDir . '/app/Services/SentenceChecker.php',
     'App\\Services\\SpokenAnswerChecker' => $baseDir . '/app/Services/SpokenAnswerChecker.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',

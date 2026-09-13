@@ -534,6 +534,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\GeminiClient' => __DIR__ . '/../..' . '/app/Services/GeminiClient.php',
         'App\\Services\\GroqClient' => __DIR__ . '/../..' . '/app/Services/GroqClient.php',
         'App\\Services\\PexelsClient' => __DIR__ . '/../..' . '/app/Services/PexelsClient.php',
+        'App\\Services\\ProgramPlanner' => __DIR__ . '/../..' . '/app/Services/ProgramPlanner.php',
         'App\\Services\\SentenceChecker' => __DIR__ . '/../..' . '/app/Services/SentenceChecker.php',
         'App\\Services\\SpokenAnswerChecker' => __DIR__ . '/../..' . '/app/Services/SpokenAnswerChecker.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
