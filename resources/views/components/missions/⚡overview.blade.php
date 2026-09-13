@@ -3,11 +3,48 @@
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Services\PexelsClient;
+use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
 {
+    /** The consolidation day's "one sentence you said to Pi" — see logConsolidationSpeaking(). */
+    public string $piSentence = '';
+
+    /**
+     * The 120-day program's answer to "what do I do today" — the top of
+     * this page. See App\Services\ProgramPlanner for the whole model
+     * (24 missions × 5 days, progress-based, never calendar-enforced).
+     */
+    #[Computed]
+    public function program(): array
+    {
+        return app(ProgramPlanner::class)->plan(auth()->user());
+    }
+
+    /**
+     * Closes the consolidation day: one real sentence from the learner's
+     * conversation with Pi becomes Evidence on that mission's run (so it
+     * counts as an active streak day like anything else), and tomorrow's
+     * "today" becomes the next mission's day 1.
+     */
+    public function logConsolidationSpeaking(): void
+    {
+        $this->validate(['piSentence' => 'required|string|min:8|max:500']);
+
+        $today = $this->program['today'];
+
+        if ($today['kind'] !== 'consolidation' || ! $today['run']) {
+            return;
+        }
+
+        app(ProgramPlanner::class)->logConsolidationSpeaking($today['run'], trim($this->piSentence));
+
+        $this->piSentence = '';
+        unset($this->program);
+    }
+
     /**
      * Words, speaking prompts, recurring grammar-mistake patterns, and
      * taught grammar points combined — one nudge into Daily Review
@@ -171,23 +208,172 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-6 p-6">
+    @php $program = $this->program; $today = $program['today']; @endphp
+
     <header class="border-b border-line pb-4 dark:border-line-dark">
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
-        <div class="mt-2">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
+                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Your 120-day program · <a href="{{ route('program.guide') }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">how it works</a></p>
+            </div>
+            @if ($program['started'] && $today['kind'] !== 'finished')
+                @php $delta = $program['daysDelta']; @endphp
+                <span @class([
+                    'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold',
+                    'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $delta >= 0,
+                    'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' => $delta < 0 && $delta >= -7,
+                    'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300' => $delta < -7,
+                ])>
+                    @if ($delta > 0) @svg('heroicon-s-bolt', 'h-3 w-3') {{ $delta }} {{ Str::plural('day', $delta) }} ahead
+                    @elseif ($delta === 0) @svg('heroicon-s-check', 'h-3 w-3') On track
+                    @else @svg('heroicon-o-clock', 'h-3 w-3') {{ abs($delta) }} {{ Str::plural('day', abs($delta)) }} behind
+                    @endif
+                </span>
+            @endif
+        </div>
+        <div class="mt-3">
             <div class="flex items-center justify-between text-xs">
-                <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">Mission {{ $this->courseProgress['current'] }} of {{ $this->courseProgress['total'] }}</span>
-                <span class="text-ink-faint dark:text-ink-faint-dark">{{ round($this->courseProgress['current'] / $this->courseProgress['total'] * 100) }}%</span>
+                <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">Day {{ $program['programDay'] }} of {{ $program['totalDays'] }} · Mission {{ $this->courseProgress['current'] }} of {{ $this->courseProgress['total'] }}</span>
+                <span class="text-ink-faint dark:text-ink-faint-dark">{{ round($program['programDay'] / $program['totalDays'] * 100) }}%</span>
             </div>
             <div class="mt-1">
                 <x-progress-bar>
                     <div
                         class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                        style="width: {{ $this->courseProgress['current'] / $this->courseProgress['total'] * 100 }}%"
+                        style="width: {{ $program['programDay'] / $program['totalDays'] * 100 }}%"
                     ></div>
                 </x-progress-bar>
             </div>
         </div>
     </header>
+
+    {{-- Today — the one thing this page must answer (see ProgramPlanner). --}}
+    <section class="rounded-2xl border-2 border-accent/40 bg-surface p-4 dark:border-accent-dark/40 dark:bg-surface-dark">
+        @if ($today['kind'] === 'mission_day')
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · Day {{ $today['dayNumber'] }} of {{ $today['mission']->title }}</p>
+                <span class="text-xs text-ink-faint dark:text-ink-faint-dark">~{{ \App\Models\Mission::formatDuration($today['estimatedMinutes']) }}</span>
+            </div>
+            @if ($today['dayLabel'])
+                <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">{{ $today['dayLabel'] }}</p>
+            @endif
+            <ul class="mt-3 space-y-1.5">
+                @foreach ($today['steps'] as $step)
+                    <li>
+                        <a
+                            href="{{ route('missions.show', [$today['mission'], $step['key']]) }}"
+                            wire:navigate
+                            @class([
+                                'flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark',
+                                'text-ink-faint line-through dark:text-ink-faint-dark' => $step['done'],
+                                'font-semibold text-ink dark:text-ink-dark' => $step['current'],
+                                'text-ink-soft dark:text-ink-soft-dark' => ! $step['done'] && ! $step['current'],
+                            ])
+                        >
+                            @if ($step['done'])
+                                <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-3 w-3')</span>
+                            @elseif ($step['current'])
+                                <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">@svg('heroicon-s-play', 'h-2.5 w-2.5')</span>
+                            @else
+                                <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line dark:border-line-dark"></span>
+                            @endif
+                            <span class="flex-1">{{ $step['label'] }}</span>
+                            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $step['minutes'] }} min</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+            @php $currentStep = collect($today['steps'])->firstWhere('current', true); @endphp
+            <a
+                href="{{ route('missions.show', [$today['mission'], $currentStep['key'] ?? null]) }}"
+                wire:navigate
+                class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >{{ $currentStep ? 'Continue' : 'Open mission' }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+
+        @elseif ($today['kind'] === 'consolidation')
+            @php $speaking = $today['speaking']; @endphp
+            <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · Consolidation day (~25 min)</p>
+            <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['mission']->title }} is done. Before the next mission, make it stick.</p>
+
+            <ol class="mt-3 space-y-3">
+                <li class="flex gap-3">
+                    <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-xs font-bold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">1</span>
+                    <div class="flex-1 text-sm">
+                        <a href="{{ route('review.index') }}" wire:navigate class="font-semibold text-ink underline decoration-line underline-offset-2 hover:decoration-ink dark:text-ink-dark">Daily Review</a>
+                        <span class="text-ink-faint dark:text-ink-faint-dark">— {{ $this->dueReviewCount }} {{ Str::plural('item', $this->dueReviewCount) }} due · ~10 min</span>
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-xs font-bold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">2</span>
+                    <div
+                        class="flex-1 text-sm"
+                        x-data="{ copied: false, copy() { navigator.clipboard?.writeText($refs.prompt.value).then(() => { this.copied = true; setTimeout(() => this.copied = false, 2000) }) } }"
+                    >
+                        <p class="font-semibold text-ink dark:text-ink-dark">Speak with Pi for 10-15 minutes <span class="font-normal text-ink-faint dark:text-ink-faint-dark">— out loud, about "{{ $speaking['title'] }}"</span></p>
+                        <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Open <a href="https://pi.ai" target="_blank" rel="noopener" class="underline">pi.ai</a> (or any voice assistant), paste this to start, then just talk:</p>
+                        <textarea x-ref="prompt" readonly rows="4" class="mt-1.5 w-full rounded-xl border border-line bg-surface-sunken p-2.5 font-mono text-[11px] leading-relaxed text-ink-soft dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $speaking['prompt'] }}</textarea>
+                        <button type="button" x-on:click="copy()" class="mt-1 inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+                            <span x-show="!copied">@svg('heroicon-o-clipboard', 'h-3.5 w-3.5') Copy prompt</span>
+                            <span x-show="copied" x-cloak>@svg('heroicon-s-check', 'h-3.5 w-3.5') Copied</span>
+                        </button>
+
+                        <form wire:submit="logConsolidationSpeaking" class="mt-3">
+                            <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">When you're done: one sentence you said to Pi</label>
+                            <input
+                                type="text"
+                                wire:model="piSentence"
+                                placeholder="e.g. I have to finish a report every Friday."
+                                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1.5 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+                            >
+                            @error('piSentence')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                            <button
+                                type="submit"
+                                wire:loading.attr="disabled"
+                                wire:target="logConsolidationSpeaking"
+                                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
+                            >
+                                <span wire:loading.remove wire:target="logConsolidationSpeaking">Log it & finish today</span>
+                                <span wire:loading wire:target="logConsolidationSpeaking">Saving…</span>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-xs font-bold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">3</span>
+                    <div class="flex-1 text-sm">
+                        <a href="{{ route('missions.show', [$today['mission'], 'error_log']) }}" wire:navigate class="font-semibold text-ink underline decoration-line underline-offset-2 hover:decoration-ink dark:text-ink-dark">Re-read your Error Log</a>
+                        <span class="text-ink-faint dark:text-ink-faint-dark">— 2 min, just a glance</span>
+                    </div>
+                </li>
+            </ol>
+
+            @if ($today['nextMission'])
+                <p class="mt-4 text-xs text-ink-faint dark:text-ink-faint-dark">
+                    In a hurry? <a href="{{ route('missions.show', $today['nextMission']) }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">Start {{ $today['nextMission']->code }}: {{ $today['nextMission']->title }}</a> — the consolidation day is a suggestion, not a lock.
+                </p>
+            @endif
+
+        @elseif ($today['kind'] === 'start_next')
+            <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · Start a new mission</p>
+            @if ($today['nextMission'])
+                <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">{{ $today['nextMission']->code }}: {{ $today['nextMission']->title }}</p>
+                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Day 1 · ~{{ \App\Models\Mission::formatDuration(collect($today['nextMission']->phases[0]['steps'] ?? [])->sum(fn ($s) => (int) ($s['duration_minutes'] ?? 0))) }}</p>
+                <a
+                    href="{{ route('missions.show', $today['nextMission']) }}"
+                    wire:navigate
+                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                >Start {{ $today['nextMission']->code }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+            @else
+                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} isn't built yet — until it is, keep the streak alive with a <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a> session and a chat with Pi.</p>
+            @endif
+
+        @else
+            <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">120 days · done</p>
+            <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">All 24 missions complete. Keep the streak with Daily Review — and keep talking.</p>
+        @endif
+    </section>
 
     <a
         href="{{ route('progress.index') }}"

@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
         return view('progress');
     })->name('progress.index');
 
+    Route::get('/program', function () {
+        return view('program');
+    })->name('program.guide');
+
     Route::get('/vocabulary', function () {
         return view('vocabulary');
     })->name('vocabulary.index');

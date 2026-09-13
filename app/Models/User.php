@@ -50,6 +50,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'discoverable' => 'boolean',
             'is_admin' => 'boolean',
+            'program_started_at' => 'datetime',
         ];
     }
 
