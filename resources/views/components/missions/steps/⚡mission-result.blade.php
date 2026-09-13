@@ -764,8 +764,13 @@ new class extends Component
                         <button
                             type="button"
                             wire:click="addSpeakingPromptsToRecall"
-                            class="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >@svg('heroicon-o-microphone', 'h-4 w-4') Add to Speaking Recall</button>
+                            wire:loading.attr="disabled"
+                            wire:target="addSpeakingPromptsToRecall"
+                            class="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <span wire:loading.remove wire:target="addSpeakingPromptsToRecall">@svg('heroicon-o-microphone', 'h-4 w-4') Add to Speaking Recall</span>
+                            <span wire:loading wire:target="addSpeakingPromptsToRecall">Adding…</span>
+                        </button>
                     @endif
                 </div>
             @endif
@@ -812,9 +817,12 @@ new class extends Component
         @unless ($readOnly)
             <button
                 wire:click="finish"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                wire:loading.attr="disabled"
+                wire:target="finish"
+                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-                Finish Mission
+                <span wire:loading.remove wire:target="finish">Finish Mission</span>
+                <span wire:loading wire:target="finish">Finishing…</span>
             </button>
         @endunless
     @endif

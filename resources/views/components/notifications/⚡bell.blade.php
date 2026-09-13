@@ -37,8 +37,10 @@ new class extends Component
         type="button"
         x-on:click="open = !open"
         wire:click="markAllAsRead"
+        wire:loading.attr="disabled"
+        wire:target="markAllAsRead"
         title="Notifications"
-        class="relative inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+        class="relative inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
     >
         @svg('heroicon-o-bell', 'h-4 w-4')
         @if ($this->unreadCount)

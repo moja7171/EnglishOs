@@ -551,15 +551,23 @@ new class extends Component
                     <button
                         type="button"
                         wire:click="addWordsToNotebook"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                    >@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</button>
+                        wire:loading.attr="disabled"
+                        wire:target="addWordsToNotebook"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="addWordsToNotebook">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
+                        <span wire:loading wire:target="addWordsToNotebook">Adding…</span>
+                    </button>
                 @endif
 
                 <button
                     wire:click="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    wire:loading.attr="disabled"
+                    wire:target="proceed"
+                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    Continue
+                    <span wire:loading.remove wire:target="proceed">Continue</span>
+                    <span wire:loading wire:target="proceed">Please wait…</span>
                 </button>
             </div>
         </div>

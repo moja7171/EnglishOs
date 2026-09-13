@@ -317,9 +317,14 @@ new class extends Component
                     <button
                         type="button"
                         wire:click="removeAvatar"
+                        wire:loading.attr="disabled"
+                        wire:target="removeAvatar"
                         wire:confirm="Remove your photo and go back to a color avatar?"
-                        class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-red-600 dark:text-ink-faint-dark"
-                    >Remove photo</button>
+                        class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-red-600 dark:text-ink-faint-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="removeAvatar">Remove photo</span>
+                        <span wire:loading wire:target="removeAvatar">Removing…</span>
+                    </button>
                 @endif
             </div>
             @error('newAvatar')
@@ -387,8 +392,13 @@ new class extends Component
         <div class="flex items-center gap-3 pt-1">
             <button
                 type="submit"
-                class="cursor-pointer rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-            >Save</button>
+                wire:loading.attr="disabled"
+                wire:target="updateBasicInfo"
+                class="cursor-pointer rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <span wire:loading.remove wire:target="updateBasicInfo">Save</span>
+                <span wire:loading wire:target="updateBasicInfo">Saving…</span>
+            </button>
             @if ($basicInfoSaved)
                 <span class="inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Saved
@@ -406,6 +416,8 @@ new class extends Component
         <button
             type="button"
             wire:click="toggleDiscoverable"
+            wire:loading.attr="disabled"
+            wire:target="toggleDiscoverable"
             role="switch"
             aria-checked="{{ auth()->user()->discoverable ? 'true' : 'false' }}"
             class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors {{ auth()->user()->discoverable ? 'bg-accent dark:bg-accent-dark' : 'bg-surface-sunken dark:bg-surface-sunken-dark' }}"
@@ -454,8 +466,13 @@ new class extends Component
         <div class="flex items-center gap-3 pt-1">
             <button
                 type="submit"
-                class="cursor-pointer rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-            >Update password</button>
+                wire:loading.attr="disabled"
+                wire:target="updatePassword"
+                class="cursor-pointer rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <span wire:loading.remove wire:target="updatePassword">Update password</span>
+                <span wire:loading wire:target="updatePassword">Updating…</span>
+            </button>
             @if ($passwordSaved)
                 <span class="inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Updated

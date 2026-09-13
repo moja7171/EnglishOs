@@ -338,9 +338,12 @@ new class extends Component
             @unless ($readOnly)
                 <button
                     wire:click="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    wire:loading.attr="disabled"
+                    wire:target="proceed"
+                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    Continue
+                    <span wire:loading.remove wire:target="proceed">Continue</span>
+                    <span wire:loading wire:target="proceed">Please wait…</span>
                 </button>
             @endunless
         </div>
@@ -362,10 +365,13 @@ new class extends Component
                     <button
                         type="button"
                         wire:click="chooseSolo"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
+                        wire:loading.attr="disabled"
+                        wire:target="chooseSolo"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        @svg('heroicon-o-microphone', 'h-3.5 w-3.5')
-                        Do this solo instead
+                        <span wire:loading.remove wire:target="chooseSolo">@svg('heroicon-o-microphone', 'h-3.5 w-3.5')
+                        Do this solo instead</span>
+                        <span wire:loading wire:target="chooseSolo">Switching…</span>
                     </button>
                 </div>
             </div>
@@ -406,8 +412,13 @@ new class extends Component
                         <button
                             type="button"
                             wire:click="chooseSolo"
-                            class="mt-2 cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
-                        >Switch to solo</button>
+                            wire:loading.attr="disabled"
+                            wire:target="chooseSolo"
+                            class="mt-2 cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <span wire:loading.remove wire:target="chooseSolo">Switch to solo</span>
+                            <span wire:loading wire:target="chooseSolo">Switching…</span>
+                        </button>
                     </div>
                 @endif
             </div>

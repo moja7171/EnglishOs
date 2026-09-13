@@ -31,7 +31,7 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-sm space-y-6 p-6">
+<form wire:submit="login" class="mx-auto max-w-sm space-y-6 p-6">
     <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Sign in</h1>
 
     <div class="space-y-3">
@@ -60,11 +60,14 @@ new class extends Component
     </div>
 
     <button
-        wire:click="login"
-        class="w-full cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+        type="submit"
+        wire:loading.attr="disabled"
+        wire:target="login"
+        class="w-full cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
     >
-        Sign in
+        <span wire:loading.remove wire:target="login">Sign in</span>
+        <span wire:loading wire:target="login">Signing in…</span>
     </button>
 
     <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No account? <a href="/register" class="underline">Register</a></p>
-</div>
+</form>
