@@ -90,23 +90,13 @@ echo "--- normalize null is_admin ---\n";
 $nullAdminsFixed = Illuminate\Support\Facades\DB::table('users')->whereNull('is_admin')->update(['is_admin' => false]);
 echo "fixed {$nullAdminsFixed} row(s) with null is_admin\n\n";
 
-// One-time cleanup: these 3 vocab-flashcard images were cached under
-// the OLD orientation=square Pexels search, which returned unrelated
-// photos for these specific action-verb queries (ironing, cleaner,
-// housework — see PexelsClient::imageUrlFor()'s orientation=null
-// change). storage/app/public isn't part of the git deploy, so the
-// wrong files would otherwise survive here forever; deleting them
-// lets the next page view refetch correctly. Safe to leave in this
-// script permanently — a no-op once the files are gone.
-echo "--- clear stale wrong vocab images ---\n";
-foreach (['ironing', 'cleaner', 'housework'] as $word) {
-    $path = $root.'/storage/app/public/vocabulary-images/'.$word.'.jpg';
-    if (file_exists($path)) {
-        unlink($path);
-        echo "deleted {$word}.jpg\n";
-    }
-}
-echo "\n";
+// NOTE: there used to be a "clear stale wrong vocab images" block here
+// that deleted ironing/cleaner/housework.jpg on every deploy so the next
+// page view would refetch them from Pexels. Removed 2026-09-12: the
+// Pexels cache is now shipped as real files on this branch (see
+// scripts/deploy-push.sh) and production never fetches from Pexels
+// itself — so deleting them here just left production with no image at
+// all. The corrected images are the ones this branch now carries.
 
 // Ensures the one admin account exists (and its password matches
 // ADMIN_PASSWORD) on every deploy — idempotent. The real password
