@@ -307,20 +307,26 @@ new class extends Component
                     </div>
                 @endif
 
-                {{-- Both checkboxes use wire:model.live (instant server
-                     knowledge); shadowedCount() only advances once an
-                     upload genuinely completes, which needs a real
-                     round-trip either way — so this whole bar is gated
-                     with a plain @if, not an Alpine ready-when. --}}
-                @if (! $readOnly && $watchedWithCaptions && $watchedWithoutCaptions && $this->shadowedCount() >= $this->requiredShadowedLines())
+                {{-- Always on screen, disabled until done. Both checkboxes
+                     use wire:model.live (instant server knowledge) and
+                     shadowedCount() only advances once an upload genuinely
+                     completes, so readiness is known server-side and goes
+                     into ready-when as a literal. --}}
+                @unless ($readOnly)
+                    @php
+                        $watchedBoth = $watchedWithCaptions && $watchedWithoutCaptions;
+                        $shadowedEnough = $this->shadowedCount() >= $this->requiredShadowedLines();
+                    @endphp
                     <div class="mt-4">
                         <x-continue-button
                             on-click="$wire.save()"
                             wire-target="save"
                             loading-label="Saving…"
+                            ready-when="{{ $watchedBoth && $shadowedEnough ? 'true' : 'false' }}"
+                            hint="{{ ! $watchedBoth ? 'Watch both times to continue' : 'Record '.$this->requiredShadowedLines().' shadowed '.Str::plural('line', $this->requiredShadowedLines()).' to continue' }}"
                         />
                     </div>
-                @endif
+                @endunless
             </div>
         </div>
 

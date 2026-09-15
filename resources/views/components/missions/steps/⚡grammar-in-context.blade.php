@@ -596,6 +596,7 @@ new class extends Component
                 wire-target="checkOne,revealCorrection,declineReveal,save"
                 loading-label="Checking your sentences…"
                 ready-when="filledCount >= 3"
+                hint="Finish 3 sentences to continue"
             />
         @endunless
     </div>

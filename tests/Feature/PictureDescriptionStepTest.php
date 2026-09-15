@@ -157,17 +157,22 @@ class PictureDescriptionStepTest extends TestCase
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'picture_description', 'type' => Evidence::TYPE_AUDIO]);
     }
 
-    public function test_continue_is_hidden_until_a_recording_exists(): void
+    public function test_continue_stays_on_screen_but_disabled_until_a_recording_exists(): void
     {
         Storage::fake('public');
         $run = $this->makeRun();
 
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
 
+        // Present from the start (so the learner can see where this step
+        // leads) but not clickable until there's something to save — see
+        // <x-continue-button>.
         Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
+            ->assertSee('Record your description to continue')
             ->set('recording', UploadedFile::fake()->create('description.webm', 400, 'audio/webm'))
-            ->assertSeeHtml('x-on:click="$wire.save()"');
+            ->assertSeeHtml('x-bind:disabled="! (true)"');
     }
 
     public function test_read_only_mode_reloads_the_saved_transcript_and_feedback(): void

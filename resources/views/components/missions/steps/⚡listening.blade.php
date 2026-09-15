@@ -854,6 +854,7 @@ new class extends Component
                         wire-target="{{ $checkTargets }}"
                         loading-label="Checking your sentences…"
                         ready-when="gistDone && expressionsDone"
+                        hint="Finish both listening tasks to continue"
                     />
                 </div>
             @endunless

@@ -708,11 +708,14 @@ class VocabularyBuilderStepTest extends TestCase
         // all share the same wire:target (checkOne, revealCorrection,
         // declineReveal, or save) so ANY in-flight checkOne call — or
         // Continue's own bulk check — blocks clicks on all of them at once:
-        // 2 per word (input + button) plus the results wrapper and Continue.
+        // 2 per word (input + button), plus the results wrapper, plus 3 for
+        // Continue (the button itself and each of its two loading labels —
+        // those labels carry the step's real target, not a hardcoded "save",
+        // or the button would never swap to its "checking…" text here).
         // The "AI is thinking" indicator itself is scoped per-word
         // (checkOne(0), checkOne(1)…) so it appears only on the card
         // actually being checked.
-        $expected = 2 * count($this->firstEight()) + 2;
+        $expected = 2 * count($this->firstEight()) + 1 + 3;
         $this->assertSame($expected, substr_count($html, 'wire:target="checkOne,revealCorrection,declineReveal,save"'));
         $this->assertStringContainsString('AI is thinking', $html);
     }

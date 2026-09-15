@@ -136,7 +136,7 @@ class StorySequenceStepTest extends TestCase
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'story_sequence', 'type' => Evidence::TYPE_AUDIO]);
     }
 
-    public function test_continue_is_hidden_until_a_recording_exists(): void
+    public function test_continue_stays_on_screen_but_disabled_until_a_recording_exists(): void
     {
         Storage::fake('public');
         $run = $this->makeRun();
@@ -144,9 +144,11 @@ class StorySequenceStepTest extends TestCase
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
-            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
+            ->assertSee('Record your story to continue')
             ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
-            ->assertSeeHtml('x-on:click="$wire.save()"');
+            ->assertSeeHtml('x-bind:disabled="! (true)"');
     }
 
     public function test_read_only_mode_reloads_the_saved_transcript_and_feedback(): void

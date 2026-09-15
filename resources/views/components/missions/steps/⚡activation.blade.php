@@ -533,20 +533,21 @@ new class extends Component
         @endif
 
         @unless ($readOnly)
-            {{-- The recording itself can only be confirmed server-side
-                 (an upload needs a real round-trip either way), so that
-                 part gates via a plain @if; filledCount stays reactive
-                 client-side via ready-when. --}}
-            @if ($audioFile)
-                <div class="mt-4">
-                    <x-continue-button
-                        on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
-                        wire-target="checkOne,revealCorrection,declineReveal,save"
-                        loading-label="Checking your sentences and preparing your recap…"
-                        ready-when="filledCount >= 5"
-                    />
-                </div>
-            @endif
+            {{-- Always on screen, disabled until the step is genuinely
+                 done, so the learner can see where this leads from the
+                 start. The recording can only be confirmed server-side
+                 (an upload needs a real round-trip either way), so it is
+                 folded into ready-when as a literal; filledCount stays
+                 reactive client-side. --}}
+            <div class="mt-4">
+                <x-continue-button
+                    on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
+                    wire-target="checkOne,revealCorrection,declineReveal,save"
+                    loading-label="Checking your sentences and preparing your recap…"
+                    ready-when="{{ $audioFile ? 'filledCount >= 5' : 'false' }}"
+                    hint="{{ $audioFile ? 'Write 5 sentences to continue' : 'Record your answer, then write 5 sentences' }}"
+                />
+            </div>
         @endunless
     </div>
 
