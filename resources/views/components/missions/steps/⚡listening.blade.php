@@ -681,22 +681,17 @@ new class extends Component
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a full sentence using each expression you heard.</p>
             @unless ($readOnly)
                 @if (count($targetPhrases))
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        @foreach ($targetPhrases as $item)
-                            <button
-                                type="button"
-                                title="{{ $item['meaning'] }}"
-                                x-on:click="
-                                    let idx = $wire.expressionsHeard.findIndex(v => !v || v.trim() === '');
-                                    if (idx === -1) idx = 0;
-                                    dismissed['expr_' + idx] = true;
-                                    expressionsFilled[idx] = true;
-                                    $wire.set('expressionsHeard.' + idx, '{{ ucfirst($item['phrase']) }}');
-                                    $nextTick(() => $refs['expr_input_' + idx]?.focus());
-                                "
-                                class="cursor-pointer rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                            >{{ $item['phrase'] }}</button>
-                        @endforeach
+                    {{-- Same shared chips as Activation/Grammar in Context: this
+                         used to be its own copy, carrying the same
+                         overwrite-the-first-box bug and a server round-trip
+                         per tap. --}}
+                    <div class="mt-2">
+                        <x-vocabulary-chips
+                            :words="collect($targetPhrases)->pluck('phrase')->all()"
+                            :titles="collect($targetPhrases)->pluck('meaning', 'phrase')->all()"
+                            field="expressionsHeard"
+                            on-insert="expressionsFilled[idx] = true; dismissed['expr_' + idx] = true;"
+                        />
                     </div>
                 @endif
             @endunless
@@ -707,7 +702,6 @@ new class extends Component
                         <div class="flex items-center gap-2">
                             <input
                                 type="text"
-                                x-ref="expr_input_{{ $index }}"
                                 wire:model="expressionsHeard.{{ $index }}"
                                 placeholder="Sentence {{ $index + 1 }}…"
                                 @unless ($readOnly)

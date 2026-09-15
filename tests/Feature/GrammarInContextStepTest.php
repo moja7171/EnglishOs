@@ -299,8 +299,14 @@ class GrammarInContextStepTest extends TestCase
             ->assertSee('wake up')
             ->assertSee('have a shower')
             ->assertSee('go to bed')
-            ->assertSeeHtml('$wire.frequencySentences.findIndex')
-            ->assertSeeHtml("\$wire.set('frequencySentences.' + idx, 'Wake up')");
+            // Behaviour, not mechanics: the chips target this step's own
+            // sentence inputs, and a word dropped into an empty box starts
+            // it capitalised. See <x-vocabulary-chips>.
+            // Behaviour, not mechanics: the chips target this step's own
+            // sentence inputs, and a word dropped into an empty box starts
+            // it capitalised. See <x-vocabulary-chips>.
+            ->assertSeeHtml('^=&quot;frequencySentences.&quot;')
+            ->assertSeeHtml('Wake up');
     }
 
     public function test_starting_practice_is_persisted_so_a_later_render_still_shows_practice(): void
