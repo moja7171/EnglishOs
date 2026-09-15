@@ -1,12 +1,12 @@
 @props(['onClick', 'wireTarget', 'loadingLabel' => 'Please wait…', 'readyWhen' => 'true', 'hint' => null])
 
 {{--
-    Sticky to the viewport bottom (not just the end of the page content)
-    so a long single-scroll step (Reading Comprehension, Video Shadowing)
-    never buries its own Continue button somewhere the learner has to go
-    hunting for — see EOS-009 §8's UI/UX review.
+    The Continue that ends a step. An ordinary in-page button that
+    scrolls with the content (it was pinned to the bottom of the viewport
+    for a while — the learner found the strip behind it distracting as it
+    tracked the scroll).
 
-    Always visible, and disabled until $readyWhen is true (see
+    Always rendered, and disabled until $readyWhen is true (see
     <x-sticky-bar>): the learner can see where the step leads from the
     start instead of the button materialising the moment they finish, and
     a click before then can't reach a save that would only fail anyway.
