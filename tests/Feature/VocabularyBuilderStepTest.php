@@ -294,7 +294,7 @@ class VocabularyBuilderStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'readOnly' => true])->html();
 
-        $this->assertStringContainsString("phase: 'practice'", $html);
+        $this->assertStringContainsString('data-initial-phase="practice"', $html);
         $this->assertStringContainsString('follow my', $html); // story text present as reference
         $this->assertStringNotContainsString('Continue with these 8 words', $html);
         // Words render as plain highlighted text in review — clicking must

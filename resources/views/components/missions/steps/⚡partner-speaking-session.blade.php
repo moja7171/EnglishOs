@@ -369,7 +369,7 @@ new class extends Component
                         wire:target="chooseSolo"
                         class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <span wire:loading.remove wire:target="chooseSolo">@svg('heroicon-o-microphone', 'h-3.5 w-3.5')
+                        <span wire:loading.remove wire:target="chooseSolo" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-microphone', 'h-3.5 w-3.5')
                         Do this solo instead</span>
                         <span wire:loading wire:target="chooseSolo">Switching…</span>
                     </button>

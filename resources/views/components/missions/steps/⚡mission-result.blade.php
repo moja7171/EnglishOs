@@ -768,7 +768,7 @@ new class extends Component
                             wire:target="addSpeakingPromptsToRecall"
                             class="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <span wire:loading.remove wire:target="addSpeakingPromptsToRecall">@svg('heroicon-o-microphone', 'h-4 w-4') Add to Speaking Recall</span>
+                            <span wire:loading.remove wire:target="addSpeakingPromptsToRecall" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-microphone', 'h-4 w-4') Add to Speaking Recall</span>
                             <span wire:loading wire:target="addSpeakingPromptsToRecall">Adding…</span>
                         </button>
                     @endif

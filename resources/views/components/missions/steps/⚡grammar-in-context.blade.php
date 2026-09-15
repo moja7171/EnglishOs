@@ -333,12 +333,20 @@ new class extends Component
 
 <div
     class="space-y-6"
+    data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : 'lesson' }}"
+    data-lesson-sections="{{ count($lessonSectionsData) }}"
+    data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
-        phase: '{{ $readOnly || $practiceStarted ? 'practice' : 'lesson' }}',
+        phase: 'lesson',
         lessonStep: 0,
-        lessonSections: {{ count($lessonSectionsData) }},
-        filled: {{ $initialFilled->toJson() }},
+        lessonSections: 1,
+        filled: [],
         dismissed: {},
+        init() {
+            this.phase = this.$el.dataset.initialPhase;
+            this.lessonSections = Number(this.$el.dataset.lessonSections);
+            this.filled = JSON.parse(this.$el.dataset.initialFilled);
+        },
         get filledCount() { return this.filled.filter(Boolean).length },
         get progressMessage() {
             const n = this.filledCount;
@@ -459,7 +467,12 @@ new class extends Component
                  that's what keeps the two from being confused with each
                  other. "Start practice" is the real, prominent commitment,
                  so it keeps the app's normal primary-button treatment. --}}
-            <div class="flex items-center justify-between gap-2">
+            {{-- pe-16 on mobile keeps "Start practice" out from under Sage's
+                 floating trigger (fixed bottom-24 right-5 there, see
+                 ⚡ask-instructor.blade.php): this row can come to rest at
+                 exactly that height, and the trigger sat on the button.
+                 The centred column already clears it from sm: up. --}}
+            <div class="flex items-center justify-between gap-2 pe-16 sm:pe-0">
                 <x-substep-nav index-var="lessonStep" :total="count($lessonSectionsData)" />
 
                 <button
@@ -472,7 +485,7 @@ new class extends Component
                     x-on:click="phase = 'practice'"
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    <span wire:loading.remove wire:target="startPractice">Start practice @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</span>
+                    <span wire:loading.remove wire:target="startPractice" class="inline-flex items-center gap-1 whitespace-nowrap">Start practice @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</span>
                     <span wire:loading wire:target="startPractice">Please wait…</span>
                 </button>
             </div>

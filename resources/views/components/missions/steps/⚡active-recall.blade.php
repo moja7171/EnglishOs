@@ -726,11 +726,13 @@ new class extends Component
 
 <div
     class="space-y-6"
+    data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
-        filled: {{ $initialFilled->toJson() }},
+        filled: {},
         dismissed: {},
         activeSection: 0,
         countFilled(section) { return (this.filled[section] || []).filter(Boolean).length },
+        init() { this.filled = JSON.parse(this.$el.dataset.initialFilled) },
     }"
 >
     <x-hook :text="$run->mission->stepContent('active_recall')['hook'] ?? null" />

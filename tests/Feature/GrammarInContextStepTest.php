@@ -318,10 +318,13 @@ class GrammarInContextStepTest extends TestCase
             ->assertSet('practiceStarted', true);
 
         // A later Livewire round-trip (e.g. clicking Check) re-renders the
-        // component — the Alpine x-data init string must still say
+        // component — the phase Alpine initialises from must still say
         // 'practice', not 'lesson', or the UI would silently jump back to
-        // the start of the lesson on every check.
-        $this->assertStringContainsString("phase: 'practice'", $component->html());
+        // the start of the lesson on every check. (It rides a data-*
+        // attribute rather than the x-data string itself, so that string
+        // never changes between renders and Alpine keeps its live state —
+        // see the note on that element.)
+        $this->assertStringContainsString('data-initial-phase="practice"', $component->html());
     }
 
     public function test_three_failed_frequency_sentence_checks_offer_to_reveal_the_correction(): void

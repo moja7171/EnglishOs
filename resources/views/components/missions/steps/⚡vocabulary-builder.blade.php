@@ -464,7 +464,7 @@ new class extends Component
                     wire:target="addWordsToNotebook"
                     class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    <span wire:loading.remove wire:target="addWordsToNotebook">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
+                    <span wire:loading.remove wire:target="addWordsToNotebook" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
                     <span wire:loading wire:target="addWordsToNotebook">Adding…</span>
                 </button>
             @endif
@@ -483,12 +483,18 @@ new class extends Component
 @else
 <div
     class="space-y-6"
+    data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : 'story' }}"
+    data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
-        phase: '{{ $readOnly || $practiceStarted ? 'practice' : 'story' }}',
+        phase: 'story',
         showStoryAgain: false,
         practicePage: 0,
-        filled: {{ $initialFilled->toJson() }},
+        filled: [],
         dismissed: {},
+        init() {
+            this.phase = this.$el.dataset.initialPhase;
+            this.filled = JSON.parse(this.$el.dataset.initialFilled);
+        },
         get filledCount() { return this.filled.filter(Boolean).length },
         get progressMessage() {
             const n = this.filledCount;
