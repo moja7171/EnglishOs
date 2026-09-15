@@ -341,11 +341,17 @@ new class extends Component
     $warmUpQuestions = $run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
 @endphp
 
-<div class="space-y-6" x-data="{
-    filled: {{ $initialFilled->toJson() }},
+{{-- Server-rendered values stay OUT of the x-data expression (they come in
+     through data-* attributes and init() instead): Livewire's morph rewrites
+     x-data on every re-render and Alpine rebuilds the whole scope whenever
+     that string actually changed, which silently reset the sub-step/section
+     index the learner was on. See ⚡listening.blade.php for the full note. --}}
+<div class="space-y-6" data-initial-filled="{{ $initialFilled->toJson() }}" x-data="{
+    filled: [],
     dismissed: {},
     activeSection: 0,
     get filledCount() { return this.filled.filter(Boolean).length },
+    init() { this.filled = JSON.parse(this.$el.dataset.initialFilled) },
 }">
     <x-hook :text="$activation['hook'] ?? null" />
 

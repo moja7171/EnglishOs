@@ -313,8 +313,8 @@ new class extends Component
                         <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Open <a href="https://pi.ai" target="_blank" rel="noopener" class="underline">pi.ai</a> (or any voice assistant), paste this to start, then just talk:</p>
                         <textarea x-ref="prompt" readonly rows="4" class="mt-1.5 w-full rounded-xl border border-line bg-surface-sunken p-2.5 font-mono text-[11px] leading-relaxed text-ink-soft dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $speaking['prompt'] }}</textarea>
                         <button type="button" x-on:click="copy()" class="mt-1 inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-                            <span x-show="!copied">@svg('heroicon-o-clipboard', 'h-3.5 w-3.5') Copy prompt</span>
-                            <span x-show="copied" x-cloak>@svg('heroicon-s-check', 'h-3.5 w-3.5') Copied</span>
+                            <span x-show="!copied" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-clipboard', 'h-3.5 w-3.5') Copy prompt</span>
+                            <span x-show="copied" x-cloak class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-s-check', 'h-3.5 w-3.5') Copied</span>
                         </button>
 
                         <form wire:submit="logConsolidationSpeaking" class="mt-3">

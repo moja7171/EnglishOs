@@ -443,18 +443,34 @@ new class extends Component
     ]);
 @endphp
 
+{{-- Server-rendered values stay OUT of the x-data expression and come in
+     through data-* attributes instead: Livewire's morph rewrites x-data on
+     every re-render, and Alpine rebuilds the whole scope from scratch
+     whenever that string actually changed — which silently reset
+     activeSubstep to 0 (the learner was thrown back to sub-step 1) the
+     moment a round-trip changed gistFilled/expressionsFilled. Attribute
+     changes on data-* have no such effect. --}}
 <div
     class="space-y-6"
+    data-gist-filled="{{ $initialGistFilled->toJson() }}"
+    data-expressions-filled="{{ $initialExpressionsFilled->toJson() }}"
+    data-listens-required="{{ $listensRequired }}"
     x-data="{
         dismissed: {},
-        gistFilled: {{ $initialGistFilled->toJson() }},
+        gistFilled: [],
         get gistDone() { return this.gistFilled.filter(Boolean).length === 3 },
-        expressionsFilled: {{ $initialExpressionsFilled->toJson() }},
+        expressionsFilled: [],
         get expressionsDone() { return this.expressionsFilled.filter(Boolean).length === 3 },
         activeSubstep: 0,
         listenCount: 0,
         showTranscript: false,
-        get transcriptUnlocked() { return this.listenCount >= {{ $listensRequired }} },
+        listensRequired: 1,
+        get transcriptUnlocked() { return this.listenCount >= this.listensRequired },
+        init() {
+            this.gistFilled = JSON.parse(this.$el.dataset.gistFilled);
+            this.expressionsFilled = JSON.parse(this.$el.dataset.expressionsFilled);
+            this.listensRequired = Number(this.$el.dataset.listensRequired);
+        },
     }"
     x-on:audio-ended="listenCount++"
 >
@@ -555,7 +571,7 @@ new class extends Component
                         wire:target="addWordsToNotebook"
                         class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <span wire:loading.remove wire:target="addWordsToNotebook">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
+                        <span wire:loading.remove wire:target="addWordsToNotebook" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
                         <span wire:loading wire:target="addWordsToNotebook">Adding…</span>
                     </button>
                 @endif

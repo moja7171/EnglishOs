@@ -12,9 +12,11 @@
 
 <div
     class="space-y-6"
+    data-listened="{{ $listened ? '1' : '' }}"
     x-data="{
-        hasListened: {{ $listened ? 'true' : 'false' }},
+        hasListened: false,
         showTranscript: false,
+        init() { this.hasListened = this.$el.dataset.listened === '1' },
         recall: @js($recall),
         targetPhrases: @js($this->targetPhrasesForRecall()),
         get matchesTarget() {
