@@ -376,17 +376,20 @@ new class extends Component
             <p class="text-sm text-red-600">{{ $message }}</p>
         @enderror
 
-        {{-- answers use wire:model.live, so completeness is already known
+        {{-- Always on screen, disabled until every answer is written.
+             answers use wire:model.live, so completeness is already known
              server-side on every keystroke — no extra Alpine tracking. --}}
-        @if (! $readOnly && collect($answers)->every(fn ($a) => trim((string) $a) !== ''))
+        @unless ($readOnly)
             <div class="mt-4">
                 <x-continue-button
                     on-click="$wire.save()"
                     wire-target="checkOne,revealCorrection,declineReveal,save"
                     loading-label="Checking your answers…"
+                    ready-when="{{ collect($answers)->every(fn ($a) => trim((string) $a) !== '') ? 'true' : 'false' }}"
+                    hint="Answer every question to continue"
                 />
             </div>
-        @endif
+        @endunless
     </div>
 
     <div class="mt-4">

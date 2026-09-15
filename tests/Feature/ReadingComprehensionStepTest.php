@@ -117,16 +117,18 @@ class ReadingComprehensionStepTest extends TestCase
         $this->assertMatchesRegularExpression('/x-data="\{[^"]*\bdismissed\b[^"]*\}"/', $html);
     }
 
-    public function test_continue_is_hidden_until_both_answers_are_filled(): void
+    public function test_continue_stays_on_screen_but_disabled_until_both_answers_are_filled(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
-            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
+            ->assertSee('Answer every question to continue')
             ->set('answers.0', 'She wakes up early.')
-            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
             ->set('answers.1', 'She sleeps in.')
-            ->assertSeeHtml('x-on:click="$wire.save()"');
+            ->assertSeeHtml('x-bind:disabled="! (true)"');
     }
 
     public function test_a_passage_with_an_image_query_shows_a_header_image(): void

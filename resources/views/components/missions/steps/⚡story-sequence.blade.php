@@ -245,9 +245,13 @@ new class extends Component
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
 
-            @if ($recording)
-                <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Listening and preparing your feedback…" />
-            @endif
+            <x-continue-button
+                on-click="$wire.save()"
+                wire-target="save"
+                loading-label="Listening and preparing your feedback…"
+                ready-when="{{ $recording ? 'true' : 'false' }}"
+                hint="Record your story to continue"
+            />
         @endunless
     @endunless
 </div>

@@ -336,12 +336,17 @@ new class extends Component
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
 
-                {{-- The recording can only be confirmed server-side (an upload
-                     needs a real round-trip), so this gates via a plain @if,
-                     same pattern as Activation's recording substep. --}}
-                @if ($recording)
-                    <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Listening and preparing your feedback…" />
-                @endif
+                {{-- Always on screen, disabled until there's a recording —
+                     which can only be confirmed server-side (an upload needs a
+                     real round-trip), so it's a literal in ready-when. Same
+                     pattern as Activation's recording substep. --}}
+                <x-continue-button
+                    on-click="$wire.save()"
+                    wire-target="save"
+                    loading-label="Listening and preparing your feedback…"
+                    ready-when="{{ $recording ? 'true' : 'false' }}"
+                    hint="Record your description to continue"
+                />
             @endif
         </div>
     @endunless

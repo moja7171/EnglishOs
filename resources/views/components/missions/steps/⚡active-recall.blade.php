@@ -938,6 +938,7 @@ new class extends Component
                     wire-target="checkExpression,checkListeningFact,checkPresentSimpleSentence,checkGrammarSentence,save"
                     loading-label="Checking your answers…"
                     ready-when="Object.keys(filled).every(section => countFilled(section) >= 1)"
+                    hint="Answer every section to continue"
                 />
             @endunless
         </div>

@@ -94,19 +94,21 @@ class VideoShadowingStepTest extends TestCase
         $this->assertDatabaseCount('evidences', 0);
     }
 
-    public function test_continue_is_hidden_until_everything_is_ready(): void
+    public function test_continue_stays_on_screen_but_disabled_until_everything_is_ready(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
+            ->assertSee('Watch both times to continue')
             ->set('watchedWithCaptions', true)
             ->set('watchedWithoutCaptions', true)
-            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
             ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
-            ->assertDontSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
             ->set('shadowRecordings.1', UploadedFile::fake()->create('video-shadow-1.webm', 500, 'audio/webm'))
-            ->assertSeeHtml('x-on:click="$wire.save()"');
+            ->assertSeeHtml('x-bind:disabled="! (true)"');
     }
 
     public function test_continue_is_blocked_with_fewer_than_2_shadowed_lines(): void

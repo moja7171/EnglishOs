@@ -103,9 +103,11 @@
         <p x-show="!hasListened" class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen at least once to continue.</p>
         <p x-show="hasListened && !recall.trim()" x-cloak class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a word or phrase above to continue.</p>
 
-        <x-sticky-bar ready-when="hasListened && recall.trim() !== ''">
+        <x-sticky-bar ready-when="hasListened && recall.trim() !== ''" hint="Listen once, then write one thing you remember">
             <button
+                type="button"
                 wire:click="save"
+                x-bind:disabled="! (hasListened && recall.trim() !== '')"
                 wire:loading.attr="disabled"
                 wire:target="save"
                 class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"

@@ -445,18 +445,20 @@ new class extends Component
                 @enderror
             </div>
 
-            {{-- The recording itself can only be confirmed server-side (an
-                 upload needs a real round-trip either way), so this gates
-                 via a plain @if, same pattern as Video Shadowing/Activation. --}}
-            @if ($this->soloRecordedCount() >= 3)
-                <div class="mt-4">
-                    <x-continue-button
-                        on-click="$wire.saveSolo()"
-                        wire-target="saveSolo"
-                        loading-label="Saving your recordings…"
-                    />
-                </div>
-            @endif
+            {{-- Always on screen, disabled until done. The recordings can
+                 only be confirmed server-side (an upload needs a real
+                 round-trip either way), so readiness is a literal here —
+                 same pattern as Video Shadowing/Activation. --}}
+            @php $recorded = $this->soloRecordedCount(); @endphp
+            <div class="mt-4">
+                <x-continue-button
+                    on-click="$wire.saveSolo()"
+                    wire-target="saveSolo"
+                    loading-label="Saving your recordings…"
+                    ready-when="{{ $recorded >= 3 ? 'true' : 'false' }}"
+                    hint="Record {{ 3 - $recorded }} more {{ Str::plural('answer', 3 - $recorded) }} to continue"
+                />
+            </div>
         @endif
     @endif
 </div>
