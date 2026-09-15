@@ -500,7 +500,6 @@ new class extends Component
                             <x-vocabulary-chips
                                 :words="$vocabularyWords"
                                 field="frequencySentences"
-                                ref-prefix="freq_input_"
                                 on-insert="filled[idx] = true; dismissed['freq' + idx] = true;"
                             />
                         </div>
@@ -532,7 +531,6 @@ new class extends Component
                             <span class="shrink-0 text-sm text-ink-faint dark:text-ink-faint-dark">{{ $starter }}</span>
                             <input
                                 type="text"
-                                x-ref="freq_input_{{ $index }}"
                                 wire:model="frequencySentences.{{ $index }}"
                                 x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed['freq{{ $index }}'] = true"
                                 @unless ($readOnly)

@@ -319,8 +319,14 @@ class ActivationStepTest extends TestCase
             ->assertSee('wake up')
             ->assertSee('have a shower')
             ->assertSee('go to bed')
-            ->assertSeeHtml('$wire.sentences.findIndex')
-            ->assertSeeHtml("\$wire.set('sentences.' + idx, 'Wake up')");
+            // Behaviour, not mechanics: the chips target this step's own
+            // sentence inputs, and a word dropped into an empty box starts
+            // it capitalised. See <x-vocabulary-chips>.
+            // Behaviour, not mechanics: the chips target this step's own
+            // sentence inputs, and a word dropped into an empty box starts
+            // it capitalised. See <x-vocabulary-chips>.
+            ->assertSeeHtml('^=&quot;sentences.&quot;')
+            ->assertSeeHtml('Wake up');
     }
 
     public function test_three_failed_checks_on_a_sentence_offer_to_reveal_the_correction(): void

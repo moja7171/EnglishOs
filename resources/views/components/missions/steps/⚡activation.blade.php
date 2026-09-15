@@ -427,7 +427,6 @@ new class extends Component
                     <x-vocabulary-chips
                         :words="$vocabularyWords"
                         field="sentences"
-                        ref-prefix="sentence_input_"
                         on-insert="filled[idx] = true; dismissed[idx] = true;"
                     />
                 </div>
@@ -460,7 +459,6 @@ new class extends Component
                     <div class="flex items-center gap-2">
                         <input
                             type="text"
-                            x-ref="sentence_input_{{ $index }}"
                             wire:model="sentences.{{ $index }}"
                             placeholder="{{ $index + 1 }}."
                             x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"

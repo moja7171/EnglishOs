@@ -226,14 +226,20 @@ class ListeningStepTest extends TestCase
         $this->assertStringContainsString('activeSubstep === 0 &amp;&amp; !gistDone', $html);
     }
 
-    public function test_clicking_a_target_phrase_chip_is_wired_to_fill_the_first_empty_expression_input(): void
+    public function test_target_phrase_chips_drop_the_phrase_into_this_steps_expression_inputs(): void
     {
         $run = $this->makeRun();
 
         $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
 
-        $this->assertStringContainsString('$wire.expressionsHeard.findIndex', $html);
-        $this->assertStringContainsString("\$wire.set('expressionsHeard.' + idx, 'Sleep in')", $html);
+        // Shared <x-vocabulary-chips> (same as Activation/Grammar in
+        // Context) rather than this step's own copy: behaviour, not
+        // mechanics — the chips target this step's own expression inputs,
+        // a phrase dropped into an empty box starts capitalised, and each
+        // chip still explains itself on hover.
+        $this->assertStringContainsString('^=&quot;expressionsHeard.&quot;', $html);
+        $this->assertStringContainsString('Sleep in', $html);
+        $this->assertStringContainsString('title="to stay in bed and sleep later than usual"', $html);
     }
 
     public function test_continue_checks_every_unchecked_filled_sentence_and_blocks_on_a_major_issue(): void
