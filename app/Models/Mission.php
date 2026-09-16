@@ -63,32 +63,32 @@ class Mission extends Model
         return [
             'M01' => [
                 'title' => 'My Daily Life', 'image_query' => 'morning routine sunrise coffee',
-                'grammar' => "Present Simple + Adverbs of Frequency",
+                'grammar' => 'Present Simple + Adverbs of Frequency',
                 'why' => "A routine is the one thing you cannot describe without it: 'I usually get up at seven.'",
             ],
             'M02' => [
                 'title' => 'People & Relationships', 'image_query' => 'two friends laughing coffee shop',
-                'grammar' => "Present Simple vs Present Continuous",
-                'why' => "Describing people you know means separating what someone is generally like from what they are doing these days.",
+                'grammar' => 'Present Simple vs Present Continuous',
+                'why' => 'Describing people you know means separating what someone is generally like from what they are doing these days.',
             ],
             'M03' => [
                 'title' => 'Work & Study', 'image_query' => 'people working office study',
-                'grammar' => "Modals of Obligation & Ability",
+                'grammar' => 'Modals of Obligation & Ability',
                 'why' => "A job is duties and permissions out loud: 'I have to finish it by Friday', 'I can work from home'.",
             ],
             'M04' => [
                 'title' => 'Food & Lifestyle', 'image_query' => 'healthy meal fresh vegetables table',
-                'grammar' => "Countable & Uncountable Nouns + Quantifiers",
+                'grammar' => 'Countable & Uncountable Nouns + Quantifiers',
                 'why' => "You cannot talk about what you eat without 'some rice', 'a few eggs', 'not much sugar'.",
             ],
             'M05' => [
                 'title' => 'Hobbies & Free Time', 'image_query' => 'hobby painting guitar leisure',
-                'grammar' => "Gerunds vs Infinitives",
+                'grammar' => 'Gerunds vs Infinitives',
                 'why' => "Free time is verb patterns: 'I enjoy playing', 'I want to learn', \"I'm good at cooking\".",
             ],
             'M06' => [
                 'title' => 'Learning English', 'image_query' => 'open notebook studying language',
-                'grammar' => "Past Simple",
+                'grammar' => 'Past Simple',
                 'why' => "How you started learning English is a story that happened and finished: 'I started at school, we used a red book.'",
             ],
             'M07' => [
@@ -98,47 +98,47 @@ class Mission extends Model
             ],
             'M08' => [
                 'title' => 'Friends', 'image_query' => 'friends group laughing outdoors',
-                'grammar' => "Comparatives & Superlatives",
+                'grammar' => 'Comparatives & Superlatives',
                 'why' => "Friends only get described by comparison: 'my oldest friend', 'he's more patient than me'.",
             ],
             'M09' => [
                 'title' => 'Personality', 'image_query' => 'thoughtful portrait person',
-                'grammar' => "Defining Relative Clauses",
+                'grammar' => 'Defining Relative Clauses',
                 'why' => "A personality is a 'someone who…': 'a person who always listens', 'the kind of friend that never judges'.",
             ],
             'M10' => [
                 'title' => 'Relationships', 'image_query' => 'couple holding hands walking',
-                'grammar' => "Present Perfect with for / since",
+                'grammar' => 'Present Perfect with for / since',
                 'why' => "A relationship is measured in duration: \"we've known each other since school\", \"I've never argued with him\".",
             ],
             'M11' => [
                 'title' => 'Work', 'image_query' => 'office desk laptop work',
-                'grammar' => "Future: will / going to / present continuous",
+                'grammar' => 'Future: will / going to / present continuous',
                 'why' => "Career talk is plans, intentions and arrangements: \"I'm going to apply\", \"I'm meeting my manager on Monday\".",
             ],
             'M12' => [
                 'title' => 'Education', 'image_query' => 'university classroom students',
-                'grammar' => "Reported Speech (basic)",
+                'grammar' => 'Reported Speech (basic)',
                 'why' => "School is what other people said: 'my teacher told me that…', 'they said I had to repeat it.'",
             ],
             'M13' => [
                 'title' => 'Technology', 'image_query' => 'laptop smartphone technology desk',
-                'grammar' => "Present Perfect vs Past Simple",
+                'grammar' => 'Present Perfect vs Past Simple',
                 'why' => "Technology forces the contrast: 'phones have changed a lot' versus 'I bought mine last year.'",
             ],
             'M14' => [
                 'title' => 'Money', 'image_query' => 'money coins wallet savings',
-                'grammar' => "First Conditional",
+                'grammar' => 'First Conditional',
                 'why' => "Money is consequences: \"if I save this month, I'll buy it\", \"unless prices drop, I won't.\"",
             ],
             'M15' => [
                 'title' => 'Shopping', 'image_query' => 'shopping bags store mall',
-                'grammar' => "The Passive (present & past)",
+                'grammar' => 'The Passive (present & past)',
                 'why' => "Products are talked about without an actor: \"it's made in Turkey\", 'it was delivered yesterday.'",
             ],
             'M16' => [
                 'title' => 'Travel', 'image_query' => 'airplane travel suitcase passport',
-                'grammar' => "Past Perfect (narrative past)",
+                'grammar' => 'Past Perfect (narrative past)',
                 'why' => "A travel story needs an earlier past: 'by the time we arrived, the bus had already left.'",
             ],
             'M17' => [
@@ -148,37 +148,37 @@ class Mission extends Model
             ],
             'M18' => [
                 'title' => 'Environment', 'image_query' => 'nature forest green environment',
-                'grammar' => "Second Conditional",
+                'grammar' => 'Second Conditional',
                 'why' => "The environment is the unreal-but-possible: 'if everyone recycled, we would waste less.'",
             ],
             'M19' => [
                 'title' => 'Media', 'image_query' => 'newspaper television media',
-                'grammar' => "Non-Defining Relative Clauses",
+                'grammar' => 'Non-Defining Relative Clauses',
                 'why' => "Media talk adds asides: 'Instagram, which I check every morning, takes an hour of my day.'",
             ],
             'M20' => [
                 'title' => 'Opinions', 'image_query' => 'people discussion table talking',
-                'grammar' => "Advice Modals (should / ought to / had better)",
+                'grammar' => 'Advice Modals (should / ought to / had better)',
                 'why' => "An opinion about what someone else ought to do: 'I think you should…', \"you'd better not…\".",
             ],
             'M21' => [
                 'title' => 'Problems & Solutions', 'image_query' => 'lightbulb idea solution',
-                'grammar' => "Purpose & Cause (so that / in order to / because of)",
+                'grammar' => 'Purpose & Cause (so that / in order to / because of)',
                 'why' => "A solution is explained by its purpose and its cause: 'I wrote it down so that I wouldn't forget.'",
             ],
             'M22' => [
                 'title' => 'Decision Making', 'image_query' => 'crossroads decision choice path',
-                'grammar' => "Preference (would rather / prefer / had better)",
+                'grammar' => 'Preference (would rather / prefer / had better)',
                 'why' => "Deciding is preferring out loud: \"I'd rather stay than go\", 'I prefer working alone.'",
             ],
             'M23' => [
                 'title' => 'Future Plans', 'image_query' => 'calendar planning goals notebook',
-                'grammar' => "Future Continuous + hopes and plans",
+                'grammar' => 'Future Continuous + hopes and plans',
                 'why' => "A plan set in a future moment: \"this time next year I'll be living abroad\", 'I hope to finish by June.'",
             ],
             'M24' => [
                 'title' => 'Debate & Discussion', 'image_query' => 'group discussion meeting table',
-                'grammar' => "Contrast & Concession (although / however / despite)",
+                'grammar' => 'Contrast & Concession (although / however / despite)',
                 'why' => "A debate is two sides in one sentence: 'although it costs more, it lasts longer.'",
             ],
         ];
@@ -219,6 +219,75 @@ class Mission extends Model
         }
 
         return static::where('code', sprintf('M%02d', $number - 1))->first();
+    }
+
+    /** Scaffolding levels, in the order a learner meets them. */
+    public const SCAFFOLD_FULL = 'full';
+
+    public const SCAFFOLD_REDUCED = 'reduced';
+
+    public const SCAFFOLD_MINIMAL = 'minimal';
+
+    /**
+     * This mission's position in the roadmap ("M03" → 3), or 1 for
+     * anything that isn't a roadmap code.
+     */
+    public function number(): int
+    {
+        return preg_match('/^M(\d+)$/', $this->code, $m) ? (int) $m[1] : 1;
+    }
+
+    /**
+     * How much help this mission hands the learner up front. Three even
+     * thirds of the roadmap: M01-M08 full, M09-M16 reduced, M17-M24
+     * minimal.
+     *
+     * The design rule this implements is that real difficulty rises while
+     * FELT difficulty stays flat
+     * ([[project_growth_without_discouragement_stories]] S4). Nobody
+     * notices five sentence starters instead of six; everybody braces at
+     * "Level 2: harder mode". So this must never be announced, and no UI
+     * string anywhere may refer to it — there is a test asserting the
+     * level names never reach a rendered page.
+     *
+     * The hard constraint: this may only ever remove SCAFFOLDING, never
+     * change what a step requires to be complete. Grammar in Context still
+     * wants 3 sentences at M24 exactly as it did at M01; it just offers
+     * four starters to choose from instead of six.
+     */
+    public function scaffoldLevel(): string
+    {
+        return match (true) {
+            $this->number() <= 8 => self::SCAFFOLD_FULL,
+            $this->number() <= 16 => self::SCAFFOLD_REDUCED,
+            default => self::SCAFFOLD_MINIMAL,
+        };
+    }
+
+    /**
+     * Trims a list of optional supports (sentence starters, prompts) to
+     * this mission's scaffold level — one fewer at reduced, two fewer at
+     * minimal — while never going below $keepAtLeast, which callers pass
+     * as whatever their step actually REQUIRES. That floor is the whole
+     * safety mechanism: it is what makes it impossible for this taper to
+     * turn into a raised bar.
+     *
+     * Keys are preserved (callers index saved answers by position).
+     *
+     * @param  array<int, mixed>  $items
+     * @return array<int, mixed>
+     */
+    public function taperScaffolding(array $items, int $keepAtLeast): array
+    {
+        $drop = match ($this->scaffoldLevel()) {
+            self::SCAFFOLD_REDUCED => 1,
+            self::SCAFFOLD_MINIMAL => 2,
+            default => 0,
+        };
+
+        $keep = max($keepAtLeast, count($items) - $drop);
+
+        return array_slice($items, 0, $keep, preserve_keys: true);
     }
 
     /**

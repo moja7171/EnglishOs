@@ -25,12 +25,37 @@
         tracking arrays. `idx` is available as the index that was filled.
     @param array $titles Optional word => tooltip map (Listening shows each
         target phrase's meaning on hover).
+    @param bool $collapsed Start the strip folded behind a small toggle
+        instead of laid out in front of the learner. Passed by later
+        missions (Mission::scaffoldLevel()) — the words are still one tap
+        away, they just stop being a crutch sitting in the field of view.
+        Silent by design: the toggle's wording is the same whichever
+        mission you're in, so nothing signals that anything was taken
+        away.
 --}}
-@props(['words', 'field', 'onInsert' => null, 'titles' => []])
+@props(['words', 'field', 'onInsert' => null, 'titles' => [], 'collapsed' => false])
 
 @if (count($words))
     <div
-        class="flex flex-wrap gap-1.5"
+        x-data="{ open: {{ $collapsed ? 'false' : 'true' }} }"
+        class="flex flex-wrap items-center gap-1.5"
+    >
+        @if ($collapsed)
+            <button
+                type="button"
+                x-show="! open"
+                x-on:click="open = true"
+                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-line px-2.5 py-1 text-xs text-ink-faint transition-colors hover:border-ink-faint hover:text-ink-soft dark:border-line-dark dark:text-ink-faint-dark dark:hover:text-ink-soft-dark"
+            >
+                @svg('heroicon-o-sparkles', 'h-3 w-3')
+                My words
+            </button>
+        @endif
+
+        <div
+            x-show="open"
+            @if ($collapsed) x-cloak @endif
+            class="flex flex-wrap gap-1.5"
         {{-- `component` is the Livewire root, NOT Alpine's $root: this
              wrapper has its own x-data, so $root would be the chip strip
              itself, which contains no inputs. `lastInput` is needed
@@ -48,7 +73,7 @@
             component?.addEventListener('focusin', e => { if (e.target.matches(selector)) lastInput = e.target });
         "
     >
-        @foreach ($words as $word)
+            @foreach ($words as $word)
             <button
                 type="button"
                 @if (! empty($titles[$word])) title="{{ $titles[$word] }}" @endif
@@ -88,6 +113,7 @@
                 "
                 class="cursor-pointer rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >{{ $word }}</button>
-        @endforeach
+            @endforeach
+        </div>
     </div>
 @endif

@@ -432,6 +432,7 @@ new class extends Component
                 <div class="mt-1">
                     <x-vocabulary-chips
                         :words="$vocabularyWords"
+                        :collapsed="$this->run->mission->scaffoldLevel() !== App\Models\Mission::SCAFFOLD_FULL"
                         field="sentences"
                         on-insert="filled[idx] = true; dismissed[idx] = true;"
                     />

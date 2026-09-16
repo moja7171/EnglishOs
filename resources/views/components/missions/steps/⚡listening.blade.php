@@ -399,7 +399,15 @@ new class extends Component
     $initialGistFilled = collect($gistPoints)->map(fn ($p) => trim($p) !== '')->values();
     $initialExpressionsFilled = collect($expressionsHeard)->map(fn ($p) => trim($p) !== '')->values();
     $draftPrefix = $this->draftPrefix();
-    $listensRequired = 2;
+    // Two listens before the transcript unlocks for most of the
+    // roadmap, three from M09 on. Reading along too early skips the real
+    // listening practice, and a learner who has done eight missions can
+    // hold a passage for one more pass — but this is a scaffolding
+    // taper, never a bar: the step still needs the same 3 gist sentences
+    // either way, and the audio can be replayed freely. Never announced;
+    // the counter's own wording is identical at every level. See
+    // Mission::scaffoldLevel().
+    $listensRequired = $this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_FULL ? 2 : 3;
     $checkTargets = 'checkGist,checkExpression,checkGapFill,revealGist,declineGist,revealExpression,declineExpression,save';
 
     // Detail question is now a one-tap <x-quick-round> bonus in the
@@ -705,6 +713,7 @@ new class extends Component
                     <div class="mt-2">
                         <x-vocabulary-chips
                             :words="collect($targetPhrases)->pluck('phrase')->all()"
+                            :collapsed="$this->run->mission->scaffoldLevel() !== App\Models\Mission::SCAFFOLD_FULL"
                             :titles="collect($targetPhrases)->pluck('meaning', 'phrase')->all()"
                             field="expressionsHeard"
                             on-insert="expressionsFilled[idx] = true; dismissed['expr_' + idx] = true;"

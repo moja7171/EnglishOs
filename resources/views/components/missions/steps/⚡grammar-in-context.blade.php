@@ -52,7 +52,7 @@ new class extends Component
         }
 
         $data = json_decode($this->run->latestEvidence('grammar_in_context')?->content_ref ?? '{}', true);
-        $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
+        $starters = $this->starters();
         $savedSentences = collect($data['frequency_sentences'] ?? [])->keyBy('starter');
 
         foreach ($starters as $index => $starter) {
@@ -79,6 +79,36 @@ new class extends Component
             ->all();
     }
 
+    /**
+     * How many completed sentences this step requires — unchanged across
+     * all 24 missions, and deliberately a named constant so that the
+     * scaffolding taper below can be pinned to it rather than to a
+     * number someone might later edit in one place and not the other.
+     */
+    public const REQUIRED_SENTENCES = 3;
+
+    /**
+     * The starters this mission actually offers. Every read of
+     * frequency_starters goes through here so the mission's scaffold
+     * level (Mission::scaffoldLevel()) applies everywhere at once —
+     * mount(), checkOne(), revealCorrection(), save() and the view all
+     * have to agree on the list, or an index would point at a different
+     * starter in two places.
+     *
+     * Six starters at M01, five from M09, four from M17 — and never
+     * fewer than REQUIRED_SENTENCES, so this can only ever remove choice,
+     * never make the step harder to finish.
+     *
+     * @return array<int, string>
+     */
+    public function starters(): array
+    {
+        return $this->run->mission->taperScaffolding(
+            $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [],
+            self::REQUIRED_SENTENCES,
+        );
+    }
+
     public function startPractice(): void
     {
         $this->practiceStarted = true;
@@ -86,7 +116,7 @@ new class extends Component
 
     public function checkOne(int $index): void
     {
-        $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
+        $starters = $this->starters();
         $starter = $starters[$index] ?? null;
 
         if (! $starter) {
@@ -168,7 +198,7 @@ new class extends Component
     public function revealCorrection(int $index): void
     {
         $grammar = $this->run->mission->stepContent('grammar_in_context');
-        $starters = $grammar['frequency_starters'] ?? [];
+        $starters = $this->starters();
         $starter = $starters[$index] ?? null;
         $sentence = trim($this->frequencySentences[$index] ?? '');
 
@@ -216,14 +246,14 @@ new class extends Component
 
     public function save(): void
     {
-        $starters = $this->run->mission->stepContent('grammar_in_context')['frequency_starters'] ?? [];
+        $starters = $this->starters();
 
         $filledSentences = collect($this->frequencySentences)
             ->map(fn ($s, $i) => ['index' => $i, 'starter' => $starters[$i] ?? null, 'text' => trim((string) $s)])
             ->filter(fn ($s) => $s['text'] !== '');
 
-        if ($filledSentences->count() < 3) {
-            $this->addError('frequencySentences', 'Complete at least 3 sentences before continuing.');
+        if ($filledSentences->count() < self::REQUIRED_SENTENCES) {
+            $this->addError('frequencySentences', 'Complete at least '.self::REQUIRED_SENTENCES.' sentences before continuing.');
 
             return;
         }
@@ -512,6 +542,7 @@ new class extends Component
                         <div class="mt-1">
                             <x-vocabulary-chips
                                 :words="$vocabularyWords"
+                                :collapsed="$this->run->mission->scaffoldLevel() !== App\Models\Mission::SCAFFOLD_FULL"
                                 field="frequencySentences"
                                 on-insert="filled[idx] = true; dismissed['freq' + idx] = true;"
                             />
@@ -537,7 +568,7 @@ new class extends Component
             @endunless
 
             <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="mt-2 space-y-3">
-                @foreach ($grammar['frequency_starters'] ?? [] as $index => $starter)
+                @foreach ($this->starters() as $index => $starter)
                     @php $itemFeedback = $feedback[$index] ?? null; @endphp
                     <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                         <div class="flex items-center gap-2">
