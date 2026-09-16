@@ -32,6 +32,9 @@ class SentenceChecker
      * @param  string|null  $extraGuidance  Any additional rule specific to
      *                                      this check, appended after the shared rules (e.g. a instruction not
      *                                      to fact-check details the AI wasn't given).
+     * @param  string|null  $feedbackDepth  Mission::feedbackDepth() — where the "none"/"minor"
+     *                                      line falls at this point in the roadmap (S5). Never touches
+     *                                      what counts as "major", tone, or hint length.
      * @return array{severity: string, hint: string}
      */
     public function check(
@@ -40,10 +43,11 @@ class SentenceChecker
         string $context,
         string $text,
         ?string $extraGuidance = null,
+        ?string $feedbackDepth = null,
     ): array {
         $raw = $this->gemini->chat(
             [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
-            systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance)
+            systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth)
         );
 
         $data = json_decode(trim($raw), true);
@@ -88,7 +92,7 @@ class SentenceChecker
         return auth()->user()?->levelDescription() ?? 'a B1 (intermediate) English learner';
     }
 
-    private function systemPrompt(string $judgment, string $majorCriteria, ?string $extraGuidance): string
+    private function systemPrompt(string $judgment, string $majorCriteria, ?string $extraGuidance, ?string $feedbackDepth = null): string
     {
         $prompt = 'You are a supportive English writing assistant helping '.$this->learnerDescription().'. '.$judgment.' A short, '
             .'minimal sentence is completely fine — do not ask for more detail. Also check: the spelling of '
@@ -102,6 +106,10 @@ class SentenceChecker
 
         if ($extraGuidance) {
             $prompt .= ' '.$extraGuidance;
+        }
+
+        if ($feedbackDepth) {
+            $prompt .= ' '.$feedbackDepth;
         }
 
         return $prompt

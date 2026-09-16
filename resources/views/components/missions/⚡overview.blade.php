@@ -360,6 +360,22 @@ new class extends Component
                 </li>
             </ol>
 
+            @if ($today['checkpointAvailable'])
+                {{-- S3 of [[project_growth_without_discouragement_stories]]
+                     — offered, never pushed: its own card below the
+                     numbered checklist, not item 4, so it reads as a
+                     bonus rather than one more thing to get through. --}}
+                <div class="mt-4 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                    <p class="text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Want to hear how far you've come?</p>
+                    <p class="mt-0.5 text-xs text-accent-ink/80 dark:text-accent-ink-dark/80">Answer the same question from your placement test again, and listen to both side by side. Takes about a minute — entirely optional.</p>
+                    <a
+                        href="{{ route('missions.checkpoint', $today['mission']) }}"
+                        wire:navigate
+                        class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
+                    >Your voice, {{ $today['mission']->code }} in @svg('heroicon-o-chevron-right', 'h-3 w-3')</a>
+                </div>
+            @endif
+
             @if ($today['nextMission'])
                 <p class="mt-4 text-xs text-ink-faint dark:text-ink-faint-dark">
                     In a hurry? <a href="{{ route('missions.show', $today['nextMission']) }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">Start {{ $today['nextMission']->code }}: {{ $today['nextMission']->title }}</a> — the consolidation day is a suggestion, not a lock.

@@ -12,10 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * what the test is and what its result does (and deliberately doesn't)
  * change.
  */
-#[Fillable(['learner_id', 'level', 'recognition_level', 'spoken_level', 'transcript', 'detail'])]
+#[Fillable(['learner_id', 'kind', 'checkpoint_mission_code', 'level', 'recognition_level', 'spoken_level', 'transcript', 'audio_url', 'detail'])]
 class PlacementTest extends Model
 {
     use HasFactory;
+
+    public const KIND_INITIAL = 'initial';
+
+    public const KIND_CHECKPOINT = 'checkpoint';
 
     protected function casts(): array
     {

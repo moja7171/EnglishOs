@@ -279,7 +279,7 @@ new class extends Component
 };
 ?>
 
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ noPrepChallenge: false }">
     <x-hook :text="$run->mission->stepContent('ai_conversation_2')['hook'] ?? null" />
 
     <div>
@@ -296,26 +296,61 @@ new class extends Component
     @endif
 
     @if (! $this->inFinalStage)
-        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        {{-- wire:key on the WHOLE card, not just the recorder inside it:
+             T6.2's per-round "revealed" gate below must reset fresh every
+             round, and the only reliable way to force Alpine to
+             reinitialize (rather than morph the existing node in place)
+             is a key that changes with $roundIndex. See
+             [[project_livewire_morph_xcloak_scroll_jump]] /
+             [[project_xdata_interpolation_resets_alpine_state]] for why a
+             literal x-data string plus a changing wire:key, not an
+             interpolated value INSIDE x-data, is the safe pattern here. --}}
+        <div wire:key="round-card-{{ $roundIndex }}" class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark" x-data="{ revealed: false }">
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
-            <div class="mt-1 flex items-start justify-between gap-2">
-                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentRoundPrompt }}</p>
-                @unless ($readOnly)
-                    <x-speak-button :text="$this->currentRoundPrompt" />
-                @endunless
+
+            @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL && ! $readOnly)
+                {{-- T6.2: opt-in only in the last third — see <x-optional-challenge>. --}}
+                <div class="mt-2" x-show="! noPrepChallenge">
+                    <x-optional-challenge
+                        model="noPrepChallenge"
+                        label="Want to try this round with no time to prepare?"
+                    />
+                </div>
+            @endif
+
+            <div x-show="! noPrepChallenge || revealed">
+                <div class="mt-1 flex items-start justify-between gap-2">
+                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentRoundPrompt }}</p>
+                    @unless ($readOnly)
+                        <x-speak-button :text="$this->currentRoundPrompt" />
+                    @endunless
+                </div>
+
+                <div class="mt-2">
+                    <x-practice-with-friend :text="$this->currentRoundPrompt" />
+                </div>
+
+                <div class="mt-3" wire:key="recorder-round-{{ $roundIndex }}" wire:loading.remove wire:target="submitRoundAnswer">
+                    <x-voice-recorder
+                        field="audioFile"
+                        :file="$audioFile"
+                        on-recorded="submitRoundAnswer"
+                        file-name="answer.webm"
+                    />
+                </div>
             </div>
 
-            <div class="mt-2">
-                <x-practice-with-friend :text="$this->currentRoundPrompt" />
-            </div>
-
-            <div class="mt-3" wire:key="recorder-round-{{ $roundIndex }}" wire:loading.remove wire:target="submitRoundAnswer">
-                <x-voice-recorder
-                    field="audioFile"
-                    :file="$audioFile"
-                    on-recorded="submitRoundAnswer"
-                    file-name="answer.webm"
-                />
+            {{-- The challenge's actual effect: question and recorder stay
+                 hidden together behind one tap, removing the free,
+                 unlimited silent-reading window that exists by default —
+                 never a hard block (Article 3, Evidence Before Progress:
+                 nothing here can gate anything), just no head start. --}}
+            <div x-show="noPrepChallenge && ! revealed" class="mt-1">
+                <button
+                    type="button"
+                    x-on:click="revealed = true"
+                    class="w-full cursor-pointer rounded-xl border border-dashed border-line py-3 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                >Ready? Tap to see the question and answer</button>
             </div>
 
             <p wire:loading wire:target="submitRoundAnswer" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
@@ -336,6 +371,7 @@ new class extends Component
                 />
                 <x-reveal-offer
                     :show="$offerReveal[$roundIndex] ?? false"
+                    :struggling="$this->run->isStruggling()"
                     reveal-method="revealExample"
                     decline-method="declineExample"
                     :index="$roundIndex"
@@ -387,6 +423,7 @@ new class extends Component
                 />
                 <x-reveal-offer
                     :show="$offerReveal['final'] ?? false"
+                    :struggling="$this->run->isStruggling()"
                     reveal-method="revealExample"
                     decline-method="declineExample"
                     index="final"

@@ -97,6 +97,7 @@ new class extends Component
                 extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small '
                     .'detail is debatable — never claim the learner\'s facts are wrong, since you were '
                     .'only given a short summary, not the full passage.'.$this->run->aiToneGuidance(),
+                feedbackDepth: $this->run->mission->feedbackDepth(),
             );
             $this->recordGeminiCall();
 
@@ -360,9 +361,10 @@ new class extends Component
                     <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$index] ?? null" />
 
                     @unless ($readOnly)
-                        <x-almost-reveal-notice :show="($checkAttempts[$index] ?? 0) === 2" />
+                        <x-almost-reveal-notice :show="$this->isAlmostRevealing($index)" />
                         <x-reveal-offer
                             :show="$offerReveal[$index] ?? false"
+                            :struggling="$this->run->isStruggling()"
                             reveal-method="revealCorrection"
                             decline-method="declineReveal"
                             :index="$index"

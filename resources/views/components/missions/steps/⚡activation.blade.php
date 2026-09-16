@@ -116,6 +116,7 @@ new class extends Component
                 context: "a personal sentence about the learner's own daily life",
                 text: $sentence,
                 extraGuidance: $this->run->aiToneGuidance(),
+                feedbackDepth: $this->run->mission->feedbackDepth(),
             );
             $this->recordGeminiCall();
 
@@ -350,6 +351,7 @@ new class extends Component
     filled: [],
     dismissed: {},
     activeSection: 0,
+    noChipsChallenge: false,
     get filledCount() { return this.filled.filter(Boolean).length },
     init() { this.filled = JSON.parse(this.$el.dataset.initialFilled) },
 }">
@@ -427,11 +429,21 @@ new class extends Component
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Write 5 personal sentences</p>
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $activation['task'] ?? '' }}</p>
         @if ($vocabularyWords && ! $readOnly)
-            <div class="mt-2">
+            @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL)
+                {{-- T6.3: opt-in only in the last third — see <x-optional-challenge>. --}}
+                <div class="mt-2">
+                    <x-optional-challenge
+                        model="noChipsChallenge"
+                        label="Want to try this one without the word chips?"
+                    />
+                </div>
+            @endif
+            <div class="mt-2" x-show="! noChipsChallenge">
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Tap a word to drop it into your next sentence:</p>
                 <div class="mt-1">
                     <x-vocabulary-chips
                         :words="$vocabularyWords"
+                        :collapsed="$this->run->mission->scaffoldLevel() !== App\Models\Mission::SCAFFOLD_FULL"
                         field="sentences"
                         on-insert="filled[idx] = true; dismissed[idx] = true;"
                     />
@@ -491,9 +503,10 @@ new class extends Component
                     </div>
 
                     @unless ($readOnly)
-                        <x-almost-reveal-notice :show="($checkAttempts[$index] ?? 0) === 2" />
+                        <x-almost-reveal-notice :show="$this->isAlmostRevealing($index)" />
                         <x-reveal-offer
                             :show="$offerReveal[$index] ?? false"
+                            :struggling="$this->run->isStruggling()"
                             reveal-method="revealCorrection"
                             decline-method="declineReveal"
                             :index="$index"

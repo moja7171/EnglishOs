@@ -1,9 +1,8 @@
 <?php
 
 use App\Models\PlacementTest as PlacementTestResult;
-use App\Services\AiFeedbackCard;
-use App\Services\GroqClient;
 use App\Services\PlacementTest;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -69,19 +68,24 @@ new class extends Component
         ]);
 
         $spokenLevel = null;
+        $audioUrl = null;
 
         if ($this->recording) {
-            [$this->transcript, $spokenLevel] = $this->gradeSpeaking();
+            $path = $this->recording->store('placement', 'public');
+            $audioUrl = Storage::disk('public')->url($path);
+            [$this->transcript, $spokenLevel] = $this->test->gradeSpeakingRecording($this->recording->getRealPath());
         }
 
         $this->result = $this->test->score($this->vocabularyAnswers, $this->grammarAnswers, $spokenLevel);
 
         PlacementTestResult::create([
             'learner_id' => auth()->id(),
+            'kind' => PlacementTestResult::KIND_INITIAL,
             'level' => $this->result['level'],
             'recognition_level' => $this->result['recognitionLevel'],
             'spoken_level' => $this->result['spokenLevel'],
             'transcript' => $this->transcript,
+            'audio_url' => $audioUrl,
             'detail' => [
                 'bands' => $this->result['bands'],
                 'provisional' => $this->result['provisional'],
@@ -97,35 +101,6 @@ new class extends Component
         auth()->user()->forceFill(['cefr_level' => $this->result['level']])->save();
 
         $this->completed = true;
-    }
-
-    /**
-     * @return array{0: ?string, 1: ?string} transcript, CEFR level
-     */
-    private function gradeSpeaking(): array
-    {
-        try {
-            $transcript = trim(app(GroqClient::class)->transcribe($this->recording->getRealPath()));
-
-            if ($transcript === '') {
-                return [null, null];
-            }
-
-            $data = app(AiFeedbackCard::class)->generate(
-                [['role' => 'user', 'text' => "Transcript of the learner's spoken answer: \"{$transcript}\""]],
-                systemPrompt: 'You are a CEFR examiner placing an English learner. They spoke for about 45 '
-                    .'seconds about a normal day in their life. Judge their SPOKEN production only — range of '
-                    .'vocabulary, control of tenses, and how much they can say without breaking down. Ignore '
-                    .'transcription artefacts and pronunciation. Reply with ONLY valid JSON, no markdown fences: '
-                    .'{"level": "one of: below A1, A1, A2, B1, above B1", "reason": "one short sentence, '
-                    .'addressed to the learner, warm and concrete"}',
-                requiredKeys: ['level'],
-            );
-
-            return [$transcript, $data['level'] ?? null];
-        } catch (Throwable) {
-            return [$this->transcript, null];
-        }
     }
 
     public function skip(): void

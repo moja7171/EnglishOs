@@ -24,6 +24,12 @@ class MissionRun extends Model
 
     public const STATUS_RETRY_EVIDENCE = 'retry_evidence';
 
+    /**
+     * How many "major" check verdicts in one run before the app starts
+     * quietly making things easier (see isStruggling()).
+     */
+    public const STRUGGLE_SIGNAL_THRESHOLD = 3;
+
     protected function casts(): array
     {
         return [
@@ -218,6 +224,22 @@ class MissionRun extends Model
     }
 
     /**
+     * Is this learner visibly having a hard time right now? Read by
+     * aiToneGuidance() below and by TracksCheckAttempts, which uses it to
+     * bring the "want me to write it for you" offer forward.
+     *
+     * Everything keyed off this must make the mission EASIER and nothing
+     * else — never a harder item, never a higher bar, never a message
+     * that names the struggle. See
+     * [[project_growth_without_discouragement_stories]] S2: the app's
+     * response to a struggling learner is relief, not commentary.
+     */
+    public function isStruggling(): bool
+    {
+        return $this->struggle_signal_count >= self::STRUGGLE_SIGNAL_THRESHOLD;
+    }
+
+    /**
      * Extra guidance appended to AI Instructor conversation prompts and
      * SentenceChecker checks so the tone adapts to how the learner is
      * doing — never gating or skipping anything (Article 3, Evidence
@@ -231,10 +253,13 @@ class MissionRun extends Model
      */
     public function aiToneGuidance(): string
     {
-        if ($this->struggle_signal_count >= 3) {
+        if ($this->isStruggling()) {
             return ' The learner has missed several checks so far in this mission with real mistakes (not just '
                 .'small slips) — regardless of how confident they said they felt at the start, be extra warm and '
-                .'encouraging right now, and keep your follow-up simple and easy to answer.';
+                .'encouraging right now. Keep your follow-up to ONE short, concrete question they can answer in a '
+                .'single sentence, and use simpler words than you normally would. Do not mention that they are '
+                .'struggling, do not reassure them about it, and do not comment on their progress at all — just '
+                .'be warm and ask something easy.';
         }
 
         return match (true) {

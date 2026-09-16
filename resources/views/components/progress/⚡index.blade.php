@@ -1,9 +1,11 @@
 <?php
 
 use App\Models\ErrorLogItem;
+use App\Models\ErrorPatternReview;
 use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -120,6 +122,26 @@ new class extends Component
     public function topErrorTrend(): ?array
     {
         return auth()->user()->topRecurringErrorTrend();
+    }
+
+    /**
+     * The positive half of the error data — see <x-mistakes-you-fixed>.
+     * Kept as two separate computed properties rather than one array so
+     * each stays a plain pass-through to the model method that owns it.
+     *
+     * @return Collection<int, ErrorPatternReview>
+     */
+    #[Computed]
+    public function masteredErrors(): Collection
+    {
+        return auth()->user()->masteredErrorPatterns();
+    }
+
+    /** @return Collection<int, ErrorPatternReview> */
+    #[Computed]
+    public function fadingErrors(): Collection
+    {
+        return auth()->user()->fadingErrorPatterns();
     }
 
     #[Computed]
@@ -299,6 +321,11 @@ new class extends Component
             @svg('heroicon-o-clock', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ Mission::formatDuration($this->totalPracticeMinutes) }}
         </span>
     </div>
+
+    {{-- Deliberately ABOVE the collapsed "More stats" block, not inside
+         it: this is the one thing on the page whose whole job is to
+         reassure, and it can't do that from behind a tap. --}}
+    <x-mistakes-you-fixed :mastered="$this->masteredErrors" :fading="$this->fadingErrors" />
 
     {{-- Everything below is reflective, not actionable — collapsed by
          default (native <details>, no extra JS) so it stays one tap away

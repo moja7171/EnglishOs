@@ -437,6 +437,7 @@ new class extends Component
                     extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small '
                         .'detail is debatable — never claim the learner\'s facts are wrong, since you were only '
                         .'given a short summary, not the full listening.'.$this->run->aiToneGuidance(),
+                    feedbackDepth: $this->run->mission->feedbackDepth(),
                 )
                 : $this->runGrammarSentenceCheck($section, $text);
 
@@ -482,6 +483,7 @@ new class extends Component
             context: $config['context'] ?? 'a personal sentence for this grammar practice',
             text: $text,
             extraGuidance: $this->run->aiToneGuidance(),
+            feedbackDepth: $this->run->mission->feedbackDepth(),
         );
     }
 
@@ -533,6 +535,7 @@ new class extends Component
                 context: 'a new sentence practicing the same grammar/vocabulary pattern the learner previously got wrong',
                 text: $answer,
                 extraGuidance: $this->run->aiToneGuidance(),
+                feedbackDepth: $this->run->mission->feedbackDepth(),
             );
             $this->recordGeminiCall();
         } catch (ConnectionException|RequestException) {
