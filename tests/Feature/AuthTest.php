@@ -45,7 +45,9 @@ class AuthTest extends TestCase
             ->set('password', 'super-secret')
             ->set('password_confirmation', 'super-secret')
             ->call('register')
-            ->assertRedirect('/');
+            // Into the placement test, not straight to the first mission —
+            // see ⚡register.blade.php.
+            ->assertRedirect(route('placement'));
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'ada@example.com', 'name' => 'Ada Lovelace']);
@@ -61,7 +63,7 @@ class AuthTest extends TestCase
             ->set('cefr_level', 'A2')
             ->set('target_band', '6.5')
             ->call('register')
-            ->assertRedirect('/');
+            ->assertRedirect(route('placement'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'ada@example.com',

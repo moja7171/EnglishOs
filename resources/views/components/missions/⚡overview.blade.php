@@ -99,6 +99,17 @@ new class extends Component
         ];
     }
 
+    /**
+     * Offered once, on the home page, to anyone who skipped the placement
+     * test at registration — the app would otherwise run on the
+     * self-assessed level from the form for the whole 120 days.
+     */
+    #[Computed]
+    public function needsPlacement(): bool
+    {
+        return auth()->user()->latestPlacementTest() === null;
+    }
+
     #[Computed]
     public function justBenefitedFromGrace(): bool
     {
@@ -401,6 +412,23 @@ new class extends Component
             @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
         </span>
     </a>
+
+    @if ($this->needsPlacement)
+        <a
+            href="{{ route('placement') }}"
+            wire:navigate
+            class="flex items-center gap-3 rounded-2xl border border-accent/40 bg-surface p-4 transition-colors hover:border-accent dark:border-accent-dark/40 dark:bg-surface-dark dark:hover:border-accent-dark"
+        >
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-o-academic-cap', 'h-4 w-4')
+            </span>
+            <span class="flex-1">
+                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Find out where you're starting</span>
+                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">An 8-minute check — it sets how the app talks to you, and gives you something real to measure against at the end.</span>
+            </span>
+            @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+        </a>
+    @endif
 
     @if ($this->justBenefitedFromGrace)
         <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
