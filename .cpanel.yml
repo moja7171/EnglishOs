@@ -3,4 +3,19 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/growwi/englishos.growwise.ir/
     - /bin/cp -R * $DEPLOYPATH
-    - curl -sk --connect-to englishos.growwise.ir:443:127.0.0.1:443 https://englishos.growwise.ir/deploy.php || true
+    # First choice stays the curl to deploy.php: it does the whole job
+    # (migrate, seed, admin account, caches) and, crucially, reads .env
+    # through env() BEFORE anything caches the config.
+    - curl -sk --connect-to englishos.growwise.ir:443:127.0.0.1:443 https://englishos.growwise.ir/deploy.php > $DEPLOYPATH/storage/logs/deploy-curl.log 2>&1 || true
+    # ...but that curl has silently failed twice, and cPanel never shows
+    # a deployment task's output, so both times the deploy LOOKED fine
+    # while production was broken: once a stale route cache kept a route
+    # that no longer existed, once a migration never ran and every page
+    # 500'd on a missing table. A deployment task is a real shell, so run
+    # the same work here as a safety net. All of it is idempotent, so
+    # when the curl did work these are fast no-ops. Output lands in
+    # storage/logs/ so there is finally something to read afterwards.
+    - export EOS_PHP=$(command -v /opt/cpanel/ea-php83/root/usr/bin/php /opt/cpanel/ea-php84/root/usr/bin/php /usr/local/bin/ea-php83 /usr/local/bin/php /usr/bin/php php 2>/dev/null | head -1)
+    - cd $DEPLOYPATH && $EOS_PHP artisan migrate --force > $DEPLOYPATH/storage/logs/deploy-migrate.log 2>&1 || true
+    - cd $DEPLOYPATH && $EOS_PHP artisan db:seed --force > $DEPLOYPATH/storage/logs/deploy-seed.log 2>&1 || true
+    - cd $DEPLOYPATH && $EOS_PHP artisan optimize > $DEPLOYPATH/storage/logs/deploy-optimize.log 2>&1 || true
