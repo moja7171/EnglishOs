@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Throwable;
+
 /**
  * The placement test's own content and scoring — the 8-10 minute check a
  * learner takes right after registering, so the app knows where they
@@ -27,6 +29,11 @@ namespace App\Services;
  */
 class PlacementTest
 {
+    public function __construct(
+        private readonly GroqClient $groq,
+        private readonly AiFeedbackCard $feedbackCard,
+    ) {}
+
     public const LEVELS = ['A1', 'A2', 'B1'];
 
     /**
@@ -72,7 +79,7 @@ class PlacementTest
             ['band' => 'A1', 'prompt' => 'There ___ two chairs in the room.', 'options' => ['are', 'is', 'be'], 'correct' => 0],
 
             ['band' => 'A2', 'prompt' => 'Be quiet — the baby ___ .', 'options' => ['is sleeping', 'sleeps', 'sleep'], 'correct' => 0],
-            ['band' => 'A2', 'prompt' => 'I ___ work on Saturdays. I stay at home.', 'options' => ["don't have to", "am not having to", 'not have to'], 'correct' => 0],
+            ['band' => 'A2', 'prompt' => 'I ___ work on Saturdays. I stay at home.', 'options' => ["don't have to", 'am not having to', 'not have to'], 'correct' => 0],
             ['band' => 'A2', 'prompt' => 'We ___ to the cinema last night.', 'options' => ['went', 'have gone', 'go'], 'correct' => 0],
 
             ['band' => 'B1', 'prompt' => "I ___ here since 2019, and I'm still enjoying it.", 'options' => ['have worked', 'worked', 'am working'], 'correct' => 0],
@@ -164,6 +171,25 @@ class PlacementTest
     }
 
     /**
+     * A checkpoint (S3) has no fresh vocabulary/grammar answers to build
+     * a recognition band from — it only ever redoes the spoken part.
+     * Reusing score() with empty answer arrays would silently force
+     * recognition down to 'A1' (no items answered = 0% in every band)
+     * and corrupt the result through combine(); this exists so a
+     * checkpoint blends the NEW spoken level against the learner's
+     * EXISTING recognition band instead, the same combine() rule the
+     * initial test uses, just fed the right inputs.
+     */
+    public function levelForCheckpoint(string $priorRecognitionLevel, ?string $spokenLevel): string
+    {
+        if ($spokenLevel === null || ! in_array($spokenLevel, ['below A1', ...self::LEVELS, 'above B1'], true)) {
+            return $priorRecognitionLevel;
+        }
+
+        return $this->combine($priorRecognitionLevel, $spokenLevel);
+    }
+
+    /**
      * Production leads, recognition follows at one step behind: speaking
      * decides, unless recognition is a whole level lower (in which case
      * the gap is more likely a generous grader than a real level).
@@ -178,5 +204,84 @@ class PlacementTest
         $final = max(1, min(3, $final));
 
         return array_search($final, $rank, true);
+    }
+
+    /**
+     * Transcribes a spoken recording and asks the AI for a CEFR read of
+     * it — the shared plumbing behind BOTH the initial placement test's
+     * spoken part and a later checkpoint's redo (see
+     * [[project_growth_without_discouragement_stories]] S3), so the two
+     * only ever diverge in the prompt content, never in how the audio
+     * gets judged. Fails soft: a relay outage returns [null, null]
+     * rather than throwing, exactly like the placement test's own
+     * "provisional" result already does — a checkpoint the learner
+     * bothered to record must not just vanish because Groq was down for
+     * a minute.
+     *
+     * @return array{0: ?string, 1: ?string} transcript, CEFR level ('below A1'..'above B1')
+     */
+    public function gradeSpeakingRecording(string $path): array
+    {
+        try {
+            $transcript = trim($this->groq->transcribe($path));
+
+            if ($transcript === '') {
+                return [null, null];
+            }
+
+            $data = $this->feedbackCard->generate(
+                [['role' => 'user', 'text' => "Transcript of the learner's spoken answer: \"{$transcript}\""]],
+                systemPrompt: 'You are a CEFR examiner placing an English learner. They spoke for about 45 '
+                    .'seconds about a normal day in their life. Judge their SPOKEN production only — range of '
+                    .'vocabulary, control of tenses, and how much they can say without breaking down. Ignore '
+                    .'transcription artefacts and pronunciation. Reply with ONLY valid JSON, no markdown fences: '
+                    .'{"level": "one of: below A1, A1, A2, B1, above B1", "reason": "one short sentence, '
+                    .'addressed to the learner, warm and concrete"}',
+                requiredKeys: ['level'],
+            );
+
+            return [$transcript, $data['level'] ?? null];
+        } catch (Throwable) {
+            return [null, null];
+        }
+    }
+
+    /**
+     * The qualitative half of a checkpoint (T3.5): given the SAME spoken
+     * prompt answered months apart, names what actually got better in
+     * the learner's own two transcripts — never a score, never a
+     * generic "keep practising". Deliberately asks for concrete,
+     * nameable dimensions (fluency/length/vocabulary range) rather than
+     * a verdict, because "your level hasn't moved" is a real, frequent
+     * outcome this app must be honest about without it reading as
+     * failure — see the copy rule in
+     * [[project_curriculum_design_open_questions]] §2.
+     *
+     * Null on any AI failure — the checkpoint still saves the new
+     * recording/level without a comparison rather than losing the
+     * attempt entirely.
+     *
+     * @return array{observations: list<string>, focus: string}|null
+     */
+    public function compareTranscripts(string $earlierTranscript, string $laterTranscript): ?array
+    {
+        try {
+            return $this->feedbackCard->generate(
+                [['role' => 'user', 'text' => "EARLIER recording transcript:\n\"{$earlierTranscript}\"\n\n"
+                    ."LATER recording transcript (same spoken prompt, months later):\n\"{$laterTranscript}\""]],
+                systemPrompt: 'You compare two transcripts of the SAME English learner answering the SAME '
+                    .'spoken prompt, months apart. Speak directly to the learner ("you"), warm and concrete, '
+                    .'never clinical. Name 1-3 REAL, SPECIFIC differences you can actually see in the text — '
+                    .'longer sentences, a wider range of vocabulary, fewer repeated simple structures, more '
+                    .'connected ideas, fewer restarts/fillers. If the two are genuinely very similar, say so '
+                    .'honestly (e.g. "these look close in level") rather than inventing progress — never claim '
+                    .'a level moved (a separate objective check decides that). Then give ONE concrete, '
+                    .'encouraging focus for what to work on next. Reply with ONLY valid JSON, no markdown '
+                    .'fences: {"observations": ["short sentence", ...up to 3], "focus": "one short sentence"}',
+                requiredKeys: ['observations', 'focus'],
+            );
+        } catch (Throwable) {
+            return null;
+        }
     }
 }

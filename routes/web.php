@@ -40,6 +40,10 @@ Route::middleware('auth')->group(function () {
         return view('placement');
     })->name('placement');
 
+    Route::get('/checkpoint/{mission:code}', function (Mission $mission) {
+        return view('checkpoint', compact('mission'));
+    })->name('missions.checkpoint');
+
     Route::get('/vocabulary', function () {
         return view('vocabulary');
     })->name('vocabulary.index');

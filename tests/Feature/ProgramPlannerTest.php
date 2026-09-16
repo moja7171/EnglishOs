@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PlacementTest;
 use App\Models\User;
 use App\Services\ProgramPlanner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -100,6 +101,65 @@ class ProgramPlannerTest extends TestCase
         $this->assertStringContainsString('My Daily Life', $plan['today']['speaking']['prompt']);
         $this->assertStringContainsString('What do you do?', $plan['today']['speaking']['prompt']);
         $this->assertStringContainsString('Present Simple', $plan['today']['speaking']['prompt']);
+    }
+
+    public function test_a_checkpoint_is_offered_on_a_checkpoint_missions_consolidation_day(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission('M06', 'Checkpoint Mission'));
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+
+        $plan = app(ProgramPlanner::class)->plan($learner);
+
+        $this->assertSame('consolidation', $plan['today']['kind']);
+        $this->assertTrue($plan['today']['checkpointAvailable']);
+    }
+
+    public function test_a_checkpoint_is_not_offered_on_a_non_checkpoint_missions_consolidation_day(): void
+    {
+        $learner = User::factory()->create();
+        // M01 is not in ProgramPlanner::CHECKPOINT_MISSIONS.
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+
+        $plan = app(ProgramPlanner::class)->plan($learner);
+
+        $this->assertFalse($plan['today']['checkpointAvailable']);
+    }
+
+    public function test_a_checkpoint_already_taken_is_not_offered_again(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission('M12', 'Checkpoint Mission'));
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+
+        PlacementTest::create([
+            'learner_id' => $learner->id,
+            'kind' => PlacementTest::KIND_CHECKPOINT,
+            'checkpoint_mission_code' => 'M12',
+            'level' => 'B1',
+            'recognition_level' => 'B1',
+            'detail' => [],
+        ]);
+
+        $plan = app(ProgramPlanner::class)->plan($learner);
+
+        $this->assertFalse($plan['today']['checkpointAvailable']);
+    }
+
+    public function test_a_checkpoint_never_gates_the_consolidation_day_from_closing(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission('M18', 'Checkpoint Mission'));
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+        $this->makeMission('M02', 'Next Mission');
+
+        // Logging the Pi sentence closes the day whether or not the
+        // checkpoint was ever taken — nothing about the checkpoint may
+        // block this.
+        app(ProgramPlanner::class)->logConsolidationSpeaking($run, 'I usually get up at seven.');
+
+        $this->assertSame('start_next', app(ProgramPlanner::class)->plan($learner)['today']['kind']);
     }
 
     public function test_logging_the_pi_sentence_closes_the_consolidation_day(): void

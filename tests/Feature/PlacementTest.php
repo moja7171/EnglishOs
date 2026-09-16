@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use App\Services\PlacementTest as PlacementTestContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -161,6 +163,35 @@ class PlacementTest extends TestCase
         ]);
 
         Livewire::test('missions.overview')->assertDontSeeHtml("Find out where you're starting");
+    }
+
+    public function test_a_checkpoint_level_blends_the_new_spoken_grade_with_the_prior_recognition_band(): void
+    {
+        $this->assertSame('A2', $this->content()->levelForCheckpoint('B1', 'A1'));
+        $this->assertSame('A2', $this->content()->levelForCheckpoint('A1', 'above B1'));
+        $this->assertSame('B1', $this->content()->levelForCheckpoint('B1', 'B1'));
+    }
+
+    public function test_a_missing_spoken_grade_keeps_the_prior_recognition_level(): void
+    {
+        $this->assertSame('A2', $this->content()->levelForCheckpoint('A2', null));
+    }
+
+    public function test_grading_a_recording_fails_soft_on_a_relay_outage(): void
+    {
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('relay down')));
+
+        [$transcript, $level] = $this->content()->gradeSpeakingRecording('/tmp/fake.webm');
+
+        $this->assertNull($transcript);
+        $this->assertNull($level);
+    }
+
+    public function test_comparing_transcripts_fails_soft_and_returns_null(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('relay down')));
+
+        $this->assertNull($this->content()->compareTranscripts('old text', 'new text'));
     }
 
     public function test_the_test_page_renders_all_three_parts(): void

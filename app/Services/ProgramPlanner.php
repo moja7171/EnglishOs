@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PlacementTest as PlacementTestResult;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -35,6 +36,15 @@ class ProgramPlanner
 
     /** Evidence phase recorded on a mission's run when its consolidation day's speaking was logged. */
     public const CONSOLIDATION_PHASE = 'consolidation_speaking';
+
+    /**
+     * Consolidation days that also carry a "your voice, N months in"
+     * checkpoint — evenly spaced quarters of the roadmap, on days that
+     * already exist and are already light, so a checkpoint never needs
+     * its own new day or gate. See
+     * [[project_growth_without_discouragement_stories]] S3.
+     */
+    public const CHECKPOINT_MISSIONS = ['M06', 'M12', 'M18', 'M24'];
 
     /**
      * @return array{
@@ -86,6 +96,7 @@ class ProgramPlanner
         $base = [
             'mission' => null, 'run' => null, 'dayNumber' => null, 'dayLabel' => null,
             'steps' => [], 'estimatedMinutes' => 0, 'nextMission' => null, 'nextMissionCode' => null, 'speaking' => null,
+            'checkpointAvailable' => false,
         ];
 
         // An open run (in progress, or sent back for more evidence) always
@@ -119,6 +130,7 @@ class ProgramPlanner
                 'nextMission' => $nextMission,
                 'nextMissionCode' => $nextCode,
                 'speaking' => $this->speaking($latest->mission),
+                'checkpointAvailable' => $this->checkpointAvailable($learner, $latest->mission->code),
             ] + $base;
         }
 
@@ -128,6 +140,26 @@ class ProgramPlanner
             'nextMission' => $nextMission,
             'nextMissionCode' => $nextCode,
         ] + $base;
+    }
+
+    /**
+     * True only on a checkpoint mission's consolidation day, and only
+     * until the learner has actually taken that specific checkpoint —
+     * checked directly against the placement_tests table rather than
+     * any in-memory state, so revisiting the page after taking it
+     * doesn't keep re-offering it. Never used to gate anything; see
+     * <x-checkpoint-card> and PlacementTest::KIND_CHECKPOINT.
+     */
+    private function checkpointAvailable(User $learner, string $missionCode): bool
+    {
+        if (! in_array($missionCode, self::CHECKPOINT_MISSIONS, true)) {
+            return false;
+        }
+
+        return ! PlacementTestResult::where('learner_id', $learner->id)
+            ->where('kind', PlacementTestResult::KIND_CHECKPOINT)
+            ->where('checkpoint_mission_code', $missionCode)
+            ->exists();
     }
 
     private function missionDay(MissionRun $run): array
@@ -189,7 +221,7 @@ class ProgramPlanner
         if ($focus) {
             $lines[] = "I'm practising \"{$focus}\" — please notice when I use it.";
         }
-        $lines[] = "At the end, tell me my 3 most useful corrections in simple English.";
+        $lines[] = 'At the end, tell me my 3 most useful corrections in simple English.';
 
         return [
             'title' => $mission->title,
