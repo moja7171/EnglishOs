@@ -281,6 +281,7 @@ new class extends Component
                 />
                 <x-reveal-offer
                     :show="$offerReveal[$round] ?? false"
+                    :struggling="$this->run->isStruggling()"
                     reveal-method="revealExample"
                     decline-method="declineExample"
                     :index="$round"

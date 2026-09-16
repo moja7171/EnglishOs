@@ -2,6 +2,7 @@
 
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
+use App\Models\ErrorPatternReview;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Models\Reflection;
@@ -9,6 +10,7 @@ use App\Models\SelfAssessment;
 use App\Models\SpeakingPrompt;
 use App\Notifications\StreakMilestoneReached;
 use App\Services\GeminiClient;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 
 new class extends Component
@@ -197,6 +199,26 @@ new class extends Component
     public function getRecurringErrorProperty(): ?ErrorLogItem
     {
         return $this->run->learner->topRecurringError();
+    }
+
+    /**
+     * The mirror image of recurringError, and the reason it sits right
+     * above it here: finishing a mission is the moment a learner is most
+     * open to hearing how they're doing, so "what you've fixed" gets to
+     * land before "a pattern to keep an eye on" does. See
+     * <x-mistakes-you-fixed>.
+     *
+     * @return Collection<int, ErrorPatternReview>
+     */
+    public function getMasteredErrorsProperty(): Collection
+    {
+        return $this->run->learner->masteredErrorPatterns();
+    }
+
+    /** @return Collection<int, ErrorPatternReview> */
+    public function getFadingErrorsProperty(): Collection
+    {
+        return $this->run->learner->fadingErrorPatterns();
     }
 
     /**
@@ -721,6 +743,16 @@ new class extends Component
                             </span>
                         @endforeach
                     </div>
+                </div>
+            @endif
+
+            {{-- Unlike on the Progress page, the empty state is suppressed
+                 here: Mission Result is already a dense celebration
+                 screen, and "nothing here yet" would be one more card
+                 saying nothing. --}}
+            @if ($this->masteredErrors->isNotEmpty() || $this->fadingErrors->isNotEmpty())
+                <div class="mt-4 rounded-xl border border-success/30 bg-success-soft p-3 dark:border-success-dark/30 dark:bg-success-soft-dark">
+                    <x-mistakes-you-fixed :mastered="$this->masteredErrors" :fading="$this->fadingErrors" :boxed="false" />
                 </div>
             @endif
 

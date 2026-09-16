@@ -765,6 +765,108 @@ class User extends Authenticatable
     }
 
     /**
+     * How many of the learner's most recent completed missions
+     * fadingErrorPatterns() looks back over, and how many spaced-
+     * repetition passes masteredErrorPatterns() wants to see. Both are
+     * deliberately generous rather than strict: this list exists to give
+     * a discouraged learner evidence they are improving, so the cost of
+     * naming a category slightly early is far lower than the cost of an
+     * empty page. See [[project_growth_without_discouragement_stories]].
+     */
+    public const MASTERED_ERROR_REPETITIONS = 3;
+
+    public const FADING_ERROR_LOOKBACK_MISSIONS = 3;
+
+    /**
+     * Error categories this learner has genuinely stopped making: they
+     * passed the spaced-repetition review at least MASTERED_ERROR_REPETITIONS
+     * times in a row AND the category has not reappeared in any real
+     * Error Log since that last passing review.
+     *
+     * That second half is what makes this honest. repetitions alone only
+     * says "answered the drill correctly"; a learner can pass the drill
+     * on Monday and make the same mistake in Wednesday's writing. Only a
+     * category that survives both — the drill and their own unprompted
+     * production — has actually been fixed, which is exactly the claim
+     * <x-mistakes-you-fixed> makes on screen.
+     *
+     * @return Collection<int, ErrorPatternReview>
+     */
+    public function masteredErrorPatterns(): Collection
+    {
+        return $this->errorPatternReviews()
+            ->where('repetitions', '>=', self::MASTERED_ERROR_REPETITIONS)
+            ->whereNotNull('last_reviewed_at')
+            ->get()
+            ->reject(fn (ErrorPatternReview $review) => $this->errorRecurredSince($review->category, $review->last_reviewed_at))
+            ->sortByDesc('repetitions')
+            ->values();
+    }
+
+    /**
+     * The softer, much earlier signal: categories that ARE still being
+     * tracked but simply haven't shown up in the last few missions. Not
+     * "fixed" — "fading" — so the copy around it has to stay hedged
+     * ("you haven't made this one lately"), which is why it's a separate
+     * method rather than a looser threshold on the one above.
+     *
+     * This is what carries the feature for the first ~10 missions, since
+     * reaching MASTERED_ERROR_REPETITIONS takes real calendar time under
+     * SM-2's growing intervals. A learner who has completed fewer than
+     * two missions gets nothing: with one mission of history, "absent
+     * from recent missions" would be true of every category by accident.
+     *
+     * @return Collection<int, ErrorPatternReview>
+     */
+    public function fadingErrorPatterns(): Collection
+    {
+        $recentRunIds = $this->missionRuns()
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->limit(self::FADING_ERROR_LOOKBACK_MISSIONS)
+            ->pluck('id');
+
+        if ($recentRunIds->count() < 2) {
+            return collect();
+        }
+
+        $stillActive = ErrorLogItem::query()
+            ->whereIn('mission_run_id', $recentRunIds)
+            ->whereNotNull('category')
+            ->distinct()
+            ->pluck('category');
+
+        $mastered = $this->masteredErrorPatterns()->pluck('category');
+
+        return $this->errorPatternReviews()
+            ->get()
+            ->reject(fn (ErrorPatternReview $review) => $stillActive->contains($review->category))
+            ->reject(fn (ErrorPatternReview $review) => $mastered->contains($review->category))
+            ->sortByDesc('updated_at')
+            ->values();
+    }
+
+    /**
+     * Has this error category appeared in a real Error Log since $since?
+     * Compared against ErrorLogItem's own created_at rather than the
+     * mission run's, because a run stays open for days — the mistake's
+     * own timestamp is the only one that answers "after the review".
+     */
+    private function errorRecurredSince(string $category, ?Carbon $since): bool
+    {
+        if ($since === null) {
+            return false;
+        }
+
+        return ErrorLogItem::query()
+            ->join('mission_runs', 'mission_runs.id', '=', 'error_log_items.mission_run_id')
+            ->where('mission_runs.learner_id', $this->id)
+            ->where('error_log_items.category', $category)
+            ->where('error_log_items.created_at', '>', $since)
+            ->exists();
+    }
+
+    /**
      * Average "after" self-assessment score per skill (0-5) across every
      * completed mission — feeds <x-skill-radar> on the Progress page.
      * Deliberately excludes the "before" scores (this is a snapshot of

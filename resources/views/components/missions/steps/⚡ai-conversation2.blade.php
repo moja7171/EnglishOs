@@ -336,6 +336,7 @@ new class extends Component
                 />
                 <x-reveal-offer
                     :show="$offerReveal[$roundIndex] ?? false"
+                    :struggling="$this->run->isStruggling()"
                     reveal-method="revealExample"
                     decline-method="declineExample"
                     :index="$roundIndex"
@@ -387,6 +388,7 @@ new class extends Component
                 />
                 <x-reveal-offer
                     :show="$offerReveal['final'] ?? false"
+                    :struggling="$this->run->isStruggling()"
                     reveal-method="revealExample"
                     decline-method="declineExample"
                     index="final"

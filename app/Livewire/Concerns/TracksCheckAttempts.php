@@ -28,6 +28,12 @@ trait TracksCheckAttempts
     /** @var array<int|string, bool> keyed by field key — true once the reveal offer should show */
     public array $offerReveal = [];
 
+    /** Attempts before the reveal is offered, for a learner who is doing fine. */
+    public const REVEAL_AFTER_ATTEMPTS = 3;
+
+    /** ...and for one who is visibly struggling — see MissionRun::isStruggling(). */
+    public const REVEAL_AFTER_ATTEMPTS_WHEN_STRUGGLING = 2;
+
     /**
      * Call after every AI (or locally judged) check verdict for a field.
      */
@@ -45,9 +51,37 @@ trait TracksCheckAttempts
 
         $this->checkAttempts[$key] = ($this->checkAttempts[$key] ?? 0) + 1;
 
-        if ($this->checkAttempts[$key] >= 3) {
+        if ($this->checkAttempts[$key] >= $this->revealThreshold()) {
             $this->offerReveal[$key] = true;
         }
+    }
+
+    /**
+     * Three tries normally, two once the learner is struggling. This is
+     * the whole of S2's mechanism and it only ever moves one way: a
+     * struggling learner is offered help SOONER, never asked for more.
+     * Nothing here changes what the step requires to be complete — the
+     * reveal was always available at attempt 3, it just arrives earlier
+     * for someone who needs it. See
+     * [[project_growth_without_discouragement_stories]] S2.
+     */
+    public function revealThreshold(): int
+    {
+        return $this->run->isStruggling()
+            ? self::REVEAL_AFTER_ATTEMPTS_WHEN_STRUGGLING
+            : self::REVEAL_AFTER_ATTEMPTS;
+    }
+
+    /**
+     * True on the attempt just before the offer appears, so
+     * <x-almost-reveal-notice> can warn the learner it's coming instead
+     * of the offer arriving out of nowhere. Lives here rather than as a
+     * hardcoded `=== 2` in eight different step views, which is what it
+     * was before the threshold could move.
+     */
+    public function isAlmostRevealing(int|string $key): bool
+    {
+        return ($this->checkAttempts[$key] ?? 0) === $this->revealThreshold() - 1;
     }
 
     protected function clearCheckAttempt(int|string $key): void
@@ -57,8 +91,9 @@ trait TracksCheckAttempts
 
     /**
      * Declining doesn't end the offer forever — it resets the count so the
-     * same question comes back after 3 more failed attempts, decided fresh
-     * by the learner each time, not just once.
+     * same question comes back after another full round of failed
+     * attempts (see revealThreshold()), decided fresh by the learner each
+     * time, not just once.
      */
     public function declineCheckReveal(int|string $key): void
     {

@@ -658,9 +658,10 @@ new class extends Component
                             </div>
 
                             @unless ($readOnly)
-                                <x-almost-reveal-notice :show="($checkAttempts[$word] ?? 0) === 2" />
+                                <x-almost-reveal-notice :show="$this->isAlmostRevealing($word)" />
                                 <x-reveal-offer
                                     :show="$offerReveal[$word] ?? false"
+                                    :struggling="$this->run->isStruggling()"
                                     reveal-method="revealCorrection"
                                     decline-method="declineReveal"
                                     :index="$index"

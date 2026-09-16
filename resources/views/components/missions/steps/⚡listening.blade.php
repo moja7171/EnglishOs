@@ -668,9 +668,10 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
-                            <x-almost-reveal-notice :show="($checkAttempts[$key] ?? 0) === 2" />
+                            <x-almost-reveal-notice :show="$this->isAlmostRevealing($key)" />
                             <x-reveal-offer
                                 :show="$offerReveal[$key] ?? false"
+                                :struggling="$this->run->isStruggling()"
                                 reveal-method="revealGist"
                                 decline-method="declineGist"
                                 :index="$index"
@@ -743,9 +744,10 @@ new class extends Component
                         </div>
 
                         @unless ($readOnly)
-                            <x-almost-reveal-notice :show="($checkAttempts[$key] ?? 0) === 2" />
+                            <x-almost-reveal-notice :show="$this->isAlmostRevealing($key)" />
                             <x-reveal-offer
                                 :show="$offerReveal[$key] ?? false"
+                                :struggling="$this->run->isStruggling()"
                                 reveal-method="revealExpression"
                                 decline-method="declineExpression"
                                 :index="$index"
