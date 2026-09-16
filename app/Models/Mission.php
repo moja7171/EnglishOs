@@ -22,47 +22,165 @@ class Mission extends Model
     public const TOTAL_ROADMAP_MISSIONS = 24;
 
     /**
-     * The whole M01-M24 roadmap's planned title + Pexels image_query,
-     * keyed by code — single source of truth shared by the missions
-     * overview (renders a themed placeholder for a slot not yet seeded,
-     * see ⚡overview.blade.php's roadmapPlaceholder()) and
-     * MissionSeeder's Pexels cache warmer (see [[feedback_never_fetch_pexels_live_on_site]]),
-     * so the two can never drift apart. A slot whose mission IS already
-     * seeded never consults this for display (its own real title/cover
-     * renders instead) — this is just the forward-looking plan, so a
-     * title here intentionally may not match what a mission ends up
-     * actually seeded as (M02 shipped as "People I Know", not "People &
-     * Relationships").
+     * The whole M01-M24 roadmap, keyed by code: planned title, Pexels
+     * image_query, and — since 2026-09-16 — the grammar point that
+     * mission teaches, with the reason that topic was the right home for
+     * it.
      *
-     * @return array<string, array{title: string, image_query: string}>
+     * The grammar column is the curriculum's spine. It exists because the
+     * roadmap is topic-driven, so without a map the path could reach M24
+     * having never taught the present perfect or a conditional, and the
+     * goal is a real, produceable B1 base
+     * ([[project_goal_real_b1_not_ielts_prep]]). Two rules shaped it:
+     *
+     *  - The topic picks the grammar, never the other way round. Each
+     *    pairing passes one test — the mission's Final Challenge question
+     *    can be written so that answering it honestly REQUIRES that
+     *    grammar. 'why' records that argument; if a pairing ever stops
+     *    passing it, change the pairing, don't bolt the grammar on.
+     *  - Forms build in order, and no point repeats
+     *    ([[feedback_content_authoring_conventions]] rule 7). Where the
+     *    roadmap revisits a topic (People → Personality → Relationships),
+     *    it revisits it at a higher form: present tenses → relative
+     *    clauses → present perfect.
+     *
+     * A mission's own source PDF is NOT authoritative about grammar — the
+     * user settled this explicitly; M05 onward the PDFs carry no grammar
+     * at all, and M03 already had its PDF's point replaced.
+     *
+     * Also the single source of truth the missions overview reads for
+     * unbuilt slots (⚡overview.blade.php's roadmapPlaceholder()) and
+     * MissionSeeder's Pexels cache warmer
+     * ([[feedback_never_fetch_pexels_live_on_site]]) — so the plan and
+     * what ships can't drift apart. A slot whose mission IS seeded never
+     * consults this for display, so a title here may not match what the
+     * mission shipped as (M02 shipped as "People I Know").
+     *
+     * @return array<string, array{title: string, image_query: string, grammar: string, why: string}>
      */
     public static function roadmapCatalog(): array
     {
         return [
-            'M01' => ['title' => 'My Daily Life', 'image_query' => 'morning routine sunrise coffee'],
-            'M02' => ['title' => 'People & Relationships', 'image_query' => 'two friends laughing coffee shop'],
-            'M03' => ['title' => 'Work & Study', 'image_query' => 'people working office study'],
-            'M04' => ['title' => 'Food & Lifestyle', 'image_query' => 'healthy meal fresh vegetables table'],
-            'M05' => ['title' => 'Hobbies & Free Time', 'image_query' => 'hobby painting guitar leisure'],
-            'M06' => ['title' => 'Learning English', 'image_query' => 'open notebook studying language'],
-            'M07' => ['title' => 'Family', 'image_query' => 'family together home smiling'],
-            'M08' => ['title' => 'Friends', 'image_query' => 'friends group laughing outdoors'],
-            'M09' => ['title' => 'Personality', 'image_query' => 'thoughtful portrait person'],
-            'M10' => ['title' => 'Relationships', 'image_query' => 'couple holding hands walking'],
-            'M11' => ['title' => 'Work', 'image_query' => 'office desk laptop work'],
-            'M12' => ['title' => 'Education', 'image_query' => 'university classroom students'],
-            'M13' => ['title' => 'Technology', 'image_query' => 'laptop smartphone technology desk'],
-            'M14' => ['title' => 'Money', 'image_query' => 'money coins wallet savings'],
-            'M15' => ['title' => 'Shopping', 'image_query' => 'shopping bags store mall'],
-            'M16' => ['title' => 'Travel', 'image_query' => 'airplane travel suitcase passport'],
-            'M17' => ['title' => 'Culture', 'image_query' => 'museum art culture'],
-            'M18' => ['title' => 'Environment', 'image_query' => 'nature forest green environment'],
-            'M19' => ['title' => 'Media', 'image_query' => 'newspaper television media'],
-            'M20' => ['title' => 'Opinions', 'image_query' => 'people discussion table talking'],
-            'M21' => ['title' => 'Problems & Solutions', 'image_query' => 'lightbulb idea solution'],
-            'M22' => ['title' => 'Decision Making', 'image_query' => 'crossroads decision choice path'],
-            'M23' => ['title' => 'Future Plans', 'image_query' => 'calendar planning goals notebook'],
-            'M24' => ['title' => 'Debate & Discussion', 'image_query' => 'group discussion meeting table'],
+            'M01' => [
+                'title' => 'My Daily Life', 'image_query' => 'morning routine sunrise coffee',
+                'grammar' => "Present Simple + Adverbs of Frequency",
+                'why' => "A routine is the one thing you cannot describe without it: 'I usually get up at seven.'",
+            ],
+            'M02' => [
+                'title' => 'People & Relationships', 'image_query' => 'two friends laughing coffee shop',
+                'grammar' => "Present Simple vs Present Continuous",
+                'why' => "Describing people you know means separating what someone is generally like from what they are doing these days.",
+            ],
+            'M03' => [
+                'title' => 'Work & Study', 'image_query' => 'people working office study',
+                'grammar' => "Modals of Obligation & Ability",
+                'why' => "A job is duties and permissions out loud: 'I have to finish it by Friday', 'I can work from home'.",
+            ],
+            'M04' => [
+                'title' => 'Food & Lifestyle', 'image_query' => 'healthy meal fresh vegetables table',
+                'grammar' => "Countable & Uncountable Nouns + Quantifiers",
+                'why' => "You cannot talk about what you eat without 'some rice', 'a few eggs', 'not much sugar'.",
+            ],
+            'M05' => [
+                'title' => 'Hobbies & Free Time', 'image_query' => 'hobby painting guitar leisure',
+                'grammar' => "Gerunds vs Infinitives",
+                'why' => "Free time is verb patterns: 'I enjoy playing', 'I want to learn', \"I'm good at cooking\".",
+            ],
+            'M06' => [
+                'title' => 'Learning English', 'image_query' => 'open notebook studying language',
+                'grammar' => "Past Simple",
+                'why' => "How you started learning English is a story that happened and finished: 'I started at school, we used a red book.'",
+            ],
+            'M07' => [
+                'title' => 'Family', 'image_query' => 'family together home smiling',
+                'grammar' => "'used to' + Past Continuous",
+                'why' => "Childhood and family life: 'we used to live near the sea', 'while my mother was cooking…'.",
+            ],
+            'M08' => [
+                'title' => 'Friends', 'image_query' => 'friends group laughing outdoors',
+                'grammar' => "Comparatives & Superlatives",
+                'why' => "Friends only get described by comparison: 'my oldest friend', 'he's more patient than me'.",
+            ],
+            'M09' => [
+                'title' => 'Personality', 'image_query' => 'thoughtful portrait person',
+                'grammar' => "Defining Relative Clauses",
+                'why' => "A personality is a 'someone who…': 'a person who always listens', 'the kind of friend that never judges'.",
+            ],
+            'M10' => [
+                'title' => 'Relationships', 'image_query' => 'couple holding hands walking',
+                'grammar' => "Present Perfect with for / since",
+                'why' => "A relationship is measured in duration: \"we've known each other since school\", \"I've never argued with him\".",
+            ],
+            'M11' => [
+                'title' => 'Work', 'image_query' => 'office desk laptop work',
+                'grammar' => "Future: will / going to / present continuous",
+                'why' => "Career talk is plans, intentions and arrangements: \"I'm going to apply\", \"I'm meeting my manager on Monday\".",
+            ],
+            'M12' => [
+                'title' => 'Education', 'image_query' => 'university classroom students',
+                'grammar' => "Reported Speech (basic)",
+                'why' => "School is what other people said: 'my teacher told me that…', 'they said I had to repeat it.'",
+            ],
+            'M13' => [
+                'title' => 'Technology', 'image_query' => 'laptop smartphone technology desk',
+                'grammar' => "Present Perfect vs Past Simple",
+                'why' => "Technology forces the contrast: 'phones have changed a lot' versus 'I bought mine last year.'",
+            ],
+            'M14' => [
+                'title' => 'Money', 'image_query' => 'money coins wallet savings',
+                'grammar' => "First Conditional",
+                'why' => "Money is consequences: \"if I save this month, I'll buy it\", \"unless prices drop, I won't.\"",
+            ],
+            'M15' => [
+                'title' => 'Shopping', 'image_query' => 'shopping bags store mall',
+                'grammar' => "The Passive (present & past)",
+                'why' => "Products are talked about without an actor: \"it's made in Turkey\", 'it was delivered yesterday.'",
+            ],
+            'M16' => [
+                'title' => 'Travel', 'image_query' => 'airplane travel suitcase passport',
+                'grammar' => "Past Perfect (narrative past)",
+                'why' => "A travel story needs an earlier past: 'by the time we arrived, the bus had already left.'",
+            ],
+            'M17' => [
+                'title' => 'Culture', 'image_query' => 'museum art culture',
+                'grammar' => "Modals of Deduction (must / might / can't)",
+                'why' => "Comparing cultures is careful guessing: \"that must be a local custom\", \"it can't be easy for visitors.\"",
+            ],
+            'M18' => [
+                'title' => 'Environment', 'image_query' => 'nature forest green environment',
+                'grammar' => "Second Conditional",
+                'why' => "The environment is the unreal-but-possible: 'if everyone recycled, we would waste less.'",
+            ],
+            'M19' => [
+                'title' => 'Media', 'image_query' => 'newspaper television media',
+                'grammar' => "Non-Defining Relative Clauses",
+                'why' => "Media talk adds asides: 'Instagram, which I check every morning, takes an hour of my day.'",
+            ],
+            'M20' => [
+                'title' => 'Opinions', 'image_query' => 'people discussion table talking',
+                'grammar' => "Advice Modals (should / ought to / had better)",
+                'why' => "An opinion about what someone else ought to do: 'I think you should…', \"you'd better not…\".",
+            ],
+            'M21' => [
+                'title' => 'Problems & Solutions', 'image_query' => 'lightbulb idea solution',
+                'grammar' => "Purpose & Cause (so that / in order to / because of)",
+                'why' => "A solution is explained by its purpose and its cause: 'I wrote it down so that I wouldn't forget.'",
+            ],
+            'M22' => [
+                'title' => 'Decision Making', 'image_query' => 'crossroads decision choice path',
+                'grammar' => "Preference (would rather / prefer / had better)",
+                'why' => "Deciding is preferring out loud: \"I'd rather stay than go\", 'I prefer working alone.'",
+            ],
+            'M23' => [
+                'title' => 'Future Plans', 'image_query' => 'calendar planning goals notebook',
+                'grammar' => "Future Continuous + hopes and plans",
+                'why' => "A plan set in a future moment: \"this time next year I'll be living abroad\", 'I hope to finish by June.'",
+            ],
+            'M24' => [
+                'title' => 'Debate & Discussion', 'image_query' => 'group discussion meeting table',
+                'grammar' => "Contrast & Concession (although / however / despite)",
+                'why' => "A debate is two sides in one sentence: 'although it costs more, it lasts longer.'",
+            ],
         ];
     }
 
