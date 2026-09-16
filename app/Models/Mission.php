@@ -290,6 +290,60 @@ class Mission extends Model
         return array_slice($items, 0, $keep, preserve_keys: true);
     }
 
+    /** Feedback-strictness stages, same three-way split as scaffoldLevel(). */
+    public const FEEDBACK_LENIENT = 'lenient';
+
+    public const FEEDBACK_STANDARD = 'standard';
+
+    public const FEEDBACK_ATTENTIVE = 'attentive';
+
+    /**
+     * S5 of [[project_growth_without_discouragement_stories]]: the AI's
+     * strictness is the one dial allowed to move, and it must be
+     * asymmetric — sharper as the roadmap goes on, but NEVER colder and
+     * NEVER longer. Reuses scaffoldLevel()'s thirds so "further into the
+     * program" means one consistent thing across every silent-adaptation
+     * mechanism in the app.
+     */
+    public function feedbackLevel(): string
+    {
+        return match (true) {
+            $this->number() <= 8 => self::FEEDBACK_LENIENT,
+            $this->number() <= 16 => self::FEEDBACK_STANDARD,
+            default => self::FEEDBACK_ATTENTIVE,
+        };
+    }
+
+    /**
+     * Extra system-prompt guidance for SentenceChecker::check(), appended
+     * alongside — never in place of — each step's own $majorCriteria.
+     *
+     * The one thing this is NOT allowed to touch is what counts as
+     * "major": that's the pass bar (a "major" severity is what blocks
+     * Continue via TracksCheckAttempts), and S4/S5 both start from the
+     * same rule that nothing here may raise it. All this moves is where
+     * the line between "none" and "minor" falls — early missions read a
+     * small, understandable slip as "none"; late missions hold it to
+     * "minor". A "minor" verdict only ever shows a one-sentence hint
+     * (SentenceChecker's own 12-word cap, untouched by this), so
+     * "sharper" here can never become "longer", and neither variant
+     * changes a single word of tone.
+     */
+    public function feedbackDepth(): string
+    {
+        return match ($this->feedbackLevel()) {
+            self::FEEDBACK_LENIENT => 'The learner is early in the program — be generous about what counts as '
+                .'"none": an understandable sentence with a small article, preposition, or word-order slip is '
+                .'"none", not "minor". Spelling mistakes and a missing capital letter or end punctuation are '
+                .'still always at least "minor" — that part never changes.',
+            self::FEEDBACK_ATTENTIVE => 'The learner is well into the program — hold the "minor" bar a little '
+                .'higher: a wrong article, a dropped "-s", or slightly awkward word order should be "minor" '
+                .'even though it is understandable. Never invent a problem that is not really there, and this '
+                .'never changes what counts as "major".',
+            default => '',
+        };
+    }
+
     /**
      * Flattens phases[].steps[] into an ordered list of step keys, in the
      * order a learner must complete them (EOS-009 §7).

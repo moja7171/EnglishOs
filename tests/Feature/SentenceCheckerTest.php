@@ -112,6 +112,46 @@ class SentenceCheckerTest extends TestCase
         );
     }
 
+    public function test_feedback_depth_is_appended_to_the_prompt_when_given(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, 'be generous about what counts as'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I commute to work.',
+            feedbackDepth: 'be generous about what counts as "none"…',
+        );
+    }
+
+    public function test_no_feedback_depth_leaves_the_prompt_unchanged(): void
+    {
+        // The middle third of the roadmap (Mission::FEEDBACK_STANDARD)
+        // passes an empty string — must not leave a stray trailing space
+        // or blank instruction in the prompt.
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => ! str_contains($systemPrompt, 'be generous')
+                    && ! str_contains($systemPrompt, 'hold the'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I commute to work.',
+            feedbackDepth: '',
+        );
+    }
+
     public function test_it_calibrates_to_the_authenticated_learners_own_level(): void
     {
         $this->actingAs(User::factory()->create(['cefr_level' => 'A2']));

@@ -176,6 +176,7 @@ new class extends Component
                 context: $this->sentenceContext($grammar, $starter),
                 text: $sentence,
                 extraGuidance: $this->run->aiToneGuidance(),
+                feedbackDepth: $this->run->mission->feedbackDepth(),
             );
             $this->recordGeminiCall();
 

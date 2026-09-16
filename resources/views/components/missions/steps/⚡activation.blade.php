@@ -116,6 +116,7 @@ new class extends Component
                 context: "a personal sentence about the learner's own daily life",
                 text: $sentence,
                 extraGuidance: $this->run->aiToneGuidance(),
+                feedbackDepth: $this->run->mission->feedbackDepth(),
             );
             $this->recordGeminiCall();
 

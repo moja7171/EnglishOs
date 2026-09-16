@@ -272,6 +272,7 @@ new class extends Component
                 context: "a personal sentence using the word \"{$word}\"",
                 text: $example,
                 extraGuidance: $this->run->aiToneGuidance(),
+                feedbackDepth: $this->run->mission->feedbackDepth(),
             );
             $this->recordGeminiCall();
 
