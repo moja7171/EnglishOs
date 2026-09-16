@@ -754,7 +754,11 @@ class MissionSeeder extends Seeder
                                     ['label' => 'Free Time', 'image_query' => 'relaxing hobby leisure'],
                                     ['label' => 'Weekend', 'image_query' => 'weekend park friends'],
                                 ],
-                                'try_to_use' => ['usually', 'normally', 'often', 'sometimes', 'rarely', 'after that', 'then'],
+                                // Grammar connectors plus the mission's own vocabulary_builder
+                                // words (wake up/get up/skip breakfast/commute/unwind), so Writing
+                                // threads the selected vocab too, not just Active Recall/Final
+                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
+                                'try_to_use' => ['usually', 'normally', 'often', 'sometimes', 'rarely', 'after that', 'then', 'wake up', 'get up', 'skip breakfast', 'commute', 'unwind'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -1455,7 +1459,10 @@ class MissionSeeder extends Seeder
                                 // "always"/"usually" fit the essay's general-truths-about-
                                 // friendship register (Present Simple); "these days"/"right now"
                                 // fit giving one concrete, specific example (Present Continuous).
-                                'try_to_use' => ['because', 'for example', 'in my opinion', 'always', 'usually', 'these days', 'right now'],
+                                // Plus the mission's own vocabulary_builder words, so Writing
+                                // threads the selected vocab too, not just Active Recall/Final
+                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
+                                'try_to_use' => ['because', 'for example', 'in my opinion', 'always', 'usually', 'these days', 'right now', 'best friend', 'get on well with', 'outgoing', 'friendship'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -2103,7 +2110,10 @@ class MissionSeeder extends Seeder
                                     ['label' => 'Healthy / unhealthy habits', 'image_query' => 'junk food and healthy food side by side'],
                                     ['label' => 'One thing you want to change', 'image_query' => 'fresh salad vegetables'],
                                 ],
-                                'try_to_use' => ['usually', 'normally', 'often', 'some', 'a lot of', 'a little', 'not many', 'not much'],
+                                // Plus the mission's own vocabulary_builder words, so Writing
+                                // threads the selected vocab too, not just Active Recall/Final
+                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
+                                'try_to_use' => ['usually', 'normally', 'often', 'some', 'a lot of', 'a little', 'not many', 'not much', 'home-cooked', 'eat out', 'healthy food', 'junk food'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -2746,7 +2756,10 @@ class MissionSeeder extends Seeder
                                     ['label' => 'What is difficult', 'image_query' => 'stressed deadline work'],
                                     ['label' => 'What you are working on these days', 'image_query' => 'project planning whiteboard'],
                                 ],
-                                'try_to_use' => ['have to', 'need to', "don't have to", 'can', "can't", 'must'],
+                                // Plus the mission's own vocabulary_builder words, so Writing
+                                // threads the selected vocab too, not just Active Recall/Final
+                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
+                                'try_to_use' => ['have to', 'need to', "don't have to", 'can', "can't", 'must', 'job', 'colleague', 'responsibility', 'in charge of'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
