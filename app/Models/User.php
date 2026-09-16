@@ -286,6 +286,24 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<PlacementTest, $this>
+     */
+    public function placementTests(): HasMany
+    {
+        return $this->hasMany(PlacementTest::class, 'learner_id');
+    }
+
+    /**
+     * The learner's most recent placement result, if they've taken one —
+     * what set their real cefr_level, and the baseline a retake at the
+     * end of the program gets compared against.
+     */
+    public function latestPlacementTest(): ?PlacementTest
+    {
+        return $this->placementTests()->latest('id')->first();
+    }
+
+    /**
      * Every actively-tracked spaced-repetition item (repetitions > 0 —
      * see HasSpacedRepetition::needsWrittenReview()) across all four
      * review systems, with its current freshness() — sorted so the most

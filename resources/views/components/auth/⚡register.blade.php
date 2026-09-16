@@ -47,7 +47,10 @@ new class extends Component
             request()->session()->regenerate();
         }
 
-        $this->redirect('/');
+        // Straight into the placement test rather than the first mission:
+        // the level it finds replaces the self-assessment above, which is
+        // a guess nobody really reads. It's skippable — see ⚡placement.
+        $this->redirect(route('placement'), navigate: true);
     }
 };
 ?>
