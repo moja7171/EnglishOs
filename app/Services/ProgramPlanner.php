@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PlacementTest as PlacementTestResult;
@@ -10,38 +9,34 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 
 /**
- * The 120-day program: 24 missions × 5 days — each mission's own 4 days
- * (its 4 phases) plus one "consolidation" day (Daily Review of whatever
- * is due, a 10-15 minute spoken conversation with an external AI
- * companion like Pi about that mission's topic, a glance at the Error
- * Log) before the next mission starts. This turns the roadmap into a
- * concrete "what do I do today", which nothing in the app answered
- * before.
+ * The 100-day program (24 missions × 4 days = 96 real days — "100" is the
+ * rounded, friendly name; TOTAL_DAYS below is the honest count the actual
+ * progress math and "Day N of ..." counter use). Each mission is its own
+ * 4 phases/days; there is no separate day after a mission finishes —
+ * practicing with an external AI companion like Pi happens as optional
+ * cards inside a mission's own steps, not a dedicated day (see the Pi
+ * integration in the mission structure redesign notes). This turns the
+ * roadmap into a concrete "what do I do today", which nothing in the app
+ * answered before.
  *
  * Progress-based, never calendar-enforced (EOS-004 §9 — a day unlocks
  * when the previous day's Evidence is in, whatever the date): the
- * learner's PROGRAM day is where they actually are in the 120, the
+ * learner's PROGRAM day is where they actually are in the 96, the
  * CALENDAR day is how many days have passed since they started, and the
  * difference is shown as "on track" / "N days behind" — a nudge, not a
- * lock. Nothing here gates anything; the only writes are the
- * consolidation day's own Evidence (see logConsolidationSpeaking in
- * ⚡overview.blade.php), which also counts as an active day for the
- * streak like any other Evidence.
+ * lock. Nothing here gates anything.
  */
 class ProgramPlanner
 {
-    public const TOTAL_DAYS = 120;
+    public const TOTAL_DAYS = 96;
 
-    public const DAYS_PER_MISSION = 5;
-
-    /** Evidence phase recorded on a mission's run when its consolidation day's speaking was logged. */
-    public const CONSOLIDATION_PHASE = 'consolidation_speaking';
+    public const DAYS_PER_MISSION = 4;
 
     /**
-     * Consolidation days that also carry a "your voice, N months in"
-     * checkpoint — evenly spaced quarters of the roadmap, on days that
-     * already exist and are already light, so a checkpoint never needs
-     * its own new day or gate. See
+     * Missions that also carry a "your voice, N months in" checkpoint —
+     * evenly spaced quarters of the roadmap. Offered once a checkpoint
+     * mission's run is done and its checkpoint hasn't been taken yet
+     * (see today()'s 'checkpoint' kind) — never its own day or gate. See
      * [[project_growth_without_discouragement_stories]] S3.
      */
     public const CHECKPOINT_MISSIONS = ['M06', 'M12', 'M18', 'M24'];
@@ -62,13 +57,12 @@ class ProgramPlanner
         $today = $this->today($learner, $runs, $completed);
 
         // Mission days count on top of the fully-closed missions before
-        // them; a consolidation day belongs to the mission just completed
-        // (already in $completedCount), so it's that block's own day 5.
-        $programDay = match ($today['kind']) {
-            'finished' => self::TOTAL_DAYS,
-            'consolidation' => $completedCount * self::DAYS_PER_MISSION,
-            default => $completedCount * self::DAYS_PER_MISSION + ($today['dayNumber'] ?? 1),
-        };
+        // them. Between missions (kind 'checkpoint' or 'start_next') this
+        // previews the next mission's day 1 — the same number it'll show
+        // once that next run actually starts.
+        $programDay = $today['kind'] === 'finished'
+            ? self::TOTAL_DAYS
+            : $completedCount * self::DAYS_PER_MISSION + ($today['dayNumber'] ?? 1);
         $programDay = max(1, min(self::TOTAL_DAYS, $programDay));
 
         $calendarDay = $learner->program_started_at
@@ -95,7 +89,7 @@ class ProgramPlanner
     {
         $base = [
             'mission' => null, 'run' => null, 'dayNumber' => null, 'dayLabel' => null,
-            'steps' => [], 'estimatedMinutes' => 0, 'nextMission' => null, 'nextMissionCode' => null, 'speaking' => null,
+            'steps' => [], 'estimatedMinutes' => 0, 'nextMission' => null, 'nextMissionCode' => null,
             'checkpointAvailable' => false,
         ];
 
@@ -118,19 +112,17 @@ class ProgramPlanner
         $nextCode = sprintf('M%02d', $completed->count() + 1);
         $nextMission = Mission::where('code', $nextCode)->first();
 
-        // Just finished a mission and haven't logged its consolidation
-        // day yet: today is that day.
-        if ($latest && ! $latest->evidence()->where('phase', self::CONSOLIDATION_PHASE)->exists()) {
+        // Just finished a checkpoint mission and hasn't taken that
+        // checkpoint yet: offer it before nudging toward the next
+        // mission (never a gate — see checkpointAvailable()'s docblock).
+        if ($latest && $this->checkpointAvailable($learner, $latest->mission->code)) {
             return [
-                'kind' => 'consolidation',
+                'kind' => 'checkpoint',
                 'mission' => $latest->mission,
-                'run' => $latest,
-                'dayNumber' => self::DAYS_PER_MISSION,
-                'dayLabel' => 'Consolidation',
+                'dayNumber' => 1,
                 'nextMission' => $nextMission,
                 'nextMissionCode' => $nextCode,
-                'speaking' => $this->speaking($latest->mission),
-                'checkpointAvailable' => $this->checkpointAvailable($learner, $latest->mission->code),
+                'checkpointAvailable' => true,
             ] + $base;
         }
 
@@ -143,7 +135,7 @@ class ProgramPlanner
     }
 
     /**
-     * True only on a checkpoint mission's consolidation day, and only
+     * True only right after finishing a checkpoint mission, and only
      * until the learner has actually taken that specific checkpoint —
      * checked directly against the placement_tests table rather than
      * any in-memory state, so revisiting the page after taking it
@@ -193,56 +185,4 @@ class ProgramPlanner
         ];
     }
 
-    /**
-     * What to talk about with an external AI companion on the
-     * consolidation day — built from the mission's own seeded content so
-     * the conversation reuses exactly what was just learned: its topic,
-     * its grammar point, and its Final Challenge questions. The prompt is
-     * meant to be pasted as-is into Pi (or any voice-capable assistant).
-     *
-     * @return array{title: string, focus: ?string, questions: list<string>, prompt: string}
-     */
-    public function speaking(Mission $mission): array
-    {
-        $focus = $mission->stepContent('grammar_in_context')['focus'] ?? null;
-        $questions = collect($mission->stepContent('ai_conversation_2')['rounds'] ?? [])
-            ->filter(fn ($q) => is_string($q) && $q !== '')
-            ->take(3)
-            ->values()
-            ->all();
-
-        $lines = [
-            "I'm learning English (around B1 level). Let's have a 10-minute spoken conversation about \"{$mission->title}\".",
-            'Ask me one question at a time and wait for my answer. Start with these:',
-        ];
-        foreach ($questions as $i => $question) {
-            $lines[] = ($i + 1).'. '.$question;
-        }
-        if ($focus) {
-            $lines[] = "I'm practising \"{$focus}\" — please notice when I use it.";
-        }
-        $lines[] = 'At the end, tell me my 3 most useful corrections in simple English.';
-
-        return [
-            'title' => $mission->title,
-            'focus' => $focus,
-            'questions' => $questions,
-            'prompt' => implode("\n", $lines),
-        ];
-    }
-
-    /**
-     * Records the consolidation day's speaking practice on the mission's
-     * run — Evidence like any other, so it counts as an active day for
-     * the streak and moves the program on to the next mission's day 1.
-     */
-    public function logConsolidationSpeaking(MissionRun $run, string $sentence): Evidence
-    {
-        return Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => self::CONSOLIDATION_PHASE,
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => $sentence,
-        ]);
-    }
 }

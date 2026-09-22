@@ -399,7 +399,7 @@ class MissionRun extends Model
             ['status' => self::STATUS_IN_PROGRESS, 'started_at' => now()]
         );
 
-        // The learner's very first run is day 1 of their 120-day program
+        // The learner's very first run is day 1 of their 100-day program
         // (see App\Services\ProgramPlanner) — stamped once, never moved.
         if ($run->wasRecentlyCreated && $learner->program_started_at === null) {
             $learner->forceFill(['program_started_at' => $run->started_at])->save();
