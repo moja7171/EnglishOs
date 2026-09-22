@@ -137,9 +137,10 @@ class MissionRun extends Model
 
     /**
      * Every substantial piece of English the learner actually produced
-     * across this run — AI Conversation transcripts, Writing, and
-     * Activation's spoken transcript. Centralizes what was previously a
-     * private duplicate in Error Log's
+     * across this run — AI Conversation transcripts, Writing, and the
+     * warm-up round (was the standalone Activation step) folded into
+     * AI Conversation #1's own Evidence. Centralizes what was previously
+     * a private duplicate in Error Log's
      * mistake-extraction; also used by Mission Result's vocabulary-usage
      * recap. Deliberately excludes Vocabulary Builder's own example
      * sentences and Grammar in Context's drills — those are graded
@@ -149,9 +150,15 @@ class MissionRun extends Model
     {
         $pieces = [];
 
-        if ($conv1 = $this->latestEvidence('ai_conversation_1')) {
-            $turns = json_decode($conv1->content_ref, true) ?? [];
-            $pieces[] = collect($turns)->pluck('answer')->implode(' ');
+        // AI Conversation #1 has two Evidence rows for the same phase
+        // (text, then audio) — filter explicitly rather than
+        // latestEvidence(), same reasoning as the activation-merge note
+        // below (its content now lives inside this same phase's TEXT row).
+        if ($conv1 = $this->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($conv1->content_ref, true) ?? [];
+            $pieces[] = collect($data['turns'] ?? [])->pluck('answer')->implode(' ');
+            $pieces[] = collect($data['sentences'] ?? [])->implode(' ');
+            $pieces[] = $data['transcript'] ?? '';
         }
 
         if ($conv2 = $this->latestEvidence('ai_conversation_2')) {
@@ -162,16 +169,6 @@ class MissionRun extends Model
 
         if ($writing = $this->latestEvidence('writing')) {
             $pieces[] = $writing->content_ref;
-        }
-
-        // Activation has two Evidence rows for the same phase (text, then
-        // audio) — filter explicitly rather than latestEvidence(), whose
-        // "most recent" is ambiguous between them when both save in the
-        // same request.
-        if ($activation = $this->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
-            $data = json_decode($activation->content_ref, true) ?? [];
-            $pieces[] = collect($data['sentences'] ?? [])->implode(' ');
-            $pieces[] = $data['transcript'] ?? '';
         }
 
         return implode("\n\n", array_filter($pieces));

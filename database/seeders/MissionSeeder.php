@@ -367,7 +367,7 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll put this straight to use next — in Activation, when you talk about your real daily routine out loud.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, when you talk about your real daily routine out loud.",
                                 ],
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
@@ -447,13 +447,6 @@ class MissionSeeder extends Seeder
                                     ['image_query' => 'woman commuting to work walking', 'caption' => 'She leaves for work'],
                                 ],
                                 'sequencing_words' => ['First', 'Then', 'After that', 'Finally'],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 12,
-                                'hook' => "Say it once here, alone — it'll come out easier when someone's actually listening.",
-                                'task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
                             ],
                             [
                                 'key' => 'video_shadowing',
@@ -559,9 +552,15 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                // Was 10 — bumped since an off-topic spoken answer now asks for a retry.
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E: merges the old standalone Activation step (warm-up
+                                // sentences + solo recording, now warm_up_task below) and AI
+                                // Feedback #1 (now generated automatically at the end, no
+                                // separate step) into this one step — 12 (warm-up) + 12
+                                // (interview) + 3 (feedback) = 27, minus a little shared UI
+                                // overhead.
+                                'duration_minutes' => 26,
+                                'hook' => "Say it once here, alone — it'll come out easier once the AI Instructor is properly listening.",
+                                'warm_up_task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
                                 // Real interview questions from Mission01.pdf "Speaking Session 01".
                                 'interview_questions' => [
                                     'What time do you usually wake up?',
@@ -571,12 +570,6 @@ class MissionSeeder extends Seeder
                                     'How often do you exercise?',
                                     'What do you usually do in the evening?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => 'A second pair of ears just heard everything you said — here\'s what stood out.',
                             ],
                             [
                                 'key' => 'picture_description',
@@ -1137,7 +1130,7 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll use this straight away — in Activation, describing someone you're close to.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, describing someone you're close to.",
                                 ],
                                 'frequency_starters' => [
                                     'My friend usually', 'These days, my friend is', 'He/She often', 'At the moment, he/she is',
@@ -1177,16 +1170,6 @@ class MissionSeeder extends Seeder
                                     ['words' => ['well', 'she', 'her', 'with', 'Does', 'sister?', 'on', 'get'], 'answer' => 'Does she get on well with her sister?'],
                                     ['words' => ['on', 'calls', 'usually', 'She', 'Sundays.', 'me'], 'answer' => 'She usually calls me on Sundays.'],
                                 ],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 12,
-                                'hook' => 'Say it here, alone, before you have to say it to a real person tomorrow.',
-                                'task' => 'Choose a friend or someone close to you. Write at least 3 Present Simple '
-                                    .'sentences, 2 Present Continuous sentences, and use at least 3 vocabulary '
-                                    .'expressions describing them — then record 2 minutes of solo speaking about '
-                                    .'them without reading.',
                             ],
                             [
                                 // Replaced 2026-09-10 — the previous video (a simple animated
@@ -1264,8 +1247,13 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E merge — see M01's own comment for the arithmetic.
+                                'duration_minutes' => 26,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Choose a friend or someone close to you. Write at least 3 Present Simple '
+                                    .'sentences, 2 Present Continuous sentences, and use at least 3 vocabulary '
+                                    .'expressions describing them — then record 2 minutes of solo speaking about '
+                                    .'them without reading.',
                                 'interview_questions' => [
                                     'Tell me about someone in your family — what are they like?',
                                     'Who do you get on well with these days?',
@@ -1274,12 +1262,6 @@ class MissionSeeder extends Seeder
                                     'How do you usually keep in touch with an old friend who lives far away?',
                                     'What personality trait do you like most in the people close to you?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => "A second pair of ears just heard how you talk about the people in your life — here's what stood out.",
                             ],
                             [
                                 'key' => 'picture_description',
@@ -1785,10 +1767,10 @@ class MissionSeeder extends Seeder
                                         [
                                             'heading' => 'C · Make it personal',
                                             'body' => 'These sentence starters from M04.pdf are exactly what you\'ll '
-                                                .'finish below — and reuse out loud in Activation right after.',
+                                                .'finish below — and reuse out loud soon, in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => "You'll put this straight to use next — in Activation, talking about your own eating habits.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, talking about your own eating habits.",
                                 ],
                                 // Real starters from M04.pdf page 04 "Make it personal".
                                 'frequency_starters' => [
@@ -1829,18 +1811,6 @@ class MissionSeeder extends Seeder
                                     ['words' => ['much', "don't", 'coffee.', 'I', 'drink'], 'answer' => "I don't drink much coffee."],
                                     ['words' => ['a', 'eggs', 'few', 'I', 'every', 'eat', 'week.'], 'answer' => 'I eat a few eggs every week.'],
                                 ],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 10,
-                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
-                                // Real questions from M04.pdf page 05 "Food in my life".
-                                'task' => 'Answer these questions about your own eating habits — what you normally '
-                                    .'eat for breakfast, what you usually have for lunch, what snacks you eat, what '
-                                    .'food you avoid, and what you\'d like to eat more or less of — then record 2 '
-                                    .'minutes of solo speaking describing your normal eating habits, using some '
-                                    .'countable and uncountable nouns, without reading.',
                             ],
                             [
                                 'key' => 'video_shadowing',
@@ -1911,8 +1881,15 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E merge — see M01's own comment for the arithmetic.
+                                'duration_minutes' => 24,
+                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                // Real questions from M04.pdf page 05 "Food in my life".
+                                'warm_up_task' => 'Answer these questions about your own eating habits — what you normally '
+                                    .'eat for breakfast, what you usually have for lunch, what snacks you eat, what '
+                                    .'food you avoid, and what you\'d like to eat more or less of — then record 2 '
+                                    .'minutes of solo speaking describing your normal eating habits, using some '
+                                    .'countable and uncountable nouns, without reading.',
                                 'interview_questions' => [
                                     'What do you usually eat for breakfast?',
                                     'How often do you cook at home?',
@@ -1921,12 +1898,6 @@ class MissionSeeder extends Seeder
                                     "What do you eat when you're busy or stressed?",
                                     'How has your diet changed in the last few years?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => "A second pair of ears just heard everything you said — here's what stood out.",
                             ],
                             [
                                 'key' => 'picture_description',
@@ -2125,9 +2096,9 @@ class MissionSeeder extends Seeder
      * 4-phase/~18-step template exactly, per the standing rule that every
      * mission does — NOT M03.pdf's own compact 3-day plan, which only
      * outlines 10 of these (the rest — daily_listen_2/3, ai_conversation_1,
-     * ai_feedback_1, picture_description, reading_comprehension, error_log
-     * — are extrapolated in the same style/quality, grounded in this
-     * mission's real Work & Study topic, same as M04 was corrected to do).
+     * picture_description, reading_comprehension, error_log — are
+     * extrapolated in the same style/quality, grounded in this mission's
+     * real Work & Study topic, same as M04 was corrected to do).
      */
     private function seedM03(): void
     {
@@ -2384,8 +2355,8 @@ class MissionSeeder extends Seeder
                                         [
                                             'heading' => 'C · Make it personal',
                                             'body' => 'Finish each starter below with something true about your '
-                                                .'own work or studies — and reuse them out loud in Activation right '
-                                                .'after.',
+                                                .'own work or studies — and reuse them out loud soon, in AI '
+                                                .'Conversation #1.',
                                             'blocks' => [
                                                 [
                                                     'type' => 'chips',
@@ -2397,7 +2368,7 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll put this straight to use next — in Activation, talking about your own work or studies.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, talking about your own work or studies.",
                                 ],
                                 'frequency_starters' => [
                                     'I have to', 'I need to', "I don't have to",
@@ -2438,18 +2409,6 @@ class MissionSeeder extends Seeder
                                     ['words' => ['work', 'have', 'Do', 'you', 'weekends?', 'to'], 'answer' => 'Do you have to work weekends?'],
                                     ['words' => ['two', 'speak', 'I', 'languages.', 'can'], 'answer' => 'I can speak two languages.'],
                                 ],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 10,
-                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
-                                // Real questions from M03.pdf page 05 "Work / Study".
-                                'task' => 'Answer these questions about your work or studies — what you normally '
-                                    .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
-                                    .'to improve — then record 2 minutes of solo speaking about your work/study '
-                                    .'life, using modals of obligation (have to, need to, must) and ability (can, '
-                                    .'can\'t), without reading.',
                             ],
                             [
                                 'key' => 'video_shadowing',
@@ -2519,8 +2478,15 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E merge — see M01's own comment for the arithmetic.
+                                'duration_minutes' => 24,
+                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                // Real questions from M03.pdf page 05 "Work / Study".
+                                'warm_up_task' => 'Answer these questions about your work or studies — what you normally '
+                                    .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
+                                    .'to improve — then record 2 minutes of solo speaking about your work/study '
+                                    .'life, using modals of obligation (have to, need to, must) and ability (can, '
+                                    .'can\'t), without reading.',
                                 'interview_questions' => [
                                     'What do you do for work or study?',
                                     'What does a typical day look like for you?',
@@ -2529,12 +2495,6 @@ class MissionSeeder extends Seeder
                                     'Do you prefer working alone or in a team?',
                                     'What are you working on at the moment?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => "A second pair of ears just heard everything you said — here's what stood out.",
                             ],
                             [
                                 'key' => 'picture_description',

@@ -117,10 +117,12 @@ new class extends Component
         $this->briefScore = $briefScoreEvidence ? (int) $briefScoreEvidence->content_ref : null;
 
         $this->warmUpRecordingUrl = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
-        $this->activationRecordingUrl = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
+        // Activation's recording now lives under 'ai_conversation_1' — it's
+        // that step's own warm-up round, not a separate step (Epic E).
+        $this->activationRecordingUrl = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
 
         $flashback = Evidence::query()
-            ->whereIn('phase', ['mission_brief', 'activation'])
+            ->whereIn('phase', ['mission_brief', 'ai_conversation_1'])
             ->where('type', Evidence::TYPE_AUDIO)
             ->whereHas('missionRun', fn ($query) => $query
                 ->where('learner_id', $this->run->learner_id)
@@ -401,8 +403,16 @@ new class extends Component
     {
         $parts = [];
 
-        if ($feedback = $this->run->evidence()->where('phase', 'ai_feedback_1')->latest()->first()) {
-            $parts[] = 'AI feedback from the first conversation: '.$feedback->content_ref;
+        // AI Feedback #1 is now generated automatically as part of AI
+        // Conversation #1's own completion recap, not a separate step —
+        // its data lives under the 'feedback' key of that phase's TEXT
+        // evidence (see ⚡ai-conversation1.blade.php's finishInterview()).
+        if ($conv1 = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($conv1->content_ref, true) ?? [];
+
+            if ($feedback = $data['feedback'] ?? null) {
+                $parts[] = 'AI feedback from the first conversation: '.json_encode($feedback);
+            }
         }
 
         if ($conv2 = $this->run->evidence()->where('phase', 'ai_conversation_2')->latest()->first()) {

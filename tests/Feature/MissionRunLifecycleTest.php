@@ -46,11 +46,26 @@ class MissionRunLifecycleTest extends TestCase
         $mission = $this->makeMission();
         $run = MissionRun::findOrStart($learner, $mission);
 
+        // Two Evidence rows for the same phase, text then audio — the
+        // audio one (a plain storage URL, not JSON) must never be the one
+        // picked for text extraction. AI Conversation #1's TEXT row now
+        // also carries the warm-up round's sentences/transcript (was the
+        // standalone Activation step — Epic E).
         Evidence::create([
             'mission_run_id' => $run->id,
             'phase' => 'ai_conversation_1',
-            'type' => Evidence::TYPE_TRANSCRIPT,
-            'content_ref' => json_encode([['question' => 'Q', 'answer' => 'I wake up early.', 'followup' => 'F']]),
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'sentences' => ['I exercise in the evening.'],
+                'transcript' => 'I go to bed at eleven.',
+                'turns' => [['question' => 'Q', 'answer' => 'I wake up early.', 'followup' => 'F']],
+            ]),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_1',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => 'http://localhost/storage/missions/m01/evidence/speaking.webm',
         ]);
         Evidence::create([
             'mission_run_id' => $run->id,
@@ -66,21 +81,6 @@ class MissionRunLifecycleTest extends TestCase
             'phase' => 'writing',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => 'A typical day starts with a shower.',
-        ]);
-        // Two Evidence rows for the same phase, text then audio — the
-        // audio one (a plain storage URL, not JSON) must never be the one
-        // picked for text extraction.
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'activation',
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['sentences' => ['I exercise in the evening.'], 'transcript' => 'I go to bed at eleven.']),
-        ]);
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'activation',
-            'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => 'http://localhost/storage/missions/m01/evidence/speaking.webm',
         ]);
         $text = $run->allLearnerText();
 

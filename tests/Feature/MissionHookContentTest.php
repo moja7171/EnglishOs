@@ -41,9 +41,13 @@ class MissionHookContentTest extends TestCase
      * and two image-based speaking steps added 2026-09-04: story_sequence
      * right after Grammar in Context (narrate a picture sequence in the
      * Present Simple tense just taught) and picture_description right
-     * after AI Feedback #1 (a real CEFR "describe this picture" task —
+     * after AI Conversation #1 (a real CEFR "describe this picture" task —
      * the only step that practices describing a scene rather than the
-     * learner's own routine).
+     * learner's own routine). Epic E (mission structure redesign) then
+     * merged the old standalone Activation step into AI Conversation #1's
+     * own first round, and AI Feedback #1 into that same step's
+     * completion recap — moving that content from Day 2 to Day 3, where
+     * AI Conversation #1 itself already lived.
      */
     public function test_m01_step_order_matches_the_real_3_day_plan(): void
     {
@@ -62,14 +66,12 @@ class MissionHookContentTest extends TestCase
             'daily_listen_2',
             'grammar_in_context',
             'story_sequence',
-            'activation',
             'video_shadowing',
             // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge —
             // vocabulary_builder_3 added right at the start, same reason.
             'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
-            'ai_feedback_1',
             'picture_description',
             'reading_comprehension',
             'writing',
@@ -115,13 +117,11 @@ class MissionHookContentTest extends TestCase
             'vocabulary_builder_2',
             'daily_listen_2',
             'grammar_in_context',
-            'activation',
             'video_shadowing',
             // Day 3 · Practice — vocabulary_builder_3 added at the start (Epic B).
             'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
-            'ai_feedback_1',
             'picture_description',
             'reading_comprehension',
             'writing',

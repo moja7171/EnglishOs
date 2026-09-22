@@ -1052,7 +1052,7 @@ class MissionResultStepTest extends TestCase
         ]);
         Evidence::create([
             'mission_run_id' => $run->id,
-            'phase' => 'activation',
+            'phase' => 'ai_conversation_1',
             'type' => Evidence::TYPE_AUDIO,
             'content_ref' => 'https://example.test/storage/activation.webm',
         ]);
@@ -1089,7 +1089,7 @@ class MissionResultStepTest extends TestCase
         $earlierRun->update(['completed_at' => now()->subWeek()]);
         Evidence::create([
             'mission_run_id' => $earlierRun->id,
-            'phase' => 'activation',
+            'phase' => 'ai_conversation_1',
             'type' => Evidence::TYPE_AUDIO,
             'content_ref' => 'https://example.test/storage/earlier-activation.webm',
         ]);
@@ -1117,7 +1117,7 @@ class MissionResultStepTest extends TestCase
         // A recording from THIS SAME run must never count as a "flashback".
         Evidence::create([
             'mission_run_id' => $run->id,
-            'phase' => 'activation',
+            'phase' => 'ai_conversation_1',
             'type' => Evidence::TYPE_AUDIO,
             'content_ref' => 'https://example.test/storage/this-run-activation.webm',
         ]);
@@ -1133,7 +1133,7 @@ class MissionResultStepTest extends TestCase
         $unfinishedRun = MissionRun::findOrStart($run->learner, $unfinishedMission);
         Evidence::create([
             'mission_run_id' => $unfinishedRun->id,
-            'phase' => 'activation',
+            'phase' => 'ai_conversation_1',
             'type' => Evidence::TYPE_AUDIO,
             'content_ref' => 'https://example.test/storage/unfinished-activation.webm',
         ]);
