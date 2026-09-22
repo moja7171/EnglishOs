@@ -26,8 +26,8 @@ trait TracksVocabularyNotebook
 
     /**
      * The word list to offer, in the shape the checkbox UI and
-     * addWordsToNotebook() both need — e.g. Vocabulary Builder's
-     * selectedWords + their meanings, or Listening's target_phrases.
+     * addWordsToNotebook() both need — e.g. Vocabulary Builder's own
+     * words() + their meanings, or Listening's target_phrases.
      *
      * @return list<array{word: string, meaning: string}>
      */

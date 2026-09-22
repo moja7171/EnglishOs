@@ -236,7 +236,7 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission])
             ->assertSet('showOverview', false)
-            ->assertSet('activeStepKey', 'vocabulary_builder');
+            ->assertSet('activeStepKey', 'vocabulary_builder_1');
     }
 
     public function test_finishing_a_day_shows_the_overview_again_with_that_day_marked_done(): void
@@ -247,7 +247,7 @@ class MissionRunnerNavigationTest extends TestCase
         $mission = Mission::where('code', 'M01')->firstOrFail();
         $run = MissionRun::findOrStart($learner, $mission);
 
-        foreach (['mission_brief', 'vocabulary_builder', 'listening'] as $key) {
+        foreach (['mission_brief', 'vocabulary_builder_1', 'listening'] as $key) {
             Evidence::create([
                 'mission_run_id' => $run->id,
                 'phase' => $key,
@@ -272,7 +272,7 @@ class MissionRunnerNavigationTest extends TestCase
         $mission = Mission::where('code', 'M01')->firstOrFail();
         $run = MissionRun::findOrStart($learner, $mission);
 
-        foreach (['mission_brief', 'vocabulary_builder', 'listening'] as $key) {
+        foreach (['mission_brief', 'vocabulary_builder_1', 'listening'] as $key) {
             Evidence::create([
                 'mission_run_id' => $run->id,
                 'phase' => $key,

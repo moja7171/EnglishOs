@@ -62,139 +62,28 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                // Was 15, then 16 for the "pick which words join My Words" recap
-                                // step, then 17 for 4 more story words woven in to overlap with the
-                                // real Listening episode's own vocabulary; now 18 for the new
-                                // meaning-check Quick Round warm-up between the story and practice.
-                                'duration_minutes' => 18,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 9,
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
-                                // Word selection follows every sub-topic of English Vocabulary in Use
-                                // Unit 16, "Daily routines" (Sleep / Food / Bathroom routines / Housework
-                                // / Spare time — the book's own 5 sections). The story and every meaning
-                                // below are written fresh for this app, not copied from it (see EOS-009
-                                // §14: content stays original, licensing/piracy risk).
-                                // "sleep in", "oversleep", "morning person", and "skip breakfast" are
-                                // deliberately woven in here too, not just their own vocabulary — the
-                                // real BBC Listening audio right after this step uses these same 4
-                                // words/phrases (plus "get up", already above), so every learner reads
-                                // them here first regardless of which words they personally select,
-                                // then hears them again in context. Previously the two steps' word
-                                // pools barely overlapped.
-                                'story' => [
-                                    [
-                                        'heading' => 'Sleep',
-                                        'text' => 'I\'m not really a **morning person**, so during the '
-                                            .'week I **wake up** at half past six and **get up** straight '
-                                            .'away, before I can **oversleep**. I usually **go to bed** '
-                                            .'around eleven and **go to sleep** quickly, but sometimes I '
-                                            .'**have a late night** if I\'m out with friends. At weekends, '
-                                            .'though, I love to **sleep in** and **have a sleep** in the '
-                                            .'afternoon too.',
-                                    ],
-                                    [
-                                        'heading' => 'Food',
-                                        'text' => 'I never **skip breakfast** — for breakfast I usually have **cereal**, then at work I '
-                                            .'**have a light lunch** — just a sandwich and a **snack** in '
-                                            .'the afternoon. If I\'m tired, I sometimes **don\'t bother** '
-                                            .'cooking and order a **takeaway** instead. Before I leave, I '
-                                            .'always **feed** the cat.',
-                                    ],
-                                    [
-                                        'heading' => 'Bathroom routines',
-                                        'text' => 'In the morning I **have a shower**, but on busy days I '
-                                            .'just **have a wash** instead. I always **clean my teeth** '
-                                            .'before breakfast, and in the evening my sister **puts on** '
-                                            .'her make-up before going out. On lazy Sundays, I sometimes '
-                                            .'**have a bath** instead of a shower.',
-                                    ],
-                                    [
-                                        'heading' => 'Housework',
-                                        'text' => '**Fortunately**, we have a **cleaner** who helps with '
-                                            .'most of the **housework**. I still do some of the '
-                                            .'**ironing** myself, and every Saturday we **do the '
-                                            .'shopping** together. Nobody enjoys **doing the washing**, '
-                                            .'but somebody has to do it!',
-                                    ],
-                                    [
-                                        'heading' => 'Spare time',
-                                        'text' => 'Most weekdays I **stay in** and relax, but at the '
-                                            .'weekend I like to **go out** with friends. We often '
-                                            .'**eat out** at a new restaurant, and sometimes people '
-                                            .'**come round** to my place instead. My best friend calls me '
-                                            .'**once a week** just to **chat**.',
-                                    ],
-                                ],
-                                // difficulty (Story 4, requirements review, 2026-09-04) drives
-                                // <x-quick-round>'s adaptive mode in meaningCheckCards() — a
-                                // genuine judgment call per phrase, not alphabetical: short,
-                                // transparent, high-frequency words/phrases are "easy"; idiomatic
-                                // collocations or words easily confused with a close relative
-                                // (e.g. "have a wash" vs "have a shower") are "hard".
-                                'story_words' => [
-                                    // Sleep
-                                    ['phrase' => 'wake up', 'meaning' => 'to stop sleeping and become conscious', 'difficulty' => 'easy'],
-                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up', 'difficulty' => 'easy'],
-                                    ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep', 'difficulty' => 'easy'],
-                                    ['phrase' => 'go to sleep', 'meaning' => 'to start sleeping', 'difficulty' => 'easy'],
-                                    ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual', 'difficulty' => 'medium'],
-                                    ['phrase' => 'have a sleep', 'meaning' => 'to rest for a short period during the day', 'difficulty' => 'medium'],
-                                    // Same 4 words/phrases the real Listening episode uses (see the
-                                    // "story" comment above) — same meanings as Listening's own
-                                    // target_phrases, so the definition never contradicts itself
-                                    // between the two steps.
-                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'difficulty' => 'medium'],
-                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'difficulty' => 'medium'],
-                                    // accepted_paraphrases: a hand-picked, safe alternate wording
-                                    // Active Recall's local (non-AI) check also accepts for this
-                                    // exact phrase — never inferred generically (a phrasal verb's
-                                    // particle is load-bearing, so it can't be stripped the way an
-                                    // article can), just an author's judgment call per word. See
-                                    // ⚡active-recall.blade.php's matches().
-                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'difficulty' => 'hard', 'accepted_paraphrases' => ['sleep late']],
-                                    // Food
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'difficulty' => 'easy'],
-                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
-                                    ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday', 'difficulty' => 'medium'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => "don't bother", 'meaning' => "to not do something because it's too much effort", 'difficulty' => 'hard'],
-                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
-                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal', 'image_query' => 'feeding cat pet', 'difficulty' => 'easy'],
-                                    // Bathroom routines — image_query marks the concrete-noun words
-                                    // worth a picture flashcard (dual coding — see EOS-009 §8); an
-                                    // abstract phrase like "have a wash" gets no query and simply
-                                    // shows no image, on purpose.
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy', 'accepted_paraphrases' => ['shower']],
-                                    ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body', 'difficulty' => 'hard', 'accepted_paraphrases' => ['wash']],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy', 'accepted_paraphrases' => ['brush my teeth', 'brush teeth']],
-                                    ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face', 'difficulty' => 'medium'],
-                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath', 'difficulty' => 'easy', 'accepted_paraphrases' => ['bath']],
-                                    // Housework
-                                    ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck', 'difficulty' => 'medium'],
-                                    ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house', 'difficulty' => 'easy'],
-                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
-                                    // "ironing clothes" returned a still-life (board + hanging
-                                    // clothes, iron barely visible) — a person actually ironing
-                                    // reads unambiguously as the verb on a flashcard.
-                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'woman ironing shirt', 'difficulty' => 'easy'],
-                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
-                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'image_query' => 'loading clothes into washing machine', 'difficulty' => 'medium'],
-                                    // Spare time
-                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'difficulty' => 'easy'],
-                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'difficulty' => 'easy'],
-                                    // allow_embedded_match: opt-in ONLY, per word — Active Recall's
-                                    // local check may credit this phrase when it appears verbatim
-                                    // inside a longer natural sentence ("he might come round later").
-                                    // Verified safe specifically for these two: neither is a common
-                                    // prefix of a different fixed idiom (unlike e.g. "stay in", which
-                                    // would wrongly match "stay in touch" if this were a blanket
-                                    // default — see ⚡active-recall.blade.php's matches()). Every
-                                    // other word deliberately has no such flag.
-                                    ['phrase' => 'come round', 'meaning' => 'to visit someone at their home', 'difficulty' => 'hard', 'allow_embedded_match' => true],
-                                    ['phrase' => 'once a week', 'meaning' => 'happening one time every week', 'difficulty' => 'easy', 'allow_embedded_match' => true],
-                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'difficulty' => 'easy'],
+                                // Mission structure redesign, Epic B: Vocabulary Builder now
+                                // spreads 5-6 curated words across each mission's 3 days instead
+                                // of one 8+-word free-for-all. Day 1 is fixed to exactly the real
+                                // Listening episode's own 5 target_phrases (never more than 5) so
+                                // every learner meets them here first, then hears them again in
+                                // context — see ⚡vocabulary-builder.blade.php and the redesign
+                                // notes. Story/meanings are written fresh for this app (EOS-009
+                                // §14: content stays original).
+                                'story' => "I'm not really a **morning person** — most days I **get up** at half "
+                                    .'past six. At the weekend, though, I love to **sleep in**. Some mornings I '
+                                    .'**oversleep** by accident and I\'m late! I never **skip breakfast**, even '
+                                    .'when I\'m in a hurry.',
+                                'words' => [
+                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'pos' => 'noun phrase', 'synonym' => 'opposite: a night owl', 'example' => 'My sister is a real morning person.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up', 'pos' => 'phrasal verb', 'synonym' => 'rise', 'example' => 'He gets up at six every morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'pos' => 'phrasal verb', 'example' => 'We always sleep in on Sundays.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'pos' => 'verb', 'example' => 'I overslept and missed the bus.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'pos' => 'verb phrase', 'example' => "Don't skip breakfast before an exam.", 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -347,6 +236,28 @@ class MissionSeeder extends Seeder
                         'label' => 'Build',
                         'mode' => 'solo',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 10,
+                                'hook' => 'A few more everyday words — the kind you actually reach for at home.',
+                                // Starts with a spiral-review warm-up of Day 1's words (built into
+                                // the component itself from the mission's own content, not seeded
+                                // separately) before these new ones are introduced.
+                                'story' => 'For breakfast I usually have **cereal**. In the morning I **have a '
+                                    .'shower** and **clean my teeth** before I leave. In the afternoon I have a '
+                                    .'**snack** if I\'m hungry. If I\'m tired in the evening, we sometimes order '
+                                    .'a **takeaway** instead of cooking. On Saturdays we **do the shopping** '
+                                    .'together.',
+                                'words' => [
+                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'pos' => 'noun', 'example' => 'I had a bowl of cereal for breakfast.', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'pos' => 'verb phrase', 'synonym' => 'shower (verb)', 'example' => 'I have a shower every morning before work.', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy'],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'pos' => 'verb phrase', 'synonym' => 'brush my teeth', 'example' => 'Remember to clean your teeth before bed.', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I had a snack around four o\'clock.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'pos' => 'noun', 'synonym' => 'takeout', 'example' => 'We ordered a takeaway on Friday night.', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
+                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'pos' => 'verb phrase', 'synonym' => 'go shopping', 'example' => 'I do the shopping every Saturday morning.', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
@@ -583,6 +494,24 @@ class MissionSeeder extends Seeder
                         'label' => 'Practice',
                         'mode' => 'ai',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set for this mission — the words for a relaxed weekend at home.',
+                                'story' => 'At the weekend I do some **housework** — **doing the washing** is my '
+                                    .'least favourite job! Most weekdays I **stay in** and relax, but on Friday '
+                                    .'I like to **go out** with friends. We often **eat out** at a new '
+                                    .'restaurant, and I always **chat** with my best friend on the phone.',
+                                'words' => [
+                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'pos' => 'noun', 'synonym' => 'chores', 'example' => 'We share the housework equally.', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
+                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'pos' => 'verb phrase', 'synonym' => 'doing the laundry', 'example' => 'I hate doing the washing on weekends.', 'image_query' => 'loading clothes into washing machine', 'difficulty' => 'medium'],
+                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'pos' => 'phrasal verb', 'synonym' => 'opposite: go out', 'example' => 'I stayed in and watched a film last night.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'pos' => 'phrasal verb', 'synonym' => 'opposite: stay in', 'example' => 'We usually go out on Friday nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out about once a month.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'pos' => 'verb', 'synonym' => 'talk', 'example' => 'We chatted for an hour on the phone.', 'difficulty' => 'easy'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
@@ -896,7 +825,7 @@ class MissionSeeder extends Seeder
                         $key === 'writing' => collect($step['prompts'] ?? [])
                             ->filter(fn ($prompt) => is_array($prompt) && ($prompt['image_query'] ?? null))
                             ->each(fn ($prompt) => $client->imageUrlFor("{$code}-writing-{$prompt['label']}", $prompt['image_query'])),
-                        $key === 'vocabulary_builder' => collect($step['story_words'] ?? [])
+                        str_starts_with($key, 'vocabulary_builder_') => collect($step['words'] ?? [])
                             ->filter(fn ($word) => $word['image_query'] ?? null)
                             ->each(fn ($word) => $client->imageUrlFor($word['phrase'], $word['image_query'], null)),
                         $key === 'story_sequence' => collect($step['sequence_images'] ?? [])
@@ -962,76 +891,24 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                'duration_minutes' => 14,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 8,
                                 'hook' => 'Next time someone asks about the people in your life, will these words be ready — or will you go quiet?',
-                                // Word selection follows Cambridge English Vocabulary in Use's
-                                // "Relationships" territory (friends, friendship, family, exes) —
-                                // the story and every meaning below are written fresh for this
-                                // app, not copied from it (see EOS-009 §14: content stays
-                                // original, no licensing/piracy risk).
-                                // "times are tough", "get through", "drift away", "Billy No-Mates",
-                                // and "double-edged sword" are deliberately woven in here too, not
-                                // just their own vocabulary — the real BBC Listening audio right
-                                // after this step uses these same 5 words/phrases, so every learner
-                                // reads them here first regardless of which words they personally
-                                // select, then hears them again in context (same content-authoring
-                                // convention as M01).
-                                'story' => [
-                                    [
-                                        'heading' => 'Friends',
-                                        'text' => "I'm quite an **outgoing** person, so making friends has never felt "
-                                            .'like hard work for me — though I know that isn\'t true for everyone. '
-                                            .'My **best friend**, Dan, is actually an **old friend**: we met on our '
-                                            .'first day of university, and it took us about a month to really '
-                                            .'**get to know each other** properly. Now, more than ten years later, '
-                                            .'we still **get on well with** each other, even though we live in '
-                                            .'different cities. Before I met Dan, my flatmate used to joke that I '
-                                            .'was turning into **Billy No-Mates**, because I hardly ever went out! '
-                                            .'These days it\'s the opposite — most weekends I\'m meeting up with a '
-                                            .'**mate** from work or catching up with someone from my old football '
-                                            .'team. Of course, having a big social life is a bit of a '
-                                            .'**double-edged sword**: I love seeing everyone, but some weeks I '
-                                            .'barely have an evening free. Sadly, not every friendship lasts. A '
-                                            .'couple of my school friends and I have gradually **drifted away** '
-                                            .'from each other since we stopped living in the same town — nobody\'s '
-                                            .'fault, it just happens.',
-                                    ],
-                                    [
-                                        'heading' => 'Family & Keeping In Touch',
-                                        'text' => 'My **close family** is quite small — just my parents, my sister, '
-                                            .'and a few **relatives** who live nearby. My sister\'s **current** '
-                                            .'boyfriend is actually really funny, much better than her '
-                                            .'**ex-partner**, who I never really liked! Whenever **times are '
-                                            .'tough** — like the year my grandmother was ill — it\'s usually '
-                                            .'family who help me **get through** it, more than anyone else. '
-                                            .'That\'s probably why I try to see my relatives at least once a '
-                                            .'month, even when life gets busy.',
-                                    ],
-                                ],
-                                'story_words' => [
-                                    // Friends
-                                    ['phrase' => 'best friend', 'meaning' => 'the friend you are closest to and trust the most', 'difficulty' => 'easy'],
-                                    ['phrase' => 'old friend', 'meaning' => 'a friend you have known for a long time (not necessarily an elderly friend)', 'difficulty' => 'medium'],
-                                    ['phrase' => 'friendship', 'meaning' => 'the relationship between friends', 'difficulty' => 'easy'],
-                                    ['phrase' => 'get to know each other', 'meaning' => 'to gradually become familiar with a person', 'difficulty' => 'medium'],
-                                    // accepted_paraphrases: hand-picked, safe alternate wording
-                                    // Active Recall's local (non-AI) check also accepts for this
-                                    // exact phrase — same author's-judgment-call convention as M01.
-                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly, easy relationship with someone', 'difficulty' => 'hard', 'accepted_paraphrases' => ['get along with', 'get along well with']],
-                                    ['phrase' => 'mate', 'meaning' => '(British informal) a friend', 'image_query' => 'two friends high five outdoors', 'difficulty' => 'medium'],
-                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and enjoys meeting/talking to people', 'difficulty' => 'medium'],
-                                    ['phrase' => 'Billy No-Mates', 'meaning' => '(slang) a person with no friends', 'difficulty' => 'hard'],
-                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with both good and bad consequences', 'difficulty' => 'hard'],
-                                    ['phrase' => 'drift away', 'meaning' => 'to gradually grow apart from someone until the relationship ends', 'difficulty' => 'medium', 'accepted_paraphrases' => ['grow apart'], 'allow_embedded_match' => true],
-                                    // Family & Keeping In Touch
-                                    ['phrase' => 'close family', 'meaning' => 'your nearest family members (parents, siblings, etc.)', 'image_query' => 'family dinner table together', 'difficulty' => 'easy'],
-                                    ['phrase' => 'relatives', 'meaning' => 'members of your family', 'image_query' => 'extended family reunion', 'difficulty' => 'easy'],
-                                    ['phrase' => 'current', 'meaning' => 'happening or existing now (as opposed to before)', 'difficulty' => 'medium'],
-                                    ['phrase' => 'ex-partner', 'meaning' => "a person's former boyfriend/girlfriend/husband/wife", 'difficulty' => 'hard'],
-                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness, or financial difficulty in life', 'difficulty' => 'medium', 'accepted_paraphrases' => ['times are hard']],
-                                    ['phrase' => 'get through', 'meaning' => 'to manage to live through a difficult period of time', 'difficulty' => 'hard', 'allow_embedded_match' => true],
+                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
+                                // for the full rationale. Day 1 = the real Listening episode's own
+                                // 5 target_phrases, so every learner meets them here first.
+                                'story' => 'Sometimes **times are tough**, but good friends help you **get '
+                                    .'through** it. Sadly, a couple of my old school friends and I have '
+                                    .'**drifted away** since we stopped living nearby. Before I met my best '
+                                    .'friend, I was almost a **Billy No-Mates**! Having lots of friends is a '
+                                    .'bit of a **double-edged sword** — I love it, but I\'m always busy.',
+                                'words' => [
+                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness, or financial difficulty in life', 'pos' => 'idiom', 'synonym' => 'times are hard', 'example' => 'We helped each other when times were tough.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get through', 'meaning' => 'to manage to live through a difficult period of time', 'pos' => 'phrasal verb', 'synonym' => 'cope with', 'example' => 'She got through a difficult year at university.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'drift away', 'meaning' => 'to gradually grow apart from someone until the relationship ends', 'pos' => 'phrasal verb', 'synonym' => 'grow apart', 'example' => 'We drifted away after I moved to another city.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'Billy No-Mates', 'meaning' => '(slang) a person with no friends', 'pos' => 'slang noun phrase', 'example' => "Don't worry, you won't be a Billy No-Mates at the party.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with both good and bad consequences', 'pos' => 'idiom', 'example' => 'Working from home is a double-edged sword.', 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -1111,6 +988,24 @@ class MissionSeeder extends Seeder
                         'label' => 'Build',
                         'mode' => 'solo',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 9,
+                                'hook' => 'The words you actually use talking about your closest friends.',
+                                'story' => 'My **best friend**, Dan, is actually an **old friend** — we met at '
+                                    .'university. It took us a while to really **get to know each other**, but '
+                                    .'now our **friendship** is really strong. We still **get on well with** each '
+                                    .'other, and I often meet up with a **mate** from work too.',
+                                'words' => [
+                                    ['phrase' => 'best friend', 'meaning' => 'the friend you are closest to and trust the most', 'pos' => 'noun phrase', 'synonym' => 'closest friend', 'example' => "She's been my best friend since school.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'old friend', 'meaning' => 'a friend you have known for a long time (not necessarily an elderly friend)', 'pos' => 'noun phrase', 'example' => 'I ran into an old friend at the station.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get to know each other', 'meaning' => 'to gradually become familiar with a person', 'pos' => 'verb phrase', 'example' => 'It took us months to get to know each other well.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'friendship', 'meaning' => 'the relationship between friends', 'pos' => 'noun', 'example' => 'Our friendship has lasted over ten years.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly, easy relationship with someone', 'pos' => 'verb phrase', 'synonym' => 'get along with', 'example' => 'I get on well with most of my colleagues.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'mate', 'meaning' => '(British informal) a friend', 'pos' => 'noun (British informal)', 'synonym' => 'friend', 'example' => "I'm meeting a mate for coffee later.", 'image_query' => 'two friends high five outdoors', 'difficulty' => 'medium'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
@@ -1285,6 +1180,22 @@ class MissionSeeder extends Seeder
                         'label' => 'Practice',
                         'mode' => 'solo',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 8,
+                                'hook' => 'The words for talking about family and what people are like.',
+                                'story' => "I'm quite an **outgoing** person, so I enjoy seeing my **close family** "
+                                    .'and other **relatives** often. My sister\'s **current** boyfriend is '
+                                    .'really funny — much better than her **ex-partner**!',
+                                'words' => [
+                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and enjoys meeting/talking to people', 'pos' => 'adjective', 'synonym' => 'sociable', 'example' => 'My brother is very outgoing and makes friends easily.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'close family', 'meaning' => 'your nearest family members (parents, siblings, etc.)', 'pos' => 'noun phrase', 'synonym' => 'immediate family', 'example' => 'My close family all live in the same city.', 'image_query' => 'family dinner table together', 'difficulty' => 'easy'],
+                                    ['phrase' => 'relatives', 'meaning' => 'members of your family', 'pos' => 'noun', 'synonym' => 'family members', 'example' => 'We invited all our relatives to the wedding.', 'image_query' => 'extended family reunion', 'difficulty' => 'easy'],
+                                    ['phrase' => 'current', 'meaning' => 'happening or existing now (as opposed to before)', 'pos' => 'adjective', 'synonym' => 'present', 'example' => 'My current job is more stressful than my last one.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'ex-partner', 'meaning' => "a person's former boyfriend/girlfriend/husband/wife", 'pos' => 'noun', 'synonym' => 'former partner', 'example' => 'I still see my ex-partner at family events sometimes.', 'difficulty' => 'hard'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
@@ -1569,74 +1480,23 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                'duration_minutes' => 16,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 9,
                                 'hook' => 'Next time someone asks about your diet, will these words be ready — or will you just say "I eat normal food"?',
-                                // Word selection follows English Vocabulary in Use Unit 34
-                                // "Food" (per M04.pdf's own "exact resource" table) — meals,
-                                // ingredients, snacks, fresh/frozen food, spicy/sweet food,
-                                // healthy/unhealthy food, diet. Story and every meaning below
-                                // are written fresh for this app (see EOS-009 §14: content
-                                // stays original, no licensing/piracy risk). "eating clean",
-                                // "skip breakfast", "craving", "balanced diet" are deliberately
-                                // woven in here too — the real Listening podcast right after
-                                // this step uses these same words/phrases, so every learner
-                                // reads them here first, then hears them again in context.
-                                'story' => [
-                                    [
-                                        'heading' => 'Meals & Habits',
-                                        'text' => "I try not to **skip breakfast**, even on busy mornings, because I "
-                                            .'always feel worse by lunchtime if I do. Most days I eat a **home-cooked** '
-                                            .'dinner, but once or twice a week we **eat out** instead, usually '
-                                            .'somewhere simple. I\'m trying to follow a more **balanced diet** overall '
-                                            .'— not perfect, just better than before.',
-                                    ],
-                                    [
-                                        'heading' => 'Fresh & Frozen',
-                                        'text' => 'I prefer cooking with **fresh** vegetables when I have time, but '
-                                            .'**frozen** ones are honestly just as healthy and save a lot of effort '
-                                            .'on a tired evening. Whatever fresh **ingredient** I buy too much of '
-                                            .'usually ends up as **leftovers** the next day, which I don\'t mind at all.',
-                                    ],
-                                    [
-                                        'heading' => 'Snacks & Cravings',
-                                        'text' => 'In the afternoon I sometimes get a real **craving** for something '
-                                            .'sweet — I definitely have a **sweet tooth**. Instead of chocolate, I try '
-                                            ."to reach for a healthier **snack** like fruit and nuts. My sister is the "
-                                            .'opposite: she\'d always choose something **spicy** over something '
-                                            .'sweet.',
-                                    ],
-                                    [
-                                        'heading' => 'Healthy Choices',
-                                        'text' => 'I\'m not trying to eat only "**healthy food**" and never touch '
-                                            .'"**unhealthy food**" again — that never lasts. I\'m just trying to '
-                                            .'**cut down on** **junk food** and **processed food**, one small change '
-                                            .'at a time, instead of banning it completely.',
-                                    ],
-                                ],
-                                'story_words' => [
-                                    // Meals & Habits
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'difficulty' => 'easy'],
-                                    ['phrase' => 'home-cooked', 'meaning' => 'made at home, not bought ready-made or from a restaurant', 'image_query' => 'home cooked dinner family table', 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'difficulty' => 'easy'],
-                                    ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'difficulty' => 'medium'],
-                                    // Fresh & Frozen
-                                    ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
-                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'image_query' => 'frozen food in freezer drawer', 'difficulty' => 'easy'],
-                                    ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'difficulty' => 'medium'],
-                                    ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
-                                    // Snacks & Cravings
-                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'difficulty' => 'medium'],
-                                    ['phrase' => 'sweet tooth', 'meaning' => 'a strong liking for sweet food', 'difficulty' => 'hard'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => 'spicy', 'meaning' => 'having a strong, hot taste, like chilli', 'image_query' => 'spicy food chilli', 'difficulty' => 'easy'],
-                                    // Healthy Choices
-                                    ['phrase' => 'healthy food', 'meaning' => 'food that is good for your body', 'image_query' => 'healthy food bowl vegetables', 'difficulty' => 'easy'],
-                                    ['phrase' => 'unhealthy food', 'meaning' => 'food that is bad for your body if eaten often', 'difficulty' => 'easy'],
-                                    ['phrase' => 'cut down on', 'meaning' => 'to reduce how much of something you eat or do', 'difficulty' => 'hard', 'allow_embedded_match' => true],
-                                    ['phrase' => 'junk food', 'meaning' => 'cheap food that is quick to eat but bad for your health', 'image_query' => 'junk food fast food', 'difficulty' => 'medium'],
-                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'difficulty' => 'medium'],
+                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
+                                // for the full rationale. Day 1 = the real Listening episode's own
+                                // 5 target_phrases, so every learner meets them here first.
+                                'story' => 'I try not to **skip breakfast**, even on busy mornings. Once or twice '
+                                    .'a week we **eat out** instead of cooking. In the afternoon I sometimes get '
+                                    .'a real **craving** for something sweet, so I try to reach for a healthier '
+                                    .'**snack** instead of **processed food**.',
+                                'words' => [
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'pos' => 'verb phrase', 'example' => "She often skips breakfast when she's late for work.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out most Friday nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'pos' => 'noun', 'example' => 'I had a craving for chocolate all afternoon.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I grabbed a snack before the meeting.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food if you can.', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
@@ -1781,6 +1641,24 @@ class MissionSeeder extends Seeder
                         'label' => 'Build',
                         'mode' => 'solo',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 10,
+                                'hook' => 'The words for talking about what\'s actually in your kitchen.',
+                                'story' => 'Most days I eat a **home-cooked** dinner and try to follow a '
+                                    .'**balanced diet**. I prefer cooking with **fresh** vegetables, but '
+                                    .'**frozen** ones save time too. Whatever fresh **ingredient** I buy too '
+                                    .'much of usually ends up as **leftovers** the next day.',
+                                'words' => [
+                                    ['phrase' => 'home-cooked', 'meaning' => 'made at home, not bought ready-made or from a restaurant', 'pos' => 'adjective', 'example' => "There's nothing better than a home-cooked meal.", 'image_query' => 'home cooked dinner family table', 'difficulty' => 'easy'],
+                                    ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'pos' => 'noun phrase', 'example' => 'Eating a balanced diet keeps me healthy.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'pos' => 'adjective', 'synonym' => 'opposite: frozen', 'example' => 'I always buy fresh fruit at the market.', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
+                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'pos' => 'adjective', 'synonym' => 'opposite: fresh', 'example' => 'We keep frozen vegetables for busy nights.', 'image_query' => 'frozen food in freezer drawer', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'pos' => 'noun', 'example' => 'Garlic is the main ingredient in this sauce.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'pos' => 'noun', 'example' => 'I had the leftovers for lunch the next day.', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
@@ -1927,6 +1805,24 @@ class MissionSeeder extends Seeder
                         'label' => 'Practice',
                         'mode' => 'ai',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for talking about healthy vs. not-so-healthy choices.',
+                                'story' => 'I definitely have a **sweet tooth**, but my sister prefers something '
+                                    .'**spicy** instead. I\'m not trying to only eat "**healthy food**" and never '
+                                    .'touch "**unhealthy food**" again — I\'m just trying to **cut down on** '
+                                    .'**junk food**, one small change at a time.',
+                                'words' => [
+                                    ['phrase' => 'sweet tooth', 'meaning' => 'a strong liking for sweet food', 'pos' => 'noun phrase (idiom)', 'example' => 'My dad has a real sweet tooth.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'spicy', 'meaning' => 'having a strong, hot taste, like chilli', 'pos' => 'adjective', 'synonym' => 'opposite: mild', 'example' => 'This curry is a bit too spicy for me.', 'image_query' => 'spicy food chilli', 'difficulty' => 'easy'],
+                                    ['phrase' => 'healthy food', 'meaning' => 'food that is good for your body', 'pos' => 'noun phrase', 'synonym' => 'opposite: junk food', 'example' => 'She only keeps healthy food in the house.', 'image_query' => 'healthy food bowl vegetables', 'difficulty' => 'easy'],
+                                    ['phrase' => 'unhealthy food', 'meaning' => 'food that is bad for your body if eaten often', 'pos' => 'noun phrase', 'example' => 'Too much unhealthy food makes me feel tired.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cut down on', 'meaning' => 'to reduce how much of something you eat or do', 'pos' => 'phrasal verb', 'synonym' => 'reduce', 'example' => "I'm trying to cut down on sugar.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'junk food', 'meaning' => 'cheap food that is quick to eat but bad for your health', 'pos' => 'noun phrase', 'synonym' => 'opposite: healthy food', 'example' => "It's easy to eat junk food when you're busy.", 'image_query' => 'junk food fast food', 'difficulty' => 'medium'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
@@ -2190,60 +2086,23 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                'duration_minutes' => 16,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 7,
                                 'hook' => 'Next time someone asks about your job or studies, will these words be ready — or will you just say "it\'s complicated"?',
-                                // Word selection follows English Vocabulary in Use Unit 17
-                                // "Work" (per M03.pdf's own "exact resource" table) — jobs,
-                                // workplaces, colleagues, responsibilities, working hours,
-                                // salary, full-time/part-time, career. Story and every
-                                // meaning below are written fresh for this app (see EOS-009
-                                // §14: content stays original, no licensing/piracy risk).
-                                'story' => [
-                                    [
-                                        'heading' => 'My Job',
-                                        'text' => "I've had a few different **jobs** since I started my **career**, "
-                                            .'but I\'ve always worked **full-time** — I don\'t think I\'d enjoy '
-                                            .'**part-time** work, even though some of my friends prefer it.',
-                                    ],
-                                    [
-                                        'heading' => 'The Workplace',
-                                        'text' => 'My **workplace** is small, so I know all my **colleagues** well. '
-                                            .'We work as a close **team**, which makes even a stressful day easier '
-                                            .'to get through.',
-                                    ],
-                                    [
-                                        'heading' => 'Responsibilities',
-                                        'text' => 'One of my main **responsibilities** is training new staff. I\'m '
-                                            ."also **in charge of** the weekly schedule, and I usually **deal with** "
-                                            .'any customer complaints that come in.',
-                                    ],
-                                    [
-                                        'heading' => 'Hours & Pay',
-                                        'text' => 'My **working hours** are pretty standard, nine to five, though I '
-                                            ."sometimes do **overtime** if we're busy. The **salary** isn't amazing, "
-                                            .'but it\'s fair for the work.',
-                                    ],
-                                ],
-                                'story_words' => [
-                                    // My Job
-                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'difficulty' => 'easy'],
-                                    ['phrase' => 'career', 'meaning' => 'the jobs someone has over a long period, usually in one field', 'difficulty' => 'medium'],
-                                    ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'difficulty' => 'easy'],
-                                    ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'difficulty' => 'easy'],
-                                    // The Workplace
-                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'image_query' => 'colleagues working in open office', 'difficulty' => 'easy'],
-                                    ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
-                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'difficulty' => 'easy'],
-                                    // Responsibilities
-                                    ['phrase' => 'responsibility', 'meaning' => 'a duty or task that is part of your job', 'difficulty' => 'medium'],
-                                    ['phrase' => 'in charge of', 'meaning' => 'responsible for managing something', 'difficulty' => 'hard'],
-                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'difficulty' => 'hard', 'allow_embedded_match' => true],
-                                    // Hours & Pay
-                                    ['phrase' => 'working hours', 'meaning' => 'the times of day someone is at work', 'difficulty' => 'medium'],
-                                    ['phrase' => 'overtime', 'meaning' => 'extra hours worked beyond the usual schedule', 'difficulty' => 'medium'],
-                                    ['phrase' => 'salary', 'meaning' => 'the fixed amount of money someone is paid for their job', 'image_query' => 'salary paycheck money', 'difficulty' => 'medium'],
+                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
+                                // for the full rationale. Day 1 = the real Listening episode's own
+                                // target_phrases that actually overlap with this mission's vocab
+                                // pool — only 3 of the episode's 5 do ("deadline" and "work life
+                                // balance" were never part of the story_words pool; a prior content
+                                // audit found 3/5 was the real ceiling here, not a gap to fix now).
+                                'story' => "I've had a few different **jobs**, and I always try to be a good "
+                                    .'member of the **team**. Part of my job is learning to **deal with** '
+                                    .'difficult situations calmly.',
+                                'words' => [
+                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'pos' => 'noun', 'example' => 'She found a new job last month.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'pos' => 'noun', 'synonym' => 'group', 'example' => 'Our team meets every Monday morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'pos' => 'phrasal verb', 'synonym' => 'handle', 'example' => 'I have to deal with a difficult client today.', 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -2356,6 +2215,22 @@ class MissionSeeder extends Seeder
                         'label' => 'Build',
                         'mode' => 'solo',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 9,
+                                'hook' => 'The words for talking about your career and where you work.',
+                                'story' => "I've had a long **career** in this field. I've always worked "
+                                    .'**full-time** — I don\'t think I\'d enjoy **part-time** work. My '
+                                    .'**workplace** is small, so I know all my **colleagues** well.',
+                                'words' => [
+                                    ['phrase' => 'career', 'meaning' => 'the jobs someone has over a long period, usually in one field', 'pos' => 'noun', 'example' => 'He has had a long career in teaching.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'pos' => 'adjective', 'synonym' => 'opposite: part-time', 'example' => 'She works full-time at a hospital.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'pos' => 'adjective', 'synonym' => 'opposite: full-time', 'example' => 'I have a part-time job at weekends.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'pos' => 'noun', 'example' => 'Our workplace is very friendly.', 'image_query' => 'colleagues working in open office', 'difficulty' => 'easy'],
+                                    ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'pos' => 'noun', 'synonym' => 'co-worker', 'example' => 'I had lunch with a colleague today.', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
@@ -2519,6 +2394,23 @@ class MissionSeeder extends Seeder
                         'label' => 'Practice',
                         'mode' => 'ai',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 9,
+                                'hook' => "Last set — the words for what you're responsible for, and how you're paid for it.",
+                                'story' => 'One of my main **responsibilities** is training new staff, and I\'m '
+                                    .'also **in charge of** the weekly schedule. My **working hours** are pretty '
+                                    .'standard, though I sometimes do **overtime**. The **salary** isn\'t amazing, '
+                                    .'but it\'s fair.',
+                                'words' => [
+                                    ['phrase' => 'responsibility', 'meaning' => 'a duty or task that is part of your job', 'pos' => 'noun', 'example' => 'Training new staff is my responsibility.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'in charge of', 'meaning' => 'responsible for managing something', 'pos' => 'adjective phrase', 'synonym' => 'responsible for', 'example' => "She's in charge of the whole department.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'working hours', 'meaning' => 'the times of day someone is at work', 'pos' => 'noun phrase', 'example' => 'My working hours are nine to five.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'overtime', 'meaning' => 'extra hours worked beyond the usual schedule', 'pos' => 'noun', 'example' => 'I did two hours of overtime yesterday.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'salary', 'meaning' => 'the fixed amount of money someone is paid for their job', 'pos' => 'noun', 'example' => 'The salary for this job is quite good.', 'image_query' => 'salary paycheck money', 'difficulty' => 'medium'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',

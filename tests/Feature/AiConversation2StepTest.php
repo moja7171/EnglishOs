@@ -107,7 +107,7 @@ class AiConversation2StepTest extends TestCase
 
         Evidence::create([
             'mission_run_id' => $run->id,
-            'phase' => 'vocabulary_builder',
+            'phase' => 'vocabulary_builder_1',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'selected_words' => ['wake up', 'have a shower', 'do the housework'],

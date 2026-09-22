@@ -35,9 +35,9 @@ class AiUsageTrackingTest extends TestCase
             'phases' => [[
                 'phase' => 'foundation',
                 'steps' => [[
-                    'key' => 'vocabulary_builder',
-                    'story' => [['heading' => 'Sleep', 'text' => 'I **wake up** early.']],
-                    'story_words' => [['phrase' => 'wake up', 'meaning' => 'to stop sleeping']],
+                    'key' => 'vocabulary_builder_1',
+                    'story' => 'I **wake up** early.',
+                    'words' => [['phrase' => 'wake up', 'meaning' => 'to stop sleeping']],
                 ]],
             ]],
         ]);
@@ -46,8 +46,7 @@ class AiUsageTrackingTest extends TestCase
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->call('toggleWord', 'wake up')
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
             ->set('examples.0', 'I wake up at seven every day.')
             ->call('checkOne', 0);
 

@@ -54,15 +54,19 @@ class MissionHookContentTest extends TestCase
         $this->assertSame([
             // Day 1 · Individual (pages 01-03)
             'mission_brief',
-            'vocabulary_builder',
+            'vocabulary_builder_1',
             'listening',
-            // Day 2 · Individual (pages 04-05)
+            // Day 2 · Individual (pages 04-05) — vocabulary_builder_2 added
+            // right at the start (mission structure redesign, Epic B).
+            'vocabulary_builder_2',
             'daily_listen_2',
             'grammar_in_context',
             'story_sequence',
             'activation',
             'video_shadowing',
-            // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge
+            // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge —
+            // vocabulary_builder_3 added right at the start, same reason.
+            'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
             'ai_feedback_1',
@@ -105,14 +109,16 @@ class MissionHookContentTest extends TestCase
         $this->assertSame([
             // Day 1 · Foundation
             'mission_brief',
-            'vocabulary_builder',
+            'vocabulary_builder_1',
             'listening',
-            // Day 2 · Build
+            // Day 2 · Build — vocabulary_builder_2 added at the start (Epic B).
+            'vocabulary_builder_2',
             'daily_listen_2',
             'grammar_in_context',
             'activation',
             'video_shadowing',
-            // Day 3 · Practice
+            // Day 3 · Practice — vocabulary_builder_3 added at the start (Epic B).
+            'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
             'ai_feedback_1',

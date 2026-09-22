@@ -178,20 +178,26 @@ class MissionRun extends Model
     }
 
     /**
-     * The exact vocabulary words the learner picked in Vocabulary Builder —
-     * the thread later steps (Writing suggestions, Active Recall, the Final
-     * Challenge's grading) pull from so the words actually studied get
-     * reused and reviewed, not just practiced once and forgotten. Empty
-     * array if Vocabulary Builder hasn't been completed yet. This pattern
-     * is the standard for every future mission, not just M01 — see
-     * EOS-009 §7 step 02.
+     * Every word from all 3 days of Vocabulary Builder (vocabulary_builder_1
+     * through _3 — one step per mission day, see the mission structure
+     * redesign's Epic B) — the thread later steps (Writing suggestions,
+     * Grammar in Context, the Final Challenge's grading) pull from so the
+     * words actually studied get reused and reviewed, not just practiced
+     * once and forgotten. Only days actually completed contribute; empty
+     * array before day 1 is done. This pattern is the standard for every
+     * future mission, not just M01 — see EOS-009 §7 step 02.
      */
     public function selectedVocabularyWords(): array
     {
-        $evidence = $this->latestEvidence('vocabulary_builder');
-        $data = json_decode($evidence?->content_ref ?? '{}', true);
+        return collect(['vocabulary_builder_1', 'vocabulary_builder_2', 'vocabulary_builder_3'])
+            ->flatMap(function (string $phase) {
+                $data = json_decode($this->latestEvidence($phase)?->content_ref ?? '{}', true);
 
-        return $data['selected_words'] ?? [];
+                return $data['selected_words'] ?? [];
+            })
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

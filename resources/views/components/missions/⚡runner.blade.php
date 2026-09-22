@@ -196,7 +196,9 @@ new class extends Component
     {
         return [
             'mission_brief' => 'missions.steps.mission-brief',
-            'vocabulary_builder' => 'missions.steps.vocabulary-builder',
+            'vocabulary_builder_1' => 'missions.steps.vocabulary-builder',
+            'vocabulary_builder_2' => 'missions.steps.vocabulary-builder',
+            'vocabulary_builder_3' => 'missions.steps.vocabulary-builder',
             'listening' => 'missions.steps.listening',
             'daily_listen_2' => 'missions.steps.daily-listen-2',
             'grammar_in_context' => 'missions.steps.grammar-in-context',
@@ -253,7 +255,7 @@ new class extends Component
     {
         return match (true) {
             $key === 'mission_brief' => 'heroicon-o-rocket-launch',
-            $key === 'vocabulary_builder' => 'heroicon-o-book-open',
+            str_starts_with($key, 'vocabulary_builder') => 'heroicon-o-book-open',
             $key === 'listening' => 'heroicon-o-speaker-wave',
             str_starts_with($key, 'daily_listen') => 'heroicon-o-speaker-wave',
             $key === 'grammar_in_context' => 'heroicon-o-pencil',
@@ -430,8 +432,17 @@ new class extends Component
             <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->stepLabel($this->activeStepKey) }}</h2>
 
             @if ($this->stepComponent)
+                @php
+                    // vocabulary_builder_1/2/3 all share one component (see
+                    // stepComponents() above) and need to know which day
+                    // they're rendering — every other step still derives
+                    // everything it needs from $run alone.
+                    $extraProps = str_starts_with($this->activeStepKey, 'vocabulary_builder_')
+                        ? ['stepKey' => $this->activeStepKey]
+                        : [];
+                @endphp
                 <div class="mt-4">
-                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing], key($run->id.'-'.$this->activeStepKey.'-'.($this->isReviewing ? 'ro' : 'live')))
+                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing, ...$extraProps], key($run->id.'-'.$this->activeStepKey.'-'.($this->isReviewing ? 'ro' : 'live')))
                 </div>
             @else
                 <p class="mt-2 text-sm text-ink-faint dark:text-ink-faint-dark">Step screen not built yet.</p>
