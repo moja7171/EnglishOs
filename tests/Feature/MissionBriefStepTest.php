@@ -262,4 +262,67 @@ class MissionBriefStepTest extends TestCase
             ->assertSee('Challenge')
             ->assertSee('We\'ll compare this to your score at the end of the mission.', false);
     }
+
+    /**
+     * Epic F: the hook is the first thing on the page, before the
+     * roadmap/outcome summary — not buried after a syllabus-style block.
+     */
+    public function test_the_hook_appears_before_the_roadmap(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $html = Livewire::test('missions.steps.mission-brief', ['run' => $run])->html();
+
+        $hookPos = strpos($html, 'new coworker turns to you and asks');
+        $roadmapPos = strpos($html, 'Foundation');
+
+        $this->assertNotFalse($hookPos);
+        $this->assertNotFalse($roadmapPos);
+        $this->assertLessThan($roadmapPos, $hookPos);
+    }
+
+    /**
+     * Epic F: the optional recording is now tied to one specific, named
+     * question — not an ambiguous "answer one of these".
+     */
+    public function test_the_optional_recording_names_a_specific_question(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [[
+                'key' => 'mission_brief',
+                'warm_up_questions' => ['What time do you usually wake up?', 'What do you usually do in the morning?'],
+            ]]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->assertSee('record yourself answering this one:')
+            ->assertSee('What time do you usually wake up?');
+    }
+
+    public function test_the_comfort_score_buttons_show_labels_not_just_numbers(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->assertSee('Not comfortable at all')
+            ->assertSee('Very comfortable');
+    }
 }

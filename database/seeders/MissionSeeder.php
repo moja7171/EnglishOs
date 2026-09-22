@@ -659,9 +659,9 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'sleep in', 'type' => 'reused'],
                                     ['phrase' => 'has a shower', 'type' => 'reused'],
                                     ['phrase' => 'goes to sleep', 'type' => 'reused'],
-                                    ['phrase' => 'commute', 'type' => 'new', 'definition' => 'a regular journey to and from work'],
-                                    ['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired'],
-                                    ['phrase' => 'unwind', 'type' => 'new', 'definition' => 'to relax after being busy or stressed'],
+                                    ['phrase' => 'commute', 'type' => 'new', 'definition' => 'a regular journey to and from work', 'pos' => 'noun', 'example' => 'Her commute takes about thirty minutes by bus.'],
+                                    ['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired', 'pos' => 'adjective', 'example' => 'I was exhausted after the long shift.'],
+                                    ['phrase' => 'unwind', 'type' => 'new', 'definition' => 'to relax after being busy or stressed', 'pos' => 'verb', 'example' => 'I like to unwind with a film in the evening.'],
                                 ],
                                 // Grounds the AI check in what the passage actually says, same
                                 // pattern as Listening's topic_summary — background for a coarse
@@ -889,11 +889,11 @@ class MissionSeeder extends Seeder
      * M01's inline run()) purely for readability given its size — no
      * behavioral difference.
      *
-     * grammar_in_context and active_recall were generalized (commit
-     * 42608a8) specifically so this mission could reuse them for a
-     * different grammar focus/extra grammar-check section — see
-     * grammar-in-context.blade.php's lesson.sections shape and
-     * active-recall.blade.php's per-section 'judgment' shape.
+     * grammar_in_context was generalized (commit 42608a8) specifically so
+     * this mission could reuse it for a different grammar focus — see
+     * grammar-in-context.blade.php's lesson.sections shape. (Active Recall,
+     * mentioned here historically, was removed entirely in the mission
+     * structure redesign's Epic G.)
      */
     private function seedM02(): void
     {
@@ -1345,9 +1345,9 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'relatives', 'type' => 'reused'],
                                     ['phrase' => 'times are tough', 'type' => 'reused'],
                                     ['phrase' => 'get through', 'type' => 'reused'],
-                                    ['phrase' => 'colleague', 'type' => 'new', 'definition' => 'a person you work with'],
-                                    ['phrase' => 'organise', 'type' => 'new', 'definition' => 'to plan and arrange an event or activity'],
-                                    ['phrase' => 'survive', 'type' => 'new', 'definition' => 'to continue existing despite a difficult situation'],
+                                    ['phrase' => 'colleague', 'type' => 'new', 'definition' => 'a person you work with', 'pos' => 'noun', 'example' => 'My colleague helped me finish the report.'],
+                                    ['phrase' => 'organise', 'type' => 'new', 'definition' => 'to plan and arrange an event or activity', 'pos' => 'verb', 'example' => 'She loves to organise weekend trips for her friends.'],
+                                    ['phrase' => 'survive', 'type' => 'new', 'definition' => 'to continue existing despite a difficult situation', 'pos' => 'verb', 'example' => 'Their friendship survived even after she moved abroad.'],
                                 ],
                                 'topic_summary' => 'A short profile of Sara and her friendships: her three '
                                     .'long-time school friends (usually seen monthly, though two are currently '
@@ -1968,8 +1968,8 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'cut down on', 'type' => 'reused'],
                                     ['phrase' => 'processed food', 'type' => 'reused'],
                                     ['phrase' => 'junk food', 'type' => 'reused'],
-                                    ['phrase' => 'vending machine', 'type' => 'new', 'definition' => 'a machine that sells snacks or drinks when you put money in'],
-                                    ['phrase' => 'sluggish', 'type' => 'new', 'definition' => 'slow-moving and lacking energy'],
+                                    ['phrase' => 'vending machine', 'type' => 'new', 'definition' => 'a machine that sells snacks or drinks when you put money in', 'pos' => 'noun phrase', 'example' => 'I bought a bottle of water from the vending machine.'],
+                                    ['phrase' => 'sluggish', 'type' => 'new', 'definition' => 'slow-moving and lacking energy', 'pos' => 'adjective', 'example' => 'I always feel sluggish after eating too much.'],
                                 ],
                                 'topic_summary' => 'A short profile of Marco, a nurse in Rome, whose eating habits '
                                     .'change with his shift: he never skips breakfast, brings fresh fruit and nuts '
@@ -2569,8 +2569,8 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'working hours', 'type' => 'reused'],
                                     ['phrase' => 'in charge of', 'type' => 'reused'],
                                     ['phrase' => 'responsibility', 'type' => 'reused'],
-                                    ['phrase' => 'timetable', 'type' => 'new', 'definition' => 'a plan showing when classes or events happen'],
-                                    ['phrase' => 'assignment', 'type' => 'new', 'definition' => 'a piece of work given as part of a course'],
+                                    ['phrase' => 'timetable', 'type' => 'new', 'definition' => 'a plan showing when classes or events happen', 'pos' => 'noun', 'example' => 'My timetable is different every day this week.'],
+                                    ['phrase' => 'assignment', 'type' => 'new', 'definition' => 'a piece of work given as part of a course', 'pos' => 'noun', 'example' => 'I have to finish my assignment by Friday.'],
                                 ],
                                 'topic_summary' => 'A short profile of Sara, a university student in Leeds, whose '
                                     .'days depend on her timetable — some full of lectures, others spent mostly in '

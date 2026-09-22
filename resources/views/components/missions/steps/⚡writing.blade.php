@@ -44,9 +44,18 @@ new class extends Component
         }
     }
 
+    /**
+     * English-only word count (Epic F) — the old preg_split counted ANY
+     * whitespace-separated token regardless of language, so Persian text
+     * pasted in by mistake still counted toward the target. Only tokens
+     * with at least one Latin letter count as a real word now.
+     */
     public function getWordCountProperty(): int
     {
-        return count(array_filter(preg_split('/\s+/', trim($this->text))));
+        return count(array_filter(
+            preg_split('/\s+/', trim($this->text)),
+            fn ($token) => preg_match('/[A-Za-z]/', $token) === 1,
+        ));
     }
 
     /**
@@ -248,6 +257,14 @@ new class extends Component
         </div>
     @endif
 
+    {{-- Word counter above the box (Epic F), not below — it's the thing to
+         glance at while writing, not an afterthought once you scroll down. --}}
+    <div class="flex items-center justify-between text-xs">
+        <span class="{{ $this->wordCount >= ($writing['min_words'] ?? 100) ? 'text-success dark:text-success-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+            {{ $this->wordCount }} words (target {{ $writing['min_words'] ?? 100 }}–{{ $writing['max_words'] ?? 150 }})
+        </span>
+    </div>
+
     <textarea
         wire:model.live="text"
         rows="10"
@@ -259,31 +276,22 @@ new class extends Component
         class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
     ></textarea>
 
-    <div class="flex items-center justify-between text-xs">
-        <span class="{{ $this->wordCount >= ($writing['min_words'] ?? 100) ? 'text-success dark:text-success-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">
-            {{ $this->wordCount }} words (target {{ $writing['min_words'] ?? 100 }}–{{ $writing['max_words'] ?? 150 }})
-        </span>
-    </div>
-
     @error('text')
         <p class="text-sm text-red-600">{{ $message }}</p>
     @enderror
 
-    {{-- text uses wire:model.live, so wordCount is already known
-         server-side on every keystroke — no extra Alpine tracking needed,
-         just don't render the bar until the minimum is reached. --}}
-    @if (! $readOnly && $this->wordCount >= ($writing['min_words'] ?? 100))
-        <x-sticky-bar>
-            <button
-                wire:click="save"
-                wire:loading.attr="disabled"
-                wire:target="save"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
-            >
-                <span wire:loading.remove wire:target="save">Continue</span>
-                <span wire:loading wire:target="save">Saving…</span>
-            </button>
-        </x-sticky-bar>
-    @endif
+    {{-- Always on screen, disabled until the minimum is reached — the
+         standard shared component (Epic F), not a button that didn't
+         exist at all until then. text uses wire:model.live, so wordCount
+         is already known server-side on every keystroke. --}}
+    @unless ($readOnly)
+        <x-continue-button
+            on-click="$wire.save()"
+            wire-target="save"
+            loading-label="Saving…"
+            ready-when="{{ $this->wordCount >= ($writing['min_words'] ?? 100) ? 'true' : 'false' }}"
+            hint="{{ max(($writing['min_words'] ?? 100) - $this->wordCount, 0) }} more words to continue"
+        />
+    @endunless
     @endunless
 </div>

@@ -235,10 +235,11 @@ class ReadingComprehensionStepTest extends TestCase
                 ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+        $component = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->set('answers.0', 'She wakes up early and never skips breakfast.')
             ->set('answers.1', 'On Sunday she sleeps in and does not set an alarm.')
-            ->call('save');
+            ->call('save')
+            ->assertSet('completed', true);
 
         $this->assertDatabaseCount('evidences', 1);
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'reading_comprehension']);
@@ -247,7 +248,11 @@ class ReadingComprehensionStepTest extends TestCase
         $content = json_decode($evidence->content_ref, true);
         $this->assertSame('She wakes up early and never skips breakfast.', $content['answers'][0]);
 
+        // Evidence is already saved — currentStepKey has already advanced,
+        // the recap is just a courtesy screen before navigating away.
         $this->assertSame('writing', $run->fresh()->currentStepKey());
+
+        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
     }
 
     public function test_three_failed_checks_offer_to_reveal_the_correction(): void
@@ -338,6 +343,80 @@ class ReadingComprehensionStepTest extends TestCase
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->assertDontSeeHtml('<mark');
+    }
+
+    private function makeRunWithNewWords(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [[
+                    'key' => 'reading_comprehension',
+                    'passage' => 'Aisha wakes up at six and feels exhausted after a long shift.',
+                    'highlighted_phrases' => [
+                        ['phrase' => 'wakes up', 'type' => 'reused'],
+                        ['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired', 'pos' => 'adjective', 'example' => 'I was exhausted after the long shift.'],
+                    ],
+                    'questions' => ['What is Aisha like?'],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    /**
+     * Epic F: new words get their own section below the passage — plain
+     * meaning + part of speech + example, not just a hover-only tooltip
+     * (never worked on mobile — same fix already made for Vocabulary
+     * Builder).
+     */
+    public function test_the_new_words_section_shows_pos_and_example(): void
+    {
+        $run = $this->makeRunWithNewWords();
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSee('New words')
+            ->assertSee('exhausted')
+            ->assertSee('adjective')
+            ->assertSee('very tired')
+            ->assertSee('I was exhausted after the long shift.')
+            // The reused word never appears in the "new words" list.
+            ->assertDontSeeHtml('>wakes up</p>');
+    }
+
+    /**
+     * Epic F: new words hook into My Words the same way Vocabulary
+     * Builder/Listening already do — offered, never silently enrolled.
+     */
+    public function test_completing_the_step_offers_to_add_new_words_to_my_words(): void
+    {
+        $run = $this->makeRunWithNewWords();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
+
+        $component = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->set('answers.0', 'She seems tired but hardworking.')
+            ->call('save')
+            ->assertSet('completed', true)
+            ->assertSee('exhausted')
+            ->assertSee('Add to My Words');
+
+        $component->call('addWordsToNotebook')
+            ->assertSet('trackedWords', true)
+            ->assertSee('Added to My Words');
+
+        $this->assertDatabaseHas('vocabulary_words', [
+            'learner_id' => $run->learner_id,
+            'word' => 'exhausted',
+            'meaning' => 'very tired',
+        ]);
     }
 
     public function test_read_only_mode_reloads_the_saved_answers_and_hides_the_warm_up(): void

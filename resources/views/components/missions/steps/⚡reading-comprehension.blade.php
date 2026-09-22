@@ -2,6 +2,7 @@
 
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
+use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\PexelsClient;
@@ -14,6 +15,7 @@ new class extends Component
 {
     use TracksAiUsage;
     use TracksCheckAttempts;
+    use TracksVocabularyNotebook;
 
     public MissionRun $run;
 
@@ -28,6 +30,13 @@ new class extends Component
     /** @var array<int, string> keyed by question index — per-input check failure message */
     public array $checkErrors = [];
 
+    /**
+     * True once Continue has passed every check and Evidence is saved —
+     * the step then shows the "Add to My Words" checklist for the new
+     * words met in the passage (Epic F), same pattern as Listening.
+     */
+    public bool $completed = false;
+
     public function mount(): void
     {
         $this->answers = array_fill(0, count($this->questions()), '');
@@ -38,6 +47,32 @@ new class extends Component
 
         $data = json_decode($this->run->latestEvidence('reading_comprehension')?->content_ref ?? '{}', true);
         $this->answers = array_pad($data['answers'] ?? [], count($this->questions()), '');
+    }
+
+    /**
+     * The passage's brand-new words (not the reused Vocabulary Builder
+     * ones) — the "New words" section below the passage, and what
+     * "Add to My Words" offers once this step is done.
+     *
+     * @return list<array{phrase: string, definition: string, pos?: string, example?: string}>
+     */
+    public function newWords(): array
+    {
+        return collect($this->run->mission->stepContent('reading_comprehension')['highlighted_phrases'] ?? [])
+            ->where('type', 'new')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{word: string, meaning: string}>
+     */
+    protected function notebookCandidates(): array
+    {
+        return collect($this->newWords())
+            ->map(fn ($item) => ['word' => $item['phrase'], 'meaning' => $item['definition'] ?? ''])
+            ->values()
+            ->all();
     }
 
     private function questions(): array
@@ -257,6 +292,12 @@ new class extends Component
         ]);
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
+        $this->completed = true;
+        $this->initWordsToTrack();
+    }
+
+    public function proceed(): void
+    {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 
@@ -295,6 +336,67 @@ new class extends Component
 >
     <x-hook :text="$reading['hook'] ?? null" />
 
+    @if ($completed)
+        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
+                @svg('heroicon-o-check-circle', 'h-4 w-4')
+                Reading complete
+            </p>
+
+            @if (count($this->newWords()))
+                <div>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Here are the new words from today's passage — pick which ones join your spaced-repetition notebook.</p>
+                    <div class="mt-2 space-y-2">
+                        @foreach ($this->newWords() as $index => $word)
+                            <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
+                                <input
+                                    type="checkbox"
+                                    wire:model="wordsToTrack.{{ $index }}"
+                                    class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
+                                >
+                                <span>
+                                    <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $word['phrase'] }}</span>
+                                    <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</span>
+                                </span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <div class="flex flex-wrap items-center gap-3">
+                @unless ($readOnly)
+                    @if ($trackedWords)
+                        <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
+                            @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
+                        </span>
+                    @elseif (count($this->newWords()))
+                        <button
+                            type="button"
+                            wire:click="addWordsToNotebook"
+                            wire:loading.attr="disabled"
+                            wire:target="addWordsToNotebook"
+                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <span wire:loading.remove wire:target="addWordsToNotebook" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
+                            <span wire:loading wire:target="addWordsToNotebook">Adding…</span>
+                        </button>
+                    @endif
+
+                    <button
+                        wire:click="proceed"
+                        wire:loading.attr="disabled"
+                        wire:target="proceed"
+                        class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="proceed">Continue</span>
+                        <span wire:loading wire:target="proceed">Please wait…</span>
+                    </button>
+                @endunless
+            </div>
+        </div>
+    @else
+
     <div class="mb-2">
         <x-progress-bar>
             <div
@@ -328,6 +430,32 @@ new class extends Component
                 </div>
             </div>
         </div>
+
+        {{-- New words (Epic F): the passage's brand-new vocabulary, with a
+             plain-language meaning, part of speech, and an example — shown
+             directly, not behind a hover-only tooltip (that never worked
+             on mobile, same fix already made for Vocabulary Builder). --}}
+        @if (count($this->newWords()))
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">New words</p>
+                <div class="mt-2 space-y-2">
+                    @foreach ($this->newWords() as $word)
+                        <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                            <div class="flex items-baseline gap-2">
+                                <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word['phrase'] }}</p>
+                                @if (! empty($word['pos']))
+                                    <p class="text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $word['pos'] }}</p>
+                                @endif
+                            </div>
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</p>
+                            @if (! empty($word['example']))
+                                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">"{{ $word['example'] }}"</p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         @unless ($readOnly)
             <div class="mt-4">
@@ -407,4 +535,5 @@ new class extends Component
     <div class="mt-4">
         <x-substep-nav index-var="activeSubstep" :total="$totalSubsteps" />
     </div>
+    @endif
 </div>

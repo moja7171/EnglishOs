@@ -116,16 +116,24 @@ class WritingStepTest extends TestCase
         $this->assertDatabaseCount('evidences', 0);
     }
 
-    public function test_continue_is_hidden_until_the_minimum_word_count_is_reached(): void
+    /**
+     * Epic F: Continue is now the standard shared component — always on
+     * screen, just disabled with a hint until the minimum is reached —
+     * not absent entirely, which is the anti-pattern <x-continue-button>
+     * itself warns against.
+     */
+    public function test_continue_stays_on_screen_but_disabled_until_the_minimum_word_count_is_reached(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.writing', ['run' => $run])
-            ->assertDontSeeHtml('wire:click="save"')
+            ->assertSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
+            ->assertSee('more words to continue')
             ->set('text', 'Too short.')
-            ->assertDontSeeHtml('wire:click="save"')
+            ->assertSeeHtml('x-bind:disabled="! (false)"')
             ->set('text', 'This sentence has five words.')
-            ->assertSeeHtml('wire:click="save"');
+            ->assertSeeHtml('x-bind:disabled="! (true)"');
     }
 
     public function test_reaching_the_minimum_saves_evidence_and_shows_the_recap(): void
@@ -245,6 +253,20 @@ class WritingStepTest extends TestCase
 
         Livewire::test('missions.steps.writing', ['run' => $run])
             ->set('text', "  one   two\nthree  ")
+            ->assertSet('wordCount', 3);
+    }
+
+    /**
+     * Epic F: the old preg_split counted ANY whitespace-separated token
+     * regardless of language — Persian text pasted in by mistake used to
+     * count toward the English target too.
+     */
+    public function test_word_count_only_counts_english_tokens(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->set('text', 'one two سلام حالت خوبه three')
             ->assertSet('wordCount', 3);
     }
 

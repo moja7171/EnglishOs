@@ -269,24 +269,23 @@ new class extends Component
     @endif
 
     @unless ($completed)
-        <div x-data="{ imageFocused: {{ $readOnly ? 'true' : 'false' }}, activeQuestion: null }">
+        <div x-data="{ activeQuestion: null }">
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Describe what you see</p>
 
             {{-- Mood-texture frame (see resources/css/app.css's [data-mood]
                  block) around the image, and numbered hotspot markers tied
                  to the guiding questions below — hover/tap either side to
-                 highlight its match. The image starts gently blurred and
-                 clears once the learner starts recording (delight, not a
-                 puzzle — <x-voice-recorder> exposes no event of its own, so
-                 the click that starts recording is the cleanest hook). --}}
+                 highlight its match. Shown fully clear from the start
+                 (Epic F): the hotspots need to be checked against the
+                 image BEFORE recording, which a blur-until-recording
+                 effect worked against. --}}
             @if ($imageUrl = $this->imageUrl())
                 <div class="relative mt-2 rounded-2xl p-1.5" style="background-image: var(--mood-texture); background-size: var(--mood-texture-size);">
                     <div class="relative overflow-hidden rounded-xl">
                         <img
                             src="{{ $imageUrl }}"
                             alt="A picture to describe"
-                            class="h-52 w-full object-cover transition-all duration-700 ease-out"
-                            :class="imageFocused ? '' : 'scale-105 blur-sm'"
+                            class="h-52 w-full object-cover"
                         >
                         @foreach (($content['hotspots'] ?? []) as $hotspot)
                             @php $qi = $hotspot['question_index'] ?? null; @endphp
@@ -328,7 +327,7 @@ new class extends Component
                     <x-audio-player :url="$savedAudioUrl" />
                 </div>
             @else
-                <div class="mt-3" x-on:click="imageFocused = true">
+                <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
                     <x-voice-recorder field="recording" :file="$recording" file-name="picture-description.webm" />
                 </div>
 
