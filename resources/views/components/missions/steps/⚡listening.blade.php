@@ -5,14 +5,24 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\GroqClient;
 use App\Services\PexelsClient;
-use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
+use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+/**
+ * Mission structure redesign, Epic C: day 1's Listening is now exactly 3
+ * clean sub-steps — first listen + a short true/false check, second
+ * listen + a gap-fill answered by PICKING from a word bank (not typing),
+ * and the full transcript + mandatory, leniently AI-graded shadowing. The
+ * old gist/expression free-writing (6 AI-checked sentences) is gone
+ * entirely — that overlapped with what Vocabulary Builder and Writing
+ * already do, and buried Listening's own point (comprehension) under a
+ * writing exercise.
+ */
 new class extends Component
 {
     use TracksAiUsage;
@@ -31,12 +41,6 @@ new class extends Component
      */
     public bool $completed = false;
 
-    /** @var array<int, string> */
-    public array $gistPoints = ['', '', ''];
-
-    /** @var array<int, string> */
-    public array $expressionsHeard = ['', '', ''];
-
     /**
      * A one-tap bonus check (see <x-quick-round>), not a required field —
      * null until the learner taps an option (or leaves it alone entirely,
@@ -45,27 +49,64 @@ new class extends Component
      */
     public ?bool $detailCorrect = null;
 
-    /** @var array<int, string> optional bonus — one blank per target phrase, never required */
-    public array $gapFillAnswers = ['', '', '', '', ''];
+    /** @var array<int, ?string> the phrase the learner picked for each gap, keyed by target_phrases index */
+    public array $gapFillSelections = [];
 
-    /** @var array<string, array{severity: string, hint: string, checkedText: string}> keyed by field key */
-    public array $feedback = [];
-
-    /** @var array<int, array{severity: string, hint: string}> local verdicts for gapFillAnswers, keyed by index */
+    /** @var array<int, array{severity: string, hint: string}> local verdicts for gapFillSelections, keyed by index */
     public array $gapFillFeedback = [];
+
+    /**
+     * The word bank order for the gap-fill sub-step — shuffled once in
+     * mount() (not re-shuffled on every render, or the options would jump
+     * around under the learner's cursor) so every gap's <select> lists
+     * the same target phrases in the same order.
+     *
+     * @var array<int, string>
+     */
+    public array $gapFillBankOrder = [];
+
+    /** @var array<int, ?UploadedFile> keyed by shadow_lines index */
+    public array $shadowRecordings = [];
+
+    /** @var array<int, string> keyed by shadow_lines index — saved recording URLs, for read-only review */
+    public array $savedShadowUrls = [];
+
+    /** @var array<string, array{severity: string, hint: string}> keyed by "shadow_{index}" */
+    public array $feedback = [];
 
     /** @var array<string, string> keyed by field key — per-input check failure message */
     public array $checkErrors = [];
 
     /**
-     * Shadowing — optional self-practice, repeating a real transcript line
-     * out loud. No AI grading and no Evidence: the point is comparing your
-     * own voice to the real audio, not another graded checkpoint (Article
-     * 12 — AI guides, it doesn't need to referee every single thing).
+     * Out of however many lines the mission seeds, only this many need to
+     * actually pass — a pool bigger than the requirement (see
+     * shadow_lines content) means one persistently-mistranscribed line
+     * never blocks the learner; they can just shadow a different one
+     * instead of being stuck on a single line forever.
      */
-    public ?UploadedFile $shadowRecording = null;
+    private const REQUIRED_SHADOWED_LINES = 2;
 
-    public ?int $activeShadowLine = null;
+    public function mount(): void
+    {
+        $this->gapFillBankOrder = collect($this->targetPhrases())->pluck('phrase')->shuffle()->values()->all();
+
+        if (! $this->readOnly) {
+            return;
+        }
+
+        $data = json_decode($this->run->latestEvidence('listening')?->content_ref ?? '{}', true);
+
+        $this->gapFillSelections = $data['gap_fill_selections'] ?? [];
+        $this->detailCorrect = $data['detail_correct'] ?? null;
+
+        foreach ($this->run->evidence()->where('phase', 'listening')->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
+            $decoded = json_decode($audio->content_ref, true);
+
+            if (is_array($decoded) && isset($decoded['line_index'], $decoded['url'])) {
+                $this->savedShadowUrls[$decoded['line_index']] = $decoded['url'];
+            }
+        }
+    }
 
     /**
      * The episode's cover image — same dual-coding, fetch-once-cache-
@@ -84,279 +125,168 @@ new class extends Component
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-listening', $query);
     }
 
-    public function mount(): void
+    private function targetPhrases(): array
     {
-        if (! $this->readOnly) {
-            return;
-        }
-
-        $data = json_decode($this->run->latestEvidence('listening')?->content_ref ?? '{}', true);
-
-        $this->gistPoints = array_pad($data['gist_points'] ?? [], 3, '');
-        $this->expressionsHeard = array_pad($data['expressions_heard'] ?? [], 3, '');
-        $this->detailCorrect = $data['detail_correct'] ?? null;
-        $this->gapFillAnswers = array_pad($data['gap_fill_answers'] ?? [], 5, '');
-    }
-
-    public function checkGist(int $index): void
-    {
-        $text = trim($this->gistPoints[$index] ?? '');
-
-        if ($text === '') {
-            $this->checkErrors["gist_{$index}"] = 'Write something first.';
-
-            return;
-        }
-
-        $this->runCheck("gist_{$index}", $this->gistContext(), $text);
-    }
-
-    public function checkExpression(int $index): void
-    {
-        $text = trim($this->expressionsHeard[$index] ?? '');
-
-        if ($text === '') {
-            $this->checkErrors["expr_{$index}"] = 'Write something first.';
-
-            return;
-        }
-
-        $this->runCheck("expr_{$index}", $this->expressionContext(), $text);
+        return $this->run->mission->stepContent('listening')['target_phrases'] ?? [];
     }
 
     /**
-     * Gap-fill also has one known-correct answer per blank (the target
-     * phrase itself), but it's optional bonus practice — 'minor' only, so
-     * it never blocks Continue the way the required fields above do.
+     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
      */
+    public function comprehensionCards(): array
+    {
+        $listening = $this->run->mission->stepContent('listening');
+
+        return collect($listening['comprehension_check'] ?? [])
+            ->map(fn ($item) => [
+                'prompt' => $item['statement'],
+                'options' => ['True', 'False'],
+                'correct' => $item['correct'] ? 0 : 1,
+                ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
+            ])
+            ->all();
+    }
+
+    /**
+     * Every gap answered from the word bank, correctly — the old free-typed
+     * gap-fill was optional bonus practice (a "minor" verdict at worst);
+     * now that it's a real sub-step of its own instead of a wrap-up
+     * extra, it needs to actually be right before Continue on this
+     * sub-step is enabled.
+     */
+    public function gapFillAllCorrect(): bool
+    {
+        $phrases = $this->targetPhrases();
+
+        if (! count($phrases)) {
+            return true;
+        }
+
+        foreach ($phrases as $index => $item) {
+            if (($this->gapFillSelections[$index] ?? null) !== $item['phrase']) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function checkGapFill(int $index): void
     {
-        $phrases = $this->run->mission->stepContent('listening')['target_phrases'] ?? [];
+        $phrases = $this->targetPhrases();
         $target = $phrases[$index]['phrase'] ?? null;
-        $answer = trim($this->gapFillAnswers[$index] ?? '');
+        $selection = $this->gapFillSelections[$index] ?? null;
 
-        if (! $target) {
+        if (! $target || ! $selection) {
             return;
         }
 
-        if ($answer === '') {
-            $this->checkErrors["gap_{$index}"] = 'Write something first.';
-
-            return;
-        }
-
-        unset($this->checkErrors["gap_{$index}"]);
-
-        $isCorrect = $this->normalize($answer) === $this->normalize($target);
-
-        $this->gapFillFeedback[$index] = $isCorrect
+        $this->gapFillFeedback[$index] = $selection === $target
             ? ['severity' => 'none', 'hint' => '']
-            : ['severity' => 'minor', 'hint' => 'Not quite — try to recall the exact phrase you heard.'];
+            : ['severity' => 'minor', 'hint' => 'Not quite — try the word you actually heard in that spot.'];
     }
 
-    private function normalize(string $text): string
+    public function shadowedCount(): int
     {
-        return trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
+        return collect($this->feedback)
+            ->filter(fn ($item, $key) => str_starts_with($key, 'shadow_') && $item['severity'] === 'none')
+            ->count();
     }
 
-    /**
-     * Selecting a new line to shadow clears any previous recording so an
-     * old take is never mistaken for a take of the newly-picked line.
-     */
-    public function selectShadowLine(int $index): void
+    public function requiredShadowedLines(): int
     {
-        $this->activeShadowLine = $index;
-        $this->shadowRecording = null;
+        return self::REQUIRED_SHADOWED_LINES;
     }
 
     /**
-     * A faithful summary of the real transcript (seeded per mission) so the
-     * AI check can catch an answer that is fluent English but unrelated to
-     * what was actually said, not just judge grammar in isolation.
+     * Fires automatically once a shadow recording finishes uploading (see
+     * <x-voice-recorder>'s onRecorded) — transcribes it and asks
+     * SpokenAnswerChecker's lenient shadowing judgment whether the
+     * learner genuinely attempted the line, out loud. See EOS-009 §8 and
+     * the mission structure redesign's Epic C notes for why this is
+     * lenient rather than a pronunciation-accuracy grade.
      */
-    private function topicSummary(): ?string
+    public function checkShadowLine(int $index): void
     {
-        return $this->run->mission->stepContent('listening')['topic_summary'] ?? null;
-    }
+        $recording = $this->shadowRecordings[$index] ?? null;
+        $lines = $this->run->mission->stepContent('listening')['shadow_lines'] ?? [];
+        $target = $lines[$index] ?? null;
 
-    private function gistContext(): string
-    {
-        $context = 'a complete English sentence describing one thing the learner understood from a B1-level listening';
+        if (! $recording || ! $target) {
+            return;
+        }
 
-        return $this->topicSummary() ? "{$context}. The listening was about: {$this->topicSummary()}" : $context;
-    }
-
-    private function expressionContext(): string
-    {
-        $context = 'a personal sentence using an expression the learner heard in a B1-level listening';
-
-        return $this->topicSummary() ? "{$context}. The listening was about: {$this->topicSummary()}" : $context;
-    }
-
-    /**
-     * Asks the shared SentenceChecker to judge one field, generalized with
-     * a per-field context instead of a single target word, plus a
-     * topic-relevance judgment grounded in the real transcript summary.
-     * Verdict is tagged with the exact text it applies to, so a later edit
-     * doesn't leave a stale verdict attached to different text. See
-     * EOS-009 §8 "الگوی چک جمله" for the shared rules.
-     */
-    private function runCheck(string $key, string $context, string $text): void
-    {
+        $key = "shadow_{$index}";
         unset($this->checkErrors[$key]);
 
         try {
-            $data = app(SentenceChecker::class)->check(
-                judgment: 'Judge whether what the learner wrote is a genuine, natural, complete English '
-                    .'sentence about the SAME GENERAL TOPIC as the listening (not just a bare word or fragment, '
-                    .'and not about a completely different topic). This is a coarse topic check only — do NOT '
-                    .'fact-check specific details against the topic summary (who said what, exact opinions, '
-                    .'etc.); the summary is background, not a source to grade accuracy against.',
-                majorCriteria: 'it is just a bare word or fragment (not a real sentence), it is about a '
-                    .'completely different topic than the listening',
-                context: $context,
-                text: $text,
-                extraGuidance: 'Treat anything on-topic and correctly formed as "none", even if a small detail '
-                    .'is debatable — never claim the learner\'s facts are wrong, since you were only given a '
-                    .'short summary, not the full listening.'.$this->run->aiToneGuidance(),
-                feedbackDepth: $this->run->mission->feedbackDepth(),
+            $transcript = trim(app(GroqClient::class)->transcribe($recording->getRealPath()));
+            $this->recordGroqCall();
+
+            $data = app(SpokenAnswerChecker::class)->checkShadowing(
+                strip_tags(str_replace('**', '', $target)),
+                $transcript,
+                $this->run->learner->levelDescription(),
             );
             $this->recordGeminiCall();
 
-            $this->feedback[$key] = $data + ['checkedText' => $text];
+            $this->feedback[$key] = $data;
             $this->trackCheckAttempt($key, $data['severity']);
-        } catch (ConnectionException|RequestException) {
-            // RequestException's message carries the raw HTTP response body
-            // (which can be an arbitrarily large error page, not a clean
-            // API message) — never show that to the learner.
-            $this->checkErrors[$key] = "Couldn't reach the AI service — please try again.";
         } catch (Throwable $e) {
             $this->checkErrors[$key] = "Couldn't check this one: {$e->getMessage()}";
         }
     }
 
-    /**
-     * After 3 failed attempts on the same field, the learner can ask the AI
-     * to just write the corrected sentence — see TracksCheckAttempts.
-     */
-    public function revealGist(int $index): void
-    {
-        $text = trim($this->gistPoints[$index] ?? '');
-
-        if ($text === '') {
-            return;
-        }
-
-        $key = "gist_{$index}";
-
-        $this->revealCorrectionFor(
-            key: $key,
-            context: $this->gistContext(),
-            text: $text,
-            errorBagKey: $key,
-            onCorrected: function (string $corrected) use ($index, $key) {
-                $this->gistPoints[$index] = $corrected;
-                $this->feedback[$key] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
-            },
-        );
-    }
-
-    public function declineGist(int $index): void
-    {
-        $this->declineCheckReveal("gist_{$index}");
-    }
-
-    public function revealExpression(int $index): void
-    {
-        $text = trim($this->expressionsHeard[$index] ?? '');
-
-        if ($text === '') {
-            return;
-        }
-
-        $key = "expr_{$index}";
-
-        $this->revealCorrectionFor(
-            key: $key,
-            context: $this->expressionContext(),
-            text: $text,
-            errorBagKey: $key,
-            onCorrected: function (string $corrected) use ($index, $key) {
-                $this->expressionsHeard[$index] = $corrected;
-                $this->feedback[$key] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
-            },
-        );
-    }
-
-    public function declineExpression(int $index): void
-    {
-        $this->declineCheckReveal("expr_{$index}");
-    }
-
     public function save(): void
     {
-        $gist = collect($this->gistPoints)->map(fn ($p) => trim($p))->filter();
-
-        if ($gist->count() < 3) {
-            $this->addError('gistPoints', 'Write all 3 things you understood before continuing.');
+        if (! $this->gapFillAllCorrect()) {
+            $this->addError('gapFill', 'Finish the gap-fill correctly before continuing.');
 
             return;
         }
 
-        $entries = collect();
-
-        foreach ($this->gistPoints as $index => $text) {
-            $text = trim($text);
-            if ($text !== '') {
-                $entries->push(['key' => "gist_{$index}", 'context' => $this->gistContext(), 'text' => $text]);
-            }
-        }
-
-        foreach ($this->expressionsHeard as $index => $text) {
-            $text = trim($text);
-            if ($text !== '') {
-                $entries->push(['key' => "expr_{$index}", 'context' => $this->expressionContext(), 'text' => $text]);
-            }
-        }
-
-        // Every filled sentence needs a fresh Gemini verdict before Continue
-        // is allowed through — reuse an existing one only if it was checked
-        // against this exact text (an edit since the last check invalidates it).
-        foreach ($entries as $entry) {
-            $alreadyChecked = ($this->feedback[$entry['key']]['checkedText'] ?? null) === $entry['text'];
-
-            if (! $alreadyChecked) {
-                $this->runCheck($entry['key'], $entry['context'], $entry['text']);
-            }
-        }
-
-        $hasMajorIssue = $entries->contains(
-            fn ($entry) => ($this->feedback[$entry['key']]['severity'] ?? null) === 'major'
-        );
-
-        if ($hasMajorIssue) {
-            $this->addError('sentences', 'Fix the highlighted sentence before continuing.');
+        if ($this->shadowedCount() < self::REQUIRED_SHADOWED_LINES) {
+            $this->addError('shadowRecordings', 'Shadow at least '.self::REQUIRED_SHADOWED_LINES.' lines before continuing.');
 
             return;
         }
+
+        $mission = $this->run->mission;
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'listening',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                'gist_points' => $gist->values(),
-                'expressions_heard' => collect($this->expressionsHeard)->map(fn ($e) => trim($e))->filter()->values(),
-                // Both are optional bonus practice — saved if attempted
-                // (detail_correct stays null if the Quick Round was
-                // skipped), but neither is required or blocks Continue.
+                'gap_fill_selections' => $this->gapFillSelections,
+                // Optional bonus — saved if attempted, never required.
                 'detail_correct' => $this->detailCorrect,
-                'gap_fill_answers' => collect($this->gapFillAnswers)->map(fn ($a) => trim($a))->filter()->values(),
             ]),
         ]);
 
-        // Progress is already saved — this only decides what the learner sees
-        // next: the language recap, which they dismiss with proceed() below.
+        // One AUDIO Evidence row per shadowed line, same pattern as Video
+        // Shadowing — content_ref is JSON here (unlike most other steps'
+        // plain-URL audio Evidence) since this step can produce more than
+        // one recording; line_index is what lets mount() map each saved
+        // file back to its line on review.
+        foreach ($this->shadowRecordings as $index => $recording) {
+            if (! $recording || ($this->feedback["shadow_{$index}"]['severity'] ?? null) !== 'none') {
+                continue;
+            }
+
+            $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
+            $url = Storage::disk('public')->url($path);
+
+            Evidence::create([
+                'mission_run_id' => $this->run->id,
+                'phase' => 'listening',
+                'type' => Evidence::TYPE_AUDIO,
+                'content_ref' => json_encode(['line_index' => $index, 'url' => $url]),
+            ]);
+
+            $this->savedShadowUrls[$index] = $url;
+        }
+
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
         $this->initWordsToTrack();
@@ -372,9 +302,7 @@ new class extends Component
      */
     protected function notebookCandidates(): array
     {
-        $phrases = $this->run->mission->stepContent('listening')['target_phrases'] ?? [];
-
-        return collect($phrases)
+        return collect($this->targetPhrases())
             ->map(fn ($item) => ['word' => $item['phrase'], 'meaning' => $item['meaning'] ?? ''])
             ->values()
             ->all();
@@ -397,87 +325,42 @@ new class extends Component
     $transcript = $listening['transcript'] ?? [];
     $detailQuestion = $listening['detail_question'] ?? null;
     $shadowLines = $listening['shadow_lines'] ?? [];
-    $initialGistFilled = collect($gistPoints)->map(fn ($p) => trim($p) !== '')->values();
-    $initialExpressionsFilled = collect($expressionsHeard)->map(fn ($p) => trim($p) !== '')->values();
-    $draftPrefix = $this->draftPrefix();
-    // Two listens before the transcript unlocks for most of the
-    // roadmap, three from M09 on. Reading along too early skips the real
-    // listening practice, and a learner who has done eight missions can
-    // hold a passage for one more pass — but this is a scaffolding
-    // taper, never a bar: the step still needs the same 3 gist sentences
-    // either way, and the audio can be replayed freely. Never announced;
-    // the counter's own wording is identical at every level. See
-    // Mission::scaffoldLevel().
+    // Two listens before the transcript unlocks for most of the roadmap,
+    // three from M09 on — a scaffolding taper, never a bar: the transcript
+    // is only ever a reference inside sub-step 3, and the audio can be
+    // replayed freely either way. See Mission::scaffoldLevel().
     $listensRequired = $this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_FULL ? 2 : 3;
-    $checkTargets = 'checkGist,checkExpression,checkGapFill,revealGist,declineGist,revealExpression,declineExpression,save';
 
-    // Detail question is now a one-tap <x-quick-round> bonus in the
-    // Wrap-up sub-step (never required, never blocks Continue), not its
-    // own required sub-step — see the "Bonus — a detail" block below.
     $detailCard = $detailQuestion ? [[
         'prompt' => $detailQuestion['question'],
         'options' => $detailQuestion['options'],
         'correct' => $detailQuestion['correct'],
     ]] : [];
 
-    // A quick, ungraded true/false warm-up right after the first listen —
-    // purely client-side (see <x-quick-round>), so it's skipped from the
-    // pager entirely in read-only review (nothing was ever submitted for
-    // it to replay).
-    $comprehensionCards = ! $readOnly
-        ? collect($listening['comprehension_check'] ?? [])
-            ->map(fn ($item) => [
-                'prompt' => $item['statement'],
-                'options' => ['True', 'False'],
-                'correct' => $item['correct'] ? 0 : 1,
-                ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
-            ])
-            ->all()
-        : [];
-
-    // One focused sub-step per phase instead of stacking everything into
-    // one long scroll (see EOS-009 §8's shared <x-substep-nav>). The
-    // transcript stays outside this pager — it's tied to listenCount, not
-    // to any one exercise, so it should stay visible no matter which
-    // sub-step is active.
+    $comprehensionCards = ! $readOnly ? $this->comprehensionCards() : [];
     $hasComprehensionCheck = count($comprehensionCards) > 0;
     $comprehensionIndex = $hasComprehensionCheck ? 0 : null;
-    $gistIndex = $hasComprehensionCheck ? 1 : 0;
-    $exprIndex = $gistIndex + 1;
-    $wrapupIndex = $exprIndex + 1;
-    $totalSubsteps = $wrapupIndex + 1;
-    $nextDisabledExpr = implode(' || ', [
-        "(activeSubstep === {$gistIndex} && !gistDone)",
-        "(activeSubstep === {$exprIndex} && !expressionsDone)",
-    ]);
+    $gapFillIndex = $hasComprehensionCheck ? 1 : 0;
+    $shadowIndex = $gapFillIndex + 1;
+    $totalSubsteps = $shadowIndex + 1;
+    $nextDisabledExpr = "(activeSubstep === {$gapFillIndex} && ".($this->gapFillAllCorrect() ? 'false' : 'true').')';
 @endphp
 
 {{-- Server-rendered values stay OUT of the x-data expression and come in
      through data-* attributes instead: Livewire's morph rewrites x-data on
      every re-render, and Alpine rebuilds the whole scope from scratch
-     whenever that string actually changed — which silently reset
-     activeSubstep to 0 (the learner was thrown back to sub-step 1) the
-     moment a round-trip changed gistFilled/expressionsFilled. Attribute
-     changes on data-* have no such effect. --}}
+     whenever that string actually changed — which would silently reset
+     activeSubstep to 0. Attribute changes on data-* have no such effect. --}}
 <div
     class="space-y-6"
-    data-gist-filled="{{ $initialGistFilled->toJson() }}"
-    data-expressions-filled="{{ $initialExpressionsFilled->toJson() }}"
     data-listens-required="{{ $listensRequired }}"
     x-data="{
-        dismissed: {},
-        gistFilled: [],
-        get gistDone() { return this.gistFilled.filter(Boolean).length === 3 },
-        expressionsFilled: [],
-        get expressionsDone() { return this.expressionsFilled.filter(Boolean).length === 3 },
         activeSubstep: 0,
         listenCount: 0,
         showTranscript: false,
         listensRequired: 1,
         get transcriptUnlocked() { return this.listenCount >= this.listensRequired },
         init() {
-            this.gistFilled = JSON.parse(this.$el.dataset.gistFilled);
-            this.expressionsFilled = JSON.parse(this.$el.dataset.expressionsFilled);
             this.listensRequired = Number(this.$el.dataset.listensRequired);
         },
     }"
@@ -494,53 +377,6 @@ new class extends Component
         <div class="mt-2">
             <x-audio-player :url="$listening['audio_url'] ?? null" on-ended="$dispatch('audio-ended')" />
         </div>
-
-        @if (count($transcript))
-            <div class="mt-3">
-                @if ($readOnly)
-                    <button
-                        type="button"
-                        x-on:click="showTranscript = !showTranscript"
-                        class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
-                    >
-                        <span x-show="!showTranscript">Show transcript</span>
-                        <span x-show="showTranscript" x-cloak>Hide transcript</span>
-                    </button>
-                @else
-                    <p x-show="!transcriptUnlocked" class="flex items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
-                        @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
-                        <span x-text="`Listen ${Math.min(listenCount, {{ $listensRequired }})}/{{ $listensRequired }} times to unlock the transcript — reading along too early skips the real listening practice.`"></span>
-                    </p>
-                    <div x-show="transcriptUnlocked" x-cloak x-transition.opacity.duration.300ms>
-                        <p class="flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
-                            @svg('heroicon-o-check-circle', 'h-3.5 w-3.5')
-                            Transcript unlocked
-                        </p>
-                        <button
-                            type="button"
-                            x-on:click="showTranscript = !showTranscript"
-                            class="mt-1 inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
-                        >
-                            <span x-show="!showTranscript">Show transcript</span>
-                            <span x-show="showTranscript" x-cloak>Hide transcript</span>
-                        </button>
-                    </div>
-                @endif
-
-                <div
-                    x-show="showTranscript && {{ $readOnly ? 'true' : 'transcriptUnlocked' }}"
-                    x-cloak
-                    class="mt-2 max-h-72 space-y-2 overflow-y-auto rounded-2xl border border-line bg-surface-sunken p-4 text-sm dark:border-line-dark dark:bg-surface-sunken-dark"
-                >
-                    @foreach ($transcript as $turn)
-                        <p>
-                            <span class="font-semibold text-ink dark:text-ink-dark">{{ $turn['speaker'] }}:</span>
-                            <span class="text-ink-soft dark:text-ink-soft-dark">{{ $turn['text'] }}</span>
-                        </p>
-                    @endforeach
-                </div>
-            </div>
-        @endif
     </div>
 
     @if ($completed)
@@ -597,7 +433,7 @@ new class extends Component
             </div>
         </div>
     @else
-    <div wire:loading.class="pointer-events-none" wire:target="{{ $checkTargets }}">
+    <div wire:loading.class="pointer-events-none" wire:target="checkGapFill,checkShadowLine,save">
         <div class="mb-4">
             <x-progress-bar>
                 <div
@@ -613,203 +449,171 @@ new class extends Component
         </div>
 
         @if ($hasComprehensionCheck)
-            {{-- Sub-step: quick warm-up right after the first listen — ungraded, always skippable. --}}
+            {{-- Sub-step 1: first listen + a short true/false check. --}}
             <div x-show="activeSubstep === {{ $comprehensionIndex }}" x-cloak>
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Warm-up — quick check</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen once, then a few quick true/false taps — no pressure, just a warm-up before the real listening starts.</p>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — quick check</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen once, then a few quick true/false taps about what you heard.</p>
                 <div class="mt-2">
                     <x-quick-round :cards="$comprehensionCards" />
                 </div>
             </div>
         @endif
 
-        {{-- Sub-step: First listening — gist --}}
-        <div x-show="activeSubstep === {{ $gistIndex }}" x-cloak>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — gist</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen without the transcript. What is the conversation about? Write 3 full sentences about what you understood. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
-            @unless ($readOnly)
-                <div class="mt-2">
-                    <x-progress-bar>
-                        <div
-                            class="h-full rounded-full transition-all duration-300"
-                            :class="gistDone ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
-                            :style="`width: ${gistFilled.filter(Boolean).length / 3 * 100}%`"
-                        ></div>
-                        <x-slot:label>
-                            <p
-                                class="text-xs font-semibold transition-colors"
-                                :class="gistDone ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
-                                x-text="`${gistFilled.filter(Boolean).length} of 3 written`"
-                            ></p>
-                        </x-slot:label>
-                    </x-progress-bar>
+        {{-- Sub-step 2: second listen + gap-fill, answered by picking from a word bank. --}}
+        <div x-show="activeSubstep === {{ $gapFillIndex }}" x-cloak>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening — fill the gaps</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen again, then pick the word you heard in each gap from the word bank below.</p>
+
+            @if (count($targetPhrases))
+                <div class="mt-3 flex flex-wrap gap-1.5">
+                    @foreach ($this->gapFillBankOrder as $bankPhrase)
+                        <span class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">{{ $bankPhrase }}</span>
+                    @endforeach
                 </div>
-            @endunless
-            <div class="mt-2 space-y-2">
-                @foreach ($gistPoints as $index => $point)
-                    @php $key = "gist_{$index}"; $itemFeedback = $feedback[$key] ?? null; @endphp
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <input
-                                type="text"
-                                wire:model="gistPoints.{{ $index }}"
-                                placeholder="Sentence {{ $index + 1 }}…"
-                                @unless ($readOnly)
-                                    x-draft="{ key: '{{ $draftPrefix }}gistPoints.{{ $index }}', field: 'gistPoints.{{ $index }}' }"
-                                @endunless
-                                @readonly($readOnly)
-                                wire:loading.attr="disabled"
-                                wire:target="checkGist,revealGist,declineGist,save"
-                                x-on:input="dismissed['{{ $key }}'] = true; gistFilled[{{ $index }}] = $el.value.trim() !== ''"
-                                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                            >
-                            @unless ($readOnly)
-                                <x-check-button method="checkGist" :index="$index" key-prefix="gist_" wire-target="checkGist,revealGist,declineGist,save" />
-                            @endunless
+
+                <div class="mt-3 space-y-3">
+                    @foreach ($targetPhrases as $index => $item)
+                        @php $gapFeedback = $gapFillFeedback[$index] ?? null; @endphp
+                        <div>
+                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                                {{ $item['gap_before'] ?? '' }}
+                                <select
+                                    wire:model.live="gapFillSelections.{{ $index }}"
+                                    @disabled($readOnly)
+                                    wire:change="checkGapFill({{ $index }})"
+                                    class="inline rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+                                >
+                                    <option value="">…</option>
+                                    @foreach ($this->gapFillBankOrder as $bankPhrase)
+                                        <option value="{{ $bankPhrase }}">{{ $bankPhrase }}</option>
+                                    @endforeach
+                                </select>
+                                {{ $item['gap_after'] ?? '' }}
+                            </p>
+                            @if ($gapFeedback)
+                                <p class="mt-1 text-xs {{ $gapFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-amber-600' }}">
+                                    @if ($gapFeedback['severity'] === 'none')
+                                        @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') That's it.
+                                    @else
+                                        {{ $gapFeedback['hint'] }}
+                                    @endif
+                                </p>
+                            @endif
                         </div>
+                    @endforeach
+                </div>
 
-                        @unless ($readOnly)
-                            <x-ai-thinking wire:loading wire:target="checkGist({{ $index }}), revealGist({{ $index }})" class="mt-2" />
-                        @endunless
-
-                        <div x-show="!dismissed['{{ $key }}']" x-transition.opacity.duration.300ms>
-                            <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$key] ?? null" />
-                        </div>
-
-                        @unless ($readOnly)
-                            <x-almost-reveal-notice :show="$this->isAlmostRevealing($key)" />
-                            <x-reveal-offer
-                                :show="$offerReveal[$key] ?? false"
-                                :struggling="$this->run->isStruggling()"
-                                reveal-method="revealGist"
-                                decline-method="declineGist"
-                                :index="$index"
-                                wire-target="checkGist,revealGist,declineGist,save"
-                            />
-                        @endunless
-                    </div>
-                @endforeach
-            </div>
-            @error('gistPoints')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-            @unless ($readOnly)
-                <p x-show="!gistDone" class="mt-2 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
-                    Write all 3 to move on.
-                </p>
-            @endunless
+                @error('gapFill')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            @endif
         </div>
 
-        {{-- Sub-step: Second listening — expressions --}}
-        <div x-show="activeSubstep === {{ $exprIndex }}" x-cloak>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening — useful expressions</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a full sentence using each expression you heard.</p>
-            @unless ($readOnly)
-                @if (count($targetPhrases))
-                    {{-- Same shared chips as Activation/Grammar in Context: this
-                         used to be its own copy, carrying the same
-                         overwrite-the-first-box bug and a server round-trip
-                         per tap. --}}
-                    <div class="mt-2">
-                        <x-vocabulary-chips
-                            :words="collect($targetPhrases)->pluck('phrase')->all()"
-                            :collapsed="$this->run->mission->scaffoldLevel() !== App\Models\Mission::SCAFFOLD_FULL"
-                            :titles="collect($targetPhrases)->pluck('meaning', 'phrase')->all()"
-                            field="expressionsHeard"
-                            on-insert="expressionsFilled[idx] = true; dismissed['expr_' + idx] = true;"
-                        />
-                    </div>
-                @endif
-            @endunless
-            <div class="mt-2 space-y-2">
-                @foreach ($expressionsHeard as $index => $expression)
-                    @php $key = "expr_{$index}"; $itemFeedback = $feedback[$key] ?? null; @endphp
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <input
-                                type="text"
-                                wire:model="expressionsHeard.{{ $index }}"
-                                placeholder="Sentence {{ $index + 1 }}…"
-                                @unless ($readOnly)
-                                    x-draft="{ key: '{{ $draftPrefix }}expressionsHeard.{{ $index }}', field: 'expressionsHeard.{{ $index }}' }"
-                                @endunless
-                                @readonly($readOnly)
-                                wire:loading.attr="disabled"
-                                wire:target="checkExpression,revealExpression,declineExpression,save"
-                                x-on:input="dismissed['{{ $key }}'] = true; expressionsFilled[{{ $index }}] = $el.value.trim() !== ''"
-                                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+        {{-- Sub-step 3: full transcript + mandatory shadowing. --}}
+        <div x-show="activeSubstep === {{ $shadowIndex }}" x-cloak>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">The full conversation</p>
+
+            @if (count($transcript))
+                <div>
+                    @if ($readOnly)
+                        <button
+                            type="button"
+                            x-on:click="showTranscript = !showTranscript"
+                            class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
+                        >
+                            <span x-show="!showTranscript">Show transcript</span>
+                            <span x-show="showTranscript" x-cloak>Hide transcript</span>
+                        </button>
+                    @else
+                        <p x-show="!transcriptUnlocked" class="flex items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
+                            @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
+                            <span x-text="`Listen ${Math.min(listenCount, {{ $listensRequired }})}/{{ $listensRequired }} times to unlock the transcript.`"></span>
+                        </p>
+                        <div x-show="transcriptUnlocked" x-cloak x-transition.opacity.duration.300ms>
+                            <p class="flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
+                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5')
+                                Transcript unlocked
+                            </p>
+                            <button
+                                type="button"
+                                x-on:click="showTranscript = !showTranscript"
+                                class="mt-1 inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
                             >
-                            @unless ($readOnly)
-                                <x-check-button method="checkExpression" :index="$index" key-prefix="expr_" wire-target="checkExpression,revealExpression,declineExpression,save" />
-                            @endunless
+                                <span x-show="!showTranscript">Show transcript</span>
+                                <span x-show="showTranscript" x-cloak>Hide transcript</span>
+                            </button>
                         </div>
+                    @endif
 
-                        @unless ($readOnly)
-                            <x-ai-thinking wire:loading wire:target="checkExpression({{ $index }}), revealExpression({{ $index }})" class="mt-2" />
-                        @endunless
-
-                        <div x-show="!dismissed['{{ $key }}']" x-transition.opacity.duration.300ms>
-                            <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$key] ?? null" />
-                        </div>
-
-                        @unless ($readOnly)
-                            <x-almost-reveal-notice :show="$this->isAlmostRevealing($key)" />
-                            <x-reveal-offer
-                                :show="$offerReveal[$key] ?? false"
-                                :struggling="$this->run->isStruggling()"
-                                reveal-method="revealExpression"
-                                decline-method="declineExpression"
-                                :index="$index"
-                                wire-target="checkExpression,revealExpression,declineExpression,save"
-                            />
-                        @endunless
+                    <div
+                        x-show="showTranscript && {{ $readOnly ? 'true' : 'transcriptUnlocked' }}"
+                        x-cloak
+                        class="mt-2 max-h-72 space-y-2 overflow-y-auto rounded-2xl border border-line bg-surface-sunken p-4 text-sm dark:border-line-dark dark:bg-surface-sunken-dark"
+                    >
+                        @foreach ($transcript as $turn)
+                            <p>
+                                <span class="font-semibold text-ink dark:text-ink-dark">{{ $turn['speaker'] }}:</span>
+                                <span class="text-ink-soft dark:text-ink-soft-dark">{{ $turn['text'] }}</span>
+                            </p>
+                        @endforeach
                     </div>
-                @endforeach
-            </div>
-            @unless ($readOnly)
-                <p x-show="!expressionsDone" class="mt-2 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
-                    Write all 3 to move on.
-                </p>
-            @endunless
-        </div>
+                </div>
+            @endif
 
-        {{-- Sub-step: Wrap-up — transcript recap, bonus practice, Continue --}}
-        <div x-show="activeSubstep === {{ $wrapupIndex }}" x-cloak>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Wrap-up</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">A couple of optional extras, then you're done with this episode.</p>
-
-            @if (count($targetPhrases) && collect($targetPhrases)->contains(fn ($p) => isset($p['gap_before'])))
-                <div class="mt-4">
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — fill the gap</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional — real lines from the conversation, from memory. Doesn't affect Continue.</p>
+            @if (count($shadowLines))
+                <div class="mt-4 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
+                    @unless ($readOnly)
+                        <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                            Replay a line and repeat it out loud, then record yourself. Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
+                            ({{ $this->shadowedCount() }} done so far) — a line that keeps mishearing you? Just try a different one.
+                        </p>
+                    @endunless
 
                     <div class="mt-2 space-y-3">
-                        @foreach ($targetPhrases as $index => $item)
-                            @php $gapKey = "gap_{$index}"; $gapFeedback = $gapFillFeedback[$index] ?? null; @endphp
-                            <div>
-                                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                                    {{ $item['gap_before'] ?? '' }}<input
-                                        type="text"
-                                        wire:model="gapFillAnswers.{{ $index }}"
-                                        placeholder="…"
-                                        @readonly($readOnly)
-                                        wire:loading.attr="disabled"
-                                        wire:target="{{ $checkTargets }}"
-                                        x-on:input="dismissed['{{ $gapKey }}'] = true"
-                                        class="inline w-28 border-b border-line bg-transparent px-1 text-center text-ink disabled:opacity-50 focus:border-accent focus:outline-none dark:border-line-dark dark:text-ink-dark dark:focus:border-accent-dark"
-                                    >{{ $item['gap_after'] ?? '' }}
-                                    @unless ($readOnly)
-                                        <x-check-button method="checkGapFill" :index="$index" key-prefix="gap_" wire-target="{{ $checkTargets }}" />
-                                    @endunless
-                                </p>
-                                <div x-show="!dismissed['{{ $gapKey }}']" x-transition.opacity.duration.300ms>
-                                    <x-severity-feedback :feedback="$gapFeedback" :error="$checkErrors[$gapKey] ?? null" />
-                                </div>
+                        @foreach ($shadowLines as $index => $line)
+                            @php $shadowKey = "shadow_{$index}"; $shadowFeedback = $feedback[$shadowKey] ?? null; @endphp
+                            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
+                                <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+
+                                @if ($readOnly)
+                                    @if ($url = $savedShadowUrls[$index] ?? null)
+                                        <div class="mt-2"><x-audio-player :url="$url" /></div>
+                                    @else
+                                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
+                                    @endif
+                                @else
+                                    <div class="mt-2" wire:key="listening-shadow-recorder-{{ $index }}">
+                                        <x-voice-recorder
+                                            field="shadowRecordings.{{ $index }}"
+                                            :file="$shadowRecordings[$index] ?? null"
+                                            file-name="listening-shadow-{{ $index }}.webm"
+                                            on-recorded="checkShadowLine"
+                                            :on-recorded-param="$index"
+                                        />
+                                    </div>
+                                    <x-ai-thinking wire:loading wire:target="checkShadowLine({{ $index }})" class="mt-2" label="Listening to your recording…" />
+                                    @if ($shadowFeedback)
+                                        <p class="mt-2 text-xs {{ $shadowFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-amber-600' }}">
+                                            @if ($shadowFeedback['severity'] === 'none')
+                                                @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Nice — that counts.
+                                            @else
+                                                {{ $shadowFeedback['hint'] }}
+                                            @endif
+                                        </p>
+                                    @endif
+                                    @if ($checkErrors[$shadowKey] ?? null)
+                                        <p class="mt-2 text-xs text-red-600">{{ $checkErrors[$shadowKey] }}</p>
+                                    @endif
+                                @endif
                             </div>
                         @endforeach
                     </div>
+                    @error('shadowRecordings')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
             @endif
 
@@ -831,36 +635,6 @@ new class extends Component
                 </div>
             @endif
 
-            @if (count($shadowLines))
-                <div class="mt-4 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — shadow a line</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional. Pick a real line and repeat it out loud along with the audio — pure pronunciation practice, nothing here is graded or saved.</p>
-
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        @foreach ($shadowLines as $index => $line)
-                            <button
-                                type="button"
-                                wire:click="selectShadowLine({{ $index }})"
-                                @class([
-                                    'cursor-pointer rounded-full border px-2.5 py-1 text-xs transition-colors',
-                                    'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $activeShadowLine === $index,
-                                    'border-line text-ink-soft hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark' => $activeShadowLine !== $index,
-                                ])
-                            >Line {{ $index + 1 }}</button>
-                        @endforeach
-                    </div>
-
-                    @if ($activeShadowLine !== null)
-                        <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$shadowLines[$activeShadowLine]" />"</p>
-                        <div class="mt-2" wire:key="shadow-recorder-{{ $activeShadowLine }}">
-                            <x-voice-recorder field="shadowRecording" :file="$shadowRecording" file-name="shadow.webm" />
-                        </div>
-                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Once you've recorded, listen back and compare your rhythm to the bold pattern above.</p>
-                    @endif
-                </div>
-            @endif
-
             @if ($listening['topic_summary'] ?? null)
                 <div class="mt-4">
                     <x-practice-with-friend
@@ -871,18 +645,15 @@ new class extends Component
                 </div>
             @endif
 
-            @error('sentences')
-                <p class="mt-4 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-
             @unless ($readOnly)
+                @php $shadowedEnough = $this->shadowedCount() >= $this->requiredShadowedLines(); @endphp
                 <div class="mt-4">
                     <x-continue-button
-                        on-click="['gist_0','gist_1','gist_2','expr_0','expr_1','expr_2'].forEach(k => dismissed[k] = true); $wire.save().then(() => { dismissed = {} })"
-                        wire-target="{{ $checkTargets }}"
-                        loading-label="Checking your sentences…"
-                        ready-when="gistDone && expressionsDone"
-                        hint="Finish both listening tasks to continue"
+                        on-click="$wire.save()"
+                        wire-target="checkGapFill,checkShadowLine,save"
+                        loading-label="Saving…"
+                        ready-when="{{ $shadowedEnough ? 'true' : 'false' }}"
+                        hint="Shadow {{ $this->requiredShadowedLines() }} lines to continue"
                     />
                 </div>
             @endunless

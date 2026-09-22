@@ -49,6 +49,42 @@ class SpokenAnswerChecker
     }
 
     /**
+     * Judges a shadowing attempt — did the learner actually say something
+     * close to the target line, out loud? Deliberately lenient (mission
+     * structure redesign, Epic C): this is pronunciation/rhythm practice,
+     * not a dictation test, so a transcript that's close-but-not-exact
+     * (Whisper mishears things too) must never read as a "failure". Only
+     * a genuinely different or empty attempt counts as "major".
+     *
+     * @return array{severity: string, hint: string}
+     */
+    public function checkShadowing(string $targetLine, string $transcript, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "Target line to shadow: \"{$targetLine}\"\nWhisper's transcript of the learner's recording: \"{$transcript}\""]],
+            systemPrompt: 'You are a warm, encouraging pronunciation coach helping '.$learnerDescription.'. The '
+                .'learner just tried to repeat ("shadow") the target line out loud, and this is an automatic '
+                .'speech-to-text transcript of their attempt. Judge ONLY whether they genuinely attempted to say '
+                .'roughly the same words, in roughly the same order — do NOT judge grammar, pronunciation '
+                .'accuracy, or exact wording, and remember automatic transcription itself is imperfect and often '
+                .'mishears words even when pronunciation was fine. Reply with ONLY valid JSON, no markdown '
+                .'fences: {"severity": "major" or "none", "hint": "..."}. Use "major" ONLY when the transcript is '
+                .'empty, silent/inaudible, or clearly a different sentence entirely (not just a few mismatched '
+                .'words) — be very lenient, a close or partial attempt is always "none". If "major", the hint '
+                .'must be one short, warm, encouraging sentence (never harsh) asking them to try that line again '
+                .'— never write the line for them.'
+        );
+
+        $data = json_decode(trim($raw), true);
+
+        if (! is_array($data) || ! isset($data['severity'], $data['hint'])) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        return $data;
+    }
+
+    /**
      * Offered only after 3 genuinely failed attempts on the same
      * prompt (see TracksCheckAttempts) — a supportive nudge, not an
      * answer key: the learner still has to record and speak their own

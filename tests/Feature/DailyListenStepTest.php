@@ -6,11 +6,19 @@ use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
+/**
+ * Mission structure redesign, Epic C: the old "listen once, then type any
+ * word you remember" recall was replaced with a small, mandatory,
+ * leniently AI-graded shadowing exercise — see DailyListenStep.
+ */
 class DailyListenStepTest extends TestCase
 {
     use RefreshDatabase;
@@ -47,7 +55,7 @@ class DailyListenStepTest extends TestCase
                         [
                             'key' => 'daily_listen_2',
                             'hook' => 'Two minutes before anything else.',
-                            'recall_prompt' => 'Write one word or phrase you remember hearing.',
+                            'shadow_lines' => ['I usually **get up** early.', 'I **never** **skip breakfast**.'],
                         ],
                         ['key' => 'grammar_in_context'],
                     ],
@@ -58,7 +66,7 @@ class DailyListenStepTest extends TestCase
                         [
                             'key' => 'daily_listen_3',
                             'hook' => 'Same audio, one more time.',
-                            'recall_prompt' => 'Write a different word or phrase this time.',
+                            'shadow_lines' => ["**Otherwise** I'm **grumpy**.", '**Sometimes** I **oversleep**.'],
                         ],
                         ['key' => 'ai_conversation_1'],
                     ],
@@ -77,6 +85,12 @@ class DailyListenStepTest extends TestCase
         $this->actingAs($learner);
 
         return MissionRun::findOrStart($learner, $mission);
+    }
+
+    private function mockLenientCheck(int $times = 1): void
+    {
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->times($times)->andReturn('I usually get up early.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times($times)->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
     }
 
     public function test_it_reuses_day_1s_audio_and_transcript(): void
@@ -100,79 +114,91 @@ class DailyListenStepTest extends TestCase
             ->assertSeeHtml('x-show="showTranscript"');
     }
 
-    public function test_continue_is_blocked_until_the_audio_has_played_once(): void
+    public function test_this_days_own_shadow_lines_are_shown(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->set('recall', 'sleep in')
-            ->call('save');
+            ->assertSee('get up')
+            ->assertSee('skip breakfast');
+
+        Livewire::test('missions.steps.daily-listen-3', ['run' => $run])
+            ->assertSee('grumpy')
+            ->assertSee('oversleep');
+    }
+
+    public function test_shadowing_every_line_and_saving_records_evidence_and_advances(): void
+    {
+        $run = $this->makeRun();
+        $this->mockLenientCheck(2);
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->call('markListened')
+            ->assertSet('listened', true)
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 0)
+            ->set('shadowRecordings.1', UploadedFile::fake()->create('shadow-1.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 1)
+            ->call('save')
+            ->assertRedirect(route('missions.show', $run->mission));
+
+        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2', 'type' => Evidence::TYPE_TEXT]);
+        $this->assertSame(2, Evidence::where('mission_run_id', $run->id)->where('phase', 'daily_listen_2')->where('type', Evidence::TYPE_AUDIO)->count());
+        $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
+    }
+
+    public function test_continue_is_blocked_until_the_audio_has_played_once(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])->call('save');
 
         $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
         $this->assertSame('daily_listen_2', $run->fresh()->currentStepKey());
     }
 
-    public function test_marking_listened_then_saving_records_evidence_and_advances(): void
+    public function test_continue_is_blocked_until_every_line_is_shadowed(): void
     {
         $run = $this->makeRun();
+        $this->mockLenientCheck(1);
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
             ->call('markListened')
-            ->assertSet('listened', true)
-            ->set('recall', 'sleep in')
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 0)
+            // Line 1 never shadowed.
             ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
-
-        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
-        $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
-    }
-
-    public function test_continue_is_blocked_until_a_recall_answer_is_written(): void
-    {
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->call('markListened')
-            ->call('save')
-            ->assertHasErrors(['recall']);
+            ->assertHasErrors(['shadowRecordings']);
 
         $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
     }
 
-    public function test_the_recall_answer_is_saved_whatever_it_is_never_graded(): void
+    public function test_a_major_verdict_does_not_count_toward_the_requirement(): void
     {
         $run = $this->makeRun();
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('completely unrelated'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try that line again.'])));
 
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+        $component = Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
             ->call('markListened')
-            ->set('recall', 'something totally unrelated')
-            ->call('save');
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 0);
 
-        $evidence = Evidence::where('mission_run_id', $run->id)->where('phase', 'daily_listen_2')->firstOrFail();
-        $content = json_decode($evidence->content_ref, true);
-        $this->assertSame('something totally unrelated', $content['recall']);
+        $this->assertSame(0, $component->instance()->shadowedCount());
+        $component->assertSee('Try that line again.');
     }
 
-    public function test_each_day_has_its_own_recall_prompt(): void
+    public function test_each_day_has_its_own_distinct_shadow_lines(): void
     {
         $run = $this->makeRun();
 
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->assertSee('Write one word or phrase you remember hearing.');
+        $day2Lines = Livewire::test('missions.steps.daily-listen-2', ['run' => $run])->instance()->shadowLines();
+        $day3Lines = Livewire::test('missions.steps.daily-listen-3', ['run' => $run])->instance()->shadowLines();
 
-        Livewire::test('missions.steps.daily-listen-3', ['run' => $run])
-            ->assertSee('Write a different word or phrase this time.');
+        $this->assertEmpty(array_intersect($day2Lines, $day3Lines));
     }
 
-    public function test_matching_a_real_target_phrase_is_passed_to_the_page(): void
-    {
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->assertSeeHtml('sleep in');
-    }
-
-    public function test_read_only_mode_shows_the_previously_saved_recall_answer(): void
+    public function test_read_only_mode_shows_the_previously_saved_recording(): void
     {
         $run = $this->makeRun();
 
@@ -180,65 +206,37 @@ class DailyListenStepTest extends TestCase
             'mission_run_id' => $run->id,
             'phase' => 'daily_listen_2',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['listened' => true, 'recall' => 'oversleep']),
+            'content_ref' => json_encode(['listened' => true, 'shadowed_lines' => 2]),
+        ]);
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'daily_listen_2',
+            'type' => Evidence::TYPE_AUDIO,
+            'content_ref' => json_encode(['line_index' => 0, 'url' => 'http://localhost/storage/shadow-0.webm']),
         ]);
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run, 'readOnly' => true])
-            ->assertSet('recall', 'oversleep');
+            ->assertSet('listened', true)
+            ->assertSeeHtml('http://localhost/storage/shadow-0.webm')
+            ->assertDontSee('Continue');
     }
 
     public function test_each_day_needs_its_own_fresh_listen_not_satisfied_by_another_day(): void
     {
         $run = $this->makeRun();
+        $this->mockLenientCheck(2);
 
-        // Day 2's gate is done...
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
             ->call('markListened')
-            ->set('recall', 'sleep in')
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 0)
+            ->set('shadowRecordings.1', UploadedFile::fake()->create('shadow-1.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 1)
             ->call('save');
 
         // ...but Day 3's gate is a completely separate step key, still open.
         $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
         $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_3']);
-    }
-
-    public function test_day_3s_gate_uses_its_own_distinct_phase_key(): void
-    {
-        $run = $this->makeRun();
-
-        // Day 2's gate already passed.
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->call('markListened')
-            ->set('recall', 'sleep in')
-            ->call('save');
-
-        Livewire::test('missions.steps.daily-listen-3', ['run' => $run])
-            ->assertSee('Same audio, one more time.')
-            ->call('markListened')
-            ->set('recall', 'oversleep')
-            ->call('save');
-
-        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_3']);
-        // grammar_in_context (Day 2's second step) was never done — still
-        // the real current step, confirming daily_listen_3 didn't skip
-        // anything or get satisfied by daily_listen_2's Evidence.
-        $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
-    }
-
-    public function test_read_only_mode_never_requires_listening_again(): void
-    {
-        $run = $this->makeRun();
-
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'daily_listen_2',
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['listened' => true, 'recall' => 'sleep in']),
-        ]);
-
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run, 'readOnly' => true])
-            ->assertSet('listened', true)
-            ->assertDontSee('Continue');
     }
 
     public function test_a_cover_image_shows_when_the_day_has_its_own_image_query(): void

@@ -223,10 +223,16 @@ class MissionSeeder extends Seeder
                                 // adjectives, question words) — function words (articles,
                                 // prepositions, auxiliary "do"/"does") stay unstressed, standard
                                 // English sentence-rhythm teaching. Rendered by <x-stress-marked-line>.
+                                // Mission structure redesign, Epic C: expanded from 3 to 5 lines
+                                // (only 2 are actually required — see ⚡listening.blade.php's
+                                // REQUIRED_SHADOWED_LINES) so a line that keeps mistranscribing
+                                // never blocks a learner; they can just shadow a different one.
                                 'shadow_lines' => [
                                     'So, **Neil**, do you **like** to **get up** **early** or do you **prefer** to **sleep in**?',
                                     "Yes, I **think** it **does**. I'm a **morning person**. That **means** someone that has **a lot of energy** at the **start** of the **day**.",
                                     "**Sometimes** I **skip breakfast**, because when I **wake up**, I'm **not hungry**.",
+                                    "**Well**, I **like** the **mornings** **sometimes** because I **feel** like it's **quieter**.",
+                                    "I **like** to **know** what the **weather's** going to be **like**.",
                                 ],
                             ],
                         ],
@@ -269,7 +275,13 @@ class MissionSeeder extends Seeder
                                 // Purely decorative — a different image than Day 1's own for
                                 // visual variety across the 4 listens of the same episode.
                                 'image_query' => 'sunrise bedroom window',
-                                'recall_prompt' => 'Write one word or phrase you remember hearing.',
+                                // This day's own small shadow pool (Epic C) — distinct from Day
+                                // 1's 5 and every other daily-listen day's, so no line repeats
+                                // across the mission.
+                                'shadow_lines' => [
+                                    "I'm **very well**, **thank you**. How are **you**?",
+                                    'That **actually** **happened** this **week**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -520,7 +532,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'alarm clock wake up bed',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**Otherwise** I\'m **very grumpy**.',
+                                    '**Especially** in the **United Kingdom** because the **weather** can be **different** **every day**.',
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -711,7 +726,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Last time hearing this one — notice how much easier it sounds now.',
                                 'image_query' => 'cozy morning breakfast table',
-                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
+                                'shadow_lines' => [
+                                    "**Make sure** you've **got** your **umbrella**.",
+                                    '**Never**. **Unless** there\'s a **very**, **very** **good** **reason**.',
+                                ],
                             ],
                             [
                                 'key' => 'error_log',
@@ -979,6 +997,8 @@ class MissionSeeder extends Seeder
                                     'So, **is** it **true** that **men** find it **difficult** to **make friends**?',
                                     'To **drift away** means to **gradually** move **further apart** from **someone** until your **relationship** with them **eventually ends**.',
                                     "He's **young**, **generous**, and **outgoing** – he's **quick** to **buy** his **round**.",
+                                    "**Yes**, I **have** **some** **close friends**, but **maybe** **not** as **many** as I'd **like**.",
+                                    "I'll **say** we **need** at **least** **five** **close friends**.",
                                 ],
                             ],
                         ],
@@ -1012,7 +1032,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 'image_query' => 'two friends chatting park bench',
-                                'recall_prompt' => 'Write one word or phrase you remember hearing.',
+                                'shadow_lines' => [
+                                    "**That's** **interesting** because **often** it's **women** who **have** **many** **friends**.",
+                                    '**Max** **thinks** the **answer** is **getting out** and **meeting** **people**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -1202,7 +1225,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'friends walking together talking',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**All** of **which** **helps** **get closer** to the **magical number**.',
+                                    '**Once again**, our **six minutes** are **up**.',
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -1632,6 +1658,8 @@ class MissionSeeder extends Seeder
                                     "**Start** small, be **patient**, and don't **try** to be **perfect**.",
                                     "**Focus** on how **food** makes you **feel**, not just what it **looks** like.",
                                     '**Eating** clean is about **simple** food, **balance**, and **listening** to your **body**.',
+                                    'I **had** **more energy**, **better digestion**, **clearer skin**, and I **felt** **more connected** to my **body**.',
+                                    '**Guilt** **only** **makes** things **worse**.',
                                 ],
                             ],
                         ],
@@ -1665,7 +1693,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Same podcast, one more time — familiar is exactly the point.',
                                 'image_query' => 'healthy breakfast bowl oatmeal',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**That** **difference** is **huge**. It **becomes** a **choice** not a **habit**.',
+                                    '**No guilt**, **no punishment** the **next day**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -1829,7 +1860,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'fresh food kitchen preparation',
-                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
+                                'shadow_lines' => [
+                                    '**That** **already** **saves** a **lot** of **time** and **energy**.',
+                                    '**That** **feeling** **matters** **more** than **numbers** on a **scale**.',
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -2206,6 +2240,8 @@ class MissionSeeder extends Seeder
                                     "I've been **working** as a **marketing assistant** at a **tech company** for almost **two years** now.",
                                     "It's a **hybrid role**, so I **work** from **home** **three days** a week.",
                                     'It **saves** time and **helps** with **work life balance**.',
+                                    "**Well**, I **help** **manage** our **social media** **accounts**, **write** **content** for the **website**.",
+                                    "It **can get stressful**, **especially** when we're **close** to a **deadline**.",
                                 ],
                             ],
                         ],
@@ -2237,7 +2273,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Same podcast, one more time — familiar is exactly the point.',
                                 'image_query' => 'people working office study',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**I** **deal with** **customer** **emails** and **help people** **track** their **orders**.',
+                                    '**Sometimes** I **listen** to **podcasts** on the **way**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -2417,7 +2456,10 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'colleagues office coffee break',
-                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
+                                'shadow_lines' => [
+                                    '**Maybe** we **should** **start** **one** about our **work lives**.',
+                                    "**When** you **have** **good** **work life balance**, you're **not too stressed**.",
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
