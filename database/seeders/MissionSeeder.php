@@ -754,14 +754,21 @@ class MissionSeeder extends Seeder
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
                                 // Was 10 — bumped since an off-topic spoken answer now asks for a retry.
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
-                                // Real rounds + requirements from Mission01.pdf "Speaking Session 02".
-                                'rounds' => [
+                                // Epic E: a bigger pool than one attempt actually asks (see
+                                // ⚡ai-conversation2.blade.php's getRoundsProperty()) — real
+                                // rounds from Mission01.pdf "Speaking Session 02" plus 3 more in
+                                // the same style, so a re-attempt genuinely varies.
+                                'round_pool' => [
                                     'Describe your typical weekday, with no preparation.',
                                     'Compare your weekday with your weekend.',
                                     'What part of your routine do you enjoy most?',
+                                    'What is the hardest part of your day to get through?',
+                                    'How does your day change when you have a day off?',
+                                    'What would you change about your daily routine if you could?',
                                 ],
+                                'role_reversal_topic' => 'daily routines',
                                 'final_prompt' => 'Speak for 3 minutes without stopping about your daily life.',
                                 'requirements' => [
                                     'Present Simple',
@@ -1437,13 +1444,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "This one's harder on purpose — describe someone who matters, with no script to hide behind.",
-                                'rounds' => [
+                                'round_pool' => [
                                     'Introduce this person and explain how you know them.',
                                     'Describe what they\'re like as a person, and what you usually do together.',
                                     'Talk about what they\'re doing these days, and why they matter to you.',
+                                    'How did you two first meet?',
+                                    'What do you admire most about them?',
+                                    'How has your relationship with them changed over time?',
                                 ],
+                                'role_reversal_topic' => 'friends and family',
                                 'final_prompt' => 'Speak for 3 minutes without stopping about someone important in your life.',
                                 'requirements' => [
                                     'Present Simple',
@@ -2047,13 +2058,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
-                                'duration_minutes' => 10,
+                                'duration_minutes' => 12,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
-                                'rounds' => [
+                                'round_pool' => [
                                     'Describe what you usually eat in a normal day, with no preparation.',
                                     'Talk about your favourite food and why you like it.',
                                     'Explain one eating habit you would like to change, and why.',
+                                    'What food did you eat a lot of as a child?',
+                                    'Do you prefer cooking at home or eating out? Why?',
+                                    'What is a food from another country that you really enjoy?',
                                 ],
+                                'role_reversal_topic' => 'food and eating habits',
                                 // Real prompt + requirements checklist from M04.pdf page 08
                                 // "3-Minute Speaking".
                                 'final_prompt' => 'Speak for 3 minutes without stopping about your food and lifestyle.',
@@ -2649,13 +2664,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
-                                'duration_minutes' => 10,
+                                'duration_minutes' => 12,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
-                                'rounds' => [
+                                'round_pool' => [
                                     'Describe what you do for work or study, with no preparation.',
                                     'Talk about something you are currently working on.',
                                     'Explain one thing you find difficult, and one thing you enjoy.',
+                                    'What does a normal week look like for you?',
+                                    'What skill would you like to improve at work or school?',
+                                    'How do you usually relax after a busy day of work or study?',
                                 ],
+                                'role_reversal_topic' => 'work and study',
                                 // Real prompt + requirements checklist from M03.pdf page 08
                                 // "3-Minute Speaking".
                                 'final_prompt' => 'Speak for 3 minutes without stopping about your work or studies.',

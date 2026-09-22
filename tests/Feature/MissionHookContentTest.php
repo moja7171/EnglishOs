@@ -160,4 +160,26 @@ class MissionHookContentTest extends TestCase
             }
         }
     }
+
+    /**
+     * Epic E: AI Conversation #2's round_pool must have more prompts than
+     * one attempt actually asks (see
+     * ⚡ai-conversation2.blade.php::ROUNDS_PER_ATTEMPT), or the "real
+     * variety across attempts" this was built for silently never
+     * triggers — every attempt would just get the same pool back
+     * unshuffled. role_reversal_topic must also be seeded, not left to
+     * the component's generic fallback.
+     */
+    public function test_every_missions_ai_conversation_2_has_a_real_round_pool_and_role_reversal_topic(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        foreach (['M01', 'M02', 'M03', 'M04'] as $code) {
+            $mission = Mission::where('code', $code)->firstOrFail();
+            $content = $mission->stepContent('ai_conversation_2');
+
+            $this->assertGreaterThan(3, count($content['round_pool'] ?? []), "{$code}'s round_pool isn't bigger than ROUNDS_PER_ATTEMPT.");
+            $this->assertNotEmpty($content['role_reversal_topic'] ?? null, "{$code} has no role_reversal_topic.");
+        }
+    }
 }

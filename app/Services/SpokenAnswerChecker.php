@@ -85,6 +85,59 @@ class SpokenAnswerChecker
     }
 
     /**
+     * Judges the role-reversal round (mission structure redesign, Epic
+     * E) — here the learner is the one asking a question, not answering
+     * one, so this checks the transcript is a genuine, on-topic
+     * QUESTION rather than a relevant answer. Same lenient philosophy
+     * and JSON contract as checkRelevance(): a real, if imperfect,
+     * attempt is always "none".
+     *
+     * @return array{severity: string, hint: string}
+     */
+    public function checkGenuineQuestion(string $topic, string $transcript, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "Topic: \"{$topic}\"\nLearner's transcribed spoken question: \"{$transcript}\""]],
+            systemPrompt: 'You are a warm, encouraging English conversation partner helping '.$learnerDescription.'. '
+                .'The learner is now asking YOU a question about the topic, instead of answering one. Judge ONLY '
+                .'whether the transcript is a genuine, on-topic question (a real attempt to ask you something '
+                .'related to the topic) — grammar, phrasing, and whether it\'s a perfectly formed question '
+                .'sentence do NOT matter at all. Reply with ONLY valid JSON, no markdown fences: {"severity": '
+                .'"major" or "none", "hint": "..."}. Use "major" ONLY when it\'s empty, silent/inaudible, complete '
+                .'gibberish, or not actually a question at all (e.g. a statement) — be lenient, a short or '
+                .'imperfect but genuine question attempt is always "none". If "major", the hint must be one '
+                .'short, warm, encouraging sentence nudging them to ask something about the topic — never write '
+                .'a question for them.'
+        );
+
+        $data = json_decode(trim($raw), true);
+
+        if (! is_array($data) || ! isset($data['severity'], $data['hint'])) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        return $data;
+    }
+
+    /**
+     * Offered only after 3 genuinely failed attempts asking a question in
+     * the role-reversal round (see TracksCheckAttempts) — a starting
+     * idea, not something to just repeat verbatim.
+     */
+    public function suggestQuestion(string $topic, string $learnerDescription): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "Topic: \"{$topic}\""]],
+            systemPrompt: 'You are a supportive English conversation partner helping '.$learnerDescription
+                .' who has tried a few times and is stuck. Write ONE short, natural example QUESTION they '
+                .'could ask you about this topic — a genuine, simple, curious-sounding question, not a model '
+                .'essay — so they have something to work from. They will still need to record and speak their '
+                .'own question; this is just a starting idea. Reply with ONLY the example question, no '
+                .'quotation marks, no explanation.'
+        ));
+    }
+
+    /**
      * Offered only after 3 genuinely failed attempts on the same
      * prompt (see TracksCheckAttempts) — a supportive nudge, not an
      * answer key: the learner still has to record and speak their own
