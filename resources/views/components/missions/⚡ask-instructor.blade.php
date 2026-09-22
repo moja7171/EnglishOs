@@ -22,6 +22,27 @@ new class extends Component
 
     public string $question = '';
 
+    /**
+     * Sage keeps 3 separate persistent per-run threads (Epic E) instead of
+     * one — general / grammar / vocabulary — so a grammar-focused
+     * conversation isn't buried under, or confused with, an unrelated
+     * question asked from a different step. Derived from $stepKey, not a
+     * caller-supplied prop: the learner never picks a topic, it's just
+     * always the right thread for wherever they currently are.
+     */
+    public function topicForStep(): string
+    {
+        if ($this->stepKey !== null && str_starts_with($this->stepKey, 'vocabulary_builder')) {
+            return InstructorMessage::TOPIC_VOCABULARY;
+        }
+
+        if ($this->stepKey === 'grammar_in_context') {
+            return InstructorMessage::TOPIC_GRAMMAR;
+        }
+
+        return InstructorMessage::TOPIC_GENERAL;
+    }
+
     public ?UploadedFile $voiceQuestion = null;
 
     public ?UploadedFile $fileAttachment = null;
@@ -52,6 +73,7 @@ new class extends Component
         $this->messages = InstructorMessage::query()
             ->where('learner_id', auth()->id())
             ->where('mission_run_id', $this->run->id)
+            ->where('topic', $this->topicForStep())
             ->orderBy('created_at')
             ->get()
             ->map(fn (InstructorMessage $m) => $this->toDisplay($m))
@@ -154,6 +176,7 @@ new class extends Component
             'learner_id' => auth()->id(),
             'mission_run_id' => $this->run->id,
             'step_key' => $this->stepKey,
+            'topic' => $this->topicForStep(),
             'role' => InstructorMessage::ROLE_LEARNER,
             'body' => $learnerText,
             'type' => $type,
@@ -175,6 +198,7 @@ new class extends Component
                 'learner_id' => auth()->id(),
                 'mission_run_id' => $this->run->id,
                 'step_key' => $this->stepKey,
+                'topic' => $this->topicForStep(),
                 'role' => InstructorMessage::ROLE_INSTRUCTOR,
                 'body' => $answer,
                 'type' => InstructorMessage::TYPE_TEXT,
@@ -204,6 +228,23 @@ new class extends Component
         ];
     }
 
+    /**
+     * A short reminder of which of Sage's 3 threads this is — mostly so
+     * the model doesn't drift into a different subject just because the
+     * learner happens to mention one; the thread itself already keeps
+     * history/questions properly separated (see topicForStep()).
+     */
+    private function topicContext(): string
+    {
+        return match ($this->topicForStep()) {
+            InstructorMessage::TOPIC_GRAMMAR => ' This is the learner\'s dedicated grammar chat — stay focused on '
+                .'grammar questions, even if the mission covers other things too.',
+            InstructorMessage::TOPIC_VOCABULARY => ' This is the learner\'s dedicated vocabulary chat — stay '
+                .'focused on word meanings, usage, and related vocabulary questions.',
+            default => '',
+        };
+    }
+
     private function systemPrompt(): string
     {
         $stepLabel = $this->stepKey ? $this->run->mission->stepLabel($this->stepKey) : null;
@@ -225,9 +266,23 @@ new class extends Component
             .'current exercise for them. If the question has nothing to do with English or this lesson, gently '
             .'steer them back to the topic — warmly, not like a scold. If they mention or attach a file, you '
             .'cannot see its contents — kindly ask them to describe it or paste the relevant text directly in '
-            .'the chat.';
+            .'the chat.'.$this->topicContext();
 
         return $prompt.' '.$this->run->aiToneGuidance();
+    }
+
+    /**
+     * The widget's own header label — the one visible sign to the learner
+     * that they're in a different thread than usual, since nothing else
+     * about the UI changes between topics.
+     */
+    public function topicLabel(): string
+    {
+        return match ($this->topicForStep()) {
+            InstructorMessage::TOPIC_GRAMMAR => 'Sage — Grammar chat',
+            InstructorMessage::TOPIC_VOCABULARY => 'Sage — Vocabulary chat',
+            default => 'Sage',
+        };
     }
 };
 ?>
@@ -267,7 +322,7 @@ new class extends Component
     <button
         type="button"
         x-on:click="open = !open; if (open) $nextTick(() => scrollToBottom())"
-        title="Sage — your AI Instructor"
+        title="{{ $this->topicLabel() }} — your AI Instructor"
         class="fixed right-5 bottom-24 z-40 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-5 dark:bg-accent-dark"
     >
         <span x-show="!open">@svg('heroicon-o-sparkles', 'h-6 w-6')</span>
@@ -286,7 +341,7 @@ new class extends Component
                 @svg('heroicon-o-sparkles', 'h-4 w-4')
             </span>
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Sage</p>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->topicLabel() }}</p>
                 <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask me anything about English — I'll explain, never just solve it for you.</p>
             </div>
             <button

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
-    'learner_id', 'mission_run_id', 'step_key', 'role', 'body', 'type',
+    'learner_id', 'mission_run_id', 'step_key', 'topic', 'role', 'body', 'type',
     'attachment_path', 'attachment_name', 'attachment_mime',
 ])]
 class InstructorMessage extends Model
@@ -24,6 +24,14 @@ class InstructorMessage extends Model
     public const TYPE_VOICE = 'voice';
 
     public const TYPE_FILE = 'file';
+
+    // Epic E: Sage is 3 separate persistent per-run threads, not one — see
+    // ⚡ask-instructor.blade.php's topicForStep().
+    public const TOPIC_GENERAL = 'general';
+
+    public const TOPIC_GRAMMAR = 'grammar';
+
+    public const TOPIC_VOCABULARY = 'vocabulary';
 
     /**
      * @return BelongsTo<User, $this>

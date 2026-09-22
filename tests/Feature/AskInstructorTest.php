@@ -145,7 +145,9 @@ class AskInstructorTest extends TestCase
      * so if history were still filtered to $stepKey, an in-progress
      * conversation would visibly change or shrink the moment the learner
      * navigated mid-chat, even though nothing about the actual
-     * conversation changed. It must now show the whole run's thread.
+     * conversation changed. It must still show the whole THREAD (now
+     * topic-scoped, not step-scoped — see topicForStep()) across a step
+     * change, as long as both steps share the same topic.
      */
     public function test_the_full_conversation_persists_across_a_step_change_mid_chat(): void
     {
@@ -154,7 +156,8 @@ class AskInstructorTest extends TestCase
         InstructorMessage::create([
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
-            'step_key' => 'grammar_in_context',
+            'step_key' => 'listening',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
             'role' => InstructorMessage::ROLE_LEARNER,
             'body' => 'What is a preposition?',
             'type' => InstructorMessage::TYPE_TEXT,
@@ -162,25 +165,85 @@ class AskInstructorTest extends TestCase
         InstructorMessage::create([
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
-            'step_key' => 'grammar_in_context',
+            'step_key' => 'listening',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
             'role' => InstructorMessage::ROLE_INSTRUCTOR,
             'body' => 'It shows a relationship, like "in" or "on".',
             'type' => InstructorMessage::TYPE_TEXT,
         ]);
-        // Asked from a different step, mid the same run — must still show.
+        // Asked from a different step, mid the same run — still 'general'
+        // topic (only grammar_in_context/vocabulary_builder_* have their
+        // own dedicated topic), so it must still show.
         InstructorMessage::create([
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
-            'step_key' => 'listening',
+            'step_key' => 'writing',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
             'role' => InstructorMessage::ROLE_LEARNER,
             'body' => 'Can you give another example?',
             'type' => InstructorMessage::TYPE_TEXT,
         ]);
 
-        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'writing'])
             ->assertSee('What is a preposition?')
             ->assertSee('It shows a relationship')
             ->assertSee('Can you give another example?');
+    }
+
+    /**
+     * Epic E: Sage keeps 3 separate persistent per-run threads instead of
+     * one — a question asked from a grammar step must not leak into, or
+     * pull context from, the vocabulary or general threads, and vice
+     * versa, even within the very same mission run.
+     */
+    public function test_the_three_topic_threads_stay_isolated_from_each_other(): void
+    {
+        $run = $this->makeRun();
+
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'grammar_in_context',
+            'topic' => InstructorMessage::TOPIC_GRAMMAR,
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'A grammar-only question.',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'vocabulary_builder_1',
+            'topic' => InstructorMessage::TOPIC_VOCABULARY,
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'A vocabulary-only question.',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'listening',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'A general question.',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+            ->assertSee('A grammar-only question.')
+            ->assertDontSee('A vocabulary-only question.')
+            ->assertDontSee('A general question.')
+            ->assertSee('Sage — Grammar chat');
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
+            ->assertSee('A vocabulary-only question.')
+            ->assertDontSee('A grammar-only question.')
+            ->assertDontSee('A general question.')
+            ->assertSee('Sage — Vocabulary chat');
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'listening'])
+            ->assertSee('A general question.')
+            ->assertDontSee('A grammar-only question.')
+            ->assertDontSee('A vocabulary-only question.');
     }
 
     public function test_a_new_question_is_answered_with_the_prior_conversation_as_context(): void
@@ -191,6 +254,7 @@ class AskInstructorTest extends TestCase
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
             'step_key' => 'grammar_in_context',
+            'topic' => InstructorMessage::TOPIC_GRAMMAR,
             'role' => InstructorMessage::ROLE_LEARNER,
             'body' => 'What is a preposition?',
             'type' => InstructorMessage::TYPE_TEXT,
@@ -199,6 +263,7 @@ class AskInstructorTest extends TestCase
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
             'step_key' => 'grammar_in_context',
+            'topic' => InstructorMessage::TOPIC_GRAMMAR,
             'role' => InstructorMessage::ROLE_INSTRUCTOR,
             'body' => 'It shows a relationship, like "in" or "on".',
             'type' => InstructorMessage::TYPE_TEXT,
