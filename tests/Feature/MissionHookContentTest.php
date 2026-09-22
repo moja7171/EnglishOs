@@ -132,4 +132,32 @@ class MissionHookContentTest extends TestCase
             'mission_result',
         ], $mission->stepKeys());
     }
+
+    /**
+     * Epic D: `word_order`'s `words` bank is authored already scrambled
+     * (never reshuffled at render time — see <x-word-order-round>), so a
+     * typo dropping or duplicating a token would make that card silently
+     * unsolvable. Checked directly against the real seeded content for
+     * every mission that has this step, not just a test fixture.
+     */
+    public function test_every_missions_word_order_cards_are_solvable(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        foreach (['M01', 'M02', 'M03', 'M04'] as $code) {
+            $mission = Mission::where('code', $code)->firstOrFail();
+            $cards = $mission->stepContent('grammar_in_context')['word_order'] ?? [];
+
+            $this->assertNotEmpty($cards, "{$code} has no word_order cards.");
+
+            foreach ($cards as $card) {
+                $words = $card['words'];
+                sort($words);
+                $answerTokens = explode(' ', $card['answer']);
+                sort($answerTokens);
+
+                $this->assertSame($answerTokens, $words, "{$code}'s word_order card \"{$card['answer']}\" isn't buildable from its own word bank.");
+            }
+        }
+    }
 }

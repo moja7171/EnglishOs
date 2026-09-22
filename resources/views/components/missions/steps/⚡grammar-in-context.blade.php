@@ -45,6 +45,11 @@ new class extends Component
      */
     public ?array $quickCheckScore = null;
 
+    /**
+     * @var array{correct: int, total: int}|null
+     */
+    public ?array $wordOrderScore = null;
+
     public function mount(): void
     {
         if (! $this->readOnly) {
@@ -60,6 +65,7 @@ new class extends Component
         }
 
         $this->quickCheckScore = $data['quick_check_score'] ?? null;
+        $this->wordOrderScore = $data['word_order_score'] ?? null;
     }
 
     /**
@@ -77,6 +83,18 @@ new class extends Component
                 ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
             ])
             ->all();
+    }
+
+    /**
+     * "Build the sentence" round (Epic D) — a tap-the-words-in-order
+     * warm-up, same ungraded/skippable shell as Quick Check. Each
+     * mission seeds its own `word_order` list; see <x-word-order-round>.
+     *
+     * @return list<array{words: list<string>, answer: string}>
+     */
+    public function wordOrderCards(): array
+    {
+        return $this->run->mission->stepContent('grammar_in_context')['word_order'] ?? [];
     }
 
     /**
@@ -291,6 +309,7 @@ new class extends Component
                 // Optional bonus practice — saved if attempted, but never
                 // required and never blocks Continue.
                 'quick_check_score' => $this->quickCheckScore,
+                'word_order_score' => $this->wordOrderScore,
             ]),
         ]);
 
@@ -414,77 +433,7 @@ new class extends Component
 
             @foreach ($lessonSectionsData as $sectionIndex => $section)
                 <div x-show="lessonStep === {{ $sectionIndex }}" x-cloak class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                    @if (! empty($section['heading']))
-                        <p class="text-sm font-bold">{{ $section['heading'] }}</p>
-                    @endif
-
-                    @if (! empty($section['body']))
-                        {{-- Trusted, developer-authored seed content (like reading_comprehension's
-                             $passageHtml) — never learner input — so a light <strong>/<em> markup
-                             is allowed through untouched. --}}
-                        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{!! $section['body'] !!}</p>
-                    @endif
-
-                    @foreach ($section['blocks'] ?? [] as $block)
-                        @switch($block['type'] ?? null)
-                            @case('pairs')
-                                {{-- Two-column transformation examples, e.g. base verb vs its
-                                     he/she/it form. --}}
-                                <div class="mt-3 space-y-2">
-                                    @foreach ($block['pairs'] ?? [] as $pair)
-                                        <div class="grid grid-cols-2 gap-2 rounded-lg border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-                                            <p>{{ $pair['left'] }}</p>
-                                            <p class="font-semibold">{{ $pair['right'] }}</p>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                @break
-
-                            @case('examples')
-                                {{-- Standalone example sentences, each in its own box, optionally
-                                     grouped under a label (e.g. one group per tense). --}}
-                                <div class="mt-3 space-y-2 text-sm">
-                                    @foreach ($block['groups'] ?? [] as $group)
-                                        @if (! empty($group['label']))
-                                            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $group['label'] }}</p>
-                                        @endif
-                                        @foreach ($group['items'] ?? [] as $item)
-                                            <p class="rounded-lg border border-line p-2 text-ink dark:border-line-dark dark:text-ink-dark">{{ $item }}</p>
-                                        @endforeach
-                                    @endforeach
-                                </div>
-                                @break
-
-                            @case('chips')
-                                {{-- A horizontal scale of words (e.g. a frequency scale, or a set
-                                     of time expressions), optionally grouped under a label. --}}
-                                @foreach ($block['groups'] ?? [] as $group)
-                                    @if (! empty($group['label']))
-                                        <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark {{ ! $loop->first ? 'mt-2' : '' }}">{{ $group['label'] }}</p>
-                                    @endif
-                                    <div class="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
-                                        @foreach ($group['words'] ?? [] as $word)
-                                            <span class="rounded-full border border-line px-2 py-0.5 dark:border-line-dark">{{ $word }}</span>
-                                            @if (! $loop->last) <span class="text-ink-faint dark:text-ink-faint-dark">@svg('heroicon-o-chevron-right', 'inline h-3 w-3')</span> @endif
-                                        @endforeach
-                                    </div>
-                                @endforeach
-                                @break
-
-                            @case('rule_examples')
-                                {{-- A rule paired with an example sentence, optionally
-                                     highlighting the word the rule is about. --}}
-                                <div class="mt-3 space-y-2">
-                                    @foreach ($block['items'] ?? [] as $rule)
-                                        <div class="rounded-lg border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-                                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $rule['rule'] }}</p>
-                                            <p class="font-semibold">{!! $this->highlightWord($rule['example'], $rule['highlight'] ?? '') !!}</p>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                @break
-                        @endswitch
-                    @endforeach
+                    @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
 
                     @if ($loop->last && ! empty($lesson['bridge_note']))
                         <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark italic">{{ $lesson['bridge_note'] }}</p>
@@ -524,13 +473,54 @@ new class extends Component
     @endunless
 
     <div x-show="phase === 'practice'" @unless ($readOnly) x-cloak @endunless class="space-y-6">
-        @unless ($readOnly)
+        <div x-data="{ showLessonAgain: false }">
             <button
                 type="button"
-                x-on:click="phase = 'lesson'; lessonStep = 0"
+                x-on:click="showLessonAgain = !showLessonAgain"
                 class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
-            >@svg('heroicon-o-chevron-right', 'h-3 w-3') Review the lesson again</button>
-        @endunless
+            >
+                <span x-show="!showLessonAgain" class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-right', 'h-3 w-3') Show the lesson again</span>
+                <span x-show="showLessonAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the lesson</span>
+            </button>
+            <div x-show="showLessonAgain" x-cloak class="mt-2 space-y-4 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                @foreach ($lessonSectionsData as $section)
+                    @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
+                @endforeach
+            </div>
+        </div>
+
+        @if ($readOnly)
+            @if ($quickCheckScore)
+                <div>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $quickCheckScore['correct'] }} of {{ $quickCheckScore['total'] }}.</p>
+                </div>
+            @endif
+            @if ($wordOrderScore)
+                <div>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Build the sentence</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $wordOrderScore['correct'] }} of {{ $wordOrderScore['total'] }}.</p>
+                </div>
+            @endif
+        @else
+            <div>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
+                <div class="mt-2">
+                    <x-quick-round :cards="$this->quickCheckCards()" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
+                </div>
+            </div>
+
+            @if ($this->wordOrderCards())
+                <div>
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Build the sentence</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Tap the words in the right order — another warm-up, skip anytime.</p>
+                    <div class="mt-2">
+                        <x-word-order-round :cards="$this->wordOrderCards()" on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length })" />
+                    </div>
+                </div>
+            @endif
+        @endif
 
         <div>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Make it personal</p>
@@ -618,23 +608,6 @@ new class extends Component
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
-
-        @if ($readOnly)
-            @if ($quickCheckScore)
-                <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $quickCheckScore['correct'] }} of {{ $quickCheckScore['total'] }}.</p>
-                </div>
-            @endif
-        @else
-            <div>
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
-                <div class="mt-2">
-                    <x-quick-round :cards="$this->quickCheckCards()" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
-                </div>
-            </div>
-        @endif
 
         @unless ($readOnly)
             <x-continue-button

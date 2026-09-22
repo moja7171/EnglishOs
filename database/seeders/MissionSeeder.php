@@ -286,7 +286,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "Every \"I usually...\" you get right here is one less pause when you're speaking for real.",
                                 'focus' => 'Present Simple + Adverbs of Frequency',
                                 // The lesson is fully data-driven (see grammar-in-context.blade.php)
@@ -307,6 +307,15 @@ class MissionSeeder extends Seeder
                                                 .'With <strong>he / she / it</strong> it takes an <strong>-s</strong> '
                                                 .'(or an irregular form, like <em>have → has</em>).',
                                             'blocks' => [
+                                                [
+                                                    // Epic D: a short "spot the mistake" moment
+                                                    // ahead of the drier rule/pairs blocks below.
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Leo',
+                                                    'wrong' => 'She wake up early every day.',
+                                                    'right' => 'She wakes up early every day.',
+                                                    'explanation' => 'With he / she / it, the verb needs an -s ending.',
+                                                ],
                                                 [
                                                     'type' => 'pairs',
                                                     'pairs' => [
@@ -405,6 +414,16 @@ class MissionSeeder extends Seeder
                                         'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
+                                ],
+                                // "Build the sentence" round (Epic D) — reuses sentences already
+                                // seen in the lesson's own pairs/examples blocks above, so this is
+                                // reinforcement, not new vocabulary. `words` is authored already
+                                // scrambled; never reshuffled at render time (see
+                                // <x-word-order-round>).
+                                'word_order' => [
+                                    ['words' => ['early.', 'wakes', 'She', 'up'], 'answer' => 'She wakes up early.'],
+                                    ['words' => ['Saturdays?', 'work', 'she', 'Does', 'on'], 'answer' => 'Does she work on Saturdays?'],
+                                    ['words' => ['early.', 'I', 'up', 'wake', 'always'], 'answer' => 'I always wake up early.'],
                                 ],
                             ],
                             [
@@ -1040,7 +1059,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => 'Every "she\'s living" you get right here is one less pause when you\'re talking about someone real.',
                                 'focus' => 'Present Simple vs Present Continuous',
                                 'lesson' => [
@@ -1054,6 +1073,13 @@ class MissionSeeder extends Seeder
                                                 .'<strong>Present Continuous</strong> describes something temporary, '
                                                 .'or happening around now, not necessarily this exact second.',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Nadia',
+                                                    'wrong' => "She lives in Spain at the moment, just for the summer.",
+                                                    'right' => "She's living in Spain at the moment, just for the summer.",
+                                                    'explanation' => "A temporary situation right now needs Present Continuous, not Present Simple.",
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
@@ -1145,6 +1171,11 @@ class MissionSeeder extends Seeder
                                         'correct' => 2,
                                         'difficulty' => 'hard',
                                     ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['a', "She's", 'lot', 'these', 'working', 'days.'], 'answer' => "She's working a lot these days."],
+                                    ['words' => ['well', 'she', 'her', 'with', 'Does', 'sister?', 'on', 'get'], 'answer' => 'Does she get on well with her sister?'],
+                                    ['words' => ['on', 'calls', 'usually', 'She', 'Sundays.', 'me'], 'answer' => 'She usually calls me on Sundays.'],
                                 ],
                             ],
                             [
@@ -1701,7 +1732,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "Every \"I don't eat much...\" you get right here is one less pause when you're talking about your own diet.",
                                 'focus' => 'Countable and Uncountable Nouns',
                                 'lesson' => [
@@ -1715,6 +1746,13 @@ class MissionSeeder extends Seeder
                                                 .'have a plural form. <strong>Uncountable</strong> nouns are treated '
                                                 .'as one whole amount — no plural, no "a/an" on their own.',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Priya',
+                                                    'wrong' => "I don't eat many rice.",
+                                                    'right' => "I don't eat much rice.",
+                                                    'explanation' => "Rice is uncountable, so it takes 'much', not 'many'.",
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
@@ -1785,6 +1823,11 @@ class MissionSeeder extends Seeder
                                         'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ["don't", 'many', 'I', 'vegetables.', 'eat'], 'answer' => "I don't eat many vegetables."],
+                                    ['words' => ['much', "don't", 'coffee.', 'I', 'drink'], 'answer' => "I don't drink much coffee."],
+                                    ['words' => ['a', 'eggs', 'few', 'I', 'every', 'eat', 'week.'], 'answer' => 'I eat a few eggs every week.'],
                                 ],
                             ],
                             [
@@ -2281,7 +2324,7 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 // Grammar point changed 2026-09-10 from "Present Simple vs
                                 // Present Continuous" (a straight repeat of M02's own focus,
                                 // with no real content difference beyond the title) to Modals
@@ -2305,6 +2348,13 @@ class MissionSeeder extends Seeder
                                                 .'required. <strong>Can / can\'t</strong> describe ability or '
                                                 .'permission — what you are (or aren\'t) able or allowed to do.',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Tomás',
+                                                    'wrong' => 'I have to finishing this report today.',
+                                                    'right' => 'I have to finish this report today.',
+                                                    'explanation' => "After a modal or 'have to', the next verb stays in its bare form — never the -ing form.",
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
@@ -2382,6 +2432,11 @@ class MissionSeeder extends Seeder
                                         'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['this', 'have', 'I', 'report', 'to', 'today.', 'finish'], 'answer' => 'I have to finish this report today.'],
+                                    ['words' => ['work', 'have', 'Do', 'you', 'weekends?', 'to'], 'answer' => 'Do you have to work weekends?'],
+                                    ['words' => ['two', 'speak', 'I', 'languages.', 'can'], 'answer' => 'I can speak two languages.'],
                                 ],
                             ],
                             [
