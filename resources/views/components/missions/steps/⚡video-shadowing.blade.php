@@ -168,9 +168,19 @@ new class extends Component
     // voice-recorder per line) second, so the recorders never bury the
     // watch checkboxes and quick check below the fold.
     $totalSubsteps = 2;
+    $draftPrefix = $this->draftPrefix();
 @endphp
 
-<div class="space-y-6" x-data="{ activeSubstep: 0 }">
+<div
+    class="space-y-6"
+    x-data="{
+        activeSubstep: 0,
+        init() {
+            this.activeSubstep = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSubstep', 0);
+            this.$watch('activeSubstep', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSubstep', v));
+        },
+    }"
+>
     <x-hook :text="$video['hook'] ?? null" />
 
     <div>

@@ -472,7 +472,16 @@ new class extends Component
 
 @php $draftPrefix = $this->draftPrefix(); @endphp
 
-<div class="space-y-6" x-data="{ activeSection: 0 }">
+<div
+    class="space-y-6"
+    x-data="{
+        activeSection: 0,
+        init() {
+            this.activeSection = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSection', 0);
+            this.$watch('activeSection', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSection', v));
+        },
+    }"
+>
     <x-hook :text="$run->mission->stepContent('mission_result')['hook'] ?? null" />
 
     <div>

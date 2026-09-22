@@ -282,7 +282,17 @@ new class extends Component
     $totalSubsteps = 2;
 @endphp
 
-<div class="space-y-6" x-data="{ activeSubstep: 0, dismissed: {} }">
+<div
+    class="space-y-6"
+    x-data="{
+        activeSubstep: 0,
+        dismissed: {},
+        init() {
+            this.activeSubstep = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSubstep', 0);
+            this.$watch('activeSubstep', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSubstep', v));
+        },
+    }"
+>
     <x-hook :text="$reading['hook'] ?? null" />
 
     <div class="mb-2">
