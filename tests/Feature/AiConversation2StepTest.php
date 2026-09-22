@@ -36,7 +36,7 @@ class AiConversation2StepTest extends TestCase
                             'final_prompt' => 'Speak for 3 minutes about your daily life.',
                             'requirements' => ['Present Simple', '5+ vocabulary expressions'],
                         ],
-                        ['key' => 'active_recall'],
+                        ['key' => 'error_log'],
                     ],
                 ],
             ],
@@ -97,7 +97,7 @@ class AiConversation2StepTest extends TestCase
         $this->assertCount(2, $content['rounds']);
         $this->assertTrue($content['requirements']['Present Simple']);
 
-        $this->assertSame('active_recall', $run->fresh()->currentStepKey());
+        $this->assertSame('error_log', $run->fresh()->currentStepKey());
     }
 
     public function test_final_challenge_grading_is_grounded_in_the_learners_own_selected_words(): void
@@ -188,7 +188,7 @@ class AiConversation2StepTest extends TestCase
                             'final_prompt' => 'Speak for 3 minutes about your daily life.',
                             'requirements' => ['Present Simple', '1+ BBC expression'],
                         ],
-                        ['key' => 'active_recall'],
+                        ['key' => 'error_log'],
                     ],
                 ],
             ],

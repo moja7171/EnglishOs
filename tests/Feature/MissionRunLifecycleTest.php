@@ -82,13 +82,6 @@ class MissionRunLifecycleTest extends TestCase
             'type' => Evidence::TYPE_AUDIO,
             'content_ref' => 'http://localhost/storage/missions/m01/evidence/speaking.webm',
         ]);
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'active_recall',
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['expressions' => ['have a shower'], 'listening_facts' => [], 'present_simple_sentences' => []]),
-        ]);
-
         $text = $run->allLearnerText();
 
         $this->assertStringContainsString('I wake up early.', $text);
@@ -97,7 +90,6 @@ class MissionRunLifecycleTest extends TestCase
         $this->assertStringContainsString('A typical day starts with a shower.', $text);
         $this->assertStringContainsString('I exercise in the evening.', $text);
         $this->assertStringContainsString('I go to bed at eleven.', $text);
-        $this->assertStringContainsString('have a shower', $text);
         $this->assertStringNotContainsString('speaking.webm', $text);
     }
 

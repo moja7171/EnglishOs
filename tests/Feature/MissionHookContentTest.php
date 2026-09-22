@@ -70,7 +70,6 @@ class MissionHookContentTest extends TestCase
             'reading_comprehension',
             'writing',
             'daily_listen_4',
-            'active_recall',
             'error_log',
             'ai_conversation_2',
             'mission_result',
@@ -121,7 +120,6 @@ class MissionHookContentTest extends TestCase
             'reading_comprehension',
             'writing',
             // Day 4 · Challenge
-            'active_recall',
             'error_log',
             'partner_speaking_session',
             'ai_conversation_2',

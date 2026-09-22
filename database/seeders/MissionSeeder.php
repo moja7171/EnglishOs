@@ -785,34 +785,6 @@ class MissionSeeder extends Seeder
                                 'recall_prompt' => "One more — this time, are you sure you'll remember it?",
                             ],
                             [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                // Was 8 — bumped for the optional cross-mission spaced-repetition practice card.
-                                'duration_minutes' => 9,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
-                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
-                                    [
-                                        'key' => 'present_simple_sentences',
-                                        'label' => '3 Present Simple sentences',
-                                        'count' => 3,
-                                        // Moved verbatim from the old hardcoded PHP case in
-                                        // ⚡active-recall.blade.php's runSentenceCheck() — see
-                                        // EOS-009 §8 for the "AI judgment lives in seeded content"
-                                        // convention (mirrored from grammar_in_context's
-                                        // grammar_judgment) this generalizes active_recall onto.
-                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal sentence, correctly '
-                                            .'using the present simple tense.',
-                                        'major_criteria' => 'the verb is not in the present simple tense, or it is not a genuine personal '
-                                            .'statement',
-                                        'context' => 'a personal sentence using the present simple tense',
-                                        'recap_label' => 'sentences correctly used the present simple',
-                                    ],
-                                ],
-                            ],
-                            [
                                 'key' => 'error_log',
                                 'label' => 'Error Log',
                                 // Was 6 — bumped for the optional AI-generated fill-in-the-blank drills.
@@ -1474,42 +1446,6 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                'duration_minutes' => 9,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
-                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the BBC episode', 'count' => 3],
-                                    [
-                                        'key' => 'present_simple_sentences',
-                                        'label' => '1 Present Simple sentence about someone I know',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal '
-                                            .'sentence about someone they know, correctly using the present simple tense.',
-                                        'major_criteria' => 'the verb is not in the present simple tense, or it is not '
-                                            .'a genuine personal statement about someone the learner knows',
-                                        'context' => 'a personal sentence about someone the learner knows, using the present simple tense',
-                                        'recap_label' => 'sentences correctly used the present simple',
-                                    ],
-                                    [
-                                        'key' => 'present_continuous_sentences',
-                                        'label' => '1 Present Continuous sentence about what someone is doing these days',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal '
-                                            .'sentence correctly using present continuous tense for something '
-                                            .'happening now or temporarily (not a general habit).',
-                                        'major_criteria' => 'the verb is not in the present continuous tense, it '
-                                            .'describes a general habit rather than something temporary/current, or '
-                                            .'it is not a genuine personal statement',
-                                        'context' => 'a personal sentence about something someone is doing now or '
-                                            .'temporarily, using the present continuous tense',
-                                        'recap_label' => 'sentences correctly used the present continuous',
-                                    ],
-                                ],
-                            ],
-                            [
                                 'key' => 'error_log',
                                 'label' => 'Error Log',
                                 'duration_minutes' => 7,
@@ -2125,59 +2061,6 @@ class MissionSeeder extends Seeder
                         'mode' => 'partner',
                         'steps' => [
                             [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                'duration_minutes' => 8,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                // Real sections from M04.pdf page 09 — the grammar recap is
-                                // 3 separate typed prompts there (one countable example, one
-                                // uncountable example, one much/many example), not one bucket
-                                // of 3 generic sentences like M01/M02's active_recall — so each
-                                // gets its own section here instead.
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 vocabulary items', 'count' => 5],
-                                    [
-                                        'key' => 'countable_example',
-                                        'label' => 'One countable noun example',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about food, correctly using a countable noun (with an '
-                                            .'article, a number, or a plural form, as appropriate).',
-                                        'major_criteria' => 'the noun used is not a countable food noun, or it is '
-                                            .'not used correctly as one, or the sentence is not a genuine example',
-                                        'context' => 'an example sentence correctly using a countable food noun',
-                                        'recap_label' => 'example correctly used a countable noun',
-                                    ],
-                                    [
-                                        'key' => 'uncountable_example',
-                                        'label' => 'One uncountable noun example',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about food, correctly using an uncountable noun (no plural '
-                                            .'-s, no "a/an" on its own).',
-                                        'major_criteria' => 'the noun used is not an uncountable food noun, it '
-                                            .'wrongly has a plural -s or an "a/an" on its own, or the sentence is '
-                                            .'not a genuine example',
-                                        'context' => 'an example sentence correctly using an uncountable food noun',
-                                        'recap_label' => 'example correctly used an uncountable noun',
-                                    ],
-                                    [
-                                        'key' => 'much_many_example',
-                                        'label' => 'One example using much / many',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about food correctly using "much" (with an uncountable '
-                                            .'noun) or "many" (with a plural countable noun).',
-                                        'major_criteria' => '"much" or "many" is paired with the wrong noun type, or '
-                                            .'the sentence is not a genuine example',
-                                        'context' => 'an example sentence correctly using "much" or "many"',
-                                        'recap_label' => 'example correctly used much/many',
-                                    ],
-                                    ['key' => 'listening_facts', 'label' => 'One thing I learned from the listening', 'count' => 1],
-                                ],
-                            ],
-                            [
                                 'key' => 'partner_speaking_session',
                                 'label' => 'Partner Speaking Session',
                                 'duration_minutes' => 15,
@@ -2770,46 +2653,6 @@ class MissionSeeder extends Seeder
                         'label' => 'Challenge',
                         'mode' => 'partner',
                         'steps' => [
-                            [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                'duration_minutes' => 8,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                // Grammar recap updated 2026-09-10 to match this mission's
-                                // Modals of Obligation & Ability focus (was Present Simple/
-                                // Continuous — see grammar_in_context above) — same 2-typed-
-                                // prompt + 2 single-item-box pattern as before, same as M04's
-                                // active_recall.
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 vocabulary items', 'count' => 5],
-                                    [
-                                        'key' => 'obligation_example',
-                                        'label' => 'Obligation example (have to / need to / must)',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about their work or studies, correctly using have to, need '
-                                            .'to, or must.',
-                                        'major_criteria' => 'the modal is missing or used incorrectly (wrong verb '
-                                            .'form after it), or the sentence is not a genuine personal example',
-                                        'context' => 'a personal example sentence using have to, need to, or must',
-                                        'recap_label' => 'example correctly used a modal of obligation',
-                                    ],
-                                    [
-                                        'key' => 'ability_example',
-                                        'label' => 'Ability/permission example (can / can\'t)',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about their work or studies, correctly using can or can\'t.',
-                                        'major_criteria' => 'the modal is missing or used incorrectly (wrong verb '
-                                            .'form after it), or the sentence is not a genuine personal example',
-                                        'context' => 'a personal example sentence using can or can\'t',
-                                        'recap_label' => 'example correctly used can/can\'t',
-                                    ],
-                                    ['key' => 'listening_facts', 'label' => 'One thing I learned from the listening', 'count' => 1],
-                                    ['key' => 'expression_to_keep', 'label' => 'One expression I want to keep using', 'count' => 1],
-                                ],
-                            ],
                             [
                                 'key' => 'partner_speaking_session',
                                 'label' => 'Partner Speaking Session',

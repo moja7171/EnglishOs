@@ -137,9 +137,9 @@ class MissionRun extends Model
 
     /**
      * Every substantial piece of English the learner actually produced
-     * across this run — AI Conversation transcripts, Writing, Activation's
-     * spoken transcript, and Active Recall's own-word recall attempts.
-     * Centralizes what was previously a private duplicate in Error Log's
+     * across this run — AI Conversation transcripts, Writing, and
+     * Activation's spoken transcript. Centralizes what was previously a
+     * private duplicate in Error Log's
      * mistake-extraction; also used by Mission Result's vocabulary-usage
      * recap. Deliberately excludes Vocabulary Builder's own example
      * sentences and Grammar in Context's drills — those are graded
@@ -172,11 +172,6 @@ class MissionRun extends Model
             $data = json_decode($activation->content_ref, true) ?? [];
             $pieces[] = collect($data['sentences'] ?? [])->implode(' ');
             $pieces[] = $data['transcript'] ?? '';
-        }
-
-        if ($activeRecall = $this->latestEvidence('active_recall')) {
-            $data = json_decode($activeRecall->content_ref, true) ?? [];
-            $pieces[] = collect($data['expressions'] ?? [])->implode(' ');
         }
 
         return implode("\n\n", array_filter($pieces));
