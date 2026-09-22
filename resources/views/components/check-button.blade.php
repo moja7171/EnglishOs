@@ -1,15 +1,8 @@
-@props(['method', 'index', 'keyPrefix' => '', 'wireTarget', 'extraArgs' => ''])
+@props(['method', 'index', 'keyPrefix' => '', 'wireTarget'])
 
 @php
     $dismissedKey = "{$keyPrefix}{$index}";
-    // Optional trailing args (e.g. ", 'section_key'") for a generic Livewire
-    // method whose signature needs more than just the index — see
-    // active-recall's checkGrammarSentence(index, section). Built entirely
-    // from developer-authored, trusted values (a section key from seeded
-    // mission content, never learner input) — raw-output below is safe and
-    // needed so the single quotes around it survive as real JS syntax
-    // rather than being HTML-entity-escaped by {{ }}.
-    $callArgs = "{$index}{$extraArgs}";
+    $callArgs = "{$index}";
 @endphp
 
 <button

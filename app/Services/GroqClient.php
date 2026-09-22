@@ -42,7 +42,7 @@ class GroqClient
      * in seconds (Whisper's own verbose_json output, not guessed) — lets a
      * caller derive a genuine speaking-pace signal (words per minute) for
      * AI feedback on HOW something was said, not just what was said. See
-     * ⚡activation.blade.php's transcribeAndReflect().
+     * ⚡ai-conversation1.blade.php's transcribeAndReflect().
      *
      * @return array{text: string, duration: float}
      */
