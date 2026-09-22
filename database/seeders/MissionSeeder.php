@@ -327,8 +327,8 @@ class MissionSeeder extends Seeder
                                 // out loud with the audio) once the transcript is unlocked.
                                 'detail_question' => [
                                     'question' => 'What time did Neil need to get up to catch his flight, the last time he skipped breakfast?',
-                                    'options' => ['3am', '7am', '9am'],
-                                    'correct' => 0,
+                                    'options' => ['7am', '3am', '9am'],
+                                    'correct' => 1,
                                 ],
                                 // Bold marks the naturally-stressed content words (nouns, main verbs,
                                 // adjectives, question words) — function words (articles,
@@ -466,20 +466,20 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She go to work at eight.',
-                                        'options' => ['She goes to work at eight.', 'She gos to work at eight.', 'She go to work at eight.'],
-                                        'correct' => 0,
+                                        'options' => ['She gos to work at eight.', 'She goes to work at eight.', 'She go to work at eight.'],
+                                        'correct' => 1,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => "I doesn't exercise every day.",
-                                        'options' => ["I don't exercise every day.", "I doesn't exercises every day.", 'I not exercise every day.'],
-                                        'correct' => 0,
+                                        'options' => ["I doesn't exercises every day.", 'I not exercise every day.', "I don't exercise every day."],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'He usually wake up late.',
-                                        'options' => ['He usually wakes up late.', 'He usually waking up late.', 'He usually wake ups late.'],
-                                        'correct' => 0,
+                                        'options' => ['He usually waking up late.', 'He usually wakes up late.', 'He usually wake ups late.'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
                                 ],
@@ -1239,20 +1239,20 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She is knowing him for ten years.',
-                                        'options' => ["She's known him for ten years.", 'She is knowing him for ten years.', 'She know him for ten years.'],
-                                        'correct' => 0,
+                                        'options' => ['She is knowing him for ten years.', 'She know him for ten years.', "She's known him for ten years."],
+                                        'correct' => 2,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => 'My friend works in London this month, just for a project.',
-                                        'options' => ['My friend is working in London this month, just for a project.', 'My friend works in London this month, just for a project.', 'My friend working in London this month.'],
-                                        'correct' => 0,
+                                        'options' => ['My friend works in London this month, just for a project.', 'My friend working in London this month.', 'My friend is working in London this month, just for a project.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'She usually is getting on well with her sister.',
-                                        'options' => ['She usually gets on well with her sister.', 'She usually is getting on well with her sister.', 'She usually get on well with her sister.'],
-                                        'correct' => 0,
+                                        'options' => ['She usually is getting on well with her sister.', 'She usually get on well with her sister.', 'She usually gets on well with her sister.'],
+                                        'correct' => 2,
                                         'difficulty' => 'hard',
                                     ],
                                 ],
@@ -1829,8 +1829,8 @@ class MissionSeeder extends Seeder
                                 ],
                                 'detail_question' => [
                                     'question' => 'What does Lisa snack on now, instead of cookies or chips?',
-                                    'options' => ['Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Cake and ice cream', 'Nothing — she stopped snacking completely'],
-                                    'correct' => 0,
+                                    'options' => ['Cake and ice cream', 'Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Nothing — she stopped snacking completely'],
+                                    'correct' => 1,
                                 ],
                                 'shadow_lines' => [
                                     "**Start** small, be **patient**, and don't **try** to be **perfect**.",
@@ -1924,20 +1924,20 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => "I don't eat many rice.",
-                                        'options' => ["I don't eat much rice.", "I don't eat many rice.", "I don't eat many rices."],
-                                        'correct' => 0,
+                                        'options' => ["I don't eat many rice.", "I don't eat many rices.", "I don't eat much rice."],
+                                        'correct' => 2,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => 'She drinks a lot of coffees every morning.',
-                                        'options' => ['She drinks a lot of coffee every morning.', 'She drinks a lot of coffees every morning.', 'She drink a lot of coffee every morning.'],
-                                        'correct' => 0,
+                                        'options' => ['She drinks a lot of coffees every morning.', 'She drink a lot of coffee every morning.', 'She drinks a lot of coffee every morning.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'I need a few water.',
-                                        'options' => ['I need a little water.', 'I need a few water.', 'I need a few waters.'],
-                                        'correct' => 0,
+                                        'options' => ['I need a few water.', 'I need a little water.', 'I need a few waters.'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
                                 ],
@@ -2457,8 +2457,8 @@ class MissionSeeder extends Seeder
                                 ],
                                 'detail_question' => [
                                     'question' => 'How many days a week does Lisa work from home?',
-                                    'options' => ['3 days', '5 days', '0 days'],
-                                    'correct' => 0,
+                                    'options' => ['5 days', '3 days', '0 days'],
+                                    'correct' => 1,
                                 ],
                                 'shadow_lines' => [
                                     "I've been **working** as a **marketing assistant** at a **tech company** for almost **two years** now.",
@@ -2569,20 +2569,20 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have to finishing this report today.',
-                                        'options' => ['I have to finish this report today.', 'I have to finishing this report today.', 'I has to finish this report today.'],
-                                        'correct' => 0,
+                                        'options' => ['I have to finishing this report today.', 'I has to finish this report today.', 'I have to finish this report today.'],
+                                        'correct' => 2,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => 'She can to speak three languages.',
-                                        'options' => ['She can speak three languages.', 'She can to speak three languages.', 'She cans speak three languages.'],
-                                        'correct' => 0,
+                                        'options' => ['She can to speak three languages.', 'She cans speak three languages.', 'She can speak three languages.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'Do you have to worked on weekends?',
-                                        'options' => ['Do you have to work on weekends?', 'Do you have to worked on weekends?', 'Have you to work on weekends?'],
-                                        'correct' => 0,
+                                        'options' => ['Do you have to worked on weekends?', 'Do you have to work on weekends?', 'Have you to work on weekends?'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
                                 ],
