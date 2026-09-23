@@ -83,22 +83,14 @@ new class extends Component
         </div>
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Password</label>
-            <input
-                type="password"
-                wire:model="password"
-                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            >
+            <x-password-input wire-model="password" />
             @error('password')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Confirm password</label>
-            <input
-                type="password"
-                wire:model="password_confirmation"
-                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            >
+            <x-password-input wire-model="password_confirmation" />
         </div>
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">How's your English right now?</label>
