@@ -513,7 +513,7 @@ new class extends Component
                     @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
 
                     @if ($loop->last && ! empty($lesson['bridge_note']))
-                        <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark italic">{{ $lesson['bridge_note'] }}</p>
+                        <p class="mt-3 text-xs text-ink-soft dark:text-ink-soft-dark italic">{{ $lesson['bridge_note'] }}</p>
                     @endif
                 </div>
             @endforeach
