@@ -102,38 +102,41 @@ new class extends Component
     }
 
     /**
-     * Voice is a dictation shortcut, not a separate "send" action —
-     * record, auto-upload, transcribe, drop the transcript into the
-     * question box so the learner can read it back and fix anything
-     * before it actually goes anywhere. Nothing is sent, saved, or
-     * shown to Sage here; a real send only ever happens through ask(),
-     * same as if they'd typed it. The recording itself is discarded
-     * either way (transcribed or not) — it was only ever a means to
-     * fill the text box, never a message in its own right.
+     * Voice sends straight to Sage the moment it's recorded — same
+     * "no separate send step" behaviour as every other voice-recorder
+     * caller in the app (Friends' voice messages, Speaking Recall, the
+     * daily review). Kept as a real, playable message (attachment +
+     * transcript) rather than just filling the text box for a manual
+     * send: the learner can always still type instead when they'd
+     * rather review/edit first.
      */
-    public function transcribeVoiceQuestion(): void
+    public function sendVoiceQuestion(): void
     {
         if (! $this->voiceQuestion) {
             return;
         }
 
+        $recording = $this->voiceQuestion;
+        $this->voiceQuestion = null;
+
         try {
-            $question = trim(app(GroqClient::class)->transcribe($this->voiceQuestion->getRealPath()));
+            $question = trim(app(GroqClient::class)->transcribe($recording->getRealPath()));
             $this->recordGroqCall();
         } catch (Throwable) {
             $question = '';
         }
 
-        $this->voiceQuestion = null;
+        $path = $recording->store('instructor-messages/'.auth()->id(), 'local');
+        $name = $recording->getClientOriginalName();
+        $mime = $recording->getMimeType();
 
-        if ($question === '') {
-            $this->error = "Couldn't hear that clearly — try again, or just type it.";
-
-            return;
-        }
-
-        $this->error = null;
-        $this->question = $question;
+        $this->recordAndRespond(
+            $question !== '' ? $question : "Couldn't transcribe this recording.",
+            InstructorMessage::TYPE_VOICE,
+            $path,
+            $name,
+            $mime,
+        );
     }
 
     public function sendFile(): void
@@ -298,9 +301,18 @@ new class extends Component
 <div
     x-data="{
         open: false,
+        // Shown immediately on send/record, before the server round-trip
+        // even starts — otherwise the learner's own message and Sage's
+        // reply only ever appeared together, in one sudden jump, once the
+        // whole request (transcribe + AI call) finished.
+        pendingMessage: null,
+        hasText: false,
         init() {
             this.observer = new MutationObserver(() => this.scrollToBottom());
-            this.observer.observe(this.$refs.messages, { childList: true, subtree: true });
+            // attributes: true too — wire:loading toggles the 'thinking'
+            // indicator via an attribute, not a new DOM node, and that
+            // needs to scroll into view just as much as a real new message.
+            this.observer.observe(this.$refs.messages, { childList: true, subtree: true, attributes: true });
         },
         scrollToBottom() {
             this.$nextTick(() => {
@@ -387,7 +399,19 @@ new class extends Component
                 </div>
             @endforelse
 
-            <div wire:loading.delay wire:target="ask,transcribeVoiceQuestion,sendFile">
+            {{-- Optimistic echo of the learner's own message — cleared
+                 once the real, saved message list (which by then includes
+                 it) re-renders from the server. Slightly faded to read as
+                 "sending", not yet confirmed. --}}
+            <template x-if="pendingMessage">
+                <div class="flex justify-end">
+                    <div class="max-w-[85%] rounded-2xl rounded-br-sm bg-accent px-3 py-2 text-sm text-white opacity-70 shadow-sm dark:bg-accent-dark">
+                        <span class="break-words" x-text="pendingMessage"></span>
+                    </div>
+                </div>
+            </template>
+
+            <div wire:loading.delay wire:target="ask,sendVoiceQuestion,sendFile">
                 <x-ai-thinking label="Sage is answering…" class="bg-surface dark:bg-surface-dark" />
             </div>
         </div>
@@ -405,9 +429,9 @@ new class extends Component
                     <span class="truncate text-xs text-ink-faint dark:text-ink-faint-dark">{{ $fileAttachment->getClientOriginalName() }}</span>
                     <button
                         type="button"
-                        wire:click="sendFile"
+                        x-on:click="pendingMessage = 'Attached a file: {{ addslashes($fileAttachment->getClientOriginalName()) }}'; $wire.sendFile().then(() => { pendingMessage = null })"
                         wire:loading.attr="disabled"
-                        wire:target="ask,transcribeVoiceQuestion,sendFile"
+                        wire:target="ask,sendVoiceQuestion,sendFile"
                         class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
                     >Send file</button>
                 </div>
@@ -419,26 +443,48 @@ new class extends Component
                     <input type="file" wire:model="fileAttachment" class="hidden">
                 </label>
 
-                <form wire:submit="ask" class="flex flex-1 items-center gap-1.5">
+                {{-- Submitted via Alpine, not wire:submit, so the learner's own
+                     bubble appears instantly instead of waiting on the round-trip. --}}
+                <form
+                    x-on:submit.prevent="
+                        const text = $refs.questionInput.value.trim();
+                        if (! text) return;
+                        pendingMessage = text;
+                        hasText = false;
+                        $wire.ask().then(() => { pendingMessage = null });
+                    "
+                    class="flex flex-1 items-center gap-1.5"
+                >
                     <input
                         type="text"
+                        x-ref="questionInput"
                         wire:model="question"
+                        x-on:input="hasText = $event.target.value.trim() !== ''"
                         placeholder="Ask a question…"
                         wire:loading.attr="disabled"
-                        wire:target="ask,transcribeVoiceQuestion,sendFile"
+                        wire:target="ask,sendVoiceQuestion,sendFile"
                         class="w-full rounded-full border border-line bg-transparent px-3 py-1.5 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                     >
                     <button
                         type="submit"
                         title="Send"
+                        x-bind:disabled="! hasText"
                         wire:loading.attr="disabled"
-                        wire:target="ask,transcribeVoiceQuestion,sendFile"
+                        wire:target="ask,sendVoiceQuestion,sendFile"
                         class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
                     >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
                 </form>
 
                 <div wire:key="ask-voice-recorder-{{ count($messages) }}" class="shrink-0">
-                    <x-voice-recorder field="voiceQuestion" :file="$voiceQuestion" on-recorded="transcribeVoiceQuestion" file-name="question.webm" :compact="true" />
+                    <x-voice-recorder
+                        field="voiceQuestion"
+                        :file="$voiceQuestion"
+                        on-recorded="sendVoiceQuestion"
+                        on-uploaded="pendingMessage = '🎤 …'"
+                        on-processed="pendingMessage = null"
+                        file-name="question.webm"
+                        :compact="true"
+                    />
                 </div>
             </div>
         </div>

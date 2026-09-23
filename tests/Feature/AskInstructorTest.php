@@ -287,41 +287,60 @@ class AskInstructorTest extends TestCase
             ->assertSee('under the table');
     }
 
-    public function test_recording_a_voice_question_only_fills_the_text_box_and_sends_nothing(): void
+    /**
+     * Voice used to only fill the text box for a manual send; it now
+     * sends straight to Sage the moment it's recorded, same as every
+     * other voice-recorder caller in the app — a real, playable message
+     * (attachment + transcript) rather than a text-box shortcut.
+     */
+    public function test_recording_a_voice_question_sends_it_directly_as_a_real_message(): void
     {
+        Storage::fake('local');
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('What does "articles" mean?'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages) => $messages[0]['text'] === 'What does "articles" mean?')
+                ->andReturn('An article is a small word like "a", "an", or "the".');
+        });
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('transcribeVoiceQuestion')
-            ->assertSet('question', 'What does "articles" mean?')
-            ->assertSet('messages', []);
+            ->call('sendVoiceQuestion')
+            ->assertSet('question', '')
+            ->assertSet('voiceQuestion', null)
+            ->assertSee('An article is a small word');
 
-        $this->assertDatabaseCount('instructor_messages', 0);
+        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
+        $this->assertSame('What does "articles" mean?', $message->body);
+        Storage::disk('local')->assertExists($message->attachment_path);
     }
 
     /**
-     * The recording is never persisted or lost either way — transcribing
-     * it is only ever a shortcut for filling the text box, never a "send"
-     * of its own, so a failure just means "try again" with nothing saved.
+     * The recording is still kept as a real message even when
+     * transcription fails — a silent "try again" would lose the
+     * recording the learner just made; instead it's saved with a
+     * fallback body so the audio itself is never lost.
      */
-    public function test_a_failed_voice_transcription_leaves_the_question_box_untouched(): void
+    public function test_a_failed_voice_transcription_still_sends_the_recording_with_a_fallback_body(): void
     {
+        Storage::fake('local');
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('down')));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Could you type that instead?'));
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('transcribeVoiceQuestion')
-            ->assertSee("Couldn't hear that clearly")
-            ->assertSet('question', '');
+            ->call('sendVoiceQuestion')
+            ->assertSet('question', '')
+            ->assertSet('voiceQuestion', null);
 
-        $this->assertDatabaseCount('instructor_messages', 0);
+        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
+        $this->assertSame("Couldn't transcribe this recording.", $message->body);
+        Storage::disk('local')->assertExists($message->attachment_path);
     }
 
     public function test_sending_a_file_attaches_it_and_tells_the_ai_it_cannot_see_it(): void
