@@ -486,16 +486,19 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'skip (something)', 'meaning' => 'to not do a usual part of your routine'],
                                     ['phrase' => 'chaotic', 'meaning' => 'in a state of complete confusion and disorder'],
                                 ],
-                                // Original short lines written by Claude for this app — inspired
-                                // by real moments in the video, not copied from its transcript
-                                // (see the topic_summary comment above). Bold marks naturally-
-                                // stressed content words, same convention as Listening's
-                                // shadow_lines — rendered by <x-stress-marked-line>.
+                                // Real verbatim lines from the video's own captions (unlike
+                                // topic_summary above, which stays Claude's own words) — shadowing
+                                // means mimicking the exact audio just heard, and the auto-pause
+                                // timestamp cache (missions:cache-shadow-timestamps) only lands
+                                // correctly on words the speaker actually says. Bold marks
+                                // naturally-stressed content words, same convention as
+                                // Listening's shadow_lines — rendered by <x-stress-marked-line>.
                                 'shadow_lines' => [
-                                    "I don't **feel like** having **cereal** this **morning**.",
+                                    "I don't **feel like** having **cereal**.",
                                     'What **time** are you guys **getting together**?',
-                                    'We always have a quick **snack** in the **afternoon**.',
+                                    'We **all** **need** a **good snack** every **once in a while**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'video_shadowing'),
                             ],
                             [
                                 'key' => 'picture_description',
@@ -1211,6 +1214,7 @@ class MissionSeeder extends Seeder
                                     'The **more** we **exercise** with our **friends**, the **closer** we **feel** to them.',
                                     '**Lacking** **social** **connection** can be as **dangerous** for our **health** as **smoking** **cigarettes**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'video_shadowing'),
                             ],
                             [
                                 'key' => 'picture_description',
@@ -1845,6 +1849,7 @@ class MissionSeeder extends Seeder
                                     '**Aim** for **foods** which are **close** to their **natural** **state**.',
                                     'And **remember**, you **are** what you **eat**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'video_shadowing'),
                             ],
                             [
                                 'key' => 'picture_description',
@@ -2445,6 +2450,7 @@ class MissionSeeder extends Seeder
                                     'You need to **give** yourself **permission** to have a **digital** **Sabbath**.',
                                     'Maybe **forty** hours of **work** a **week** is the **right** **amount**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'video_shadowing'),
                             ],
                             [
                                 'key' => 'picture_description',

@@ -36,5 +36,10 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- GeminiClientTest/GroqClientTest/PexelsClientTest fake specific
+             direct-provider URLs; a relay configured in .env would send
+             requests there instead and silently bypass those fakes. -->
+        <env name="AI_PROXY_URL" value=""/>
+        <env name="AI_PROXY_SECRET" value=""/>
     </php>
 </phpunit>
