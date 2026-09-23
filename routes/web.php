@@ -21,7 +21,8 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         // up their 3 persistent Pi chats first (see App\Services\PiPrompts
         // and /pi-setup). Existing users are grandfathered by the
         // pi_onboarded_at migration's backfill, so this only ever catches
-        // someone truly new.
+        // someone truly new — though anyone can still revisit /pi-setup
+        // later from the account menu to re-copy the setup messages.
         if (! auth()->user()->pi_onboarded_at) {
             return redirect()->route('pi.setup');
         }
