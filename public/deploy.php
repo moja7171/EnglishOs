@@ -168,4 +168,66 @@ foreach (['config:cache', 'route:cache', 'view:cache'] as $command) {
     }
 }
 
+// TEMPORARY — user reports the site feels slow on initial page load since
+// the last deploy. Pexels caching was ruled out from outside (images/build
+// assets already load in 20-160ms over plain curl), but authenticated
+// mission-runner pages can't be reached from outside without a production
+// session, and there's no SSH/Terminal on this host to check opcache or
+// time a real request directly. Placed AFTER config/route/view:cache above
+// so the timings below reflect exactly what a real visitor gets post-deploy,
+// not a cold, uncached state. Remove once diagnosed.
+echo "--- opcache status ---\n";
+if (function_exists('opcache_get_status')) {
+    $opStatus = opcache_get_status(false);
+    echo 'opcache_get_status(): '.($opStatus ? 'enabled' : 'FALSE (opcache extension loaded but disabled/not running)')."\n";
+    if ($opStatus) {
+        echo 'memory used: '.round($opStatus['memory_usage']['used_memory'] / 1024 / 1024, 1).'MB, hit rate: '.round($opStatus['opcache_statistics']['opcache_hit_rate'] ?? 0, 1)."%\n";
+    }
+    echo 'opcache.enable: '.ini_get('opcache.enable')."\n";
+    echo 'opcache.validate_timestamps: '.ini_get('opcache.validate_timestamps')." (if '1', every request stats every cached file on disk — a real cost on slow shared-hosting filesystems)\n";
+} else {
+    echo "opcache extension NOT loaded at all — every request recompiles the whole framework from source, this alone can be the entire slowdown\n";
+}
+echo "\n";
+
+echo "--- compiled cache files on disk ---\n";
+foreach (['bootstrap/cache/config.php', 'bootstrap/cache/routes-v7.php', 'bootstrap/cache/packages.php', 'bootstrap/cache/services.php'] as $cacheFile) {
+    $cachePath = $root.'/'.$cacheFile;
+    echo $cacheFile.': '.(is_file($cachePath) ? 'EXISTS ('.filesize($cachePath).' bytes)' : 'MISSING')."\n";
+}
+$compiledViews = is_dir(storage_path('framework/views')) ? glob(storage_path('framework/views').'/*.php') : [];
+echo 'compiled Blade views cached: '.count($compiledViews)."\n\n";
+
+echo "--- timed authenticated page loads (self-request as admin@englishos.local) ---\n";
+try {
+    $diagStore = app('session.store');
+    $diagStore->start();
+    Illuminate\Support\Facades\Auth::guard('web')->login($admin, false);
+    $diagStore->save();
+    $diagCookieName = config('session.cookie');
+    $diagPrefix = Illuminate\Cookie\CookieValuePrefix::create($diagCookieName, app('encrypter')->getKey());
+    $diagCookieValue = Illuminate\Support\Facades\Crypt::encrypt($diagPrefix.$diagStore->getId(), false);
+    $diagHost = parse_url(config('app.url'), PHP_URL_HOST) ?: 'englishos.growwise.ir';
+
+    foreach (['/missions', '/missions/M02', '/progress'] as $diagPath) {
+        $diagStart = microtime(true);
+        try {
+            $diagResp = Illuminate\Support\Facades\Http::withHeaders(['Cookie' => $diagCookieName.'='.$diagCookieValue])
+                ->withoutVerifying()
+                ->withOptions(['curl' => [CURLOPT_CONNECT_TO => ["{$diagHost}:443:127.0.0.1:443"]]])
+                ->timeout(30)
+                ->get("https://{$diagHost}{$diagPath}");
+            $diagMs = round((microtime(true) - $diagStart) * 1000);
+            echo "{$diagPath} -> HTTP {$diagResp->status()} in {$diagMs}ms (".strlen($diagResp->body())." bytes)\n";
+        } catch (Throwable $e) {
+            $diagMs = round((microtime(true) - $diagStart) * 1000);
+            echo "{$diagPath} -> FAILED after {$diagMs}ms: ".get_class($e).': '.$e->getMessage()."\n";
+        }
+    }
+    Illuminate\Support\Facades\Auth::logout();
+} catch (Throwable $e) {
+    echo 'self-request diagnostic setup FAILED: '.get_class($e).': '.$e->getMessage()."\n";
+}
+echo "\n";
+
 echo "=== done ===\n";
