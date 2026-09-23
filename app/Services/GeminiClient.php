@@ -35,8 +35,12 @@ class GeminiClient
      * model's text reply.
      *
      * @param  array<int, array{role: string, text: string}>  $messages  Chat history, oldest first. role is 'user' or 'model'.
+     * @param  int|null  $maxOutputTokens  A hard cap on reply length, e.g. for a chat persona that
+     *     must stay short (see ⚡ask-instructor's Sage prompt) — prompt wording alone doesn't
+     *     reliably stop the model from drifting long. Omit for callers that need their full,
+     *     uncapped answer (grading feedback, mission recaps, ...).
      */
-    public function chat(array $messages, ?string $systemPrompt = null): string
+    public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null): string
     {
         if ($this->apiKey === '') {
             throw new RuntimeException('GEMINI_API_KEY is not set.');
@@ -51,6 +55,10 @@ class GeminiClient
 
         if ($systemPrompt) {
             $payload['systemInstruction'] = ['parts' => [['text' => $systemPrompt]]];
+        }
+
+        if ($maxOutputTokens !== null) {
+            $payload['generationConfig'] = ['maxOutputTokens' => $maxOutputTokens];
         }
 
         // Gemini's flash tier occasionally returns 503 ("high demand") or
