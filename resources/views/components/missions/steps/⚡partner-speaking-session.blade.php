@@ -359,7 +359,7 @@ new class extends Component
         @if ($mode === 'choice')
             <div class="space-y-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">How do you want to practice this?</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Talk it through with a real friend, or record your own answers alone — either way counts.</p>
+                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Talk it through with a real friend, or record your own answers alone — either way counts.</p>
                 <div class="flex flex-wrap items-center gap-2">
                     <x-practice-session-with-friend :mission="$run->mission" step-key="partner_speaking_session" />
                     <button

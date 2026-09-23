@@ -35,9 +35,9 @@ class AiUsageTrackingTest extends TestCase
             'phases' => [[
                 'phase' => 'foundation',
                 'steps' => [[
-                    'key' => 'vocabulary_builder',
-                    'story' => [['heading' => 'Sleep', 'text' => 'I **wake up** early.']],
-                    'story_words' => [['phrase' => 'wake up', 'meaning' => 'to stop sleeping']],
+                    'key' => 'vocabulary_builder_1',
+                    'story' => 'I **wake up** early.',
+                    'words' => [['phrase' => 'wake up', 'meaning' => 'to stop sleeping']],
                 ]],
             ]],
         ]);
@@ -46,8 +46,7 @@ class AiUsageTrackingTest extends TestCase
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
 
-        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run])
-            ->call('toggleWord', 'wake up')
+        Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
             ->set('examples.0', 'I wake up at seven every day.')
             ->call('checkOne', 0);
 
@@ -92,7 +91,11 @@ class AiUsageTrackingTest extends TestCase
         $this->assertSame(4, $run->fresh()->gemini_calls);
     }
 
-    public function test_activation_records_one_groq_call_and_one_gemini_call_for_the_recording(): void
+    /**
+     * The warm-up round (was the standalone Activation step, now AI
+     * Conversation #1's own first round — Epic E).
+     */
+    public function test_ai_conversation_1_warm_up_records_one_groq_call_and_one_gemini_call_for_the_recording(): void
     {
         Storage::fake('public');
         $learner = User::factory()->create();
@@ -103,7 +106,7 @@ class AiUsageTrackingTest extends TestCase
             'outcome' => 'Outcome.',
             'phases' => [[
                 'phase' => 'build',
-                'steps' => [['key' => 'activation', 'task' => 'Write 5 personal sentences.']],
+                'steps' => [['key' => 'ai_conversation_1', 'warm_up_task' => 'Write 5 personal sentences.']],
             ]],
         ]);
         $this->actingAs($learner);
@@ -117,14 +120,14 @@ class AiUsageTrackingTest extends TestCase
             $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => 'خوب.', 'tip' => 'ادامه بده.']));
         });
 
-        Livewire::test('missions.steps.activation', ['run' => $run])
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->set('sentences.0', 'I usually wake up at 7.')
             ->set('sentences.1', 'I have breakfast at 8.')
             ->set('sentences.2', 'I go to work by bus.')
             ->set('sentences.3', 'I exercise in the evening.')
             ->set('sentences.4', 'I go to bed at 11.')
-            ->set('audioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
-            ->call('save');
+            ->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('finishWarmUp');
 
         $this->assertSame(1, $run->fresh()->groq_calls);
         // 5 sentence checks + 1 reflection = 6 real Gemini calls.

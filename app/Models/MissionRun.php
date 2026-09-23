@@ -137,9 +137,10 @@ class MissionRun extends Model
 
     /**
      * Every substantial piece of English the learner actually produced
-     * across this run — AI Conversation transcripts, Writing, Activation's
-     * spoken transcript, and Active Recall's own-word recall attempts.
-     * Centralizes what was previously a private duplicate in Error Log's
+     * across this run — AI Conversation transcripts, Writing, and the
+     * warm-up round (was the standalone Activation step) folded into
+     * AI Conversation #1's own Evidence. Centralizes what was previously
+     * a private duplicate in Error Log's
      * mistake-extraction; also used by Mission Result's vocabulary-usage
      * recap. Deliberately excludes Vocabulary Builder's own example
      * sentences and Grammar in Context's drills — those are graded
@@ -149,9 +150,15 @@ class MissionRun extends Model
     {
         $pieces = [];
 
-        if ($conv1 = $this->latestEvidence('ai_conversation_1')) {
-            $turns = json_decode($conv1->content_ref, true) ?? [];
-            $pieces[] = collect($turns)->pluck('answer')->implode(' ');
+        // AI Conversation #1 has two Evidence rows for the same phase
+        // (text, then audio) — filter explicitly rather than
+        // latestEvidence(), same reasoning as the activation-merge note
+        // below (its content now lives inside this same phase's TEXT row).
+        if ($conv1 = $this->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($conv1->content_ref, true) ?? [];
+            $pieces[] = collect($data['turns'] ?? [])->pluck('answer')->implode(' ');
+            $pieces[] = collect($data['sentences'] ?? [])->implode(' ');
+            $pieces[] = $data['transcript'] ?? '';
         }
 
         if ($conv2 = $this->latestEvidence('ai_conversation_2')) {
@@ -164,39 +171,30 @@ class MissionRun extends Model
             $pieces[] = $writing->content_ref;
         }
 
-        // Activation has two Evidence rows for the same phase (text, then
-        // audio) — filter explicitly rather than latestEvidence(), whose
-        // "most recent" is ambiguous between them when both save in the
-        // same request.
-        if ($activation = $this->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
-            $data = json_decode($activation->content_ref, true) ?? [];
-            $pieces[] = collect($data['sentences'] ?? [])->implode(' ');
-            $pieces[] = $data['transcript'] ?? '';
-        }
-
-        if ($activeRecall = $this->latestEvidence('active_recall')) {
-            $data = json_decode($activeRecall->content_ref, true) ?? [];
-            $pieces[] = collect($data['expressions'] ?? [])->implode(' ');
-        }
-
         return implode("\n\n", array_filter($pieces));
     }
 
     /**
-     * The exact vocabulary words the learner picked in Vocabulary Builder —
-     * the thread later steps (Writing suggestions, Active Recall, the Final
-     * Challenge's grading) pull from so the words actually studied get
-     * reused and reviewed, not just practiced once and forgotten. Empty
-     * array if Vocabulary Builder hasn't been completed yet. This pattern
-     * is the standard for every future mission, not just M01 — see
-     * EOS-009 §7 step 02.
+     * Every word from all 3 days of Vocabulary Builder (vocabulary_builder_1
+     * through _3 — one step per mission day, see the mission structure
+     * redesign's Epic B) — the thread later steps (Writing suggestions,
+     * Grammar in Context, the Final Challenge's grading) pull from so the
+     * words actually studied get reused and reviewed, not just practiced
+     * once and forgotten. Only days actually completed contribute; empty
+     * array before day 1 is done. This pattern is the standard for every
+     * future mission, not just M01 — see EOS-009 §7 step 02.
      */
     public function selectedVocabularyWords(): array
     {
-        $evidence = $this->latestEvidence('vocabulary_builder');
-        $data = json_decode($evidence?->content_ref ?? '{}', true);
+        return collect(['vocabulary_builder_1', 'vocabulary_builder_2', 'vocabulary_builder_3'])
+            ->flatMap(function (string $phase) {
+                $data = json_decode($this->latestEvidence($phase)?->content_ref ?? '{}', true);
 
-        return $data['selected_words'] ?? [];
+                return $data['selected_words'] ?? [];
+            })
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**
@@ -404,7 +402,7 @@ class MissionRun extends Model
             ['status' => self::STATUS_IN_PROGRESS, 'started_at' => now()]
         );
 
-        // The learner's very first run is day 1 of their 120-day program
+        // The learner's very first run is day 1 of their 100-day program
         // (see App\Services\ProgramPlanner) — stamped once, never moved.
         if ($run->wasRecentlyCreated && $learner->program_started_at === null) {
             $learner->forceFill(['program_started_at' => $run->started_at])->save();

@@ -81,7 +81,11 @@ class VideoShadowingStepTest extends TestCase
         $this->assertStringContainsString('Part', $html);
     }
 
-    public function test_continue_is_blocked_until_both_watch_checkboxes_are_ticked(): void
+    /**
+     * Epic F: the second watch (no captions) is now an optional bonus, not
+     * a gate — only the captioned watch is required to continue.
+     */
+    public function test_continue_is_blocked_until_the_captioned_watch_is_ticked(): void
     {
         $run = $this->makeRun();
 
@@ -101,14 +105,33 @@ class VideoShadowingStepTest extends TestCase
         Livewire::test('missions.steps.video-shadowing', ['run' => $run])
             ->assertSeeHtml('x-on:click="$wire.save()"')
             ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->assertSee('Watch both times to continue')
+            ->assertSee('Watch the video to continue')
             ->set('watchedWithCaptions', true)
-            ->set('watchedWithoutCaptions', true)
             ->assertSeeHtml('x-bind:disabled="! (false)"')
             ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
             ->assertSeeHtml('x-bind:disabled="! (false)"')
             ->set('shadowRecordings.1', UploadedFile::fake()->create('video-shadow-1.webm', 500, 'audio/webm'))
             ->assertSeeHtml('x-bind:disabled="! (true)"');
+    }
+
+    /**
+     * The optional bonus watch never blocks Continue — only the required
+     * captioned watch + shadowed lines do.
+     */
+    public function test_saving_without_the_optional_bonus_watch_still_works(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
+            ->set('watchedWithCaptions', true)
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
+            ->set('shadowRecordings.1', UploadedFile::fake()->create('video-shadow-1.webm', 500, 'audio/webm'))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('completed', true);
+
+        $content = json_decode(Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_TEXT)->first()->content_ref, true);
+        $this->assertFalse($content['watched_without_captions']);
     }
 
     public function test_continue_is_blocked_with_fewer_than_2_shadowed_lines(): void
@@ -164,6 +187,15 @@ class VideoShadowingStepTest extends TestCase
             ->assertSet('completed', true);
 
         $this->assertSame(3, Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->count());
+    }
+
+    public function test_the_stress_tip_appears_once_not_per_line(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
+
+        $this->assertSame(1, substr_count($html, 'Bold words are usually stressed'));
     }
 
     public function test_every_shadow_line_renders_with_its_own_recorder(): void

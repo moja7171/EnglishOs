@@ -36,7 +36,7 @@ class AiConversation2StepTest extends TestCase
                             'final_prompt' => 'Speak for 3 minutes about your daily life.',
                             'requirements' => ['Present Simple', '5+ vocabulary expressions'],
                         ],
-                        ['key' => 'active_recall'],
+                        ['key' => 'error_log'],
                     ],
                 ],
             ],
@@ -54,17 +54,19 @@ class AiConversation2StepTest extends TestCase
 
         $this->mock(GroqClient::class, function ($mock) {
             $mock->shouldReceive('transcribe')
-                ->times(3)
-                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'I usually wake up at seven and I often cook dinner.');
+                ->times(4)
+                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'Do you have a daily routine?', 'I usually wake up at seven and I often cook dinner.');
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
-                ->times(6)
+                ->times(8)
                 ->andReturn(
                     json_encode(['severity' => 'none', 'hint' => '']),
                     'What time do you leave for work?',
                     json_encode(['severity' => 'none', 'hint' => '']),
                     'What do you enjoy most about weekends?',
+                    json_encode(['severity' => 'none', 'hint' => '']), // checkGenuineQuestion
+                    'I usually wake up early too!', // the AI's answer to the learner's question
                     json_encode(['severity' => 'none', 'hint' => '']),
                     json_encode([
                         'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false],
@@ -82,6 +84,12 @@ class AiConversation2StepTest extends TestCase
         $component->set('audioFile', UploadedFile::fake()->create('r2.webm', 100, 'audio/webm'))
             ->call('submitRoundAnswer')
             ->assertSet('roundIndex', 2)
+            ->assertSet('qaRoundsDone', true)
+            ->assertSet('inFinalStage', false);
+
+        $component->set('audioFile', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('submitLearnerQuestion')
+            ->assertSet('roleReversalDone', true)
             ->assertSet('inFinalStage', true);
 
         $component->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
@@ -96,8 +104,10 @@ class AiConversation2StepTest extends TestCase
         $content = json_decode($evidence->content_ref, true);
         $this->assertCount(2, $content['rounds']);
         $this->assertTrue($content['requirements']['Present Simple']);
+        $this->assertSame('Do you have a daily routine?', $content['role_reversal']['question']);
+        $this->assertSame('I usually wake up early too!', $content['role_reversal']['answer']);
 
-        $this->assertSame('active_recall', $run->fresh()->currentStepKey());
+        $this->assertSame('error_log', $run->fresh()->currentStepKey());
     }
 
     public function test_final_challenge_grading_is_grounded_in_the_learners_own_selected_words(): void
@@ -107,7 +117,7 @@ class AiConversation2StepTest extends TestCase
 
         Evidence::create([
             'mission_run_id' => $run->id,
-            'phase' => 'vocabulary_builder',
+            'phase' => 'vocabulary_builder_1',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'selected_words' => ['wake up', 'have a shower', 'do the housework'],
@@ -188,7 +198,7 @@ class AiConversation2StepTest extends TestCase
                             'final_prompt' => 'Speak for 3 minutes about your daily life.',
                             'requirements' => ['Present Simple', '1+ BBC expression'],
                         ],
-                        ['key' => 'active_recall'],
+                        ['key' => 'error_log'],
                     ],
                 ],
             ],
@@ -322,17 +332,19 @@ class AiConversation2StepTest extends TestCase
 
         $this->mock(GroqClient::class, function ($mock) {
             $mock->shouldReceive('transcribe')
-                ->times(3)
-                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'I usually wake up at seven.');
+                ->times(4)
+                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'What do you usually eat?', 'I usually wake up at seven.');
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
-                ->times(6)
+                ->times(8)
                 ->andReturn(
                     json_encode(['severity' => 'none', 'hint' => '']),
                     'What time do you leave for work?',
                     json_encode(['severity' => 'none', 'hint' => '']),
                     'What do you enjoy most about weekends?',
+                    json_encode(['severity' => 'none', 'hint' => '']),
+                    'I usually eat breakfast at eight.',
                     json_encode(['severity' => 'none', 'hint' => '']),
                     json_encode(['requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false], 'note' => 'Good job.'])
                 );
@@ -343,6 +355,9 @@ class AiConversation2StepTest extends TestCase
         foreach (['r1.webm', 'r2.webm'] as $file) {
             $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitRoundAnswer');
         }
+
+        $component->set('audioFile', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('submitLearnerQuestion');
 
         $component
             ->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
@@ -359,15 +374,17 @@ class AiConversation2StepTest extends TestCase
 
         $this->mock(GroqClient::class, function ($mock) {
             $mock->shouldReceive('transcribe')
-                ->times(2)
-                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.');
+                ->times(3)
+                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'What do you do on weekends?');
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(4)->andReturn(
+            $mock->shouldReceive('chat')->times(6)->andReturn(
                 json_encode(['severity' => 'none', 'hint' => '']),
                 'Reaction one.',
                 json_encode(['severity' => 'none', 'hint' => '']),
                 'Reaction two.',
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'I like to relax and read.',
             );
         });
 
@@ -378,6 +395,9 @@ class AiConversation2StepTest extends TestCase
                 ->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))
                 ->call('submitRoundAnswer');
         }
+
+        $component->set('audioFile', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('submitLearnerQuestion');
 
         $component
             ->assertSeeHtml('data-text="Speak for 3 minutes about your daily life."')
@@ -411,15 +431,17 @@ class AiConversation2StepTest extends TestCase
 
         $this->mock(GroqClient::class, function ($mock) {
             $mock->shouldReceive('transcribe')
-                ->times(3)
-                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'Pizza is my favorite food.');
+                ->times(4)
+                ->andReturn('I get up and go to work.', 'Weekends are more relaxed.', 'What do you do at the weekend?', 'Pizza is my favorite food.');
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(5)->andReturn(
+            $mock->shouldReceive('chat')->times(7)->andReturn(
                 json_encode(['severity' => 'none', 'hint' => '']),
                 'What time do you leave for work?',
                 json_encode(['severity' => 'none', 'hint' => '']),
                 'What do you enjoy most about weekends?',
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'I usually relax at home.',
                 json_encode(['severity' => 'major', 'hint' => "That's not about your daily life — want to try again?"]),
             );
         });
@@ -429,6 +451,9 @@ class AiConversation2StepTest extends TestCase
         foreach (['r1.webm', 'r2.webm'] as $file) {
             $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitRoundAnswer');
         }
+
+        $component->set('audioFile', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('submitLearnerQuestion');
 
         $component
             ->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
@@ -450,7 +475,7 @@ class AiConversation2StepTest extends TestCase
         ));
 
         $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
-        $component->set('roundIndex', 2); // skip straight to the final stage
+        $component->set('roundIndex', 2)->set('roleReversalDone', true); // skip straight to the final stage
 
         foreach (['a.webm', 'b.webm', 'c.webm'] as $file) {
             $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitFinalChallenge');
@@ -487,5 +512,171 @@ class AiConversation2StepTest extends TestCase
 
         Livewire::test('missions.steps.ai-conversation2', ['run' => $run, 'readOnly' => true])
             ->assertDontSeeHtml('data-text=');
+    }
+
+    public function test_read_only_mode_reloads_the_role_reversal_exchange(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_2',
+            'type' => Evidence::TYPE_TRANSCRIPT,
+            'content_ref' => json_encode([
+                'rounds' => [
+                    ['prompt' => 'Describe your typical weekday.', 'answer' => 'Work then home.', 'followup' => 'Anything else?'],
+                    ['prompt' => 'Compare weekday and weekend.', 'answer' => 'Weekends are calmer.', 'followup' => 'Nice.'],
+                ],
+                'role_reversal' => ['question' => 'What do you do on weekends?', 'answer' => 'I like to relax.'],
+                'final_transcript' => 'I usually wake up at seven.',
+                'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false],
+                'note' => 'Good job.',
+            ]),
+        ]);
+
+        Livewire::test('missions.steps.ai-conversation2', ['run' => $run, 'readOnly' => true])
+            ->assertSet('roleReversalDone', true)
+            ->assertSee('What do you do on weekends?')
+            ->assertSee('I like to relax.');
+    }
+
+    // -----------------------------------------------------------------
+    // Role-reversal round (Epic E)
+    // -----------------------------------------------------------------
+
+    private function completeQaRounds($component): void
+    {
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->twice()->andReturn('a1', 'a2'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(4)->andReturn(
+            json_encode(['severity' => 'none', 'hint' => '']),
+            'follow-up 1',
+            json_encode(['severity' => 'none', 'hint' => '']),
+            'follow-up 2',
+        ));
+
+        foreach (['r1.webm', 'r2.webm'] as $file) {
+            $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitRoundAnswer');
+        }
+    }
+
+    public function test_the_role_reversal_round_shows_the_topic_and_recorder(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $this->completeQaRounds($component);
+
+        $component
+            ->assertSet('qaRoundsDone', true)
+            ->assertSee('Your turn to ask')
+            ->assertSee('daily life')
+            ->assertSeeHtml("this.\$wire.upload('audioFile'")
+            ->assertSeeHtml("this.\$wire.call('submitLearnerQuestion')");
+    }
+
+    public function test_a_genuine_question_is_answered_and_advances_to_the_final_challenge(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $this->completeQaRounds($component);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('Do you sleep a lot?'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
+            $mock->shouldReceive('chat')->once()->andReturn('I don\'t sleep, I\'m an AI!')->ordered();
+        });
+
+        $component->set('audioFile', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('submitLearnerQuestion')
+            ->assertSet('roleReversalDone', true)
+            ->assertSet('learnerQuestion', 'Do you sleep a lot?')
+            ->assertSet('aiAnswerToLearner', "I don't sleep, I'm an AI!")
+            ->assertSet('inFinalStage', true)
+            ->assertSee('Do you sleep a lot?')
+            ->assertSee("I don't sleep, I'm an AI!");
+    }
+
+    public function test_a_non_question_in_the_role_reversal_round_is_not_advanced(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $this->completeQaRounds($component);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('Pizza is great.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'severity' => 'major',
+            'hint' => "That's not really a question — want to try asking me something?",
+        ])));
+
+        $component->set('audioFile', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('submitLearnerQuestion')
+            ->assertSet('roleReversalDone', false)
+            ->assertSee("That's not really a question — want to try asking me something?");
+    }
+
+    public function test_after_3_failed_role_reversal_attempts_an_example_question_can_be_revealed(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        $this->completeQaRounds($component);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->times(3)->andReturn('a', 'b', 'c'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(3)->andReturn(
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+            json_encode(['severity' => 'major', 'hint' => 'Try again.']),
+        ));
+
+        foreach (['a.webm', 'b.webm', 'c.webm'] as $file) {
+            $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitLearnerQuestion');
+        }
+
+        $component->assertSet('offerReveal.role_reversal', true);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('What do you usually do on weekends?'));
+
+        $component->call('revealExample', 'role_reversal')
+            ->assertSet('exampleAnswer.role_reversal', 'What do you usually do on weekends?')
+            ->assertSet('checkAttempts.role_reversal', 0)
+            ->assertSee('What do you usually do on weekends?');
+    }
+
+    /**
+     * Epic E: a `round_pool` bigger than ROUNDS_PER_ATTEMPT is shuffled
+     * per-run, not per-render — re-fetching the same run's rounds twice
+     * must return the exact same subset in the exact same order, or an
+     * in-progress attempt's already-answered rounds would desync from
+     * the next prompt shown.
+     */
+    public function test_a_large_round_pool_is_selected_deterministically_per_run(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [['phase' => 'mission', 'steps' => [[
+                'key' => 'ai_conversation_2',
+                'round_pool' => ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'],
+                'final_prompt' => 'Final.',
+                'requirements' => ['Present Simple'],
+            ]]]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $first = Livewire::test('missions.steps.ai-conversation2', ['run' => $run])->instance()->rounds;
+        $second = Livewire::test('missions.steps.ai-conversation2', ['run' => $run])->instance()->rounds;
+
+        $this->assertSame($first, $second);
+        $this->assertCount(3, $first);
+        // Every picked prompt must genuinely come from the seeded pool.
+        foreach ($first as $prompt) {
+            $this->assertContains($prompt, ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
+        }
     }
 }

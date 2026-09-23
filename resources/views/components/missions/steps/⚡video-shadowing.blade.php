@@ -56,6 +56,9 @@ new class extends Component
 
         $data = json_decode($this->run->latestEvidence('video_shadowing')?->content_ref ?? '{}', true);
         $this->watchedWithCaptions = $data['watched_with_captions'] ?? false;
+        // 'watched_without_captions' is read here for old Evidence rows only
+        // — it's no longer required (Epic F: one watch, with captions, is
+        // the only gate; the no-captions rewatch is optional/bonus now).
         $this->watchedWithoutCaptions = $data['watched_without_captions'] ?? false;
 
         foreach ($this->run->evidence()->where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
@@ -92,8 +95,8 @@ new class extends Component
 
     public function save(): void
     {
-        if (! $this->watchedWithCaptions || ! $this->watchedWithoutCaptions) {
-            $this->addError('watched', 'Watch the video with captions on, then again with captions off, before continuing.');
+        if (! $this->watchedWithCaptions) {
+            $this->addError('watched', 'Watch the video with captions on before continuing.');
 
             return;
         }
@@ -168,9 +171,19 @@ new class extends Component
     // voice-recorder per line) second, so the recorders never bury the
     // watch checkboxes and quick check below the fold.
     $totalSubsteps = 2;
+    $draftPrefix = $this->draftPrefix();
 @endphp
 
-<div class="space-y-6" x-data="{ activeSubstep: 0 }">
+<div
+    class="space-y-6"
+    x-data="{
+        activeSubstep: 0,
+        init() {
+            this.activeSubstep = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSubstep', 0);
+            this.$watch('activeSubstep', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSubstep', v));
+        },
+    }"
+>
     <x-hook :text="$video['hook'] ?? null" />
 
     <div>
@@ -182,7 +195,7 @@ new class extends Component
                 :title="$video['source'] ?? 'Video'"
             />
         </div>
-        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>
+        <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>
     </div>
 
     @if ($completed)
@@ -218,18 +231,12 @@ new class extends Component
         </div>
 
         <div wire:loading.class="pointer-events-none" wire:target="save">
-            {{-- Sub-step: quick check, watch checkboxes, expressions to notice --}}
+            {{-- Sub-step: watch checkbox, quick check, expressions to notice —
+                 in that order (Epic F): confirm the prerequisite watch
+                 first, then a light check on it, then extra vocabulary. --}}
             <div x-show="activeSubstep === 0" x-cloak class="space-y-6">
                 @unless ($readOnly)
                     <div>
-                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">True or false — just a warm-up, skip anytime.</p>
-                        <div class="mt-2">
-                            <x-quick-round :cards="$this->comprehensionCards()" />
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-4">
                         <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
                             <input
                                 type="checkbox"
@@ -238,18 +245,29 @@ new class extends Component
                             >
                             I watched with captions on
                         </label>
+                        @error('watched')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">True or false — just a warm-up, skip anytime.</p>
+                        <div class="mt-2">
+                            <x-quick-round :cards="$this->comprehensionCards()" />
+                        </div>
+                    </div>
+
+                    <div>
                         <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
                             <input
                                 type="checkbox"
                                 wire:model.live="watchedWithoutCaptions"
                                 class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                             >
-                            I watched again with captions off
+                            Bonus — I watched again with captions off
                         </label>
                     </div>
-                    @error('watched')
-                        <p class="text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 @endunless
 
                 @if (count($targetPhrases))
@@ -276,7 +294,8 @@ new class extends Component
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
                                 Replay just that moment and repeat it out loud until your rhythm matches.
                                 Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
-                                ({{ $this->shadowedCount() }} done so far).
+                                ({{ $this->shadowedCount() }} done so far). Bold words are usually stressed — try
+                                to make them a little longer and louder than the rest.
                             </p>
                         @endunless
 
@@ -285,7 +304,6 @@ new class extends Component
                                 <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
                                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
                                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
-                                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
 
                                     @if ($readOnly)
                                         @if ($url = $savedShadowUrls[$index] ?? null)
@@ -307,14 +325,13 @@ new class extends Component
                     </div>
                 @endif
 
-                {{-- Always on screen, disabled until done. Both checkboxes
-                     use wire:model.live (instant server knowledge) and
+                {{-- Always on screen, disabled until done. The checkbox
+                     uses wire:model.live (instant server knowledge) and
                      shadowedCount() only advances once an upload genuinely
                      completes, so readiness is known server-side and goes
                      into ready-when as a literal. --}}
                 @unless ($readOnly)
                     @php
-                        $watchedBoth = $watchedWithCaptions && $watchedWithoutCaptions;
                         $shadowedEnough = $this->shadowedCount() >= $this->requiredShadowedLines();
                     @endphp
                     <div class="mt-4">
@@ -322,8 +339,8 @@ new class extends Component
                             on-click="$wire.save()"
                             wire-target="save"
                             loading-label="Saving…"
-                            ready-when="{{ $watchedBoth && $shadowedEnough ? 'true' : 'false' }}"
-                            hint="{{ ! $watchedBoth ? 'Watch both times to continue' : 'Record '.$this->requiredShadowedLines().' shadowed '.Str::plural('line', $this->requiredShadowedLines()).' to continue' }}"
+                            ready-when="{{ $watchedWithCaptions && $shadowedEnough ? 'true' : 'false' }}"
+                            hint="{{ ! $watchedWithCaptions ? 'Watch the video to continue' : 'Record '.$this->requiredShadowedLines().' shadowed '.Str::plural('line', $this->requiredShadowedLines()).' to continue' }}"
                         />
                     </div>
                 @endunless

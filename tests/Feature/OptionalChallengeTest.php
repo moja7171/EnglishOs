@@ -34,8 +34,7 @@ class OptionalChallengeTest extends TestCase
             'module' => 'Me',
             'outcome' => 'Outcome.',
             'phases' => [['phase' => 'build', 'steps' => [
-                ['key' => 'activation', 'task' => 'Write 5 personal sentences, then record 2 minutes.'],
-                ['key' => 'ai_conversation_1'],
+                ['key' => 'ai_conversation_1', 'warm_up_task' => 'Write 5 personal sentences, then record 2 minutes.', 'interview_questions' => ['Q1']],
             ]]],
         ]);
 
@@ -44,7 +43,7 @@ class OptionalChallengeTest extends TestCase
 
         Evidence::create([
             'mission_run_id' => $run->id,
-            'phase' => 'vocabulary_builder',
+            'phase' => 'vocabulary_builder_1',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode(['selected_words' => ['commute', 'exhausted']]),
         ]);
@@ -84,10 +83,10 @@ class OptionalChallengeTest extends TestCase
 
     public function test_activation_offers_the_challenge_only_in_the_last_third(): void
     {
-        Livewire::test('missions.steps.activation', ['run' => $this->makeActivationRun('M08')])
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $this->makeActivationRun('M08')])
             ->assertDontSee('without the word chips');
 
-        Livewire::test('missions.steps.activation', ['run' => $this->makeActivationRun('M17')])
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $this->makeActivationRun('M17')])
             ->assertSee('without the word chips');
     }
 
@@ -105,17 +104,22 @@ class OptionalChallengeTest extends TestCase
         Storage::fake('public');
         $run = $this->makeActivationRun('M20');
 
-        Livewire::test('missions.steps.activation', ['run' => $run])
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribeWithConfidence')->once()->andThrow(new \RuntimeException('irrelevant to this test')));
+
+        // The optional "no word chips" challenge only ever removes a
+        // scaffold, never the requirement itself — the warm-up round
+        // still finishes normally (moving into the interview) with it on.
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->set('sentences.0', 'I usually wake up at 7.')
             ->set('sentences.1', 'I have breakfast at 8.')
             ->set('sentences.2', 'I go to work by bus.')
             ->set('sentences.3', 'I exercise in the evening.')
             ->set('sentences.4', 'I go to bed at 11.')
-            ->set('audioFile', UploadedFile::fake()->create('rec.webm', 100, 'audio/webm'))
-            ->call('save')
-            ->assertHasNoErrors();
-
-        $this->assertDatabaseCount('evidences', 3);
+            ->set('warmUpAudioFile', UploadedFile::fake()->create('rec.webm', 100, 'audio/webm'))
+            ->call('finishWarmUp')
+            ->assertHasNoErrors()
+            ->assertSet('warmUpDone', true);
     }
 
     public function test_final_challenge_round_still_submits_normally_in_the_last_third(): void
@@ -137,7 +141,7 @@ class OptionalChallengeTest extends TestCase
     public function test_neither_challenge_appears_before_the_last_third(): void
     {
         foreach (['M01', 'M09', 'M16'] as $code) {
-            Livewire::test('missions.steps.activation', ['run' => $this->makeActivationRun($code)])
+            Livewire::test('missions.steps.ai-conversation1', ['run' => $this->makeActivationRun($code)])
                 ->assertDontSee('without the word chips');
         }
     }

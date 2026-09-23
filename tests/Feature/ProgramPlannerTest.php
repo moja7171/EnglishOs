@@ -47,7 +47,7 @@ class ProgramPlannerTest extends TestCase
         $plan = app(ProgramPlanner::class)->plan(User::factory()->create());
 
         $this->assertSame(1, $plan['programDay']);
-        $this->assertSame(120, $plan['totalDays']);
+        $this->assertSame(96, $plan['totalDays']);
         $this->assertFalse($plan['started']);
         $this->assertSame('start_next', $plan['today']['kind']);
         $this->assertSame('M01', $plan['today']['nextMissionCode']);
@@ -87,23 +87,21 @@ class ProgramPlannerTest extends TestCase
         $this->assertSame(2, app(ProgramPlanner::class)->plan($learner)['programDay']);
     }
 
-    public function test_a_finished_mission_puts_the_learner_on_its_consolidation_day(): void
+    public function test_a_finished_non_checkpoint_mission_moves_straight_to_starting_the_next_one(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
         $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+        $this->makeMission('M02', 'People');
 
         $plan = app(ProgramPlanner::class)->plan($learner);
 
-        $this->assertSame('consolidation', $plan['today']['kind']);
+        $this->assertSame('start_next', $plan['today']['kind']);
         $this->assertSame(5, $plan['programDay']);
         $this->assertSame('M02', $plan['today']['nextMissionCode']);
-        $this->assertStringContainsString('My Daily Life', $plan['today']['speaking']['prompt']);
-        $this->assertStringContainsString('What do you do?', $plan['today']['speaking']['prompt']);
-        $this->assertStringContainsString('Present Simple', $plan['today']['speaking']['prompt']);
     }
 
-    public function test_a_checkpoint_is_offered_on_a_checkpoint_missions_consolidation_day(): void
+    public function test_a_checkpoint_is_offered_right_after_a_checkpoint_mission_finishes(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission('M06', 'Checkpoint Mission'));
@@ -111,11 +109,11 @@ class ProgramPlannerTest extends TestCase
 
         $plan = app(ProgramPlanner::class)->plan($learner);
 
-        $this->assertSame('consolidation', $plan['today']['kind']);
+        $this->assertSame('checkpoint', $plan['today']['kind']);
         $this->assertTrue($plan['today']['checkpointAvailable']);
     }
 
-    public function test_a_checkpoint_is_not_offered_on_a_non_checkpoint_missions_consolidation_day(): void
+    public function test_a_checkpoint_is_not_offered_after_a_non_checkpoint_mission(): void
     {
         $learner = User::factory()->create();
         // M01 is not in ProgramPlanner::CHECKPOINT_MISSIONS.
@@ -125,6 +123,7 @@ class ProgramPlannerTest extends TestCase
         $plan = app(ProgramPlanner::class)->plan($learner);
 
         $this->assertFalse($plan['today']['checkpointAvailable']);
+        $this->assertSame('start_next', $plan['today']['kind']);
     }
 
     public function test_a_checkpoint_already_taken_is_not_offered_again(): void
@@ -145,38 +144,37 @@ class ProgramPlannerTest extends TestCase
         $plan = app(ProgramPlanner::class)->plan($learner);
 
         $this->assertFalse($plan['today']['checkpointAvailable']);
+        $this->assertSame('start_next', $plan['today']['kind']);
     }
 
-    public function test_a_checkpoint_never_gates_the_consolidation_day_from_closing(): void
+    public function test_a_checkpoint_never_blocks_starting_the_next_mission(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission('M18', 'Checkpoint Mission'));
         $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
-        $this->makeMission('M02', 'Next Mission');
+        $next = $this->makeMission('M02', 'Next Mission');
 
-        // Logging the Pi sentence closes the day whether or not the
-        // checkpoint was ever taken — nothing about the checkpoint may
-        // block this.
-        app(ProgramPlanner::class)->logConsolidationSpeaking($run, 'I usually get up at seven.');
+        // Starting the next mission directly — skipping the checkpoint
+        // offer entirely — must work with no gate in the way.
+        MissionRun::findOrStart($learner, $next);
 
-        $this->assertSame('start_next', app(ProgramPlanner::class)->plan($learner)['today']['kind']);
+        $this->assertSame('mission_day', app(ProgramPlanner::class)->plan($learner)['today']['kind']);
     }
 
-    public function test_logging_the_pi_sentence_closes_the_consolidation_day(): void
+    public function test_starting_the_next_mission_advances_the_program_day_and_mission_number(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
         $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
-        $this->makeMission('M02', 'People');
+        $next = $this->makeMission('M02', 'People');
 
-        app(ProgramPlanner::class)->logConsolidationSpeaking($run, 'I usually get up at seven.');
+        MissionRun::findOrStart($learner, $next);
 
         $plan = app(ProgramPlanner::class)->plan($learner);
-        $this->assertSame('start_next', $plan['today']['kind']);
-        $this->assertSame('M02', $plan['today']['nextMission']->code);
-        $this->assertSame(6, $plan['programDay']);
+        $this->assertSame('mission_day', $plan['today']['kind']);
+        $this->assertSame('M02', $plan['today']['mission']->code);
+        $this->assertSame(5, $plan['programDay']);
         $this->assertSame(2, $plan['missionNumber']);
-        $this->assertTrue($learner->activeDates()->first()->isToday());
     }
 
     public function test_days_behind_compares_progress_to_the_calendar(): void
@@ -202,35 +200,39 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Day 1 of 120')
+            ->assertSee('Day 1 of 96')
             ->assertSee('Today · Day 1 of My Daily Life')
             ->assertSee('Vocabulary Builder');
     }
 
-    public function test_the_missions_page_consolidation_day_logs_the_pi_sentence(): void
+    public function test_the_missions_page_offers_a_checkpoint_after_a_checkpoint_mission(): void
     {
         $learner = User::factory()->create();
-        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $run = MissionRun::findOrStart($learner, $this->makeMission('M06', 'Checkpoint Mission'));
         $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Speak with Pi')
-            ->set('piSentence', 'short')
-            ->call('logConsolidationSpeaking')
-            ->assertHasErrors(['piSentence'])
-            ->set('piSentence', 'I have to finish a report every Friday.')
-            ->call('logConsolidationSpeaking')
-            ->assertHasNoErrors()
-            ->assertSee('Start a new mission');
+            ->assertSee('Want to hear how far')
+            ->assertSee('Your voice, M06 in');
+    }
 
-        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => ProgramPlanner::CONSOLIDATION_PHASE]);
+    public function test_the_missions_page_offers_to_start_next_after_a_non_checkpoint_mission(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+        $this->makeMission('M02', 'People');
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Start a new mission');
     }
 
     public function test_the_program_guide_page_renders(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('program.guide'))->assertOk()->assertSee('The 120-day program')->assertSee('Day 5');
+        $this->get(route('program.guide'))->assertOk()->assertSee('The 100-day program')->assertSee('Day 4');
     }
 }

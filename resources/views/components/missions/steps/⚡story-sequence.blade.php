@@ -219,7 +219,7 @@ new class extends Component
     @unless ($completed)
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Tell the story, in order</p>
-            <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">What happens first? Then what? Use Present Simple, like you just practiced.</p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">What happens first? Then what? Use Present Simple, like you just practiced.</p>
         </div>
 
         <x-sequential-picture-story :images="$sequenceImages" />

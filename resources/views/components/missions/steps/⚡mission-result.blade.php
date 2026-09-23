@@ -4,6 +4,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
 use App\Models\ErrorPatternReview;
 use App\Models\Evidence;
+use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\Reflection;
 use App\Models\SelfAssessment;
@@ -117,10 +118,12 @@ new class extends Component
         $this->briefScore = $briefScoreEvidence ? (int) $briefScoreEvidence->content_ref : null;
 
         $this->warmUpRecordingUrl = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
-        $this->activationRecordingUrl = $this->run->evidence()->where('phase', 'activation')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
+        // Activation's recording now lives under 'ai_conversation_1' — it's
+        // that step's own warm-up round, not a separate step (Epic E).
+        $this->activationRecordingUrl = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
 
         $flashback = Evidence::query()
-            ->whereIn('phase', ['mission_brief', 'activation'])
+            ->whereIn('phase', ['mission_brief', 'ai_conversation_1'])
             ->where('type', Evidence::TYPE_AUDIO)
             ->whereHas('missionRun', fn ($query) => $query
                 ->where('learner_id', $this->run->learner_id)
@@ -311,21 +314,6 @@ new class extends Component
         $this->trackedSpeakingPrompts = true;
     }
 
-    /**
-     * Steps with zero learner input (pure AI-generated summaries, like AI
-     * Feedback) are never offered as "the step most worth revisiting" —
-     * there is nothing for the learner to actually redo there. A real run
-     * (2026-09-03) had the AI pick 'ai_feedback_1' and render a "Redo AI
-     * Feedback #1" button that led nowhere useful. Matches the
-     * str_starts_with('ai_feedback') convention already used by the
-     * runner's stepIcon() for the same family of steps — covers any
-     * future mission's ai_feedback_2 etc. too, not just this one key.
-     */
-    private function isRedoable(string $stepKey): bool
-    {
-        return ! str_starts_with($stepKey, 'ai_feedback');
-    }
-
     public function getResult(): void
     {
         $this->error = null;
@@ -345,7 +333,7 @@ new class extends Component
             // candidates in the first place — cheaper and cleaner than
             // just rejecting a bad pick after the fact (still done below
             // too, in case the AI ignores this list).
-            $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), $this->isRedoable(...)));
+            $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), Mission::isStepRedoable(...)));
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $this->buildSummary()]],
@@ -371,7 +359,7 @@ new class extends Component
             // Never trust the AI's step key blindly — only a real,
             // existing, redoable step in this mission is ever offered as a link.
             $weakStep = $data['weak_step'] ?? null;
-            $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && $this->isRedoable($weakStep))
+            $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && Mission::isStepRedoable($weakStep))
                 ? $weakStep : null;
             $this->milestoneJustReached = $this->run->learner->streakMilestoneJustReached();
 
@@ -401,8 +389,16 @@ new class extends Component
     {
         $parts = [];
 
-        if ($feedback = $this->run->evidence()->where('phase', 'ai_feedback_1')->latest()->first()) {
-            $parts[] = 'AI feedback from the first conversation: '.$feedback->content_ref;
+        // AI Feedback #1 is now generated automatically as part of AI
+        // Conversation #1's own completion recap, not a separate step —
+        // its data lives under the 'feedback' key of that phase's TEXT
+        // evidence (see ⚡ai-conversation1.blade.php's finishInterview()).
+        if ($conv1 = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($conv1->content_ref, true) ?? [];
+
+            if ($feedback = $data['feedback'] ?? null) {
+                $parts[] = 'AI feedback from the first conversation: '.json_encode($feedback);
+            }
         }
 
         if ($conv2 = $this->run->evidence()->where('phase', 'ai_conversation_2')->latest()->first()) {
@@ -472,7 +468,16 @@ new class extends Component
 
 @php $draftPrefix = $this->draftPrefix(); @endphp
 
-<div class="space-y-6" x-data="{ activeSection: 0 }">
+<div
+    class="space-y-6"
+    x-data="{
+        activeSection: 0,
+        init() {
+            this.activeSection = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSection', 0);
+            this.$watch('activeSection', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSection', v));
+        },
+    }"
+>
     <x-hook :text="$run->mission->stepContent('mission_result')['hook'] ?? null" />
 
     <div>

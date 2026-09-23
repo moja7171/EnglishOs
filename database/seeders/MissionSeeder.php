@@ -62,139 +62,28 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                // Was 15, then 16 for the "pick which words join My Words" recap
-                                // step, then 17 for 4 more story words woven in to overlap with the
-                                // real Listening episode's own vocabulary; now 18 for the new
-                                // meaning-check Quick Round warm-up between the story and practice.
-                                'duration_minutes' => 18,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 9,
                                 'hook' => 'Next time someone asks about your morning, will these words be ready — or will you go quiet?',
-                                // Word selection follows every sub-topic of English Vocabulary in Use
-                                // Unit 16, "Daily routines" (Sleep / Food / Bathroom routines / Housework
-                                // / Spare time — the book's own 5 sections). The story and every meaning
-                                // below are written fresh for this app, not copied from it (see EOS-009
-                                // §14: content stays original, licensing/piracy risk).
-                                // "sleep in", "oversleep", "morning person", and "skip breakfast" are
-                                // deliberately woven in here too, not just their own vocabulary — the
-                                // real BBC Listening audio right after this step uses these same 4
-                                // words/phrases (plus "get up", already above), so every learner reads
-                                // them here first regardless of which words they personally select,
-                                // then hears them again in context. Previously the two steps' word
-                                // pools barely overlapped.
-                                'story' => [
-                                    [
-                                        'heading' => 'Sleep',
-                                        'text' => 'I\'m not really a **morning person**, so during the '
-                                            .'week I **wake up** at half past six and **get up** straight '
-                                            .'away, before I can **oversleep**. I usually **go to bed** '
-                                            .'around eleven and **go to sleep** quickly, but sometimes I '
-                                            .'**have a late night** if I\'m out with friends. At weekends, '
-                                            .'though, I love to **sleep in** and **have a sleep** in the '
-                                            .'afternoon too.',
-                                    ],
-                                    [
-                                        'heading' => 'Food',
-                                        'text' => 'I never **skip breakfast** — for breakfast I usually have **cereal**, then at work I '
-                                            .'**have a light lunch** — just a sandwich and a **snack** in '
-                                            .'the afternoon. If I\'m tired, I sometimes **don\'t bother** '
-                                            .'cooking and order a **takeaway** instead. Before I leave, I '
-                                            .'always **feed** the cat.',
-                                    ],
-                                    [
-                                        'heading' => 'Bathroom routines',
-                                        'text' => 'In the morning I **have a shower**, but on busy days I '
-                                            .'just **have a wash** instead. I always **clean my teeth** '
-                                            .'before breakfast, and in the evening my sister **puts on** '
-                                            .'her make-up before going out. On lazy Sundays, I sometimes '
-                                            .'**have a bath** instead of a shower.',
-                                    ],
-                                    [
-                                        'heading' => 'Housework',
-                                        'text' => '**Fortunately**, we have a **cleaner** who helps with '
-                                            .'most of the **housework**. I still do some of the '
-                                            .'**ironing** myself, and every Saturday we **do the '
-                                            .'shopping** together. Nobody enjoys **doing the washing**, '
-                                            .'but somebody has to do it!',
-                                    ],
-                                    [
-                                        'heading' => 'Spare time',
-                                        'text' => 'Most weekdays I **stay in** and relax, but at the '
-                                            .'weekend I like to **go out** with friends. We often '
-                                            .'**eat out** at a new restaurant, and sometimes people '
-                                            .'**come round** to my place instead. My best friend calls me '
-                                            .'**once a week** just to **chat**.',
-                                    ],
-                                ],
-                                // difficulty (Story 4, requirements review, 2026-09-04) drives
-                                // <x-quick-round>'s adaptive mode in meaningCheckCards() — a
-                                // genuine judgment call per phrase, not alphabetical: short,
-                                // transparent, high-frequency words/phrases are "easy"; idiomatic
-                                // collocations or words easily confused with a close relative
-                                // (e.g. "have a wash" vs "have a shower") are "hard".
-                                'story_words' => [
-                                    // Sleep
-                                    ['phrase' => 'wake up', 'meaning' => 'to stop sleeping and become conscious', 'difficulty' => 'easy'],
-                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up', 'difficulty' => 'easy'],
-                                    ['phrase' => 'go to bed', 'meaning' => 'to get into bed to sleep', 'difficulty' => 'easy'],
-                                    ['phrase' => 'go to sleep', 'meaning' => 'to start sleeping', 'difficulty' => 'easy'],
-                                    ['phrase' => 'have a late night', 'meaning' => 'to go to bed much later than usual', 'difficulty' => 'medium'],
-                                    ['phrase' => 'have a sleep', 'meaning' => 'to rest for a short period during the day', 'difficulty' => 'medium'],
-                                    // Same 4 words/phrases the real Listening episode uses (see the
-                                    // "story" comment above) — same meanings as Listening's own
-                                    // target_phrases, so the definition never contradicts itself
-                                    // between the two steps.
-                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'difficulty' => 'medium'],
-                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'difficulty' => 'medium'],
-                                    // accepted_paraphrases: a hand-picked, safe alternate wording
-                                    // Active Recall's local (non-AI) check also accepts for this
-                                    // exact phrase — never inferred generically (a phrasal verb's
-                                    // particle is load-bearing, so it can't be stripped the way an
-                                    // article can), just an author's judgment call per word. See
-                                    // ⚡active-recall.blade.php's matches().
-                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'difficulty' => 'hard', 'accepted_paraphrases' => ['sleep late']],
-                                    // Food
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'difficulty' => 'easy'],
-                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
-                                    ['phrase' => 'have a light lunch', 'meaning' => 'to eat a small meal at midday', 'difficulty' => 'medium'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => "don't bother", 'meaning' => "to not do something because it's too much effort", 'difficulty' => 'hard'],
-                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
-                                    ['phrase' => 'feed', 'meaning' => 'to give food to a person or animal', 'image_query' => 'feeding cat pet', 'difficulty' => 'easy'],
-                                    // Bathroom routines — image_query marks the concrete-noun words
-                                    // worth a picture flashcard (dual coding — see EOS-009 §8); an
-                                    // abstract phrase like "have a wash" gets no query and simply
-                                    // shows no image, on purpose.
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy', 'accepted_paraphrases' => ['shower']],
-                                    ['phrase' => 'have a wash', 'meaning' => 'to quickly clean part of your body', 'difficulty' => 'hard', 'accepted_paraphrases' => ['wash']],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy', 'accepted_paraphrases' => ['brush my teeth', 'brush teeth']],
-                                    ['phrase' => 'puts on', 'meaning' => 'applies something, like make-up, to the face', 'difficulty' => 'medium'],
-                                    ['phrase' => 'have a bath', 'meaning' => 'to sit and wash in a bath full of water', 'image_query' => 'bathtub bath', 'difficulty' => 'easy', 'accepted_paraphrases' => ['bath']],
-                                    // Housework
-                                    ['phrase' => 'Fortunately', 'meaning' => 'luckily; because of good luck', 'difficulty' => 'medium'],
-                                    ['phrase' => 'cleaner', 'meaning' => 'a person who is paid to clean a home', 'image_query' => 'person cleaning house', 'difficulty' => 'easy'],
-                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
-                                    // "ironing clothes" returned a still-life (board + hanging
-                                    // clothes, iron barely visible) — a person actually ironing
-                                    // reads unambiguously as the verb on a flashcard.
-                                    ['phrase' => 'ironing', 'meaning' => 'using an iron to make clothes smooth', 'image_query' => 'woman ironing shirt', 'difficulty' => 'easy'],
-                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
-                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'image_query' => 'loading clothes into washing machine', 'difficulty' => 'medium'],
-                                    // Spare time
-                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'difficulty' => 'easy'],
-                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'difficulty' => 'easy'],
-                                    // allow_embedded_match: opt-in ONLY, per word — Active Recall's
-                                    // local check may credit this phrase when it appears verbatim
-                                    // inside a longer natural sentence ("he might come round later").
-                                    // Verified safe specifically for these two: neither is a common
-                                    // prefix of a different fixed idiom (unlike e.g. "stay in", which
-                                    // would wrongly match "stay in touch" if this were a blanket
-                                    // default — see ⚡active-recall.blade.php's matches()). Every
-                                    // other word deliberately has no such flag.
-                                    ['phrase' => 'come round', 'meaning' => 'to visit someone at their home', 'difficulty' => 'hard', 'allow_embedded_match' => true],
-                                    ['phrase' => 'once a week', 'meaning' => 'happening one time every week', 'difficulty' => 'easy', 'allow_embedded_match' => true],
-                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'difficulty' => 'easy'],
+                                // Mission structure redesign, Epic B: Vocabulary Builder now
+                                // spreads 5-6 curated words across each mission's 3 days instead
+                                // of one 8+-word free-for-all. Day 1 is fixed to exactly the real
+                                // Listening episode's own 5 target_phrases (never more than 5) so
+                                // every learner meets them here first, then hears them again in
+                                // context — see ⚡vocabulary-builder.blade.php and the redesign
+                                // notes. Story/meanings are written fresh for this app (EOS-009
+                                // §14: content stays original).
+                                'story' => "I'm not really a **morning person** — most days I **get up** at half "
+                                    .'past six. At the weekend, though, I love to **sleep in**. Some mornings I '
+                                    .'**oversleep** by accident and I\'m late! I never **skip breakfast**, even '
+                                    .'when I\'m in a hurry.',
+                                'words' => [
+                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'pos' => 'noun phrase', 'synonym' => 'opposite: a night owl', 'example' => 'My sister is a real morning person.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up', 'pos' => 'phrasal verb', 'synonym' => 'rise', 'example' => 'He gets up at six every morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'pos' => 'phrasal verb', 'example' => 'We always sleep in on Sundays.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'pos' => 'verb', 'example' => 'I overslept and missed the bus.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'pos' => 'verb phrase', 'example' => "Don't skip breakfast before an exam.", 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -327,17 +216,23 @@ class MissionSeeder extends Seeder
                                 // out loud with the audio) once the transcript is unlocked.
                                 'detail_question' => [
                                     'question' => 'What time did Neil need to get up to catch his flight, the last time he skipped breakfast?',
-                                    'options' => ['3am', '7am', '9am'],
-                                    'correct' => 0,
+                                    'options' => ['7am', '3am', '9am'],
+                                    'correct' => 1,
                                 ],
                                 // Bold marks the naturally-stressed content words (nouns, main verbs,
                                 // adjectives, question words) — function words (articles,
                                 // prepositions, auxiliary "do"/"does") stay unstressed, standard
                                 // English sentence-rhythm teaching. Rendered by <x-stress-marked-line>.
+                                // Mission structure redesign, Epic C: expanded from 3 to 5 lines
+                                // (only 2 are actually required — see ⚡listening.blade.php's
+                                // REQUIRED_SHADOWED_LINES) so a line that keeps mistranscribing
+                                // never blocks a learner; they can just shadow a different one.
                                 'shadow_lines' => [
                                     'So, **Neil**, do you **like** to **get up** **early** or do you **prefer** to **sleep in**?',
                                     "Yes, I **think** it **does**. I'm a **morning person**. That **means** someone that has **a lot of energy** at the **start** of the **day**.",
                                     "**Sometimes** I **skip breakfast**, because when I **wake up**, I'm **not hungry**.",
+                                    "**Well**, I **like** the **mornings** **sometimes** because I **feel** like it's **quieter**.",
+                                    "I **like** to **know** what the **weather's** going to be **like**.",
                                 ],
                             ],
                         ],
@@ -347,6 +242,28 @@ class MissionSeeder extends Seeder
                         'label' => 'Build',
                         'mode' => 'solo',
                         'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 10,
+                                'hook' => 'A few more everyday words — the kind you actually reach for at home.',
+                                // Starts with a spiral-review warm-up of Day 1's words (built into
+                                // the component itself from the mission's own content, not seeded
+                                // separately) before these new ones are introduced.
+                                'story' => 'For breakfast I usually have **cereal**. In the morning I **have a '
+                                    .'shower** and **clean my teeth** before I leave. In the afternoon I have a '
+                                    .'**snack** if I\'m hungry. If I\'m tired in the evening, we sometimes order '
+                                    .'a **takeaway** instead of cooking. On Saturdays we **do the shopping** '
+                                    .'together.',
+                                'words' => [
+                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'pos' => 'noun', 'example' => 'I had a bowl of cereal for breakfast.', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'pos' => 'verb phrase', 'synonym' => 'shower (verb)', 'example' => 'I have a shower every morning before work.', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy'],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'pos' => 'verb phrase', 'synonym' => 'brush my teeth', 'example' => 'Remember to clean your teeth before bed.', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I had a snack around four o\'clock.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'pos' => 'noun', 'synonym' => 'takeout', 'example' => 'We ordered a takeaway on Friday night.', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
+                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'pos' => 'verb phrase', 'synonym' => 'go shopping', 'example' => 'I do the shopping every Saturday morning.', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
+                                ],
+                            ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
@@ -358,12 +275,18 @@ class MissionSeeder extends Seeder
                                 // Purely decorative — a different image than Day 1's own for
                                 // visual variety across the 4 listens of the same episode.
                                 'image_query' => 'sunrise bedroom window',
-                                'recall_prompt' => 'Write one word or phrase you remember hearing.',
+                                // This day's own small shadow pool (Epic C) — distinct from Day
+                                // 1's 5 and every other daily-listen day's, so no line repeats
+                                // across the mission.
+                                'shadow_lines' => [
+                                    "I'm **very well**, **thank you**. How are **you**?",
+                                    'That **actually** **happened** this **week**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "Every \"I usually...\" you get right here is one less pause when you're speaking for real.",
                                 'focus' => 'Present Simple + Adverbs of Frequency',
                                 // The lesson is fully data-driven (see grammar-in-context.blade.php)
@@ -384,6 +307,15 @@ class MissionSeeder extends Seeder
                                                 .'With <strong>he / she / it</strong> it takes an <strong>-s</strong> '
                                                 .'(or an irregular form, like <em>have → has</em>).',
                                             'blocks' => [
+                                                [
+                                                    // Epic D: a short "spot the mistake" moment
+                                                    // ahead of the drier rule/pairs blocks below.
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Leo',
+                                                    'wrong' => 'She wake up early every day.',
+                                                    'right' => 'She wakes up early every day.',
+                                                    'explanation' => 'With he / she / it, the verb needs an -s ending.',
+                                                ],
                                                 [
                                                     'type' => 'pairs',
                                                     'pairs' => [
@@ -435,7 +367,7 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll put this straight to use next — in Activation, when you talk about your real daily routine out loud.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, when you talk about your real daily routine out loud.",
                                 ],
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
@@ -466,22 +398,32 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She go to work at eight.',
-                                        'options' => ['She goes to work at eight.', 'She gos to work at eight.', 'She go to work at eight.'],
-                                        'correct' => 0,
+                                        'options' => ['She gos to work at eight.', 'She goes to work at eight.', 'She go to work at eight.'],
+                                        'correct' => 1,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => "I doesn't exercise every day.",
-                                        'options' => ["I don't exercise every day.", "I doesn't exercises every day.", 'I not exercise every day.'],
-                                        'correct' => 0,
+                                        'options' => ["I doesn't exercises every day.", 'I not exercise every day.', "I don't exercise every day."],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'He usually wake up late.',
-                                        'options' => ['He usually wakes up late.', 'He usually waking up late.', 'He usually wake ups late.'],
-                                        'correct' => 0,
+                                        'options' => ['He usually waking up late.', 'He usually wakes up late.', 'He usually wake ups late.'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
+                                ],
+                                // "Build the sentence" round (Epic D) — reuses sentences already
+                                // seen in the lesson's own pairs/examples blocks above, so this is
+                                // reinforcement, not new vocabulary. `words` is authored already
+                                // scrambled; never reshuffled at render time (see
+                                // <x-word-order-round>).
+                                'word_order' => [
+                                    ['words' => ['early.', 'wakes', 'She', 'up'], 'answer' => 'She wakes up early.'],
+                                    ['words' => ['Saturdays?', 'work', 'she', 'Does', 'on'], 'answer' => 'Does she work on Saturdays?'],
+                                    ['words' => ['early.', 'I', 'up', 'wake', 'always'], 'answer' => 'I always wake up early.'],
                                 ],
                             ],
                             [
@@ -505,13 +447,6 @@ class MissionSeeder extends Seeder
                                     ['image_query' => 'woman commuting to work walking', 'caption' => 'She leaves for work'],
                                 ],
                                 'sequencing_words' => ['First', 'Then', 'After that', 'Finally'],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 12,
-                                'hook' => "Say it once here, alone — it'll come out easier when someone's actually listening.",
-                                'task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
                             ],
                             [
                                 'key' => 'video_shadowing',
@@ -584,6 +519,24 @@ class MissionSeeder extends Seeder
                         'mode' => 'ai',
                         'steps' => [
                             [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set for this mission — the words for a relaxed weekend at home.',
+                                'story' => 'At the weekend I do some **housework** — **doing the washing** is my '
+                                    .'least favourite job! Most weekdays I **stay in** and relax, but on Friday '
+                                    .'I like to **go out** with friends. We often **eat out** at a new '
+                                    .'restaurant, and I always **chat** with my best friend on the phone.',
+                                'words' => [
+                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'pos' => 'noun', 'synonym' => 'chores', 'example' => 'We share the housework equally.', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
+                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'pos' => 'verb phrase', 'synonym' => 'doing the laundry', 'example' => 'I hate doing the washing on weekends.', 'image_query' => 'loading clothes into washing machine', 'difficulty' => 'medium'],
+                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'pos' => 'phrasal verb', 'synonym' => 'opposite: go out', 'example' => 'I stayed in and watched a film last night.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'pos' => 'phrasal verb', 'synonym' => 'opposite: stay in', 'example' => 'We usually go out on Friday nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out about once a month.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'pos' => 'verb', 'synonym' => 'talk', 'example' => 'We chatted for an hour on the phone.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
                                 // Was 2, then 3 for the recall prompt (+1); now 8 — same real 6:44
@@ -591,14 +544,23 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'alarm clock wake up bed',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**Otherwise** I\'m **very grumpy**.',
+                                    '**Especially** in the **United Kingdom** because the **weather** can be **different** **every day**.',
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                // Was 10 — bumped since an off-topic spoken answer now asks for a retry.
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E: merges the old standalone Activation step (warm-up
+                                // sentences + solo recording, now warm_up_task below) and AI
+                                // Feedback #1 (now generated automatically at the end, no
+                                // separate step) into this one step — 12 (warm-up) + 12
+                                // (interview) + 3 (feedback) = 27, minus a little shared UI
+                                // overhead.
+                                'duration_minutes' => 26,
+                                'hook' => "Say it once here, alone — it'll come out easier once the AI Instructor is properly listening.",
+                                'warm_up_task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
                                 // Real interview questions from Mission01.pdf "Speaking Session 01".
                                 'interview_questions' => [
                                     'What time do you usually wake up?',
@@ -608,12 +570,6 @@ class MissionSeeder extends Seeder
                                     'How often do you exercise?',
                                     'What do you usually do in the evening?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => 'A second pair of ears just heard everything you said — here\'s what stood out.',
                             ],
                             [
                                 'key' => 'picture_description',
@@ -703,9 +659,9 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'sleep in', 'type' => 'reused'],
                                     ['phrase' => 'has a shower', 'type' => 'reused'],
                                     ['phrase' => 'goes to sleep', 'type' => 'reused'],
-                                    ['phrase' => 'commute', 'type' => 'new', 'definition' => 'a regular journey to and from work'],
-                                    ['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired'],
-                                    ['phrase' => 'unwind', 'type' => 'new', 'definition' => 'to relax after being busy or stressed'],
+                                    ['phrase' => 'commute', 'type' => 'new', 'definition' => 'a regular journey to and from work', 'pos' => 'noun', 'example' => 'Her commute takes about thirty minutes by bus.'],
+                                    ['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired', 'pos' => 'adjective', 'example' => 'I was exhausted after the long shift.'],
+                                    ['phrase' => 'unwind', 'type' => 'new', 'definition' => 'to relax after being busy or stressed', 'pos' => 'verb', 'example' => 'I like to unwind with a film in the evening.'],
                                 ],
                                 // Grounds the AI check in what the passage actually says, same
                                 // pattern as Listening's topic_summary — background for a coarse
@@ -782,34 +738,9 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 8,
                                 'hook' => 'Last time hearing this one — notice how much easier it sounds now.',
                                 'image_query' => 'cozy morning breakfast table',
-                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
-                            ],
-                            [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                // Was 8 — bumped for the optional cross-mission spaced-repetition practice card.
-                                'duration_minutes' => 9,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
-                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the listening', 'count' => 3],
-                                    [
-                                        'key' => 'present_simple_sentences',
-                                        'label' => '3 Present Simple sentences',
-                                        'count' => 3,
-                                        // Moved verbatim from the old hardcoded PHP case in
-                                        // ⚡active-recall.blade.php's runSentenceCheck() — see
-                                        // EOS-009 §8 for the "AI judgment lives in seeded content"
-                                        // convention (mirrored from grammar_in_context's
-                                        // grammar_judgment) this generalizes active_recall onto.
-                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal sentence, correctly '
-                                            .'using the present simple tense.',
-                                        'major_criteria' => 'the verb is not in the present simple tense, or it is not a genuine personal '
-                                            .'statement',
-                                        'context' => 'a personal sentence using the present simple tense',
-                                        'recap_label' => 'sentences correctly used the present simple',
-                                    ],
+                                'shadow_lines' => [
+                                    "**Make sure** you've **got** your **umbrella**.",
+                                    '**Never**. **Unless** there\'s a **very**, **very** **good** **reason**.',
                                 ],
                             ],
                             [
@@ -823,14 +754,21 @@ class MissionSeeder extends Seeder
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
                                 // Was 10 — bumped since an off-topic spoken answer now asks for a retry.
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
-                                // Real rounds + requirements from Mission01.pdf "Speaking Session 02".
-                                'rounds' => [
+                                // Epic E: a bigger pool than one attempt actually asks (see
+                                // ⚡ai-conversation2.blade.php's getRoundsProperty()) — real
+                                // rounds from Mission01.pdf "Speaking Session 02" plus 3 more in
+                                // the same style, so a re-attempt genuinely varies.
+                                'round_pool' => [
                                     'Describe your typical weekday, with no preparation.',
                                     'Compare your weekday with your weekend.',
                                     'What part of your routine do you enjoy most?',
+                                    'What is the hardest part of your day to get through?',
+                                    'How does your day change when you have a day off?',
+                                    'What would you change about your daily routine if you could?',
                                 ],
+                                'role_reversal_topic' => 'daily routines',
                                 'final_prompt' => 'Speak for 3 minutes without stopping about your daily life.',
                                 'requirements' => [
                                     'Present Simple',
@@ -924,7 +862,7 @@ class MissionSeeder extends Seeder
                         $key === 'writing' => collect($step['prompts'] ?? [])
                             ->filter(fn ($prompt) => is_array($prompt) && ($prompt['image_query'] ?? null))
                             ->each(fn ($prompt) => $client->imageUrlFor("{$code}-writing-{$prompt['label']}", $prompt['image_query'])),
-                        $key === 'vocabulary_builder' => collect($step['story_words'] ?? [])
+                        str_starts_with($key, 'vocabulary_builder_') => collect($step['words'] ?? [])
                             ->filter(fn ($word) => $word['image_query'] ?? null)
                             ->each(fn ($word) => $client->imageUrlFor($word['phrase'], $word['image_query'], null)),
                         $key === 'story_sequence' => collect($step['sequence_images'] ?? [])
@@ -951,11 +889,11 @@ class MissionSeeder extends Seeder
      * M01's inline run()) purely for readability given its size — no
      * behavioral difference.
      *
-     * grammar_in_context and active_recall were generalized (commit
-     * 42608a8) specifically so this mission could reuse them for a
-     * different grammar focus/extra grammar-check section — see
-     * grammar-in-context.blade.php's lesson.sections shape and
-     * active-recall.blade.php's per-section 'judgment' shape.
+     * grammar_in_context was generalized (commit 42608a8) specifically so
+     * this mission could reuse it for a different grammar focus — see
+     * grammar-in-context.blade.php's lesson.sections shape. (Active Recall,
+     * mentioned here historically, was removed entirely in the mission
+     * structure redesign's Epic G.)
      */
     private function seedM02(): void
     {
@@ -990,76 +928,24 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                'duration_minutes' => 14,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 8,
                                 'hook' => 'Next time someone asks about the people in your life, will these words be ready — or will you go quiet?',
-                                // Word selection follows Cambridge English Vocabulary in Use's
-                                // "Relationships" territory (friends, friendship, family, exes) —
-                                // the story and every meaning below are written fresh for this
-                                // app, not copied from it (see EOS-009 §14: content stays
-                                // original, no licensing/piracy risk).
-                                // "times are tough", "get through", "drift away", "Billy No-Mates",
-                                // and "double-edged sword" are deliberately woven in here too, not
-                                // just their own vocabulary — the real BBC Listening audio right
-                                // after this step uses these same 5 words/phrases, so every learner
-                                // reads them here first regardless of which words they personally
-                                // select, then hears them again in context (same content-authoring
-                                // convention as M01).
-                                'story' => [
-                                    [
-                                        'heading' => 'Friends',
-                                        'text' => "I'm quite an **outgoing** person, so making friends has never felt "
-                                            .'like hard work for me — though I know that isn\'t true for everyone. '
-                                            .'My **best friend**, Dan, is actually an **old friend**: we met on our '
-                                            .'first day of university, and it took us about a month to really '
-                                            .'**get to know each other** properly. Now, more than ten years later, '
-                                            .'we still **get on well with** each other, even though we live in '
-                                            .'different cities. Before I met Dan, my flatmate used to joke that I '
-                                            .'was turning into **Billy No-Mates**, because I hardly ever went out! '
-                                            .'These days it\'s the opposite — most weekends I\'m meeting up with a '
-                                            .'**mate** from work or catching up with someone from my old football '
-                                            .'team. Of course, having a big social life is a bit of a '
-                                            .'**double-edged sword**: I love seeing everyone, but some weeks I '
-                                            .'barely have an evening free. Sadly, not every friendship lasts. A '
-                                            .'couple of my school friends and I have gradually **drifted away** '
-                                            .'from each other since we stopped living in the same town — nobody\'s '
-                                            .'fault, it just happens.',
-                                    ],
-                                    [
-                                        'heading' => 'Family & Keeping In Touch',
-                                        'text' => 'My **close family** is quite small — just my parents, my sister, '
-                                            .'and a few **relatives** who live nearby. My sister\'s **current** '
-                                            .'boyfriend is actually really funny, much better than her '
-                                            .'**ex-partner**, who I never really liked! Whenever **times are '
-                                            .'tough** — like the year my grandmother was ill — it\'s usually '
-                                            .'family who help me **get through** it, more than anyone else. '
-                                            .'That\'s probably why I try to see my relatives at least once a '
-                                            .'month, even when life gets busy.',
-                                    ],
-                                ],
-                                'story_words' => [
-                                    // Friends
-                                    ['phrase' => 'best friend', 'meaning' => 'the friend you are closest to and trust the most', 'difficulty' => 'easy'],
-                                    ['phrase' => 'old friend', 'meaning' => 'a friend you have known for a long time (not necessarily an elderly friend)', 'difficulty' => 'medium'],
-                                    ['phrase' => 'friendship', 'meaning' => 'the relationship between friends', 'difficulty' => 'easy'],
-                                    ['phrase' => 'get to know each other', 'meaning' => 'to gradually become familiar with a person', 'difficulty' => 'medium'],
-                                    // accepted_paraphrases: hand-picked, safe alternate wording
-                                    // Active Recall's local (non-AI) check also accepts for this
-                                    // exact phrase — same author's-judgment-call convention as M01.
-                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly, easy relationship with someone', 'difficulty' => 'hard', 'accepted_paraphrases' => ['get along with', 'get along well with']],
-                                    ['phrase' => 'mate', 'meaning' => '(British informal) a friend', 'image_query' => 'two friends high five outdoors', 'difficulty' => 'medium'],
-                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and enjoys meeting/talking to people', 'difficulty' => 'medium'],
-                                    ['phrase' => 'Billy No-Mates', 'meaning' => '(slang) a person with no friends', 'difficulty' => 'hard'],
-                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with both good and bad consequences', 'difficulty' => 'hard'],
-                                    ['phrase' => 'drift away', 'meaning' => 'to gradually grow apart from someone until the relationship ends', 'difficulty' => 'medium', 'accepted_paraphrases' => ['grow apart'], 'allow_embedded_match' => true],
-                                    // Family & Keeping In Touch
-                                    ['phrase' => 'close family', 'meaning' => 'your nearest family members (parents, siblings, etc.)', 'image_query' => 'family dinner table together', 'difficulty' => 'easy'],
-                                    ['phrase' => 'relatives', 'meaning' => 'members of your family', 'image_query' => 'extended family reunion', 'difficulty' => 'easy'],
-                                    ['phrase' => 'current', 'meaning' => 'happening or existing now (as opposed to before)', 'difficulty' => 'medium'],
-                                    ['phrase' => 'ex-partner', 'meaning' => "a person's former boyfriend/girlfriend/husband/wife", 'difficulty' => 'hard'],
-                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness, or financial difficulty in life', 'difficulty' => 'medium', 'accepted_paraphrases' => ['times are hard']],
-                                    ['phrase' => 'get through', 'meaning' => 'to manage to live through a difficult period of time', 'difficulty' => 'hard', 'allow_embedded_match' => true],
+                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
+                                // for the full rationale. Day 1 = the real Listening episode's own
+                                // 5 target_phrases, so every learner meets them here first.
+                                'story' => 'Sometimes **times are tough**, but good friends help you **get '
+                                    .'through** it. Sadly, a couple of my old school friends and I have '
+                                    .'**drifted away** since we stopped living nearby. Before I met my best '
+                                    .'friend, I was almost a **Billy No-Mates**! Having lots of friends is a '
+                                    .'bit of a **double-edged sword** — I love it, but I\'m always busy.',
+                                'words' => [
+                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness, or financial difficulty in life', 'pos' => 'idiom', 'synonym' => 'times are hard', 'example' => 'We helped each other when times were tough.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get through', 'meaning' => 'to manage to live through a difficult period of time', 'pos' => 'phrasal verb', 'synonym' => 'cope with', 'example' => 'She got through a difficult year at university.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'drift away', 'meaning' => 'to gradually grow apart from someone until the relationship ends', 'pos' => 'phrasal verb', 'synonym' => 'grow apart', 'example' => 'We drifted away after I moved to another city.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'Billy No-Mates', 'meaning' => '(slang) a person with no friends', 'pos' => 'slang noun phrase', 'example' => "Don't worry, you won't be a Billy No-Mates at the party.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with both good and bad consequences', 'pos' => 'idiom', 'example' => 'Working from home is a double-edged sword.', 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -1130,6 +1016,8 @@ class MissionSeeder extends Seeder
                                     'So, **is** it **true** that **men** find it **difficult** to **make friends**?',
                                     'To **drift away** means to **gradually** move **further apart** from **someone** until your **relationship** with them **eventually ends**.',
                                     "He's **young**, **generous**, and **outgoing** – he's **quick** to **buy** his **round**.",
+                                    "**Yes**, I **have** **some** **close friends**, but **maybe** **not** as **many** as I'd **like**.",
+                                    "I'll **say** we **need** at **least** **five** **close friends**.",
                                 ],
                             ],
                         ],
@@ -1140,17 +1028,38 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 9,
+                                'hook' => 'The words you actually use talking about your closest friends.',
+                                'story' => 'My **best friend**, Dan, is actually an **old friend** — we met at '
+                                    .'university. It took us a while to really **get to know each other**, but '
+                                    .'now our **friendship** is really strong. We still **get on well with** each '
+                                    .'other, and I often meet up with a **mate** from work too.',
+                                'words' => [
+                                    ['phrase' => 'best friend', 'meaning' => 'the friend you are closest to and trust the most', 'pos' => 'noun phrase', 'synonym' => 'closest friend', 'example' => "She's been my best friend since school.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'old friend', 'meaning' => 'a friend you have known for a long time (not necessarily an elderly friend)', 'pos' => 'noun phrase', 'example' => 'I ran into an old friend at the station.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get to know each other', 'meaning' => 'to gradually become familiar with a person', 'pos' => 'verb phrase', 'example' => 'It took us months to get to know each other well.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'friendship', 'meaning' => 'the relationship between friends', 'pos' => 'noun', 'example' => 'Our friendship has lasted over ten years.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly, easy relationship with someone', 'pos' => 'verb phrase', 'synonym' => 'get along with', 'example' => 'I get on well with most of my colleagues.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'mate', 'meaning' => '(British informal) a friend', 'pos' => 'noun (British informal)', 'synonym' => 'friend', 'example' => "I'm meeting a mate for coffee later.", 'image_query' => 'two friends high five outdoors', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
                                 'duration_minutes' => 8,
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 'image_query' => 'two friends chatting park bench',
-                                'recall_prompt' => 'Write one word or phrase you remember hearing.',
+                                'shadow_lines' => [
+                                    "**That's** **interesting** because **often** it's **women** who **have** **many** **friends**.",
+                                    '**Max** **thinks** the **answer** is **getting out** and **meeting** **people**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => 'Every "she\'s living" you get right here is one less pause when you\'re talking about someone real.',
                                 'focus' => 'Present Simple vs Present Continuous',
                                 'lesson' => [
@@ -1164,6 +1073,13 @@ class MissionSeeder extends Seeder
                                                 .'<strong>Present Continuous</strong> describes something temporary, '
                                                 .'or happening around now, not necessarily this exact second.',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Nadia',
+                                                    'wrong' => "She lives in Spain at the moment, just for the summer.",
+                                                    'right' => "She's living in Spain at the moment, just for the summer.",
+                                                    'explanation' => "A temporary situation right now needs Present Continuous, not Present Simple.",
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
@@ -1221,7 +1137,7 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll use this straight away — in Activation, describing someone you're close to.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, describing someone you're close to.",
                                 ],
                                 'frequency_starters' => [
                                     'My friend usually', 'These days, my friend is', 'He/She often', 'At the moment, he/she is',
@@ -1238,34 +1154,34 @@ class MissionSeeder extends Seeder
                                     .'continuous tense, whichever fits the sentence starter given',
                                 'quick_check' => [
                                     [
-                                        'wrong' => 'She is knowing him for ten years.',
-                                        'options' => ["She's known him for ten years.", 'She is knowing him for ten years.', 'She know him for ten years.'],
-                                        'correct' => 0,
+                                        // Was corrected to present perfect ("She's known him...") —
+                                        // a tense this mission never teaches. Fixed to present
+                                        // simple (Content audit, Epic H): "know" is a stative verb,
+                                        // so the real teaching point — never continuous, always
+                                        // simple — now stays inside this mission's own scope.
+                                        'wrong' => 'She is knowing him very well.',
+                                        'options' => ['She is knowing him very well.', 'She know him very well.', 'She knows him very well.'],
+                                        'correct' => 2,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => 'My friend works in London this month, just for a project.',
-                                        'options' => ['My friend is working in London this month, just for a project.', 'My friend works in London this month, just for a project.', 'My friend working in London this month.'],
-                                        'correct' => 0,
+                                        'options' => ['My friend works in London this month, just for a project.', 'My friend working in London this month.', 'My friend is working in London this month, just for a project.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'She usually is getting on well with her sister.',
-                                        'options' => ['She usually gets on well with her sister.', 'She usually is getting on well with her sister.', 'She usually get on well with her sister.'],
-                                        'correct' => 0,
+                                        'options' => ['She usually is getting on well with her sister.', 'She usually get on well with her sister.', 'She usually gets on well with her sister.'],
+                                        'correct' => 2,
                                         'difficulty' => 'hard',
                                     ],
                                 ],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 12,
-                                'hook' => 'Say it here, alone, before you have to say it to a real person tomorrow.',
-                                'task' => 'Choose a friend or someone close to you. Write at least 3 Present Simple '
-                                    .'sentences, 2 Present Continuous sentences, and use at least 3 vocabulary '
-                                    .'expressions describing them — then record 2 minutes of solo speaking about '
-                                    .'them without reading.',
+                                'word_order' => [
+                                    ['words' => ['a', "She's", 'lot', 'these', 'working', 'days.'], 'answer' => "She's working a lot these days."],
+                                    ['words' => ['well', 'she', 'her', 'with', 'Does', 'sister?', 'on', 'get'], 'answer' => 'Does she get on well with her sister?'],
+                                    ['words' => ['on', 'calls', 'usually', 'She', 'Sundays.', 'me'], 'answer' => 'She usually calls me on Sundays.'],
+                                ],
                             ],
                             [
                                 // Replaced 2026-09-10 — the previous video (a simple animated
@@ -1314,18 +1230,42 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 8,
+                                'hook' => 'The words for talking about family and what people are like.',
+                                'story' => "I'm quite an **outgoing** person, so I enjoy seeing my **close family** "
+                                    .'and other **relatives** often. My sister\'s **current** boyfriend is '
+                                    .'really funny — much better than her **ex-partner**!',
+                                'words' => [
+                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and enjoys meeting/talking to people', 'pos' => 'adjective', 'synonym' => 'sociable', 'example' => 'My brother is very outgoing and makes friends easily.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'close family', 'meaning' => 'your nearest family members (parents, siblings, etc.)', 'pos' => 'noun phrase', 'synonym' => 'immediate family', 'example' => 'My close family all live in the same city.', 'image_query' => 'family dinner table together', 'difficulty' => 'easy'],
+                                    ['phrase' => 'relatives', 'meaning' => 'members of your family', 'pos' => 'noun', 'synonym' => 'family members', 'example' => 'We invited all our relatives to the wedding.', 'image_query' => 'extended family reunion', 'difficulty' => 'easy'],
+                                    ['phrase' => 'current', 'meaning' => 'happening or existing now (as opposed to before)', 'pos' => 'adjective', 'synonym' => 'present', 'example' => 'My current job is more stressful than my last one.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'ex-partner', 'meaning' => "a person's former boyfriend/girlfriend/husband/wife", 'pos' => 'noun', 'synonym' => 'former partner', 'example' => 'I still see my ex-partner at family events sometimes.', 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'friends walking together talking',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**All** of **which** **helps** **get closer** to the **magical number**.',
+                                    '**Once again**, our **six minutes** are **up**.',
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E merge — see M01's own comment for the arithmetic.
+                                'duration_minutes' => 26,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Choose a friend or someone close to you. Write at least 3 Present Simple '
+                                    .'sentences, 2 Present Continuous sentences, and use at least 3 vocabulary '
+                                    .'expressions describing them — then record 2 minutes of solo speaking about '
+                                    .'them without reading.',
                                 'interview_questions' => [
                                     'Tell me about someone in your family — what are they like?',
                                     'Who do you get on well with these days?',
@@ -1334,12 +1274,6 @@ class MissionSeeder extends Seeder
                                     'How do you usually keep in touch with an old friend who lives far away?',
                                     'What personality trait do you like most in the people close to you?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => "A second pair of ears just heard how you talk about the people in your life — here's what stood out.",
                             ],
                             [
                                 'key' => 'picture_description',
@@ -1416,9 +1350,9 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'relatives', 'type' => 'reused'],
                                     ['phrase' => 'times are tough', 'type' => 'reused'],
                                     ['phrase' => 'get through', 'type' => 'reused'],
-                                    ['phrase' => 'colleague', 'type' => 'new', 'definition' => 'a person you work with'],
-                                    ['phrase' => 'organise', 'type' => 'new', 'definition' => 'to plan and arrange an event or activity'],
-                                    ['phrase' => 'survive', 'type' => 'new', 'definition' => 'to continue existing despite a difficult situation'],
+                                    ['phrase' => 'colleague', 'type' => 'new', 'definition' => 'a person you work with', 'pos' => 'noun', 'example' => 'My colleague helped me finish the report.'],
+                                    ['phrase' => 'organise', 'type' => 'new', 'definition' => 'to plan and arrange an event or activity', 'pos' => 'verb', 'example' => 'She loves to organise weekend trips for her friends.'],
+                                    ['phrase' => 'survive', 'type' => 'new', 'definition' => 'to continue existing despite a difficult situation', 'pos' => 'verb', 'example' => 'Their friendship survived even after she moved abroad.'],
                                 ],
                                 'topic_summary' => 'A short profile of Sara and her friendships: her three '
                                     .'long-time school friends (usually seen monthly, though two are currently '
@@ -1474,42 +1408,6 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                'duration_minutes' => 9,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 expressions I learned', 'count' => 5],
-                                    ['key' => 'listening_facts', 'label' => '3 things I learned from the BBC episode', 'count' => 3],
-                                    [
-                                        'key' => 'present_simple_sentences',
-                                        'label' => '1 Present Simple sentence about someone I know',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal '
-                                            .'sentence about someone they know, correctly using the present simple tense.',
-                                        'major_criteria' => 'the verb is not in the present simple tense, or it is not '
-                                            .'a genuine personal statement about someone the learner knows',
-                                        'context' => 'a personal sentence about someone the learner knows, using the present simple tense',
-                                        'recap_label' => 'sentences correctly used the present simple',
-                                    ],
-                                    [
-                                        'key' => 'present_continuous_sentences',
-                                        'label' => '1 Present Continuous sentence about what someone is doing these days',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner wrote a genuine, natural personal '
-                                            .'sentence correctly using present continuous tense for something '
-                                            .'happening now or temporarily (not a general habit).',
-                                        'major_criteria' => 'the verb is not in the present continuous tense, it '
-                                            .'describes a general habit rather than something temporary/current, or '
-                                            .'it is not a genuine personal statement',
-                                        'context' => 'a personal sentence about something someone is doing now or '
-                                            .'temporarily, using the present continuous tense',
-                                        'recap_label' => 'sentences correctly used the present continuous',
-                                    ],
-                                ],
-                            ],
-                            [
                                 'key' => 'error_log',
                                 'label' => 'Error Log',
                                 'duration_minutes' => 7,
@@ -1551,13 +1449,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "This one's harder on purpose — describe someone who matters, with no script to hide behind.",
-                                'rounds' => [
+                                'round_pool' => [
                                     'Introduce this person and explain how you know them.',
                                     'Describe what they\'re like as a person, and what you usually do together.',
                                     'Talk about what they\'re doing these days, and why they matter to you.',
+                                    'How did you two first meet?',
+                                    'What do you admire most about them?',
+                                    'How has your relationship with them changed over time?',
                                 ],
+                                'role_reversal_topic' => 'friends and family',
                                 'final_prompt' => 'Speak for 3 minutes without stopping about someone important in your life.',
                                 'requirements' => [
                                     'Present Simple',
@@ -1633,74 +1535,23 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                'duration_minutes' => 16,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 9,
                                 'hook' => 'Next time someone asks about your diet, will these words be ready — or will you just say "I eat normal food"?',
-                                // Word selection follows English Vocabulary in Use Unit 34
-                                // "Food" (per M04.pdf's own "exact resource" table) — meals,
-                                // ingredients, snacks, fresh/frozen food, spicy/sweet food,
-                                // healthy/unhealthy food, diet. Story and every meaning below
-                                // are written fresh for this app (see EOS-009 §14: content
-                                // stays original, no licensing/piracy risk). "eating clean",
-                                // "skip breakfast", "craving", "balanced diet" are deliberately
-                                // woven in here too — the real Listening podcast right after
-                                // this step uses these same words/phrases, so every learner
-                                // reads them here first, then hears them again in context.
-                                'story' => [
-                                    [
-                                        'heading' => 'Meals & Habits',
-                                        'text' => "I try not to **skip breakfast**, even on busy mornings, because I "
-                                            .'always feel worse by lunchtime if I do. Most days I eat a **home-cooked** '
-                                            .'dinner, but once or twice a week we **eat out** instead, usually '
-                                            .'somewhere simple. I\'m trying to follow a more **balanced diet** overall '
-                                            .'— not perfect, just better than before.',
-                                    ],
-                                    [
-                                        'heading' => 'Fresh & Frozen',
-                                        'text' => 'I prefer cooking with **fresh** vegetables when I have time, but '
-                                            .'**frozen** ones are honestly just as healthy and save a lot of effort '
-                                            .'on a tired evening. Whatever fresh **ingredient** I buy too much of '
-                                            .'usually ends up as **leftovers** the next day, which I don\'t mind at all.',
-                                    ],
-                                    [
-                                        'heading' => 'Snacks & Cravings',
-                                        'text' => 'In the afternoon I sometimes get a real **craving** for something '
-                                            .'sweet — I definitely have a **sweet tooth**. Instead of chocolate, I try '
-                                            ."to reach for a healthier **snack** like fruit and nuts. My sister is the "
-                                            .'opposite: she\'d always choose something **spicy** over something '
-                                            .'sweet.',
-                                    ],
-                                    [
-                                        'heading' => 'Healthy Choices',
-                                        'text' => 'I\'m not trying to eat only "**healthy food**" and never touch '
-                                            .'"**unhealthy food**" again — that never lasts. I\'m just trying to '
-                                            .'**cut down on** **junk food** and **processed food**, one small change '
-                                            .'at a time, instead of banning it completely.',
-                                    ],
-                                ],
-                                'story_words' => [
-                                    // Meals & Habits
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'difficulty' => 'easy'],
-                                    ['phrase' => 'home-cooked', 'meaning' => 'made at home, not bought ready-made or from a restaurant', 'image_query' => 'home cooked dinner family table', 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'difficulty' => 'easy'],
-                                    ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'difficulty' => 'medium'],
-                                    // Fresh & Frozen
-                                    ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
-                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'image_query' => 'frozen food in freezer drawer', 'difficulty' => 'easy'],
-                                    ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'difficulty' => 'medium'],
-                                    ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
-                                    // Snacks & Cravings
-                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'difficulty' => 'medium'],
-                                    ['phrase' => 'sweet tooth', 'meaning' => 'a strong liking for sweet food', 'difficulty' => 'hard'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => 'spicy', 'meaning' => 'having a strong, hot taste, like chilli', 'image_query' => 'spicy food chilli', 'difficulty' => 'easy'],
-                                    // Healthy Choices
-                                    ['phrase' => 'healthy food', 'meaning' => 'food that is good for your body', 'image_query' => 'healthy food bowl vegetables', 'difficulty' => 'easy'],
-                                    ['phrase' => 'unhealthy food', 'meaning' => 'food that is bad for your body if eaten often', 'difficulty' => 'easy'],
-                                    ['phrase' => 'cut down on', 'meaning' => 'to reduce how much of something you eat or do', 'difficulty' => 'hard', 'allow_embedded_match' => true],
-                                    ['phrase' => 'junk food', 'meaning' => 'cheap food that is quick to eat but bad for your health', 'image_query' => 'junk food fast food', 'difficulty' => 'medium'],
-                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'difficulty' => 'medium'],
+                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
+                                // for the full rationale. Day 1 = the real Listening episode's own
+                                // 5 target_phrases, so every learner meets them here first.
+                                'story' => 'I try not to **skip breakfast**, even on busy mornings. Once or twice '
+                                    .'a week we **eat out** instead of cooking. In the afternoon I sometimes get '
+                                    .'a real **craving** for something sweet, so I try to reach for a healthier '
+                                    .'**snack** instead of **processed food**.',
+                                'words' => [
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'pos' => 'verb phrase', 'example' => "She often skips breakfast when she's late for work.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out most Friday nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'pos' => 'noun', 'example' => 'I had a craving for chocolate all afternoon.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I grabbed a snack before the meeting.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food if you can.', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
@@ -1829,13 +1680,15 @@ class MissionSeeder extends Seeder
                                 ],
                                 'detail_question' => [
                                     'question' => 'What does Lisa snack on now, instead of cookies or chips?',
-                                    'options' => ['Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Cake and ice cream', 'Nothing — she stopped snacking completely'],
-                                    'correct' => 0,
+                                    'options' => ['Cake and ice cream', 'Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Nothing — she stopped snacking completely'],
+                                    'correct' => 1,
                                 ],
                                 'shadow_lines' => [
                                     "**Start** small, be **patient**, and don't **try** to be **perfect**.",
                                     "**Focus** on how **food** makes you **feel**, not just what it **looks** like.",
                                     '**Eating** clean is about **simple** food, **balance**, and **listening** to your **body**.',
+                                    'I **had** **more energy**, **better digestion**, **clearer skin**, and I **felt** **more connected** to my **body**.',
+                                    '**Guilt** **only** **makes** things **worse**.',
                                 ],
                             ],
                         ],
@@ -1846,17 +1699,38 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 10,
+                                'hook' => 'The words for talking about what\'s actually in your kitchen.',
+                                'story' => 'Most days I eat a **home-cooked** dinner and try to follow a '
+                                    .'**balanced diet**. I prefer cooking with **fresh** vegetables, but '
+                                    .'**frozen** ones save time too. Whatever fresh **ingredient** I buy too '
+                                    .'much of usually ends up as **leftovers** the next day.',
+                                'words' => [
+                                    ['phrase' => 'home-cooked', 'meaning' => 'made at home, not bought ready-made or from a restaurant', 'pos' => 'adjective', 'example' => "There's nothing better than a home-cooked meal.", 'image_query' => 'home cooked dinner family table', 'difficulty' => 'easy'],
+                                    ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'pos' => 'noun phrase', 'example' => 'Eating a balanced diet keeps me healthy.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'pos' => 'adjective', 'synonym' => 'opposite: frozen', 'example' => 'I always buy fresh fruit at the market.', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
+                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'pos' => 'adjective', 'synonym' => 'opposite: fresh', 'example' => 'We keep frozen vegetables for busy nights.', 'image_query' => 'frozen food in freezer drawer', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'pos' => 'noun', 'example' => 'Garlic is the main ingredient in this sauce.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'pos' => 'noun', 'example' => 'I had the leftovers for lunch the next day.', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
                                 'duration_minutes' => 8,
                                 'hook' => 'Same podcast, one more time — familiar is exactly the point.',
                                 'image_query' => 'healthy breakfast bowl oatmeal',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**That** **difference** is **huge**. It **becomes** a **choice** not a **habit**.',
+                                    '**No guilt**, **no punishment** the **next day**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 'hook' => "Every \"I don't eat much...\" you get right here is one less pause when you're talking about your own diet.",
                                 'focus' => 'Countable and Uncountable Nouns',
                                 'lesson' => [
@@ -1870,6 +1744,13 @@ class MissionSeeder extends Seeder
                                                 .'have a plural form. <strong>Uncountable</strong> nouns are treated '
                                                 .'as one whole amount — no plural, no "a/an" on their own.',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Priya',
+                                                    'wrong' => "I don't eat many rice.",
+                                                    'right' => "I don't eat much rice.",
+                                                    'explanation' => "Rice is uncountable, so it takes 'much', not 'many'.",
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
@@ -1902,10 +1783,10 @@ class MissionSeeder extends Seeder
                                         [
                                             'heading' => 'C · Make it personal',
                                             'body' => 'These sentence starters from M04.pdf are exactly what you\'ll '
-                                                .'finish below — and reuse out loud in Activation right after.',
+                                                .'finish below — and reuse out loud soon, in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => "You'll put this straight to use next — in Activation, talking about your own eating habits.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, talking about your own eating habits.",
                                 ],
                                 // Real starters from M04.pdf page 04 "Make it personal".
                                 'frequency_starters' => [
@@ -1924,35 +1805,28 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => "I don't eat many rice.",
-                                        'options' => ["I don't eat much rice.", "I don't eat many rice.", "I don't eat many rices."],
-                                        'correct' => 0,
+                                        'options' => ["I don't eat many rice.", "I don't eat many rices.", "I don't eat much rice."],
+                                        'correct' => 2,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => 'She drinks a lot of coffees every morning.',
-                                        'options' => ['She drinks a lot of coffee every morning.', 'She drinks a lot of coffees every morning.', 'She drink a lot of coffee every morning.'],
-                                        'correct' => 0,
+                                        'options' => ['She drinks a lot of coffees every morning.', 'She drink a lot of coffee every morning.', 'She drinks a lot of coffee every morning.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'I need a few water.',
-                                        'options' => ['I need a little water.', 'I need a few water.', 'I need a few waters.'],
-                                        'correct' => 0,
+                                        'options' => ['I need a few water.', 'I need a little water.', 'I need a few waters.'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
                                 ],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 10,
-                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
-                                // Real questions from M04.pdf page 05 "Food in my life".
-                                'task' => 'Answer these questions about your own eating habits — what you normally '
-                                    .'eat for breakfast, what you usually have for lunch, what snacks you eat, what '
-                                    .'food you avoid, and what you\'d like to eat more or less of — then record 2 '
-                                    .'minutes of solo speaking describing your normal eating habits, using some '
-                                    .'countable and uncountable nouns, without reading.',
+                                'word_order' => [
+                                    ['words' => ["don't", 'many', 'I', 'vegetables.', 'eat'], 'answer' => "I don't eat many vegetables."],
+                                    ['words' => ['much', "don't", 'coffee.', 'I', 'drink'], 'answer' => "I don't drink much coffee."],
+                                    ['words' => ['a', 'eggs', 'few', 'I', 'every', 'eat', 'week.'], 'answer' => 'I eat a few eggs every week.'],
+                                ],
                             ],
                             [
                                 'key' => 'video_shadowing',
@@ -1992,18 +1866,46 @@ class MissionSeeder extends Seeder
                         'mode' => 'ai',
                         'steps' => [
                             [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for talking about healthy vs. not-so-healthy choices.',
+                                'story' => 'I definitely have a **sweet tooth**, but my sister prefers something '
+                                    .'**spicy** instead. I\'m not trying to only eat "**healthy food**" and never '
+                                    .'touch "**unhealthy food**" again — I\'m just trying to **cut down on** '
+                                    .'**junk food**, one small change at a time.',
+                                'words' => [
+                                    ['phrase' => 'sweet tooth', 'meaning' => 'a strong liking for sweet food', 'pos' => 'noun phrase (idiom)', 'example' => 'My dad has a real sweet tooth.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'spicy', 'meaning' => 'having a strong, hot taste, like chilli', 'pos' => 'adjective', 'synonym' => 'opposite: mild', 'example' => 'This curry is a bit too spicy for me.', 'image_query' => 'spicy food chilli', 'difficulty' => 'easy'],
+                                    ['phrase' => 'healthy food', 'meaning' => 'food that is good for your body', 'pos' => 'noun phrase', 'synonym' => 'opposite: junk food', 'example' => 'She only keeps healthy food in the house.', 'image_query' => 'healthy food bowl vegetables', 'difficulty' => 'easy'],
+                                    ['phrase' => 'unhealthy food', 'meaning' => 'food that is bad for your body if eaten often', 'pos' => 'noun phrase', 'example' => 'Too much unhealthy food makes me feel tired.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cut down on', 'meaning' => 'to reduce how much of something you eat or do', 'pos' => 'phrasal verb', 'synonym' => 'reduce', 'example' => "I'm trying to cut down on sugar.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'junk food', 'meaning' => 'cheap food that is quick to eat but bad for your health', 'pos' => 'noun phrase', 'synonym' => 'opposite: healthy food', 'example' => "It's easy to eat junk food when you're busy.", 'image_query' => 'junk food fast food', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'fresh food kitchen preparation',
-                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
+                                'shadow_lines' => [
+                                    '**That** **already** **saves** a **lot** of **time** and **energy**.',
+                                    '**That** **feeling** **matters** **more** than **numbers** on a **scale**.',
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E merge — see M01's own comment for the arithmetic.
+                                'duration_minutes' => 24,
+                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                // Real questions from M04.pdf page 05 "Food in my life".
+                                'warm_up_task' => 'Answer these questions about your own eating habits — what you normally '
+                                    .'eat for breakfast, what you usually have for lunch, what snacks you eat, what '
+                                    .'food you avoid, and what you\'d like to eat more or less of — then record 2 '
+                                    .'minutes of solo speaking describing your normal eating habits, using some '
+                                    .'countable and uncountable nouns, without reading.',
                                 'interview_questions' => [
                                     'What do you usually eat for breakfast?',
                                     'How often do you cook at home?',
@@ -2012,12 +1914,6 @@ class MissionSeeder extends Seeder
                                     "What do you eat when you're busy or stressed?",
                                     'How has your diet changed in the last few years?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => "A second pair of ears just heard everything you said — here's what stood out.",
                             ],
                             [
                                 'key' => 'picture_description',
@@ -2077,8 +1973,8 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'cut down on', 'type' => 'reused'],
                                     ['phrase' => 'processed food', 'type' => 'reused'],
                                     ['phrase' => 'junk food', 'type' => 'reused'],
-                                    ['phrase' => 'vending machine', 'type' => 'new', 'definition' => 'a machine that sells snacks or drinks when you put money in'],
-                                    ['phrase' => 'sluggish', 'type' => 'new', 'definition' => 'slow-moving and lacking energy'],
+                                    ['phrase' => 'vending machine', 'type' => 'new', 'definition' => 'a machine that sells snacks or drinks when you put money in', 'pos' => 'noun phrase', 'example' => 'I bought a bottle of water from the vending machine.'],
+                                    ['phrase' => 'sluggish', 'type' => 'new', 'definition' => 'slow-moving and lacking energy', 'pos' => 'adjective', 'example' => 'I always feel sluggish after eating too much.'],
                                 ],
                                 'topic_summary' => 'A short profile of Marco, a nurse in Rome, whose eating habits '
                                     .'change with his shift: he never skips breakfast, brings fresh fruit and nuts '
@@ -2125,59 +2021,6 @@ class MissionSeeder extends Seeder
                         'mode' => 'partner',
                         'steps' => [
                             [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                'duration_minutes' => 8,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                // Real sections from M04.pdf page 09 — the grammar recap is
-                                // 3 separate typed prompts there (one countable example, one
-                                // uncountable example, one much/many example), not one bucket
-                                // of 3 generic sentences like M01/M02's active_recall — so each
-                                // gets its own section here instead.
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 vocabulary items', 'count' => 5],
-                                    [
-                                        'key' => 'countable_example',
-                                        'label' => 'One countable noun example',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about food, correctly using a countable noun (with an '
-                                            .'article, a number, or a plural form, as appropriate).',
-                                        'major_criteria' => 'the noun used is not a countable food noun, or it is '
-                                            .'not used correctly as one, or the sentence is not a genuine example',
-                                        'context' => 'an example sentence correctly using a countable food noun',
-                                        'recap_label' => 'example correctly used a countable noun',
-                                    ],
-                                    [
-                                        'key' => 'uncountable_example',
-                                        'label' => 'One uncountable noun example',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about food, correctly using an uncountable noun (no plural '
-                                            .'-s, no "a/an" on its own).',
-                                        'major_criteria' => 'the noun used is not an uncountable food noun, it '
-                                            .'wrongly has a plural -s or an "a/an" on its own, or the sentence is '
-                                            .'not a genuine example',
-                                        'context' => 'an example sentence correctly using an uncountable food noun',
-                                        'recap_label' => 'example correctly used an uncountable noun',
-                                    ],
-                                    [
-                                        'key' => 'much_many_example',
-                                        'label' => 'One example using much / many',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about food correctly using "much" (with an uncountable '
-                                            .'noun) or "many" (with a plural countable noun).',
-                                        'major_criteria' => '"much" or "many" is paired with the wrong noun type, or '
-                                            .'the sentence is not a genuine example',
-                                        'context' => 'an example sentence correctly using "much" or "many"',
-                                        'recap_label' => 'example correctly used much/many',
-                                    ],
-                                    ['key' => 'listening_facts', 'label' => 'One thing I learned from the listening', 'count' => 1],
-                                ],
-                            ],
-                            [
                                 'key' => 'partner_speaking_session',
                                 'label' => 'Partner Speaking Session',
                                 'duration_minutes' => 15,
@@ -2220,13 +2063,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
-                                'duration_minutes' => 10,
+                                'duration_minutes' => 12,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
-                                'rounds' => [
+                                'round_pool' => [
                                     'Describe what you usually eat in a normal day, with no preparation.',
                                     'Talk about your favourite food and why you like it.',
                                     'Explain one eating habit you would like to change, and why.',
+                                    'What food did you eat a lot of as a child?',
+                                    'Do you prefer cooking at home or eating out? Why?',
+                                    'What is a food from another country that you really enjoy?',
                                 ],
+                                'role_reversal_topic' => 'food and eating habits',
                                 // Real prompt + requirements checklist from M04.pdf page 08
                                 // "3-Minute Speaking".
                                 'final_prompt' => 'Speak for 3 minutes without stopping about your food and lifestyle.',
@@ -2269,9 +2116,9 @@ class MissionSeeder extends Seeder
      * 4-phase/~18-step template exactly, per the standing rule that every
      * mission does — NOT M03.pdf's own compact 3-day plan, which only
      * outlines 10 of these (the rest — daily_listen_2/3, ai_conversation_1,
-     * ai_feedback_1, picture_description, reading_comprehension, error_log
-     * — are extrapolated in the same style/quality, grounded in this
-     * mission's real Work & Study topic, same as M04 was corrected to do).
+     * picture_description, reading_comprehension, error_log — are
+     * extrapolated in the same style/quality, grounded in this mission's
+     * real Work & Study topic, same as M04 was corrected to do).
      */
     private function seedM03(): void
     {
@@ -2307,60 +2154,23 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'key' => 'vocabulary_builder',
-                                'label' => 'Vocabulary Builder',
-                                'duration_minutes' => 16,
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'Vocabulary Builder — Day 1',
+                                'duration_minutes' => 7,
                                 'hook' => 'Next time someone asks about your job or studies, will these words be ready — or will you just say "it\'s complicated"?',
-                                // Word selection follows English Vocabulary in Use Unit 17
-                                // "Work" (per M03.pdf's own "exact resource" table) — jobs,
-                                // workplaces, colleagues, responsibilities, working hours,
-                                // salary, full-time/part-time, career. Story and every
-                                // meaning below are written fresh for this app (see EOS-009
-                                // §14: content stays original, no licensing/piracy risk).
-                                'story' => [
-                                    [
-                                        'heading' => 'My Job',
-                                        'text' => "I've had a few different **jobs** since I started my **career**, "
-                                            .'but I\'ve always worked **full-time** — I don\'t think I\'d enjoy '
-                                            .'**part-time** work, even though some of my friends prefer it.',
-                                    ],
-                                    [
-                                        'heading' => 'The Workplace',
-                                        'text' => 'My **workplace** is small, so I know all my **colleagues** well. '
-                                            .'We work as a close **team**, which makes even a stressful day easier '
-                                            .'to get through.',
-                                    ],
-                                    [
-                                        'heading' => 'Responsibilities',
-                                        'text' => 'One of my main **responsibilities** is training new staff. I\'m '
-                                            ."also **in charge of** the weekly schedule, and I usually **deal with** "
-                                            .'any customer complaints that come in.',
-                                    ],
-                                    [
-                                        'heading' => 'Hours & Pay',
-                                        'text' => 'My **working hours** are pretty standard, nine to five, though I '
-                                            ."sometimes do **overtime** if we're busy. The **salary** isn't amazing, "
-                                            .'but it\'s fair for the work.',
-                                    ],
-                                ],
-                                'story_words' => [
-                                    // My Job
-                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'difficulty' => 'easy'],
-                                    ['phrase' => 'career', 'meaning' => 'the jobs someone has over a long period, usually in one field', 'difficulty' => 'medium'],
-                                    ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'difficulty' => 'easy'],
-                                    ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'difficulty' => 'easy'],
-                                    // The Workplace
-                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'image_query' => 'colleagues working in open office', 'difficulty' => 'easy'],
-                                    ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
-                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'difficulty' => 'easy'],
-                                    // Responsibilities
-                                    ['phrase' => 'responsibility', 'meaning' => 'a duty or task that is part of your job', 'difficulty' => 'medium'],
-                                    ['phrase' => 'in charge of', 'meaning' => 'responsible for managing something', 'difficulty' => 'hard'],
-                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'difficulty' => 'hard', 'allow_embedded_match' => true],
-                                    // Hours & Pay
-                                    ['phrase' => 'working hours', 'meaning' => 'the times of day someone is at work', 'difficulty' => 'medium'],
-                                    ['phrase' => 'overtime', 'meaning' => 'extra hours worked beyond the usual schedule', 'difficulty' => 'medium'],
-                                    ['phrase' => 'salary', 'meaning' => 'the fixed amount of money someone is paid for their job', 'image_query' => 'salary paycheck money', 'difficulty' => 'medium'],
+                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
+                                // for the full rationale. Day 1 = the real Listening episode's own
+                                // target_phrases that actually overlap with this mission's vocab
+                                // pool — only 3 of the episode's 5 do ("deadline" and "work life
+                                // balance" were never part of the story_words pool; a prior content
+                                // audit found 3/5 was the real ceiling here, not a gap to fix now).
+                                'story' => "I've had a few different **jobs**, and I always try to be a good "
+                                    .'member of the **team**. Part of my job is learning to **deal with** '
+                                    .'difficult situations calmly.',
+                                'words' => [
+                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'pos' => 'noun', 'example' => 'She found a new job last month.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'pos' => 'noun', 'synonym' => 'group', 'example' => 'Our team meets every Monday morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'pos' => 'phrasal verb', 'synonym' => 'handle', 'example' => 'I have to deal with a difficult client today.', 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -2457,13 +2267,15 @@ class MissionSeeder extends Seeder
                                 ],
                                 'detail_question' => [
                                     'question' => 'How many days a week does Lisa work from home?',
-                                    'options' => ['3 days', '5 days', '0 days'],
-                                    'correct' => 0,
+                                    'options' => ['5 days', '3 days', '0 days'],
+                                    'correct' => 1,
                                 ],
                                 'shadow_lines' => [
                                     "I've been **working** as a **marketing assistant** at a **tech company** for almost **two years** now.",
                                     "It's a **hybrid role**, so I **work** from **home** **three days** a week.",
                                     'It **saves** time and **helps** with **work life balance**.',
+                                    "**Well**, I **help** **manage** our **social media** **accounts**, **write** **content** for the **website**.",
+                                    "It **can get stressful**, **especially** when we're **close** to a **deadline**.",
                                 ],
                             ],
                         ],
@@ -2474,17 +2286,36 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'Vocabulary Builder — Day 2',
+                                'duration_minutes' => 9,
+                                'hook' => 'The words for talking about your career and where you work.',
+                                'story' => "I've had a long **career** in this field. I've always worked "
+                                    .'**full-time** — I don\'t think I\'d enjoy **part-time** work. My '
+                                    .'**workplace** is small, so I know all my **colleagues** well.',
+                                'words' => [
+                                    ['phrase' => 'career', 'meaning' => 'the jobs someone has over a long period, usually in one field', 'pos' => 'noun', 'example' => 'He has had a long career in teaching.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'pos' => 'adjective', 'synonym' => 'opposite: part-time', 'example' => 'She works full-time at a hospital.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'pos' => 'adjective', 'synonym' => 'opposite: full-time', 'example' => 'I have a part-time job at weekends.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'pos' => 'noun', 'example' => 'Our workplace is very friendly.', 'image_query' => 'colleagues working in open office', 'difficulty' => 'easy'],
+                                    ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'pos' => 'noun', 'synonym' => 'co-worker', 'example' => 'I had lunch with a colleague today.', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Daily Listening',
                                 'duration_minutes' => 8,
                                 'hook' => 'Same podcast, one more time — familiar is exactly the point.',
                                 'image_query' => 'people working office study',
-                                'recall_prompt' => "Write a different word or phrase this time — try not to repeat yesterday's.",
+                                'shadow_lines' => [
+                                    '**I** **deal with** **customer** **emails** and **help people** **track** their **orders**.',
+                                    '**Sometimes** I **listen** to **podcasts** on the **way**.',
+                                ],
                             ],
                             [
                                 'key' => 'grammar_in_context',
                                 'label' => 'Grammar in Context',
-                                'duration_minutes' => 12,
+                                'duration_minutes' => 14,
                                 // Grammar point changed 2026-09-10 from "Present Simple vs
                                 // Present Continuous" (a straight repeat of M02's own focus,
                                 // with no real content difference beyond the title) to Modals
@@ -2508,6 +2339,13 @@ class MissionSeeder extends Seeder
                                                 .'required. <strong>Can / can\'t</strong> describe ability or '
                                                 .'permission — what you are (or aren\'t) able or allowed to do.',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Tomás',
+                                                    'wrong' => 'I have to finishing this report today.',
+                                                    'right' => 'I have to finish this report today.',
+                                                    'explanation' => "After a modal or 'have to', the next verb stays in its bare form — never the -ing form.",
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
@@ -2537,8 +2375,8 @@ class MissionSeeder extends Seeder
                                         [
                                             'heading' => 'C · Make it personal',
                                             'body' => 'Finish each starter below with something true about your '
-                                                .'own work or studies — and reuse them out loud in Activation right '
-                                                .'after.',
+                                                .'own work or studies — and reuse them out loud soon, in AI '
+                                                .'Conversation #1.',
                                             'blocks' => [
                                                 [
                                                     'type' => 'chips',
@@ -2550,7 +2388,7 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll put this straight to use next — in Activation, talking about your own work or studies.",
+                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, talking about your own work or studies.",
                                 ],
                                 'frequency_starters' => [
                                     'I have to', 'I need to', "I don't have to",
@@ -2569,35 +2407,28 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have to finishing this report today.',
-                                        'options' => ['I have to finish this report today.', 'I have to finishing this report today.', 'I has to finish this report today.'],
-                                        'correct' => 0,
+                                        'options' => ['I have to finishing this report today.', 'I has to finish this report today.', 'I have to finish this report today.'],
+                                        'correct' => 2,
                                         'difficulty' => 'easy',
                                     ],
                                     [
                                         'wrong' => 'She can to speak three languages.',
-                                        'options' => ['She can speak three languages.', 'She can to speak three languages.', 'She cans speak three languages.'],
-                                        'correct' => 0,
+                                        'options' => ['She can to speak three languages.', 'She cans speak three languages.', 'She can speak three languages.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
                                     ],
                                     [
                                         'wrong' => 'Do you have to worked on weekends?',
-                                        'options' => ['Do you have to work on weekends?', 'Do you have to worked on weekends?', 'Have you to work on weekends?'],
-                                        'correct' => 0,
+                                        'options' => ['Do you have to worked on weekends?', 'Do you have to work on weekends?', 'Have you to work on weekends?'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
                                     ],
                                 ],
-                            ],
-                            [
-                                'key' => 'activation',
-                                'label' => 'Activation',
-                                'duration_minutes' => 10,
-                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
-                                // Real questions from M03.pdf page 05 "Work / Study".
-                                'task' => 'Answer these questions about your work or studies — what you normally '
-                                    .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
-                                    .'to improve — then record 2 minutes of solo speaking about your work/study '
-                                    .'life, using modals of obligation (have to, need to, must) and ability (can, '
-                                    .'can\'t), without reading.',
+                                'word_order' => [
+                                    ['words' => ['this', 'have', 'I', 'report', 'to', 'today.', 'finish'], 'answer' => 'I have to finish this report today.'],
+                                    ['words' => ['work', 'have', 'Do', 'you', 'weekends?', 'to'], 'answer' => 'Do you have to work weekends?'],
+                                    ['words' => ['two', 'speak', 'I', 'languages.', 'can'], 'answer' => 'I can speak two languages.'],
+                                ],
                             ],
                             [
                                 'key' => 'video_shadowing',
@@ -2637,18 +2468,45 @@ class MissionSeeder extends Seeder
                         'mode' => 'ai',
                         'steps' => [
                             [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'Vocabulary Builder — Day 3',
+                                'duration_minutes' => 9,
+                                'hook' => "Last set — the words for what you're responsible for, and how you're paid for it.",
+                                'story' => 'One of my main **responsibilities** is training new staff, and I\'m '
+                                    .'also **in charge of** the weekly schedule. My **working hours** are pretty '
+                                    .'standard, though I sometimes do **overtime**. The **salary** isn\'t amazing, '
+                                    .'but it\'s fair.',
+                                'words' => [
+                                    ['phrase' => 'responsibility', 'meaning' => 'a duty or task that is part of your job', 'pos' => 'noun', 'example' => 'Training new staff is my responsibility.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'in charge of', 'meaning' => 'responsible for managing something', 'pos' => 'adjective phrase', 'synonym' => 'responsible for', 'example' => "She's in charge of the whole department.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'working hours', 'meaning' => 'the times of day someone is at work', 'pos' => 'noun phrase', 'example' => 'My working hours are nine to five.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'overtime', 'meaning' => 'extra hours worked beyond the usual schedule', 'pos' => 'noun', 'example' => 'I did two hours of overtime yesterday.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'salary', 'meaning' => 'the fixed amount of money someone is paid for their job', 'pos' => 'noun', 'example' => 'The salary for this job is quite good.', 'image_query' => 'salary paycheck money', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Daily Listening',
                                 'duration_minutes' => 8,
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'colleagues office coffee break',
-                                'recall_prompt' => "One more — this time, are you sure you'll remember it?",
+                                'shadow_lines' => [
+                                    '**Maybe** we **should** **start** **one** about our **work lives**.',
+                                    "**When** you **have** **good** **work life balance**, you're **not too stressed**.",
+                                ],
                             ],
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'AI Conversation #1',
-                                'duration_minutes' => 12,
-                                'hook' => 'This is the real thing — the AI Instructor is listening, not testing.',
+                                // Epic E merge — see M01's own comment for the arithmetic.
+                                'duration_minutes' => 24,
+                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                // Real questions from M03.pdf page 05 "Work / Study".
+                                'warm_up_task' => 'Answer these questions about your work or studies — what you normally '
+                                    .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
+                                    .'to improve — then record 2 minutes of solo speaking about your work/study '
+                                    .'life, using modals of obligation (have to, need to, must) and ability (can, '
+                                    .'can\'t), without reading.',
                                 'interview_questions' => [
                                     'What do you do for work or study?',
                                     'What does a typical day look like for you?',
@@ -2657,12 +2515,6 @@ class MissionSeeder extends Seeder
                                     'Do you prefer working alone or in a team?',
                                     'What are you working on at the moment?',
                                 ],
-                            ],
-                            [
-                                'key' => 'ai_feedback_1',
-                                'label' => 'AI Feedback #1',
-                                'duration_minutes' => 3,
-                                'hook' => "A second pair of ears just heard everything you said — here's what stood out.",
                             ],
                             [
                                 'key' => 'picture_description',
@@ -2722,8 +2574,8 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'working hours', 'type' => 'reused'],
                                     ['phrase' => 'in charge of', 'type' => 'reused'],
                                     ['phrase' => 'responsibility', 'type' => 'reused'],
-                                    ['phrase' => 'timetable', 'type' => 'new', 'definition' => 'a plan showing when classes or events happen'],
-                                    ['phrase' => 'assignment', 'type' => 'new', 'definition' => 'a piece of work given as part of a course'],
+                                    ['phrase' => 'timetable', 'type' => 'new', 'definition' => 'a plan showing when classes or events happen', 'pos' => 'noun', 'example' => 'My timetable is different every day this week.'],
+                                    ['phrase' => 'assignment', 'type' => 'new', 'definition' => 'a piece of work given as part of a course', 'pos' => 'noun', 'example' => 'I have to finish my assignment by Friday.'],
                                 ],
                                 'topic_summary' => 'A short profile of Sara, a university student in Leeds, whose '
                                     .'days depend on her timetable — some full of lectures, others spent mostly in '
@@ -2771,46 +2623,6 @@ class MissionSeeder extends Seeder
                         'mode' => 'partner',
                         'steps' => [
                             [
-                                'key' => 'active_recall',
-                                'label' => 'Active Recall',
-                                'duration_minutes' => 8,
-                                'hook' => 'No peeking. This is exactly how real conversations work — no notes, just what stuck.',
-                                'instruction' => 'Without looking at the previous pages.',
-                                // Grammar recap updated 2026-09-10 to match this mission's
-                                // Modals of Obligation & Ability focus (was Present Simple/
-                                // Continuous — see grammar_in_context above) — same 2-typed-
-                                // prompt + 2 single-item-box pattern as before, same as M04's
-                                // active_recall.
-                                'sections' => [
-                                    ['key' => 'expressions', 'label' => '5 vocabulary items', 'count' => 5],
-                                    [
-                                        'key' => 'obligation_example',
-                                        'label' => 'Obligation example (have to / need to / must)',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about their work or studies, correctly using have to, need '
-                                            .'to, or must.',
-                                        'major_criteria' => 'the modal is missing or used incorrectly (wrong verb '
-                                            .'form after it), or the sentence is not a genuine personal example',
-                                        'context' => 'a personal example sentence using have to, need to, or must',
-                                        'recap_label' => 'example correctly used a modal of obligation',
-                                    ],
-                                    [
-                                        'key' => 'ability_example',
-                                        'label' => 'Ability/permission example (can / can\'t)',
-                                        'count' => 1,
-                                        'judgment' => 'Judge whether the learner gave a genuine, natural example '
-                                            .'sentence about their work or studies, correctly using can or can\'t.',
-                                        'major_criteria' => 'the modal is missing or used incorrectly (wrong verb '
-                                            .'form after it), or the sentence is not a genuine personal example',
-                                        'context' => 'a personal example sentence using can or can\'t',
-                                        'recap_label' => 'example correctly used can/can\'t',
-                                    ],
-                                    ['key' => 'listening_facts', 'label' => 'One thing I learned from the listening', 'count' => 1],
-                                    ['key' => 'expression_to_keep', 'label' => 'One expression I want to keep using', 'count' => 1],
-                                ],
-                            ],
-                            [
                                 'key' => 'partner_speaking_session',
                                 'label' => 'Partner Speaking Session',
                                 'duration_minutes' => 15,
@@ -2857,13 +2669,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_2',
                                 'label' => 'AI Conversation #2 — Final Challenge',
-                                'duration_minutes' => 10,
+                                'duration_minutes' => 12,
                                 'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
-                                'rounds' => [
+                                'round_pool' => [
                                     'Describe what you do for work or study, with no preparation.',
                                     'Talk about something you are currently working on.',
                                     'Explain one thing you find difficult, and one thing you enjoy.',
+                                    'What does a normal week look like for you?',
+                                    'What skill would you like to improve at work or school?',
+                                    'How do you usually relax after a busy day of work or study?',
                                 ],
+                                'role_reversal_topic' => 'work and study',
                                 // Real prompt + requirements checklist from M03.pdf page 08
                                 // "3-Minute Speaking".
                                 'final_prompt' => 'Speak for 3 minutes without stopping about your work or studies.',

@@ -47,20 +47,20 @@ class PlacementTest
     public function vocabulary(): array
     {
         return [
-            ['band' => 'A1', 'word' => 'breakfast', 'options' => ['the first meal of the day', 'a small bedroom', 'a short holiday'], 'correct' => 0],
+            ['band' => 'A1', 'word' => 'breakfast', 'options' => ['a small bedroom', 'a short holiday', 'the first meal of the day'], 'correct' => 2],
             ['band' => 'A1', 'word' => 'tired', 'options' => ['needing to rest or sleep', 'feeling very cold', 'walking quickly'], 'correct' => 0],
-            ['band' => 'A1', 'word' => 'cheap', 'options' => ['not expensive', 'very old', 'quite heavy'], 'correct' => 0],
-            ['band' => 'A1', 'word' => 'busy', 'options' => ['having a lot to do', 'feeling bored', 'far away'], 'correct' => 0],
+            ['band' => 'A1', 'word' => 'cheap', 'options' => ['very old', 'not expensive', 'quite heavy'], 'correct' => 1],
+            ['band' => 'A1', 'word' => 'busy', 'options' => ['feeling bored', 'far away', 'having a lot to do'], 'correct' => 2],
 
-            ['band' => 'A2', 'word' => 'borrow', 'options' => ['to take something and give it back later', 'to buy something new', 'to lose something'], 'correct' => 0],
+            ['band' => 'A2', 'word' => 'borrow', 'options' => ['to buy something new', 'to take something and give it back later', 'to lose something'], 'correct' => 1],
             ['band' => 'A2', 'word' => 'crowded', 'options' => ['full of people', 'very quiet', 'badly lit'], 'correct' => 0],
-            ['band' => 'A2', 'word' => 'on time', 'options' => ['not late', 'every week', 'by accident'], 'correct' => 0],
-            ['band' => 'A2', 'word' => 'give up', 'options' => ['to stop doing something', 'to share something', 'to start again'], 'correct' => 0],
+            ['band' => 'A2', 'word' => 'on time', 'options' => ['every week', 'not late', 'by accident'], 'correct' => 1],
+            ['band' => 'A2', 'word' => 'give up', 'options' => ['to share something', 'to start again', 'to stop doing something'], 'correct' => 2],
 
             ['band' => 'B1', 'word' => 'reliable', 'options' => ['can be trusted to do what is needed', 'easy to carry', 'happening by chance'], 'correct' => 0],
-            ['band' => 'B1', 'word' => 'deadline', 'options' => ['the latest time something must be done', 'a long break from work', 'a type of meeting'], 'correct' => 0],
+            ['band' => 'B1', 'word' => 'deadline', 'options' => ['a long break from work', 'the latest time something must be done', 'a type of meeting'], 'correct' => 1],
             ['band' => 'B1', 'word' => 'put up with', 'options' => ['to accept something unpleasant', 'to build something', 'to explain clearly'], 'correct' => 0],
-            ['band' => 'B1', 'word' => 'come across', 'options' => ['to find something by chance', 'to arrive early', 'to agree with someone'], 'correct' => 0],
+            ['band' => 'B1', 'word' => 'come across', 'options' => ['to arrive early', 'to agree with someone', 'to find something by chance'], 'correct' => 2],
         ];
     }
 
@@ -74,17 +74,17 @@ class PlacementTest
     public function grammar(): array
     {
         return [
-            ['band' => 'A1', 'prompt' => 'She ___ coffee every morning.', 'options' => ['drinks', 'drink', 'is drink'], 'correct' => 0],
-            ['band' => 'A1', 'prompt' => '___ you have a car?', 'options' => ['Do', 'Are', 'Is'], 'correct' => 0],
+            ['band' => 'A1', 'prompt' => 'She ___ coffee every morning.', 'options' => ['drink', 'drinks', 'is drink'], 'correct' => 1],
+            ['band' => 'A1', 'prompt' => '___ you have a car?', 'options' => ['Are', 'Is', 'Do'], 'correct' => 2],
             ['band' => 'A1', 'prompt' => 'There ___ two chairs in the room.', 'options' => ['are', 'is', 'be'], 'correct' => 0],
 
-            ['band' => 'A2', 'prompt' => 'Be quiet — the baby ___ .', 'options' => ['is sleeping', 'sleeps', 'sleep'], 'correct' => 0],
+            ['band' => 'A2', 'prompt' => 'Be quiet — the baby ___ .', 'options' => ['sleeps', 'is sleeping', 'sleep'], 'correct' => 1],
             ['band' => 'A2', 'prompt' => 'I ___ work on Saturdays. I stay at home.', 'options' => ["don't have to", 'am not having to', 'not have to'], 'correct' => 0],
-            ['band' => 'A2', 'prompt' => 'We ___ to the cinema last night.', 'options' => ['went', 'have gone', 'go'], 'correct' => 0],
+            ['band' => 'A2', 'prompt' => 'We ___ to the cinema last night.', 'options' => ['have gone', 'go', 'went'], 'correct' => 2],
 
-            ['band' => 'B1', 'prompt' => "I ___ here since 2019, and I'm still enjoying it.", 'options' => ['have worked', 'worked', 'am working'], 'correct' => 0],
+            ['band' => 'B1', 'prompt' => "I ___ here since 2019, and I'm still enjoying it.", 'options' => ['worked', 'have worked', 'am working'], 'correct' => 1],
             ['band' => 'B1', 'prompt' => 'If I had more time, I ___ a new language.', 'options' => ['would learn', 'will learn', 'am learning'], 'correct' => 0],
-            ['band' => 'B1', 'prompt' => 'The report ___ by my colleague yesterday.', 'options' => ['was written', 'wrote', 'has wrote'], 'correct' => 0],
+            ['band' => 'B1', 'prompt' => 'The report ___ by my colleague yesterday.', 'options' => ['wrote', 'has wrote', 'was written'], 'correct' => 2],
         ];
     }
 

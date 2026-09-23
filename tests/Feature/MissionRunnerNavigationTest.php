@@ -73,6 +73,69 @@ class MissionRunnerNavigationTest extends TestCase
         $this->assertSame('vocabulary_builder', $run->fresh()->currentStepKey());
     }
 
+    /**
+     * Epic H: "Practice again" is always available while reviewing any
+     * redoable step — not just when Mission Result's AI happens to
+     * suggest it.
+     */
+    public function test_a_practice_again_link_is_offered_while_reviewing_a_redoable_step(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
+            ->assertSeeHtml(route('missions.show', [$mission, 'mission_brief', 'retry' => 1]))
+            ->assertSee('Practice this step again');
+    }
+
+    public function test_no_practice_again_link_for_a_pure_ai_summary_step(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [
+                ['key' => 'mission_brief'],
+                ['key' => 'ai_feedback_1'],
+            ]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_SCORE, 'content_ref' => '3']);
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'ai_feedback_1', 'type' => Evidence::TYPE_TEXT, 'content_ref' => '{}']);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'ai_feedback_1'])
+            ->assertSet('isReviewing', true)
+            ->assertDontSee('Practice this step again');
+    }
+
+    public function test_no_practice_again_link_while_not_reviewing(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        MissionRun::findOrStart($learner, $mission);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
+            ->assertSet('isReviewing', false)
+            ->assertDontSee('Practice this step again');
+    }
+
     public function test_retry_reopens_an_already_evidenced_step_as_live_and_editable(): void
     {
         $learner = User::factory()->create();
@@ -236,7 +299,7 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission])
             ->assertSet('showOverview', false)
-            ->assertSet('activeStepKey', 'vocabulary_builder');
+            ->assertSet('activeStepKey', 'vocabulary_builder_1');
     }
 
     public function test_finishing_a_day_shows_the_overview_again_with_that_day_marked_done(): void
@@ -247,7 +310,7 @@ class MissionRunnerNavigationTest extends TestCase
         $mission = Mission::where('code', 'M01')->firstOrFail();
         $run = MissionRun::findOrStart($learner, $mission);
 
-        foreach (['mission_brief', 'vocabulary_builder', 'listening'] as $key) {
+        foreach (['mission_brief', 'vocabulary_builder_1', 'listening'] as $key) {
             Evidence::create([
                 'mission_run_id' => $run->id,
                 'phase' => $key,
@@ -272,7 +335,7 @@ class MissionRunnerNavigationTest extends TestCase
         $mission = Mission::where('code', 'M01')->firstOrFail();
         $run = MissionRun::findOrStart($learner, $mission);
 
-        foreach (['mission_brief', 'vocabulary_builder', 'listening'] as $key) {
+        foreach (['mission_brief', 'vocabulary_builder_1', 'listening'] as $key) {
             Evidence::create([
                 'mission_run_id' => $run->id,
                 'phase' => $key,

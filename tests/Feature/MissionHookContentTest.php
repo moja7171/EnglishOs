@@ -41,9 +41,13 @@ class MissionHookContentTest extends TestCase
      * and two image-based speaking steps added 2026-09-04: story_sequence
      * right after Grammar in Context (narrate a picture sequence in the
      * Present Simple tense just taught) and picture_description right
-     * after AI Feedback #1 (a real CEFR "describe this picture" task —
+     * after AI Conversation #1 (a real CEFR "describe this picture" task —
      * the only step that practices describing a scene rather than the
-     * learner's own routine).
+     * learner's own routine). Epic E (mission structure redesign) then
+     * merged the old standalone Activation step into AI Conversation #1's
+     * own first round, and AI Feedback #1 into that same step's
+     * completion recap — moving that content from Day 2 to Day 3, where
+     * AI Conversation #1 itself already lived.
      */
     public function test_m01_step_order_matches_the_real_3_day_plan(): void
     {
@@ -54,23 +58,24 @@ class MissionHookContentTest extends TestCase
         $this->assertSame([
             // Day 1 · Individual (pages 01-03)
             'mission_brief',
-            'vocabulary_builder',
+            'vocabulary_builder_1',
             'listening',
-            // Day 2 · Individual (pages 04-05)
+            // Day 2 · Individual (pages 04-05) — vocabulary_builder_2 added
+            // right at the start (mission structure redesign, Epic B).
+            'vocabulary_builder_2',
             'daily_listen_2',
             'grammar_in_context',
             'story_sequence',
-            'activation',
             'video_shadowing',
-            // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge
+            // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge —
+            // vocabulary_builder_3 added right at the start, same reason.
+            'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
-            'ai_feedback_1',
             'picture_description',
             'reading_comprehension',
             'writing',
             'daily_listen_4',
-            'active_recall',
             'error_log',
             'ai_conversation_2',
             'mission_result',
@@ -106,26 +111,75 @@ class MissionHookContentTest extends TestCase
         $this->assertSame([
             // Day 1 · Foundation
             'mission_brief',
-            'vocabulary_builder',
+            'vocabulary_builder_1',
             'listening',
-            // Day 2 · Build
+            // Day 2 · Build — vocabulary_builder_2 added at the start (Epic B).
+            'vocabulary_builder_2',
             'daily_listen_2',
             'grammar_in_context',
-            'activation',
             'video_shadowing',
-            // Day 3 · Practice
+            // Day 3 · Practice — vocabulary_builder_3 added at the start (Epic B).
+            'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
-            'ai_feedback_1',
             'picture_description',
             'reading_comprehension',
             'writing',
             // Day 4 · Challenge
-            'active_recall',
             'error_log',
             'partner_speaking_session',
             'ai_conversation_2',
             'mission_result',
         ], $mission->stepKeys());
+    }
+
+    /**
+     * Epic D: `word_order`'s `words` bank is authored already scrambled
+     * (never reshuffled at render time — see <x-word-order-round>), so a
+     * typo dropping or duplicating a token would make that card silently
+     * unsolvable. Checked directly against the real seeded content for
+     * every mission that has this step, not just a test fixture.
+     */
+    public function test_every_missions_word_order_cards_are_solvable(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        foreach (['M01', 'M02', 'M03', 'M04'] as $code) {
+            $mission = Mission::where('code', $code)->firstOrFail();
+            $cards = $mission->stepContent('grammar_in_context')['word_order'] ?? [];
+
+            $this->assertNotEmpty($cards, "{$code} has no word_order cards.");
+
+            foreach ($cards as $card) {
+                $words = $card['words'];
+                sort($words);
+                $answerTokens = explode(' ', $card['answer']);
+                sort($answerTokens);
+
+                $this->assertSame($answerTokens, $words, "{$code}'s word_order card \"{$card['answer']}\" isn't buildable from its own word bank.");
+            }
+        }
+    }
+
+    /**
+     * Epic E: AI Conversation #2's round_pool must have more prompts than
+     * one attempt actually asks (see
+     * ⚡ai-conversation2.blade.php::ROUNDS_PER_ATTEMPT), or the "real
+     * variety across attempts" this was built for silently never
+     * triggers — every attempt would just get the same pool back
+     * unshuffled. role_reversal_topic must also be seeded, not left to
+     * the component's generic fallback.
+     */
+    public function test_every_missions_ai_conversation_2_has_a_real_round_pool_and_role_reversal_topic(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        foreach (['M01', 'M02', 'M03', 'M04'] as $code) {
+            $mission = Mission::where('code', $code)->firstOrFail();
+            $content = $mission->stepContent('ai_conversation_2');
+
+            $this->assertGreaterThan(3, count($content['round_pool'] ?? []), "{$code}'s round_pool isn't bigger than ROUNDS_PER_ATTEMPT.");
+            $this->assertNotEmpty($content['role_reversal_topic'] ?? null, "{$code} has no role_reversal_topic.");
+        }
     }
 }

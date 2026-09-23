@@ -196,21 +196,20 @@ new class extends Component
     {
         return [
             'mission_brief' => 'missions.steps.mission-brief',
-            'vocabulary_builder' => 'missions.steps.vocabulary-builder',
+            'vocabulary_builder_1' => 'missions.steps.vocabulary-builder',
+            'vocabulary_builder_2' => 'missions.steps.vocabulary-builder',
+            'vocabulary_builder_3' => 'missions.steps.vocabulary-builder',
             'listening' => 'missions.steps.listening',
             'daily_listen_2' => 'missions.steps.daily-listen-2',
             'grammar_in_context' => 'missions.steps.grammar-in-context',
             'story_sequence' => 'missions.steps.story-sequence',
-            'activation' => 'missions.steps.activation',
             'video_shadowing' => 'missions.steps.video-shadowing',
             'daily_listen_3' => 'missions.steps.daily-listen-3',
             'ai_conversation_1' => 'missions.steps.ai-conversation1',
-            'ai_feedback_1' => 'missions.steps.ai-feedback1',
             'picture_description' => 'missions.steps.picture-description',
             'reading_comprehension' => 'missions.steps.reading-comprehension',
             'writing' => 'missions.steps.writing',
             'daily_listen_4' => 'missions.steps.daily-listen-4',
-            'active_recall' => 'missions.steps.active-recall',
             'error_log' => 'missions.steps.error-log',
             'ai_conversation_2' => 'missions.steps.ai-conversation2',
             'mission_result' => 'missions.steps.mission-result',
@@ -254,19 +253,17 @@ new class extends Component
     {
         return match (true) {
             $key === 'mission_brief' => 'heroicon-o-rocket-launch',
-            $key === 'vocabulary_builder' => 'heroicon-o-book-open',
+            str_starts_with($key, 'vocabulary_builder') => 'heroicon-o-book-open',
             $key === 'listening' => 'heroicon-o-speaker-wave',
             str_starts_with($key, 'daily_listen') => 'heroicon-o-speaker-wave',
             $key === 'grammar_in_context' => 'heroicon-o-pencil',
             $key === 'story_sequence' => 'heroicon-o-photo',
-            $key === 'activation' => 'heroicon-o-microphone',
             $key === 'video_shadowing' => 'heroicon-o-video-camera',
             str_starts_with($key, 'ai_conversation') => 'heroicon-o-chat-bubble-left-right',
             str_starts_with($key, 'ai_feedback') => 'heroicon-o-light-bulb',
             $key === 'picture_description' => 'heroicon-o-photo',
             $key === 'reading_comprehension' => 'heroicon-o-newspaper',
             $key === 'writing' => 'heroicon-o-pencil-square',
-            $key === 'active_recall' => 'heroicon-o-arrow-path',
             $key === 'error_log' => 'heroicon-o-magnifying-glass',
             $key === 'mission_result' => 'heroicon-o-flag',
             $key === 'partner_speaking_session' => 'heroicon-o-user-group',
@@ -424,16 +421,41 @@ new class extends Component
                     Step {{ $position }} of {{ count($daySteps) }}
                 </p>
                 @if ($this->isReviewing)
-                    <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                        Reviewing a completed step
+                    <span class="flex items-center gap-2">
+                        <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+                            Reviewing a completed step
+                        </span>
+                        {{-- Always available while reviewing any step with
+                             real learner input (mission structure redesign,
+                             Epic H) — not just when the AI happens to
+                             suggest it on Mission Result. Icon+tooltip, not
+                             a text label, per the project's secondary-
+                             action convention. --}}
+                        @if (Mission::isStepRedoable($this->activeStepKey))
+                            <a
+                                href="{{ route('missions.show', [$mission, $this->activeStepKey, 'retry' => 1]) }}"
+                                wire:navigate
+                                title="Practice this step again"
+                                class="inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface hover:text-ink dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark"
+                            >@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')</a>
+                        @endif
                     </span>
                 @endif
             </div>
             <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->stepLabel($this->activeStepKey) }}</h2>
 
             @if ($this->stepComponent)
+                @php
+                    // vocabulary_builder_1/2/3 all share one component (see
+                    // stepComponents() above) and need to know which day
+                    // they're rendering — every other step still derives
+                    // everything it needs from $run alone.
+                    $extraProps = str_starts_with($this->activeStepKey, 'vocabulary_builder_')
+                        ? ['stepKey' => $this->activeStepKey]
+                        : [];
+                @endphp
                 <div class="mt-4">
-                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing], key($run->id.'-'.$this->activeStepKey.'-'.($this->isReviewing ? 'ro' : 'live')))
+                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing, ...$extraProps], key($run->id.'-'.$this->activeStepKey.'-'.($this->isReviewing ? 'ro' : 'live')))
                 </div>
             @else
                 <p class="mt-2 text-sm text-ink-faint dark:text-ink-faint-dark">Step screen not built yet.</p>

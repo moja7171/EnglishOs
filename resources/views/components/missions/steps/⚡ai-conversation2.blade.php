@@ -21,10 +21,30 @@ new class extends Component
 
     public bool $readOnly = false;
 
+    /**
+     * How many rounds one attempt actually asks — the seeded `round_pool`
+     * can hold more than this (mission structure redesign, Epic E: real
+     * variety across attempts instead of always the same fixed rounds in
+     * the same order). A pool no bigger than this is used exactly as
+     * seeded, unchanged — see getRoundsProperty().
+     */
+    public const ROUNDS_PER_ATTEMPT = 3;
+
     public int $roundIndex = 0;
 
     /** @var array<int, array{prompt: string, answer: string, followup: string}> */
     public array $turns = [];
+
+    /**
+     * The role-reversal round (Epic E) — the learner asks the AI a
+     * question about the mission topic instead of answering one, right
+     * after the regular Q&A rounds and before the Final Challenge.
+     */
+    public bool $roleReversalDone = false;
+
+    public ?string $learnerQuestion = null;
+
+    public ?string $aiAnswerToLearner = null;
 
     public ?string $finalTranscript = null;
 
@@ -63,15 +83,37 @@ new class extends Component
         $data = json_decode($this->run->latestEvidence('ai_conversation_2')?->content_ref ?? '{}', true);
         $this->turns = $data['rounds'] ?? [];
         $this->roundIndex = count($this->rounds);
+        $this->roleReversalDone = true;
+        $this->learnerQuestion = $data['role_reversal']['question'] ?? null;
+        $this->aiAnswerToLearner = $data['role_reversal']['answer'] ?? null;
         $this->finalTranscript = $data['final_transcript'] ?? null;
         $this->checklist = $data['requirements'] ?? null;
         $this->checklistNote = $data['note'] ?? null;
         $this->checklistRawResponse = $data['raw_ai_response'] ?? null;
     }
 
+    /**
+     * The rounds actually asked THIS attempt. A `round_pool` bigger than
+     * ROUNDS_PER_ATTEMPT is shuffled and trimmed — deterministically per
+     * run (seeded by the run's own id), so re-rendering mid-attempt never
+     * reshuffles which prompts were already answered, but a different
+     * run/learner genuinely sees a different subset. A pool no bigger
+     * than ROUNDS_PER_ATTEMPT is returned exactly as seeded, unchanged —
+     * every existing fixture/mission with 1-3 `rounds` keeps behaving
+     * exactly as before.
+     */
     public function getRoundsProperty(): array
     {
-        return $this->run->mission->stepContent('ai_conversation_2')['rounds'] ?? [];
+        $content = $this->run->mission->stepContent('ai_conversation_2');
+        $pool = $content['round_pool'] ?? $content['rounds'] ?? [];
+
+        if (count($pool) <= self::ROUNDS_PER_ATTEMPT) {
+            return $pool;
+        }
+
+        $randomizer = new \Random\Randomizer(new \Random\Engine\Mt19937($this->run->id));
+
+        return array_slice($randomizer->shuffleArray($pool), 0, self::ROUNDS_PER_ATTEMPT);
     }
 
     public function getRequirementsProperty(): array
@@ -84,14 +126,26 @@ new class extends Component
         return $this->run->mission->stepContent('ai_conversation_2')['final_prompt'] ?? '';
     }
 
+    public function getRoleReversalTopicProperty(): string
+    {
+        return $this->run->mission->stepContent('ai_conversation_2')['role_reversal_topic'] ?? 'your daily life';
+    }
+
     public function getCurrentRoundPromptProperty(): ?string
     {
         return $this->rounds[$this->roundIndex] ?? null;
     }
 
-    public function getInFinalStageProperty(): bool
+    /** True once every Q&A round has been answered — the role-reversal round comes next. */
+    public function getQaRoundsDoneProperty(): bool
     {
         return $this->roundIndex >= count($this->rounds);
+    }
+
+    /** True only once BOTH the Q&A rounds and the role-reversal round are done — the Final Challenge comes next. */
+    public function getInFinalStageProperty(): bool
+    {
+        return $this->qaRoundsDone && $this->roleReversalDone;
     }
 
     public function submitRoundAnswer(): void
@@ -144,14 +198,79 @@ new class extends Component
     }
 
     /**
+     * The role-reversal round: the learner records a genuine question
+     * about the mission topic (instead of an answer), and the AI answers
+     * it — closing the loop on a whole mission of being the one
+     * answering questions.
+     */
+    public function submitLearnerQuestion(): void
+    {
+        $this->error = null;
+        $this->processing = true;
+
+        $this->validate(['audioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480']]);
+
+        try {
+            $question = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $this->recordGroqCall();
+            $this->audioFile = null;
+
+            $check = app(SpokenAnswerChecker::class)->checkGenuineQuestion(
+                $this->roleReversalTopic,
+                $question,
+                $this->run->learner->levelDescription(),
+            );
+            $this->recordGeminiCall();
+
+            $this->trackCheckAttempt('role_reversal', $check['severity']);
+
+            if ($check['severity'] === 'major') {
+                $this->offTopicHint['role_reversal'] = $check['hint'];
+
+                return;
+            }
+
+            unset($this->offTopicHint['role_reversal'], $this->exampleAnswer['role_reversal']);
+            $this->learnerQuestion = $question;
+
+            $this->aiAnswerToLearner = trim(app(GeminiClient::class)->chat(
+                [['role' => 'user', 'text' => "The learner just asked you: \"{$question}\""]],
+                systemPrompt: 'You are a friendly English conversation partner having a real back-and-forth '
+                    .'with '.$this->run->learner->levelDescription().'. They just asked YOU a genuine question '
+                    .'about '.$this->roleReversalTopic.'. Answer it naturally and warmly, like a real person '
+                    .'would — 1 to 3 short sentences, no preamble.'
+                    .$this->run->aiToneGuidance()
+            ));
+            $this->recordGeminiCall();
+
+            $this->roleReversalDone = true;
+        } catch (\Throwable $e) {
+            $this->error = "Something went wrong talking to the AI Instructor: {$e->getMessage()}";
+        } finally {
+            $this->processing = false;
+        }
+    }
+
+    /**
      * Offered only after 3 genuinely off-topic/empty attempts on the same
-     * round/prompt — see TracksCheckAttempts. $key is a round index or the
-     * string "final" for the Final Challenge; never fills anything in for
-     * the learner, just gives them a starting idea.
+     * round/prompt — see TracksCheckAttempts. $key is a round index, the
+     * string "final" for the Final Challenge, or "role_reversal"; never
+     * fills anything in for the learner, just gives them a starting idea.
      */
     public function revealExample(int|string $key): void
     {
         try {
+            if ($key === 'role_reversal') {
+                $this->exampleAnswer[$key] = app(SpokenAnswerChecker::class)->suggestQuestion(
+                    $this->roleReversalTopic,
+                    $this->run->learner->levelDescription(),
+                );
+                $this->recordGeminiCall();
+                $this->clearCheckAttempt($key);
+
+                return;
+            }
+
             $prompt = $key === 'final' ? $this->finalPrompt : $this->rounds[$key];
 
             $this->exampleAnswer[$key] = app(SpokenAnswerChecker::class)->suggestExample(
@@ -267,6 +386,10 @@ new class extends Component
             'type' => Evidence::TYPE_TRANSCRIPT,
             'content_ref' => json_encode([
                 'rounds' => $this->turns,
+                'role_reversal' => [
+                    'question' => $this->learnerQuestion,
+                    'answer' => $this->aiAnswerToLearner,
+                ],
                 'final_transcript' => $this->finalTranscript,
                 'requirements' => $this->checklist,
                 'note' => $this->checklistNote,
@@ -284,7 +407,7 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Conversation #2 — Final Challenge</p>
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">This session should be harder than the first one.</p>
+        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tougher this time — no starter words, so think it through before you speak.</p>
     </div>
 
     @if (count($turns))
@@ -295,7 +418,14 @@ new class extends Component
         </div>
     @endif
 
-    @if (! $this->inFinalStage)
+    @if ($roleReversalDone && $learnerQuestion)
+        <div class="rounded-xl border border-line p-3 text-sm dark:border-line-dark">
+            <p class="font-semibold text-ink dark:text-ink-dark">You asked: {{ $learnerQuestion }}</p>
+            <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">AI Instructor: {{ $aiAnswerToLearner }}</p>
+        </div>
+    @endif
+
+    @if (! $this->qaRoundsDone)
         {{-- wire:key on the WHOLE card, not just the recorder inside it:
              T6.2's per-round "revealed" gate below must reset fresh every
              round, and the only reliable way to force Alpine to
@@ -377,6 +507,50 @@ new class extends Component
                     :index="$roundIndex"
                     wire-target="submitRoundAnswer,revealExample,declineExample"
                     label="Want an example to help you get started?"
+                />
+            @endunless
+        </div>
+    @elseif (! $roleReversalDone)
+        {{-- Role-reversal round (Epic E): the learner asks a question
+             instead of answering one — the same recorder mechanics, a
+             different check (checkGenuineQuestion, not checkRelevance). --}}
+        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your turn to ask</p>
+            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">Ask the AI Instructor a real question about {{ $this->roleReversalTopic }}.</p>
+
+            <div class="mt-3" wire:loading.remove wire:target="submitLearnerQuestion">
+                <x-voice-recorder
+                    field="audioFile"
+                    :file="$audioFile"
+                    on-recorded="submitLearnerQuestion"
+                    file-name="question.webm"
+                />
+            </div>
+
+            <p wire:loading wire:target="submitLearnerQuestion" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
+
+            @if ($exampleAnswer['role_reversal'] ?? null)
+                <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                    <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer['role_reversal'] }}</p>
+                </div>
+            @elseif ($offTopicHint['role_reversal'] ?? null)
+                <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint['role_reversal']]" />
+            @endif
+
+            @unless ($readOnly)
+                <x-almost-reveal-notice
+                    :show="($checkAttempts['role_reversal'] ?? 0) === 2"
+                    label="One more try — after that I can suggest a question to help you get started."
+                />
+                <x-reveal-offer
+                    :show="$offerReveal['role_reversal'] ?? false"
+                    :struggling="$this->run->isStruggling()"
+                    reveal-method="revealExample"
+                    decline-method="declineExample"
+                    index="role_reversal"
+                    wire-target="submitLearnerQuestion,revealExample,declineExample"
+                    label="Want a question to help you get started?"
                 />
             @endunless
         </div>

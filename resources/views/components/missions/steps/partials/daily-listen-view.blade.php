@@ -1,14 +1,18 @@
 {{--
     Shared markup for every Daily Listening step (⚡daily-listen-2/3/4.blade.php)
-    — identical UI, only the phase key differs per file. Reuses Day 1's
-    real Listening content: the same audio, the same transcript.
+    — identical UI, only the phase key (and its own small shadow-line
+    pool) differs per file. Reuses Day 1's real Listening content for the
+    audio/transcript; shadowing lines are this day's own (see
+    DailyListenStep::shadowLines()).
 
     @param \App\Models\MissionRun $run
     @param bool $readOnly
     @param bool $listened
-    @param string $recall
 --}}
-@php $listening = $run->mission->stepContent('listening'); @endphp
+@php
+    $listening = $run->mission->stepContent('listening');
+    $shadowLines = $this->shadowLines();
+@endphp
 
 <div
     class="space-y-6"
@@ -17,12 +21,6 @@
         hasListened: false,
         showTranscript: false,
         init() { this.hasListened = this.$el.dataset.listened === '1' },
-        recall: @js($recall),
-        targetPhrases: @js($this->targetPhrasesForRecall()),
-        get matchesTarget() {
-            const text = this.recall.toLowerCase();
-            return this.recall.trim() !== '' && this.targetPhrases.some((p) => text.includes(p));
-        },
     }"
     x-on:audio-ended="hasListened = true; $wire.markListened()"
 >
@@ -77,39 +75,64 @@
         </div>
     @endif
 
-    {{-- A tiny, ungraded recall prompt — turns passive re-listening into
-         one small act of active retrieval. Anything counts; the only
-         reaction is a quiet nod if it happens to match a real target
-         phrase, never a "wrong answer" state. --}}
-    <div x-show="hasListened || {{ $readOnly ? 'true' : 'false' }}" @unless($readOnly) x-cloak @endunless>
-        <label class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $this->recallPrompt() }}</label>
-        <div class="mt-1 flex items-center gap-2">
-            <input
-                type="text"
-                wire:model="recall"
-                x-on:input="recall = $el.value"
-                placeholder="A word or phrase…"
-                @readonly($readOnly)
-                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-            >
-        </div>
-        <p x-show="matchesTarget" x-cloak class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
-            @svg('heroicon-s-sparkles', 'h-3.5 w-3.5') That's one of the key phrases!
-        </p>
-        @error('recall')
-            <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+    {{-- Shadowing — small (this day's own 2 lines), mandatory, leniently
+         AI-graded (see DailyListenStep::checkShadowLine()). Only appears
+         once the learner has actually heard the episode once today. --}}
+    <div x-show="hasListened || {{ $readOnly ? 'true' : 'false' }}" @unless($readOnly) x-cloak @endunless class="space-y-3">
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Shadow these lines</p>
+
+        @foreach ($shadowLines as $index => $line)
+            @php $shadowKey = "shadow_{$index}"; $shadowFeedback = $feedback[$shadowKey] ?? null; @endphp
+            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                <p class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+
+                @if ($readOnly)
+                    @if ($url = $savedShadowUrls[$index] ?? null)
+                        <div class="mt-2"><x-audio-player :url="$url" /></div>
+                    @else
+                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
+                    @endif
+                @else
+                    <div class="mt-2" wire:key="{{ $this->phaseKey() }}-shadow-recorder-{{ $index }}">
+                        <x-voice-recorder
+                            field="shadowRecordings.{{ $index }}"
+                            :file="$shadowRecordings[$index] ?? null"
+                            file-name="{{ $this->phaseKey() }}-shadow-{{ $index }}.webm"
+                            on-recorded="checkShadowLine"
+                            :on-recorded-param="$index"
+                        />
+                    </div>
+                    <x-ai-thinking wire:loading wire:target="checkShadowLine({{ $index }})" class="mt-2" label="Listening to your recording…" />
+                    @if ($shadowFeedback)
+                        <p class="mt-2 text-xs {{ $shadowFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-amber-600' }}">
+                            @if ($shadowFeedback['severity'] === 'none')
+                                @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Nice — that counts.
+                            @else
+                                {{ $shadowFeedback['hint'] }}
+                            @endif
+                        </p>
+                    @endif
+                    @if ($checkErrors[$shadowKey] ?? null)
+                        <p class="mt-2 text-xs text-red-600">{{ $checkErrors[$shadowKey] }}</p>
+                    @endif
+                @endif
+            </div>
+        @endforeach
+
+        @error('shadowRecordings')
+            <p class="text-sm text-red-600">{{ $message }}</p>
         @enderror
     </div>
 
     @unless ($readOnly)
         <p x-show="!hasListened" class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen at least once to continue.</p>
-        <p x-show="hasListened && !recall.trim()" x-cloak class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a word or phrase above to continue.</p>
 
-        <x-sticky-bar ready-when="hasListened && recall.trim() !== ''" hint="Listen once, then write one thing you remember">
+        @php $shadowedEnough = $this->shadowedCount() >= count($shadowLines); @endphp
+        <x-sticky-bar ready-when="hasListened && {{ $shadowedEnough ? 'true' : 'false' }}" hint="Listen once, then shadow every line">
             <button
                 type="button"
                 wire:click="save"
-                x-bind:disabled="! (hasListened && recall.trim() !== '')"
+                x-bind:disabled="! hasListened || {{ $shadowedEnough ? 'false' : 'true' }}"
                 wire:loading.attr="disabled"
                 wire:target="save"
                 class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"

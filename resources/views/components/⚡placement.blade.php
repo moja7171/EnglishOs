@@ -149,7 +149,7 @@ new class extends Component
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
                     Everyone starts at Mission 1 and works through all 24 — that's how the vocabulary and grammar
                     build on each other. Your level changes how the app talks to you, not what you get.
-                    The program is 120 days at one day a day; do two in a sitting and it's 60. Your pace, whatever
+                    The program is 100 days at one day a day; do two in a sitting and it's 50. Your pace, whatever
                     your level.
                 </p>
             </div>

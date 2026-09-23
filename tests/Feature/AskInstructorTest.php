@@ -145,7 +145,9 @@ class AskInstructorTest extends TestCase
      * so if history were still filtered to $stepKey, an in-progress
      * conversation would visibly change or shrink the moment the learner
      * navigated mid-chat, even though nothing about the actual
-     * conversation changed. It must now show the whole run's thread.
+     * conversation changed. It must still show the whole THREAD (now
+     * topic-scoped, not step-scoped — see topicForStep()) across a step
+     * change, as long as both steps share the same topic.
      */
     public function test_the_full_conversation_persists_across_a_step_change_mid_chat(): void
     {
@@ -154,7 +156,8 @@ class AskInstructorTest extends TestCase
         InstructorMessage::create([
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
-            'step_key' => 'grammar_in_context',
+            'step_key' => 'listening',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
             'role' => InstructorMessage::ROLE_LEARNER,
             'body' => 'What is a preposition?',
             'type' => InstructorMessage::TYPE_TEXT,
@@ -162,25 +165,85 @@ class AskInstructorTest extends TestCase
         InstructorMessage::create([
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
-            'step_key' => 'grammar_in_context',
+            'step_key' => 'listening',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
             'role' => InstructorMessage::ROLE_INSTRUCTOR,
             'body' => 'It shows a relationship, like "in" or "on".',
             'type' => InstructorMessage::TYPE_TEXT,
         ]);
-        // Asked from a different step, mid the same run — must still show.
+        // Asked from a different step, mid the same run — still 'general'
+        // topic (only grammar_in_context/vocabulary_builder_* have their
+        // own dedicated topic), so it must still show.
         InstructorMessage::create([
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
-            'step_key' => 'listening',
+            'step_key' => 'writing',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
             'role' => InstructorMessage::ROLE_LEARNER,
             'body' => 'Can you give another example?',
             'type' => InstructorMessage::TYPE_TEXT,
         ]);
 
-        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'writing'])
             ->assertSee('What is a preposition?')
             ->assertSee('It shows a relationship')
             ->assertSee('Can you give another example?');
+    }
+
+    /**
+     * Epic E: Sage keeps 3 separate persistent per-run threads instead of
+     * one — a question asked from a grammar step must not leak into, or
+     * pull context from, the vocabulary or general threads, and vice
+     * versa, even within the very same mission run.
+     */
+    public function test_the_three_topic_threads_stay_isolated_from_each_other(): void
+    {
+        $run = $this->makeRun();
+
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'grammar_in_context',
+            'topic' => InstructorMessage::TOPIC_GRAMMAR,
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'A grammar-only question.',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'vocabulary_builder_1',
+            'topic' => InstructorMessage::TOPIC_VOCABULARY,
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'A vocabulary-only question.',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+        InstructorMessage::create([
+            'learner_id' => $run->learner_id,
+            'mission_run_id' => $run->id,
+            'step_key' => 'listening',
+            'topic' => InstructorMessage::TOPIC_GENERAL,
+            'role' => InstructorMessage::ROLE_LEARNER,
+            'body' => 'A general question.',
+            'type' => InstructorMessage::TYPE_TEXT,
+        ]);
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+            ->assertSee('A grammar-only question.')
+            ->assertDontSee('A vocabulary-only question.')
+            ->assertDontSee('A general question.')
+            ->assertSee('Sage — Grammar chat');
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
+            ->assertSee('A vocabulary-only question.')
+            ->assertDontSee('A grammar-only question.')
+            ->assertDontSee('A general question.')
+            ->assertSee('Sage — Vocabulary chat');
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'listening'])
+            ->assertSee('A general question.')
+            ->assertDontSee('A grammar-only question.')
+            ->assertDontSee('A vocabulary-only question.');
     }
 
     public function test_a_new_question_is_answered_with_the_prior_conversation_as_context(): void
@@ -191,6 +254,7 @@ class AskInstructorTest extends TestCase
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
             'step_key' => 'grammar_in_context',
+            'topic' => InstructorMessage::TOPIC_GRAMMAR,
             'role' => InstructorMessage::ROLE_LEARNER,
             'body' => 'What is a preposition?',
             'type' => InstructorMessage::TYPE_TEXT,
@@ -199,6 +263,7 @@ class AskInstructorTest extends TestCase
             'learner_id' => $run->learner_id,
             'mission_run_id' => $run->id,
             'step_key' => 'grammar_in_context',
+            'topic' => InstructorMessage::TOPIC_GRAMMAR,
             'role' => InstructorMessage::ROLE_INSTRUCTOR,
             'body' => 'It shows a relationship, like "in" or "on".',
             'type' => InstructorMessage::TYPE_TEXT,
@@ -222,41 +287,60 @@ class AskInstructorTest extends TestCase
             ->assertSee('under the table');
     }
 
-    public function test_recording_a_voice_question_only_fills_the_text_box_and_sends_nothing(): void
+    /**
+     * Voice used to only fill the text box for a manual send; it now
+     * sends straight to Sage the moment it's recorded, same as every
+     * other voice-recorder caller in the app — a real, playable message
+     * (attachment + transcript) rather than a text-box shortcut.
+     */
+    public function test_recording_a_voice_question_sends_it_directly_as_a_real_message(): void
     {
+        Storage::fake('local');
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('What does "articles" mean?'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages) => $messages[0]['text'] === 'What does "articles" mean?')
+                ->andReturn('An article is a small word like "a", "an", or "the".');
+        });
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('transcribeVoiceQuestion')
-            ->assertSet('question', 'What does "articles" mean?')
-            ->assertSet('messages', []);
+            ->call('sendVoiceQuestion')
+            ->assertSet('question', '')
+            ->assertSet('voiceQuestion', null)
+            ->assertSee('An article is a small word');
 
-        $this->assertDatabaseCount('instructor_messages', 0);
+        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
+        $this->assertSame('What does "articles" mean?', $message->body);
+        Storage::disk('local')->assertExists($message->attachment_path);
     }
 
     /**
-     * The recording is never persisted or lost either way — transcribing
-     * it is only ever a shortcut for filling the text box, never a "send"
-     * of its own, so a failure just means "try again" with nothing saved.
+     * The recording is still kept as a real message even when
+     * transcription fails — a silent "try again" would lose the
+     * recording the learner just made; instead it's saved with a
+     * fallback body so the audio itself is never lost.
      */
-    public function test_a_failed_voice_transcription_leaves_the_question_box_untouched(): void
+    public function test_a_failed_voice_transcription_still_sends_the_recording_with_a_fallback_body(): void
     {
+        Storage::fake('local');
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('down')));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Could you type that instead?'));
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
-            ->call('transcribeVoiceQuestion')
-            ->assertSee("Couldn't hear that clearly")
-            ->assertSet('question', '');
+            ->call('sendVoiceQuestion')
+            ->assertSet('question', '')
+            ->assertSet('voiceQuestion', null);
 
-        $this->assertDatabaseCount('instructor_messages', 0);
+        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
+        $this->assertSame("Couldn't transcribe this recording.", $message->body);
+        Storage::disk('local')->assertExists($message->attachment_path);
     }
 
     public function test_sending_a_file_attaches_it_and_tells_the_ai_it_cannot_see_it(): void

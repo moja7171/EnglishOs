@@ -207,6 +207,31 @@ class PictureDescriptionStepTest extends TestCase
             ->assertDontSee('Continue');
     }
 
+    /**
+     * Epic F: the image is shown fully clear from the start — the old
+     * blur-until-recording effect worked against checking the numbered
+     * hotspots against the image BEFORE recording.
+     */
+    public function test_the_scene_image_is_never_blurred(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn('http://localhost/image.jpg'));
+
+        Livewire::test('missions.steps.picture-description', ['run' => $run])
+            ->assertDontSeeHtml('blur-sm');
+    }
+
+    public function test_the_recorder_sits_inside_a_bordered_card(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+
+        Livewire::test('missions.steps.picture-description', ['run' => $run])
+            ->assertSeeHtml('rounded-2xl border border-line bg-surface-sunken p-4');
+    }
+
     public function test_hotspot_markers_are_rendered_at_their_seeded_coordinates(): void
     {
         $learner = User::factory()->create();

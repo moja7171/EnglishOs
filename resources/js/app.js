@@ -45,6 +45,33 @@ document.addEventListener('alpine:init', () => {
                     .forEach((k) => localStorage.removeItem(k));
             } catch (e) {}
         },
+
+        /**
+         * Restores a multi-substep step's current page/section index after
+         * a refresh — x-draft above only ever persisted typed TEXT (a
+         * Livewire property), never a plain Alpine-local number like
+         * activeSubstep/activeSection, so a refresh used to always drop the
+         * learner back to page 1 even though their answers on later pages
+         * were themselves still safe. Pair with persistIndex() below via
+         * $watch; both use the same eos-draft:{run}:{step}: prefix as
+         * x-draft, so the server's one 'clear-draft' event on real success
+         * clears this too, no extra wiring needed.
+         */
+        restoreIndex(key, fallback) {
+            try {
+                const saved = localStorage.getItem(key);
+
+                return saved === null ? fallback : Number(saved);
+            } catch (e) {
+                return fallback;
+            }
+        },
+
+        persistIndex(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {}
+        },
     };
 });
 

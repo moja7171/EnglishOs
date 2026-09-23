@@ -4,32 +4,49 @@ namespace App\Livewire\Concerns;
 
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\GroqClient;
 use App\Services\PexelsClient;
+use App\Services\SpokenAnswerChecker;
+use Illuminate\Http\UploadedFile;
+use Livewire\WithFileUploads;
 
 /**
  * Shared logic for the "Daily Listening" gate that opens Day 2/3/4 of a
  * mission — one file per day (⚡daily-listen-2/3/4.blade.php) so each has
  * its own real, distinct step key (Evidence Before Progress requires a
  * FRESH row per day; reusing one key across days would let listening once
- * satisfy every later day too). Deliberately mandatory, by explicit
- * product decision — the one step in the app that blocks on "did you
- * listen", not an AI judgment.
+ * satisfy every later day too).
+ *
+ * Mission structure redesign, Epic C: the old "listen once, then type any
+ * word you remember" recall was replaced with a small (2-line), mandatory
+ * shadowing exercise — the same lenient AI judgment Day 1's own Listening
+ * step uses (see SpokenAnswerChecker::checkShadowing()), on lines that are
+ * never the same ones Day 1 or the other daily-listen days used (see each
+ * day's own seeded shadow_lines).
  */
 trait DailyListenStep
 {
+    use TracksAiUsage;
+    use TracksCheckAttempts;
+    use WithFileUploads;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
 
     public bool $listened = false;
 
-    /**
-     * A one-line recall prompt, required but never graded/AI-checked —
-     * the point is turning passive re-listening into one small act of
-     * active retrieval, at zero AI cost. Whatever the learner writes is
-     * accepted; there is no wrong answer.
-     */
-    public string $recall = '';
+    /** @var array<int, ?UploadedFile> keyed by shadowLines() index */
+    public array $shadowRecordings = [];
+
+    /** @var array<int, string> saved recording URLs, for read-only review */
+    public array $savedShadowUrls = [];
+
+    /** @var array<string, array{severity: string, hint: string}> keyed by "shadow_{index}" */
+    public array $feedback = [];
+
+    /** @var array<string, string> keyed by "shadow_{index}" — per-line check failure message */
+    public array $checkErrors = [];
 
     public function mount(): void
     {
@@ -39,68 +56,129 @@ trait DailyListenStep
 
         $this->listened = true;
 
-        $data = json_decode($this->run->latestEvidence($this->phaseKey())?->content_ref ?? '{}', true);
-        $this->recall = is_array($data) ? ($data['recall'] ?? '') : '';
+        foreach ($this->run->evidence()->where('phase', $this->phaseKey())->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
+            $decoded = json_decode($audio->content_ref, true);
+
+            if (is_array($decoded) && isset($decoded['line_index'], $decoded['url'])) {
+                $this->savedShadowUrls[$decoded['line_index']] = $decoded['url'];
+            }
+        }
     }
 
     /**
      * Called the moment the audio finishes playing once — real completed
-     * listens only (the same "audio-ended" signal the real Listening step
-     * uses for ITS gate), not just pressing play.
+     * listens only (the same "audio-ended" signal Day 1's own Listening
+     * step uses), not just pressing play. Shadowing only makes sense once
+     * the learner has actually heard the line in context first.
      */
     public function markListened(): void
     {
         $this->listened = true;
     }
 
+    /**
+     * This day's own small shadow-line pool — distinct from Day 1's and
+     * every other daily-listen day's, so the same audio never asks for
+     * the exact same line twice across a mission (see each day's own
+     * seeded shadow_lines under its own step key, not the shared
+     * 'listening' step's).
+     *
+     * @return list<string>
+     */
+    public function shadowLines(): array
+    {
+        return $this->run->mission->stepContent($this->phaseKey())['shadow_lines'] ?? [];
+    }
+
+    public function shadowedCount(): int
+    {
+        return collect($this->feedback)
+            ->filter(fn ($item, $key) => str_starts_with($key, 'shadow_') && $item['severity'] === 'none')
+            ->count();
+    }
+
+    /**
+     * Fires automatically once a shadow recording finishes uploading (see
+     * <x-voice-recorder>'s onRecorded).
+     */
+    public function checkShadowLine(int $index): void
+    {
+        $recording = $this->shadowRecordings[$index] ?? null;
+        $target = $this->shadowLines()[$index] ?? null;
+
+        if (! $recording || ! $target) {
+            return;
+        }
+
+        $key = "shadow_{$index}";
+        unset($this->checkErrors[$key]);
+
+        try {
+            $transcript = trim(app(GroqClient::class)->transcribe($recording->getRealPath()));
+            $this->recordGroqCall();
+
+            $data = app(SpokenAnswerChecker::class)->checkShadowing(
+                strip_tags(str_replace('**', '', $target)),
+                $transcript,
+                $this->run->learner->levelDescription(),
+            );
+            $this->recordGeminiCall();
+
+            $this->feedback[$key] = $data;
+            $this->trackCheckAttempt($key, $data['severity']);
+        } catch (Throwable $e) {
+            $this->checkErrors[$key] = "Couldn't check this one: {$e->getMessage()}";
+        }
+    }
+
     public function save(): void
     {
-        if (! $this->listened) {
-            return;
-        }
+        $lines = $this->shadowLines();
 
-        if (trim($this->recall) === '') {
-            $this->addError('recall', 'Write at least a word or two before continuing.');
+        if ($this->shadowedCount() < count($lines)) {
+            $this->addError('shadowRecordings', 'Shadow every line before continuing.');
 
             return;
         }
+
+        $mission = $this->run->mission;
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => $this->phaseKey(),
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['listened' => true, 'recall' => trim($this->recall)]),
+            'content_ref' => json_encode(['listened' => true, 'shadowed_lines' => count($lines)]),
         ]);
+
+        foreach ($this->shadowRecordings as $index => $recording) {
+            if (! $recording) {
+                continue;
+            }
+
+            $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
+            $url = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+
+            Evidence::create([
+                'mission_run_id' => $this->run->id,
+                'phase' => $this->phaseKey(),
+                'type' => Evidence::TYPE_AUDIO,
+                'content_ref' => json_encode(['line_index' => $index, 'url' => $url]),
+            ]);
+
+            $this->savedShadowUrls[$index] = $url;
+        }
 
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 
     /**
-     * Reuses Day 1's real Listening content (audio + transcript) — this
-     * mission only has one real listening episode; the point is repeated
-     * exposure to the same audio, not fresh content every day.
+     * Reuses Day 1's real Listening content (audio) — this mission only
+     * has one real listening episode; the point is repeated exposure to
+     * the same audio, not fresh content every day.
      */
     protected function listeningContent(): array
     {
         return $this->run->mission->stepContent('listening');
-    }
-
-    /**
-     * Lowercased target phrases from the real Listening episode, for the
-     * template's client-side "that's one of the key phrases!" reaction as
-     * the learner types their recall — a plain string-contains match, no
-     * AI call, and never marks a non-matching answer wrong (any genuine
-     * recall is a valid one).
-     *
-     * @return list<string>
-     */
-    public function targetPhrasesForRecall(): array
-    {
-        return collect($this->listeningContent()['target_phrases'] ?? [])
-            ->pluck('phrase')
-            ->map(fn ($phrase) => strtolower($phrase))
-            ->values()
-            ->all();
     }
 
     public function hook(): ?string
@@ -124,12 +202,6 @@ trait DailyListenStep
         }
 
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-'.$this->phaseKey(), $query);
-    }
-
-    public function recallPrompt(): string
-    {
-        return $this->run->mission->stepContent($this->phaseKey())['recall_prompt']
-            ?? 'Write one word or phrase you remember hearing.';
     }
 
     abstract protected function phaseKey(): string;

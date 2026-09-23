@@ -99,6 +99,12 @@ new class extends Component
         <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
     @endif
 
+    {{-- Epic F: the hook comes first and bigger — it's the actual hook,
+         not a footnote after a syllabus-style summary. --}}
+    @if ($brief['hook'] ?? null)
+        <p class="font-display text-lg font-semibold text-ink dark:text-ink-dark">{{ $brief['hook'] }}</p>
+    @endif
+
     <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
         <p class="font-display text-sm font-semibold text-ink dark:text-ink-dark">{{ $run->mission->outcome }}</p>
     </div>
@@ -116,11 +122,9 @@ new class extends Component
         <span class="ml-1">· {{ count($totalSteps) }} short steps · ~{{ Mission::formatDuration($run->mission->totalDurationMinutes()) }} total</span>
     </div>
 
-    <x-hook :text="$brief['hook'] ?? null" />
-
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Before you start</p>
-        <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Answer out loud, with no preparation.</p>
+        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Answer out loud, with no preparation.</p>
         <ul class="mt-3 space-y-2">
             @foreach ($brief['warm_up_questions'] ?? [] as $question)
                 <li class="rounded-xl border border-line px-3 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
@@ -139,8 +143,12 @@ new class extends Component
                 </div>
             @endif
         @else
+            {{-- Epic F: tied to ONE specific, named question — the old copy
+                 ("record yourself answering one") never said which,
+                 leaving the learner to guess. --}}
             <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record yourself answering one</p>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record yourself answering this one:</p>
+                <p class="mt-1 text-sm text-ink dark:text-ink-dark">"{{ $brief['warm_up_questions'][0] ?? '' }}"</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Never graded, never required — just something real to look back on later in this mission.</p>
                 <div class="mt-2">
                     <x-voice-recorder field="warmUpRecording" :file="$warmUpRecording" file-name="mission-brief-warmup.webm" />
@@ -155,18 +163,33 @@ new class extends Component
             How comfortable am I talking about this topic right now?
         </p>
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">We'll compare this to your score at the end of the mission.</p>
-        <div class="mt-2 flex gap-2">
+        @php
+            // Epic F: a short label next to each number — bare digits read
+            // as a cold form control, not a real comfort scale.
+            $scoreLabels = [
+                1 => 'Not comfortable at all',
+                2 => 'A little uneasy',
+                3 => "It's okay",
+                4 => 'Pretty comfortable',
+                5 => 'Very comfortable',
+            ];
+        @endphp
+        <div class="mt-2 flex flex-wrap gap-2">
             @foreach (range(1, 5) as $value)
                 <button
                     type="button"
                     @disabled($readOnly)
                     wire:click="$set('score', {{ $value }})"
                     @class([
-                        'h-10 w-10 cursor-pointer rounded-full border text-sm font-semibold transition-colors',
+                        'flex flex-col items-center gap-1 rounded-xl border px-2 py-2 text-center transition-colors',
+                        'cursor-pointer' => ! $readOnly,
                         'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $score === $value,
                         'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark' => $score !== $value,
                     ])
-                >{{ $value }}</button>
+                >
+                    <span class="text-sm font-semibold">{{ $value }}</span>
+                    <span class="text-[10px] leading-tight">{{ $scoreLabels[$value] }}</span>
+                </button>
             @endforeach
         </div>
         @error('score')

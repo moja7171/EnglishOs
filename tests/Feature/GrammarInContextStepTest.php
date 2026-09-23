@@ -40,6 +40,13 @@ class GrammarInContextStepTest extends TestCase
                                         'heading' => 'A · The verb changes with he / she / it',
                                         'blocks' => [
                                             [
+                                                'type' => 'mistake_fix',
+                                                'character' => 'Alex',
+                                                'wrong' => 'She wake up early.',
+                                                'right' => 'She wakes up early.',
+                                                'explanation' => 'He/she/it needs the -s ending.',
+                                            ],
+                                            [
                                                 'type' => 'pairs',
                                                 'pairs' => [
                                                     ['left' => 'I wake up early.', 'right' => 'She wakes up early.'],
@@ -94,6 +101,9 @@ class GrammarInContextStepTest extends TestCase
                             'quick_check' => [
                                 ['wrong' => 'She go to work.', 'options' => ['She goes to work.', 'She gos to work.'], 'correct' => 0, 'difficulty' => 'easy'],
                                 ['wrong' => 'He wake up late.', 'options' => ['He wakes up late.', 'He waking up late.'], 'correct' => 0, 'difficulty' => 'hard'],
+                            ],
+                            'word_order' => [
+                                ['words' => ['up', 'I', 'always', 'wake', 'early.'], 'answer' => 'I always wake up early.'],
                             ],
                         ],
                         ['key' => 'activation'],
@@ -215,13 +225,13 @@ class GrammarInContextStepTest extends TestCase
             $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
             ->set('frequencySentences.0', 'I usually wake up at 7.')
             ->set('frequencySentences.1', 'I often cook dinner.')
             ->set('frequencySentences.2', 'I sometimes exercise.')
             // quickCheckScore left untouched — the learner skipped the round.
             ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
+            ->assertSet('completed', true);
 
         $evidence = Evidence::where('phase', 'grammar_in_context')->first();
         $content = json_decode($evidence->content_ref, true);
@@ -229,6 +239,74 @@ class GrammarInContextStepTest extends TestCase
         $this->assertCount(3, $content['frequency_sentences']);
         $this->assertNull($content['quick_check_score']);
         $this->assertSame('activation', $run->fresh()->currentStepKey());
+
+        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    /**
+     * Epic H: severity is now persisted alongside each sentence so a
+     * later attempt (?retry=1) can be compared against this one, and the
+     * immediate score is shown right on this completion.
+     */
+    public function test_the_encouragement_score_reflects_how_many_sentences_needed_no_fix(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                json_encode(['severity' => 'none', 'hint' => '']),
+                json_encode(['severity' => 'minor', 'hint' => 'Small tweak.']),
+            );
+        });
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise, a bit.')
+            ->call('save')
+            ->assertSet('correctCount', 2)
+            ->assertSee('2 of 3 sentences needed no fix at all');
+
+        $evidence = Evidence::where('phase', 'grammar_in_context')->first();
+        $content = json_decode($evidence->content_ref, true);
+        $severities = collect($content['frequency_sentences'])->pluck('severity');
+        $this->assertSame(['none', 'none', 'minor'], $severities->all());
+
+        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_the_encouragement_score_compares_to_the_learners_previous_attempt(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'grammar_in_context',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'frequency_sentences' => [
+                    ['starter' => 'I usually', 'completion' => 'old one', 'severity' => 'minor'],
+                    ['starter' => 'I often', 'completion' => 'old two', 'severity' => 'minor'],
+                    ['starter' => 'I sometimes', 'completion' => 'old three', 'severity' => 'none'],
+                ],
+                'quick_check_score' => null,
+                'word_order_score' => null,
+            ]),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->call('save')
+            ->assertSet('correctCount', 3)
+            ->assertSet('previousCorrect', 1)
+            ->assertSee('Better than last time');
     }
 
     public function test_a_completed_quick_check_score_is_recorded_in_evidence(): void
@@ -262,6 +340,90 @@ class GrammarInContextStepTest extends TestCase
         $this->assertStringContainsString('quick-round-completed', $html);
     }
 
+    public function test_a_mistake_fix_block_renders_tap_to_reveal(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertSee('Alex said:')
+            ->assertSee('She wake up early.')
+            ->assertSeeHtml("What's the mistake?")
+            ->assertSeeHtml('x-show="revealed"')
+            ->assertSee('She wakes up early.')
+            ->assertSee('He/she/it needs the -s ending.');
+    }
+
+    public function test_the_lesson_is_visible_in_read_only_review_mode(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'grammar_in_context',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['frequency_sentences' => [], 'quick_check_score' => null, 'word_order_score' => null]),
+        ]);
+
+        // Before this fix, the whole lesson block sat behind
+        // @unless($readOnly) with no other way in — review mode could
+        // never show the lesson again at all.
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run, 'readOnly' => true])
+            ->assertSee('Show the lesson again')
+            ->assertSee('A · The verb changes with he / she / it')
+            ->assertSee('She wakes up early.');
+    }
+
+    public function test_word_order_cards_come_from_seeded_content_and_render(): void
+    {
+        $run = $this->makeRun();
+
+        $cards = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])->instance()->wordOrderCards();
+
+        $this->assertSame(['words' => ['up', 'I', 'always', 'wake', 'early.'], 'answer' => 'I always wake up early.'], $cards[0]);
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertSee('Build the sentence')
+            ->assertSeeHtml('word-order-completed');
+    }
+
+    public function test_completing_the_word_order_round_is_recorded_in_evidence(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->set('wordOrderScore', ['correct' => 1, 'total' => 1])
+            ->call('save');
+
+        $evidence = Evidence::where('phase', 'grammar_in_context')->first();
+        $content = json_decode($evidence->content_ref, true);
+
+        $this->assertSame(['correct' => 1, 'total' => 1], $content['word_order_score']);
+    }
+
+    public function test_quick_check_and_word_order_appear_before_make_it_personal(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])->html();
+
+        $quickCheckPos = strpos($html, 'Quick check');
+        $wordOrderPos = strpos($html, 'Build the sentence');
+        $makeItPersonalPos = strpos($html, 'Make it personal');
+
+        $this->assertNotFalse($quickCheckPos);
+        $this->assertNotFalse($wordOrderPos);
+        $this->assertNotFalse($makeItPersonalPos);
+        $this->assertLessThan($makeItPersonalPos, $quickCheckPos);
+        $this->assertLessThan($makeItPersonalPos, $wordOrderPos);
+    }
+
     public function test_the_seeded_difficulty_tag_is_threaded_through_to_the_quick_check_cards(): void
     {
         $run = $this->makeRun();
@@ -289,7 +451,7 @@ class GrammarInContextStepTest extends TestCase
 
         Evidence::create([
             'mission_run_id' => $run->id,
-            'phase' => 'vocabulary_builder',
+            'phase' => 'vocabulary_builder_1',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode(['selected_words' => ['wake up', 'have a shower', 'go to bed']]),
         ]);

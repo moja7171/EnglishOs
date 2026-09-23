@@ -4,5 +4,5 @@
 @props(['show', 'label' => "One more try — after that I can write the correct one for you if you'd like."])
 
 @if ($show)
-    <p class="mt-2 text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $label }}</p>
+    <p class="mt-2 text-xs text-ink-soft italic dark:text-ink-soft-dark">{{ $label }}</p>
 @endif
