@@ -997,13 +997,35 @@ class MissionSeeder extends Seeder
                                 ],
                                 // The exact 5 expressions, with the meanings Neil & Beth themselves
                                 // gave in the podcast's own end-of-episode recap (page 5).
+                                // gap_before/gap_after are real, single-blank sentences lifted straight
+                                // from the transcript — the Second listening gap-fill exercise above.
                                 'target_phrases' => [
-                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness or financial difficulty in life'],
-                                    ['phrase' => 'get through', 'meaning' => 'manage to live through a difficult situation'],
-                                    ['phrase' => 'drift away', 'meaning' => 'gradually move further and further apart from someone until your relationship with them is broken'],
-                                    ['phrase' => 'Billy No-Mates', 'meaning' => 'slang for someone who has no friends'],
-                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with unfavourable as well as favourable consequences'],
-                                    ['phrase' => 'outgoing', 'meaning' => 'very friendly; enjoys meeting and talking to people'],
+                                    [
+                                        'phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness or financial difficulty in life',
+                                        'gap_before' => 'Now, when ',
+                                        'gap_after' => ", friends are often the people who get us through, who are there to listen, to reassure, maybe to advise us, if that's what we want.",
+                                    ],
+                                    [
+                                        'phrase' => 'get through', 'meaning' => 'manage to live through a difficult situation',
+                                        'gap_before' => 'If you ', 'gap_after' => ' something, you manage to live through a difficult situation.',
+                                    ],
+                                    [
+                                        'phrase' => 'drift away', 'meaning' => 'gradually move further and further apart from someone until your relationship with them is broken',
+                                        'gap_before' => 'To ', 'gap_after' => ' means to gradually move further apart from someone until your relationship with them eventually ends.',
+                                    ],
+                                    [
+                                        'phrase' => 'Billy No-Mates', 'meaning' => 'slang for someone who has no friends',
+                                        'gap_before' => '', 'gap_after' => ' is slang for someone who has no friends.',
+                                    ],
+                                    [
+                                        'phrase' => 'double-edged sword', 'meaning' => 'something with unfavourable as well as favourable consequences',
+                                        'gap_before' => 'A ', 'gap_after' => ' describes something with unfavourable as well as favourable consequences.',
+                                    ],
+                                    [
+                                        'phrase' => 'outgoing', 'meaning' => 'very friendly; enjoys meeting and talking to people',
+                                        'gap_before' => 'And finally, the adjective ',
+                                        'gap_after' => ' describes someone who is very friendly and enjoys talking to people.',
+                                    ],
                                 ],
                                 'topic_summary' => 'Neil and Beth discuss why British men often have fewer close friends '
                                     .'than women, especially as they get older — a survey found only 27% of British '
