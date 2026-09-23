@@ -394,6 +394,20 @@ class Mission extends Model
     }
 
     /**
+     * False only for a step with zero learner input — a pure AI-generated
+     * summary like AI Feedback (str_starts_with('ai_feedback'), covering
+     * any future ai_feedback_2 etc. too), where "practice again" has
+     * nothing to actually redo. Shared by Mission Result's own "weak
+     * step" AI suggestion and the runner's always-available "Practice
+     * again" link (mission structure redesign, Epic H) — one rule, one
+     * place, so the two never drift apart on what counts as redoable.
+     */
+    public static function isStepRedoable(string $stepKey): bool
+    {
+        return ! str_starts_with($stepKey, 'ai_feedback');
+    }
+
+    /**
      * The full authored step definition for a step key (questions,
      * vocabulary, quick-check items, etc.), or an empty array for a
      * plain-string step that has no content of its own yet.

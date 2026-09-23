@@ -255,6 +255,58 @@ class ReadingComprehensionStepTest extends TestCase
         $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
     }
 
+    /**
+     * Epic H: severity is now persisted alongside each answer so a later
+     * attempt (?retry=1) can be compared against this one, and the
+     * immediate score is shown right on this completion.
+     */
+    public function test_the_encouragement_score_reflects_how_many_answers_needed_no_fix(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->twice()->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                json_encode(['severity' => 'minor', 'hint' => 'Small tweak.']),
+            );
+        });
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->set('answers.0', 'She wakes up early and never skips breakfast.')
+            ->set('answers.1', 'On Sunday she sleeps in, a bit differently.')
+            ->call('save')
+            ->assertSet('correctCount', 1)
+            ->assertSee('1 of 2 answers needed no fix at all');
+
+        $evidence = Evidence::where('phase', 'reading_comprehension')->first();
+        $content = json_decode($evidence->content_ref, true);
+        $this->assertSame(['none', 'minor'], $content['severities']);
+    }
+
+    public function test_the_encouragement_score_compares_to_the_learners_previous_attempt(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'reading_comprehension',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['answers' => ['old one', 'old two'], 'severities' => ['minor', 'minor']]),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->twice()->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->set('answers.0', 'She wakes up early and never skips breakfast.')
+            ->set('answers.1', 'On Sunday she sleeps in and does not set an alarm.')
+            ->call('save')
+            ->assertSet('correctCount', 2)
+            ->assertSet('previousCorrect', 0)
+            ->assertSee('Better than last time');
+    }
+
     public function test_three_failed_checks_offer_to_reveal_the_correction(): void
     {
         $run = $this->makeRun();

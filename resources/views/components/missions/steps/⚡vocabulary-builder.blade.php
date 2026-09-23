@@ -534,7 +534,7 @@ new class extends Component
             <div x-show="phase === 'spiral'" x-cloak class="space-y-4">
                 <div>
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick reminder — yesterday's words</p>
-                    <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Before today's new words, a fast recap of yesterday's — just a warm-up, skip anytime.</p>
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Before today's new words, a fast recap of yesterday's — just a warm-up, skip anytime.</p>
                 </div>
                 <x-quick-round :cards="$spiralCards" on-complete="phase = 'story'" on-skip="phase = 'story'" />
             </div>
@@ -543,7 +543,7 @@ new class extends Component
         <div x-show="phase === 'story'" x-cloak class="space-y-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today's words</p>
-                <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Read the short story below — new words are highlighted, with their meaning right next to them.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Read the short story below — new words are highlighted, with their meaning right next to them.</p>
             </div>
 
             <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
@@ -560,7 +560,7 @@ new class extends Component
         <div x-show="phase === 'meaning_check'" x-cloak class="space-y-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick check before you write</p>
-                <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Match each word to its meaning, then its picture — just a warm-up, skip anytime.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Match each word to its meaning, then its picture — just a warm-up, skip anytime.</p>
             </div>
             <x-quick-round
                 :cards="[...$this->meaningCheckCards(), ...$this->imageMatchCards()]"
@@ -587,7 +587,7 @@ new class extends Component
 
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Write a personal example for each word</p>
-            <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
                 <div class="mt-2">
                     <x-progress-bar>

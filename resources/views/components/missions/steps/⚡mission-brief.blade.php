@@ -124,7 +124,7 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Before you start</p>
-        <p class="mt-1 text-sm text-ink-faint dark:text-ink-faint-dark">Answer out loud, with no preparation.</p>
+        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Answer out loud, with no preparation.</p>
         <ul class="mt-3 space-y-2">
             @foreach ($brief['warm_up_questions'] ?? [] as $question)
                 <li class="rounded-xl border border-line px-3 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">

@@ -114,6 +114,12 @@ new class extends Component
      */
     public bool $completed = false;
 
+    /** How many warm-up sentences needed no fix at all this attempt (encouragement score, Epic H). */
+    public ?int $correctCount = null;
+
+    /** The same count from the learner's own last attempt at this step, if any. */
+    public ?int $previousCorrect = null;
+
     public function mount(): void
     {
         if (! $this->readOnly) {
@@ -449,12 +455,24 @@ new class extends Component
     {
         $this->generateFeedback();
 
+        // Read BEFORE creating this attempt's own row — a retry (?retry=1)
+        // means there can already be an earlier one for this same phase.
+        $this->previousCorrect = $this->readPreviousCorrectCount();
+
+        $filledWarmUp = collect($this->sentences)
+            ->map(fn ($s, $i) => ['index' => $i, 'text' => trim((string) $s)])
+            ->filter(fn ($s) => $s['text'] !== '')
+            ->values();
+        $sentenceSeverities = $filledWarmUp->map(fn ($s) => $this->feedback[$s['index']]['severity'] ?? 'none')->values();
+        $this->correctCount = $sentenceSeverities->filter(fn ($s) => $s === 'none')->count();
+
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'ai_conversation_1',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                'sentences' => collect($this->sentences)->map(fn ($s) => trim((string) $s))->filter()->values(),
+                'sentences' => $filledWarmUp->pluck('text')->values(),
+                'sentence_severities' => $sentenceSeverities,
                 'transcript' => $this->transcript,
                 'segments' => $this->segments,
                 'reflection' => $this->reflection,
@@ -500,6 +518,29 @@ new class extends Component
         unset($audioEvidence);
 
         $this->completed = true;
+    }
+
+    /**
+     * The learner's own last attempt at this exact step's warm-up round
+     * (encouragement score's comparison, Epic H) — null when this is
+     * their first attempt or an old Evidence row predates severities
+     * being persisted at all.
+     */
+    private function readPreviousCorrectCount(): ?int
+    {
+        $previous = $this->run->evidence()
+            ->where('phase', 'ai_conversation_1')
+            ->where('type', Evidence::TYPE_TEXT)
+            ->latest()
+            ->first();
+
+        if (! $previous) {
+            return null;
+        }
+
+        $severities = json_decode($previous->content_ref, true)['sentence_severities'] ?? null;
+
+        return $severities ? collect($severities)->filter(fn ($s) => $s === 'none')->count() : null;
     }
 
     /**
@@ -596,6 +637,10 @@ new class extends Component
                 </p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Nicely done — take a look back below before you move on.</p>
             </div>
+
+            @if (! is_null($correctCount))
+                <x-encouragement-score :correct="$correctCount" :total="5" label="warm-up sentences" :previous-correct="$previousCorrect" />
+            @endif
 
             @if ($warmUpAudioUrl)
                 <div>
@@ -695,7 +740,7 @@ new class extends Component
         {{-- Warm-up round: was the standalone Activation step. --}}
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Warm-up — write 5 personal sentences</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
             @if ($vocabularyWords)
                 @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL)
                     <div class="mt-2">
@@ -706,7 +751,7 @@ new class extends Component
                     </div>
                 @endif
                 <div class="mt-2" x-show="! noChipsChallenge">
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Tap a word to drop it into your next sentence:</p>
+                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap a word to drop it into your next sentence:</p>
                     <div class="mt-1">
                         <x-vocabulary-chips
                             :words="$vocabularyWords"
@@ -779,7 +824,7 @@ new class extends Component
 
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Solo speaking — 2 minutes</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Talk about your daily life without reading. Record when you're ready.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Talk about your daily life without reading. Record when you're ready.</p>
 
             @if (count($warmUpQuestions))
                 <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
@@ -814,7 +859,7 @@ new class extends Component
         {{-- Interview round: unchanged AI Conversation #1 behavior. --}}
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Conversation #1</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
         </div>
 
         <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some when you answer" />

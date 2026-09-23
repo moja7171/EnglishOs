@@ -1154,8 +1154,13 @@ class MissionSeeder extends Seeder
                                     .'continuous tense, whichever fits the sentence starter given',
                                 'quick_check' => [
                                     [
-                                        'wrong' => 'She is knowing him for ten years.',
-                                        'options' => ['She is knowing him for ten years.', 'She know him for ten years.', "She's known him for ten years."],
+                                        // Was corrected to present perfect ("She's known him...") —
+                                        // a tense this mission never teaches. Fixed to present
+                                        // simple (Content audit, Epic H): "know" is a stative verb,
+                                        // so the real teaching point — never continuous, always
+                                        // simple — now stays inside this mission's own scope.
+                                        'wrong' => 'She is knowing him very well.',
+                                        'options' => ['She is knowing him very well.', 'She know him very well.', 'She knows him very well.'],
                                         'correct' => 2,
                                         'difficulty' => 'easy',
                                     ],

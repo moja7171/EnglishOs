@@ -452,7 +452,7 @@ new class extends Component
             {{-- Sub-step 1: first listen + a short true/false check. --}}
             <div x-show="activeSubstep === {{ $comprehensionIndex }}" x-cloak>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — quick check</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen once, then a few quick true/false taps about what you heard.</p>
+                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen once, then a few quick true/false taps about what you heard.</p>
                 <div class="mt-2">
                     <x-quick-round :cards="$comprehensionCards" />
                 </div>
@@ -462,7 +462,7 @@ new class extends Component
         {{-- Sub-step 2: second listen + gap-fill, answered by picking from a word bank. --}}
         <div x-show="activeSubstep === {{ $gapFillIndex }}" x-cloak>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening — fill the gaps</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen again, then pick the word you heard in each gap from the word bank below.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen again, then pick the word you heard in each gap from the word bank below.</p>
 
             @if (count($targetPhrases))
                 <div class="mt-3 flex flex-wrap gap-1.5">
@@ -525,7 +525,7 @@ new class extends Component
                             <span x-show="showTranscript" x-cloak>Hide transcript</span>
                         </button>
                     @else
-                        <p x-show="!transcriptUnlocked" class="flex items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
+                        <p x-show="!transcriptUnlocked" class="flex items-center gap-1.5 text-xs text-ink-soft dark:text-ink-soft-dark">
                             @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
                             <span x-text="`Listen ${Math.min(listenCount, {{ $listensRequired }})}/{{ $listensRequired }} times to unlock the transcript.`"></span>
                         </p>
@@ -563,9 +563,9 @@ new class extends Component
             @if (count($shadowLines))
                 <div class="mt-4 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
                     <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
+                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
                     @unless ($readOnly)
-                        <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                        <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">
                             Replay a line and repeat it out loud, then record yourself. Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
                             ({{ $this->shadowedCount() }} done so far) — a line that keeps mishearing you? Just try a different one.
                         </p>

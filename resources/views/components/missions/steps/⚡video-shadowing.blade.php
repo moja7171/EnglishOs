@@ -195,7 +195,7 @@ new class extends Component
                 :title="$video['source'] ?? 'Video'"
             />
         </div>
-        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>
+        <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>
     </div>
 
     @if ($completed)
@@ -252,7 +252,7 @@ new class extends Component
 
                     <div>
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">True or false — just a warm-up, skip anytime.</p>
+                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">True or false — just a warm-up, skip anytime.</p>
                         <div class="mt-2">
                             <x-quick-round :cards="$this->comprehensionCards()" />
                         </div>

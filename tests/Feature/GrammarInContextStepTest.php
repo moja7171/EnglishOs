@@ -225,13 +225,13 @@ class GrammarInContextStepTest extends TestCase
             $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
             ->set('frequencySentences.0', 'I usually wake up at 7.')
             ->set('frequencySentences.1', 'I often cook dinner.')
             ->set('frequencySentences.2', 'I sometimes exercise.')
             // quickCheckScore left untouched — the learner skipped the round.
             ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
+            ->assertSet('completed', true);
 
         $evidence = Evidence::where('phase', 'grammar_in_context')->first();
         $content = json_decode($evidence->content_ref, true);
@@ -239,6 +239,74 @@ class GrammarInContextStepTest extends TestCase
         $this->assertCount(3, $content['frequency_sentences']);
         $this->assertNull($content['quick_check_score']);
         $this->assertSame('activation', $run->fresh()->currentStepKey());
+
+        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    /**
+     * Epic H: severity is now persisted alongside each sentence so a
+     * later attempt (?retry=1) can be compared against this one, and the
+     * immediate score is shown right on this completion.
+     */
+    public function test_the_encouragement_score_reflects_how_many_sentences_needed_no_fix(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                json_encode(['severity' => 'none', 'hint' => '']),
+                json_encode(['severity' => 'minor', 'hint' => 'Small tweak.']),
+            );
+        });
+
+        $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise, a bit.')
+            ->call('save')
+            ->assertSet('correctCount', 2)
+            ->assertSee('2 of 3 sentences needed no fix at all');
+
+        $evidence = Evidence::where('phase', 'grammar_in_context')->first();
+        $content = json_decode($evidence->content_ref, true);
+        $severities = collect($content['frequency_sentences'])->pluck('severity');
+        $this->assertSame(['none', 'none', 'minor'], $severities->all());
+
+        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_the_encouragement_score_compares_to_the_learners_previous_attempt(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'grammar_in_context',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'frequency_sentences' => [
+                    ['starter' => 'I usually', 'completion' => 'old one', 'severity' => 'minor'],
+                    ['starter' => 'I often', 'completion' => 'old two', 'severity' => 'minor'],
+                    ['starter' => 'I sometimes', 'completion' => 'old three', 'severity' => 'none'],
+                ],
+                'quick_check_score' => null,
+                'word_order_score' => null,
+            ]),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'I usually wake up at 7.')
+            ->set('frequencySentences.1', 'I often cook dinner.')
+            ->set('frequencySentences.2', 'I sometimes exercise.')
+            ->call('save')
+            ->assertSet('correctCount', 3)
+            ->assertSet('previousCorrect', 1)
+            ->assertSee('Better than last time');
     }
 
     public function test_a_completed_quick_check_score_is_recorded_in_evidence(): void

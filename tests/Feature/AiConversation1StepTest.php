@@ -377,7 +377,10 @@ class AiConversation1StepTest extends TestCase
             ->assertSee('AI Conversation #1 complete')
             ->assertSee('How do you get to work?')
             ->assertSet('fbStrength', 'نقطه قوت تو این بود که واضح جواب دادی.')
-            ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.');
+            ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
+            // Epic H: encouragement score — all 5 warm-up sentences passed with severity 'none'.
+            ->assertSet('correctCount', 5)
+            ->assertSee('5 of 5 warm-up sentences needed no fix at all');
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_TEXT]);
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_AUDIO]);
@@ -386,6 +389,7 @@ class AiConversation1StepTest extends TestCase
         $content = json_decode($textEvidence->content_ref, true);
         $this->assertCount(2, $content['turns']);
         $this->assertCount(5, $content['sentences']);
+        $this->assertSame(['none', 'none', 'none', 'none', 'none'], $content['sentence_severities']);
         $this->assertSame('I usually wake up at seven and have breakfast.', $content['transcript']);
         $this->assertSame('I wake up at seven.', $content['feedback']['correction']['original']);
 
@@ -397,6 +401,43 @@ class AiConversation1StepTest extends TestCase
         $this->assertSame('writing', $run->fresh()->currentStepKey());
 
         $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_the_encouragement_score_compares_to_the_learners_previous_attempt(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        $run = $this->makeRun(questionCount: 1);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_1',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode([
+                'sentences' => ['a', 'b', 'c', 'd', 'e'],
+                'sentence_severities' => ['minor', 'minor', 'minor', 'none', 'none'],
+                'turns' => [],
+                'feedback' => [],
+            ]),
+        ]);
+
+        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
+        $this->completeWarmUp($component); // all 5 pass this time — see the helper's mock
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'Every day?',
+                json_encode(['strength' => 'x', 'expression' => 'y', 'correction' => ['original' => 'a', 'corrected' => 'b', 'why' => 'c', 'suggestion' => 'd'], 'severity' => 'minor']),
+            );
+        });
+
+        $component->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSet('correctCount', 5)
+            ->assertSet('previousCorrect', 2)
+            ->assertSee('Better than last time');
     }
 
     public function test_a_major_feedback_severity_records_a_struggle_signal(): void

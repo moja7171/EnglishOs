@@ -40,10 +40,14 @@
     {{ $slot }}
 
     @if ($hint)
+        {{-- text-ink-soft, not text-ink-faint (Epic H): this is the answer
+             to "why can't I continue" for every step in the app — the
+             single most load-bearing instructional string on the page,
+             not metadata that can afford low contrast. --}}
         <p
             x-show="! ({{ $readyWhen }})"
             x-cloak
-            class="text-xs text-ink-faint dark:text-ink-faint-dark"
+            class="text-xs text-ink-soft dark:text-ink-soft-dark"
         >{{ $hint }}</p>
     @endif
 </div>

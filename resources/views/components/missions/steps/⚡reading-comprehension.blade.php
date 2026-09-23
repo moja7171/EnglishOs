@@ -37,6 +37,12 @@ new class extends Component
      */
     public bool $completed = false;
 
+    /** How many answers needed no fix at all this attempt (encouragement score, Epic H). */
+    public ?int $correctCount = null;
+
+    /** The same count from the learner's own last attempt at this step, if any. */
+    public ?int $previousCorrect = null;
+
     public function mount(): void
     {
         $this->answers = array_fill(0, count($this->questions()), '');
@@ -284,16 +290,46 @@ new class extends Component
             return;
         }
 
+        // Read BEFORE creating this attempt's own row — a retry (?retry=1)
+        // means there can already be an earlier one for this same phase.
+        $this->previousCorrect = $this->readPreviousCorrectCount();
+
+        $severities = $filled->keys()->map(fn ($index) => $this->feedback[$index]['severity'] ?? 'none')->values();
+
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'reading_comprehension',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['answers' => $filled->values()]),
+            'content_ref' => json_encode(['answers' => $filled->values(), 'severities' => $severities]),
         ]);
+
+        $this->correctCount = $severities->filter(fn ($s) => $s === 'none')->count();
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
         $this->initWordsToTrack();
+    }
+
+    /**
+     * The learner's own last attempt at this exact step (encouragement
+     * score's comparison, Epic H) — null when this is their first attempt
+     * or an old Evidence row predates severities being persisted at all.
+     */
+    private function readPreviousCorrectCount(): ?int
+    {
+        $previous = $this->run->evidence()
+            ->where('phase', 'reading_comprehension')
+            ->where('type', Evidence::TYPE_TEXT)
+            ->latest()
+            ->first();
+
+        if (! $previous) {
+            return null;
+        }
+
+        $severities = json_decode($previous->content_ref, true)['severities'] ?? null;
+
+        return $severities ? collect($severities)->filter(fn ($s) => $s === 'none')->count() : null;
     }
 
     public function proceed(): void
@@ -342,6 +378,10 @@ new class extends Component
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Reading complete
             </p>
+
+            @if (! is_null($correctCount))
+                <x-encouragement-score :correct="$correctCount" :total="count($this->questions())" label="answers" :previous-correct="$previousCorrect" />
+            @endif
 
             @if (count($this->newWords()))
                 <div>
@@ -460,7 +500,7 @@ new class extends Component
         @unless ($readOnly)
             <div class="mt-4">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">True or false — just a warm-up, skip anytime.</p>
+                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">True or false — just a warm-up, skip anytime.</p>
                 <div class="mt-2">
                     <x-quick-round :cards="$this->comprehensionCards()" />
                 </div>

@@ -4,6 +4,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
 use App\Models\ErrorPatternReview;
 use App\Models\Evidence;
+use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\Reflection;
 use App\Models\SelfAssessment;
@@ -313,21 +314,6 @@ new class extends Component
         $this->trackedSpeakingPrompts = true;
     }
 
-    /**
-     * Steps with zero learner input (pure AI-generated summaries, like AI
-     * Feedback) are never offered as "the step most worth revisiting" —
-     * there is nothing for the learner to actually redo there. A real run
-     * (2026-09-03) had the AI pick 'ai_feedback_1' and render a "Redo AI
-     * Feedback #1" button that led nowhere useful. Matches the
-     * str_starts_with('ai_feedback') convention already used by the
-     * runner's stepIcon() for the same family of steps — covers any
-     * future mission's ai_feedback_2 etc. too, not just this one key.
-     */
-    private function isRedoable(string $stepKey): bool
-    {
-        return ! str_starts_with($stepKey, 'ai_feedback');
-    }
-
     public function getResult(): void
     {
         $this->error = null;
@@ -347,7 +333,7 @@ new class extends Component
             // candidates in the first place — cheaper and cleaner than
             // just rejecting a bad pick after the fact (still done below
             // too, in case the AI ignores this list).
-            $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), $this->isRedoable(...)));
+            $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), Mission::isStepRedoable(...)));
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => $this->buildSummary()]],
@@ -373,7 +359,7 @@ new class extends Component
             // Never trust the AI's step key blindly — only a real,
             // existing, redoable step in this mission is ever offered as a link.
             $weakStep = $data['weak_step'] ?? null;
-            $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && $this->isRedoable($weakStep))
+            $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && Mission::isStepRedoable($weakStep))
                 ? $weakStep : null;
             $this->milestoneJustReached = $this->run->learner->streakMilestoneJustReached();
 

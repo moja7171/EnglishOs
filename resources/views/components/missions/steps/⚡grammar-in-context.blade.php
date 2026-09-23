@@ -50,6 +50,19 @@ new class extends Component
      */
     public ?array $wordOrderScore = null;
 
+    /**
+     * True once Continue has passed every check and Evidence is saved —
+     * the step then shows the encouragement score (Epic H) before the
+     * learner dismisses it with proceed() below.
+     */
+    public bool $completed = false;
+
+    /** How many sentences needed no fix at all this attempt (encouragement score, Epic H). */
+    public ?int $correctCount = null;
+
+    /** The same count from the learner's own last attempt at this step, if any. */
+    public ?int $previousCorrect = null;
+
     public function mount(): void
     {
         if (! $this->readOnly) {
@@ -104,6 +117,12 @@ new class extends Component
      * number someone might later edit in one place and not the other.
      */
     public const REQUIRED_SENTENCES = 3;
+
+    /** Exposed for the Blade template — a bare `self::CONST` isn't reachable there. */
+    public function requiredSentences(): int
+    {
+        return self::REQUIRED_SENTENCES;
+    }
 
     /**
      * The starters this mission actually offers. Every read of
@@ -298,13 +317,17 @@ new class extends Component
             return;
         }
 
+        // Read BEFORE creating this attempt's own row — a retry (?retry=1)
+        // means there can already be an earlier one for this same phase.
+        $this->previousCorrect = $this->readPreviousCorrectCount();
+
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'grammar_in_context',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'frequency_sentences' => $filledSentences
-                    ->map(fn ($s) => ['starter' => $s['starter'], 'completion' => $s['text']])
+                    ->map(fn ($s) => ['starter' => $s['starter'], 'completion' => $s['text'], 'severity' => $this->feedback[$s['index']]['severity'] ?? 'none'])
                     ->values(),
                 // Optional bonus practice — saved if attempted, but never
                 // required and never blocks Continue.
@@ -313,10 +336,42 @@ new class extends Component
             ]),
         ]);
 
+        $this->correctCount = $filledSentences
+            ->filter(fn ($s) => ($this->feedback[$s['index']]['severity'] ?? null) === 'none')
+            ->count();
+
         $this->syncGrammarPoint($filledSentences->first());
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
+        $this->completed = true;
+    }
+
+    public function proceed(): void
+    {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+    }
+
+    /**
+     * The learner's own last attempt at this exact step (encouragement
+     * score's comparison, Epic H) — null when this is their first attempt
+     * or an old Evidence row predates severities being persisted at all.
+     */
+    private function readPreviousCorrectCount(): ?int
+    {
+        $previous = $this->run->evidence()
+            ->where('phase', 'grammar_in_context')
+            ->where('type', Evidence::TYPE_TEXT)
+            ->latest()
+            ->first();
+
+        if (! $previous) {
+            return null;
+        }
+
+        $sentences = json_decode($previous->content_ref, true)['frequency_sentences'] ?? [];
+        $severities = collect($sentences)->pluck('severity')->filter();
+
+        return $severities->isNotEmpty() ? $severities->filter(fn ($s) => $s === 'none')->count() : null;
     }
 
     /**
@@ -411,6 +466,28 @@ new class extends Component
 
     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $grammar['focus'] ?? 'Grammar' }}</p>
 
+    @if ($completed)
+        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
+                @svg('heroicon-o-check-circle', 'h-4 w-4')
+                Grammar in Context complete
+            </p>
+
+            @if (! is_null($correctCount))
+                <x-encouragement-score :correct="$correctCount" :total="$this->requiredSentences()" label="sentences" :previous-correct="$previousCorrect" />
+            @endif
+
+            <button
+                wire:click="proceed"
+                wire:loading.attr="disabled"
+                wire:target="proceed"
+                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <span wire:loading.remove wire:target="proceed">Continue</span>
+                <span wire:loading wire:target="proceed">Please wait…</span>
+            </button>
+        </div>
+    @else
     @unless ($readOnly)
         <div x-show="phase === 'lesson'" x-cloak class="space-y-4">
             @if (! empty($lesson['intro']))
@@ -505,7 +582,7 @@ new class extends Component
         @else
             <div>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
+                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
                 <div class="mt-2">
                     <x-quick-round :cards="$this->quickCheckCards()" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
                 </div>
@@ -514,7 +591,7 @@ new class extends Component
             @if ($this->wordOrderCards())
                 <div>
                     <p class="text-sm font-semibold text-ink dark:text-ink-dark">Build the sentence</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Tap the words in the right order — another warm-up, skip anytime.</p>
+                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap the words in the right order — another warm-up, skip anytime.</p>
                     <div class="mt-2">
                         <x-word-order-round :cards="$this->wordOrderCards()" on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length })" />
                     </div>
@@ -524,12 +601,12 @@ new class extends Component
 
         <div>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Make it personal</p>
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Finish at least 3 sentences about your own life. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Finish at least 3 sentences about your own life. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
                 @php $vocabularyWords = $run->selectedVocabularyWords(); @endphp
                 @if ($vocabularyWords)
                     <div class="mt-2">
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Tap a word to drop it into your next sentence:</p>
+                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap a word to drop it into your next sentence:</p>
                         <div class="mt-1">
                             <x-vocabulary-chips
                                 :words="$vocabularyWords"
@@ -619,4 +696,5 @@ new class extends Component
             />
         @endunless
     </div>
+    @endif
 </div>

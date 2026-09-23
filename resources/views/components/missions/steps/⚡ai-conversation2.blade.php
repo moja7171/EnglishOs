@@ -407,7 +407,7 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Conversation #2 — Final Challenge</p>
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">This session should be harder than the first one.</p>
+        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tougher this time — no starter words, so think it through before you speak.</p>
     </div>
 
     @if (count($turns))

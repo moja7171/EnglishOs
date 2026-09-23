@@ -421,8 +421,24 @@ new class extends Component
                     Step {{ $position }} of {{ count($daySteps) }}
                 </p>
                 @if ($this->isReviewing)
-                    <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                        Reviewing a completed step
+                    <span class="flex items-center gap-2">
+                        <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+                            Reviewing a completed step
+                        </span>
+                        {{-- Always available while reviewing any step with
+                             real learner input (mission structure redesign,
+                             Epic H) — not just when the AI happens to
+                             suggest it on Mission Result. Icon+tooltip, not
+                             a text label, per the project's secondary-
+                             action convention. --}}
+                        @if (Mission::isStepRedoable($this->activeStepKey))
+                            <a
+                                href="{{ route('missions.show', [$mission, $this->activeStepKey, 'retry' => 1]) }}"
+                                wire:navigate
+                                title="Practice this step again"
+                                class="inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface hover:text-ink dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark"
+                            >@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')</a>
+                        @endif
                     </span>
                 @endif
             </div>
