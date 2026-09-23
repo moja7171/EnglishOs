@@ -15,7 +15,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', fn () => view('auth.register'))->name('register');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');

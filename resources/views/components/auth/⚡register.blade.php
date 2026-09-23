@@ -45,6 +45,7 @@ new class extends Component
 
         if (request()->hasSession()) {
             request()->session()->regenerate();
+            request()->session()->put('auth_login_at', now()->timestamp);
         }
 
         // Straight into the placement test rather than the first mission:

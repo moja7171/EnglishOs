@@ -24,6 +24,7 @@ new class extends Component
 
         if (request()->hasSession()) {
             request()->session()->regenerate();
+            request()->session()->put('auth_login_at', now()->timestamp);
         }
 
         $this->redirect('/');
