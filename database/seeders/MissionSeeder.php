@@ -212,28 +212,16 @@ class MissionSeeder extends Seeder
                                 ],
                                 // A one-tap <x-quick-round> bonus in the Wrap-up sub-step (not a
                                 // required field — never blocks Continue) with one real, checkable
-                                // fact from the episode, plus 3 curated real lines to shadow (repeat
-                                // out loud with the audio) once the transcript is unlocked.
+                                // fact from the episode.
                                 'detail_question' => [
                                     'question' => 'What time did Neil need to get up to catch his flight, the last time he skipped breakfast?',
                                     'options' => ['7am', '3am', '9am'],
                                     'correct' => 1,
                                 ],
-                                // Bold marks the naturally-stressed content words (nouns, main verbs,
-                                // adjectives, question words) — function words (articles,
-                                // prepositions, auxiliary "do"/"does") stay unstressed, standard
-                                // English sentence-rhythm teaching. Rendered by <x-stress-marked-line>.
-                                // Mission structure redesign, Epic C: expanded from 3 to 5 lines
-                                // (only 2 are actually required — see ⚡listening.blade.php's
-                                // REQUIRED_SHADOWED_LINES) so a line that keeps mistranscribing
-                                // never blocks a learner; they can just shadow a different one.
-                                'shadow_lines' => [
-                                    'So, **Neil**, do you **like** to **get up** **early** or do you **prefer** to **sleep in**?',
-                                    "Yes, I **think** it **does**. I'm a **morning person**. That **means** someone that has **a lot of energy** at the **start** of the **day**.",
-                                    "**Sometimes** I **skip breakfast**, because when I **wake up**, I'm **not hungry**.",
-                                    "**Well**, I **like** the **mornings** **sometimes** because I **feel** like it's **quieter**.",
-                                    "I **like** to **know** what the **weather's** going to be **like**.",
-                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only
+                                // (synced text + gap-fill); shadowing is Listen Again's job
+                                // (daily_listen_2/3/4, see DailyListenStep) so it never has to
+                                // compete with the very first listen's own comprehension goal.
                             ],
                         ],
                     ],
@@ -275,13 +263,16 @@ class MissionSeeder extends Seeder
                                 // Purely decorative — a different image than Day 1's own for
                                 // visual variety across the 4 listens of the same episode.
                                 'image_query' => 'sunrise bedroom window',
-                                // This day's own small shadow pool (Epic C) — distinct from Day
-                                // 1's 5 and every other daily-listen day's, so no line repeats
-                                // across the mission.
+                                // This day's own small shadow pool (Epic C) — distinct from
+                                // every other daily-listen day's, so no line repeats across
+                                // the mission. shadow_timestamps are real Whisper-derived
+                                // pause points (see missions:cache-shadow-timestamps) — [] until
+                                // that command has been run for this mission.
                                 'shadow_lines' => [
                                     "I'm **very well**, **thank you**. How are **you**?",
                                     'That **actually** **happened** this **week**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_2'),
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -584,6 +575,7 @@ class MissionSeeder extends Seeder
                                     '**Otherwise** I\'m **very grumpy**.',
                                     '**Especially** in the **United Kingdom** because the **weather** can be **different** **every day**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_3'),
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -742,6 +734,7 @@ class MissionSeeder extends Seeder
                                     "**Make sure** you've **got** your **umbrella**.",
                                     '**Never**. **Unless** there\'s a **very**, **very** **good** **reason**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_4'),
                             ],
                             [
                                 'key' => 'error_log',
@@ -1012,13 +1005,9 @@ class MissionSeeder extends Seeder
                                     ['statement' => 'Max Dickins wrote his book because he had too many close friends to choose just one as his best man.', 'correct' => false],
                                     ['statement' => 'According to Professor Robin Dunbar, the ideal total number of friends for good mental health is fifteen.', 'correct' => true],
                                 ],
-                                'shadow_lines' => [
-                                    'So, **is** it **true** that **men** find it **difficult** to **make friends**?',
-                                    'To **drift away** means to **gradually** move **further apart** from **someone** until your **relationship** with them **eventually ends**.',
-                                    "He's **young**, **generous**, and **outgoing** – he's **quick** to **buy** his **round**.",
-                                    "**Yes**, I **have** **some** **close friends**, but **maybe** **not** as **many** as I'd **like**.",
-                                    "I'll **say** we **need** at **least** **five** **close friends**.",
-                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only
+                                // (synced text + gap-fill); shadowing is Listen Again's job
+                                // (daily_listen_2/3, see DailyListenStep).
                             ],
                         ],
                     ],
@@ -1055,6 +1044,7 @@ class MissionSeeder extends Seeder
                                     "**That's** **interesting** because **often** it's **women** who **have** **many** **friends**.",
                                     '**Max** **thinks** the **answer** is **getting out** and **meeting** **people**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_2'),
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -1288,6 +1278,7 @@ class MissionSeeder extends Seeder
                                     '**All** of **which** **helps** **get closer** to the **magical number**.',
                                     '**Once again**, our **six minutes** are **up**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_3'),
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -1683,13 +1674,9 @@ class MissionSeeder extends Seeder
                                     'options' => ['Cake and ice cream', 'Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Nothing — she stopped snacking completely'],
                                     'correct' => 1,
                                 ],
-                                'shadow_lines' => [
-                                    "**Start** small, be **patient**, and don't **try** to be **perfect**.",
-                                    "**Focus** on how **food** makes you **feel**, not just what it **looks** like.",
-                                    '**Eating** clean is about **simple** food, **balance**, and **listening** to your **body**.',
-                                    'I **had** **more energy**, **better digestion**, **clearer skin**, and I **felt** **more connected** to my **body**.',
-                                    '**Guilt** **only** **makes** things **worse**.',
-                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only
+                                // (synced text + gap-fill); shadowing is Listen Again's job
+                                // (daily_listen_2/3, see DailyListenStep).
                             ],
                         ],
                     ],
@@ -1726,6 +1713,7 @@ class MissionSeeder extends Seeder
                                     '**That** **difference** is **huge**. It **becomes** a **choice** not a **habit**.',
                                     '**No guilt**, **no punishment** the **next day**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'daily_listen_2'),
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -1918,6 +1906,7 @@ class MissionSeeder extends Seeder
                                     '**That** **already** **saves** a **lot** of **time** and **energy**.',
                                     '**That** **feeling** **matters** **more** than **numbers** on a **scale**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'daily_listen_3'),
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -2270,13 +2259,9 @@ class MissionSeeder extends Seeder
                                     'options' => ['5 days', '3 days', '0 days'],
                                     'correct' => 1,
                                 ],
-                                'shadow_lines' => [
-                                    "I've been **working** as a **marketing assistant** at a **tech company** for almost **two years** now.",
-                                    "It's a **hybrid role**, so I **work** from **home** **three days** a week.",
-                                    'It **saves** time and **helps** with **work life balance**.',
-                                    "**Well**, I **help** **manage** our **social media** **accounts**, **write** **content** for the **website**.",
-                                    "It **can get stressful**, **especially** when we're **close** to a **deadline**.",
-                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only
+                                // (synced text + gap-fill); shadowing is Listen Again's job
+                                // (daily_listen_2/3, see DailyListenStep).
                             ],
                         ],
                     ],
@@ -2311,6 +2296,7 @@ class MissionSeeder extends Seeder
                                     '**I** **deal with** **customer** **emails** and **help people** **track** their **orders**.',
                                     '**Sometimes** I **listen** to **podcasts** on the **way**.',
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'daily_listen_2'),
                             ],
                             [
                                 'key' => 'grammar_in_context',
@@ -2520,6 +2506,7 @@ class MissionSeeder extends Seeder
                                     '**Maybe** we **should** **start** **one** about our **work lives**.',
                                     "**When** you **have** **good** **work life balance**, you're **not too stressed**.",
                                 ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'daily_listen_3'),
                             ],
                             [
                                 'key' => 'ai_conversation_1',
@@ -2728,5 +2715,29 @@ class MissionSeeder extends Seeder
         File::copy($source, storage_path("app/public/{$relative}"));
 
         return Storage::disk('public')->url($relative);
+    }
+
+    /**
+     * Real Whisper-derived start/end times (seconds) for one
+     * daily_listen_N step's own shadow_lines, generated offline by
+     * `php artisan missions:cache-shadow-timestamps` and checked into
+     * document/{code}/shadow_timestamps.json — never regenerated live
+     * during a real seed run. Returns [] (not an error) for a mission
+     * that hasn't had the command run against it yet, so seeding never
+     * hard-fails on missing cache; the shadowing player just has no
+     * pause points until it's generated.
+     *
+     * @return list<array{start: float, end: float}|null>
+     */
+    private function shadowTimestampsFor(string $missionCode, string $stepKey): array
+    {
+        static $cache = [];
+
+        if (! array_key_exists($missionCode, $cache)) {
+            $path = base_path("document/{$missionCode}/shadow_timestamps.json");
+            $cache[$missionCode] = File::exists($path) ? json_decode(File::get($path), true) : [];
+        }
+
+        return $cache[$missionCode][$stepKey] ?? [];
     }
 }
