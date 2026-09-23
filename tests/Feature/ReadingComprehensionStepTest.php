@@ -382,7 +382,7 @@ class ReadingComprehensionStepTest extends TestCase
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->assertSeeHtml('<mark')
-            ->assertSeeHtml('title="این کلمه رو توی Vocabulary Builder دیدی"')
+            ->assertSeeHtml('title="این کلمه رو توی New Words دیدی"')
             ->assertSeeHtml('title="very tired"')
             // The rest of the passage around the highlights must still render, unescaped-HTML-safe.
             ->assertSee('Aisha')

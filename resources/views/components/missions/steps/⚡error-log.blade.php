@@ -203,7 +203,7 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent('error_log')['hook'] ?? null" />
 
     <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Error Log</p>
+        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">My Fixes</p>
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Correct your most common mistakes with a new example.</p>
     </div>
 

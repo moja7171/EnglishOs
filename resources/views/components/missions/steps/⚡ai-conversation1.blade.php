@@ -633,7 +633,7 @@ new class extends Component
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
-                    AI Conversation #1 complete
+                    Talk It Out complete
                 </p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Nicely done — take a look back below before you move on.</p>
             </div>
@@ -858,7 +858,7 @@ new class extends Component
     @else
         {{-- Interview round: unchanged AI Conversation #1 behavior. --}}
         <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI Conversation #1</p>
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Talk It Out</p>
             <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
         </div>
 

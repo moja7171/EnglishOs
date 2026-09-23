@@ -470,7 +470,7 @@ new class extends Component
         <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
-                Grammar in Context complete
+                Grammar Time complete
             </p>
 
             @if (! is_null($correctCount))
