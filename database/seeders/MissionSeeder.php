@@ -591,15 +591,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'ai_conversation_1',
                                 'label' => 'Talk It Out',
-                                // Epic E: merges the old standalone Activation step (warm-up
-                                // sentences + solo recording, now warm_up_task below) and AI
-                                // Feedback #1 (now generated automatically at the end, no
-                                // separate step) into this one step — 12 (warm-up) + 12
-                                // (interview) + 3 (feedback) = 27, minus a little shared UI
-                                // overhead.
-                                'duration_minutes' => 26,
+                                // Epic E: merges the old standalone Activation step (solo
+                                // recording, now warm_up_task below) and AI Feedback #1 (now
+                                // generated automatically at the end, no separate step) into
+                                // this one step — 6 (warm-up recording) + 12 (interview) + 3
+                                // (feedback) = 21, minus a little shared UI overhead. The
+                                // warm-up used to also include writing 5 sentences (budgeted
+                                // 12 min); that writing sub-step was removed, so warm-up
+                                // dropped to 6.
+                                'duration_minutes' => 20,
                                 'hook' => "Say it once here, alone — it'll come out easier once the AI Instructor is properly listening.",
-                                'warm_up_task' => 'Write 5 personal sentences about your daily life using the new vocabulary, then record 2 minutes of solo speaking without reading.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your daily life, using the new vocabulary, without reading.',
                                 // Real interview questions from Mission01.pdf "Speaking Session 01".
                                 'interview_questions' => [
                                     'What time do you usually wake up?',
@@ -997,13 +999,35 @@ class MissionSeeder extends Seeder
                                 ],
                                 // The exact 5 expressions, with the meanings Neil & Beth themselves
                                 // gave in the podcast's own end-of-episode recap (page 5).
+                                // gap_before/gap_after are real, single-blank sentences lifted straight
+                                // from the transcript — the Second listening gap-fill exercise above.
                                 'target_phrases' => [
-                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness or financial difficulty in life'],
-                                    ['phrase' => 'get through', 'meaning' => 'manage to live through a difficult situation'],
-                                    ['phrase' => 'drift away', 'meaning' => 'gradually move further and further apart from someone until your relationship with them is broken'],
-                                    ['phrase' => 'Billy No-Mates', 'meaning' => 'slang for someone who has no friends'],
-                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with unfavourable as well as favourable consequences'],
-                                    ['phrase' => 'outgoing', 'meaning' => 'very friendly; enjoys meeting and talking to people'],
+                                    [
+                                        'phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness or financial difficulty in life',
+                                        'gap_before' => 'Now, when ',
+                                        'gap_after' => ", friends are often the people who get us through, who are there to listen, to reassure, maybe to advise us, if that's what we want.",
+                                    ],
+                                    [
+                                        'phrase' => 'get through', 'meaning' => 'manage to live through a difficult situation',
+                                        'gap_before' => 'If you ', 'gap_after' => ' something, you manage to live through a difficult situation.',
+                                    ],
+                                    [
+                                        'phrase' => 'drift away', 'meaning' => 'gradually move further and further apart from someone until your relationship with them is broken',
+                                        'gap_before' => 'To ', 'gap_after' => ' means to gradually move further apart from someone until your relationship with them eventually ends.',
+                                    ],
+                                    [
+                                        'phrase' => 'Billy No-Mates', 'meaning' => 'slang for someone who has no friends',
+                                        'gap_before' => '', 'gap_after' => ' is slang for someone who has no friends.',
+                                    ],
+                                    [
+                                        'phrase' => 'double-edged sword', 'meaning' => 'something with unfavourable as well as favourable consequences',
+                                        'gap_before' => 'A ', 'gap_after' => ' describes something with unfavourable as well as favourable consequences.',
+                                    ],
+                                    [
+                                        'phrase' => 'outgoing', 'meaning' => 'very friendly; enjoys meeting and talking to people',
+                                        'gap_before' => 'And finally, the adjective ',
+                                        'gap_after' => ' describes someone who is very friendly and enjoys talking to people.',
+                                    ],
                                 ],
                                 'topic_summary' => 'Neil and Beth discuss why British men often have fewer close friends '
                                     .'than women, especially as they get older — a survey found only 27% of British '
@@ -1298,12 +1322,11 @@ class MissionSeeder extends Seeder
                                 'key' => 'ai_conversation_1',
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
-                                'duration_minutes' => 26,
+                                'duration_minutes' => 20,
                                 'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
-                                'warm_up_task' => 'Choose a friend or someone close to you. Write at least 3 Present Simple '
-                                    .'sentences, 2 Present Continuous sentences, and use at least 3 vocabulary '
-                                    .'expressions describing them — then record 2 minutes of solo speaking about '
-                                    .'them without reading.',
+                                'warm_up_task' => 'Choose a friend or someone close to you, then record 2 minutes of '
+                                    .'solo speaking describing them — try to use some Present Simple and Present '
+                                    .'Continuous sentences, and at least 3 vocabulary expressions, without reading.',
                                 'interview_questions' => [
                                     'Tell me about someone in your family — what are they like?',
                                     'Who do you get on well with these days?',
@@ -1929,7 +1952,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'ai_conversation_1',
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
-                                'duration_minutes' => 24,
+                                'duration_minutes' => 18,
                                 'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
                                 // Real questions from M04.pdf page 05 "Food in my life".
                                 'warm_up_task' => 'Answer these questions about your own eating habits — what you normally '
@@ -2532,7 +2555,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'ai_conversation_1',
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
-                                'duration_minutes' => 24,
+                                'duration_minutes' => 18,
                                 'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
                                 // Real questions from M03.pdf page 05 "Work / Study".
                                 'warm_up_task' => 'Answer these questions about your work or studies — what you normally '

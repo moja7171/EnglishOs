@@ -17,10 +17,12 @@ use Tests\TestCase;
 
 /**
  * Mission structure redesign, Epic E: the old standalone Activation step
- * (5 personal sentences + 2 minutes of solo recording, with a Persian
- * reflection) is now this step's own warm-up round, and AI Feedback #1
- * (the report card on the interview) is generated automatically as part
- * of this step's own completion recap — see ⚡ai-conversation1.blade.php.
+ * (2 minutes of solo recording, with a Persian reflection) is now this
+ * step's own warm-up round, and AI Feedback #1 (the report card on the
+ * interview) is generated automatically as part of this step's own
+ * completion recap — see ⚡ai-conversation1.blade.php. The warm-up used to
+ * also require writing 5 personal sentences first; that writing sub-step
+ * was removed, leaving just the recording.
  */
 class AiConversation1StepTest extends TestCase
 {
@@ -40,7 +42,7 @@ class AiConversation1StepTest extends TestCase
                     'steps' => [
                         [
                             'key' => 'ai_conversation_1',
-                            'warm_up_task' => 'Write 5 personal sentences about your daily life, then record 2 minutes of solo speaking without reading.',
+                            'warm_up_task' => 'Record 2 minutes of solo speaking about your daily life, without reading.',
                             'interview_questions' => array_slice([
                                 'What time do you usually wake up?',
                                 'What do you normally do in the morning?',
@@ -58,20 +60,10 @@ class AiConversation1StepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
-    private function fillWarmUpSentences($component): void
-    {
-        $component
-            ->set('sentences.0', 'I usually wake up at 7.')
-            ->set('sentences.1', 'I have breakfast at 8.')
-            ->set('sentences.2', 'I go to work by bus.')
-            ->set('sentences.3', 'I exercise in the evening.')
-            ->set('sentences.4', 'I go to bed at 11.');
-    }
-
     /**
-     * Mocks the exact call sequence finishWarmUp() makes (5 sentence
-     * checks, then transcribe + reflect) and drives the component past
-     * the warm-up round into the interview phase.
+     * Mocks the exact call sequence finishWarmUp() makes (transcribe, then
+     * reflect) and drives the component past the warm-up round into the
+     * interview phase.
      */
     private function completeWarmUp($component, string $reflectionHighlight = 'خیلی روان صحبت کردی.', string $reflectionTip = 'ادامه بده.'): void
     {
@@ -86,11 +78,9 @@ class AiConversation1StepTest extends TestCase
             ]);
         });
         $this->mock(GeminiClient::class, function ($mock) use ($reflectionHighlight, $reflectionTip) {
-            $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => $reflectionHighlight, 'tip' => $reflectionTip]))->ordered();
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => $reflectionHighlight, 'tip' => $reflectionTip]));
         });
 
-        $this->fillWarmUpSentences($component);
         $component->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
             ->call('finishWarmUp');
     }
@@ -105,62 +95,13 @@ class AiConversation1StepTest extends TestCase
         $run = $this->makeRun();
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
-        $this->fillWarmUpSentences($component);
         $component->call('finishWarmUp')->assertHasErrors(['warmUpAudioFile']);
 
         $this->assertDatabaseCount('evidences', 0);
         $component->assertSet('warmUpDone', false);
     }
 
-    public function test_five_warm_up_sentences_are_required(): void
-    {
-        Storage::fake('public');
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->set('sentences.0', 'I usually wake up at 7.')
-            ->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
-            ->call('finishWarmUp')
-            ->assertHasErrors(['sentences']);
-    }
-
-    public function test_a_major_ai_verdict_on_a_warm_up_sentence_blocks_the_interview(): void
-    {
-        Storage::fake('public');
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'major', 'hint' => 'That is just a fragment.']))->ordered();
-            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
-        });
-
-        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->set('sentences.0', 'bus stop')
-            ->set('sentences.1', 'I have breakfast at 8.')
-            ->set('sentences.2', 'I go to work by bus.')
-            ->set('sentences.3', 'I exercise in the evening.')
-            ->set('sentences.4', 'I go to bed at 11.')
-            ->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
-            ->call('finishWarmUp')
-            ->assertHasErrors(['sentences'])
-            ->assertSet('warmUpDone', false);
-
-        $this->assertDatabaseCount('evidences', 0);
-    }
-
-    public function test_clicking_check_on_an_empty_warm_up_sentence_shows_an_error(): void
-    {
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
-
-        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->call('checkOne', 0)
-            ->assertSet('checkErrors.0', 'Write something first.')
-            ->assertSee('Write something first.');
-    }
-
-    public function test_the_warm_up_offers_clickable_vocabulary_chips(): void
+    public function test_the_warm_up_shows_the_selected_vocabulary_as_a_speaking_reminder(): void
     {
         $run = $this->makeRun();
 
@@ -172,50 +113,8 @@ class AiConversation1StepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSee('Tap a word to drop it into your next sentence')
-            ->assertSee('wake up')
-            ->assertSeeHtml('^=&quot;sentences.&quot;')
-            ->assertSeeHtml('Wake up');
-    }
-
-    public function test_three_failed_warm_up_checks_offer_to_reveal_the_correction(): void
-    {
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
-        });
-
-        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->set('sentences.0', 'attempt one');
-
-        $component->call('checkOne', 0);
-        $component->call('checkOne', 0)->assertSee('One more try — after that I can write the correct one for you');
-        $component->call('checkOne', 0)
-            ->assertSet('offerReveal.warmup_0', true)
-            ->assertDontSee('One more try — after that I can write the correct one for you');
-    }
-
-    public function test_accepting_the_warm_up_reveal_writes_the_ai_correction_into_the_sentence(): void
-    {
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
-            $mock->shouldReceive('chat')->once()->andReturn('I usually wake up at seven.');
-        });
-
-        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->set('sentences.0', 'bad fragment');
-
-        $component->call('checkOne', 0);
-        $component->call('checkOne', 0);
-        $component->call('checkOne', 0)->assertSet('offerReveal.warmup_0', true);
-
-        $component->call('revealCorrection', 0)
-            ->assertSet('sentences.0', 'I usually wake up at seven.')
-            ->assertSet('feedback.0.severity', 'none')
-            ->assertSet('offerReveal.warmup_0', null);
+            ->assertSee('Words you picked — try to use some while you speak')
+            ->assertSee('wake up');
     }
 
     public function test_finishing_the_warm_up_moves_into_the_interview_without_saving_evidence_yet(): void
@@ -243,12 +142,9 @@ class AiConversation1StepTest extends TestCase
         $this->mock(GroqClient::class, function ($mock) {
             $mock->shouldReceive('transcribeWithConfidence')->once()->andThrow(new \RuntimeException('Groq is down.'));
         });
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
-        $this->fillWarmUpSentences($component);
         $component->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
             ->call('finishWarmUp')
             ->assertSet('warmUpDone', true)
@@ -269,18 +165,15 @@ class AiConversation1StepTest extends TestCase
             ]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']))->ordered();
             $mock->shouldReceive('chat')
                 ->once()
                 ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, '20 words per minute')
                     && str_contains($systemPrompt, '60 seconds')
                     && str_contains($systemPrompt, 'with 2 filler words'))
-                ->andReturn(json_encode(['highlight' => 'خوب بود.', 'tip' => 'ادامه بده.']))
-                ->ordered();
+                ->andReturn(json_encode(['highlight' => 'خوب بود.', 'tip' => 'ادامه بده.']));
         });
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
-        $this->fillWarmUpSentences($component);
         $component->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
             ->call('finishWarmUp');
     }
@@ -304,14 +197,6 @@ class AiConversation1StepTest extends TestCase
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->assertSee('Same questions as Day 1')
             ->assertSee('What time do you usually wake up?');
-    }
-
-    public function test_warm_up_sentence_inputs_carry_a_draft_key_scoped_to_the_run(): void
-    {
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSeeHtml("eos-draft:{$run->id}:ai_conversation_1:sentences.0");
     }
 
     public function test_finishing_the_warm_up_dispatches_a_clear_draft_event(): void
@@ -377,10 +262,7 @@ class AiConversation1StepTest extends TestCase
             ->assertSee('Talk It Out complete')
             ->assertSee('How do you get to work?')
             ->assertSet('fbStrength', 'نقطه قوت تو این بود که واضح جواب دادی.')
-            ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
-            // Epic H: encouragement score — all 5 warm-up sentences passed with severity 'none'.
-            ->assertSet('correctCount', 5)
-            ->assertSee('5 of 5 warm-up sentences needed no fix at all');
+            ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.');
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_TEXT]);
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_AUDIO]);
@@ -388,8 +270,6 @@ class AiConversation1StepTest extends TestCase
         $textEvidence = Evidence::where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->first();
         $content = json_decode($textEvidence->content_ref, true);
         $this->assertCount(2, $content['turns']);
-        $this->assertCount(5, $content['sentences']);
-        $this->assertSame(['none', 'none', 'none', 'none', 'none'], $content['sentence_severities']);
         $this->assertSame('I usually wake up at seven and have breakfast.', $content['transcript']);
         $this->assertSame('I wake up at seven.', $content['feedback']['correction']['original']);
 
@@ -401,43 +281,6 @@ class AiConversation1StepTest extends TestCase
         $this->assertSame('writing', $run->fresh()->currentStepKey());
 
         $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
-    }
-
-    public function test_the_encouragement_score_compares_to_the_learners_previous_attempt(): void
-    {
-        Storage::fake('local');
-        Storage::fake('public');
-        $run = $this->makeRun(questionCount: 1);
-
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'ai_conversation_1',
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode([
-                'sentences' => ['a', 'b', 'c', 'd', 'e'],
-                'sentence_severities' => ['minor', 'minor', 'minor', 'none', 'none'],
-                'turns' => [],
-                'feedback' => [],
-            ]),
-        ]);
-
-        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
-        $this->completeWarmUp($component); // all 5 pass this time — see the helper's mock
-
-        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->andReturn(
-                json_encode(['severity' => 'none', 'hint' => '']),
-                'Every day?',
-                json_encode(['strength' => 'x', 'expression' => 'y', 'correction' => ['original' => 'a', 'corrected' => 'b', 'why' => 'c', 'suggestion' => 'd'], 'severity' => 'minor']),
-            );
-        });
-
-        $component->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
-            ->call('submitAnswer')
-            ->assertSet('correctCount', 5)
-            ->assertSet('previousCorrect', 2)
-            ->assertSee('Better than last time');
     }
 
     public function test_a_major_feedback_severity_records_a_struggle_signal(): void
@@ -648,7 +491,6 @@ class AiConversation1StepTest extends TestCase
             'phase' => 'ai_conversation_1',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode(array_merge([
-                'sentences' => ['I usually wake up at 7.'],
                 'transcript' => 'I usually wake up at seven and have breakfast.',
                 'segments' => [['text' => 'I usually wake up at seven', 'confidence' => 'high']],
                 'reflection' => ['highlight' => 'خیلی روان صحبت کردی.', 'tip' => 'دفعه‌ی بعد یه جزئیات بیشتر اضافه کن.'],
@@ -686,7 +528,6 @@ class AiConversation1StepTest extends TestCase
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run, 'readOnly' => true])
-            ->assertSet('sentences.0', 'I usually wake up at 7.')
             ->assertSet('transcript', 'I usually wake up at seven and have breakfast.')
             ->assertSet('completed', true)
             ->assertSeeHtml('http://localhost/storage/missions/m01/evidence/speaking.webm')

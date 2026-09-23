@@ -8,10 +8,7 @@ use App\Models\MissionRun;
 use App\Services\AiFeedbackCard;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
-use App\Services\SentenceChecker;
 use App\Services\SpokenAnswerChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -47,15 +44,6 @@ new class extends Component
     public bool $warmUpDone = false;
 
     // --- Warm-up round (was Activation) ---
-
-    /** @var array<int, string> */
-    public array $sentences = ['', '', '', '', ''];
-
-    /** @var array<int, array{severity: string, hint: string, checkedText: string}> keyed by sentence index */
-    public array $feedback = [];
-
-    /** @var array<int, string> keyed by sentence index — per-input check failure message */
-    public array $checkErrors = [];
 
     public ?UploadedFile $warmUpAudioFile = null;
 
@@ -114,12 +102,6 @@ new class extends Component
      */
     public bool $completed = false;
 
-    /** How many warm-up sentences needed no fix at all this attempt (encouragement score, Epic H). */
-    public ?int $correctCount = null;
-
-    /** The same count from the learner's own last attempt at this step, if any. */
-    public ?int $previousCorrect = null;
-
     public function mount(): void
     {
         if (! $this->readOnly) {
@@ -128,7 +110,6 @@ new class extends Component
 
         $data = json_decode($this->run->latestEvidence('ai_conversation_1')?->content_ref ?? '{}', true);
 
-        $this->sentences = array_pad($data['sentences'] ?? [], 5, '');
         $this->transcript = $data['transcript'] ?? null;
         $this->segments = $data['segments'] ?? [];
         $this->reflection = $data['reflection'] ?? null;
@@ -171,72 +152,8 @@ new class extends Component
     // Warm-up round (was Activation)
     // ---------------------------------------------------------------
 
-    public function checkOne(int $index): void
-    {
-        $sentence = trim($this->sentences[$index] ?? '');
-
-        if ($sentence === '') {
-            $this->checkErrors[$index] = 'Write something first.';
-
-            return;
-        }
-
-        $this->runSentenceCheck($index, $sentence);
-    }
-
-    private function runSentenceCheck(int $index, string $sentence): void
-    {
-        unset($this->checkErrors[$index]);
-
-        try {
-            $data = app(SentenceChecker::class)->check(
-                judgment: 'Judge whether the learner wrote a genuine, natural personal sentence about their own '
-                    .'daily life.',
-                majorCriteria: 'it is just a fragment (not a real sentence), or it is not actually about the '
-                    .'learner\'s own daily life',
-                context: "a personal sentence about the learner's own daily life",
-                text: $sentence,
-                extraGuidance: $this->run->aiToneGuidance(),
-                feedbackDepth: $this->run->mission->feedbackDepth(),
-            );
-            $this->recordGeminiCall();
-
-            $this->feedback[$index] = $data + ['checkedText' => $sentence];
-            $this->trackCheckAttempt("warmup_{$index}", $data['severity']);
-        } catch (ConnectionException|RequestException) {
-            $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
-        } catch (Throwable $e) {
-            $this->checkErrors[$index] = "Couldn't check this one: {$e->getMessage()}";
-        }
-    }
-
-    public function revealCorrection(int $index): void
-    {
-        $sentence = trim($this->sentences[$index] ?? '');
-
-        if ($sentence === '') {
-            return;
-        }
-
-        $this->revealCorrectionFor(
-            key: "warmup_{$index}",
-            context: "a personal sentence about the learner's own daily life",
-            text: $sentence,
-            errorBagKey: $index,
-            onCorrected: function (string $corrected) use ($index) {
-                $this->sentences[$index] = $corrected;
-                $this->feedback[$index] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
-            },
-        );
-    }
-
-    public function declineReveal(int $index): void
-    {
-        $this->declineCheckReveal("warmup_{$index}");
-    }
-
     /**
-     * Ends the warm-up round: validates the 5 sentences (same rule as the
+     * Ends the warm-up round: validates the recording (same rule as the
      * old Activation), stores the recording to permanent disk storage
      * right away (so it survives regardless of how long the interview
      * that follows takes), transcribes it and asks for a Persian
@@ -246,38 +163,8 @@ new class extends Component
     public function finishWarmUp(): void
     {
         $this->validate([
-            'sentences' => 'array',
-            'sentences.*' => 'nullable|string',
             'warmUpAudioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
         ]);
-
-        $filledSentences = collect($this->sentences)
-            ->map(fn ($s, $i) => ['index' => $i, 'text' => trim((string) $s)])
-            ->filter(fn ($s) => $s['text'] !== '');
-
-        if ($filledSentences->count() < 5) {
-            $this->addError('sentences', 'Write all 5 personal sentences before continuing.');
-
-            return;
-        }
-
-        foreach ($filledSentences as $item) {
-            $alreadyChecked = ($this->feedback[$item['index']]['checkedText'] ?? null) === $item['text'];
-
-            if (! $alreadyChecked) {
-                $this->runSentenceCheck($item['index'], $item['text']);
-            }
-        }
-
-        $hasMajorIssue = $filledSentences->contains(
-            fn ($item) => ($this->feedback[$item['index']]['severity'] ?? null) === 'major'
-        );
-
-        if ($hasMajorIssue) {
-            $this->addError('sentences', 'Fix the highlighted sentence before continuing.');
-
-            return;
-        }
 
         $mission = $this->run->mission;
         $path = $this->warmUpAudioFile->store('missions/'.strtolower($mission->code).'/evidence', 'public');
@@ -455,24 +342,11 @@ new class extends Component
     {
         $this->generateFeedback();
 
-        // Read BEFORE creating this attempt's own row — a retry (?retry=1)
-        // means there can already be an earlier one for this same phase.
-        $this->previousCorrect = $this->readPreviousCorrectCount();
-
-        $filledWarmUp = collect($this->sentences)
-            ->map(fn ($s, $i) => ['index' => $i, 'text' => trim((string) $s)])
-            ->filter(fn ($s) => $s['text'] !== '')
-            ->values();
-        $sentenceSeverities = $filledWarmUp->map(fn ($s) => $this->feedback[$s['index']]['severity'] ?? 'none')->values();
-        $this->correctCount = $sentenceSeverities->filter(fn ($s) => $s === 'none')->count();
-
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'ai_conversation_1',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                'sentences' => $filledWarmUp->pluck('text')->values(),
-                'sentence_severities' => $sentenceSeverities,
                 'transcript' => $this->transcript,
                 'segments' => $this->segments,
                 'reflection' => $this->reflection,
@@ -518,29 +392,6 @@ new class extends Component
         unset($audioEvidence);
 
         $this->completed = true;
-    }
-
-    /**
-     * The learner's own last attempt at this exact step's warm-up round
-     * (encouragement score's comparison, Epic H) — null when this is
-     * their first attempt or an old Evidence row predates severities
-     * being persisted at all.
-     */
-    private function readPreviousCorrectCount(): ?int
-    {
-        $previous = $this->run->evidence()
-            ->where('phase', 'ai_conversation_1')
-            ->where('type', Evidence::TYPE_TEXT)
-            ->latest()
-            ->first();
-
-        if (! $previous) {
-            return null;
-        }
-
-        $severities = json_decode($previous->content_ref, true)['sentence_severities'] ?? null;
-
-        return $severities ? collect($severities)->filter(fn ($s) => $s === 'none')->count() : null;
     }
 
     /**
@@ -612,20 +463,10 @@ new class extends Component
 @php
     $conversation = $run->mission->stepContent('ai_conversation_1');
     $vocabularyWords = $run->selectedVocabularyWords();
-    $initialFilled = collect($sentences)->map(fn ($s) => trim((string) $s) !== '')->values();
-    $draftPrefix = $this->draftPrefix();
     $warmUpQuestions = $run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
 @endphp
 
-{{-- Server-rendered values stay OUT of the x-data expression, same reason
-     as every other multi-part step — see ⚡listening.blade.php's note. --}}
-<div class="space-y-6" data-initial-filled="{{ $initialFilled->toJson() }}" x-data="{
-    filled: [],
-    dismissed: {},
-    noChipsChallenge: false,
-    get filledCount() { return this.filled.filter(Boolean).length },
-    init() { this.filled = JSON.parse(this.$el.dataset.initialFilled) },
-}">
+<div class="space-y-6">
     <x-hook :text="$conversation['hook'] ?? null" />
 
     @if ($completed)
@@ -637,10 +478,6 @@ new class extends Component
                 </p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Nicely done — take a look back below before you move on.</p>
             </div>
-
-            @if (! is_null($correctCount))
-                <x-encouragement-score :correct="$correctCount" :total="5" label="warm-up sentences" :previous-correct="$previousCorrect" />
-            @endif
 
             @if ($warmUpAudioUrl)
                 <div>
@@ -739,92 +576,12 @@ new class extends Component
     @elseif (! $warmUpDone)
         {{-- Warm-up round: was the standalone Activation step. --}}
         <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Warm-up — write 5 personal sentences</p>
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Warm-up — 2 minutes of solo speaking</p>
             <p class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
-            @if ($vocabularyWords)
-                @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL)
-                    <div class="mt-2">
-                        <x-optional-challenge
-                            model="noChipsChallenge"
-                            label="Want to try this one without the word chips?"
-                        />
-                    </div>
-                @endif
-                <div class="mt-2" x-show="! noChipsChallenge">
-                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap a word to drop it into your next sentence:</p>
-                    <div class="mt-1">
-                        <x-vocabulary-chips
-                            :words="$vocabularyWords"
-                            :collapsed="$this->run->mission->scaffoldLevel() !== App\Models\Mission::SCAFFOLD_FULL"
-                            field="sentences"
-                            on-insert="filled[idx] = true; dismissed[idx] = true;"
-                        />
-                    </div>
-                </div>
-            @endif
 
             <div class="mt-2">
-                <x-progress-bar>
-                    <div
-                        class="h-full rounded-full transition-all duration-300"
-                        :class="filledCount >= 5 ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
-                        :style="`width: ${Math.min(filledCount, 5) / 5 * 100}%`"
-                    ></div>
-                    <x-slot:label>
-                        <p
-                            class="text-xs font-semibold transition-colors"
-                            :class="filledCount >= 5 ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
-                            x-text="`${Math.min(filledCount, 5)} of 5 written`"
-                        ></p>
-                    </x-slot:label>
-                </x-progress-bar>
+                <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some while you speak" />
             </div>
-
-            <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,finishWarmUp" class="mt-2 space-y-3">
-                @foreach ($sentences as $index => $sentence)
-                    @php $itemFeedback = $feedback[$index] ?? null; @endphp
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <div class="flex items-center gap-2">
-                            <input
-                                type="text"
-                                wire:model="sentences.{{ $index }}"
-                                placeholder="{{ $index + 1 }}."
-                                x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
-                                x-draft="{ key: '{{ $draftPrefix }}sentences.{{ $index }}', field: 'sentences.{{ $index }}' }"
-                                wire:loading.attr="disabled"
-                                wire:target="checkOne,revealCorrection,declineReveal,finishWarmUp"
-                                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                            >
-                            <x-filled-check show="filled[{{ $index }}]" />
-                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,finishWarmUp" />
-                        </div>
-
-                        <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), finishWarmUp" class="mt-2" />
-
-                        <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
-                            <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$index] ?? null" />
-                        </div>
-
-                        <x-almost-reveal-notice :show="$this->isAlmostRevealing('warmup_'.$index)" />
-                        <x-reveal-offer
-                            :show="$offerReveal['warmup_'.$index] ?? false"
-                            :struggling="$this->run->isStruggling()"
-                            reveal-method="revealCorrection"
-                            decline-method="declineReveal"
-                            :index="$index"
-                            wire-target="checkOne,revealCorrection,declineReveal,finishWarmUp"
-                        />
-                    </div>
-                @endforeach
-            </div>
-            @error('sentences')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Solo speaking — 2 minutes</p>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Talk about your daily life without reading. Record when you're ready.</p>
 
             @if (count($warmUpQuestions))
                 <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
@@ -848,11 +605,11 @@ new class extends Component
 
         <div class="mt-4">
             <x-continue-button
-                on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.finishWarmUp().then(() => { dismissed = {} })"
-                wire-target="checkOne,revealCorrection,declineReveal,finishWarmUp"
-                loading-label="Checking your sentences and preparing your recap…"
-                ready-when="{{ $warmUpAudioFile ? 'filledCount >= 5' : 'false' }}"
-                hint="{{ $warmUpAudioFile ? 'Write 5 sentences to continue' : 'Record your answer, then write 5 sentences' }}"
+                on-click="$wire.finishWarmUp()"
+                wire-target="finishWarmUp"
+                loading-label="Preparing your recap…"
+                ready-when="{{ $warmUpAudioFile ? 'true' : 'false' }}"
+                hint="Record your answer to continue"
             />
         </div>
     @else
