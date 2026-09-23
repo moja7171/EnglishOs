@@ -43,6 +43,10 @@ class DailyListenStepTest extends TestCase
                                 ['speaker' => 'Neil', 'text' => 'Hello and welcome.'],
                                 ['speaker' => 'Georgie', 'text' => "And I'm Georgie."],
                             ],
+                            'listening_segments' => [
+                                ['text' => 'Hello and welcome to the show.', 'start' => 0.0, 'end' => 3.0],
+                                ['text' => "And I'm Georgie.", 'start' => 3.0, 'end' => 5.0],
+                            ],
                             'target_phrases' => [
                                 ['phrase' => 'sleep in', 'meaning' => 'to stay in bed longer than usual'],
                             ],
@@ -93,25 +97,30 @@ class DailyListenStepTest extends TestCase
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times($times)->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
     }
 
-    public function test_it_reuses_day_1s_audio_and_transcript(): void
+    public function test_it_reuses_day_1s_audio(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
             ->assertSee('Two minutes before anything else.')
-            ->assertSeeHtml('http://localhost/storage/missions/m01/mornings.mp3')
-            ->assertSee('Hello and welcome.')
-            ->assertSee("And I'm Georgie.");
+            ->assertSeeHtml('http://localhost/storage/missions/m01/mornings.mp3');
     }
 
-    public function test_the_transcript_is_wired_behind_a_show_hide_toggle(): void
+    /**
+     * Real behavior redesign: shadowing moved entirely to Listen Again,
+     * driven by real Whisper timing (missions:cache-shadow-timestamps)
+     * instead of a plain static transcript behind a show/hide toggle —
+     * that toggle is gone; the synced text panel (Day 1's own real
+     * listening_segments, reused here) is always visible instead.
+     */
+    public function test_the_synced_text_panel_shows_day_1s_real_segments(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->assertSee('Show transcript')
-            ->assertSeeHtml('showTranscript = !showTranscript')
-            ->assertSeeHtml('x-show="showTranscript"');
+            ->assertSee('Hello and welcome to the show.')
+            ->assertSee("And I'm Georgie.")
+            ->assertDontSee('Show transcript');
     }
 
     public function test_this_days_own_shadow_lines_are_shown(): void

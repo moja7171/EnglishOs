@@ -374,7 +374,7 @@ class AiConversation1StepTest extends TestCase
             ->set('audioFile', UploadedFile::fake()->create('answer2.webm', 100, 'audio/webm'))
             ->call('submitAnswer')
             ->assertSet('completed', true)
-            ->assertSee('AI Conversation #1 complete')
+            ->assertSee('Talk It Out complete')
             ->assertSee('How do you get to work?')
             ->assertSet('fbStrength', 'نقطه قوت تو این بود که واضح جواب دادی.')
             ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')

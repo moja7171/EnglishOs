@@ -90,6 +90,22 @@ class GeminiClientTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    public function test_max_output_tokens_is_sent_only_when_given(): void
+    {
+        Http::fake([
+            self::PRIMARY_URL => Http::response($this->textResponse('Short reply.')),
+        ]);
+
+        $client = new GeminiClient('test-key', 'gemini-3.5-flash-lite', 'gemini-flash-latest');
+        $client->chat([['role' => 'user', 'text' => 'Hi']], maxOutputTokens: 220);
+
+        Http::assertSent(fn ($request) => ($request['generationConfig']['maxOutputTokens'] ?? null) === 220);
+
+        $client->chat([['role' => 'user', 'text' => 'Hi']]);
+
+        Http::assertSent(fn ($request) => ! array_key_exists('generationConfig', $request->data()));
+    }
+
     public function test_missing_api_key_throws_without_any_http_call(): void
     {
         Http::fake();

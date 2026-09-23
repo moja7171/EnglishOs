@@ -256,10 +256,10 @@ class MissionBriefStepTest extends TestCase
 
         Livewire::test('missions.steps.mission-brief', ['run' => $run])
             ->assertSee('new coworker turns to you and asks')
-            ->assertSee('Foundation')
-            ->assertSee('Build')
-            ->assertSee('Practice')
-            ->assertSee('Challenge')
+            ->assertSee('Day 1')
+            ->assertSee('Day 2')
+            ->assertSee('Day 3')
+            ->assertSee('Day 4')
             ->assertSee('We\'ll compare this to your score at the end of the mission.', false);
     }
 
@@ -278,7 +278,7 @@ class MissionBriefStepTest extends TestCase
         $html = Livewire::test('missions.steps.mission-brief', ['run' => $run])->html();
 
         $hookPos = strpos($html, 'new coworker turns to you and asks');
-        $roadmapPos = strpos($html, 'Foundation');
+        $roadmapPos = strpos($html, 'Day 1');
 
         $this->assertNotFalse($hookPos);
         $this->assertNotFalse($roadmapPos);

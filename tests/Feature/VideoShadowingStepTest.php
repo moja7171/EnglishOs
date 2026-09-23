@@ -41,6 +41,15 @@ class VideoShadowingStepTest extends TestCase
                                 'What **time** are you guys **getting together**?',
                                 'We always have a quick **snack** in the **afternoon**.',
                             ],
+                            'shadow_timestamps' => [
+                                ['start' => 232.28, 'end' => 234.42],
+                                ['start' => 303.59, 'end' => 306.28],
+                                null,
+                            ],
+                            'video_segments' => [
+                                ['text' => "It's 6:37 in the morning.", 'start' => 0.0, 'end' => 3.0],
+                                ['text' => 'What time do you get up?', 'start' => 8.0, 'end' => 9.5],
+                            ],
                         ],
                         ['key' => 'daily_listen_3'],
                     ],
@@ -68,6 +77,31 @@ class VideoShadowingStepTest extends TestCase
 
         $this->assertStringContainsString('/storage/missions/m01/test-video.mp4', $html);
         $this->assertStringContainsString('/storage/missions/m01/test-video.en.vtt', $html);
+    }
+
+    /**
+     * Real behavior: the synced text panel (real caption cues) and the
+     * shadow-while-watching toggle both come from <x-video-player>,
+     * fed video_segments/shadow_lines/shadow_timestamps.
+     */
+    public function test_the_synced_text_panel_and_shadow_toggle_render(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
+            ->assertSee('It\'s 6:37 in the morning.')
+            ->assertSee('What time do you get up?')
+            ->assertSee('Shadow while watching')
+            ->assertSeeHtml('x-model="shadowModeOn"');
+    }
+
+    public function test_shadowing_pauses_are_never_offered_in_read_only_review(): void
+    {
+        $run = $this->makeRun();
+
+        $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run, 'readOnly' => true])->html();
+
+        $this->assertStringNotContainsString('Shadow while watching', $html);
     }
 
     public function test_the_page_is_split_into_2_sub_steps(): void

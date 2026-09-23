@@ -196,7 +196,7 @@ new class extends Component
     @if ($this->allWords->isEmpty())
         <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-10 text-center dark:border-line-dark">
             @svg('heroicon-o-book-open', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
-            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Pick some words in a mission's Vocabulary Builder step and they'll show up here.</p>
+            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Pick some words in a mission's New Words step and they'll show up here.</p>
         </div>
     @elseif (! $this->currentWord)
         <div class="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-8 text-center dark:border-line-dark dark:bg-surface-dark">

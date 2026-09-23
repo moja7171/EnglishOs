@@ -29,7 +29,7 @@ class VocabularyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('vocabulary.index')
-            ->assertSee('Vocabulary Builder step');
+            ->assertSee('New Words step');
     }
 
     public function test_a_learner_with_nothing_due_sees_the_caught_up_state(): void
@@ -211,7 +211,7 @@ class VocabularyReviewTest extends TestCase
 
         Livewire::test('vocabulary.index')
             ->assertDontSee('someone-elses-word')
-            ->assertSee('Vocabulary Builder step');
+            ->assertSee('New Words step');
     }
 
     public function test_the_missions_overview_shows_a_nudge_when_words_are_due(): void

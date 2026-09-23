@@ -432,11 +432,7 @@ new class extends Component
 
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Current password</label>
-            <input
-                type="password"
-                wire:model="currentPassword"
-                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            >
+            <x-password-input wire-model="currentPassword" />
             @error('currentPassword')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
@@ -444,11 +440,7 @@ new class extends Component
 
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">New password</label>
-            <input
-                type="password"
-                wire:model="newPassword"
-                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            >
+            <x-password-input wire-model="newPassword" />
             @error('newPassword')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
@@ -456,11 +448,7 @@ new class extends Component
 
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Confirm new password</label>
-            <input
-                type="password"
-                wire:model="newPassword_confirmation"
-                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            >
+            <x-password-input wire-model="newPassword_confirmation" />
         </div>
 
         <div class="flex items-center gap-3 pt-1">

@@ -121,15 +121,10 @@ new class extends Component
         return collect($parts)
             ->map(fn ($part, $i) => $i % 2 === 0
                 ? ['type' => 'text', 'value' => $part]
-                : ['type' => 'word', 'value' => $part, 'meaning' => $this->wordMeaning($part)])
+                : ['type' => 'word', 'value' => $part])
             ->filter(fn ($segment) => $segment['value'] !== '')
             ->values()
             ->all();
-    }
-
-    public function wordMeaning(string $phrase): string
-    {
-        return collect($this->words())->firstWhere('phrase', $phrase)['meaning'] ?? '';
     }
 
     /**
@@ -475,7 +470,7 @@ new class extends Component
                     >
                     <span>
                         <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $candidate['word'] }}</span>
-                        <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $candidate['meaning'] }}</span>
+                        <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $candidate['meaning'] }}</span>
                     </span>
                 </label>
             @endforeach
@@ -543,11 +538,11 @@ new class extends Component
         <div x-show="phase === 'story'" x-cloak class="space-y-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today's words</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Read the short story below — new words are highlighted, with their meaning right next to them.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Read the short story below — new words are highlighted, with the full breakdown underneath.</p>
             </div>
 
             <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                @include('missions.steps.partials.vocabulary-story', ['segments' => $storySegments])
+                @include('missions.steps.partials.vocabulary-story', ['segments' => $storySegments, 'words' => $words])
             </div>
 
             <button
@@ -581,7 +576,7 @@ new class extends Component
                 <span x-show="showStoryAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the story</span>
             </button>
             <div x-show="showStoryAgain" x-cloak class="mt-2 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                @include('missions.steps.partials.vocabulary-story', ['segments' => $storySegments])
+                @include('missions.steps.partials.vocabulary-story', ['segments' => $storySegments, 'words' => $words])
             </div>
         </div>
 
@@ -610,19 +605,13 @@ new class extends Component
             @foreach ($words as $index => $entry)
                 @php $word = $entry['phrase']; $itemFeedback = $feedback[$word] ?? null; @endphp
                 <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                        {{ $entry['meaning'] }}
+                    <p class="flex items-baseline gap-2">
+                        <span class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</span>
                         @if (! empty($entry['pos']))
-                            <span class="italic">· {{ $entry['pos'] }}</span>
+                            <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">{{ $entry['pos'] }}</span>
                         @endif
                     </p>
-                    @if (! empty($entry['synonym']))
-                        <p class="mt-0.5 text-[11px] text-ink-faint dark:text-ink-faint-dark">similar to: {{ $entry['synonym'] }}</p>
-                    @endif
-                    @if (! empty($entry['example']))
-                        <p class="mt-1 text-xs text-ink-soft italic dark:text-ink-soft-dark">"{{ $entry['example'] }}"</p>
-                    @endif
+                    <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">What did this one mean again? Try to recall it before you write.</p>
 
                     <div class="mt-2 flex items-center gap-2">
                         <input

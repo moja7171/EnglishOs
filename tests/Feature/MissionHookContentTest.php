@@ -40,14 +40,16 @@ class MissionHookContentTest extends TestCase
      * real YouTube video with captions then without, then shadow a line —
      * and two image-based speaking steps added 2026-09-04: story_sequence
      * right after Grammar in Context (narrate a picture sequence in the
-     * Present Simple tense just taught) and picture_description right
-     * after AI Conversation #1 (a real CEFR "describe this picture" task —
-     * the only step that practices describing a scene rather than the
-     * learner's own routine). Epic E (mission structure redesign) then
-     * merged the old standalone Activation step into AI Conversation #1's
-     * own first round, and AI Feedback #1 into that same step's
-     * completion recap — moving that content from Day 2 to Day 3, where
-     * AI Conversation #1 itself already lived.
+     * Present Simple tense just taught) and picture_description, originally
+     * placed right after AI Conversation #1 on Day 3. Epic E (mission
+     * structure redesign) then merged the old standalone Activation step
+     * into AI Conversation #1's own first round, and AI Feedback #1 into
+     * that same step's completion recap — moving that content from Day 2
+     * to Day 3, where AI Conversation #1 itself already lived.
+     * picture_description was later moved again (day-balance pass) to the
+     * end of Day 2, right after video_shadowing — Day 3 had grown to ~80
+     * min against Day 2's ~58, and picture_description doesn't depend on
+     * anything Day 2's own grammar point teaches.
      */
     public function test_m01_step_order_matches_the_real_3_day_plan(): void
     {
@@ -67,12 +69,12 @@ class MissionHookContentTest extends TestCase
             'grammar_in_context',
             'story_sequence',
             'video_shadowing',
+            'picture_description',
             // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge —
             // vocabulary_builder_3 added right at the start, same reason.
             'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
-            'picture_description',
             'reading_comprehension',
             'writing',
             'daily_listen_4',
@@ -118,11 +120,11 @@ class MissionHookContentTest extends TestCase
             'daily_listen_2',
             'grammar_in_context',
             'video_shadowing',
+            'picture_description',
             // Day 3 · Practice — vocabulary_builder_3 added at the start (Epic B).
             'vocabulary_builder_3',
             'daily_listen_3',
             'ai_conversation_1',
-            'picture_description',
             'reading_comprehension',
             'writing',
             // Day 4 · Challenge

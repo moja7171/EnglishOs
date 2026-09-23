@@ -45,7 +45,7 @@
                 <div x-show="revealed" x-cloak class="mt-2 space-y-1">
                     <p class="text-sm font-semibold text-success dark:text-success-dark">&ldquo;{{ $block['right'] }}&rdquo;</p>
                     @if (! empty($block['explanation']))
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $block['explanation'] }}</p>
+                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $block['explanation'] }}</p>
                     @endif
                 </div>
             </div>
@@ -64,7 +64,7 @@
                             x-on:click="revealed[{{ $i }}] = !revealed[{{ $i }}]"
                             class="cursor-pointer text-left font-semibold"
                         >
-                            <span x-show="!revealed[{{ $i }}]" class="text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark">Tap to reveal</span>
+                            <span x-show="!revealed[{{ $i }}]" class="text-ink-soft underline decoration-dotted underline-offset-2 dark:text-ink-soft-dark">Tap to reveal</span>
                             <span x-show="revealed[{{ $i }}]" x-cloak>{{ $pair['right'] }}</span>
                         </button>
                     </div>
@@ -110,9 +110,9 @@
             <div x-data="{ revealed: {} }" class="mt-3 space-y-2">
                 @foreach ($block['items'] ?? [] as $i => $rule)
                     <div class="rounded-lg border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $rule['rule'] }}</p>
+                        <p class="font-medium text-ink dark:text-ink-dark">{{ $rule['rule'] }}</p>
                         <button type="button" x-on:click="revealed[{{ $i }}] = !revealed[{{ $i }}]" class="mt-0.5 cursor-pointer text-left font-semibold">
-                            <span x-show="!revealed[{{ $i }}]" class="text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark">Tap for an example</span>
+                            <span x-show="!revealed[{{ $i }}]" class="text-ink-soft underline decoration-dotted underline-offset-2 dark:text-ink-soft-dark">Tap for an example</span>
                             <span x-show="revealed[{{ $i }}]" x-cloak>{!! $this->highlightWord($rule['example'], $rule['highlight'] ?? '') !!}</span>
                         </button>
                     </div>

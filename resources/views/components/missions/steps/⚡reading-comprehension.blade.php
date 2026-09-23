@@ -217,7 +217,7 @@ new class extends Component
             $isNew = ($match['type'] ?? 'reused') === 'new';
             $tooltip = $isNew
                 ? ($match['definition'] ?? '')
-                : 'این کلمه رو توی Vocabulary Builder دیدی';
+                : 'این کلمه رو توی New Words دیدی';
             $classes = $isNew
                 ? 'rounded bg-accent/15 px-0.5 text-accent-ink cursor-help dark:bg-accent-dark/25 dark:text-accent-ink-dark'
                 : 'rounded bg-success/15 px-0.5 text-success cursor-help dark:bg-success-dark/25 dark:text-success-dark';

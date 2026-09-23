@@ -80,6 +80,30 @@ class GroqClient
         return ['text' => $data['text'], 'duration' => $data['duration'], 'segments' => $segments];
     }
 
+    /**
+     * Same transcription, but keeping Whisper's own segment start/end
+     * times (seconds) instead of collapsing them into a confidence tier
+     * — the real timing a shadowing player pauses on. Meant to be called
+     * once per mission audio file, offline (see
+     * missions:cache-shadow-timestamps), never live on a page view.
+     *
+     * @return list<array{text: string, start: float, end: float}>
+     */
+    public function transcribeSegmentsWithTimestamps(string $audioPath): array
+    {
+        $data = $this->request($audioPath, verbose: true, segments: true);
+
+        return collect($data['segments'])
+            ->map(fn (array $segment) => [
+                'text' => trim((string) ($segment['text'] ?? '')),
+                'start' => (float) ($segment['start'] ?? 0.0),
+                'end' => (float) ($segment['end'] ?? 0.0),
+            ])
+            ->filter(fn (array $segment) => $segment['text'] !== '')
+            ->values()
+            ->all();
+    }
+
     private static function confidenceTier(float $avgLogprob): string
     {
         return match (true) {

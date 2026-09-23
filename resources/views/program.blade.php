@@ -24,15 +24,15 @@
             <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">One mission = four days</h2>
             <ol class="space-y-2">
                 @foreach ([
-                    ['Day 1', 'Foundation', 'Mission Brief, Vocabulary Builder, Listening', '~40 min'],
-                    ['Day 2', 'Build', 'Daily Listening, Grammar in Context, Activation, Video Shadowing', '~40 min'],
-                    ['Day 3', 'Practice', 'Daily Listening, AI Conversation, Picture Description, Reading, Writing', '~45 min'],
-                    ['Day 4', 'Challenge', 'Partner Speaking, Error Log, Final Challenge, Mission Result', '~45 min'],
-                ] as [$day, $name, $what, $time])
+                    ['Day 1', 'Get Ready, New Words, Listening', '~40 min'],
+                    ['Day 2', 'New Words, Listen Again, Grammar Time, Picture Story, Video Shadowing, Picture Description', '~55 min'],
+                    ['Day 3', 'New Words, Listen Again, Talk It Out, Reading, Writing', '~65 min'],
+                    ['Day 4', 'Listen Again, My Fixes, Final Talk, Mission Result', '~35 min'],
+                ] as [$day, $what, $time])
                     <li class="flex gap-3 rounded-2xl border border-line bg-surface p-3.5 dark:border-line-dark dark:bg-surface-dark">
                         <span class="w-12 shrink-0 text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $day }}</span>
                         <span class="flex-1">
-                            <span class="block text-sm font-semibold text-ink dark:text-ink-dark">{{ $name }} <span class="font-normal text-ink-faint dark:text-ink-faint-dark">· {{ $time }}</span></span>
+                            <span class="block text-sm font-semibold text-ink dark:text-ink-dark">{{ $time }}</span>
                             <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $what }}</span>
                         </span>
                     </li>

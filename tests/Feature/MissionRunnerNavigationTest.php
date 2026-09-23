@@ -386,8 +386,8 @@ class MissionRunnerNavigationTest extends TestCase
         // On Day 1's first step, all three of that day's real labels should
         // already be visible (icon + text), not hidden behind a numbered dot.
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
-            ->assertSee('Mission Brief')
-            ->assertSee('Vocabulary Builder')
+            ->assertSee('Get Ready')
+            ->assertSee('New Words')
             ->assertSee('Listening')
             // A later day's steps must stay invisible-as-content on Day 1 — the
             // checklist only ever lists the active day's own steps.
