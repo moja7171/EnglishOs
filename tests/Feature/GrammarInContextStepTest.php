@@ -115,6 +115,15 @@ class GrammarInContextStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
+    public function test_shows_a_pi_teacher_practice_card_grounded_in_the_grammar_focus(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertSee('Teacher chat in Pi')
+            ->assertSee('Present Simple + Adverbs of Frequency');
+    }
+
     public function test_clicking_check_on_an_empty_frequency_sentence_shows_an_error(): void
     {
         $run = $this->makeRun();

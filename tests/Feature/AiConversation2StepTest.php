@@ -679,4 +679,120 @@ class AiConversation2StepTest extends TestCase
             $this->assertContains($prompt, ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
         }
     }
+
+    // -----------------------------------------------------------------
+    // Optional Pi transcript round (App\Services\PiPrompts)
+    // -----------------------------------------------------------------
+
+    /**
+     * Drives the component to the checklist stage (same sequence as
+     * test_full_flow_...) without calling finishConversation() — the Pi
+     * round lives BEFORE that button, never touches it.
+     */
+    private function reachChecklistStage(): array
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->times(4)->andReturn('a1', 'a2', 'q', 'final'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(7)->andReturn(
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'follow-up 1',
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'follow-up 2',
+                json_encode(['severity' => 'none', 'hint' => '']),
+                'AI answer',
+                json_encode(['severity' => 'none', 'hint' => '']),
+            );
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => true],
+                'note' => 'Nicely done.',
+            ]));
+        });
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run]);
+        foreach (['r1.webm', 'r2.webm'] as $file) {
+            $component->set('audioFile', UploadedFile::fake()->create($file, 100, 'audio/webm'))->call('submitRoundAnswer');
+        }
+        $component->set('audioFile', UploadedFile::fake()->create('q.webm', 100, 'audio/webm'))->call('submitLearnerQuestion');
+        $component->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))->call('submitFinalChallenge');
+
+        return [$component, $run];
+    }
+
+    public function test_submitting_a_pi_transcript_saves_a_second_evidence_row_with_persian_feedback(): void
+    {
+        [$component, $run] = $this->reachChecklistStage();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'highlight' => 'خیلی خوب صحبت کردی.',
+            'tip' => 'دفعه‌ی بعد کمی آهسته‌تر صحبت کن.',
+        ])));
+
+        $component->set('piTranscriptInput', 'Me: Hi Pi. Pi: Hello! Tell me about your day.')
+            ->call('submitPiTranscript')
+            ->assertSet('piFeedback.highlight', 'خیلی خوب صحبت کردی.')
+            ->assertSee('خیلی خوب صحبت کردی.');
+
+        $this->assertDatabaseCount('evidences', 1); // the real checklist row isn't saved until finishConversation()
+
+        // Now finish the step for real — the Pi row must not interfere.
+        $component->call('finishConversation')->assertRedirect(route('missions.show', $run->mission));
+
+        $rows = Evidence::where('mission_run_id', $run->id)->where('phase', 'ai_conversation_2')->get();
+        $this->assertCount(2, $rows);
+
+        $piRow = $rows->firstWhere('type', Evidence::TYPE_TEXT);
+        $this->assertNotNull($piRow);
+        $piContent = json_decode($piRow->content_ref, true);
+        $this->assertStringContainsString('Tell me about your day', $piContent['transcript']);
+        $this->assertSame('خیلی خوب صحبت کردی.', $piContent['feedback']['highlight']);
+
+        $mainRow = $rows->firstWhere('type', Evidence::TYPE_TRANSCRIPT);
+        $this->assertNotNull($mainRow);
+        $this->assertTrue(json_decode($mainRow->content_ref, true)['requirements']['Present Simple']);
+    }
+
+    public function test_an_empty_pi_transcript_is_a_no_op(): void
+    {
+        [$component] = $this->reachChecklistStage();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $component->set('piTranscriptInput', '   ')->call('submitPiTranscript');
+
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_a_failed_pi_feedback_call_still_saves_the_transcript_silently(): void
+    {
+        [$component, $run] = $this->reachChecklistStage();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
+
+        $component->set('piTranscriptInput', 'a real transcript')
+            ->call('submitPiTranscript')
+            ->assertSet('piFeedback', null);
+
+        $piRow = Evidence::where('mission_run_id', $run->id)->where('type', Evidence::TYPE_TEXT)->first();
+        $this->assertNotNull($piRow);
+        $this->assertSame('a real transcript', json_decode($piRow->content_ref, true)['transcript']);
+    }
+
+    public function test_read_only_mode_reloads_the_pi_feedback_without_calling_gemini(): void
+    {
+        [$component, $run] = $this->reachChecklistStage();
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'highlight' => 'خوب بود.', 'tip' => 'ادامه بده.',
+        ])));
+        $component->set('piTranscriptInput', 'a transcript')->call('submitPiTranscript');
+        $component->call('finishConversation');
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        Livewire::test('missions.steps.ai-conversation2', ['run' => $run, 'readOnly' => true])
+            ->assertSet('piFeedback.highlight', 'خوب بود.')
+            ->assertDontSeeHtml('wire:model="piTranscriptInput"');
+    }
 }

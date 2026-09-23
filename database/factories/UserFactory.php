@@ -41,6 +41,11 @@ class UserFactory extends Factory
             'gender' => 'unspecified',
             'discoverable' => true,
             'celebrated_streak_milestone' => 0,
+            // A factory user is a stand-in for an already-active learner
+            // in most tests — only PiSetupTest (and anywhere else that
+            // cares) overrides this back to null to exercise the actual
+            // pre-Mission-1 gate (see routes/web.php's home route).
+            'pi_onboarded_at' => now(),
         ];
     }
 

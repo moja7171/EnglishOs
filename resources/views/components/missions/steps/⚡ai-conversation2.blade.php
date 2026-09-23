@@ -62,6 +62,21 @@ new class extends Component
      */
     public ?string $checklistRawResponse = null;
 
+    /**
+     * Optional extra round (App\Services\PiPrompts): the learner can have
+     * this same challenge as a real, live conversation with their
+     * Language Partner chat in Pi, then paste the transcript here for
+     * feedback — the one place a Pi transcript actually comes back into
+     * the app. Saved as its own Evidence row, never touches $checklist or
+     * finishConversation().
+     */
+    public string $piTranscriptInput = '';
+
+    public ?string $piTranscript = null;
+
+    /** @var array{highlight: string, tip: string}|null */
+    public ?array $piFeedback = null;
+
     public ?UploadedFile $audioFile = null;
 
     public bool $processing = false;
@@ -80,7 +95,21 @@ new class extends Component
             return;
         }
 
-        $data = json_decode($this->run->latestEvidence('ai_conversation_2')?->content_ref ?? '{}', true);
+        // The optional Pi transcript round (see submitPiTranscript()) saves
+        // its own separate TEXT-type Evidence row after this phase's real
+        // TRANSCRIPT row already exists — filtered explicitly by type here
+        // so it never shadows the actual challenge data below, and only
+        // reloaded in readOnly review (a fresh/retry attempt starts empty,
+        // same as every other property here).
+        $piEvidence = $this->run->evidence()->where('phase', 'ai_conversation_2')->where('type', Evidence::TYPE_TEXT)->latest()->first();
+
+        if ($piEvidence) {
+            $piData = json_decode($piEvidence->content_ref, true);
+            $this->piTranscript = $piData['transcript'] ?? null;
+            $this->piFeedback = $piData['feedback'] ?? null;
+        }
+
+        $data = json_decode($this->run->evidence()->where('phase', 'ai_conversation_2')->where('type', Evidence::TYPE_TRANSCRIPT)->latest()->first()?->content_ref ?? '{}', true);
         $this->turns = $data['rounds'] ?? [];
         $this->roundIndex = count($this->rounds);
         $this->roleReversalDone = true;
@@ -374,6 +403,55 @@ new class extends Component
         }
     }
 
+    /**
+     * The optional Pi round's own feedback — same lenient, one-correction,
+     * Persian pattern as ai_conversation_1's transcribeAndReflect()
+     * (never a grade). Never blocks finishConversation(); a failure here
+     * just leaves $piFeedback null.
+     */
+    public function submitPiTranscript(): void
+    {
+        $transcript = trim($this->piTranscriptInput);
+
+        if ($transcript === '') {
+            return;
+        }
+
+        $this->piTranscript = $transcript;
+
+        try {
+            $raw = app(GeminiClient::class)->chat(
+                [['role' => 'user', 'text' => "Transcript: \"{$transcript}\""]],
+                systemPrompt: 'You are a supportive English speaking coach. '.ucfirst($this->run->learner->levelDescription())
+                    .' just had a live spoken conversation practice session with a voice AI assistant, covering '
+                    .'the same topic as their Final Challenge — this is extra practice, not a graded test. Given '
+                    .'the transcript, write a short, warm, simple reflection in PERSIAN (Farsi) — never English, '
+                    .'and never grade it or use severity labels. Reply with ONLY valid JSON, no markdown fences: '
+                    .'{"highlight": "...", "tip": "..."} — "highlight" is one short encouraging sentence in '
+                    .'Persian about something they did well; "tip" is one short, gentle, actionable suggestion in '
+                    .'Persian for next time.'
+            );
+            $this->recordGeminiCall();
+
+            $data = json_decode(trim($raw), true);
+
+            if (is_array($data) && isset($data['highlight'], $data['tip'])) {
+                $this->piFeedback = ['highlight' => $data['highlight'], 'tip' => $data['tip']];
+            }
+        } catch (Throwable) {
+            // Silent by design, same as transcribeAndReflect() — the
+            // learner already did the real practice outside the app; a
+            // missing reflection is a shame, not a reason to show an error.
+        }
+
+        Evidence::create([
+            'mission_run_id' => $this->run->id,
+            'phase' => 'ai_conversation_2',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['transcript' => $this->piTranscript, 'feedback' => $this->piFeedback]),
+        ]);
+    }
+
     public function finishConversation(): void
     {
         if (! $this->checklist) {
@@ -631,6 +709,41 @@ new class extends Component
                     </div>
                 </div>
             @endif
+
+            <div class="rounded-xl border border-dashed border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark">
+                <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink dark:text-ink-dark">
+                    @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
+                    Want more practice? Try this live with Pi
+                </p>
+                <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Have this same challenge as a real, live conversation with your Language Partner chat in Pi, then paste the full transcript below for feedback.</p>
+
+                @if ($piFeedback)
+                    <div class="mt-2 space-y-2 rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark" dir="rtl">
+                        <p class="text-sm text-ink dark:text-ink-dark">{{ $piFeedback['highlight'] }}</p>
+                        <p class="flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
+                            @svg('heroicon-o-light-bulb', 'h-4 w-4 shrink-0 mt-0.5')
+                            {{ $piFeedback['tip'] }}
+                        </p>
+                    </div>
+                @elseif (! $readOnly)
+                    <textarea
+                        wire:model="piTranscriptInput"
+                        rows="3"
+                        placeholder="Paste your Pi conversation transcript here…"
+                        class="mt-2 w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-sm text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark"
+                    ></textarea>
+                    <button
+                        type="button"
+                        wire:click="submitPiTranscript"
+                        wire:loading.attr="disabled"
+                        wire:target="submitPiTranscript"
+                        class="mt-2 cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark disabled:pointer-events-none disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="submitPiTranscript">Get feedback</span>
+                        <span wire:loading wire:target="submitPiTranscript">Reading it…</span>
+                    </button>
+                @endif
+            </div>
 
             @unless ($readOnly)
                 <button wire:click="finishConversation"

@@ -2,6 +2,7 @@
 
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\PiPrompts;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -170,6 +171,12 @@ new class extends Component
     {
         return "eos-draft:{$this->run->id}:video_shadowing:";
     }
+
+    /** @return array{instruction: string, prompt: string}|null */
+    public function piTask(): ?array
+    {
+        return app(PiPrompts::class)->coachTask($this->run, 'video_shadowing');
+    }
 };
 ?>
 
@@ -196,6 +203,10 @@ new class extends Component
     }"
 >
     <x-hook :text="$video['hook'] ?? null" />
+
+    @unless ($readOnly)
+        <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
+    @endunless
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $video['source'] ?? 'Video' }}</p>

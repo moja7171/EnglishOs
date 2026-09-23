@@ -44,6 +44,10 @@
 
     <x-hook :text="$this->hook()" />
 
+    @unless ($readOnly)
+        <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
+    @endunless
+
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Listen Again</p>
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>

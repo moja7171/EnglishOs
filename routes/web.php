@@ -17,8 +17,21 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/', function () {
+        // One-time gate before a learner's first mission: send them to set
+        // up their 3 persistent Pi chats first (see App\Services\PiPrompts
+        // and /pi-setup). Existing users are grandfathered by the
+        // pi_onboarded_at migration's backfill, so this only ever catches
+        // someone truly new.
+        if (! auth()->user()->pi_onboarded_at) {
+            return redirect()->route('pi.setup');
+        }
+
         return view('home');
     })->name('home');
+
+    Route::get('/pi-setup', function () {
+        return view('pi-setup');
+    })->name('pi.setup');
 
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
         return view('mission-runner', compact('mission', 'step'));
