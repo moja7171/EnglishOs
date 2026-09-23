@@ -62,7 +62,21 @@ class CacheShadowTimestamps extends Command
         $result = [];
         $unmatched = false;
 
-        $listeningSegments = null;
+        $listeningSegments = $this->listeningSegments($mission, $groq);
+
+        // Day 1 Listening's synced-text display reads Whisper's own
+        // segments directly (real text, real timing, zero ambiguity) —
+        // NOT an attempt to align them to the hand-authored, speaker-
+        // labelled transcript. That was tried and dropped: this
+        // transcript groups several sentences per speaker turn (BBC's
+        // own "6 Minute English" style, confirmed on real M02/M03
+        // audio), and a handful of those long, multi-sentence lines
+        // never matched cleanly — a real transcript alignment feature is
+        // more than this needs when the raw segments already give a
+        // perfectly synced, if speaker-label-free, reading experience.
+        if ($listeningSegments !== null) {
+            $result['listening_segments'] = $listeningSegments;
+        }
 
         foreach ($mission->phases ?? [] as $phase) {
             foreach ($phase['steps'] ?? [] as $step) {
@@ -77,7 +91,6 @@ class CacheShadowTimestamps extends Command
                     $timeline = $this->videoShadowingCues($mission, $step);
                     $source = 'real captions';
                 } elseif (str_starts_with($key, 'daily_listen_')) {
-                    $listeningSegments ??= $this->listeningSegments($mission, $groq);
                     $timeline = $listeningSegments;
                     $source = 'Whisper';
                 } else {
@@ -127,7 +140,7 @@ class CacheShadowTimestamps extends Command
         $audioUrl = $mission->stepContent('listening')['audio_url'] ?? null;
 
         if (! $audioUrl) {
-            $this->warn("{$mission->code}: no Listening audio_url — skipping its daily_listen_N lines.");
+            $this->warn("{$mission->code}: no Listening audio_url — skipping its transcript and daily_listen_N lines.");
 
             return null;
         }
@@ -135,7 +148,7 @@ class CacheShadowTimestamps extends Command
         $localPath = $this->resolveLocalPath($audioUrl);
 
         if (! $localPath) {
-            $this->warn("{$mission->code}: Listening audio file not found — skipping its daily_listen_N lines.");
+            $this->warn("{$mission->code}: Listening audio file not found — skipping its transcript and daily_listen_N lines.");
 
             return null;
         }

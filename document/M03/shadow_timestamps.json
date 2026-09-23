@@ -1,4 +1,321 @@
 {
+    "listening_segments": [
+        {
+            "text": "Hi there, and welcome to the 5-Minute English Podcast, the place where you learn real English",
+            "start": 0,
+            "end": 5.18
+        },
+        {
+            "text": "for real life in just five minutes a day. Here, we keep things simple, practical, and easy to follow.",
+            "start": 5.18,
+            "end": 11.92
+        },
+        {
+            "text": "You'll hear clear English, useful conversations, and everyday vocabulary that you can actually use,",
+            "start": 12.66,
+            "end": 18.1
+        },
+        {
+            "text": "whether you're learning at home, on a break, or on the go. New episodes drop regularly,",
+            "start": 18.48,
+            "end": 23.779999
+        },
+        {
+            "text": "so don't forget to follow, subscribe, and turn on the bell if you're watching on YouTube.",
+            "start": 24.119999,
+            "end": 28.16
+        },
+        {
+            "text": "We've got a free vocabulary PDF waiting for you in the description.",
+            "start": 29.02,
+            "end": 32.34
+        },
+        {
+            "text": "Let's dive in and start learning.",
+            "start": 33.44,
+            "end": 35
+        },
+        {
+            "text": "Today's episode is called Talking About Your Job.",
+            "start": 35.76,
+            "end": 38.34
+        },
+        {
+            "text": "We'll listen to Lisa and her old university friend, Emily, who meet again at a cafe after a long time.",
+            "start": 38.88,
+            "end": 44.52
+        },
+        {
+            "text": "They talk about their current jobs, what they do every day, and how they feel about work.",
+            "start": 45.239998,
+            "end": 49.54
+        },
+        {
+            "text": "Lisa, wow, it's so good to see you. I didn't expect to run into you here.",
+            "start": 51.059998,
+            "end": 55.38
+        },
+        {
+            "text": "Emily, what a surprise.",
+            "start": 55.86,
+            "end": 57.68
+        },
+        {
+            "text": "I was just grabbing a coffee before heading back to the office.",
+            "start": 58.16,
+            "end": 61
+        },
+        {
+            "text": "How have you been?",
+            "start": 61.44,
+            "end": 62.18
+        },
+        {
+            "text": "Pretty good, thanks.",
+            "start": 62.68,
+            "end": 63.64
+        },
+        {
+            "text": "Just busy with work.",
+            "start": 64.02,
+            "end": 64.98
+        },
+        {
+            "text": "You know how it is.",
+            "start": 65.1,
+            "end": 65.86
+        },
+        {
+            "text": "Are you still in marketing Yes I am I been working as a marketing assistant at a tech company for almost two years now Nice What exactly do you do there",
+            "start": 66.52,
+            "end": 76.65425
+        },
+        {
+            "text": "Well, I help manage our social media accounts, write content for the website, and support the team during product launches.",
+            "start": 77.094246,
+            "end": 83.99425
+        },
+        {
+            "text": "Sometimes I even work on creating short videos for our campaigns.",
+            "start": 84.61424,
+            "end": 88.25425
+        },
+        {
+            "text": "That sounds creative.",
+            "start": 88.95425,
+            "end": 89.914246
+        },
+        {
+            "text": "Do you like it?",
+            "start": 90.29425,
+            "end": 91.014244
+        },
+        {
+            "text": "Most of the time, yes. The team is great, and I get to learn new things every day.",
+            "start": 91.014244,
+            "end": 96.734245
+        },
+        {
+            "text": "But it can get stressful, especially when we're close to a deadline or launching a new product.",
+            "start": 97.194244,
+            "end": 102.014244
+        },
+        {
+            "text": "I totally get that. I work in customer service for an online clothing store.",
+            "start": 102.53424,
+            "end": 106.71425
+        },
+        {
+            "text": "I deal with customer emails and help people track their orders or solve delivery problems.",
+            "start": 107.25424,
+            "end": 112.39424
+        },
+        {
+            "text": "Wow, that must be intense. Do you do that in the office?",
+            "start": 112.89424,
+            "end": 116.17424
+        },
+        {
+            "text": "Not always. It's a hybrid role, so I work from home three days a week and go to the office twice a week.",
+            "start": 116.79425,
+            "end": 122.63425
+        },
+        {
+            "text": "I actually like the flexibility. It saves time and helps with work-life balance.",
+            "start": 122.83424,
+            "end": 127.29425
+        },
+        {
+            "text": "I wish I had that. I work from the office most days, although we're allowed to work remotely once a week.",
+            "start": 127.89425,
+            "end": 133.53424
+        },
+        {
+            "text": "If I had to go in every day, I'd probably spend half my time stuck in traffic.",
+            "start": 133.87424,
+            "end": 137.91425
+        },
+        {
+            "text": "Exactly Sometimes I listen to podcasts on the way Actually this one called 5 English is great No way I heard of it too Maybe we should start one about our work lives",
+            "start": 138.55424,
+            "end": 149.9085
+        },
+        {
+            "text": "Great job listening. Now let's take a moment to go over some useful words and expressions from the conversation.",
+            "start": 152.02849,
+            "end": 158.4085
+        },
+        {
+            "text": "1. Marketing Assistant",
+            "start": 159.2285,
+            "end": 161.0885
+        },
+        {
+            "text": "This is someone who works with the marketing team.",
+            "start": 161.0885,
+            "end": 164.2085
+        },
+        {
+            "text": "They help with different tasks like writing, posting on social media, or helping with events and promotions.",
+            "start": 164.2085,
+            "end": 170.4285
+        },
+        {
+            "text": "2. Product Launch",
+            "start": 171.8085,
+            "end": 173.5485
+        },
+        {
+            "text": "When a company is ready to show and sell a new product to the public, that's called a product launch.",
+            "start": 173.5485,
+            "end": 179.3085
+        },
+        {
+            "text": "It's often a big event or campaign.",
+            "start": 180.0485,
+            "end": 181.82849
+        },
+        {
+            "text": "3. Hybrid Role",
+            "start": 182.9885,
+            "end": 184.7085
+        },
+        {
+            "text": "This kind of job lets you work in two places, partly from home and partly at the office.",
+            "start": 184.7085,
+            "end": 190.18849
+        },
+        {
+            "text": "It gives people more flexibility during the week.",
+            "start": 190.8485,
+            "end": 193.02849
+        },
+        {
+            "text": "4. Work-Life Balance This means having a healthy mix between your",
+            "start": 193.02849,
+            "end": 199.1485
+        },
+        {
+            "text": "work and your personal time. When you have good work-life balance, you're not too stressed",
+            "start": 199.1485,
+            "end": 204.1285
+        },
+        {
+            "text": "and still have time to relax or be with your family and friends.",
+            "start": 204.1285,
+            "end": 207.96849
+        },
+        {
+            "text": "5 Deadline A deadline is the latest time or date when something must be done When people say they have a deadline it means they need to finish their work by that time 6 Customer Service",
+            "start": 207.96849,
+            "end": 221.28273
+        },
+        {
+            "text": "This is a type of job where you help people who have questions or problems with a product or service.",
+            "start": 221.28273,
+            "end": 226.96272
+        },
+        {
+            "text": "It's about making sure customers are happy and supported.",
+            "start": 227.78273,
+            "end": 230.18272
+        },
+        {
+            "text": "7. Content",
+            "start": 231.40273,
+            "end": 232.86273
+        },
+        {
+            "text": "Content is anything you create and share online, like writing, photos, or videos.",
+            "start": 232.86273,
+            "end": 238.04272
+        },
+        {
+            "text": "It's often used for websites, blogs, or social media.",
+            "start": 239.02272,
+            "end": 242.00273
+        },
+        {
+            "text": "8. Campaign",
+            "start": 243.10272,
+            "end": 244.40273
+        },
+        {
+            "text": "A campaign is a set of planned actions to promote or advertise something.",
+            "start": 244.40273,
+            "end": 248.92273
+        },
+        {
+            "text": "It often includes emails, social media posts, videos, and more.",
+            "start": 249.74272,
+            "end": 253.66272
+        },
+        {
+            "text": "9. Intense",
+            "start": 254.78273,
+            "end": 256.46274
+        },
+        {
+            "text": "When something is intense, it feels strong or difficult.",
+            "start": 256.46274,
+            "end": 260.12274
+        },
+        {
+            "text": "A job or day can be intense if there's a lot to do, or if it's stressful or fast-paced.",
+            "start": 260.58273,
+            "end": 266.00272
+        },
+        {
+            "text": "That's it for today's episode of the 5-Minute English Podcast.",
+            "start": 266.00272,
+            "end": 270.32272
+        },
+        {
+            "text": "Want more daily English practice?",
+            "start": 271.02274,
+            "end": 272.38272
+        },
+        {
+            "text": "Subscribe to 5-Minute English Podcast for more beginner lessons every week.",
+            "start": 272.92273,
+            "end": 276.7827
+        },
+        {
+            "text": "Like, comment, and share if you found this helpful.",
+            "start": 277.46274,
+            "end": 280.2827
+        },
+        {
+            "text": "See you next time, and remember, practice a little every day.",
+            "start": 280.80273,
+            "end": 284.06274
+        },
+        {
+            "text": "You're doing great.",
+            "start": 284.66272,
+            "end": 285.42273
+        }
+    ],
     "daily_listen_2": [
         {
             "start": 107.1,

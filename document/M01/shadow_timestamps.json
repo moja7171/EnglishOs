@@ -1,4 +1,426 @@
 {
+    "listening_segments": [
+        {
+            "text": "Hello and welcome to Real Easy English, the podcast where we have real conversations in",
+            "start": 0.88,
+            "end": 7.44
+        },
+        {
+            "text": "easy English to help you learn. I'm Neil.",
+            "start": 7.44,
+            "end": 10.719999
+        },
+        {
+            "text": "And I'm Georgie. You can read along with this podcast on our website,",
+            "start": 10.719999,
+            "end": 14.799999
+        },
+        {
+            "text": "where you can also find a free worksheet.",
+            "start": 14.799999,
+            "end": 17.199999
+        },
+        {
+            "text": "So, Georgie, how are you today?",
+            "start": 23.519999,
+            "end": 25.279999
+        },
+        {
+            "text": "I'm very well, thank you. How are you?",
+            "start": 25.92,
+            "end": 28.08
+        },
+        {
+            "text": "I'm well, thank you very much.",
+            "start": 28.08,
+            "end": 29.679998
+        },
+        {
+            "text": "Good. What are we talking about today? Today we are talking about our morning routines.",
+            "start": 29.679998,
+            "end": 35.96
+        },
+        {
+            "text": "That is what we usually do in the mornings before work. Okay, let's get started.",
+            "start": 36.379997,
+            "end": 41.699997
+        },
+        {
+            "text": "So Neil, do you like to get up early or do you prefer to sleep in? It depends if I've had enough",
+            "start": 42.5,
+            "end": 50.039997
+        },
+        {
+            "text": "sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about",
+            "start": 50.039997,
+            "end": 57.199997
+        },
+        {
+            "text": "you? Well, I like the mornings sometimes because I feel like it's quieter. Not many people are up.",
+            "start": 57.199997,
+            "end": 67.659996
+        },
+        {
+            "text": "I also feel like my brain works better in the mornings. So that helps. But I do like",
+            "start": 67.659996,
+            "end": 76.56
+        },
+        {
+            "text": "sleeping in sometimes, especially at the weekends.",
+            "start": 76.56,
+            "end": 79.759995
+        },
+        {
+            "text": "So Georgie, you said that your brain works best in the morning. Does that mean that you're a",
+            "start": 80.42,
+            "end": 86.14
+        },
+        {
+            "text": "morning person?",
+            "start": 86.14,
+            "end": 86.96
+        },
+        {
+            "text": "Yes, I think it does.",
+            "start": 87.5,
+            "end": 89.1
+        },
+        {
+            "text": "I'm a morning person.",
+            "start": 89.22,
+            "end": 90.4
+        },
+        {
+            "text": "That means someone that has a lot of energy at the start of the day.",
+            "start": 90.4,
+            "end": 95.24
+        },
+        {
+            "text": "Georgie do you eat breakfast That also depends And I have a different breakfast routine depending if I working in the office or at home",
+            "start": 95.74,
+            "end": 106.14934
+        },
+        {
+            "text": "So if I'm in the office, and you know this,",
+            "start": 106.68934,
+            "end": 109.80933
+        },
+        {
+            "text": "I usually have a pastry or a croissant in the morning",
+            "start": 110.08934,
+            "end": 114.28934
+        },
+        {
+            "text": "and a banana if I'm feeling good.",
+            "start": 114.28934,
+            "end": 116.50934
+        },
+        {
+            "text": "But if I'm at home, I usually have eggs a bit later, around 10.",
+            "start": 116.50934,
+            "end": 122.529335
+        },
+        {
+            "text": "What about you?",
+            "start": 123.08934,
+            "end": 124.10934
+        },
+        {
+            "text": "I always have breakfast before I leave the house.",
+            "start": 124.10934,
+            "end": 127.60934
+        },
+        {
+            "text": "Wow.",
+            "start": 128.00934,
+            "end": 128.18933
+        },
+        {
+            "text": "Otherwise, I'm very grumpy.",
+            "start": 128.38934,
+            "end": 129.98933
+        },
+        {
+            "text": "So at the moment, I am having egg on toast for breakfast and then marmalade on toast as well, but not together.",
+            "start": 130.80934,
+            "end": 142.66934
+        },
+        {
+            "text": "So you said you always have breakfast.",
+            "start": 143.00934,
+            "end": 146.32935
+        },
+        {
+            "text": "You never skip breakfast.",
+            "start": 146.70934,
+            "end": 148.28934
+        },
+        {
+            "text": "Never, unless there's a very, very good reason.",
+            "start": 148.80934,
+            "end": 152.86934
+        },
+        {
+            "text": "Okay.",
+            "start": 153.22934,
+            "end": 153.82935
+        },
+        {
+            "text": "Like, I think the last time I skipped breakfast, I needed to get up at 3am to catch a flight.",
+            "start": 154.10934,
+            "end": 162.24933
+        },
+        {
+            "text": "Yes, it's very strange to wake up at that time.",
+            "start": 163.10934,
+            "end": 166.76933
+        },
+        {
+            "text": "It changes your routine, doesn't it?",
+            "start": 166.76933,
+            "end": 168.86934
+        },
+        {
+            "text": "Because you don't feel hungry then.",
+            "start": 169.02933,
+            "end": 171.00934
+        },
+        {
+            "text": "So how about you, Georgie?",
+            "start": 171.58934,
+            "end": 173.06934
+        },
+        {
+            "text": "Do you skip breakfast?",
+            "start": 173.16934,
+            "end": 175.00934
+        },
+        {
+            "text": "Sometimes I skip breakfast because when I wake up, I'm not hungry.",
+            "start": 176.16934,
+            "end": 182.48933
+        },
+        {
+            "text": "So if I don't eat breakfast straight away, I sometimes forget to eat breakfast, but then I have an early lunch.",
+            "start": 182.48933,
+            "end": 192.18933
+        },
+        {
+            "text": "Right.",
+            "start": 193.00934,
+            "end": 193.20934
+        },
+        {
+            "text": "So Neil you said that it hard to get up when you haven slept well Does that mean you oversleep You sleep too long No Unfortunately I never oversleep In fact I usually wake up before my alarm Do you oversleep",
+            "start": 193.52933,
+            "end": 211.63867
+        },
+        {
+            "text": "Well, I usually wake up with my alarm. I never wake up before my alarm.",
+            "start": 212.73868,
+            "end": 219.09868
+        },
+        {
+            "text": "So sometimes if I don't set my alarm, I oversleep.",
+            "start": 219.09868,
+            "end": 224.37868
+        },
+        {
+            "text": "That actually happened this week, but it was OK because I woke up in time for work.",
+            "start": 224.91867,
+            "end": 231.37868
+        },
+        {
+            "text": "I didn't oversleep that much.",
+            "start": 231.73868,
+            "end": 233.71867
+        },
+        {
+            "text": "Right. Have you ever overslept so much that you've missed work or missed the start of the working day?",
+            "start": 234.11867,
+            "end": 242.61867
+        },
+        {
+            "text": "Never work, but yes to a flight.",
+            "start": 243.19867,
+            "end": 247.09866
+        },
+        {
+            "text": "That was one of the most stressful mornings I've had.",
+            "start": 247.09866,
+            "end": 252.49867
+        },
+        {
+            "text": "Is there anything else, Georgie, that you do in the morning regularly?",
+            "start": 253.27867,
+            "end": 258.15866
+        },
+        {
+            "text": "Well, regularly, maybe not.",
+            "start": 259.15866,
+            "end": 261.23868
+        },
+        {
+            "text": "But sometimes if I feel motivated, I manage to do some exercise in the mornings,",
+            "start": 261.35867,
+            "end": 267.35867
+        },
+        {
+            "text": "either running or actually this morning, I did a Pilates workout.",
+            "start": 267.91867,
+            "end": 272.23868
+        },
+        {
+            "text": "What about you, Neil?",
+            "start": 273.05865,
+            "end": 274.33868
+        },
+        {
+            "text": "No, I can't exercise until later because my body doesn't enjoy that, especially running.",
+            "start": 274.33868,
+            "end": 282.7787
+        },
+        {
+            "text": "All of my joints hurt.",
+            "start": 283.71866,
+            "end": 286.17865
+        },
+        {
+            "text": "So what do you do in the mornings?",
+            "start": 286.87866,
+            "end": 289.15866
+        },
+        {
+            "text": "I like to know what the weather is going to be like.",
+            "start": 289.65866,
+            "end": 292.29868
+        },
+        {
+            "text": "So I check the forecast and I choose my clothes so that I wearing the right thing for the type of weather That very sensible especially in the United Kingdom because the weather can be different every day That very true Make sure you got your umbrella",
+            "start": 292.37866,
+            "end": 308.728
+        },
+        {
+            "text": "Or not.",
+            "start": 309.308,
+            "end": 309.888
+        },
+        {
+            "text": "OK, let's recap the language we heard during the conversation.",
+            "start": 316.708,
+            "end": 320.368
+        },
+        {
+            "text": "We heard a few ways to talk about what time we sleep until. We heard sleep in,",
+            "start": 320.808,
+            "end": 326.688
+        },
+        {
+            "text": "which means staying in bed and sleeping later than we usually do.",
+            "start": 326.688,
+            "end": 331.308
+        },
+        {
+            "text": "And we also heard oversleep, which means sleeping longer than you should, accidentally.",
+            "start": 331.948,
+            "end": 338.228
+        },
+        {
+            "text": "We had get up, which is a phrasal verb we use to say stand up and leave your bed.",
+            "start": 338.748,
+            "end": 344.528
+        },
+        {
+            "text": "And we heard a morning person.",
+            "start": 345.048,
+            "end": 347.008
+        },
+        {
+            "text": "Like you, Georgie, you're a morning person.",
+            "start": 347.188,
+            "end": 349.188
+        },
+        {
+            "text": "A morning person is someone who likes the mornings,",
+            "start": 349.788,
+            "end": 352.448
+        },
+        {
+            "text": "has lots of energy at the start of the day.",
+            "start": 352.688,
+            "end": 355.148
+        },
+        {
+            "text": "I'm not really a morning person.",
+            "start": 355.148,
+            "end": 357.288
+        },
+        {
+            "text": "We had skip, not do something that you usually do or should do.",
+            "start": 357.928,
+            "end": 362.308
+        },
+        {
+            "text": "For example, sometimes I forget to eat in the morning,",
+            "start": 362.528,
+            "end": 365.728
+        },
+        {
+            "text": "so I skip breakfast and have an early lunch instead.",
+            "start": 365.928,
+            "end": 369.268
+        },
+        {
+            "text": "That's it for this episode of Real Easy English.",
+            "start": 370.268,
+            "end": 373.328
+        },
+        {
+            "text": "You can test what you've learned with our worksheet on our website.",
+            "start": 373.628,
+            "end": 377.568
+        },
+        {
+            "text": "Find a link in the notes and go there.",
+            "start": 378.128,
+            "end": 380.228
+        },
+        {
+            "text": "And if you want to learn more language to talk about your morning routine,",
+            "start": 380.608,
+            "end": 384.268
+        },
+        {
+            "text": "I've made a video all about phrasal verbs for your morning routine.",
+            "start": 384.268,
+            "end": 388.108
+        },
+        {
+            "text": "You can also find it at bbclearningenglish.com.",
+            "start": 388.388,
+            "end": 391.668
+        },
+        {
+            "text": "And next time we'll talk about our evening routines,",
+            "start": 392.328,
+            "end": 395.748
+        },
+        {
+            "text": "what we get up to in the evenings.",
+            "start": 395.988,
+            "end": 397.988
+        },
+        {
+            "text": "See you next time.",
+            "start": 398.348,
+            "end": 399.128
+        },
+        {
+            "text": "Goodbye.",
+            "start": 399.288,
+            "end": 399.548
+        }
+    ],
     "daily_listen_2": [
         {
             "start": 25.77,

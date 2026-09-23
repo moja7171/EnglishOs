@@ -3,23 +3,23 @@
 namespace App\Services;
 
 /**
- * Locates a seeded shadow_lines phrase (may carry **bold** stress
- * markers) inside a mission audio's real Whisper segments, and returns
- * the real start/end time (seconds) to pause on — see
- * missions:cache-shadow-timestamps, the only caller, which runs this
- * once per mission and writes the result to a checked-in JSON cache
- * (document/{code}/shadow_timestamps.json), the same "generate once,
- * never live" pattern as PexelsClient's warmed image cache.
+ * Locates a seeded line (a shadow_lines phrase, or a full transcript
+ * line — may carry **bold** stress markers) inside a mission audio's
+ * real Whisper segments, and returns the real start/end time (seconds)
+ * — see missions:cache-shadow-timestamps, the only caller, which runs
+ * this once per mission and writes the result to a checked-in JSON
+ * cache (document/{code}/shadow_timestamps.json), the same "generate
+ * once, never live" pattern as PexelsClient's warmed image cache.
  *
  * Whisper's own segments aren't sentence-clean — a segment can merge
  * several short sentences into one long span (confirmed against the
- * real M01 audio: one 16-second segment held 4 sentences). A shadow
- * line that starts mid-segment would get a pause timed to the START of
- * that whole span, not the words actually being shadowed. This
- * estimates a position PROPORTIONALLY within the matched segment(s) by
- * character offset, assuming roughly constant speaking pace inside a
- * segment — exact when a line matches a segment 1:1 (the common case),
- * an estimate otherwise, never the wildly-wrong "start of an unrelated
+ * real M01 audio: one 16-second segment held 4 sentences). A line that
+ * starts mid-segment would get a pause timed to the START of that
+ * whole span, not the words actually being said. This estimates a
+ * position PROPORTIONALLY within the matched segment(s) by character
+ * offset, assuming roughly constant speaking pace inside a segment —
+ * exact when a line matches a segment 1:1 (the common case), an
+ * estimate otherwise, never the wildly-wrong "start of an unrelated
  * multi-sentence span" a naive segment-level match would give.
  */
 class ShadowLineTimestampMatcher
@@ -30,35 +30,86 @@ class ShadowLineTimestampMatcher
      */
     public function match(array $segments, string $line): ?array
     {
+        [$full, $map] = $this->buildIndex($segments);
+
+        return $this->matchWithin($full, $map, $segments, $line, 0)[0];
+    }
+
+    /**
+     * Aligns a full, IN-ORDER transcript (every line of a real
+     * conversation, not just a curated shadow_lines pool) against the
+     * same segments. A short, generic line ("OK.", "Right.", "Wow.")
+     * can appear more than once in a real transcript — an independent
+     * per-line match() call has no way to tell those occurrences apart
+     * and can lock onto an earlier, unrelated one (confirmed against
+     * the real M01 transcript: a later "OK." matched an "OK, let's get
+     * started." 100+ seconds earlier). Threading one cursor through in
+     * transcript order — each line searches only from where the
+     * previous line's match ended — keeps every line pinned to the
+     * conversation's own real, forward-moving timeline.
+     *
+     * @param  list<array{text: string, start: float, end: float}>  $segments
+     * @param  list<string>  $lines  In the exact order they're really spoken.
+     * @return list<array{start: float, end: float}|null>
+     */
+    public function matchSequence(array $segments, array $lines): array
+    {
+        [$full, $map] = $this->buildIndex($segments);
+        $cursor = 0;
+        $results = [];
+
+        foreach ($lines as $line) {
+            [$result, $matchEnd] = $this->matchWithin($full, $map, $segments, $line, $cursor);
+            $results[] = $result;
+
+            if ($matchEnd !== null) {
+                $cursor = $matchEnd;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * @return array{0: array{start: float, end: float}|null, 1: int|null} the timing, and the char
+     *     offset (in the shared $full index) one past the match's own end — the cursor a caller
+     *     doing sequential alignment resumes the NEXT search from.
+     */
+    private function matchWithin(string $full, array $map, array $segments, string $line, int $searchFrom): array
+    {
         $target = self::normalize($line);
 
         if ($target === '') {
-            return null;
+            return [null, null];
         }
 
-        [$full, $map] = $this->buildIndex($segments);
+        $searchFrom = min($searchFrom, strlen($full));
+        $haystack = substr($full, $searchFrom);
 
-        $pos = strpos($full, $target);
+        $pos = strpos($haystack, $target);
         $matchLength = strlen($target);
 
         // Whisper occasionally drops or alters a word right at a line's
         // edge (a contraction transcribed differently, a filler word
-        // missed) — trimming up to 2 words from either end keeps the
-        // match anchored to the line's own real content instead of
-        // giving up on an otherwise-good match.
+        // missed) — the fuzzy fallback keeps the match anchored to the
+        // line's own real content instead of giving up on an otherwise-
+        // good match.
         if ($pos === false) {
-            [$pos, $matchLength] = $this->fuzzyFind($full, $target);
+            [$pos, $matchLength] = $this->fuzzyFind($haystack, $target);
         }
 
         if ($pos === false || $matchLength === 0) {
-            return null;
+            return [null, null];
         }
 
+        $pos += $searchFrom;
+        $matchEnd = $pos + $matchLength;
+
         $startInfo = $map[$pos] ?? null;
-        $endInfo = $map[$pos + $matchLength - 1] ?? null;
+        $endInfo = $map[$matchEnd - 1] ?? null;
 
         if ($startInfo === null || $endInfo === null) {
-            return null;
+            return [null, $matchEnd];
         }
 
         $start = $this->positionWithinSegment($segments[$startInfo[0]], $startInfo[1], $startInfo[2]);
@@ -66,10 +117,12 @@ class ShadowLineTimestampMatcher
 
         // A little breathing room so playback doesn't clip the line's
         // first or last sound.
-        return [
+        $result = [
             'start' => round(max(0.0, $start - 0.15), 2),
             'end' => round($end + 0.15, 2),
         ];
+
+        return [$result, $matchEnd];
     }
 
     /**

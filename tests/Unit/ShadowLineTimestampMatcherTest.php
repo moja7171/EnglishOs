@@ -18,10 +18,13 @@ class ShadowLineTimestampMatcherTest extends TestCase
     private const SEGMENTS = [
         ['text', 0.88, 7.44, "Hello and welcome to Real Easy English, the podcast where we have real conversations in"],
         ['text', 25.92, 28.08, "I'm very well, thank you. How are you?"],
+        ['text', 40.31, 41.85, "OK, let's get started."],
         ['text', 87.5, 89.1, 'Yes, I think it does.'],
         ['text', 89.22, 90.4, "I'm a morning person."],
         ['text', 90.4, 95.24, 'That means someone that has a lot of energy at the start of the day.'],
         ['text', 128.39, 129.99, "Otherwise, I'm very grumpy."],
+        ['text', 148.66, 149.5, "Never. Unless there's a very, very good reason."],
+        ['text', 153.08, 153.68, 'OK.'],
         [
             'text', 292.38, 308.73,
             'So I check the forecast and I choose my clothes so that I wearing the right thing for '
@@ -108,5 +111,37 @@ class ShadowLineTimestampMatcherTest extends TestCase
         $result = (new ShadowLineTimestampMatcher())->match($this->segments(), '');
 
         $this->assertNull($result);
+    }
+
+    public function test_match_sequence_pins_a_repeated_short_line_to_its_own_real_occurrence(): void
+    {
+        // "OK." appears twice — inside "OK, let's get started." early on,
+        // and standalone much later. An independent match() call has no
+        // way to prefer the later, correct one; matchSequence's cursor
+        // does, because it only searches forward from the previous
+        // line's own match.
+        $lines = [
+            "OK, let's get started.",
+            'Yes, I think it does.',
+            "Otherwise, I'm very grumpy.",
+            "Never. Unless there's a very, very good reason.",
+            'OK.',
+        ];
+
+        $results = (new ShadowLineTimestampMatcher())->matchSequence($this->segments(), $lines);
+
+        $this->assertCount(5, $results);
+        $this->assertNotContains(null, $results);
+
+        // The real, standalone "OK." at index 4 must land near 153s (its
+        // own real occurrence), never 40s (the earlier "OK, let's get
+        // started." this exact word also appears in).
+        $this->assertGreaterThan(150.0, $results[4]['start']);
+
+        // Every match stays in the same forward-moving order as the
+        // lines themselves were given in.
+        for ($i = 1; $i < count($results); $i++) {
+            $this->assertGreaterThanOrEqual($results[$i - 1]['start'], $results[$i]['start']);
+        }
     }
 }

@@ -102,6 +102,11 @@ class MissionSeeder extends Seeder
                                 // as Mission Brief's own image_query. Doesn't affect duration.
                                 'image_query' => 'morning coffee',
                                 'audio_url' => $audioUrl,
+                                // Real Whisper segments (text + start/end seconds) for the synced,
+                                // advancing-with-the-audio text display on the first sub-step — see
+                                // missions:cache-shadow-timestamps. [] until that command has been
+                                // run for this mission.
+                                'listening_segments' => $this->shadowTimestampsFor('M01', 'listening_segments'),
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
                                 // Full real transcript (BBC Learning English, "Real Easy English:
                                 // Mornings", 2025) — shown in-app only after the learner has genuinely
@@ -952,6 +957,7 @@ class MissionSeeder extends Seeder
                                 'source' => 'BBC Learning English — 6 Minute English: Making Male Friends (2023)',
                                 'image_query' => 'two friends talking coffee shop',
                                 'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M02', 'listening_segments'),
                                 'transcript_ref' => 'document/M02/6_minute_english_making_male_friends.pdf',
                                 // Full real transcript (BBC Learning English, "6 Minute English:
                                 // Making Male Friends", 2023 — the PDF's own disclaimer notes it's
@@ -1557,6 +1563,7 @@ class MissionSeeder extends Seeder
                                 'source' => 'B1 Podcast — "Eat Clean Without Stress: Simple Habits for Everyday Life"',
                                 'image_query' => 'healthy breakfast oatmeal fruit',
                                 'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M04', 'listening_segments'),
                                 'transcript_ref' => 'document/M04/Eat Clean Without Stress - Simple Habits for Everyday Life.transcript.pdf',
                                 // Full real transcript, reconstructed from the podcast's own
                                 // auto-captions (no built-in speaker diarization, so a few
@@ -2175,6 +2182,7 @@ class MissionSeeder extends Seeder
                                 'source' => 'B1 Podcast — "How to Talk About Your Work: English Listening and Speaking Practice"',
                                 'image_query' => 'two friends talking cafe',
                                 'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M03', 'listening_segments'),
                                 'transcript_ref' => 'document/M03/How to Talk About Your Work - English Listening and Speaking Practice.transcript.pdf',
                                 // Full real transcript, reconstructed from the podcast's own
                                 // captions — narration bookends the dialogue (intro, vocabulary
