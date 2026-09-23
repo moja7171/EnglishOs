@@ -51,6 +51,7 @@ class User extends Authenticatable
             'discoverable' => 'boolean',
             'is_admin' => 'boolean',
             'program_started_at' => 'datetime',
+            'pi_onboarded_at' => 'datetime',
         ];
     }
 

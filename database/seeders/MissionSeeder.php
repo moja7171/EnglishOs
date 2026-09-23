@@ -1102,9 +1102,9 @@ class MissionSeeder extends Seeder
                                                 [
                                                     'type' => 'mistake_fix',
                                                     'character' => 'Nadia',
-                                                    'wrong' => "She lives in Spain at the moment, just for the summer.",
+                                                    'wrong' => 'She lives in Spain at the moment, just for the summer.',
                                                     'right' => "She's living in Spain at the moment, just for the summer.",
-                                                    'explanation' => "A temporary situation right now needs Present Continuous, not Present Simple.",
+                                                    'explanation' => 'A temporary situation right now needs Present Continuous, not Present Simple.',
                                                 ],
                                                 [
                                                     'type' => 'examples',
@@ -1324,9 +1324,8 @@ class MissionSeeder extends Seeder
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 20,
                                 'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
-                                'warm_up_task' => 'Choose a friend or someone close to you, then record 2 minutes of '
-                                    .'solo speaking describing them — try to use some Present Simple and Present '
-                                    .'Continuous sentences, and at least 3 vocabulary expressions, without reading.',
+                                'warm_up_task' => 'Choose a friend or someone close to you, then record 2 minutes '
+                                    .'of solo speaking describing them, using the new vocabulary, without reading.',
                                 'interview_questions' => [
                                     'Tell me about someone in your family — what are they like?',
                                     'Who do you get on well with these days?',
@@ -1551,7 +1550,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'mission_brief',
                                 'label' => 'Get Ready',
                                 'duration_minutes' => 5,
-                                'hook' => "Someone asks what you usually eat in a day — could you actually describe it in English, or would you just say \"normal food\"?",
+                                'hook' => 'Someone asks what you usually eat in a day — could you actually describe it in English, or would you just say "normal food"?',
                                 'image_query' => 'healthy meal fresh vegetables table',
                                 'ambient_video_query' => 'fresh food preparation kitchen slow motion',
                                 // Real questions from M04.pdf page 01 "Before you start".
@@ -1586,7 +1585,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'duration_minutes' => 18,
-                                'hook' => "Jessica and Lisa are talking honestly about eating clean, mistakes included — how much can you catch?",
+                                'hook' => 'Jessica and Lisa are talking honestly about eating clean, mistakes included — how much can you catch?',
                                 'source' => 'B1 Podcast — "Eat Clean Without Stress: Simple Habits for Everyday Life"',
                                 'image_query' => 'healthy breakfast oatmeal fruit',
                                 'audio_url' => $audioUrl,
@@ -1610,7 +1609,7 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Jessica', 'text' => 'That moment is very important because many people start eating clean not because they want to change how they look but because they want to change how they feel.'],
                                     ['speaker' => 'Lisa', 'text' => "Exactly. I didn't want a perfect diet. I just wanted to feel better during the day."],
                                     ['speaker' => 'Jessica', 'text' => 'So now after some time, how would you describe eating clean in your own words?'],
-                                    ['speaker' => 'Lisa', 'text' => "For me, eating clean means choosing simple food that feels natural, cooking more meals at home, and eating things that make me feel good after I finish eating instead of feeling uncomfortable or tired."],
+                                    ['speaker' => 'Lisa', 'text' => 'For me, eating clean means choosing simple food that feels natural, cooking more meals at home, and eating things that make me feel good after I finish eating instead of feeling uncomfortable or tired.'],
                                     ['speaker' => 'Jessica', 'text' => "I love that description because it feels very realistic and very kind. For me, eating clean means I try to slow down and think about what my body actually needs instead of eating something just because it's fast or easy."],
                                     ['speaker' => 'Lisa', 'text' => 'Yes. And that mindset already changes a lot.'],
                                     ['speaker' => 'Jessica', 'text' => 'Let\'s talk about breakfast because the way we start the day often affects everything else. What does a typical clean breakfast look like for you?'],
@@ -1631,7 +1630,7 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Jessica', 'text' => 'That time of day is very dangerous.'],
                                     ['speaker' => 'Lisa', 'text' => 'Very dangerous. In the past, I ate cookies or chips without thinking. When I started eating clean, I tried to stop snacking completely, but that only made me feel frustrated.'],
                                     ['speaker' => 'Jessica', 'text' => 'That never works for long.'],
-                                    ['speaker' => 'Lisa', 'text' => "Exactly. So now I still snack, but I choose things that actually help my body, like a fruit with peanut butter, yogurt, nuts, or boiled eggs."],
+                                    ['speaker' => 'Lisa', 'text' => 'Exactly. So now I still snack, but I choose things that actually help my body, like a fruit with peanut butter, yogurt, nuts, or boiled eggs.'],
                                     ['speaker' => 'Jessica', 'text' => "That's exactly what I do, too. I don't try to be perfect. I just try to make better choices most of the time."],
                                     ['speaker' => 'Lisa', 'text' => 'And that made eating clean feel much more realistic.'],
                                     ['speaker' => 'Jessica', 'text' => 'Let\'s talk about dinner because many people think dinner should be very small or boring when eating clean. What do you think?'],
@@ -1896,7 +1895,7 @@ class MissionSeeder extends Seeder
                                     'What are the people doing together?',
                                     'What is the older man on the left wearing, and what is he doing?',
                                     'What different dishes of food can you see on the table?',
-                                    "What does the room in the background look like?",
+                                    'What does the room in the background look like?',
                                 ],
                                 // Hand-verified against the real cached Pexels photo for this
                                 // exact query+orientation (landscape) — a large family seated
@@ -1953,13 +1952,11 @@ class MissionSeeder extends Seeder
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 18,
-                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
                                 // Real questions from M04.pdf page 05 "Food in my life".
-                                'warm_up_task' => 'Answer these questions about your own eating habits — what you normally '
-                                    .'eat for breakfast, what you usually have for lunch, what snacks you eat, what '
-                                    .'food you avoid, and what you\'d like to eat more or less of — then record 2 '
-                                    .'minutes of solo speaking describing your normal eating habits, using some '
-                                    .'countable and uncountable nouns, without reading.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your eating habits — '
+                                    .'what you usually eat, and what you\'d like to eat more or less of — using '
+                                    .'the new vocabulary, without reading.',
                                 'interview_questions' => [
                                     'What do you usually eat for breakfast?',
                                     'How often do you cook at home?',
@@ -1973,7 +1970,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'reading_comprehension',
                                 'label' => 'Reading',
                                 'duration_minutes' => 12,
-                                'hook' => "Meet Marco — his eating habits change with his shift. Can you follow his day in English?",
+                                'hook' => 'Meet Marco — his eating habits change with his shift. Can you follow his day in English?',
                                 'passage_title' => 'Meet Marco',
                                 'image_query' => 'young man portrait smiling kitchen',
                                 // Written fresh for this app (see EOS-009 §14) — reuses several
@@ -2171,7 +2168,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'mission_brief',
                                 'label' => 'Get Ready',
                                 'duration_minutes' => 5,
-                                'hook' => "Someone asks what you do for work or study — could you actually explain it in English, with real details, not just the job title?",
+                                'hook' => 'Someone asks what you do for work or study — could you actually explain it in English, with real details, not just the job title?',
                                 'image_query' => 'people working office study',
                                 'ambient_video_query' => 'office desk typing slow motion',
                                 // Real questions from M03.pdf page 01 "Before you start".
@@ -2556,13 +2553,11 @@ class MissionSeeder extends Seeder
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 18,
-                                'hook' => "Say it here, alone, before you have to say it to a partner tomorrow.",
+                                'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
                                 // Real questions from M03.pdf page 05 "Work / Study".
-                                'warm_up_task' => 'Answer these questions about your work or studies — what you normally '
-                                    .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
-                                    .'to improve — then record 2 minutes of solo speaking about your work/study '
-                                    .'life, using modals of obligation (have to, need to, must) and ability (can, '
-                                    .'can\'t), without reading.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your work or studies — '
+                                    .'what you normally do, what you\'re working on these days, and what you '
+                                    .'enjoy — using the new vocabulary, without reading.',
                                 'interview_questions' => [
                                     'What do you do for work or study?',
                                     'What does a typical day look like for you?',

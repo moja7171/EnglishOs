@@ -68,6 +68,16 @@ class ListeningStepTest extends TestCase
             ->call('checkGapFill', 1);
     }
 
+    public function test_shows_a_pi_partner_card_grounded_in_the_mission_topic_and_target_phrases(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->assertSee('Language Partner chat in Pi')
+            ->assertSee('My Daily Life')
+            ->assertSee('sleep in, morning person');
+    }
+
     public function test_the_wrap_up_offers_discussing_the_topic_with_a_mutual_friend(): void
     {
         $run = $this->makeRun();

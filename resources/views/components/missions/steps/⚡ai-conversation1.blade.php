@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Services\AiFeedbackCard;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\PiPrompts;
 use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -457,6 +458,12 @@ new class extends Component
     {
         return "eos-draft:{$this->run->id}:ai_conversation_1:";
     }
+
+    /** @return array{instruction: string, prompt: string}|null */
+    public function piTask(): ?array
+    {
+        return app(PiPrompts::class)->partnerTask($this->run, 'ai_conversation_1');
+    }
 };
 ?>
 
@@ -581,6 +588,10 @@ new class extends Component
 
             <div class="mt-2">
                 <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some while you speak" />
+            </div>
+
+            <div class="mt-2">
+                <x-pi-practice-card role-label="Language Partner" :task="$this->piTask()" />
             </div>
 
             @if (count($warmUpQuestions))

@@ -339,13 +339,15 @@ new class extends Component
                      which can only be confirmed server-side (an upload needs a
                      real round-trip), so it's a literal in ready-when. Same
                      pattern as Activation's recording substep. --}}
-                <x-continue-button
-                    on-click="$wire.save()"
-                    wire-target="save"
-                    loading-label="Listening and preparing your feedback…"
-                    ready-when="{{ $recording ? 'true' : 'false' }}"
-                    hint="Record your description to continue"
-                />
+                <div class="mt-4">
+                    <x-continue-button
+                        on-click="$wire.save()"
+                        wire-target="save"
+                        loading-label="Listening and preparing your feedback…"
+                        ready-when="{{ $recording ? 'true' : 'false' }}"
+                        hint="Record your description to continue"
+                    />
+                </div>
             @endif
         </div>
     @endunless

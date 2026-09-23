@@ -454,9 +454,9 @@ new class extends Component
     {{-- Sub-step: the passage itself + the ungraded warm-up --}}
     <div x-show="activeSubstep === 0" x-cloak>
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-            <div class="flex items-start gap-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
                 @if ($imageUrl = $this->passageImageUrl())
-                    <img src="{{ $imageUrl }}" alt="" class="h-16 w-16 shrink-0 rounded-full object-cover">
+                    <img src="{{ $imageUrl }}" alt="" class="h-12 w-12 shrink-0 rounded-full object-cover sm:h-16 sm:w-16">
                 @endif
                 <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>

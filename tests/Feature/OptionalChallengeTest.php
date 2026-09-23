@@ -77,5 +77,4 @@ class OptionalChallengeTest extends TestCase
             ->call('submitRoundAnswer')
             ->assertSet('roundIndex', 1);
     }
-
 }

@@ -6,8 +6,10 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
+use App\Services\PiPrompts;
 use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
 
 /**
@@ -183,7 +185,7 @@ trait DailyListenStep
             }
 
             $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
-            $url = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+            $url = Storage::disk('public')->url($path);
 
             Evidence::create([
                 'mission_run_id' => $this->run->id,
@@ -229,6 +231,12 @@ trait DailyListenStep
         }
 
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-'.$this->phaseKey(), $query);
+    }
+
+    /** @return array{instruction: string, prompt: string}|null */
+    public function piTask(): ?array
+    {
+        return app(PiPrompts::class)->coachTask($this->run, $this->phaseKey());
     }
 
     abstract protected function phaseKey(): string;
