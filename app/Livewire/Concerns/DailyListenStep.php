@@ -11,18 +11,21 @@ use Illuminate\Http\UploadedFile;
 use Livewire\WithFileUploads;
 
 /**
- * Shared logic for the "Daily Listening" gate that opens Day 2/3/4 of a
- * mission — one file per day (⚡daily-listen-2/3/4.blade.php) so each has
- * its own real, distinct step key (Evidence Before Progress requires a
- * FRESH row per day; reusing one key across days would let listening once
- * satisfy every later day too).
+ * Shared logic for "Listen Again", which opens Day 2/3/4 of a mission —
+ * one file per day (⚡daily-listen-2/3/4.blade.php) so each has its own
+ * real, distinct step key (Evidence Before Progress requires a FRESH row
+ * per day; reusing one key across days would let listening once satisfy
+ * every later day too).
  *
  * Mission structure redesign, Epic C: the old "listen once, then type any
  * word you remember" recall was replaced with a small (2-line), mandatory
- * shadowing exercise — the same lenient AI judgment Day 1's own Listening
- * step uses (see SpokenAnswerChecker::checkShadowing()), on lines that are
- * never the same ones Day 1 or the other daily-listen days used (see each
- * day's own seeded shadow_lines).
+ * shadowing exercise — the same lenient AI judgment SpokenAnswerChecker's
+ * checkShadowing() gives everywhere else, on lines that are never the
+ * same ones any other daily-listen day used (see each day's own seeded
+ * shadow_lines). Later redesign: Listen Again became this mission's ONLY
+ * shadowing practice (Day 1 Listening dropped it entirely — see
+ * ⚡listening.blade.php), driven by the real Whisper pause points in
+ * shadowTimestamps() below instead of a plain static list + recorder.
  */
 trait DailyListenStep
 {
@@ -77,17 +80,41 @@ trait DailyListenStep
     }
 
     /**
-     * This day's own small shadow-line pool — distinct from Day 1's and
-     * every other daily-listen day's, so the same audio never asks for
-     * the exact same line twice across a mission (see each day's own
-     * seeded shadow_lines under its own step key, not the shared
-     * 'listening' step's).
+     * This day's own small shadow-line pool — distinct from every other
+     * daily-listen day's, so the same audio never asks for the exact
+     * same line twice across a mission (see each day's own seeded
+     * shadow_lines under its own step key).
      *
      * @return list<string>
      */
     public function shadowLines(): array
     {
         return $this->run->mission->stepContent($this->phaseKey())['shadow_lines'] ?? [];
+    }
+
+    /**
+     * Real Whisper-derived pause points, parallel to shadowLines() by
+     * index — see missions:cache-shadow-timestamps. [] entries (or a
+     * missing index) mean that line just never pauses playback; shadowing
+     * it is still possible manually, it just isn't automatic.
+     *
+     * @return list<array{start: float, end: float}|null>
+     */
+    public function shadowTimestamps(): array
+    {
+        return $this->run->mission->stepContent($this->phaseKey())['shadow_timestamps'] ?? [];
+    }
+
+    /**
+     * Every real chunk of Day 1's Listening audio (this day's own, reused
+     * audio) with real timing — drives the synced text panel. Same cache
+     * as shadowTimestamps(), different key.
+     *
+     * @return list<array{text: string, start: float, end: float}>
+     */
+    public function listeningSegments(): array
+    {
+        return $this->listeningContent()['listening_segments'] ?? [];
     }
 
     public function shadowedCount(): int

@@ -3,26 +3,35 @@
         reaches the end — e.g. onEnded="$dispatch('audio-ended')" so a
         parent listening for that event (bubbles up the DOM) can count real
         completed listens, not just play clicks.
+    @param list<array{text: string, start: float, end: float}> $segments Real,
+        timed chunks of what's being said (see
+        missions:cache-shadow-timestamps) — when given, a synced text panel
+        below the controls highlights whichever chunk is playing right now,
+        auto-scrolling into view. [] renders the player exactly as before,
+        with no panel at all.
+    @param list<string> $shadowLines Shadowing targets (may carry **bold**
+        stress markers), parallel to $shadowTimestamps by index. Given
+        together with it, playback auto-pauses the moment it reaches each
+        line's own real start time and shows a "now you say it" prompt
+        with a replay-this-line button. Deliberately NOT a hard gate —
+        recording itself lives in the caller's own persistent, always-
+        reachable list below the player (see daily-listen-view.blade.php)
+        so a line Whisper keeps mis-hearing can never trap the learner
+        mid-episode with no way to move forward (Epic H4's "retry is
+        always available, never a dead end" principle). "Continue
+        listening" here just resumes playback.
+    @param list<array{start: float, end: float}|null> $shadowTimestamps
 --}}
-@props(['url', 'onEnded' => null])
+@props([
+    'url',
+    'onEnded' => null,
+    'segments' => [],
+    'shadowLines' => [],
+    'shadowTimestamps' => [],
+])
 
 @if (! empty($url))
-    {{--
-        wire:ignore (+ a wire:key scoped to the URL itself) so a Livewire
-        re-render triggered by ANYTHING ELSE in the same component — an AI
-        check, a wire:model sync, any action call — never touches this
-        subtree while audio is mid-playback. Without it, Livewire's morph
-        can tear down and recreate the <audio> element on every unrelated
-        round-trip, aborting an in-flight play() with
-        "AbortError: The play() request was interrupted by a call to
-        pause()" — a real bug hit in production, not a hypothetical one.
-        The wire:key still lets Livewire fully replace this element (new
-        DOM node, ignore doesn't block that) whenever $url itself actually
-        changes, e.g. voice-recorder's re-record-then-preview-again flow.
-    --}}
     <div
-        wire:ignore
-        wire:key="audio-player-{{ md5($url) }}"
         class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark"
         x-data="{
             playing: false,
@@ -30,6 +39,11 @@
             duration: 0,
             dragging: false,
             speed: 1,
+            segments: {{ Illuminate\Support\Js::from($segments) }},
+            shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
+            shadowSeen: [],
+            activeShadowIndex: null,
+            replayEndTime: null,
             init() {
                 const audio = this.$refs.audio;
                 const seek = this.$refs.seek;
@@ -62,6 +76,24 @@
                     // binding fighting the browser's own drag position is
                     // what caused seeking to snap back to 0.
                     if (! this.dragging) seek.value = audio.currentTime;
+
+                    if (this.replayEndTime !== null && audio.currentTime >= this.replayEndTime) {
+                        audio.pause();
+                        this.replayEndTime = null;
+                    }
+
+                    if (this.activeShadowIndex === null) {
+                        for (let i = 0; i < this.shadowTimestamps.length; i++) {
+                            const point = this.shadowTimestamps[i];
+                            if (! point || this.shadowSeen.includes(i)) continue;
+                            if (audio.currentTime >= point.start && audio.currentTime < point.end) {
+                                audio.pause();
+                                this.activeShadowIndex = i;
+                                this.shadowSeen.push(i);
+                                break;
+                            }
+                        }
+                    }
                 });
                 audio.addEventListener('play', () => this.playing = true);
                 audio.addEventListener('pause', () => this.playing = false);
@@ -69,6 +101,10 @@
                 // Metadata may already have loaded before these listeners
                 // were attached.
                 if (audio.readyState >= 1) resolveDuration();
+
+                this.$watch('activeSegmentIndex', (index) => {
+                    this.$nextTick(() => this.$refs['segment-' + index]?.scrollIntoView({block: 'center'}));
+                });
             },
             togglePlay() { this.playing ? this.$refs.audio.pause() : this.$refs.audio.play() },
             cycleSpeed() {
@@ -95,9 +131,26 @@
                 return m + ':' + s;
             },
             get progressPercent() { return this.duration ? (this.currentTime / this.duration * 100) : 0 },
+            get activeSegmentIndex() {
+                for (let i = this.segments.length - 1; i >= 0; i--) {
+                    if (this.currentTime >= this.segments[i].start) return i;
+                }
+                return -1;
+            },
+            replayShadowLine(index) {
+                const point = this.shadowTimestamps[index];
+                if (! point) return;
+                this.$refs.audio.currentTime = point.start;
+                this.replayEndTime = point.end;
+                this.$refs.audio.play();
+            },
+            resumeAfterShadow() {
+                this.activeShadowIndex = null;
+                this.$refs.audio.play();
+            },
         }"
     >
-        <audio x-ref="audio" preload="auto" class="hidden">
+        <audio wire:ignore wire:key="audio-el-{{ md5($url) }}" x-ref="audio" preload="auto" class="hidden">
             <source src="{{ $url }}" type="audio/mpeg">
         </audio>
 
@@ -185,5 +238,61 @@
                 class="inline-flex w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line py-1.5 text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >@svg('heroicon-o-arrow-down-tray', 'h-3.5 w-3.5')</a>
         </div>
+
+        @if (count($segments))
+            {{-- The synced text panel — every real chunk of speech,
+                 highlighted the moment playback reaches it. Never a
+                 substitute for the caller's own curated shadow_lines
+                 display below (if any); this is just "what's being said,
+                 right now", the same idea as karaoke captions. --}}
+            <div class="mt-4 max-h-56 space-y-1.5 overflow-y-auto rounded-2xl border border-line bg-surface-sunken p-3 text-sm dark:border-line-dark dark:bg-surface-sunken-dark">
+                @foreach ($segments as $index => $segment)
+                    <p
+                        x-ref="segment-{{ $index }}"
+                        x-on:click="seekTo({{ (float) $segment['start'] }}); $refs.audio.currentTime = {{ (float) $segment['start'] }}"
+                        class="cursor-pointer rounded-lg px-1.5 py-0.5 transition-colors"
+                        :class="activeSegmentIndex === {{ $index }}
+                            ? 'bg-accent/15 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark'
+                            : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
+                    >{{ $segment['text'] }}</p>
+                @endforeach
+            </div>
+        @endif
+
+        @if (count($shadowLines))
+            <div
+                x-show="activeShadowIndex !== null"
+                x-cloak
+                x-transition.opacity.duration.200ms
+                class="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-4 dark:border-accent-dark/30 dark:bg-accent-dark/10"
+            >
+                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Now you say it</p>
+
+                @foreach ($shadowLines as $index => $line)
+                    <div x-show="activeShadowIndex === {{ $index }}" x-cloak>
+                        <div class="mt-1 flex items-start justify-between gap-2">
+                            <p class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+
+                            <button
+                                type="button"
+                                x-on:click="replayShadowLine({{ $index }})"
+                                title="Hear this line again"
+                                class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
+                            >@svg('heroicon-o-arrow-path', 'h-4 w-4')</button>
+                        </div>
+                    </div>
+                @endforeach
+
+                <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Try saying it out loud, then find this line below to record yourself.</p>
+
+                <button
+                    type="button"
+                    x-on:click="resumeAfterShadow()"
+                    class="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                >
+                    @svg('heroicon-o-play', 'h-4 w-4') Continue listening
+                </button>
+            </div>
+        @endif
     </div>
 @endif
