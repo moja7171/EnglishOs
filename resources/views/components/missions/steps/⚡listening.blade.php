@@ -5,30 +5,27 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\GroqClient;
 use App\Services\PexelsClient;
-use App\Services\SpokenAnswerChecker;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 /**
- * Mission structure redesign, Epic C: day 1's Listening is now exactly 3
- * clean sub-steps — first listen + a short true/false check, second
- * listen + a gap-fill answered by PICKING from a word bank (not typing),
- * and the full transcript + mandatory, leniently AI-graded shadowing. The
- * old gist/expression free-writing (6 AI-checked sentences) is gone
- * entirely — that overlapped with what Vocabulary Builder and Writing
- * already do, and buried Listening's own point (comprehension) under a
- * writing exercise.
+ * Mission structure redesign, Epic C: day 1's Listening is now exactly 2
+ * clean sub-steps — first listen + a short true/false check (comprehension
+ * only; deliberately no shadowing here, so the very first listen isn't
+ * competing with a recording task), and a second listen + a gap-fill
+ * answered by PICKING from a word bank (not typing). The old gist/
+ * expression free-writing (6 AI-checked sentences) is gone entirely — that
+ * overlapped with what Vocabulary Builder and Writing already do, and
+ * buried Listening's own point (comprehension) under a writing exercise.
+ * Shadowing moved to Listen Again (daily_listen_2/3/4, see
+ * DailyListenStep) — a real, auto-pausing player, not a good fit for the
+ * very first exposure to the audio.
  */
 new class extends Component
 {
     use TracksAiUsage;
     use TracksCheckAttempts;
     use TracksVocabularyNotebook;
-    use WithFileUploads;
 
     public MissionRun $run;
 
@@ -65,27 +62,6 @@ new class extends Component
      */
     public array $gapFillBankOrder = [];
 
-    /** @var array<int, ?UploadedFile> keyed by shadow_lines index */
-    public array $shadowRecordings = [];
-
-    /** @var array<int, string> keyed by shadow_lines index — saved recording URLs, for read-only review */
-    public array $savedShadowUrls = [];
-
-    /** @var array<string, array{severity: string, hint: string}> keyed by "shadow_{index}" */
-    public array $feedback = [];
-
-    /** @var array<string, string> keyed by field key — per-input check failure message */
-    public array $checkErrors = [];
-
-    /**
-     * Out of however many lines the mission seeds, only this many need to
-     * actually pass — a pool bigger than the requirement (see
-     * shadow_lines content) means one persistently-mistranscribed line
-     * never blocks the learner; they can just shadow a different one
-     * instead of being stuck on a single line forever.
-     */
-    private const REQUIRED_SHADOWED_LINES = 2;
-
     public function mount(): void
     {
         $this->gapFillBankOrder = collect($this->targetPhrases())->pluck('phrase')->shuffle()->values()->all();
@@ -98,14 +74,6 @@ new class extends Component
 
         $this->gapFillSelections = $data['gap_fill_selections'] ?? [];
         $this->detailCorrect = $data['detail_correct'] ?? null;
-
-        foreach ($this->run->evidence()->where('phase', 'listening')->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
-            $decoded = json_decode($audio->content_ref, true);
-
-            if (is_array($decoded) && isset($decoded['line_index'], $decoded['url'])) {
-                $this->savedShadowUrls[$decoded['line_index']] = $decoded['url'];
-            }
-        }
     }
 
     /**
@@ -123,6 +91,18 @@ new class extends Component
         }
 
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-listening', $query);
+    }
+
+    /**
+     * Real Whisper segments (text + start/end seconds) driving the synced
+     * text panel below the player — see missions:cache-shadow-timestamps.
+     * [] until that command has been run for this mission.
+     *
+     * @return list<array{text: string, start: float, end: float}>
+     */
+    public function listeningSegments(): array
+    {
+        return $this->run->mission->stepContent('listening')['listening_segments'] ?? [];
     }
 
     private function targetPhrases(): array
@@ -186,57 +166,6 @@ new class extends Component
             : ['severity' => 'minor', 'hint' => 'Not quite — try the word you actually heard in that spot.'];
     }
 
-    public function shadowedCount(): int
-    {
-        return collect($this->feedback)
-            ->filter(fn ($item, $key) => str_starts_with($key, 'shadow_') && $item['severity'] === 'none')
-            ->count();
-    }
-
-    public function requiredShadowedLines(): int
-    {
-        return self::REQUIRED_SHADOWED_LINES;
-    }
-
-    /**
-     * Fires automatically once a shadow recording finishes uploading (see
-     * <x-voice-recorder>'s onRecorded) — transcribes it and asks
-     * SpokenAnswerChecker's lenient shadowing judgment whether the
-     * learner genuinely attempted the line, out loud. See EOS-009 §8 and
-     * the mission structure redesign's Epic C notes for why this is
-     * lenient rather than a pronunciation-accuracy grade.
-     */
-    public function checkShadowLine(int $index): void
-    {
-        $recording = $this->shadowRecordings[$index] ?? null;
-        $lines = $this->run->mission->stepContent('listening')['shadow_lines'] ?? [];
-        $target = $lines[$index] ?? null;
-
-        if (! $recording || ! $target) {
-            return;
-        }
-
-        $key = "shadow_{$index}";
-        unset($this->checkErrors[$key]);
-
-        try {
-            $transcript = trim(app(GroqClient::class)->transcribe($recording->getRealPath()));
-            $this->recordGroqCall();
-
-            $data = app(SpokenAnswerChecker::class)->checkShadowing(
-                strip_tags(str_replace('**', '', $target)),
-                $transcript,
-                $this->run->learner->levelDescription(),
-            );
-            $this->recordGeminiCall();
-
-            $this->feedback[$key] = $data;
-            $this->trackCheckAttempt($key, $data['severity']);
-        } catch (Throwable $e) {
-            $this->checkErrors[$key] = "Couldn't check this one: {$e->getMessage()}";
-        }
-    }
-
     public function save(): void
     {
         if (! $this->gapFillAllCorrect()) {
@@ -244,14 +173,6 @@ new class extends Component
 
             return;
         }
-
-        if ($this->shadowedCount() < self::REQUIRED_SHADOWED_LINES) {
-            $this->addError('shadowRecordings', 'Shadow at least '.self::REQUIRED_SHADOWED_LINES.' lines before continuing.');
-
-            return;
-        }
-
-        $mission = $this->run->mission;
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
@@ -263,29 +184,6 @@ new class extends Component
                 'detail_correct' => $this->detailCorrect,
             ]),
         ]);
-
-        // One AUDIO Evidence row per shadowed line, same pattern as Video
-        // Shadowing — content_ref is JSON here (unlike most other steps'
-        // plain-URL audio Evidence) since this step can produce more than
-        // one recording; line_index is what lets mount() map each saved
-        // file back to its line on review.
-        foreach ($this->shadowRecordings as $index => $recording) {
-            if (! $recording || ($this->feedback["shadow_{$index}"]['severity'] ?? null) !== 'none') {
-                continue;
-            }
-
-            $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
-            $url = Storage::disk('public')->url($path);
-
-            Evidence::create([
-                'mission_run_id' => $this->run->id,
-                'phase' => 'listening',
-                'type' => Evidence::TYPE_AUDIO,
-                'content_ref' => json_encode(['line_index' => $index, 'url' => $url]),
-            ]);
-
-            $this->savedShadowUrls[$index] = $url;
-        }
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
@@ -322,14 +220,7 @@ new class extends Component
 @php
     $listening = $run->mission->stepContent('listening');
     $targetPhrases = $listening['target_phrases'] ?? [];
-    $transcript = $listening['transcript'] ?? [];
     $detailQuestion = $listening['detail_question'] ?? null;
-    $shadowLines = $listening['shadow_lines'] ?? [];
-    // Two listens before the transcript unlocks for most of the roadmap,
-    // three from M09 on — a scaffolding taper, never a bar: the transcript
-    // is only ever a reference inside sub-step 3, and the audio can be
-    // replayed freely either way. See Mission::scaffoldLevel().
-    $listensRequired = $this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_FULL ? 2 : 3;
 
     $detailCard = $detailQuestion ? [[
         'prompt' => $detailQuestion['question'],
@@ -341,31 +232,11 @@ new class extends Component
     $hasComprehensionCheck = count($comprehensionCards) > 0;
     $comprehensionIndex = $hasComprehensionCheck ? 0 : null;
     $gapFillIndex = $hasComprehensionCheck ? 1 : 0;
-    $shadowIndex = $gapFillIndex + 1;
-    $totalSubsteps = $shadowIndex + 1;
+    $totalSubsteps = $gapFillIndex + 1;
     $nextDisabledExpr = "(activeSubstep === {$gapFillIndex} && ".($this->gapFillAllCorrect() ? 'false' : 'true').')';
 @endphp
 
-{{-- Server-rendered values stay OUT of the x-data expression and come in
-     through data-* attributes instead: Livewire's morph rewrites x-data on
-     every re-render, and Alpine rebuilds the whole scope from scratch
-     whenever that string actually changed — which would silently reset
-     activeSubstep to 0. Attribute changes on data-* have no such effect. --}}
-<div
-    class="space-y-6"
-    data-listens-required="{{ $listensRequired }}"
-    x-data="{
-        activeSubstep: 0,
-        listenCount: 0,
-        showTranscript: false,
-        listensRequired: 1,
-        get transcriptUnlocked() { return this.listenCount >= this.listensRequired },
-        init() {
-            this.listensRequired = Number(this.$el.dataset.listensRequired);
-        },
-    }"
-    x-on:audio-ended="listenCount++"
->
+<div class="space-y-6" x-data="{ activeSubstep: 0 }">
     @if ($imageUrl = $this->heroImageUrl())
         <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
     @endif
@@ -374,8 +245,11 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>
+        @unless ($readOnly)
+            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Try listening first without reading — the text below is there if you need it.</p>
+        @endunless
         <div class="mt-2">
-            <x-audio-player :url="$listening['audio_url'] ?? null" on-ended="$dispatch('audio-ended')" />
+            <x-audio-player :url="$listening['audio_url'] ?? null" on-ended="$dispatch('audio-ended')" :segments="$this->listeningSegments()" />
         </div>
     </div>
 
@@ -433,7 +307,7 @@ new class extends Component
             </div>
         </div>
     @else
-    <div wire:loading.class="pointer-events-none" wire:target="checkGapFill,checkShadowLine,save">
+    <div wire:loading.class="pointer-events-none" wire:target="checkGapFill,save">
         <div class="mb-4">
             <x-progress-bar>
                 <div
@@ -507,115 +381,6 @@ new class extends Component
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             @endif
-        </div>
-
-        {{-- Sub-step 3: full transcript + mandatory shadowing. --}}
-        <div x-show="activeSubstep === {{ $shadowIndex }}" x-cloak>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">The full conversation</p>
-
-            @if (count($transcript))
-                <div>
-                    @if ($readOnly)
-                        <button
-                            type="button"
-                            x-on:click="showTranscript = !showTranscript"
-                            class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
-                        >
-                            <span x-show="!showTranscript">Show transcript</span>
-                            <span x-show="showTranscript" x-cloak>Hide transcript</span>
-                        </button>
-                    @else
-                        <p x-show="!transcriptUnlocked" class="flex items-center gap-1.5 text-xs text-ink-soft dark:text-ink-soft-dark">
-                            @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
-                            <span x-text="`Listen ${Math.min(listenCount, {{ $listensRequired }})}/{{ $listensRequired }} times to unlock the transcript.`"></span>
-                        </p>
-                        <div x-show="transcriptUnlocked" x-cloak x-transition.opacity.duration.300ms>
-                            <p class="flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
-                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5')
-                                Transcript unlocked
-                            </p>
-                            <button
-                                type="button"
-                                x-on:click="showTranscript = !showTranscript"
-                                class="mt-1 inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
-                            >
-                                <span x-show="!showTranscript">Show transcript</span>
-                                <span x-show="showTranscript" x-cloak>Hide transcript</span>
-                            </button>
-                        </div>
-                    @endif
-
-                    <div
-                        x-show="showTranscript && {{ $readOnly ? 'true' : 'transcriptUnlocked' }}"
-                        x-cloak
-                        class="mt-2 max-h-72 space-y-2 overflow-y-auto rounded-2xl border border-line bg-surface-sunken p-4 text-sm dark:border-line-dark dark:bg-surface-sunken-dark"
-                    >
-                        @foreach ($transcript as $turn)
-                            <p>
-                                <span class="font-semibold text-ink dark:text-ink-dark">{{ $turn['speaker'] }}:</span>
-                                <span class="text-ink-soft dark:text-ink-soft-dark">{{ $turn['text'] }}</span>
-                            </p>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if (count($shadowLines))
-                <div class="mt-4 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
-                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
-                    @unless ($readOnly)
-                        <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">
-                            Replay a line and repeat it out loud, then record yourself. Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
-                            ({{ $this->shadowedCount() }} done so far) — a line that keeps mishearing you? Just try a different one.
-                        </p>
-                    @endunless
-
-                    <div class="mt-2 space-y-3">
-                        @foreach ($shadowLines as $index => $line)
-                            @php $shadowKey = "shadow_{$index}"; $shadowFeedback = $feedback[$shadowKey] ?? null; @endphp
-                            <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
-                                <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
-
-                                @if ($readOnly)
-                                    @if ($url = $savedShadowUrls[$index] ?? null)
-                                        <div class="mt-2"><x-audio-player :url="$url" /></div>
-                                    @else
-                                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
-                                    @endif
-                                @else
-                                    <div class="mt-2" wire:key="listening-shadow-recorder-{{ $index }}">
-                                        <x-voice-recorder
-                                            field="shadowRecordings.{{ $index }}"
-                                            :file="$shadowRecordings[$index] ?? null"
-                                            file-name="listening-shadow-{{ $index }}.webm"
-                                            on-recorded="checkShadowLine"
-                                            :on-recorded-param="$index"
-                                        />
-                                    </div>
-                                    <x-ai-thinking wire:loading wire:target="checkShadowLine({{ $index }})" class="mt-2" label="Listening to your recording…" />
-                                    @if ($shadowFeedback)
-                                        <p class="mt-2 text-xs {{ $shadowFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-amber-600' }}">
-                                            @if ($shadowFeedback['severity'] === 'none')
-                                                @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Nice — that counts.
-                                            @else
-                                                {{ $shadowFeedback['hint'] }}
-                                            @endif
-                                        </p>
-                                    @endif
-                                    @if ($checkErrors[$shadowKey] ?? null)
-                                        <p class="mt-2 text-xs text-red-600">{{ $checkErrors[$shadowKey] }}</p>
-                                    @endif
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                    @error('shadowRecordings')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            @endif
 
             @if ($detailQuestion)
                 <div class="mt-4">
@@ -646,14 +411,13 @@ new class extends Component
             @endif
 
             @unless ($readOnly)
-                @php $shadowedEnough = $this->shadowedCount() >= $this->requiredShadowedLines(); @endphp
                 <div class="mt-4">
                     <x-continue-button
                         on-click="$wire.save()"
-                        wire-target="checkGapFill,checkShadowLine,save"
+                        wire-target="checkGapFill,save"
                         loading-label="Saving…"
-                        ready-when="{{ $shadowedEnough ? 'true' : 'false' }}"
-                        hint="Shadow {{ $this->requiredShadowedLines() }} lines to continue"
+                        ready-when="{{ $this->gapFillAllCorrect() ? 'true' : 'false' }}"
+                        hint="Finish the gap-fill to continue"
                     />
                 </div>
             @endunless
