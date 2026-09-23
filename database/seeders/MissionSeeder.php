@@ -1324,9 +1324,8 @@ class MissionSeeder extends Seeder
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 20,
                                 'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
-                                'warm_up_task' => 'Choose a friend or someone close to you, then record 2 minutes of '
-                                    .'solo speaking describing them — try to use some Present Simple and Present '
-                                    .'Continuous sentences, and at least 3 vocabulary expressions, without reading.',
+                                'warm_up_task' => 'Choose a friend or someone close to you, then record 2 minutes '
+                                    .'of solo speaking describing them, using the new vocabulary, without reading.',
                                 'interview_questions' => [
                                     'Tell me about someone in your family — what are they like?',
                                     'Who do you get on well with these days?',
@@ -1955,11 +1954,9 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 18,
                                 'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
                                 // Real questions from M04.pdf page 05 "Food in my life".
-                                'warm_up_task' => 'Answer these questions about your own eating habits — what you normally '
-                                    .'eat for breakfast, what you usually have for lunch, what snacks you eat, what '
-                                    .'food you avoid, and what you\'d like to eat more or less of — then record 2 '
-                                    .'minutes of solo speaking describing your normal eating habits, using some '
-                                    .'countable and uncountable nouns, without reading.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your eating habits — '
+                                    .'what you usually eat, and what you\'d like to eat more or less of — using '
+                                    .'the new vocabulary, without reading.',
                                 'interview_questions' => [
                                     'What do you usually eat for breakfast?',
                                     'How often do you cook at home?',
@@ -2558,11 +2555,9 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 18,
                                 'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
                                 // Real questions from M03.pdf page 05 "Work / Study".
-                                'warm_up_task' => 'Answer these questions about your work or studies — what you normally '
-                                    .'do, what you\'re working on these days, what you enjoy, and what you\'d like '
-                                    .'to improve — then record 2 minutes of solo speaking about your work/study '
-                                    .'life, using modals of obligation (have to, need to, must) and ability (can, '
-                                    .'can\'t), without reading.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your work or studies — '
+                                    .'what you normally do, what you\'re working on these days, and what you '
+                                    .'enjoy — using the new vocabulary, without reading.',
                                 'interview_questions' => [
                                     'What do you do for work or study?',
                                     'What does a typical day look like for you?',
