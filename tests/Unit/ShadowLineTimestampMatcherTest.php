@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 class ShadowLineTimestampMatcherTest extends TestCase
 {
     private const SEGMENTS = [
-        ['text', 0.88, 7.44, "Hello and welcome to Real Easy English, the podcast where we have real conversations in"],
+        ['text', 0.88, 7.44, 'Hello and welcome to Real Easy English, the podcast where we have real conversations in'],
         ['text', 25.92, 28.08, "I'm very well, thank you. How are you?"],
         ['text', 40.31, 41.85, "OK, let's get started."],
         ['text', 87.5, 89.1, 'Yes, I think it does.'],
@@ -43,7 +43,7 @@ class ShadowLineTimestampMatcherTest extends TestCase
 
     public function test_a_line_matching_one_segment_exactly_returns_that_segments_own_timing(): void
     {
-        $result = (new ShadowLineTimestampMatcher())->match($this->segments(), "**Otherwise** I'm **very grumpy**.");
+        $result = (new ShadowLineTimestampMatcher)->match($this->segments(), "**Otherwise** I'm **very grumpy**.");
 
         $this->assertNotNull($result);
         $this->assertEqualsWithDelta(128.24, $result['start'], 0.05);
@@ -52,7 +52,7 @@ class ShadowLineTimestampMatcherTest extends TestCase
 
     public function test_a_line_spanning_several_consecutive_segments_covers_all_of_them(): void
     {
-        $result = (new ShadowLineTimestampMatcher())->match(
+        $result = (new ShadowLineTimestampMatcher)->match(
             $this->segments(),
             "Yes, I **think** it **does**. I'm a **morning person**. That **means** someone that has "
                 .'**a lot of energy** at the **start** of the **day**.',
@@ -67,7 +67,7 @@ class ShadowLineTimestampMatcherTest extends TestCase
 
     public function test_a_line_buried_mid_way_through_a_merged_segment_lands_near_its_own_words_not_the_segments_start(): void
     {
-        $result = (new ShadowLineTimestampMatcher())->match(
+        $result = (new ShadowLineTimestampMatcher)->match(
             $this->segments(),
             '**Especially** in the **United Kingdom** because the **weather** can be **different** **every day**.',
         );
@@ -86,7 +86,7 @@ class ShadowLineTimestampMatcherTest extends TestCase
     {
         // Real seeded line says "you've got"; Whisper actually heard
         // "you got" — the exact substring search alone would fail here.
-        $result = (new ShadowLineTimestampMatcher())->match(
+        $result = (new ShadowLineTimestampMatcher)->match(
             $this->segments(),
             "**Make sure** you've **got** your **umbrella**.",
         );
@@ -98,7 +98,7 @@ class ShadowLineTimestampMatcherTest extends TestCase
 
     public function test_a_line_that_genuinely_is_not_in_the_audio_returns_null(): void
     {
-        $result = (new ShadowLineTimestampMatcher())->match(
+        $result = (new ShadowLineTimestampMatcher)->match(
             $this->segments(),
             'This sentence was never said anywhere in this recording at all.',
         );
@@ -108,7 +108,7 @@ class ShadowLineTimestampMatcherTest extends TestCase
 
     public function test_an_empty_line_returns_null(): void
     {
-        $result = (new ShadowLineTimestampMatcher())->match($this->segments(), '');
+        $result = (new ShadowLineTimestampMatcher)->match($this->segments(), '');
 
         $this->assertNull($result);
     }
@@ -128,7 +128,7 @@ class ShadowLineTimestampMatcherTest extends TestCase
             'OK.',
         ];
 
-        $results = (new ShadowLineTimestampMatcher())->matchSequence($this->segments(), $lines);
+        $results = (new ShadowLineTimestampMatcher)->matchSequence($this->segments(), $lines);
 
         $this->assertCount(5, $results);
         $this->assertNotContains(null, $results);

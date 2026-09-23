@@ -583,8 +583,11 @@ new class extends Component
     @elseif (! $warmUpDone)
         {{-- Warm-up round: was the standalone Activation step. --}}
         <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Warm-up — 2 minutes of solo speaking</p>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
+            <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part 1 of 2 — Warm-up</p>
+            <div class="mt-2 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Practice alone first — you'll answer similar questions out loud to the AI Instructor right after.</p>
+                <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
+            </div>
 
             <div class="mt-2">
                 <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some while you speak" />
@@ -626,7 +629,7 @@ new class extends Component
     @else
         {{-- Interview round: unchanged AI Conversation #1 behavior. --}}
         <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Talk It Out</p>
+            <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part 2 of 2 — Interview</p>
             <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
         </div>
 

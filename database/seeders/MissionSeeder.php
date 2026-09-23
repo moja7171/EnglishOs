@@ -225,7 +225,7 @@ class MissionSeeder extends Seeder
                                 ],
                                 // No shadow_lines here — Day 1 Listening is comprehension-only
                                 // (synced text + gap-fill); shadowing is Listen Again's job
-                                // (daily_listen_2/3/4, see DailyListenStep) so it never has to
+                                // (daily_listen_2/3, see DailyListenStep) so it never has to
                                 // compete with the very first listen's own comprehension goal.
                             ],
                         ],
@@ -736,20 +736,6 @@ class MissionSeeder extends Seeder
                         'mode' => 'ai',
                         'steps' => [
                             [
-                                'key' => 'daily_listen_4',
-                                'label' => 'Listen Again',
-                                // Was 2, then 3 for the recall prompt (+1); now 8 — same real 6:44
-                                // (ffprobe-verified) audio-ended gate as daily_listen_2.
-                                'duration_minutes' => 8,
-                                'hook' => 'Last time hearing this one — notice how much easier it sounds now.',
-                                'image_query' => 'cozy morning breakfast table',
-                                'shadow_lines' => [
-                                    "**Make sure** you've **got** your **umbrella**.",
-                                    '**Never**. **Unless** there\'s a **very**, **very** **good** **reason**.',
-                                ],
-                                'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_4'),
-                            ],
-                            [
                                 'key' => 'error_log',
                                 'label' => 'My Fixes',
                                 // Was 6 — bumped for the optional AI-generated fill-in-the-blank drills.
@@ -862,7 +848,7 @@ class MissionSeeder extends Seeder
                     match (true) {
                         $key === 'mission_brief' && $query => $client->imageUrlFor("{$code}-brief", $query),
                         $key === 'listening' && $query => $client->imageUrlFor("{$code}-listening", $query),
-                        in_array($key, ['daily_listen_2', 'daily_listen_3', 'daily_listen_4'], true) && $query => $client->imageUrlFor("{$code}-{$key}", $query),
+                        in_array($key, ['daily_listen_2', 'daily_listen_3'], true) && $query => $client->imageUrlFor("{$code}-{$key}", $query),
                         $key === 'picture_description' && $query => $client->imageUrlFor("{$code}-picture-description", $query, 'landscape'),
                         $key === 'reading_comprehension' && $query => $client->imageUrlFor("{$code}-reading", $query),
                         $key === 'writing' => collect($step['prompts'] ?? [])
@@ -1952,7 +1938,7 @@ class MissionSeeder extends Seeder
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 18,
-                                'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
                                 // Real questions from M04.pdf page 05 "Food in my life".
                                 'warm_up_task' => 'Record 2 minutes of solo speaking about your eating habits — '
                                     .'what you usually eat, and what you\'d like to eat more or less of — using '
@@ -2553,7 +2539,7 @@ class MissionSeeder extends Seeder
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 18,
-                                'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
                                 // Real questions from M03.pdf page 05 "Work / Study".
                                 'warm_up_task' => 'Record 2 minutes of solo speaking about your work or studies — '
                                     .'what you normally do, what you\'re working on these days, and what you '

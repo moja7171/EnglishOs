@@ -26,7 +26,7 @@ class ShadowLineTimestampMatcher
 {
     /**
      * @param  list<array{text: string, start: float, end: float}>  $segments  Whisper segments, in order.
-     * @return array{start: float, end: float}|null  null if the line couldn't be located at all.
+     * @return array{start: float, end: float}|null null if the line couldn't be located at all.
      */
     public function match(array $segments, string $line): ?array
     {
@@ -72,8 +72,8 @@ class ShadowLineTimestampMatcher
 
     /**
      * @return array{0: array{start: float, end: float}|null, 1: int|null} the timing, and the char
-     *     offset (in the shared $full index) one past the match's own end — the cursor a caller
-     *     doing sequential alignment resumes the NEXT search from.
+     *                                                                     offset (in the shared $full index) one past the match's own end — the cursor a caller
+     *                                                                     doing sequential alignment resumes the NEXT search from.
      */
     private function matchWithin(string $full, array $map, array $segments, string $line, int $searchFrom): array
     {

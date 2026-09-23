@@ -209,7 +209,6 @@ new class extends Component
             'picture_description' => 'missions.steps.picture-description',
             'reading_comprehension' => 'missions.steps.reading-comprehension',
             'writing' => 'missions.steps.writing',
-            'daily_listen_4' => 'missions.steps.daily-listen-4',
             'error_log' => 'missions.steps.error-log',
             'ai_conversation_2' => 'missions.steps.ai-conversation2',
             'mission_result' => 'missions.steps.mission-result',

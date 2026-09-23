@@ -77,7 +77,9 @@ class MissionHookContentTest extends TestCase
             'ai_conversation_1',
             'reading_comprehension',
             'writing',
-            'daily_listen_4',
+            // Day 4 · Challenge — daily_listen_4 removed (mission structure
+            // sync, 2026-09-23): M01 now matches M02-M04's 3-day listening
+            // gate instead of a 4th.
             'error_log',
             'ai_conversation_2',
             'mission_result',

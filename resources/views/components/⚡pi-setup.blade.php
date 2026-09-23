@@ -11,9 +11,12 @@ use Livewire\Component;
  * in your Teacher chat" via <x-pi-practice-card> — this page is the only
  * place the setup message itself is shown.
  *
- * Gated by the home route (routes/web.php) on users.pi_onboarded_at being
- * null; existing users are grandfathered by that column's migration, so
- * this only ever appears for someone truly before Mission 1.
+ * The home route (routes/web.php) forces this on anyone whose
+ * pi_onboarded_at is still null; existing users are grandfathered by that
+ * column's migration, so the forced redirect only ever catches someone
+ * truly before Mission 1. The route itself has no such gate, though — it's
+ * also linked from the account menu so anyone can come back and re-copy
+ * the setup messages later.
  */
 new class extends Component
 {

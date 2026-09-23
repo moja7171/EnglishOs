@@ -53,8 +53,8 @@ class WebVttParser
 
     /**
      * @param  string  $timecode  "HH:MM:SS.mmm" (or "MM:SS.mmm"), optionally
-     *     followed by cue settings like "line:80%" — only the timecode
-     *     itself, at the start of the string, is parsed.
+     *                            followed by cue settings like "line:80%" — only the timecode
+     *                            itself, at the start of the string, is parsed.
      */
     private static function toSeconds(string $timecode): float
     {
