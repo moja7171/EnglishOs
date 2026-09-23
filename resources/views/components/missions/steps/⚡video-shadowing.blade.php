@@ -82,6 +82,17 @@ new class extends Component
             ->all();
     }
 
+    /**
+     * Real caption-derived pause points, parallel to shadow_lines by
+     * index — see missions:cache-shadow-timestamps.
+     *
+     * @return list<array{start: float, end: float}|null>
+     */
+    public function shadowTimestamps(): array
+    {
+        return $this->run->mission->stepContent('video_shadowing')['shadow_timestamps'] ?? [];
+    }
+
     public function shadowedCount(): int
     {
         return collect($this->shadowRecordings)->filter()->count();
@@ -193,6 +204,9 @@ new class extends Component
                 :url="$video['video_url'] ?? ''"
                 :captions-url="$video['captions_url'] ?? null"
                 :title="$video['source'] ?? 'Video'"
+                :segments="$video['video_segments'] ?? []"
+                :shadow-lines="$readOnly ? [] : $shadowLines"
+                :shadow-timestamps="$readOnly ? [] : $this->shadowTimestamps()"
             />
         </div>
         <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>

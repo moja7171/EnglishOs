@@ -52,6 +52,12 @@
             fullscreen: false,
             segments: {{ Illuminate\Support\Js::from($segments) }},
             shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
+            // Freely switchable, any number of times, never a one-time
+            // choice — watch a few times without shadowing, then a few
+            // times with it, in whatever order. Starts on whenever
+            // shadowing is offered at all, since that's usually why the
+            // learner is here.
+            shadowModeOn: {{ count($shadowTimestamps) ? 'true' : 'false' }},
             shadowSeen: [],
             activeShadowIndex: null,
             replayEndTime: null,
@@ -68,7 +74,7 @@
                         this.replayEndTime = null;
                     }
 
-                    if (this.activeShadowIndex === null) {
+                    if (this.shadowModeOn && this.activeShadowIndex === null) {
                         for (let i = 0; i < this.shadowTimestamps.length; i++) {
                             const point = this.shadowTimestamps[i];
                             if (! point || this.shadowSeen.includes(i)) continue;
@@ -313,6 +319,19 @@
             </div>
         </div>
     </div>
+
+    @if (count($shadowLines))
+        <label class="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-line p-3 dark:border-line-dark">
+            <span>
+                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Shadow while watching</span>
+                <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">Pauses on its own at each line below so you can repeat it, then record yourself.</span>
+            </span>
+            <span class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors" :class="shadowModeOn ? 'bg-accent dark:bg-accent-dark' : 'bg-surface-sunken dark:bg-surface-sunken-dark'">
+                <input type="checkbox" x-model="shadowModeOn" class="peer absolute inset-0 h-full w-full cursor-pointer opacity-0">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" :class="shadowModeOn ? 'translate-x-6' : 'translate-x-1'"></span>
+            </span>
+        </label>
+    @endif
 
     @if (count($segments))
         {{-- Synced text panel, same idea as <x-audio-player>'s — visible
