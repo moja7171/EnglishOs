@@ -537,6 +537,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\GeminiClient' => __DIR__ . '/../..' . '/app/Services/GeminiClient.php',
         'App\\Services\\GroqClient' => __DIR__ . '/../..' . '/app/Services/GroqClient.php',
         'App\\Services\\PexelsClient' => __DIR__ . '/../..' . '/app/Services/PexelsClient.php',
+        'App\\Services\\PiPrompts' => __DIR__ . '/../..' . '/app/Services/PiPrompts.php',
         'App\\Services\\PlacementTest' => __DIR__ . '/../..' . '/app/Services/PlacementTest.php',
         'App\\Services\\ProgramPlanner' => __DIR__ . '/../..' . '/app/Services/ProgramPlanner.php',
         'App\\Services\\SentenceChecker' => __DIR__ . '/../..' . '/app/Services/SentenceChecker.php',

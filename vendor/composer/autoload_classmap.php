@@ -47,6 +47,7 @@ return array(
     'App\\Services\\GeminiClient' => $baseDir . '/app/Services/GeminiClient.php',
     'App\\Services\\GroqClient' => $baseDir . '/app/Services/GroqClient.php',
     'App\\Services\\PexelsClient' => $baseDir . '/app/Services/PexelsClient.php',
+    'App\\Services\\PiPrompts' => $baseDir . '/app/Services/PiPrompts.php',
     'App\\Services\\PlacementTest' => $baseDir . '/app/Services/PlacementTest.php',
     'App\\Services\\ProgramPlanner' => $baseDir . '/app/Services/ProgramPlanner.php',
     'App\\Services\\SentenceChecker' => $baseDir . '/app/Services/SentenceChecker.php',
