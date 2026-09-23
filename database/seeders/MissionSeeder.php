@@ -1952,7 +1952,7 @@ class MissionSeeder extends Seeder
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 18,
-                                'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
                                 // Real questions from M04.pdf page 05 "Food in my life".
                                 'warm_up_task' => 'Record 2 minutes of solo speaking about your eating habits — '
                                     .'what you usually eat, and what you\'d like to eat more or less of — using '
@@ -2553,7 +2553,7 @@ class MissionSeeder extends Seeder
                                 'label' => 'Talk It Out',
                                 // Epic E merge — see M01's own comment for the arithmetic.
                                 'duration_minutes' => 18,
-                                'hook' => 'Say it here, alone, before you have to say it to a partner tomorrow.',
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
                                 // Real questions from M03.pdf page 05 "Work / Study".
                                 'warm_up_task' => 'Record 2 minutes of solo speaking about your work or studies — '
                                     .'what you normally do, what you\'re working on these days, and what you '
