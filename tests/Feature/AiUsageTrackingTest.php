@@ -106,7 +106,7 @@ class AiUsageTrackingTest extends TestCase
             'outcome' => 'Outcome.',
             'phases' => [[
                 'phase' => 'build',
-                'steps' => [['key' => 'ai_conversation_1', 'warm_up_task' => 'Write 5 personal sentences.']],
+                'steps' => [['key' => 'ai_conversation_1', 'warm_up_task' => 'Record 2 minutes of solo speaking.']],
             ]],
         ]);
         $this->actingAs($learner);
@@ -115,23 +115,14 @@ class AiUsageTrackingTest extends TestCase
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribeWithConfidence')->once()->andReturn([
             'text' => 'I wake up early.', 'duration' => 90.0, 'segments' => [],
         ]));
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => 'خوب.', 'tip' => 'ادامه بده.']));
-        });
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => 'خوب.', 'tip' => 'ادامه بده.'])));
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->set('sentences.0', 'I usually wake up at 7.')
-            ->set('sentences.1', 'I have breakfast at 8.')
-            ->set('sentences.2', 'I go to work by bus.')
-            ->set('sentences.3', 'I exercise in the evening.')
-            ->set('sentences.4', 'I go to bed at 11.')
             ->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
             ->call('finishWarmUp');
 
         $this->assertSame(1, $run->fresh()->groq_calls);
-        // 5 sentence checks + 1 reflection = 6 real Gemini calls.
-        $this->assertSame(6, $run->fresh()->gemini_calls);
+        $this->assertSame(1, $run->fresh()->gemini_calls);
     }
 
     public function test_mission_result_records_one_gemini_call_for_getresult(): void

@@ -458,7 +458,7 @@ new class extends Component
                 @if ($imageUrl = $this->passageImageUrl())
                     <img src="{{ $imageUrl }}" alt="" class="h-16 w-16 shrink-0 rounded-full object-cover">
                 @endif
-                <div>
+                <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
                     <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
                     @if (! empty($reading['highlighted_phrases'] ?? []))

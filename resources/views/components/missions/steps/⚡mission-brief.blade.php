@@ -174,14 +174,14 @@ new class extends Component
                 5 => 'Very comfortable',
             ];
         @endphp
-        <div class="mt-2 flex flex-wrap gap-2">
+        <div class="mt-2 grid grid-cols-5 gap-1.5">
             @foreach (range(1, 5) as $value)
                 <button
                     type="button"
                     @disabled($readOnly)
                     wire:click="$set('score', {{ $value }})"
                     @class([
-                        'flex flex-col items-center gap-1 rounded-xl border px-2 py-2 text-center transition-colors',
+                        'flex flex-col items-center gap-1 rounded-xl border px-1.5 py-2 text-center transition-colors',
                         'cursor-pointer' => ! $readOnly,
                         'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $score === $value,
                         'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark' => $score !== $value,
