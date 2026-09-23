@@ -3,26 +3,43 @@
     to replace <x-youtube-embed> where the source video is ours to host
     (public-domain or otherwise cleared content), not a third-party embed.
 
-    Same wire:ignore + url-scoped wire:key protection as <x-audio-player>
-    (see that component for why: an unrelated Livewire round-trip morphing
-    this subtree mid-playback aborts playback with a real AbortError).
+    wire:ignore + url-scoped wire:key protect just the <video> tag itself
+    (see <x-audio-player> for why: an unrelated Livewire round-trip
+    morphing it mid-playback aborts playback with a real AbortError) —
+    narrower than the whole component, same reasoning as that component's
+    own comment: the new shadow-pause UI below needs the rest of this
+    wrapper to keep morphing normally, or its own Livewire-driven state
+    (recording feedback, etc.) would never reach the DOM.
 
     @param string $url Video source (mp4).
     @param string|null $captionsUrl WebVTT captions track, if any. The CC
-        toggle only renders when this is given.
+        toggle only renders when this is given — this is what a fullscreen
+        viewer sees as real native subtitles; the $segments panel below is
+        the same text for when they're NOT fullscreen (browsers don't
+        overlay <track> captions outside fullscreen the same way here).
     @param string|null $poster Poster frame shown before first play.
     @param string $title Accessible label for the video element.
     @param string|null $onEnded Raw Alpine statement(s) run on playback end
         — same convention as <x-audio-player>'s $onEnded.
+    @param list<array{text: string, start: float, end: float}> $segments
+    @param list<string> $shadowLines
+    @param list<array{start: float, end: float}|null> $shadowTimestamps
+        See <x-audio-player> for the full behavior these three drive —
+        identical mechanism, just against a <video> element.
 --}}
-@props(['url', 'captionsUrl' => null, 'poster' => null, 'title' => 'Video', 'onEnded' => null])
+@props([
+    'url',
+    'captionsUrl' => null,
+    'poster' => null,
+    'title' => 'Video',
+    'onEnded' => null,
+    'segments' => [],
+    'shadowLines' => [],
+    'shadowTimestamps' => [],
+])
 
 @if (! empty($url))
-    <div
-        wire:ignore
-        wire:key="video-player-{{ md5($url) }}"
-        tabindex="0"
-        x-data="{
+    <div x-data="{
             playing: false,
             currentTime: 0,
             duration: 0,
@@ -33,6 +50,11 @@
             controlsVisible: true,
             hideTimer: null,
             fullscreen: false,
+            segments: {{ Illuminate\Support\Js::from($segments) }},
+            shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
+            shadowSeen: [],
+            activeShadowIndex: null,
+            replayEndTime: null,
             init() {
                 const video = this.$refs.video;
                 const seek = this.$refs.seek;
@@ -40,6 +62,25 @@
                 video.addEventListener('timeupdate', () => {
                     this.currentTime = video.currentTime;
                     if (! this.dragging) seek.value = video.currentTime;
+
+                    if (this.replayEndTime !== null && video.currentTime >= this.replayEndTime) {
+                        video.pause();
+                        this.replayEndTime = null;
+                    }
+
+                    if (this.activeShadowIndex === null) {
+                        for (let i = 0; i < this.shadowTimestamps.length; i++) {
+                            const point = this.shadowTimestamps[i];
+                            if (! point || this.shadowSeen.includes(i)) continue;
+                            if (video.currentTime >= point.start && video.currentTime < point.end) {
+                                video.pause();
+                                this.activeShadowIndex = i;
+                                this.shadowSeen.push(i);
+                                this.showControls();
+                                break;
+                            }
+                        }
+                    }
                 });
                 video.addEventListener('play', () => { this.playing = true; this.scheduleHide() });
                 video.addEventListener('pause', () => { this.playing = false; this.showControls() });
@@ -57,6 +98,27 @@
                 // instead of the standard fullscreenchange above.
                 video.addEventListener('webkitbeginfullscreen', () => this.fullscreen = true);
                 video.addEventListener('webkitendfullscreen', () => this.fullscreen = false);
+
+                this.$watch('activeSegmentIndex', (index) => {
+                    this.$nextTick(() => this.$refs['segment-' + index]?.scrollIntoView({block: 'center'}));
+                });
+            },
+            get activeSegmentIndex() {
+                for (let i = this.segments.length - 1; i >= 0; i--) {
+                    if (this.currentTime >= this.segments[i].start) return i;
+                }
+                return -1;
+            },
+            replayShadowLine(index) {
+                const point = this.shadowTimestamps[index];
+                if (! point) return;
+                this.$refs.video.currentTime = point.start;
+                this.replayEndTime = point.end;
+                this.$refs.video.play();
+            },
+            resumeAfterShadow() {
+                this.activeShadowIndex = null;
+                this.$refs.video.play();
             },
             togglePlay() { this.playing ? this.$refs.video.pause() : this.$refs.video.play() },
             cycleSpeed() {
@@ -139,13 +201,17 @@
                 if (key === 'f') { this.toggleFullscreen(); return; }
                 if (key === 'c' && {{ $captionsUrl ? 'true' : 'false' }}) { this.toggleCaptions(); return; }
             },
-        }"
+        }">
+    <div
+        tabindex="0"
         x-on:keydown="onKeydown($event)"
         x-on:mousemove="showControls()"
         x-on:mouseleave="if (playing) controlsVisible = false"
         class="group relative aspect-video w-full overflow-hidden rounded-2xl bg-black outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark"
     >
         <video
+            wire:ignore
+            wire:key="video-el-{{ md5($url) }}"
             x-ref="video"
             class="h-full w-full cursor-pointer"
             @if ($poster) poster="{{ $poster }}" @endif
@@ -246,5 +312,60 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    @if (count($segments))
+        {{-- Synced text panel, same idea as <x-audio-player>'s — visible
+             alongside the video whenever it's NOT fullscreen (fullscreen
+             uses the real <track> captions above instead). --}}
+        <div class="mt-3 max-h-40 space-y-1.5 overflow-y-auto rounded-2xl border border-line bg-surface-sunken p-3 text-sm dark:border-line-dark dark:bg-surface-sunken-dark">
+            @foreach ($segments as $index => $segment)
+                <p
+                    x-ref="segment-{{ $index }}"
+                    x-on:click="seekTo({{ (float) $segment['start'] }}); $refs.video.currentTime = {{ (float) $segment['start'] }}"
+                    class="cursor-pointer rounded-lg px-1.5 py-0.5 transition-colors"
+                    :class="activeSegmentIndex === {{ $index }}
+                        ? 'bg-accent/15 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark'
+                        : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
+                >{{ $segment['text'] }}</p>
+            @endforeach
+        </div>
+    @endif
+
+    @if (count($shadowLines))
+        <div
+            x-show="activeShadowIndex !== null"
+            x-cloak
+            x-transition.opacity.duration.200ms
+            class="mt-3 rounded-2xl border border-accent/30 bg-accent/5 p-4 dark:border-accent-dark/30 dark:bg-accent-dark/10"
+        >
+            <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Now you say it</p>
+
+            @foreach ($shadowLines as $index => $line)
+                <div x-show="activeShadowIndex === {{ $index }}" x-cloak>
+                    <div class="mt-1 flex items-start justify-between gap-2">
+                        <p class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+
+                        <button
+                            type="button"
+                            x-on:click="replayShadowLine({{ $index }})"
+                            title="Hear this line again"
+                            class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
+                        >@svg('heroicon-o-arrow-path', 'h-4 w-4')</button>
+                    </div>
+                </div>
+            @endforeach
+
+            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Try saying it out loud, then find this line below to record yourself.</p>
+
+            <button
+                type="button"
+                x-on:click="resumeAfterShadow()"
+                class="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >
+                @svg('heroicon-o-play', 'h-4 w-4') Continue watching
+            </button>
+        </div>
+    @endif
     </div>
 @endif

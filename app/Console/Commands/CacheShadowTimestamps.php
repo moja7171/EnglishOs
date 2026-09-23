@@ -90,6 +90,13 @@ class CacheShadowTimestamps extends Command
                 if ($key === 'video_shadowing') {
                     $timeline = $this->videoShadowingCues($mission, $step);
                     $source = 'real captions';
+
+                    // Same "reuse the real timed text directly, no
+                    // alignment needed" approach as listening_segments —
+                    // drives Video Shadowing's own synced text panel.
+                    if ($timeline !== null) {
+                        $result['video_shadowing_segments'] = $timeline;
+                    }
                 } elseif (str_starts_with($key, 'daily_listen_')) {
                     $timeline = $listeningSegments;
                     $source = 'Whisper';

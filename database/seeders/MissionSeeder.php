@@ -463,6 +463,9 @@ class MissionSeeder extends Seeder
                                 // own rolling-caption renderer, not for a plain <track>).
                                 'video_url' => $shadowingVideoUrl,
                                 'captions_url' => $shadowingCaptionsUrl,
+                                // Real caption cues (text + start/end seconds), reused directly
+                                // for the synced text panel — see missions:cache-shadow-timestamps.
+                                'video_segments' => $this->shadowTimestampsFor('M01', 'video_shadowing_segments'),
                                 // Summarized in Claude's own words from the real video's own
                                 // audio — never copied verbatim into this app (see EOS-009
                                 // §14: content stays original, no licensing/piracy risk), same
@@ -1198,6 +1201,7 @@ class MissionSeeder extends Seeder
                                 'source' => 'BBC Ideas: "The Surprising Benefits of Exercising with Friends"',
                                 'video_url' => $shadowingVideoUrl,
                                 'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M02', 'video_shadowing_segments'),
                                 'topic_summary' => 'A BBC Ideas documentary explains why exercising with friends is '
                                     .'better than exercising alone: feeling socially supported makes people less '
                                     .'fatigued and more energised (shown in a real experiment with teenage rowers), '
@@ -1835,6 +1839,7 @@ class MissionSeeder extends Seeder
                                 'source' => 'BBC Ideas: "Five Ways to Eat More Healthily"',
                                 'video_url' => $shadowingVideoUrl,
                                 'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M04', 'video_shadowing_segments'),
                                 'topic_summary' => 'A BBC Ideas video giving 5 evidence-based tips for healthy '
                                     .'eating: eat a treat after a meal rather than on its own, to control glucose '
                                     .'spikes; not all calories behave the same way in the body (natural foods take '
@@ -2437,6 +2442,7 @@ class MissionSeeder extends Seeder
                                 'source' => 'BBC Ideas: "6 Tips to Improve Your Work-Life Balance" (Bruce Daisley)',
                                 'video_url' => $shadowingVideoUrl,
                                 'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M03', 'video_shadowing_segments'),
                                 'topic_summary' => 'Bruce Daisley, a workplace-culture writer, gives 6 tips to reduce '
                                     .'work stress and improve work-life balance: turn off email notification badges; '
                                     .'take a real lunch break instead of eating at your desk; try a "monk mode '
