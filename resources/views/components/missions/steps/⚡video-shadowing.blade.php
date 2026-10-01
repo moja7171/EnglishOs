@@ -197,10 +197,6 @@ new class extends Component
 >
     <x-hook :text="$video['hook'] ?? null" />
 
-    @unless ($readOnly)
-        <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
-    @endunless
-
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $video['source'] ?? 'Video' }}</p>
         <div class="mt-2">
@@ -328,6 +324,10 @@ new class extends Component
                         @error('shadowRecordings')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
+
+                        @unless ($readOnly)
+                            <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
+                        @endunless
                     </div>
                 @endif
 
