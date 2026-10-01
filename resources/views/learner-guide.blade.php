@@ -153,8 +153,8 @@
                     </span>
                     <p class="mt-2 text-sm font-bold text-ink dark:text-ink-dark">واژگان</p>
                     <ul class="mt-1.5 list-disc space-y-1.5 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
-                        <li>نیازی نیست خودت کلمات رو مرور کنی</li>
-                        <li>با فاصله‌ی زمانی مناسب خودکار جلوت میان</li>
+                        <li>آخر هر قدم، کلماتی که می‌خوای یادت بمونه رو با دکمه‌ی «Add to My Words» تایید کن</li>
+                        <li>از اون به بعد نیازی نیست خودت زمان‌بندی مرورشون رو مدیریت کنی — خودکار با فاصله‌ی زمانی مناسب جلوت میان</li>
                     </ul>
                 </div>
             </div>
