@@ -125,6 +125,12 @@
                             class="flex items-center gap-2 px-3 py-2 font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
                         >@svg('heroicon-o-user-circle', 'h-4 w-4') Profile &amp; settings</a>
                         <a
+                            href="{{ route('learner.guide') }}"
+                            wire:navigate
+                            x-on:click="open = false"
+                            class="flex items-center gap-2 px-3 py-2 font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                        >@svg('heroicon-o-book-open', 'h-4 w-4') Learner guide</a>
+                        <a
                             href="{{ route('pi.setup') }}"
                             wire:navigate
                             x-on:click="open = false"

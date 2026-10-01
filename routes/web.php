@@ -50,6 +50,10 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('program');
     })->name('program.guide');
 
+    Route::get('/guide', function () {
+        return view('learner-guide');
+    })->name('learner.guide');
+
     Route::get('/placement', function () {
         return view('placement');
     })->name('placement');

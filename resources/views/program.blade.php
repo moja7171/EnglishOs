@@ -1,6 +1,27 @@
 <x-layouts.app>
     @php
         $program = app(\App\Services\ProgramPlanner::class)->plan(auth()->user());
+
+        // The full 24-mission roadmap — moved here from the Missions home
+        // page (home-page declutter pass, 2026-10), which used to render
+        // every unseeded slot as its own "coming soon" card every single
+        // day. This page is visited far less often, so showing the whole
+        // path here (once, on request) costs nothing daily.
+        $seededMissions = \App\Models\Mission::orderBy('code')->get()->keyBy('code');
+        $learner = auth()->user();
+        $roadmapCatalog = \App\Models\Mission::roadmapCatalog();
+        $roadmapSlots = collect(range(1, \App\Models\Mission::TOTAL_ROADMAP_MISSIONS))
+            ->map(fn ($n) => sprintf('M%02d', $n))
+            ->map(function ($code) use ($seededMissions, $roadmapCatalog, $learner) {
+                $mission = $seededMissions->get($code);
+
+                return [
+                    'code' => $code,
+                    'mission' => $mission,
+                    'title' => $mission->title ?? ($roadmapCatalog[$code]['title'] ?? 'Coming soon'),
+                    'blockedBy' => $mission ? \App\Models\MissionRun::gatingMission($learner, $mission) : null,
+                ];
+            });
     @endphp
 
     <div class="mx-auto max-w-2xl space-y-6 p-6">
@@ -55,6 +76,27 @@
             </ul>
         </section>
 
-        <a href="{{ route('home') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">See today's plan @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+        <section class="space-y-3">
+            <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">The full roadmap</h2>
+            <ol class="space-y-1.5">
+                @foreach ($roadmapSlots as $slot)
+                    <li class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {{ $slot['mission'] && ! $slot['blockedBy'] ? 'hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark' : '' }}">
+                        <span class="w-9 shrink-0 text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['code'] }}</span>
+                        @if ($slot['mission'] && ! $slot['blockedBy'])
+                            <a href="{{ route('missions.show', $slot['mission']) }}" wire:navigate class="flex-1 font-semibold text-ink dark:text-ink-dark">{{ $slot['title'] }}</a>
+                            @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                        @else
+                            <span class="flex-1 {{ $slot['mission'] ? 'text-ink-soft dark:text-ink-soft-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $slot['title'] }}</span>
+                            @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
+        </section>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="{{ route('home') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">See today's plan @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+            <a href="{{ route('learner.guide') }}" wire:navigate class="text-sm font-semibold text-ink-faint underline hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Read the full learner guide (Persian)</a>
+        </div>
     </div>
 </x-layouts.app>

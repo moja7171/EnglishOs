@@ -48,8 +48,8 @@ class Mission extends Model
      * user settled this explicitly; M05 onward the PDFs carry no grammar
      * at all, and M03 already had its PDF's point replaced.
      *
-     * Also the single source of truth the missions overview reads for
-     * unbuilt slots (⚡overview.blade.php's roadmapPlaceholder()) and
+     * Also the single source of truth for the full roadmap shown on
+     * /program (resources/views/program.blade.php) and
      * MissionSeeder's Pexels cache warmer
      * ([[feedback_never_fetch_pexels_live_on_site]]) — so the plan and
      * what ships can't drift apart. A slot whose mission IS seeded never
