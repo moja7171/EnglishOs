@@ -122,7 +122,7 @@ class AiConversation1StepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSee('Language Partner chat in Pi')
+            ->assertSee('Language Partner chat in your voice AI app')
             ->assertSee('My Daily Life');
     }
 
