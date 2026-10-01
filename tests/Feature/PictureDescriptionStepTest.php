@@ -152,7 +152,8 @@ class PictureDescriptionStepTest extends TestCase
             ->set('recording', UploadedFile::fake()->create('description.webm', 400, 'audio/webm'))
             ->call('save')
             ->assertSet('completed', true)
-            ->assertSet('feedback', null);
+            ->assertSet('feedback', null)
+            ->assertSee("feedback isn't available this time", false);
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'picture_description', 'type' => Evidence::TYPE_AUDIO]);
     }
@@ -273,5 +274,53 @@ class PictureDescriptionStepTest extends TestCase
             ->assertSeeHtml('left: 62%; top: 58%')
             ->assertSeeHtml('left: 15%; top: 85%')
             ->assertSee('Where is the baby');
+    }
+
+    /**
+     * A 24px marker is well under a comfortable mobile tap target, so its
+     * hit area is widened with an invisible ::before without changing how
+     * big the dot looks on the photo.
+     */
+    public function test_hotspot_markers_have_an_enlarged_tap_target(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [[
+                    'key' => 'picture_description',
+                    'image_query' => 'family breakfast table morning kitchen busy',
+                    'guiding_questions' => ['What do you see?'],
+                    'hotspots' => [['x' => 17, 'y' => 32, 'question_index' => 0]],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn('http://localhost/image.jpg'));
+
+        Livewire::test('missions.steps.picture-description', ['run' => $run])
+            ->assertSeeHtml("before:absolute before:-inset-2.5 before:content-['']");
+    }
+
+    /**
+     * The numbered hotspots and their matching guiding questions highlight
+     * each other on hover OR tap — tapping only fires mouseenter on a
+     * pointer device, so the question list needs its own click handler to
+     * work on a phone.
+     */
+    public function test_tapping_a_guiding_question_also_highlights_its_hotspot(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+
+        Livewire::test('missions.steps.picture-description', ['run' => $run])
+            ->assertSeeHtml('x-on:click="activeQuestion = (activeQuestion === 0 ? null : 0)"');
     }
 }

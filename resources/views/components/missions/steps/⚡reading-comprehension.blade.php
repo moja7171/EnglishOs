@@ -385,7 +385,7 @@ new class extends Component
 
             @if (count($this->newWords()))
                 <div>
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Here are the new words from today's passage — pick which ones join your spaced-repetition notebook.</p>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Here are today's new words — pick which ones to save to My Words.</p>
                     <div class="mt-2 space-y-2">
                         @foreach ($this->newWords() as $index => $word)
                             <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
@@ -464,7 +464,7 @@ new class extends Component
                     @if (! empty($reading['highlighted_phrases'] ?? []))
                         <p class="mt-2 flex items-center gap-3 text-[11px] text-ink-faint dark:text-ink-faint-dark">
                             <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-success/60 dark:bg-success-dark/60"></span> words you already know</span>
-                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-accent/60 dark:bg-accent-dark/60"></span> new words — tap for meaning</span>
+                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-accent/60 dark:bg-accent-dark/60"></span> new words</span>
                         </p>
                     @endif
                 </div>

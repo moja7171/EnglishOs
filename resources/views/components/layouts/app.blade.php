@@ -125,11 +125,17 @@
                             class="flex items-center gap-2 px-3 py-2 font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
                         >@svg('heroicon-o-user-circle', 'h-4 w-4') Profile &amp; settings</a>
                         <a
+                            href="{{ route('learner.guide') }}"
+                            wire:navigate
+                            x-on:click="open = false"
+                            class="flex items-center gap-2 px-3 py-2 font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                        >@svg('heroicon-o-book-open', 'h-4 w-4') Learner guide</a>
+                        <a
                             href="{{ route('pi.setup') }}"
                             wire:navigate
                             x-on:click="open = false"
                             class="flex items-center gap-2 px-3 py-2 font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-                        >@svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4') Pi practice setup</a>
+                        >@svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4') Voice practice setup</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button
@@ -144,6 +150,51 @@
     </div>
 
     {{ $slot }}
+
+    {{-- Custom install prompt: Chrome/Edge on Android removed their own
+         automatic "Add to Home screen" banner years ago — a site now has to
+         capture beforeinstallprompt itself and offer its own call to action,
+         or nothing ever invites the user to install at all (the browser's
+         only remaining affordance is a buried "Install app" menu item). --}}
+    <div
+        x-data="{
+            deferredPrompt: null,
+            dismissed: false,
+            init() {
+                try { this.dismissed = localStorage.getItem('eosInstallPromptDismissed') === 'true' } catch (e) {}
+
+                window.addEventListener('beforeinstallprompt', (event) => {
+                    event.preventDefault();
+                    this.deferredPrompt = event;
+                });
+
+                window.addEventListener('appinstalled', () => this.dismiss());
+            },
+            async install() {
+                if (! this.deferredPrompt) { return }
+                this.deferredPrompt.prompt();
+                await this.deferredPrompt.userChoice;
+                this.deferredPrompt = null;
+            },
+            dismiss() {
+                this.dismissed = true;
+                try { localStorage.setItem('eosInstallPromptDismissed', 'true') } catch (e) {}
+            },
+        }"
+        x-show="deferredPrompt && !dismissed"
+        x-cloak
+        x-transition
+        class="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-2xl items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-xs shadow-lg sm:inset-x-6 dark:border-line-dark dark:bg-surface-dark"
+    >
+        <x-logo icon-class="h-8 w-8" :with-text="false" />
+        <div class="flex-1">
+            <p class="font-semibold text-ink dark:text-ink-dark">Install English OS</p>
+            <p class="text-ink-faint dark:text-ink-faint-dark">Add it to your home screen for quick, full-screen access.</p>
+        </div>
+        <button type="button" x-on:click="dismiss()" class="px-2 py-1.5 font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Not now</button>
+        <button type="button" x-on:click="install()" class="shrink-0 rounded-full bg-accent px-3 py-1.5 font-semibold text-white dark:bg-accent-dark">Install</button>
+    </div>
+
     @livewireScripts
     <script>
         // Service workers require a secure context (HTTPS, or exactly

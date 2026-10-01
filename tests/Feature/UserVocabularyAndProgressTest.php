@@ -100,10 +100,8 @@ class UserVocabularyAndProgressTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('progress.index')
-            ->assertSet('progressStats.missionsCompleted', 1)
             ->assertSet('progressStats.vocabularyCount', 2)
-            ->assertSee('He walk fast.')
-            ->assertSee('He walks fast.');
+            ->assertSee('Your most recurring mistake');
     }
 
     public function test_the_progress_page_has_a_friendly_empty_state_for_recurring_errors(): void

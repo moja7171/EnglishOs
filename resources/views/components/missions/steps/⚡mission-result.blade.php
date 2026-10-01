@@ -408,6 +408,17 @@ new class extends Component
             $parts[] = "Final challenge requirements met: {$met}/".count($reqs).'.';
         }
 
+        // Day 4's other AI-graded speaking step (see
+        // ⚡picture-description.blade.php) — added once it became a
+        // required step for every mission, not just an optional extra.
+        if ($pictureDescription = $this->run->evidence()->where('phase', 'picture_description')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($pictureDescription->content_ref, true) ?? [];
+
+            if ($feedback = $data['feedback'] ?? null) {
+                $parts[] = 'AI feedback from the picture description task: '.json_encode($feedback);
+            }
+        }
+
         $parts[] = 'Recurring mistakes identified and corrected: '.$this->run->errorLogItems()->count().'.';
         $parts[] = 'Learner reflection — what became easier: '.($this->reflection['became_easier'] ?? '');
         $parts[] = 'Learner reflection — what is still difficult: '.($this->reflection['still_difficult'] ?? '');
@@ -584,7 +595,29 @@ new class extends Component
             <x-substep-nav index-var="activeSection" :total="2" />
         </div>
     @else
+        @php
+            // Mission Result used to be one unbroken card stacking everything
+            // from the streak banner down to the share-with-a-friend widget —
+            // the densest, least-structured screen in the app. Split into
+            // "Your result" / "Your growth" / "Keep practicing" so a first
+            // finish doesn't read as one long undifferentiated report. A
+            // section's card is skipped entirely when none of its own content
+            // would render, so a short result still looks deliberate.
+            $hasGrowthSection = collect($scores)->every(fn ($pair) => $pair['before'] && $pair['after'])
+                || $briefScore
+                || $flashbackRecordingUrl
+                || count($this->vocabularyUsage)
+                || $this->masteredErrors->isNotEmpty()
+                || $this->fadingErrors->isNotEmpty()
+                || $this->recurringError;
+            $hasKeepPracticingSection = (! $readOnly && count($this->speakingPromptCandidates()))
+                || $status !== 'complete'
+                || ($status === 'complete' && ! $readOnly);
+        @endphp
+
         <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your result</p>
+
             @if ($milestoneJustReached)
                 {{-- Reuses the exact same full-screen confetti burst the
                      "mission complete" moment below already triggers (see
@@ -600,7 +633,7 @@ new class extends Component
                      canvases at once. --}}
                 <div
                     x-init="{{ $status === 'complete' && ! $readOnly ? '' : 'window.eosConfetti?.burst()' }}"
-                    class="mb-3 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 text-center dark:border-accent-soft-dark dark:bg-accent-soft-dark/60"
+                    class="mt-2 mb-3 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 text-center dark:border-accent-soft-dark dark:bg-accent-soft-dark/60"
                 >
                     <span class="animate-trophy-pop inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
                         @svg('heroicon-s-trophy', 'h-5 w-5')
@@ -617,13 +650,13 @@ new class extends Component
                     </p>
                 </div>
             @elseif ($streak = $this->run->learner->currentStreak())
-                <p class="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
+                <p class="mt-2 mb-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
                     <x-streak-flame :streak="$streak" />
                     {{ $streak === 1 ? "You're on a 1-day streak — nice start!" : "You're on a {$streak}-day streak — keep it going!" }}
                 </p>
             @endif
 
-            <p class="text-xs font-semibold uppercase tracking-wide
+            <p class="mt-2 text-xs font-semibold uppercase tracking-wide
                 {{ $status === 'complete' ? 'text-success dark:text-success-dark' : ($status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
                 {{ str($status)->replace('_', ' ')->title() }}
             </p>
@@ -637,6 +670,11 @@ new class extends Component
                         : "{$this->friendsCompletedCount} of your friends have completed this mission too." }}
                 </p>
             @endif
+        </div>
+
+        @if ($hasGrowthSection)
+            <div class="mt-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your growth</p>
 
             @if (collect($scores)->every(fn ($pair) => $pair['before'] && $pair['after']))
                 <div class="mt-4 space-y-2.5">
@@ -752,9 +790,8 @@ new class extends Component
             @endif
 
             {{-- Unlike on the Progress page, the empty state is suppressed
-                 here: Mission Result is already a dense celebration
-                 screen, and "nothing here yet" would be one more card
-                 saying nothing. --}}
+                 here: this is a celebration screen, and "nothing here yet"
+                 would be one more card saying nothing. --}}
             @if ($this->masteredErrors->isNotEmpty() || $this->fadingErrors->isNotEmpty())
                 <div class="mt-4 rounded-xl border border-success/30 bg-success-soft p-3 dark:border-success-dark/30 dark:bg-success-soft-dark">
                     <x-mistakes-you-fixed :mastered="$this->masteredErrors" :fading="$this->fadingErrors" :boxed="false" />
@@ -771,14 +808,19 @@ new class extends Component
                         <span class="text-red-600 line-through decoration-red-500">{{ $this->recurringError->error }}</span>
                         <span class="text-success dark:text-success-dark">{{ $this->recurringError->correction }}</span>
                     </p>
-                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — worth extra attention next time.</p>
                 </div>
             @endif
+            </div>
+        @endif
+
+        @if ($hasKeepPracticingSection)
+            <div class="mt-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Keep practicing</p>
 
             @if (! $readOnly && count($this->speakingPromptCandidates()))
                 <div class="mt-4">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speaking Recall</p>
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to hear these questions again someday? Pick which ones join your spaced-repetition speaking practice.</p>
+                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to practice these again later? Pick which ones to save.</p>
 
                     <div class="mt-2 space-y-2">
                         @foreach ($this->speakingPromptCandidates() as $index => $prompt)
@@ -849,7 +891,8 @@ new class extends Component
                     />
                 </div>
             @endif
-        </div>
+            </div>
+        @endif
 
         @unless ($readOnly)
             <button

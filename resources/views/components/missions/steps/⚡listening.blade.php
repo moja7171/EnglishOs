@@ -271,7 +271,7 @@ new class extends Component
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
                     Listening complete
                 </p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's the language from today's episode — pick which ones join your spaced-repetition notebook.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's today's language — pick which ones to save to My Words.</p>
             </div>
             <div class="space-y-2">
                 @foreach ($targetPhrases as $index => $item)

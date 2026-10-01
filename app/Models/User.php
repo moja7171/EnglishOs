@@ -848,6 +848,55 @@ class User extends Authenticatable
     }
 
     /**
+     * How many spaced-repetition passes masteredGrammarPoints() wants to
+     * see — same bar as MASTERED_ERROR_REPETITIONS and the same
+     * HasSpacedRepetition::review() scale, since GrammarPoint reuses that
+     * exact mechanism.
+     */
+    public const MASTERED_GRAMMAR_REPETITIONS = 3;
+
+    /**
+     * Taught grammar rules (GrammarPoint — see syncGrammarPoint(), one per
+     * mission's Grammar in Context focus) this learner has reliably held
+     * onto: passed the spaced-repetition review at least
+     * MASTERED_GRAMMAR_REPETITIONS times. The Grammar in Context
+     * equivalent of masteredErrorPatterns() — but deliberately simpler:
+     * a GrammarPoint is enrolled directly from a taught lesson, never
+     * sourced from a real mistake in the learner's own writing the way an
+     * ErrorPatternReview is, so there is no separate "hasn't recurred in
+     * real writing" signal to also check here — repeated successful
+     * recall already is the whole claim.
+     *
+     * @return Collection<int, GrammarPoint>
+     */
+    public function masteredGrammarPoints(): Collection
+    {
+        return $this->grammarPoints()
+            ->where('repetitions', '>=', self::MASTERED_GRAMMAR_REPETITIONS)
+            ->orderByDesc('repetitions')
+            ->get();
+    }
+
+    /**
+     * Every grammar point NOT YET at the masteredGrammarPoints() bar —
+     * including a brand-new one just taught (repetitions 0) — ordered
+     * soonest-due first, the "what's still building up" counterpart to
+     * the mastered list. Named for what it honestly is (still being
+     * learned) rather than reusing error patterns' "fading" label, which
+     * describes a mistake going quiet — not the right claim for a rule
+     * that was simply taught and hasn't been reviewed enough times yet.
+     *
+     * @return Collection<int, GrammarPoint>
+     */
+    public function learningGrammarPoints(): Collection
+    {
+        return $this->grammarPoints()
+            ->where('repetitions', '<', self::MASTERED_GRAMMAR_REPETITIONS)
+            ->orderBy('next_review_at')
+            ->get();
+    }
+
+    /**
      * Has this error category appeared in a real Error Log since $since?
      * Compared against ErrorLogItem's own created_at rather than the
      * mission run's, because a run stays open for days — the mistake's

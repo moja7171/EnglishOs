@@ -92,7 +92,7 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+    <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
     </a>
@@ -156,17 +156,17 @@ new class extends Component
                             type="button"
                             wire:click="gradeSelf(1)"
                             class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-red-950"
-                        >Again</button>
+                        >Forgot it</button>
                         <button
                             type="button"
                             wire:click="gradeSelf(4)"
                             class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >Good</button>
+                        >Remembered it</button>
                         <button
                             type="button"
                             wire:click="gradeSelf(5)"
                             class="cursor-pointer rounded-full border border-success/40 px-4 py-2 text-sm font-semibold text-success transition-colors hover:bg-success-soft dark:border-success-dark/40 dark:text-success-dark dark:hover:bg-success-soft-dark"
-                        >Easy</button>
+                        >Knew it instantly</button>
                     </div>
                 </div>
             @endif

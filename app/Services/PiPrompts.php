@@ -57,7 +57,7 @@ class PiPrompts
                     .'and-forth: ask me a few real questions that need it, one at a time, wait for my spoken '
                     .'answer, and react like we\'re actually talking, not grading a test. If I make a mistake, '
                     .'give me one short, friendly fix and keep going — never a long list, never anything that '
-                    .'feels like an exam. Ready?',
+                    .'feels like an exam. Keep your own language at my level. Ready?',
             ],
             self::ROLE_PARTNER => [
                 'label' => 'Language Partner',
@@ -75,9 +75,10 @@ class PiPrompts
                 'when' => 'Shadowing steps, to get real feedback on how you actually sound.',
                 'setupMessage' => "Hi! I'm learning English, currently around {$level} level. From now on in "
                     .'this chat, please be my pronunciation coach. When I give you lines to practice, say each '
-                    .'one aloud the way a native speaker naturally would, let me repeat it back, then give me '
-                    .'one quick, specific fix — the exact sound or stress to adjust, never just \'try again\' — '
-                    .'and move straight on. Keep the pace snappy and encouraging, like a fun drill, never a '
+                    .'one aloud the way a native speaker naturally would, let me repeat it back, react like '
+                    .'we\'re actually practicing together, then give me one quick, specific fix — the exact '
+                    .'sound or stress to adjust, never just \'try again\' — and move straight on. Keep your own '
+                    .'language at my level, and keep the pace snappy and encouraging, like a fun game, never a '
                     .'test. Ready?',
             ],
         ];
@@ -96,7 +97,7 @@ class PiPrompts
 
         return [
             'instruction' => 'Go to your Teacher chat and try this:',
-            'prompt' => "Let's practice \"{$focus}\" as a quick spoken game, not a written test. Ask me 3 or 4 "
+            'prompt' => "Like always, let's practice \"{$focus}\" as a quick spoken game, not a written test. Ask me 3 or 4 "
                 .'real questions, one at a time, that need "'.$focus.'" to answer — wait for me to answer out '
                 .'loud before the next one, and react like we\'re actually chatting. If I get the grammar '
                 .'wrong, jump in gently with a one-line fix and keep going — no big deal, we\'re just playing '
@@ -123,7 +124,7 @@ class PiPrompts
 
         return [
             'instruction' => 'Go to your Pronunciation Coach chat and try this:',
-            'prompt' => 'Let\'s turn these into a quick echo game: '.$lines->implode(' / ').'. Say the first one '
+            'prompt' => 'Like always, let\'s turn these into a quick echo game: '.$lines->implode(' / ').'. Say the first one '
                 .'the way a native speaker naturally would — real speed, real rhythm — I\'ll repeat it right '
                 .'back, then give me one quick, specific fix, nothing long, and we jump straight to the next '
                 .'line. Keep the pace snappy and fun, like a game, not a test.',
@@ -159,7 +160,7 @@ class PiPrompts
 
             return [
                 'instruction' => 'Go to your Language Partner chat and try this:',
-                'prompt' => "Let's get warmed up on today's topic — \"{$topic}\". Ask me a few easy, casual "
+                'prompt' => "Like always, let's get warmed up on today's topic — \"{$topic}\". Ask me a few easy, casual "
                     .'questions about my own life that connect to it, one at a time, and wait for me to answer '
                     .'out loud before the next one — like we just started chatting.'.$phraseHint,
             ];
@@ -171,7 +172,7 @@ class PiPrompts
 
         return [
             'instruction' => 'Go to your Language Partner chat and try this:',
-            'prompt' => "Before I dive into the real challenge, let's do a 2-minute warm-up on \"{$topic}\": fire "
+            'prompt' => "Like always, before I dive into the real challenge, let's do a 2-minute warm-up on \"{$topic}\": fire "
                 .'off quick, easy questions one at a time — nothing deep, just fast spoken answers to loosen me '
                 .'up — and keep the energy quick and fun.'.$phraseHint,
         ];

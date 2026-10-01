@@ -457,7 +457,7 @@ new class extends Component
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Vocabulary saved
             </p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to keep practicing these words? Pick which ones join your spaced-repetition notebook.</p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to keep practicing these? Pick which ones to save to My Words.</p>
         </div>
 
         <div class="space-y-2">
@@ -524,11 +524,22 @@ new class extends Component
 >
     <x-hook :text="$run->mission->stepContent($stepKey)['hook'] ?? null" />
 
+    @php
+        // Phase count varies: "spiral" only renders when yesterday's words
+        // exist to review. Used only for the "Part X of Y" orientation
+        // label below — unlike Grammar in Context's Alpine-driven lesson,
+        // this funnel's phases are server-conditional, so the numbering is
+        // computed once here rather than read from client state.
+        $vbPhaseCount = (count($spiralCards) ? 1 : 0) + 3;
+        $vbPhaseIndex = ['spiral' => 1, 'story' => count($spiralCards) ? 2 : 1, 'meaning_check' => count($spiralCards) ? 3 : 2, 'practice' => $vbPhaseCount];
+    @endphp
+
     @unless ($readOnly)
         @if (count($spiralCards))
             <div x-show="phase === 'spiral'" x-cloak class="space-y-4">
                 <div>
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick reminder — yesterday's words</p>
+                    <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['spiral'] }} of {{ $vbPhaseCount }}</p>
+                    <p class="mt-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick reminder — yesterday's words</p>
                     <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Before today's new words, a fast recap of yesterday's — just a warm-up, skip anytime.</p>
                 </div>
                 <x-quick-round :cards="$spiralCards" on-complete="phase = 'story'" on-skip="phase = 'story'" />
@@ -537,7 +548,8 @@ new class extends Component
 
         <div x-show="phase === 'story'" x-cloak class="space-y-4">
             <div>
-                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today's words</p>
+                <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['story'] }} of {{ $vbPhaseCount }}</p>
+                <p class="mt-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today's words</p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Read the short story below — new words are highlighted, with the full breakdown underneath.</p>
             </div>
 
@@ -554,7 +566,8 @@ new class extends Component
 
         <div x-show="phase === 'meaning_check'" x-cloak class="space-y-4">
             <div>
-                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick check before you write</p>
+                <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['meaning_check'] }} of {{ $vbPhaseCount }}</p>
+                <p class="mt-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick check before you write</p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Match each word to its meaning, then its picture — just a warm-up, skip anytime.</p>
             </div>
             <x-quick-round
@@ -566,6 +579,9 @@ new class extends Component
     @endunless
 
     <div x-show="phase === 'practice'" @unless ($readOnly) x-cloak @endunless class="space-y-6">
+        @unless ($readOnly)
+            <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['practice'] }} of {{ $vbPhaseCount }}</p>
+        @endunless
         <div>
             <button
                 type="button"
@@ -606,12 +622,11 @@ new class extends Component
                 @php $word = $entry['phrase']; $itemFeedback = $feedback[$word] ?? null; @endphp
                 <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                     <p class="flex items-baseline gap-2">
-                        <span class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</span>
+                        <x-pronounce-on-tap :word="$word" class="text-sm font-bold text-ink dark:text-ink-dark" />
                         @if (! empty($entry['pos']))
                             <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">{{ $entry['pos'] }}</span>
                         @endif
                     </p>
-                    <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">What did this one mean again? Try to recall it before you write.</p>
 
                     <div class="mt-2 flex items-center gap-2">
                         <input

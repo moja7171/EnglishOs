@@ -128,7 +128,7 @@ class DailyListenStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->assertSee('Pronunciation Coach chat in Pi')
+            ->assertSee('Pronunciation Coach chat in your voice AI app')
             ->assertSee('I usually get up early.');
     }
 

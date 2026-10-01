@@ -473,10 +473,6 @@ new class extends Component
 
     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $grammar['focus'] ?? 'Grammar' }}</p>
 
-    @unless ($readOnly)
-        <x-pi-practice-card role-label="Teacher" :task="$this->piTask()" />
-    @endunless
-
     @if ($completed)
         <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
@@ -609,6 +605,10 @@ new class extends Component
                 </div>
             @endif
         @endif
+
+        @unless ($readOnly)
+            <x-pi-practice-card role-label="Teacher" :task="$this->piTask()" />
+        @endunless
 
         <div>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Make it personal</p>

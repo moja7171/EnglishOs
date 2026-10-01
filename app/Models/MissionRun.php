@@ -137,14 +137,14 @@ class MissionRun extends Model
 
     /**
      * Every substantial piece of English the learner actually produced
-     * across this run — AI Conversation transcripts, Writing, and the
-     * warm-up round (was the standalone Activation step) folded into
-     * AI Conversation #1's own Evidence. Centralizes what was previously
-     * a private duplicate in Error Log's
-     * mistake-extraction; also used by Mission Result's vocabulary-usage
-     * recap. Deliberately excludes Vocabulary Builder's own example
-     * sentences and Grammar in Context's drills — those are graded
-     * in-place already, not raw prose worth re-scanning here.
+     * across this run — AI Conversation transcripts, Writing, Picture
+     * Description, Picture Story, and the warm-up round (was the
+     * standalone Activation step) folded into AI Conversation #1's own
+     * Evidence. Centralizes what was previously a private duplicate in
+     * Error Log's mistake-extraction; also used by Mission Result's
+     * vocabulary-usage recap. Deliberately excludes Vocabulary Builder's
+     * own example sentences and Grammar in Context's drills — those are
+     * graded in-place already, not raw prose worth re-scanning here.
      */
     public function allLearnerText(): string
     {
@@ -169,6 +169,19 @@ class MissionRun extends Model
 
         if ($writing = $this->latestEvidence('writing')) {
             $pieces[] = $writing->content_ref;
+        }
+
+        // Picture Description and Picture Story (story_sequence, M01 only)
+        // each have two Evidence rows per phase (text, then audio) like AI
+        // Conversation #1 above — filter to the TEXT row for the transcript.
+        if ($pictureDescription = $this->evidence()->where('phase', 'picture_description')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($pictureDescription->content_ref, true) ?? [];
+            $pieces[] = $data['transcript'] ?? '';
+        }
+
+        if ($storySequence = $this->evidence()->where('phase', 'story_sequence')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($storySequence->content_ref, true) ?? [];
+            $pieces[] = $data['transcript'] ?? '';
         }
 
         return implode("\n\n", array_filter($pieces));

@@ -73,7 +73,7 @@ class ListeningStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.listening', ['run' => $run])
-            ->assertSee('Language Partner chat in Pi')
+            ->assertSee('Language Partner chat in your voice AI app')
             ->assertSee('My Daily Life')
             ->assertSee('sleep in, morning person');
     }

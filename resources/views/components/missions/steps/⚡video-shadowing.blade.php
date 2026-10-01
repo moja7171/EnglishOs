@@ -31,8 +31,6 @@ new class extends Component
      */
     public bool $watchedWithCaptions = false;
 
-    public bool $watchedWithoutCaptions = false;
-
     /** @var array<int, ?UploadedFile> keyed by shadow_lines index */
     public array $shadowRecordings = [];
 
@@ -57,10 +55,6 @@ new class extends Component
 
         $data = json_decode($this->run->latestEvidence('video_shadowing')?->content_ref ?? '{}', true);
         $this->watchedWithCaptions = $data['watched_with_captions'] ?? false;
-        // 'watched_without_captions' is read here for old Evidence rows only
-        // — it's no longer required (Epic F: one watch, with captions, is
-        // the only gate; the no-captions rewatch is optional/bonus now).
-        $this->watchedWithoutCaptions = $data['watched_without_captions'] ?? false;
 
         foreach ($this->run->evidence()->where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
             $decoded = json_decode($audio->content_ref, true);
@@ -127,7 +121,6 @@ new class extends Component
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'watched_with_captions' => $this->watchedWithCaptions,
-                'watched_without_captions' => $this->watchedWithoutCaptions,
                 'shadowed_line_indices' => collect($this->shadowRecordings)->filter()->keys()->values(),
             ]),
         ]);
@@ -204,10 +197,6 @@ new class extends Component
 >
     <x-hook :text="$video['hook'] ?? null" />
 
-    @unless ($readOnly)
-        <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
-    @endunless
-
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $video['source'] ?? 'Video' }}</p>
         <div class="mt-2">
@@ -218,9 +207,10 @@ new class extends Component
                 :segments="$video['video_segments'] ?? []"
                 :shadow-lines="$readOnly ? [] : $shadowLines"
                 :shadow-timestamps="$readOnly ? [] : $this->shadowTimestamps()"
+                shadow-active="activeSubstep === 1"
             />
         </div>
-        <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>
+        <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Tap CC above for captions.</p>
     </div>
 
     @if ($completed)
@@ -282,17 +272,6 @@ new class extends Component
                             <x-quick-round :cards="$this->comprehensionCards()" />
                         </div>
                     </div>
-
-                    <div>
-                        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
-                            <input
-                                type="checkbox"
-                                wire:model.live="watchedWithoutCaptions"
-                                class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                            >
-                            Bonus — I watched again with captions off
-                        </label>
-                    </div>
                 @endunless
 
                 @if (count($targetPhrases))
@@ -317,11 +296,9 @@ new class extends Component
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
                         @unless ($readOnly)
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                                Replay just that moment and repeat it out loud until your rhythm matches.
-                                Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
-                                ({{ $this->shadowedCount() }} done so far). Bold words are usually stressed — try
-                                to make them a little longer and louder than the rest.
+                                Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below.
                             </p>
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
                         @endunless
 
                         <div class="mt-2 space-y-3">
@@ -347,6 +324,12 @@ new class extends Component
                         @error('shadowRecordings')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
+
+                        @unless ($readOnly)
+                            <div class="mt-2">
+                                <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
+                            </div>
+                        @endunless
                     </div>
                 @endif
 

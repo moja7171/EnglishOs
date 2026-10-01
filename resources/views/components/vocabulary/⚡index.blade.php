@@ -1,14 +1,14 @@
 <?php
 
+use App\Livewire\Concerns\ChecksVocabularyWordSentences;
 use App\Models\VocabularyWord;
-use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
 {
+    use ChecksVocabularyWordSentences;
+
     public string $sentence = '';
 
     /** True once the learner has flipped a self-assessment card to see the meaning. */
@@ -65,26 +65,7 @@ new class extends Component
      */
     public function diagnosticCard(): ?array
     {
-        $word = $this->currentWord;
-
-        if (! $word) {
-            return null;
-        }
-
-        $distractors = auth()->user()->vocabularyWords()
-            ->where('id', '!=', $word->id)
-            ->inRandomOrder()
-            ->limit(2)
-            ->pluck('meaning')
-            ->filter();
-
-        if ($distractors->count() < 2) {
-            return null;
-        }
-
-        $options = collect([$word->meaning, ...$distractors])->shuffle()->values();
-
-        return ['prompt' => $word->word, 'options' => $options->all(), 'correct' => $options->search($word->meaning)];
+        return $this->currentWord ? $this->wordDiagnosticCard($this->currentWord) : null;
     }
 
     /**
@@ -136,28 +117,9 @@ new class extends Component
 
         $this->checkError = null;
 
-        try {
-            $data = app(SentenceChecker::class)->check(
-                judgment: 'Judge whether the learner used the target word correctly, naturally, and as a '
-                    .'genuine sentence (not just repeating the dictionary definition).',
-                majorCriteria: 'the word is missing or used with the wrong meaning, the sentence just repeats '
-                    .'the definition',
-                context: "a sentence using the word \"{$word->word}\"",
-                text: $text,
-            );
-
-            $this->feedback = $data;
-
-            $word->review(match ($data['severity']) {
-                'major' => 1,
-                'minor' => 4,
-                default => 5,
-            });
-        } catch (ConnectionException|RequestException) {
-            $this->checkError = "Couldn't reach the AI service — please try again.";
-        } catch (Throwable $e) {
-            $this->checkError = "Couldn't check this one: {$e->getMessage()}";
-        }
+        $result = $this->runWordSentenceCheck($word, $text);
+        $this->feedback = $result['feedback'];
+        $this->checkError = $result['error'];
     }
 
     public function nextWord(): void
@@ -178,7 +140,7 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+    <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
     </a>
@@ -283,17 +245,17 @@ new class extends Component
                             type="button"
                             wire:click="gradeSelf(1)"
                             class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-red-950"
-                        >Again</button>
+                        >Forgot it</button>
                         <button
                             type="button"
                             wire:click="gradeSelf(4)"
                             class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >Good</button>
+                        >Remembered it</button>
                         <button
                             type="button"
                             wire:click="gradeSelf(5)"
                             class="cursor-pointer rounded-full border border-success/40 px-4 py-2 text-sm font-semibold text-success transition-colors hover:bg-success-soft dark:border-success-dark/40 dark:text-success-dark dark:hover:bg-success-soft-dark"
-                        >Easy</button>
+                        >Knew it instantly</button>
                     </div>
                 @endif
             @endif

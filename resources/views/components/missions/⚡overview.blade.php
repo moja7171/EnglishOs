@@ -114,9 +114,11 @@ new class extends Component
     /**
      * The full curriculum is 24 missions (EOS-009 §15 roadmap, v3.0); only
      * the ones actually seeded so far are playable. Every slot 1-24 is
-     * shown so the whole path is visible from day one — seeded missions as
-     * real clickable cards, the rest as locked placeholders — rather than
-     * the list just trailing off after whatever happens to exist yet.
+     * computed, but the view (⚡overview.blade.php's own template) stops
+     * rendering individual cards at the first unseeded one and links to
+     * /program's full roadmap instead — rendering all ~20 "coming soon"
+     * placeholders here used to be the single biggest source of home-page
+     * clutter (home-page declutter pass, 2026-10).
      *
      * Evidence Before Progress (EOS-001 Article 3) also gates mission-to-
      * mission: a seeded mission whose predecessor's MissionRun isn't at
@@ -155,41 +157,6 @@ new class extends Component
             ])
             ->all();
     }
-
-    /**
-     * The full 24-mission roadmap's real title + a thematic Pexels query,
-     * for the "coming soon" placeholder cards below — the user's own
-     * planning list (EOS-009 §15), not yet built means not yet a real
-     * Mission row — see Mission::roadmapCatalog(), the single source of
-     * truth this and MissionSeeder's Pexels cache warmer both read from.
-     *
-     * @return array<string, array{title: string, image_query: string}>
-     */
-    private function roadmap(): array
-    {
-        return Mission::roadmapCatalog();
-    }
-
-    /**
-     * Fetched once per code, cached forever (same PexelsClient
-     * fetch-once-cache-forever pattern as every other image_query in the
-     * app) — a "-roadmap" suffix on the cache key keeps this permanently
-     * distinct from that same mission's real "-brief" cover once it's
-     * actually built, so seeding it later can never collide with or be
-     * shadowed by this placeholder's cached file.
-     */
-    public function roadmapPlaceholder(string $code): ?array
-    {
-        $entry = $this->roadmap()[$code] ?? null;
-
-        if (! $entry) {
-            return null;
-        }
-
-        return $entry + [
-            'image_url' => app(PexelsClient::class)->imageUrlFor("{$code}-roadmap", $entry['image_query']),
-        ];
-    }
 };
 ?>
 
@@ -200,7 +167,7 @@ new class extends Component
         <div class="flex items-start justify-between gap-3">
             <div>
                 <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
-                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Your 100-day program · <a href="{{ route('program.guide') }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">how it works</a></p>
+                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Your 100-day program · <a href="{{ route('learner.guide') }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">how it works</a></p>
             </div>
             @if ($program['started'] && $today['kind'] !== 'finished')
                 @php $delta = $program['daysDelta']; @endphp
@@ -308,7 +275,7 @@ new class extends Component
                     class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
                 >Start {{ $today['nextMission']->code }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
             @else
-                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} isn't built yet — until it is, keep the streak alive with a <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a> session and a chat with Pi.</p>
+                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} isn't built yet — until it is, keep the streak alive with a <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a> session and a chat with your voice AI partner.</p>
             @endif
 
         @else
@@ -317,10 +284,14 @@ new class extends Component
         @endif
     </section>
 
+    {{-- Lighter row style (no card border/bg) than "Today" above it, same
+         treatment as the nudges below — home-page declutter pass: these
+         are all secondary to Today, and sharing its exact card chrome
+         flattened that hierarchy. --}}
     <a
         href="{{ route('progress.index') }}"
         wire:navigate
-        class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-3.5 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark"
+        class="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
     >
         <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
             <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
@@ -348,9 +319,9 @@ new class extends Component
         <a
             href="{{ route('placement') }}"
             wire:navigate
-            class="flex items-center gap-3 rounded-2xl border border-accent/40 bg-surface p-4 transition-colors hover:border-accent dark:border-accent-dark/40 dark:bg-surface-dark dark:hover:border-accent-dark"
+            class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
         >
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
                 @svg('heroicon-o-academic-cap', 'h-4 w-4')
             </span>
             <span class="flex-1">
@@ -362,8 +333,8 @@ new class extends Component
     @endif
 
     @if ($this->justBenefitedFromGrace)
-        <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+        <div class="flex items-center gap-3 rounded-xl px-3.5 py-2.5">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
                 @svg('heroicon-s-fire', 'h-4 w-4')
             </span>
             <span class="flex-1">
@@ -372,8 +343,8 @@ new class extends Component
             </span>
         </div>
     @elseif ($this->justLostStreak)
-        <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+        <div class="flex items-center gap-3 rounded-xl px-3.5 py-2.5">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
                 @svg('heroicon-o-trophy', 'h-4 w-4')
             </span>
             <span class="flex-1">
@@ -412,9 +383,9 @@ new class extends Component
         <a
             href="{{ route('review.index') }}"
             wire:navigate
-            class="flex items-center gap-3 rounded-2xl border border-accent-soft bg-accent-soft/40 p-4 transition-colors hover:bg-accent-soft dark:border-accent-soft-dark dark:bg-accent-soft-dark/40 dark:hover:bg-accent-soft-dark"
+            class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
         >
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
                 @svg('heroicon-o-bolt', 'h-4 w-4')
             </span>
             <span class="flex-1">
@@ -425,20 +396,17 @@ new class extends Component
         </a>
     @endif
 
+    {{-- Unseeded slots (~20 of 24 right now) used to each render their own
+         full "Coming soon" card — by far the longest, lowest-value stretch
+         of the page. Missions are seeded in order, so the first unseeded
+         slot means every slot after it is unseeded too: stop there and
+         hand off to /program's full roadmap instead of 20 near-identical
+         placeholder cards (home-page declutter pass). --}}
+    @php $roadmapRemaining = false; @endphp
     @foreach ($this->missionSlots as $slot)
         @if (! $slot['mission'])
-            @php $placeholder = $this->roadmapPlaceholder($slot['code']); @endphp
-            <div class="flex items-center gap-3.5 rounded-2xl border border-line bg-surface-sunken p-4 opacity-60 dark:border-line-dark dark:bg-surface-sunken-dark">
-                @if ($placeholder && $placeholder['image_url'])
-                    <img src="{{ $placeholder['image_url'] }}" alt="" class="h-14 w-14 shrink-0 rounded-xl object-cover grayscale">
-                @endif
-                <div class="min-w-0 flex-1">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['code'] }}</p>
-                    <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">{{ $placeholder['title'] ?? 'Coming soon' }}</p>
-                    <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Coming soon</p>
-                </div>
-                <span class="shrink-0 text-ink-faint dark:text-ink-faint-dark">@svg('heroicon-o-lock-closed', 'h-4 w-4')</span>
-            </div>
+            @php $roadmapRemaining = true; @endphp
+            @break
         @elseif ($slot['blockedBy'])
             <div class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
                 <div>
@@ -447,7 +415,7 @@ new class extends Component
                     <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Finish {{ $slot['blockedBy']->code }} first to unlock this one.</p>
                 </div>
                 <a
-                    href="{{ route('missions.show', $slot['blockedBy']) }}"
+                    href="{{ route('missions.show', [$slot['blockedBy'], 'overview']) }}"
                     wire:navigate
                     title="Go to {{ $slot['blockedBy']->code }}"
                     class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark"
@@ -455,7 +423,7 @@ new class extends Component
             </div>
         @else
             @php $coverUrl = $this->missionCoverUrl($slot['mission']); @endphp
-            <a href="{{ route('missions.show', $slot['mission']) }}"
+            <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}"
                data-mood="{{ $slot['mission']->moodKey() }}"
                class="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
                 @if ($coverUrl)
@@ -469,4 +437,12 @@ new class extends Component
             </a>
         @endif
     @endforeach
+
+    @if ($roadmapRemaining)
+        <a
+            href="{{ route('learner.guide') }}"
+            wire:navigate
+            class="flex items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line px-4 py-3 text-xs font-semibold text-ink-faint transition-colors hover:border-ink-faint hover:text-ink-soft dark:border-line-dark dark:text-ink-faint-dark dark:hover:text-ink-soft-dark"
+        >See the full 24-mission roadmap @svg('heroicon-o-arrow-left', 'h-3.5 w-3.5')</a>
+    @endif
 </div>

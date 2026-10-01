@@ -581,34 +581,69 @@ new class extends Component
             @endunless
         </div>
     @elseif (! $warmUpDone)
-        {{-- Warm-up round: was the standalone Activation step. --}}
+        {{-- Warm-up round: was the standalone Activation step. UX audit fix:
+             this used to read like a multi-question quiz (bold task text +
+             4-item question list + Pi card all with equal visual weight)
+             when it's actually ONE continuous ~2-minute recording — see
+             finishWarmUp(), which just checks a file exists and transcribes
+             it, never per-question. Below: the task box is the only
+             required thing (accent left border); the "same questions" list
+             and the Pi card are optional context, deliberately de-weighted
+             (lighter box / collapsed) so they don't read as a checklist.
+
+             No <x-substep-nav> here: the two phases aren't both pre-rendered
+             behind one toggle (the interview only exists once finishWarmUp()
+             really runs), so a Back/Next pager would have nothing real to
+             do — and the interview branch already has its own live
+             "Question X of Y" progress bar, so a second one up here would
+             just be a redundant, non-functional "tab". --}}
+        <x-progress-bar>
+            <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 50%"></div>
+            <x-slot:label>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 1 of 2 — Warm-up</p>
+            </x-slot:label>
+        </x-progress-bar>
+
         <div>
-            <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part 1 of 2 — Warm-up</p>
-            <div class="mt-2 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Practice alone first — you'll answer similar questions out loud to the AI Instructor right after.</p>
-                <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
+            <div class="mt-3 rounded-2xl border-l-4 border-accent bg-accent/5 p-4 dark:border-accent-dark dark:bg-accent-dark/10">
+                <p class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">
+                    @svg('heroicon-o-clipboard-document-list', 'h-4 w-4')
+                    Instruction
+                </p>
+                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Practice alone first — you'll answer similar questions out loud to the AI Instructor right after.</p>
+                <p class="mt-1 text-sm font-medium text-ink dark:text-ink-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
             </div>
 
             <div class="mt-2">
                 <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some while you speak" />
             </div>
 
-            <div class="mt-2">
-                <x-pi-practice-card role-label="Language Partner" :task="$this->piTask()" />
-            </div>
-
             @if (count($warmUpQuestions))
-                <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                    <p class="text-xs font-semibold text-ink dark:text-ink-dark">Same questions as Day 1 — how does it feel now?</p>
-                    <ul class="mt-2 space-y-1.5">
+                <div class="mt-3 rounded-2xl bg-surface-sunken/60 p-4 dark:bg-surface-sunken-dark/60">
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Same questions as Day 1 (optional — just ideas to touch on, not a checklist, and not in any order)</p>
+                    <div class="mt-2 flex flex-wrap gap-1.5">
                         @foreach ($warmUpQuestions as $question)
-                            <li class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $question }}</li>
+                            <span class="rounded-full border border-line bg-surface px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">{{ $question }}</span>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
             @endif
 
-            <div class="mt-3">
+            <details class="group mt-3 rounded-2xl border border-dashed border-line dark:border-line-dark">
+                <summary class="flex cursor-pointer list-none items-center justify-between p-3 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
+                    Want more practice? (optional, in your voice AI app)
+                    @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
+                </summary>
+                <div class="px-3 pb-3">
+                    <x-pi-practice-card role-label="Language Partner" :task="$this->piTask()" />
+                </div>
+            </details>
+
+            <p class="mt-3 text-sm text-ink-soft dark:text-ink-soft-dark">
+                This is one continuous recording — just talk freely for 2 minutes, you don't need to answer the ideas above in order.
+            </p>
+
+            <div class="mt-2">
                 <x-voice-recorder field="warmUpAudioFile" :file="$warmUpAudioFile" file-name="warmup-speaking.webm" />
             </div>
 
@@ -628,8 +663,14 @@ new class extends Component
         </div>
     @else
         {{-- Interview round: unchanged AI Conversation #1 behavior. --}}
+        <x-progress-bar>
+            <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 100%"></div>
+            <x-slot:label>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 2 of 2 — Interview</p>
+            </x-slot:label>
+        </x-progress-bar>
+
         <div>
-            <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part 2 of 2 — Interview</p>
             <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
         </div>
 

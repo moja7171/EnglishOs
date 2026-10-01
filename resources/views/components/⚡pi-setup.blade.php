@@ -35,11 +35,12 @@ new class extends Component
 
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     <header class="border-b border-line pb-4 dark:border-line-dark">
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Set up your Pi practice partners</h1>
+        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Set up your voice practice partners</h1>
         <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-            Pi is a free, separate voice AI app — you talk to it live and it writes down both sides as you go.
-            Missions will send you to it for real spoken practice. Open Pi now and start 3 separate chats, one per
-            card below, and paste in that card's message to set its role. You only do this once.
+            Pi and Google's Gemini Live are both free, separate voice AI apps — you talk to them live and they write
+            down both sides as you go. Use whichever one you like (or both). Missions will send you to it for real
+            spoken practice. Open it now and start 3 separate chats, one per card below, and paste in that card's
+            message to set its role. You only do this once.
         </p>
     </header>
 

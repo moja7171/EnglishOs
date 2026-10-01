@@ -253,6 +253,163 @@ window.eosSound = {
 };
 
 /**
+ * A pannable/zoomable square photo framer for the avatar upload flow — the
+ * learner picks exactly what the server's center-crop (see
+ * processAvatarUpload() in ⚡profile.blade.php) will otherwise guess blindly.
+ * Pure Pointer Events + Canvas, no cropper library, matching every other
+ * eosXxx widget here. One instance is attached per crop session (a fresh
+ * photo pick); the panel's Alpine scope throws it away on cancel/save.
+ */
+window.eosAvatarCropper = {
+    /**
+     * viewport: the square, overflow-hidden preview element.
+     * img: the <img> being panned/zoomed inside it (object-fit: none,
+     * positioned via translate+scale so natural pixel math stays exact).
+     * Returns a controller with setZoom()/crop() and a cleanup().
+     */
+    attach(viewport, img) {
+        const state = { scale: 1, minScale: 1, x: 0, y: 0 };
+        const pointers = new Map();
+        let pinchStartDistance = 0;
+        let pinchStartScale = 1;
+
+        const clamp = () => {
+            const size = viewport.clientWidth;
+            const w = img.naturalWidth * state.scale;
+            const h = img.naturalHeight * state.scale;
+            const minX = Math.min(0, size - w);
+            const minY = Math.min(0, size - h);
+            state.x = Math.min(0, Math.max(minX, state.x));
+            state.y = Math.min(0, Math.max(minY, state.y));
+        };
+
+        const render = () => {
+            img.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        };
+
+        const recenter = () => {
+            const size = viewport.clientWidth;
+            state.minScale = size / Math.min(img.naturalWidth, img.naturalHeight);
+            state.scale = state.minScale;
+            state.x = (size - img.naturalWidth * state.scale) / 2;
+            state.y = (size - img.naturalHeight * state.scale) / 2;
+            render();
+        };
+
+        const setZoom = (scale, anchorX, anchorY) => {
+            const size = viewport.clientWidth;
+            const ax = anchorX ?? size / 2;
+            const ay = anchorY ?? size / 2;
+            const next = Math.min(state.minScale * 4, Math.max(state.minScale, scale));
+            const ratio = next / state.scale;
+            state.x = ax - (ax - state.x) * ratio;
+            state.y = ay - (ay - state.y) * ratio;
+            state.scale = next;
+            clamp();
+            render();
+        };
+
+        const onPointerDown = (e) => {
+            // Capture is a pure enhancement (keeps dragging past the
+            // viewport's edge) — the Map-based tracking below still works
+            // without it, so a browser that balks at this pointerId never
+            // breaks the drag itself.
+            try {
+                viewport.setPointerCapture(e.pointerId);
+            } catch (err) {}
+            pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            if (pointers.size === 2) {
+                const [a, b] = [...pointers.values()];
+                pinchStartDistance = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+                pinchStartScale = state.scale;
+            }
+        };
+
+        const onPointerMove = (e) => {
+            if (!pointers.has(e.pointerId)) return;
+            const previous = pointers.get(e.pointerId);
+            const current = { x: e.clientX, y: e.clientY };
+            pointers.set(e.pointerId, current);
+
+            if (pointers.size === 2) {
+                const [a, b] = [...pointers.values()];
+                const distance = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+                const rect = viewport.getBoundingClientRect();
+                setZoom(
+                    pinchStartScale * (distance / pinchStartDistance),
+                    (a.x + b.x) / 2 - rect.left,
+                    (a.y + b.y) / 2 - rect.top,
+                );
+                return;
+            }
+
+            state.x += current.x - previous.x;
+            state.y += current.y - previous.y;
+            clamp();
+            render();
+        };
+
+        const onPointerUp = (e) => {
+            pointers.delete(e.pointerId);
+        };
+
+        const onWheel = (e) => {
+            e.preventDefault();
+            const rect = viewport.getBoundingClientRect();
+            setZoom(state.scale * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX - rect.left, e.clientY - rect.top);
+        };
+
+        viewport.addEventListener('pointerdown', onPointerDown);
+        viewport.addEventListener('pointermove', onPointerMove);
+        viewport.addEventListener('pointerup', onPointerUp);
+        viewport.addEventListener('pointercancel', onPointerUp);
+        viewport.addEventListener('wheel', onWheel, { passive: false });
+
+        const ready = () => recenter();
+        if (img.complete && img.naturalWidth) {
+            ready();
+        } else {
+            img.addEventListener('load', ready, { once: true });
+        }
+
+        return {
+            setZoomFraction(fraction) {
+                setZoom(state.minScale + (state.minScale * 3) * fraction);
+            },
+            zoomFraction() {
+                return (state.scale - state.minScale) / (state.minScale * 3);
+            },
+            crop(outputSize = 512) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const size = viewport.clientWidth;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = outputSize;
+                        canvas.height = outputSize;
+                        const ctx = canvas.getContext('2d');
+                        const sx = -state.x / state.scale;
+                        const sy = -state.y / state.scale;
+                        const sSize = size / state.scale;
+                        ctx.drawImage(img, sx, sy, sSize, sSize, 0, 0, outputSize, outputSize);
+                        canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('toBlob failed'))), 'image/jpeg', 0.9);
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            },
+            cleanup() {
+                viewport.removeEventListener('pointerdown', onPointerDown);
+                viewport.removeEventListener('pointermove', onPointerMove);
+                viewport.removeEventListener('pointerup', onPointerUp);
+                viewport.removeEventListener('pointercancel', onPointerUp);
+                viewport.removeEventListener('wheel', onWheel);
+                img.removeEventListener('load', ready);
+            },
+        };
+    },
+};
+
+/**
  * A short, pure-Canvas confetti burst — no external library, nothing to
  * load. Fired exactly once by <x-mission-result> the moment a mission
  * first completes (see that component's own docblock for why the

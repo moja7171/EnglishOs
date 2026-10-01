@@ -195,8 +195,12 @@ new class extends Component
                  language (icons, severity tint) rather than a third style. --}}
             @if ($imageUrl = $this->imageUrl())
                 <div class="rounded-2xl p-1.5" style="background-image: var(--mood-texture); background-size: var(--mood-texture-size);">
-                    <img src="{{ $imageUrl }}" alt="" class="h-44 w-full rounded-xl object-cover">
+                    <img src="{{ $imageUrl }}" alt="A picture to describe" class="h-44 w-full rounded-xl object-cover">
                 </div>
+            @endif
+
+            @if ($completed && ! $transcript)
+                <p class="mx-3 text-sm text-ink-soft dark:text-ink-soft-dark">Your recording was saved, but feedback isn't available this time. You can still move on.</p>
             @endif
 
             @if ($transcript)
@@ -292,7 +296,7 @@ new class extends Component
                             <button
                                 type="button"
                                 style="left: {{ $hotspot['x'] }}%; top: {{ $hotspot['y'] }}%;"
-                                class="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-accent text-xs font-bold text-white shadow-md transition-transform hover:scale-110 dark:border-surface-dark dark:bg-accent-dark"
+                                class="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-accent text-xs font-bold text-white shadow-md transition-transform before:absolute before:-inset-2.5 before:content-[''] hover:scale-110 dark:border-surface-dark dark:bg-accent-dark"
                                 :class="activeQuestion === {{ $qi }} ? 'scale-125 ring-2 ring-white dark:ring-surface-dark' : ''"
                                 x-on:mouseenter="activeQuestion = {{ $qi }}"
                                 x-on:mouseleave="activeQuestion = null"
@@ -309,10 +313,11 @@ new class extends Component
                     <ul class="mt-2 space-y-1.5">
                         @foreach ($content['guiding_questions'] as $qi => $question)
                             <li
-                                class="flex items-start gap-2 rounded-lg px-2 py-1 text-sm text-ink-soft transition-colors dark:text-ink-soft-dark"
+                                class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1 text-sm text-ink-soft transition-colors dark:text-ink-soft-dark"
                                 :class="activeQuestion === {{ $qi }} ? 'bg-accent/10 text-ink dark:bg-accent-dark/10 dark:text-ink-dark' : ''"
                                 x-on:mouseenter="activeQuestion = {{ $qi }}"
                                 x-on:mouseleave="activeQuestion = null"
+                                x-on:click="activeQuestion = (activeQuestion === {{ $qi }} ? null : {{ $qi }})"
                             >
                                 <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/20 text-[10px] font-bold text-accent-ink dark:bg-accent-dark/20 dark:text-accent-ink-dark">{{ $qi + 1 }}</span>
                                 {{ $question }}

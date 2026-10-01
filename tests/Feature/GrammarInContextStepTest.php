@@ -120,7 +120,7 @@ class GrammarInContextStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->assertSee('Teacher chat in Pi')
+            ->assertSee('Teacher chat in your voice AI app')
             ->assertSee('Present Simple + Adverbs of Frequency');
     }
 

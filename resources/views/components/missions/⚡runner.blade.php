@@ -273,27 +273,40 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-6 p-6" data-mood="{{ $mission->moodKey() }}">
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+    <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
     </a>
 
-    <div class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-8 text-white sm:p-9">
-        @if ($videoUrl = $this->heroVideoUrl())
-            <div class="absolute inset-0 -z-30 overflow-hidden">
-                <x-ambient-video :url="$videoUrl" class="opacity-25" />
-                <div class="absolute inset-0 bg-linear-to-br from-hero/95 to-hero-2/90"></div>
-            </div>
-        @endif
-        <div class="pointer-events-none absolute -top-24 -right-10 -z-10 h-72 w-72 rounded-full bg-dawn opacity-40 blur-3xl"></div>
-        <div class="pointer-events-none absolute -bottom-28 -left-10 -z-10 h-60 w-60 rounded-full bg-dusk opacity-30 blur-3xl"></div>
-        <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-white/70 uppercase">
-            <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
-            {{ $mission->code }}
-        </p>
-        <h1 class="mt-3 max-w-[16ch] font-display text-3xl font-semibold text-balance">{{ $mission->title }}</h1>
-        <p class="mt-2 max-w-[46ch] text-sm text-white/75">{{ $mission->outcome }}</p>
-    </div>
+    @if ($this->showOverview || $this->activeStepKey === 'mission_brief')
+        {{-- Full hero only at the mission's entry points (day overview,
+             Mission Brief) — a learner three steps into a day already
+             knows which mission they're in, so repeating the gradient
+             banner and outcome sentence on every step just pushed the
+             real content further down the page. --}}
+        <div class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-8 text-white sm:p-9">
+            @if ($videoUrl = $this->heroVideoUrl())
+                <div class="absolute inset-0 -z-30 overflow-hidden">
+                    <x-ambient-video :url="$videoUrl" class="opacity-25" />
+                    <div class="absolute inset-0 bg-linear-to-br from-hero/95 to-hero-2/90"></div>
+                </div>
+            @endif
+            <div class="pointer-events-none absolute -top-24 -right-10 -z-10 h-72 w-72 rounded-full bg-dawn opacity-40 blur-3xl"></div>
+            <div class="pointer-events-none absolute -bottom-28 -left-10 -z-10 h-60 w-60 rounded-full bg-dusk opacity-30 blur-3xl"></div>
+            <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-white/70 uppercase">
+                <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
+                {{ $mission->code }}
+            </p>
+            <h1 class="mt-3 max-w-[16ch] font-display text-3xl font-semibold text-balance">{{ $mission->title }}</h1>
+            <p class="mt-2 max-w-[46ch] text-sm text-white/75">{{ $mission->outcome }}</p>
+        </div>
+    @else
+        <div class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-accent"></span>
+            <p class="text-xs font-bold tracking-widest text-ink-faint uppercase dark:text-ink-faint-dark">{{ $mission->code }}</p>
+            <p class="truncate font-display text-sm font-semibold text-ink dark:text-ink-dark">{{ $mission->title }}</p>
+        </div>
+    @endif
 
     @if ($this->showOverview && $this->currentStepKey !== null)
         {{-- Mission overview, styled as a journey path --}}
@@ -317,14 +330,23 @@ new class extends Component
                                 : 'border-line bg-ground text-ink-faint dark:border-line-dark dark:bg-ground-dark dark:text-ink-faint-dark') }}">
                         @if ($day['done'])
                             @svg('heroicon-o-check', 'h-4 w-4')
+                        @elseif ($day['locked'])
+                            @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
                         @else
                             {{ $index + 1 }}
                         @endif
                     </div>
 
-                    <div class="rounded-2xl border bg-surface p-4.5 dark:bg-surface-dark
+                    <{{ $entryStep ? 'a' : 'div' }}
+                        @if ($entryStep)
+                            href="{{ route('missions.show', [$mission, $entryStep]) }}"
+                            wire:navigate
+                        @endif
+                        class="block rounded-2xl border bg-surface p-4.5 dark:bg-surface-dark
                         {{ $day['current'] ? 'border-accent dark:border-accent-dark' : 'border-line dark:border-line-dark' }}
-                        {{ $day['locked'] ? 'opacity-55' : '' }}">
+                        {{ $day['locked'] ? 'opacity-55' : '' }}
+                        {{ $entryStep ? 'cursor-pointer transition-colors hover:border-accent dark:hover:border-accent-dark' : '' }}"
+                    >
                         <div class="flex items-center justify-between gap-3">
                             <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
                                 Day {{ $index + 1 }} · {{ $day['label'] }}
@@ -342,13 +364,11 @@ new class extends Component
                         </p>
 
                         @if ($entryStep)
-                            <a
-                                href="{{ route('missions.show', [$mission, $entryStep]) }}"
-                                wire:navigate
-                                class="mt-3 inline-flex cursor-pointer items-center gap-1 text-xs font-bold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark"
-                            >{{ $day['done'] ? 'Review' : 'Continue' }} @svg('heroicon-o-chevron-right', 'h-3 w-3')</a>
+                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-accent-ink dark:text-accent-ink-dark">
+                                {{ $day['done'] ? 'Review' : 'Continue' }} @svg('heroicon-o-chevron-right', 'h-3 w-3')
+                            </span>
                         @endif
-                    </div>
+                    </{{ $entryStep ? 'a' : 'div' }}>
                 </div>
             @endforeach
         </div>
@@ -361,7 +381,7 @@ new class extends Component
             <a
                 href="{{ route('missions.show', [$mission, 'overview']) }}"
                 wire:navigate
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >
                 @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
                 All Days

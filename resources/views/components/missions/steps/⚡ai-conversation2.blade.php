@@ -65,10 +65,10 @@ new class extends Component
     /**
      * Optional extra round (App\Services\PiPrompts): the learner can have
      * this same challenge as a real, live conversation with their
-     * Language Partner chat in Pi, then paste the transcript here for
-     * feedback — the one place a Pi transcript actually comes back into
-     * the app. Saved as its own Evidence row, never touches $checklist or
-     * finishConversation().
+     * Language Partner chat in their voice AI app, then paste the
+     * transcript here for feedback — the one place a Pi transcript
+     * actually comes back into the app. Saved as its own Evidence row,
+     * never touches $checklist or finishConversation().
      */
     public string $piTranscriptInput = '';
 
@@ -488,6 +488,18 @@ new class extends Component
         <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tougher this time — no starter words, so think it through before you speak.</p>
     </div>
 
+    <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">
+        @if (! $this->qaRoundsDone)
+            Part 1 of 4 — Q&amp;A Rounds
+        @elseif (! $roleReversalDone)
+            Part 2 of 4 — Your Turn to Ask
+        @elseif (! $checklist)
+            Part 3 of 4 — Final Challenge
+        @else
+            Part 4 of 4 — Results
+        @endif
+    </p>
+
     @if (count($turns))
         <div class="space-y-3">
             @foreach ($turns as $turn)
@@ -713,9 +725,9 @@ new class extends Component
             <div class="rounded-xl border border-dashed border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark">
                 <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink dark:text-ink-dark">
                     @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
-                    Want more practice? Try this live with Pi
+                    Want more practice? Try this live with your voice AI partner
                 </p>
-                <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Have this same challenge as a real, live conversation with your Language Partner chat in Pi, then paste the full transcript below for feedback.</p>
+                <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Have this same challenge as a real, live conversation with your Language Partner chat, then paste the full transcript below for feedback.</p>
 
                 @if ($piFeedback)
                     <div class="mt-2 space-y-2 rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark" dir="rtl">
@@ -729,7 +741,7 @@ new class extends Component
                     <textarea
                         wire:model="piTranscriptInput"
                         rows="3"
-                        placeholder="Paste your Pi conversation transcript here…"
+                        placeholder="Paste your voice conversation transcript here…"
                         class="mt-2 w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-sm text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark"
                     ></textarea>
                     <button

@@ -77,7 +77,7 @@ new class extends Component
      * Profile's old "My progress" tab, unchanged — Settings isn't
      * somewhere a learner checks daily.
      *
-     * @return array{currentStreak: int, longestStreak: int, missionsCompleted: int, vocabularyCount: int, topError: ?ErrorLogItem, calendar: list<array{date: string, label: string, active: bool, future: bool}>, activeDaysThisWeek: int}
+     * @return array{currentStreak: int, longestStreak: int, vocabularyCount: int, topError: ?ErrorLogItem, calendar: list<array{date: string, label: string, active: bool, future: bool}>, activeDaysThisWeek: int}
      */
     #[Computed]
     public function progressStats(): array
@@ -87,7 +87,6 @@ new class extends Component
         return [
             'currentStreak' => $user->currentStreak(),
             'longestStreak' => $user->longestStreak(),
-            'missionsCompleted' => $user->missionsCompletedCount(),
             'vocabularyCount' => $user->vocabularyWordsSelected()->count(),
             'topError' => $user->topRecurringError(),
             'calendar' => $user->activityCalendar(),
@@ -144,6 +143,26 @@ new class extends Component
         return auth()->user()->fadingErrorPatterns();
     }
 
+    /**
+     * The Grammar in Context equivalent of masteredErrors/fadingErrors —
+     * see User::masteredGrammarPoints()/learningGrammarPoints(). Kept as
+     * two separate computed properties for the same reason those two are.
+     *
+     * @return Collection<int, GrammarPoint>
+     */
+    #[Computed]
+    public function masteredGrammarPoints(): Collection
+    {
+        return auth()->user()->masteredGrammarPoints();
+    }
+
+    /** @return Collection<int, GrammarPoint> */
+    #[Computed]
+    public function learningGrammarPoints(): Collection
+    {
+        return auth()->user()->learningGrammarPoints();
+    }
+
     #[Computed]
     public function totalPracticeMinutes(): int
     {
@@ -181,7 +200,7 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-    <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+    <a href="{{ route('home') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
     </a>
@@ -312,9 +331,6 @@ new class extends Component
     {{-- A slim inline strip instead of 3 separate boxy tiles. --}}
     <div class="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-xs dark:border-line-dark dark:bg-surface-dark">
         <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
-            @svg('heroicon-o-check-badge', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['missionsCompleted'] }} {{ Str::plural('mission', $this->progressStats['missionsCompleted']) }}
-        </span>
-        <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
             @svg('heroicon-o-book-open', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['vocabularyCount'] }} {{ Str::plural('word', $this->progressStats['vocabularyCount']) }}
         </span>
         <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
@@ -364,12 +380,16 @@ new class extends Component
                             <button
                                 type="button"
                                 wire:click="previousMonth"
+                                wire:loading.attr="disabled"
+                                wire:target="previousMonth"
                                 title="Previous month"
-                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink disabled:pointer-events-none disabled:opacity-30 dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
                             >@svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</button>
                             <button
                                 type="button"
                                 wire:click="nextMonth"
+                                wire:loading.attr="disabled"
+                                wire:target="nextMonth"
                                 title="Next month"
                                 @disabled($this->isCurrentCalendarMonth)
                                 class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink disabled:pointer-events-none disabled:opacity-30 dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
@@ -398,18 +418,54 @@ new class extends Component
                 </div>
             @endif
 
+            {{--
+                The Grammar in Context equivalent of <x-mistakes-you-fixed>
+                above — but a plain stat here, not a reassurance surface,
+                since a taught rule was never a mistake to begin with. See
+                User::masteredGrammarPoints()/learningGrammarPoints().
+            --}}
+            @if ($this->masteredGrammarPoints->isNotEmpty() || $this->learningGrammarPoints->isNotEmpty())
+                <div class="border-t border-line pt-4 dark:border-line-dark">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Grammar points</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Rules taught across your missions, each on its own review schedule.</p>
+
+                    @if ($this->masteredGrammarPoints->isNotEmpty())
+                        <ul class="mt-2.5 space-y-1.5">
+                            @foreach ($this->masteredGrammarPoints as $point)
+                                <li class="inline-flex w-full items-center gap-1.5 text-sm text-ink dark:text-ink-dark">
+                                    @svg('heroicon-o-check-circle', 'h-3.5 w-3.5 shrink-0 text-success dark:text-success-dark')
+                                    <span class="truncate">{{ $point->focus }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+
+                    @if ($this->learningGrammarPoints->isNotEmpty())
+                        <ul class="mt-2.5 space-y-1.5">
+                            @foreach ($this->learningGrammarPoints as $point)
+                                <li class="flex items-center justify-between gap-3 text-sm text-ink dark:text-ink-dark">
+                                    <span class="truncate">{{ $point->focus }}</span>
+                                    <span class="shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark">
+                                        @if ($point->isDue())
+                                            Due now
+                                        @else
+                                            Next review {{ $point->next_review_at->diffForHumans() }}
+                                        @endif
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            @endif
+
             <div class="border-t border-line pt-4 dark:border-line-dark">
                 @if ($topError = $this->progressStats['topError'])
                     <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
                         @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Your most recurring mistake
                     </p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">
-                        <span class="text-red-600 line-through decoration-red-500">{{ $topError->error }}</span>
-                        <span class="text-success dark:text-success-dark">{{ $topError->correction }}</span>
-                    </p>
-                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — Active Recall keeps bringing it back for extra practice.</p>
                     @if ($trend = $this->topErrorTrend)
-                        <p class="mt-1.5 flex items-center gap-1 text-xs font-semibold {{ $trend['recentCount'] === 0 ? 'text-success dark:text-success-dark' : 'text-amber-700 dark:text-amber-400' }}">
+                        <p class="mt-1 flex items-center gap-1 text-sm font-semibold {{ $trend['recentCount'] === 0 ? 'text-success dark:text-success-dark' : 'text-amber-700 dark:text-amber-400' }}">
                             @svg($trend['recentCount'] === 0 ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-trending-down', 'h-3.5 w-3.5')
                             @if ($trend['recentCount'] === 0)
                                 Hasn't come up in your last 2 missions — looking good!
@@ -418,6 +474,10 @@ new class extends Component
                             @endif
                         </p>
                     @endif
+                    <a href="{{ route('review.index') }}" wire:navigate class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">
+                        Review it in Active Recall
+                        @svg('heroicon-o-arrow-right', 'h-3 w-3')
+                    </a>
                 @else
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Complete 2+ missions and any pattern in your mistakes will show up here.</p>
                 @endif

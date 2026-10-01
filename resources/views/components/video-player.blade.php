@@ -26,6 +26,13 @@
     @param list<array{start: float, end: float}|null> $shadowTimestamps
         See <x-audio-player> for the full behavior these three drive —
         identical mechanism, just against a <video> element.
+    @param string $shadowActive Raw Alpine boolean expression (same
+        convention as $onEnded) gating whether a shadow timestamp is
+        allowed to auto-pause playback. Defaults to always-on; callers
+        with their own sub-step UI (e.g. video-shadowing, whose recorder
+        cards only exist on its shadowing sub-step) pass an expression
+        tied to that state so the pause-and-prompt never fires on a
+        sub-step where "find this line below" wouldn't be true yet.
 --}}
 @props([
     'url',
@@ -36,6 +43,7 @@
     'segments' => [],
     'shadowLines' => [],
     'shadowTimestamps' => [],
+    'shadowActive' => 'true',
 ])
 
 @if (! empty($url))
@@ -74,7 +82,7 @@
                         this.replayEndTime = null;
                     }
 
-                    if (this.shadowModeOn && this.activeShadowIndex === null) {
+                    if (this.shadowModeOn && ({{ $shadowActive }}) && this.activeShadowIndex === null) {
                         for (let i = 0; i < this.shadowTimestamps.length; i++) {
                             const point = this.shadowTimestamps[i];
                             if (! point || this.shadowSeen.includes(i)) continue;
@@ -324,7 +332,7 @@
         <label class="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-line p-3 dark:border-line-dark">
             <span>
                 <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Shadow while watching</span>
-                <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">Pauses on its own at each line below so you can repeat it, then record yourself.</span>
+                <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">Pauses playback at each line so you can repeat it before recording. Off just means you pause it yourself — recording the lines below is still required.</span>
             </span>
             <span class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors" :class="shadowModeOn ? 'bg-accent dark:bg-accent-dark' : 'bg-surface-sunken dark:bg-surface-sunken-dark'">
                 <input type="checkbox" x-model="shadowModeOn" class="peer absolute inset-0 h-full w-full cursor-pointer opacity-0">
@@ -375,7 +383,7 @@
                 </div>
             @endforeach
 
-            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Try saying it out loud, then find this line below to record yourself.</p>
+            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Repeat it out loud, then record it below.</p>
 
             <button
                 type="button"
