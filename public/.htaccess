@@ -1,3 +1,11 @@
+<IfModule mod_mime.c>
+    # Without this, LiteSpeed/Apache serve .webmanifest as
+    # application/octet-stream, which Chrome silently ignores — the PWA
+    # then fails installability with no console warning, so "nothing
+    # happens" to prompt install on mobile.
+    AddType application/manifest+json .webmanifest
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
