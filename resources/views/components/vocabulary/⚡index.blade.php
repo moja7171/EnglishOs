@@ -1,14 +1,14 @@
 <?php
 
+use App\Livewire\Concerns\ChecksVocabularyWordSentences;
 use App\Models\VocabularyWord;
-use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
 {
+    use ChecksVocabularyWordSentences;
+
     public string $sentence = '';
 
     /** True once the learner has flipped a self-assessment card to see the meaning. */
@@ -65,26 +65,7 @@ new class extends Component
      */
     public function diagnosticCard(): ?array
     {
-        $word = $this->currentWord;
-
-        if (! $word) {
-            return null;
-        }
-
-        $distractors = auth()->user()->vocabularyWords()
-            ->where('id', '!=', $word->id)
-            ->inRandomOrder()
-            ->limit(2)
-            ->pluck('meaning')
-            ->filter();
-
-        if ($distractors->count() < 2) {
-            return null;
-        }
-
-        $options = collect([$word->meaning, ...$distractors])->shuffle()->values();
-
-        return ['prompt' => $word->word, 'options' => $options->all(), 'correct' => $options->search($word->meaning)];
+        return $this->currentWord ? $this->wordDiagnosticCard($this->currentWord) : null;
     }
 
     /**
@@ -136,28 +117,9 @@ new class extends Component
 
         $this->checkError = null;
 
-        try {
-            $data = app(SentenceChecker::class)->check(
-                judgment: 'Judge whether the learner used the target word correctly, naturally, and as a '
-                    .'genuine sentence (not just repeating the dictionary definition).',
-                majorCriteria: 'the word is missing or used with the wrong meaning, the sentence just repeats '
-                    .'the definition',
-                context: "a sentence using the word \"{$word->word}\"",
-                text: $text,
-            );
-
-            $this->feedback = $data;
-
-            $word->review(match ($data['severity']) {
-                'major' => 1,
-                'minor' => 4,
-                default => 5,
-            });
-        } catch (ConnectionException|RequestException) {
-            $this->checkError = "Couldn't reach the AI service — please try again.";
-        } catch (Throwable $e) {
-            $this->checkError = "Couldn't check this one: {$e->getMessage()}";
-        }
+        $result = $this->runWordSentenceCheck($word, $text);
+        $this->feedback = $result['feedback'];
+        $this->checkError = $result['error'];
     }
 
     public function nextWord(): void

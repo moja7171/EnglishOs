@@ -143,6 +143,26 @@ new class extends Component
         return auth()->user()->fadingErrorPatterns();
     }
 
+    /**
+     * The Grammar in Context equivalent of masteredErrors/fadingErrors —
+     * see User::masteredGrammarPoints()/learningGrammarPoints(). Kept as
+     * two separate computed properties for the same reason those two are.
+     *
+     * @return Collection<int, GrammarPoint>
+     */
+    #[Computed]
+    public function masteredGrammarPoints(): Collection
+    {
+        return auth()->user()->masteredGrammarPoints();
+    }
+
+    /** @return Collection<int, GrammarPoint> */
+    #[Computed]
+    public function learningGrammarPoints(): Collection
+    {
+        return auth()->user()->learningGrammarPoints();
+    }
+
     #[Computed]
     public function totalPracticeMinutes(): int
     {
@@ -395,6 +415,47 @@ new class extends Component
                     <p class="text-sm font-semibold text-ink dark:text-ink-dark">Vocabulary growth</p>
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">New words added per week.</p>
                     <x-bar-chart :data="$this->vocabularyGrowth" class="mt-2" />
+                </div>
+            @endif
+
+            {{--
+                The Grammar in Context equivalent of <x-mistakes-you-fixed>
+                above — but a plain stat here, not a reassurance surface,
+                since a taught rule was never a mistake to begin with. See
+                User::masteredGrammarPoints()/learningGrammarPoints().
+            --}}
+            @if ($this->masteredGrammarPoints->isNotEmpty() || $this->learningGrammarPoints->isNotEmpty())
+                <div class="border-t border-line pt-4 dark:border-line-dark">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Grammar points</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Rules taught across your missions, each on its own review schedule.</p>
+
+                    @if ($this->masteredGrammarPoints->isNotEmpty())
+                        <ul class="mt-2.5 space-y-1.5">
+                            @foreach ($this->masteredGrammarPoints as $point)
+                                <li class="inline-flex w-full items-center gap-1.5 text-sm text-ink dark:text-ink-dark">
+                                    @svg('heroicon-o-check-circle', 'h-3.5 w-3.5 shrink-0 text-success dark:text-success-dark')
+                                    <span class="truncate">{{ $point->focus }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+
+                    @if ($this->learningGrammarPoints->isNotEmpty())
+                        <ul class="mt-2.5 space-y-1.5">
+                            @foreach ($this->learningGrammarPoints as $point)
+                                <li class="flex items-center justify-between gap-3 text-sm text-ink dark:text-ink-dark">
+                                    <span class="truncate">{{ $point->focus }}</span>
+                                    <span class="shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark">
+                                        @if ($point->isDue())
+                                            Due now
+                                        @else
+                                            Next review {{ $point->next_review_at->diffForHumans() }}
+                                        @endif
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
             @endif
 
