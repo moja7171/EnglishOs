@@ -326,7 +326,9 @@ new class extends Component
                         @enderror
 
                         @unless ($readOnly)
-                            <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
+                            <div class="mt-2">
+                                <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
+                            </div>
                         @endunless
                     </div>
                 @endif
