@@ -464,7 +464,7 @@ new class extends Component
                     @if (! empty($reading['highlighted_phrases'] ?? []))
                         <p class="mt-2 flex items-center gap-3 text-[11px] text-ink-faint dark:text-ink-faint-dark">
                             <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-success/60 dark:bg-success-dark/60"></span> words you already know</span>
-                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-accent/60 dark:bg-accent-dark/60"></span> new words — tap for meaning</span>
+                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-accent/60 dark:bg-accent-dark/60"></span> new words</span>
                         </p>
                     @endif
                 </div>
