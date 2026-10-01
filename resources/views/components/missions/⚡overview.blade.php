@@ -167,7 +167,7 @@ new class extends Component
         <div class="flex items-start justify-between gap-3">
             <div>
                 <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
-                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Your 100-day program · <a href="{{ route('program.guide') }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">how it works</a></p>
+                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Your 100-day program · <a href="{{ route('learner.guide') }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">how it works</a></p>
             </div>
             @if ($program['started'] && $today['kind'] !== 'finished')
                 @php $delta = $program['daysDelta']; @endphp
@@ -440,7 +440,7 @@ new class extends Component
 
     @if ($roadmapRemaining)
         <a
-            href="{{ route('program.guide') }}"
+            href="{{ route('learner.guide') }}"
             wire:navigate
             class="flex items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line px-4 py-3 text-xs font-semibold text-ink-faint transition-colors hover:border-ink-faint hover:text-ink-soft dark:border-line-dark dark:text-ink-faint-dark dark:hover:text-ink-soft-dark"
         >See the full 24-mission roadmap @svg('heroicon-o-arrow-left', 'h-3.5 w-3.5')</a>

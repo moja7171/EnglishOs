@@ -1,3 +1,24 @@
+<?php
+    // Merged with the old /program page (English roadmap doc) — the two
+    // used to answer overlapping "how does this work" questions in
+    // different languages from different entry points, with no link
+    // between them. This is now the one page for both.
+    $seededMissions = \App\Models\Mission::orderBy('code')->get()->keyBy('code');
+    $learner = auth()->user();
+    $roadmapCatalog = \App\Models\Mission::roadmapCatalog();
+    $roadmapSlots = collect(range(1, \App\Models\Mission::TOTAL_ROADMAP_MISSIONS))
+        ->map(fn ($n) => sprintf('M%02d', $n))
+        ->map(function ($code) use ($seededMissions, $roadmapCatalog, $learner) {
+            $mission = $seededMissions->get($code);
+
+            return [
+                'code' => $code,
+                'mission' => $mission,
+                'title' => $mission->title ?? ($roadmapCatalog[$code]['title'] ?? 'Coming soon'),
+                'blockedBy' => $mission ? \App\Models\MissionRun::gatingMission($learner, $mission) : null,
+            ];
+        });
+?>
 <x-layouts.app>
     <div class="font-fa mx-auto max-w-2xl space-y-6 p-6" dir="rtl">
 
@@ -18,7 +39,7 @@
 
         <section class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
             <p class="text-sm leading-8 text-ink-soft dark:text-ink-soft-dark">
-                <strong class="text-ink dark:text-ink-dark">English OS</strong> یه برنامه‌ی یادگیری انگلیسیه که <strong class="text-accent-ink dark:text-accent-ink-dark">با کمک هوش مصنوعی</strong> کارهای گفتاری و نوشتاریت رو چک می‌کنه و بهت فیدبک می‌ده — نه یه معلم واقعی پشت صحنه، بلکه یه AI Instructor که صدا و متنت رو گوش می‌ده/می‌خونه و بهت می‌گه چی خوب بوده و چی رو باید اصلاح کنی.
+                <strong class="text-ink dark:text-ink-dark">English OS</strong> یه برنامه‌ی یادگیری انگلیسیه که <strong class="text-accent-ink dark:text-accent-ink-dark">با کمک هوش مصنوعی</strong> کارهای گفتاری و نوشتاریت رو چک می‌کنه و بهت فیدبک می‌ده — نه یه معلم واقعی پشت صحنه، بلکه یه AI Instructor که صدا و متنت رو گوش می‌ده/می‌خونه و بهت می‌گه چی خوب بوده و چی رو باید اصلاح کنی. کل برنامه ۲۴ ماموریت و ۱۰۰ روزه؛ هر روز حدود ۴۰ دقیقه.
             </p>
         </section>
 
@@ -50,26 +71,41 @@
             <div>
                 <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">ساختار برنامه</p>
                 <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">نقشه‌ی هر روز</h2>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">هر ماموریت یه موضوع واقعی زندگی روزمره‌ست که توی ۴ روز پیش می‌ری. هر روز بین ۳۰ تا ۶۵ دقیقه وقت می‌بره.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">هر ماموریت یه موضوع واقعی زندگی روزمره‌ست که توی ۴ روز پیش می‌ری.</p>
             </div>
 
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 @foreach ([
-                    ['۱', 'پایه', 'شروع ماموریت', 'با موضوع آشنا می‌شی، چند کلمه‌ی جدید یاد می‌گیری، و یه فایل صوتی واقعی گوش می‌دی.'],
-                    ['۲', 'ساخت', 'یادگیری عمیق‌تر', 'کلمات بیشتر، یه نکته‌ی گرامری با مثال واقعی، و یه ویدیوی واقعی که دنبالش حرف می‌زنی.'],
-                    ['۳', 'تمرین', 'به‌کاربردن', 'با هوش مصنوعی مکالمه می‌کنی، یه متن می‌خونی، و یه متن می‌نویسی.'],
-                    ['۴', 'چالش', 'جمع‌بندی', 'یه تصویر رو توصیف می‌کنی، اشتباهاتت رو رفع می‌کنی، یه مکالمه‌ی نهایی بدون آمادگی انجام می‌دی، و نتیجه رو می‌بینی.'],
-                ] as [$num, $phase, $title, $desc])
+                    ['۱', 'پایه', 'شروع ماموریت', 'با موضوع آشنا می‌شی، چند کلمه‌ی جدید یاد می‌گیری، و یه فایل صوتی واقعی گوش می‌دی.', '۴۰'],
+                    ['۲', 'ساخت', 'یادگیری عمیق‌تر', 'کلمات بیشتر، یه نکته‌ی گرامری با مثال واقعی، و یه ویدیوی واقعی که دنبالش حرف می‌زنی.', '۵۵'],
+                    ['۳', 'تمرین', 'به‌کاربردن', 'با هوش مصنوعی مکالمه می‌کنی، یه متن می‌خونی، و یه متن می‌نویسی.', '۶۵'],
+                    ['۴', 'چالش', 'جمع‌بندی', 'یه تصویر رو توصیف می‌کنی، اشتباهاتت رو رفع می‌کنی، یه مکالمه‌ی نهایی بدون آمادگی انجام می‌دی، و نتیجه رو می‌بینی.', '۳۵'],
+                ] as [$num, $phase, $title, $desc, $minutes])
                     <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white dark:bg-accent-dark">{{ $num }}</span>
-                            <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $phase }}</p>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white dark:bg-accent-dark">{{ $num }}</span>
+                                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $phase }}</p>
+                            </div>
+                            <span class="shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark">~{{ $minutes }} دقیقه</span>
                         </div>
                         <p class="mt-2 text-sm font-bold text-ink dark:text-ink-dark">{{ $title }}</p>
                         <p class="mt-1 text-xs leading-7 text-ink-soft dark:text-ink-soft-dark">{{ $desc }}</p>
                     </div>
                 @endforeach
             </div>
+        </section>
+
+        <section class="space-y-2">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">برای جواب گرفتن</p>
+                <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">سه عادت که جواب می‌ده</h2>
+            </div>
+            <ul class="list-disc space-y-1.5 pe-5 text-sm leading-7 text-ink-soft dark:text-ink-soft-dark">
+                <li><strong class="text-ink dark:text-ink-dark">هر روز سر یه ساعت ثابت.</strong> چهل دقیقه‌ی روزانه بیشتر از دو ساعت یک‌جا توی آخر هفته جواب می‌ده.</li>
+                <li><strong class="text-ink dark:text-ink-dark">همیشه با صدای بلند حرف بزن.</strong> توی هر تمرین ضبط‌صدا، دهنت باید کار کنه، نه فقط چشمت.</li>
+                <li><strong class="text-ink dark:text-ink-dark">قبل از مطلب جدید، Daily Review رو بزن.</strong> ده دقیقه مرور توی یه روز کوتاه، از یه قدم جدید باارزش‌تره.</li>
+            </ul>
         </section>
 
         <section class="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
@@ -118,10 +154,31 @@
                     <p class="mt-2 text-sm font-bold text-ink dark:text-ink-dark">واژگان</p>
                     <ul class="mt-1.5 list-disc space-y-1.5 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
                         <li>نیازی نیست خودت کلمات رو مرور کنی</li>
-                        <li>با فاصله‌ی زمانی مناسب (Spaced Repetition) خودکار جلوت میان</li>
+                        <li>با فاصله‌ی زمانی مناسب خودکار جلوت میان</li>
                     </ul>
                 </div>
             </div>
+        </section>
+
+        <section class="space-y-3">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">مسیر کامل</p>
+                <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">نقشه‌ی ۲۴ ماموریت</h2>
+            </div>
+            <ol class="space-y-1.5">
+                @foreach ($roadmapSlots as $slot)
+                    <li class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {{ $slot['mission'] && ! $slot['blockedBy'] ? 'hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark' : '' }}">
+                        <span class="w-9 shrink-0 text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['code'] }}</span>
+                        @if ($slot['mission'] && ! $slot['blockedBy'])
+                            <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}" wire:navigate class="flex-1 font-semibold text-ink dark:text-ink-dark">{{ $slot['title'] }}</a>
+                            @svg('heroicon-o-chevron-left', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                        @else
+                            <span class="flex-1 {{ $slot['mission'] ? 'text-ink-soft dark:text-ink-soft-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $slot['title'] }}</span>
+                            @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
         </section>
 
         <section class="space-y-3">
@@ -136,7 +193,7 @@
                     ['روی موبایل هم کار می‌کنه؟', 'بله، کاملاً. اتفاقاً خیلی از قابلیت‌ها (مثل تلفظ کلمات با دوبار لمس) مخصوص موبایل طراحی شدن.'],
                     ['اگه یه کلمه یا جمله رو نفهمم چی؟', 'نگران نباش، همه‌چیز با معنی و مثال همراهشه. اگه بازم گیر کردی، همون سوالی که داری رو با AI یا با دوستات مطرح کن.'],
                     ['می‌تونم یه مرحله یا کل ماموریت رو دوباره انجام بدم؟', 'بله، مرحله‌هایی که قابل تکرارن همیشه در دسترسن.'],
-                    ['اگه یه روز جا موندم چی می‌شه؟', 'هیچی از دست نمی‌ره — ماموریت منتظرت می‌مونه، فقط استریکت صفر می‌شه.'],
+                    ['اگه یه روز جا موندم چی می‌شه؟', 'هیچی از دست نمی‌ره — ماموریت منتظرت می‌مونه، فقط استریکت صفر می‌شه. تاریخ تقویمی هیچ‌وقت جریمه نداره.'],
                     ['نتیجه‌ی ماموریت چطور تعیین می‌شه؟', 'AI Instructor بر اساس چیزایی که واقعاً نوشتی و گفتی (نه خودارزیابیت) تصمیم می‌گیره که ماموریت کامله یا یه مرحله رو دوباره نیاز داری — نه چون اشتباه بزرگی کردی، بلکه چون اونجا بیشترین کمک رو بهت می‌کنه.'],
                 ] as [$q, $a])
                     <div class="rounded-xl border border-line bg-surface dark:border-line-dark dark:bg-surface-dark" x-data="{ open: false }">

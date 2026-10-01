@@ -385,7 +385,7 @@ new class extends Component
 
             @if (count($this->newWords()))
                 <div>
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Here are the new words from today's passage — pick which ones join your spaced-repetition notebook.</p>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Here are today's new words — pick which ones to save to My Words.</p>
                     <div class="mt-2 space-y-2">
                         @foreach ($this->newWords() as $index => $word)
                             <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">

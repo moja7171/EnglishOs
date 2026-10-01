@@ -220,7 +220,7 @@ new class extends Component
                 :shadow-timestamps="$readOnly ? [] : $this->shadowTimestamps()"
             />
         </div>
-        <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Watch once with English captions on (tap CC in the player) — get the gist in your own time. Then watch part of it again with captions off, and see how much you can catch by ear alone.</p>
+        <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Watch once with captions on (tap CC) for the gist. Then try a rewatch with captions off — bonus.</p>
     </div>
 
     @if ($completed)
@@ -318,10 +318,9 @@ new class extends Component
                         @unless ($readOnly)
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
                                 Replay just that moment and repeat it out loud until your rhythm matches.
-                                Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below
-                                ({{ $this->shadowedCount() }} done so far). Bold words are usually stressed — try
-                                to make them a little longer and louder than the rest.
+                                Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below.
                             </p>
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
                         @endunless
 
                         <div class="mt-2 space-y-3">

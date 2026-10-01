@@ -488,6 +488,18 @@ new class extends Component
         <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tougher this time — no starter words, so think it through before you speak.</p>
     </div>
 
+    <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">
+        @if (! $this->qaRoundsDone)
+            Part 1 of 4 — Q&amp;A Rounds
+        @elseif (! $roleReversalDone)
+            Part 2 of 4 — Your Turn to Ask
+        @elseif (! $checklist)
+            Part 3 of 4 — Final Challenge
+        @else
+            Part 4 of 4 — Results
+        @endif
+    </p>
+
     @if (count($turns))
         <div class="space-y-3">
             @foreach ($turns as $turn)

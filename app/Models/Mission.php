@@ -49,7 +49,7 @@ class Mission extends Model
      * at all, and M03 already had its PDF's point replaced.
      *
      * Also the single source of truth for the full roadmap shown on
-     * /program (resources/views/program.blade.php) and
+     * /guide (resources/views/learner-guide.blade.php) and
      * MissionSeeder's Pexels cache warmer
      * ([[feedback_never_fetch_pexels_live_on_site]]) — so the plan and
      * what ships can't drift apart. A slot whose mission IS seeded never

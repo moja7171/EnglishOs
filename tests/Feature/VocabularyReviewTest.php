@@ -167,9 +167,9 @@ class VocabularyReviewTest extends TestCase
         Livewire::test('vocabulary.index')
             ->call('reveal')
             ->assertSee('to travel to work')
-            ->assertSee('Again')
-            ->assertSee('Good')
-            ->assertSee('Easy');
+            ->assertSee('Forgot it')
+            ->assertSee('Remembered it')
+            ->assertSee('Knew it instantly');
     }
 
     public function test_grading_self_reviews_the_word_and_moves_to_the_next_one(): void

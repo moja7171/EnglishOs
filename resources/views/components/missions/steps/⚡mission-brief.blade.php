@@ -105,9 +105,7 @@ new class extends Component
         <p class="font-display text-lg font-semibold text-ink dark:text-ink-dark">{{ $brief['hook'] }}</p>
     @endif
 
-    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
-        <p class="font-display text-sm font-semibold text-ink dark:text-ink-dark">{{ $run->mission->outcome }}</p>
-    </div>
+    {{-- Mission outcome already shown in the hero banner above (mission-runner.blade.php) — not repeated here. --}}
 
     {{-- Roadmap: a short, visible journey rather than an open-ended form --}}
     <div class="flex flex-wrap items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">

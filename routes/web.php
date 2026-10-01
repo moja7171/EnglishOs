@@ -46,9 +46,12 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('progress');
     })->name('progress.index');
 
-    Route::get('/program', function () {
-        return view('program');
-    })->name('program.guide');
+    // /program and /guide used to be two separate, divergent "how this
+    // works" pages (an English roadmap doc and a Persian FAQ/orientation
+    // doc) reachable from different parts of the app with no link between
+    // them. Merged into one page at /guide; /program redirects here for
+    // anyone with the old link bookmarked.
+    Route::redirect('/program', '/guide', 301)->name('program.guide');
 
     Route::get('/guide', function () {
         return view('learner-guide');

@@ -229,10 +229,17 @@ class ProgramPlannerTest extends TestCase
             ->assertSee('Start a new mission');
     }
 
-    public function test_the_program_guide_page_renders(): void
+    public function test_the_old_program_url_redirects_to_the_merged_guide(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('program.guide'))->assertOk()->assertSee('The 100-day program')->assertSee('Day 4');
+        $this->get(route('program.guide'))->assertRedirect(route('learner.guide'));
+    }
+
+    public function test_the_learner_guide_page_renders_the_full_roadmap(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('learner.guide'))->assertOk()->assertSee('نقشه‌ی ۲۴ ماموریت')->assertSee('M24');
     }
 }

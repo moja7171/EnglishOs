@@ -283,17 +283,17 @@ new class extends Component
                             type="button"
                             wire:click="gradeSelf(1)"
                             class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-red-950"
-                        >Again</button>
+                        >Forgot it</button>
                         <button
                             type="button"
                             wire:click="gradeSelf(4)"
                             class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >Good</button>
+                        >Remembered it</button>
                         <button
                             type="button"
                             wire:click="gradeSelf(5)"
                             class="cursor-pointer rounded-full border border-success/40 px-4 py-2 text-sm font-semibold text-success transition-colors hover:bg-success-soft dark:border-success-dark/40 dark:text-success-dark dark:hover:bg-success-soft-dark"
-                        >Easy</button>
+                        >Knew it instantly</button>
                     </div>
                 @endif
             @endif
