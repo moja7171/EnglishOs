@@ -679,11 +679,13 @@ class MissionSeeder extends Seeder
                                     ['label' => 'Free Time', 'image_query' => 'relaxing hobby leisure'],
                                     ['label' => 'Weekend', 'image_query' => 'weekend park friends'],
                                 ],
-                                // Grammar connectors plus the mission's own vocabulary_builder
-                                // words (wake up/get up/skip breakfast/commute/unwind), so Writing
-                                // threads the selected vocab too, not just Active Recall/Final
-                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
-                                'try_to_use' => ['usually', 'normally', 'often', 'sometimes', 'rarely', 'after that', 'then', 'wake up', 'get up', 'skip breakfast', 'commute', 'unwind'],
+                                // Grammar connectors only — the mission's own vocabulary_builder
+                                // words are already threaded into Writing via <x-vocabulary-pills>
+                                // just above this (selectedVocabularyWords(), which also correctly
+                                // respects which words the learner actually chose, unlike a
+                                // hardcoded list here would). Having both pill rows list the same
+                                // words read as pure duplication, not reinforcement.
+                                'try_to_use' => ['usually', 'normally', 'often', 'sometimes', 'rarely', 'after that', 'then', 'wake up'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -1377,10 +1379,12 @@ class MissionSeeder extends Seeder
                                 // "always"/"usually" fit the essay's general-truths-about-
                                 // friendship register (Present Simple); "these days"/"right now"
                                 // fit giving one concrete, specific example (Present Continuous).
-                                // Plus the mission's own vocabulary_builder words, so Writing
-                                // threads the selected vocab too, not just Active Recall/Final
-                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
-                                'try_to_use' => ['because', 'for example', 'in my opinion', 'always', 'usually', 'these days', 'right now', 'best friend', 'get on well with', 'outgoing', 'friendship'],
+                                // Grammar connectors only — see M01's try_to_use note above on
+                                // why the mission's vocabulary words were dropped from this list
+                                // (already covered by <x-vocabulary-pills> just above, which
+                                // respects the learner's actual selection; duplicating them here
+                                // was pure repetition, not reinforcement).
+                                'try_to_use' => ['because', 'for example', 'in my opinion', 'always', 'usually', 'these days', 'right now'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -1974,10 +1978,8 @@ class MissionSeeder extends Seeder
                                     ['label' => 'Healthy / unhealthy habits', 'image_query' => 'junk food and healthy food side by side'],
                                     ['label' => 'One thing you want to change', 'image_query' => 'fresh salad vegetables'],
                                 ],
-                                // Plus the mission's own vocabulary_builder words, so Writing
-                                // threads the selected vocab too, not just Active Recall/Final
-                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
-                                'try_to_use' => ['usually', 'normally', 'often', 'some', 'a lot of', 'a little', 'not many', 'not much', 'home-cooked', 'eat out', 'healthy food', 'junk food'],
+                                // Grammar connectors only — see M01's try_to_use note above.
+                                'try_to_use' => ['usually', 'normally', 'often', 'some', 'a lot of', 'a little', 'not many', 'not much'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],
@@ -2543,10 +2545,8 @@ class MissionSeeder extends Seeder
                                     ['label' => 'What is difficult', 'image_query' => 'stressed deadline work'],
                                     ['label' => 'What you are working on these days', 'image_query' => 'project planning whiteboard'],
                                 ],
-                                // Plus the mission's own vocabulary_builder words, so Writing
-                                // threads the selected vocab too, not just Active Recall/Final
-                                // Challenge (feedback_thread_vocabulary_through_mission, memory).
-                                'try_to_use' => ['have to', 'need to', "don't have to", 'can', "can't", 'must', 'job', 'colleague', 'responsibility', 'in charge of'],
+                                // Grammar connectors only — see M01's try_to_use note above.
+                                'try_to_use' => ['have to', 'need to', "don't have to", 'can', "can't", 'must'],
                                 'min_words' => 100,
                                 'max_words' => 150,
                             ],

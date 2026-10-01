@@ -606,12 +606,11 @@ new class extends Component
                 @php $word = $entry['phrase']; $itemFeedback = $feedback[$word] ?? null; @endphp
                 <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                     <p class="flex items-baseline gap-2">
-                        <span class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word }}</span>
+                        <x-pronounce-on-tap :word="$word" class="text-sm font-bold text-ink dark:text-ink-dark" />
                         @if (! empty($entry['pos']))
                             <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">{{ $entry['pos'] }}</span>
                         @endif
                     </p>
-                    <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">What did this one mean again? Try to recall it before you write.</p>
 
                     <div class="mt-2 flex items-center gap-2">
                         <input
