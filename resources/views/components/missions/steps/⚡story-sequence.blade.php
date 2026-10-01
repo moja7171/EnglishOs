@@ -61,9 +61,12 @@ new class extends Component
      * render it under the image, and the whole point is the learner
      * produces the narration themselves (see this file's own docblock).
      * The real captions stay in stepContent, read only by
-     * transcribeAndReview() below for the AI's ground truth.
+     * transcribeAndReview() below for the AI's ground truth. 'alt' is a
+     * separate, neutral scene description (never the caption) so a screen
+     * reader user can still tell what's in each picture without being
+     * handed the narration.
      *
-     * @return list<array{url: string}>
+     * @return list<array{url: string, alt: string|null}>
      */
     public function sequenceImages(): array
     {
@@ -73,6 +76,7 @@ new class extends Component
         return collect($items)
             ->map(fn ($item, $index) => [
                 'url' => $client->imageUrlFor($this->run->mission->code.'-story-'.$index, $item['image_query'] ?? ''),
+                'alt' => $item['alt_description'] ?? null,
             ])
             ->filter(fn ($item) => $item['url'])
             ->values()
@@ -198,13 +202,19 @@ new class extends Component
 
             @if ($feedback)
                 @php $severity = $feedback['severity'] ?? null; @endphp
-                <div class="space-y-2">
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
+                <div class="space-y-3">
+                    <div class="rounded-xl border-l-4 border-success bg-success/5 p-3 dark:border-success-dark dark:bg-success-dark/10">
+                        <p class="flex items-center gap-1.5 text-xs font-semibold text-success uppercase dark:text-success-dark">
+                            @svg('heroicon-o-check-circle', 'h-4 w-4')
+                            One thing you did well
+                        </p>
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
                     </div>
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good sequencing word you used</p>
+                    <div class="rounded-xl border-l-4 border-accent bg-accent/5 p-3 dark:border-accent-dark dark:bg-accent-dark/10">
+                        <p class="flex items-center gap-1.5 text-xs font-semibold text-accent uppercase dark:text-accent-dark">
+                            @svg('heroicon-o-book-open', 'h-4 w-4')
+                            A good sequencing word you used
+                        </p>
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
                     </div>
                     @if ($severity === 'major')
@@ -216,8 +226,11 @@ new class extends Component
                             <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
                         </div>
                     @else
-                        <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                            <p class="text-xs font-semibold text-amber-600 uppercase">One thing to improve</p>
+                        <div class="rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 uppercase dark:text-amber-400">
+                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
+                                One thing to improve
+                            </p>
                             <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
                         </div>
                     @endif
@@ -241,10 +254,14 @@ new class extends Component
     @unless ($completed)
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Tell the story, in order</p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">What happens first? Then what? Use Present Simple, like you just practiced.</p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">The pictures are already in order — narrate them first to last, using Present Simple like you just practiced.</p>
         </div>
 
         <x-sequential-picture-story :images="$sequenceImages" />
+
+        @if (empty($sequenceImages))
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">We couldn't load the pictures for this story — refresh the page to try again.</p>
+        @endif
 
         @if (count($content['sequencing_words'] ?? []))
             <div class="flex flex-wrap gap-1.5">

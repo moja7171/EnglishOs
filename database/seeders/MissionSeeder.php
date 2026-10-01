@@ -436,11 +436,15 @@ class MissionSeeder extends Seeder
                                     .'else\'s morning, one picture at a time.',
                                 // Captions are ground truth for the AI feedback prompt only —
                                 // never rendered to the learner (see the step's own docblock).
+                                // 'alt_description' is a neutral scene description for screen
+                                // readers — unlike 'caption', it never gives away the sequencing
+                                // verb, so it can safely reach the learner (see story-sequence's
+                                // own docblock on why 'caption' itself must not).
                                 'sequence_images' => [
-                                    ['image_query' => 'alarm clock ringing bedroom morning', 'caption' => 'She wakes up'],
-                                    ['image_query' => 'woman brushing teeth bathroom mirror', 'caption' => 'She has a shower and gets ready'],
-                                    ['image_query' => 'woman eating breakfast kitchen table', 'caption' => 'She has breakfast'],
-                                    ['image_query' => 'woman commuting to work walking', 'caption' => 'She leaves for work'],
+                                    ['image_query' => 'alarm clock ringing bedroom morning', 'caption' => 'She wakes up', 'alt_description' => 'An alarm clock on a nightstand in a bedroom'],
+                                    ['image_query' => 'woman brushing teeth bathroom mirror', 'caption' => 'She has a shower and gets ready', 'alt_description' => 'A woman at a bathroom mirror getting ready'],
+                                    ['image_query' => 'woman eating breakfast kitchen table', 'caption' => 'She has breakfast', 'alt_description' => 'A woman at a kitchen table with breakfast'],
+                                    ['image_query' => 'woman commuting to work walking', 'caption' => 'She leaves for work', 'alt_description' => 'A woman walking outside on her way to work'],
                                 ],
                                 'sequencing_words' => ['First', 'Then', 'After that', 'Finally'],
                             ],
