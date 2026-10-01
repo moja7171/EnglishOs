@@ -1421,12 +1421,6 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
-                                'key' => 'error_log',
-                                'label' => 'My Fixes',
-                                'duration_minutes' => 7,
-                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
-                            ],
-                            [
                                 'key' => 'partner_speaking_session',
                                 'label' => 'Partner Speaking Session',
                                 'duration_minutes' => 15,
@@ -1458,6 +1452,12 @@ class MissionSeeder extends Seeder
                                         ],
                                     ],
                                 ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
                             ],
                             [
                                 'key' => 'ai_conversation_2',

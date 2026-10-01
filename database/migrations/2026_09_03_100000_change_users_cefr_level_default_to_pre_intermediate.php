@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -10,14 +11,21 @@ return new class extends Migration
      * see User::levelOptions(). Registration/profile already send this
      * value explicitly, but the column default matters for any row
      * inserted without it (factories, direct inserts).
+     *
+     * Uses the schema builder instead of raw MySQL ALTER COLUMN syntax so
+     * this also runs on sqlite (local/test environments).
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE users ALTER COLUMN cefr_level SET DEFAULT 'A2+'");
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('cefr_level')->default('A2+')->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE users ALTER COLUMN cefr_level SET DEFAULT 'B1'");
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('cefr_level')->default('B1')->change();
+        });
     }
 };
