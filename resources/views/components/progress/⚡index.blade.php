@@ -77,7 +77,7 @@ new class extends Component
      * Profile's old "My progress" tab, unchanged — Settings isn't
      * somewhere a learner checks daily.
      *
-     * @return array{currentStreak: int, longestStreak: int, missionsCompleted: int, vocabularyCount: int, topError: ?ErrorLogItem, calendar: list<array{date: string, label: string, active: bool, future: bool}>, activeDaysThisWeek: int}
+     * @return array{currentStreak: int, longestStreak: int, vocabularyCount: int, topError: ?ErrorLogItem, calendar: list<array{date: string, label: string, active: bool, future: bool}>, activeDaysThisWeek: int}
      */
     #[Computed]
     public function progressStats(): array
@@ -87,7 +87,6 @@ new class extends Component
         return [
             'currentStreak' => $user->currentStreak(),
             'longestStreak' => $user->longestStreak(),
-            'missionsCompleted' => $user->missionsCompletedCount(),
             'vocabularyCount' => $user->vocabularyWordsSelected()->count(),
             'topError' => $user->topRecurringError(),
             'calendar' => $user->activityCalendar(),
@@ -312,9 +311,6 @@ new class extends Component
     {{-- A slim inline strip instead of 3 separate boxy tiles. --}}
     <div class="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-xs dark:border-line-dark dark:bg-surface-dark">
         <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
-            @svg('heroicon-o-check-badge', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['missionsCompleted'] }} {{ Str::plural('mission', $this->progressStats['missionsCompleted']) }}
-        </span>
-        <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
             @svg('heroicon-o-book-open', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['vocabularyCount'] }} {{ Str::plural('word', $this->progressStats['vocabularyCount']) }}
         </span>
         <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
@@ -364,12 +360,16 @@ new class extends Component
                             <button
                                 type="button"
                                 wire:click="previousMonth"
+                                wire:loading.attr="disabled"
+                                wire:target="previousMonth"
                                 title="Previous month"
-                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink disabled:pointer-events-none disabled:opacity-30 dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
                             >@svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</button>
                             <button
                                 type="button"
                                 wire:click="nextMonth"
+                                wire:loading.attr="disabled"
+                                wire:target="nextMonth"
                                 title="Next month"
                                 @disabled($this->isCurrentCalendarMonth)
                                 class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink disabled:pointer-events-none disabled:opacity-30 dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
@@ -403,13 +403,8 @@ new class extends Component
                     <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
                         @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Your most recurring mistake
                     </p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">
-                        <span class="text-red-600 line-through decoration-red-500">{{ $topError->error }}</span>
-                        <span class="text-success dark:text-success-dark">{{ $topError->correction }}</span>
-                    </p>
-                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">This has come up across more than one mission — Active Recall keeps bringing it back for extra practice.</p>
                     @if ($trend = $this->topErrorTrend)
-                        <p class="mt-1.5 flex items-center gap-1 text-xs font-semibold {{ $trend['recentCount'] === 0 ? 'text-success dark:text-success-dark' : 'text-amber-700 dark:text-amber-400' }}">
+                        <p class="mt-1 flex items-center gap-1 text-sm font-semibold {{ $trend['recentCount'] === 0 ? 'text-success dark:text-success-dark' : 'text-amber-700 dark:text-amber-400' }}">
                             @svg($trend['recentCount'] === 0 ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-trending-down', 'h-3.5 w-3.5')
                             @if ($trend['recentCount'] === 0)
                                 Hasn't come up in your last 2 missions — looking good!
@@ -418,6 +413,10 @@ new class extends Component
                             @endif
                         </p>
                     @endif
+                    <a href="{{ route('review.index') }}" wire:navigate class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">
+                        Review it in Active Recall
+                        @svg('heroicon-o-arrow-right', 'h-3 w-3')
+                    </a>
                 @else
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Complete 2+ missions and any pattern in your mistakes will show up here.</p>
                 @endif
