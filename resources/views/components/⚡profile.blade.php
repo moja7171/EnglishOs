@@ -294,24 +294,68 @@ new class extends Component
             </div>
         </div>
 
-        <div class="border-t border-line pt-3 dark:border-line-dark">
+        <div
+            class="border-t border-line pt-3 dark:border-line-dark"
+            x-data="{
+                cropping: false,
+                objectUrl: null,
+                zoom: 0,
+                saving: false,
+                cropper: null,
+
+                pickFile(event) {
+                    const file = event.target.files[0];
+                    event.target.value = '';
+                    if (! file) return;
+
+                    this.objectUrl = URL.createObjectURL(file);
+                    this.zoom = 0;
+                    this.cropping = true;
+                    this.$nextTick(() => {
+                        this.cropper = window.eosAvatarCropper.attach(this.$refs.cropViewport, this.$refs.cropImage);
+                    });
+                },
+
+                onZoom() {
+                    this.cropper?.setZoomFraction(Number(this.zoom));
+                },
+
+                cancelCrop() {
+                    this.cropper?.cleanup();
+                    this.cropper = null;
+                    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl);
+                    this.objectUrl = null;
+                    this.cropping = false;
+                    this.saving = false;
+                },
+
+                async saveCrop() {
+                    if (! this.cropper || this.saving) return;
+                    this.saving = true;
+
+                    try {
+                        const blob = await this.cropper.crop(512);
+                        const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+                        this.$wire.upload(
+                            'newAvatar',
+                            file,
+                            () => this.$wire.call('saveAvatar').then(() => this.cancelCrop()),
+                            () => { this.saving = false; },
+                        );
+                    } catch (e) {
+                        this.saving = false;
+                    }
+                },
+            }"
+        >
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Custom photo</p>
-            <div class="mt-2 flex flex-wrap items-center gap-2">
+
+            <div x-show="! cropping" class="mt-2 flex flex-wrap items-center gap-2">
                 <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
                     @svg('heroicon-o-photo', 'h-3.5 w-3.5')
-                    <span wire:loading.remove wire:target="newAvatar">Choose a photo</span>
-                    <span wire:loading wire:target="newAvatar">Uploading…</span>
-                    <input type="file" wire:model="newAvatar" accept="image/png,image/jpeg,image/webp" class="hidden">
+                    <span>Choose a photo</span>
+                    <input type="file" x-on:change="pickFile" accept="image/png,image/jpeg,image/webp" class="hidden">
                 </label>
-
-                @if ($newAvatar)
-                    <button
-                        type="button"
-                        wire:click="saveAvatar"
-                        wire:loading.attr="disabled"
-                        class="cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                    >Save photo</button>
-                @endif
 
                 @if (auth()->user()->avatar_path)
                     <button
@@ -327,6 +371,40 @@ new class extends Component
                     </button>
                 @endif
             </div>
+
+            <div x-show="cropping" x-cloak class="mt-2 space-y-2.5">
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Drag to reposition, pinch or use the slider to zoom — this is exactly what other learners will see.</p>
+
+                <div x-ref="cropViewport" class="relative mx-auto h-64 w-64 touch-none overflow-hidden rounded-2xl bg-surface-sunken select-none dark:bg-surface-sunken-dark">
+                    <img x-ref="cropImage" :src="objectUrl" draggable="false" class="absolute top-0 left-0 origin-top-left will-change-transform" style="max-width: none;">
+                    <div class="pointer-events-none absolute inset-3 rounded-full" style="box-shadow: 0 0 0 9999px rgba(0,0,0,.45);"></div>
+                </div>
+
+                <div class="mx-auto flex max-w-64 items-center gap-2">
+                    @svg('heroicon-o-magnifying-glass-minus', 'h-3.5 w-3.5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                    <input type="range" min="0" max="1" step="0.01" x-model="zoom" x-on:input="onZoom" class="w-full accent-accent dark:accent-accent-dark">
+                    @svg('heroicon-o-magnifying-glass-plus', 'h-3.5 w-3.5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                </div>
+
+                <div class="flex items-center justify-center gap-2">
+                    <button
+                        type="button"
+                        x-on:click="cancelCrop"
+                        :disabled="saving"
+                        class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken disabled:pointer-events-none disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >Cancel</button>
+                    <button
+                        type="button"
+                        x-on:click="saveCrop"
+                        :disabled="saving"
+                        class="cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                    >
+                        <span x-show="! saving">Save photo</span>
+                        <span x-show="saving" x-cloak>Saving…</span>
+                    </button>
+                </div>
+            </div>
+
             @error('newAvatar')
                 <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
             @enderror
