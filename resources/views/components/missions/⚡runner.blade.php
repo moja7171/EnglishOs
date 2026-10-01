@@ -322,9 +322,16 @@ new class extends Component
                         @endif
                     </div>
 
-                    <div class="rounded-2xl border bg-surface p-4.5 dark:bg-surface-dark
+                    <{{ $entryStep ? 'a' : 'div' }}
+                        @if ($entryStep)
+                            href="{{ route('missions.show', [$mission, $entryStep]) }}"
+                            wire:navigate
+                        @endif
+                        class="block rounded-2xl border bg-surface p-4.5 dark:bg-surface-dark
                         {{ $day['current'] ? 'border-accent dark:border-accent-dark' : 'border-line dark:border-line-dark' }}
-                        {{ $day['locked'] ? 'opacity-55' : '' }}">
+                        {{ $day['locked'] ? 'opacity-55' : '' }}
+                        {{ $entryStep ? 'cursor-pointer transition-colors hover:border-accent dark:hover:border-accent-dark' : '' }}"
+                    >
                         <div class="flex items-center justify-between gap-3">
                             <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
                                 Day {{ $index + 1 }} · {{ $day['label'] }}
@@ -342,13 +349,11 @@ new class extends Component
                         </p>
 
                         @if ($entryStep)
-                            <a
-                                href="{{ route('missions.show', [$mission, $entryStep]) }}"
-                                wire:navigate
-                                class="mt-3 inline-flex cursor-pointer items-center gap-1 text-xs font-bold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark"
-                            >{{ $day['done'] ? 'Review' : 'Continue' }} @svg('heroicon-o-chevron-right', 'h-3 w-3')</a>
+                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-accent-ink dark:text-accent-ink-dark">
+                                {{ $day['done'] ? 'Review' : 'Continue' }} @svg('heroicon-o-chevron-right', 'h-3 w-3')
+                            </span>
                         @endif
-                    </div>
+                    </{{ $entryStep ? 'a' : 'div' }}>
                 </div>
             @endforeach
         </div>
