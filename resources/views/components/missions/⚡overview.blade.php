@@ -415,7 +415,7 @@ new class extends Component
                     <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Finish {{ $slot['blockedBy']->code }} first to unlock this one.</p>
                 </div>
                 <a
-                    href="{{ route('missions.show', $slot['blockedBy']) }}"
+                    href="{{ route('missions.show', [$slot['blockedBy'], 'overview']) }}"
                     wire:navigate
                     title="Go to {{ $slot['blockedBy']->code }}"
                     class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark"
@@ -423,7 +423,7 @@ new class extends Component
             </div>
         @else
             @php $coverUrl = $this->missionCoverUrl($slot['mission']); @endphp
-            <a href="{{ route('missions.show', $slot['mission']) }}"
+            <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}"
                data-mood="{{ $slot['mission']->moodKey() }}"
                class="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
                 @if ($coverUrl)

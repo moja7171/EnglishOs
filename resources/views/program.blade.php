@@ -83,7 +83,7 @@
                     <li class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {{ $slot['mission'] && ! $slot['blockedBy'] ? 'hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark' : '' }}">
                         <span class="w-9 shrink-0 text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['code'] }}</span>
                         @if ($slot['mission'] && ! $slot['blockedBy'])
-                            <a href="{{ route('missions.show', $slot['mission']) }}" wire:navigate class="flex-1 font-semibold text-ink dark:text-ink-dark">{{ $slot['title'] }}</a>
+                            <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}" wire:navigate class="flex-1 font-semibold text-ink dark:text-ink-dark">{{ $slot['title'] }}</a>
                             @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
                         @else
                             <span class="flex-1 {{ $slot['mission'] ? 'text-ink-soft dark:text-ink-soft-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $slot['title'] }}</span>
