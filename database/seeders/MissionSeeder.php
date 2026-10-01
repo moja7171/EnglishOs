@@ -564,7 +564,7 @@ class MissionSeeder extends Seeder
                                 // 12 min); that writing sub-step was removed, so warm-up
                                 // dropped to 6.
                                 'duration_minutes' => 20,
-                                'hook' => "Say it once here, alone — it'll come out easier once the AI Instructor is properly listening.",
+                                'hook' => 'Practice solo first — it makes the real conversation with the AI Instructor, right after, feel much easier.',
                                 'warm_up_task' => 'Record 2 minutes of solo speaking about your daily life, using the new vocabulary, without reading.',
                                 // Real interview questions from Mission01.pdf "Speaking Session 01".
                                 'interview_questions' => [

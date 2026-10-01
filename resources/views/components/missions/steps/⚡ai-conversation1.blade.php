@@ -589,29 +589,26 @@ new class extends Component
              it, never per-question. Below: the task box is the only
              required thing (accent left border); the "same questions" list
              and the Pi card are optional context, deliberately de-weighted
-             (lighter box / collapsed) so they don't read as a checklist. --}}
-        <div x-data="{ substep: 0 }">
-            <x-progress-bar>
-                <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 50%"></div>
-                <x-slot:label>
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 1 of 2 — Warm-up</p>
-                </x-slot:label>
-            </x-progress-bar>
-            {{-- Forward is always disabled here — there's nothing to toggle
-                 forward to (unlike sibling steps, the two phases aren't
-                 both pre-rendered behind x-show; the interview only exists
-                 once finishWarmUp() really runs). Purely decorative, same
-                 reasoning the component's own docblock calls for. --}}
-            <div class="mt-2">
-                <x-substep-nav index-var="substep" :total="2" next-disabled="true" />
-            </div>
-        </div>
+             (lighter box / collapsed) so they don't read as a checklist.
+
+             No <x-substep-nav> here: the two phases aren't both pre-rendered
+             behind one toggle (the interview only exists once finishWarmUp()
+             really runs), so a Back/Next pager would have nothing real to
+             do — and the interview branch already has its own live
+             "Question X of Y" progress bar, so a second one up here would
+             just be a redundant, non-functional "tab". --}}
+        <x-progress-bar>
+            <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 50%"></div>
+            <x-slot:label>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 1 of 2 — Warm-up</p>
+            </x-slot:label>
+        </x-progress-bar>
 
         <div>
             <div class="mt-3 rounded-2xl border-l-4 border-accent bg-accent/5 p-4 dark:border-accent-dark dark:bg-accent-dark/10">
                 <p class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">
                     @svg('heroicon-o-clipboard-document-list', 'h-4 w-4')
-                    دستورالعمل
+                    Instruction
                 </p>
                 <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Practice alone first — you'll answer similar questions out loud to the AI Instructor right after.</p>
                 <p class="mt-1 text-sm font-medium text-ink dark:text-ink-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
@@ -633,8 +630,8 @@ new class extends Component
             @endif
 
             <details class="group mt-3 rounded-2xl border border-dashed border-line dark:border-line-dark">
-                <summary class="flex cursor-pointer list-none items-center justify-between p-3 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark" dir="rtl">
-                    می‌خوای بیشتر تمرین کنی؟ (اختیاری، در اپ دیگر)
+                <summary class="flex cursor-pointer list-none items-center justify-between p-3 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
+                    Want more practice? (optional, in your voice AI app)
                     @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
                 </summary>
                 <div class="px-3 pb-3">
@@ -642,8 +639,8 @@ new class extends Component
                 </div>
             </details>
 
-            <p class="font-fa mt-3 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
-                این یک ضبط پیوسته است؛ کافی است ۲ دقیقه آزادانه صحبت کنی — لازم نیست به‌ترتیب به سوال‌های بالا جواب بدهی.
+            <p class="mt-3 text-sm text-ink-soft dark:text-ink-soft-dark">
+                This is one continuous recording — just talk freely for 2 minutes, you don't need to answer the ideas above in order.
             </p>
 
             <div class="mt-2">
@@ -665,21 +662,13 @@ new class extends Component
             />
         </div>
     @else
-        {{-- Interview round: unchanged AI Conversation #1 behavior — only
-             the "Part 2 of 2" label below was touched, swapped for the
-             shared <x-substep-nav> indicator (see the warm-up branch above
-             for why it's decorative/next-disabled here too). --}}
-        <div x-data="{ substep: 1 }">
-            <x-progress-bar>
-                <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 100%"></div>
-                <x-slot:label>
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 2 of 2 — Interview</p>
-                </x-slot:label>
-            </x-progress-bar>
-            <div class="mt-2">
-                <x-substep-nav index-var="substep" :total="2" next-disabled="true" />
-            </div>
-        </div>
+        {{-- Interview round: unchanged AI Conversation #1 behavior. --}}
+        <x-progress-bar>
+            <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 100%"></div>
+            <x-slot:label>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 2 of 2 — Interview</p>
+            </x-slot:label>
+        </x-progress-bar>
 
         <div>
             <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
