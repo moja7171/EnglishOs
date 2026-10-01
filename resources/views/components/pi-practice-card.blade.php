@@ -20,7 +20,7 @@
     >
         <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink dark:text-ink-dark">
             @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
-            {{ $roleLabel }} chat in Pi
+            {{ $roleLabel }} chat in your voice AI app
         </p>
         <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">{{ $task['instruction'] }}</p>
         <textarea

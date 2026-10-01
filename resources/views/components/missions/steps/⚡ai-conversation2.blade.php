@@ -725,9 +725,9 @@ new class extends Component
             <div class="rounded-xl border border-dashed border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark">
                 <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink dark:text-ink-dark">
                     @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
-                    Want more practice? Try this live with Pi
+                    Want more practice? Try this live with your voice AI partner
                 </p>
-                <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Have this same challenge as a real, live conversation with your Language Partner chat in Pi, then paste the full transcript below for feedback.</p>
+                <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Have this same challenge as a real, live conversation with your Language Partner chat, then paste the full transcript below for feedback.</p>
 
                 @if ($piFeedback)
                     <div class="mt-2 space-y-2 rounded-xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark" dir="rtl">
@@ -741,7 +741,7 @@ new class extends Component
                     <textarea
                         wire:model="piTranscriptInput"
                         rows="3"
-                        placeholder="Paste your Pi conversation transcript here…"
+                        placeholder="Paste your voice conversation transcript here…"
                         class="mt-2 w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-sm text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark"
                     ></textarea>
                     <button

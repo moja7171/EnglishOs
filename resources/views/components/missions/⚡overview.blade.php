@@ -275,7 +275,7 @@ new class extends Component
                     class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
                 >Start {{ $today['nextMission']->code }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
             @else
-                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} isn't built yet — until it is, keep the streak alive with a <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a> session and a chat with Pi.</p>
+                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} isn't built yet — until it is, keep the streak alive with a <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a> session and a chat with your voice AI partner.</p>
             @endif
 
         @else
