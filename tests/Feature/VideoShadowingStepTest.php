@@ -64,9 +64,7 @@ class VideoShadowingStepTest extends TestCase
 
     private function fillWatchedFlags($component)
     {
-        return $component
-            ->set('watchedWithCaptions', true)
-            ->set('watchedWithoutCaptions', true);
+        return $component->set('watchedWithCaptions', true);
     }
 
     public function test_shows_a_pi_pronunciation_coach_card_grounded_in_the_shadow_lines(): void
@@ -124,10 +122,6 @@ class VideoShadowingStepTest extends TestCase
         $this->assertStringContainsString('Part', $html);
     }
 
-    /**
-     * Epic F: the second watch (no captions) is now an optional bonus, not
-     * a gate — only the captioned watch is required to continue.
-     */
     public function test_continue_is_blocked_until_the_captioned_watch_is_ticked(): void
     {
         $run = $this->makeRun();
@@ -155,26 +149,6 @@ class VideoShadowingStepTest extends TestCase
             ->assertSeeHtml('x-bind:disabled="! (false)"')
             ->set('shadowRecordings.1', UploadedFile::fake()->create('video-shadow-1.webm', 500, 'audio/webm'))
             ->assertSeeHtml('x-bind:disabled="! (true)"');
-    }
-
-    /**
-     * The optional bonus watch never blocks Continue — only the required
-     * captioned watch + shadowed lines do.
-     */
-    public function test_saving_without_the_optional_bonus_watch_still_works(): void
-    {
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->set('watchedWithCaptions', true)
-            ->set('shadowRecordings.0', UploadedFile::fake()->create('video-shadow-0.webm', 500, 'audio/webm'))
-            ->set('shadowRecordings.1', UploadedFile::fake()->create('video-shadow-1.webm', 500, 'audio/webm'))
-            ->call('save')
-            ->assertHasNoErrors()
-            ->assertSet('completed', true);
-
-        $content = json_decode(Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_TEXT)->first()->content_ref, true);
-        $this->assertFalse($content['watched_without_captions']);
     }
 
     public function test_continue_is_blocked_with_fewer_than_2_shadowed_lines(): void
@@ -205,7 +179,6 @@ class VideoShadowingStepTest extends TestCase
         $textEvidence = Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_TEXT)->first();
         $content = json_decode($textEvidence->content_ref, true);
         $this->assertTrue($content['watched_with_captions']);
-        $this->assertTrue($content['watched_without_captions']);
         $this->assertSame([0, 2], $content['shadowed_line_indices']);
 
         $audioEvidences = Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->get();
@@ -265,7 +238,6 @@ class VideoShadowingStepTest extends TestCase
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'watched_with_captions' => true,
-                'watched_without_captions' => true,
                 'shadowed_line_indices' => [0, 1],
             ]),
         ]);
@@ -284,7 +256,6 @@ class VideoShadowingStepTest extends TestCase
 
         $component = Livewire::test('missions.steps.video-shadowing', ['run' => $run, 'readOnly' => true])
             ->assertSet('watchedWithCaptions', true)
-            ->assertSet('watchedWithoutCaptions', true)
             ->assertSet('savedShadowUrls.0', 'http://localhost/storage/missions/m01/evidence/video-shadow-0.webm')
             ->assertSet('savedShadowUrls.1', 'http://localhost/storage/missions/m01/evidence/video-shadow-1.webm');
 
