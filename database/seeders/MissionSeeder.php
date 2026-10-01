@@ -508,42 +508,6 @@ class MissionSeeder extends Seeder
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'video_shadowing'),
                             ],
-                            [
-                                'key' => 'picture_description',
-                                'label' => 'Picture Description',
-                                // New (2026-09-04) — a real CEFR/IELTS "describe this picture"
-                                // task. Everything else in M01 narrates the learner's OWN routine
-                                // (Activation, ai_conversation_1/2) — this is the only step that
-                                // practices describing someone else's scene objectively: present
-                                // continuous for what's happening right now, "there is/are",
-                                // prepositions of place. A genuine skill gap, not a repeat.
-                                // Was 8 — bumped for the hotspot-driven guiding questions and the
-                                // visual overhaul (blur-to-focus, magazine-style result layout).
-                                'duration_minutes' => 10,
-                                'hook' => 'Forget your own morning for a minute — what\'s happening in this one?',
-                                'image_query' => 'family eating breakfast morning kitchen',
-                                'guiding_questions' => [
-                                    'What is the man doing?',
-                                    'What is the woman doing, and where is she standing?',
-                                    'Where is the baby, and what is different about her spot at the table?',
-                                    'What food can you see on the counter?',
-                                ],
-                                // Story 5 (requirements review, 2026-09-04) — numbered markers
-                                // overlaid on the image at these x/y percentages (from the
-                                // top-left), each pointing at the guiding_questions entry it's
-                                // about. Hand-verified against the real cached Pexels photo for
-                                // this exact query+orientation (landscape) — a dad and mom eating
-                                // breakfast standing at a kitchen island on the left/center, a
-                                // baby in a yellow high chair on the right, and fruit/food on the
-                                // counter in the foreground bottom-left. Changing the query or
-                                // orientation invalidates these coordinates.
-                                'hotspots' => [
-                                    ['x' => 17, 'y' => 32, 'question_index' => 0],
-                                    ['x' => 29, 'y' => 32, 'question_index' => 1],
-                                    ['x' => 62, 'y' => 58, 'question_index' => 2],
-                                    ['x' => 15, 'y' => 85, 'question_index' => 3],
-                                ],
-                            ],
                         ],
                     ],
                     [
@@ -735,6 +699,46 @@ class MissionSeeder extends Seeder
                         'label' => 'Day 4',
                         'mode' => 'ai',
                         'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                // Moved here from Day 2 (2026-10) to balance day load and give
+                                // the Challenge day a 4th, AI-graded step now that
+                                // partner_speaking_session was cut mission-wide (see that step's
+                                // removal note in M02/M03/M04 below) — a real CEFR/IELTS "describe
+                                // this picture" task. Everything else in M01 narrates the
+                                // learner's OWN routine (Activation, ai_conversation_1/2) — this is
+                                // the only step that practices describing someone else's scene
+                                // objectively: present continuous for what's happening right now,
+                                // "there is/are", prepositions of place. A genuine skill gap, not a
+                                // repeat. No sequencing dependency ties it to Day 2.
+                                // Was 8 — bumped for the hotspot-driven guiding questions and the
+                                // visual overhaul (blur-to-focus, magazine-style result layout).
+                                'duration_minutes' => 10,
+                                'hook' => 'Forget your own morning for a minute — what\'s happening in this one?',
+                                'image_query' => 'family eating breakfast morning kitchen',
+                                'guiding_questions' => [
+                                    'What is the man doing?',
+                                    'What is the woman doing, and where is she standing?',
+                                    'Where is the baby, and what is different about her spot at the table?',
+                                    'What food can you see on the counter?',
+                                ],
+                                // Story 5 (requirements review, 2026-09-04) — numbered markers
+                                // overlaid on the image at these x/y percentages (from the
+                                // top-left), each pointing at the guiding_questions entry it's
+                                // about. Hand-verified against the real cached Pexels photo for
+                                // this exact query+orientation (landscape) — a dad and mom eating
+                                // breakfast standing at a kitchen island on the left/center, a
+                                // baby in a yellow high chair on the right, and fruit/food on the
+                                // counter in the foreground bottom-left. Changing the query or
+                                // orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 17, 'y' => 32, 'question_index' => 0],
+                                    ['x' => 29, 'y' => 32, 'question_index' => 1],
+                                    ['x' => 62, 'y' => 58, 'question_index' => 2],
+                                    ['x' => 15, 'y' => 85, 'question_index' => 3],
+                                ],
+                            ],
                             [
                                 'key' => 'error_log',
                                 'label' => 'My Fixes',
@@ -1236,39 +1240,6 @@ class MissionSeeder extends Seeder
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'video_shadowing'),
                             ],
-                            [
-                                'key' => 'picture_description',
-                                'label' => 'Picture Description',
-                                'duration_minutes' => 10,
-                                'hook' => "Forget your own friends for a minute — what's happening in this one?",
-                                // Re-queried (2026-09-05, once Pexels access came back) —
-                                // the original query returned a 2-person food-plate photo
-                                // that didn't match the guiding_questions below (no seated
-                                // group, no visible food/drinks). This query returns a real
-                                // 5-friend picnic scene: 4 people sitting cross-legged on a
-                                // checked blanket plus one sitting separately in a folding
-                                // chair, a fruit basket + orange juice bottle + flowers on
-                                // the blanket, one person laughing with a plush toy.
-                                'image_query' => 'group friends picnic blanket park sitting',
-                                'guiding_questions' => [
-                                    'What are the friends doing right now?',
-                                    'How many people are in the group, and where are they sitting?',
-                                    'What food or drinks can you see in the picture?',
-                                    'How do the people in the picture seem to feel?',
-                                ],
-                                // Hand-verified against the real cached photo for this exact
-                                // query+orientation (landscape) — see the docblock note on
-                                // M01's own picture_description entry for the same convention.
-                                // Q1 deliberately points at the one friend sitting in a chair
-                                // (not on the blanket like the other four) — a genuine detail
-                                // worth noticing for "where are they sitting."
-                                'hotspots' => [
-                                    ['x' => 45, 'y' => 60, 'question_index' => 0],
-                                    ['x' => 80, 'y' => 42, 'question_index' => 1],
-                                    ['x' => 42, 'y' => 80, 'question_index' => 2],
-                                    ['x' => 42, 'y' => 38, 'question_index' => 3],
-                                ],
-                            ],
                         ],
                     ],
                     [
@@ -1421,36 +1392,46 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'steps' => [
                             [
-                                'key' => 'partner_speaking_session',
-                                'label' => 'Partner Speaking Session',
-                                'duration_minutes' => 15,
-                                'hook' => 'Time to actually talk to someone — a real friend, or yourself, out loud.',
-                                'round_groups' => [
-                                    [
-                                        'label' => 'Your Friends',
-                                        'questions' => [
-                                            'Who is your closest friend?',
-                                            'How did you get to know each other?',
-                                            'How long have you known each other?',
-                                            'What do you usually do together?',
-                                        ],
-                                    ],
-                                    [
-                                        'label' => 'Personality',
-                                        'questions' => [
-                                            'What is your friend like?',
-                                            'What personality traits do you like?',
-                                            'What makes someone a good friend?',
-                                        ],
-                                    ],
-                                    [
-                                        'label' => 'Deeper',
-                                        'questions' => [
-                                            'Is it harder to make friends as you get older? Why?',
-                                            "How do people maintain friendships when they're busy?",
-                                            'Can online friendships be as strong as real-life ones?',
-                                        ],
-                                    ],
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                // Moved here from Day 2 (2026-10) to balance day load and give
+                                // Day 4 a 4th, AI-graded step now that partner_speaking_session
+                                // was cut (see Mission Structure note below for why): its
+                                // round_groups duplicated ai_conversation_1/2's questions almost
+                                // verbatim, its solo fallback had no AI evaluation at all, and
+                                // MissionRun::allLearnerText() never read its output — a dead end
+                                // feeding nothing downstream. The lighter <x-practice-with-friend>
+                                // bridge on ai_conversation_1/2 already covers the one thing it did
+                                // that nothing else does (a real human audience), at zero mandatory
+                                // step cost.
+                                'duration_minutes' => 10,
+                                'hook' => "Forget your own friends for a minute — what's happening in this one?",
+                                // Re-queried (2026-09-05, once Pexels access came back) —
+                                // the original query returned a 2-person food-plate photo
+                                // that didn't match the guiding_questions below (no seated
+                                // group, no visible food/drinks). This query returns a real
+                                // 5-friend picnic scene: 4 people sitting cross-legged on a
+                                // checked blanket plus one sitting separately in a folding
+                                // chair, a fruit basket + orange juice bottle + flowers on
+                                // the blanket, one person laughing with a plush toy.
+                                'image_query' => 'group friends picnic blanket park sitting',
+                                'guiding_questions' => [
+                                    'What are the friends doing right now?',
+                                    'How many people are in the group, and where are they sitting?',
+                                    'What food or drinks can you see in the picture?',
+                                    'How do the people in the picture seem to feel?',
+                                ],
+                                // Hand-verified against the real cached photo for this exact
+                                // query+orientation (landscape) — see the docblock note on
+                                // M01's own picture_description entry for the same convention.
+                                // Q1 deliberately points at the one friend sitting in a chair
+                                // (not on the blanket like the other four) — a genuine detail
+                                // worth noticing for "where are they sitting."
+                                'hotspots' => [
+                                    ['x' => 45, 'y' => 60, 'question_index' => 0],
+                                    ['x' => 80, 'y' => 42, 'question_index' => 1],
+                                    ['x' => 42, 'y' => 80, 'question_index' => 2],
+                                    ['x' => 42, 'y' => 38, 'question_index' => 3],
                                 ],
                             ],
                             [
@@ -1871,31 +1852,6 @@ class MissionSeeder extends Seeder
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'video_shadowing'),
                             ],
-                            [
-                                'key' => 'picture_description',
-                                'label' => 'Picture Description',
-                                'duration_minutes' => 10,
-                                'hook' => "Forget your own plate for a minute — what's happening at this one?",
-                                'image_query' => 'family sharing dinner table home',
-                                'guiding_questions' => [
-                                    'What are the people doing together?',
-                                    'What is the older man on the left wearing, and what is he doing?',
-                                    'What different dishes of food can you see on the table?',
-                                    'What does the room in the background look like?',
-                                ],
-                                // Hand-verified against the real cached Pexels photo for this
-                                // exact query+orientation (landscape) — a large family seated
-                                // around a table full of dishes, the older man in glasses on
-                                // the left, food spread across the middle/bottom, a decorated
-                                // living room (wall clock, candelabra, sofa) in the background.
-                                // Changing the query or orientation invalidates these coordinates.
-                                'hotspots' => [
-                                    ['x' => 50, 'y' => 50, 'question_index' => 0],
-                                    ['x' => 30, 'y' => 45, 'question_index' => 1],
-                                    ['x' => 30, 'y' => 85, 'question_index' => 2],
-                                    ['x' => 18, 'y' => 18, 'question_index' => 3],
-                                ],
-                            ],
                         ],
                     ],
                     [
@@ -2030,40 +1986,34 @@ class MissionSeeder extends Seeder
                     [
                         'phase' => 'challenge',
                         'label' => 'Day 4',
-                        'mode' => 'partner',
+                        'mode' => 'ai',
                         'steps' => [
                             [
-                                'key' => 'partner_speaking_session',
-                                'label' => 'Partner Speaking Session',
-                                'duration_minutes' => 15,
-                                'hook' => 'Time to actually talk to someone — a real friend, or yourself, out loud.',
-                                // Real rounds from M04.pdf page 06 "Speaking Session".
-                                'round_groups' => [
-                                    [
-                                        'label' => 'Food',
-                                        'questions' => [
-                                            "What's your favourite food?",
-                                            'What do you normally eat for breakfast?',
-                                            'Do you prefer eating at home or eating out?',
-                                            'How often do you cook?',
-                                        ],
-                                    ],
-                                    [
-                                        'label' => 'Lifestyle',
-                                        'questions' => [
-                                            'What makes a diet healthy?',
-                                            "Is it difficult to eat healthily when you're busy?",
-                                            'What food could you never give up?',
-                                            'What eating habit would you like to change?',
-                                        ],
-                                    ],
-                                    [
-                                        'label' => 'Deeper',
-                                        'questions' => [
-                                            'Do you think people care too much about healthy eating?',
-                                            'Is eating healthy expensive? Why or why not?',
-                                        ],
-                                    ],
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                // Moved here from Day 2 (2026-10) — see M02's Day 4 note on why
+                                // partner_speaking_session was cut mission-wide and
+                                // picture_description fills its slot instead.
+                                'duration_minutes' => 10,
+                                'hook' => "Forget your own plate for a minute — what's happening at this one?",
+                                'image_query' => 'family sharing dinner table home',
+                                'guiding_questions' => [
+                                    'What are the people doing together?',
+                                    'What is the older man on the left wearing, and what is he doing?',
+                                    'What different dishes of food can you see on the table?',
+                                    'What does the room in the background look like?',
+                                ],
+                                // Hand-verified against the real cached Pexels photo for this
+                                // exact query+orientation (landscape) — a large family seated
+                                // around a table full of dishes, the older man in glasses on
+                                // the left, food spread across the middle/bottom, a decorated
+                                // living room (wall clock, candelabra, sofa) in the background.
+                                // Changing the query or orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 50, 'y' => 50, 'question_index' => 0],
+                                    ['x' => 30, 'y' => 45, 'question_index' => 1],
+                                    ['x' => 30, 'y' => 85, 'question_index' => 2],
+                                    ['x' => 18, 'y' => 18, 'question_index' => 3],
                                 ],
                             ],
                             [
@@ -2472,32 +2422,6 @@ class MissionSeeder extends Seeder
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'video_shadowing'),
                             ],
-                            [
-                                'key' => 'picture_description',
-                                'label' => 'Picture Description',
-                                'duration_minutes' => 10,
-                                'hook' => "Forget your own desk for a minute — what's happening at this one?",
-                                'image_query' => 'team meeting office discussion',
-                                'guiding_questions' => [
-                                    'What are the people doing together?',
-                                    'What is the man in the center wearing, and what is he doing with his hands?',
-                                    'What can you see on the table?',
-                                    'What does the room in the background look like?',
-                                ],
-                                // Hand-verified against the real cached Pexels photo for this
-                                // exact query+orientation (landscape) — four colleagues around
-                                // a wooden table in a bright loft-style office/kitchen space,
-                                // one man in a patterned beanie gesturing with his hands in the
-                                // center, papers and folders spread across the table, kitchen
-                                // cabinets visible in the upper-right background. Changing the
-                                // query or orientation invalidates these coordinates.
-                                'hotspots' => [
-                                    ['x' => 50, 'y' => 55, 'question_index' => 0],
-                                    ['x' => 48, 'y' => 35, 'question_index' => 1],
-                                    ['x' => 42, 'y' => 78, 'question_index' => 2],
-                                    ['x' => 80, 'y' => 15, 'question_index' => 3],
-                                ],
-                            ],
                         ],
                     ],
                     [
@@ -2631,44 +2555,35 @@ class MissionSeeder extends Seeder
                     [
                         'phase' => 'challenge',
                         'label' => 'Day 4',
-                        'mode' => 'partner',
+                        'mode' => 'ai',
                         'steps' => [
                             [
-                                'key' => 'partner_speaking_session',
-                                'label' => 'Partner Speaking Session',
-                                'duration_minutes' => 15,
-                                'hook' => 'Time to actually talk to someone — a real friend, or yourself, out loud.',
-                                // Real rounds from M03.pdf page 06 "Speaking Session" — the
-                                // "Follow-up Questions" reference chips are folded in as a
-                                // third round_group (round_groups is the only shape this step
-                                // has; no separate "chips" field exists) so they're still part
-                                // of the seeded content instead of silently dropped.
-                                'round_groups' => [
-                                    [
-                                        'label' => 'Your Work / Study',
-                                        'questions' => [
-                                            'What do you do?',
-                                            'What does a normal day look like?',
-                                            'What do you usually do?',
-                                            'Who do you work/study with?',
-                                        ],
-                                    ],
-                                    [
-                                        'label' => 'Current Situation',
-                                        'questions' => [
-                                            'What are you working on these days?',
-                                            'What is the most interesting part of your work/study?',
-                                            'What is the most difficult part?',
-                                            'What would you like to improve?',
-                                        ],
-                                    ],
-                                    [
-                                        'label' => 'Follow-up Questions (ask at least one after each answer)',
-                                        'questions' => [
-                                            'Why?', 'How?', 'How often?', 'What about you?',
-                                            'What do you mean?', 'Can you give me an example?', 'How do you feel about it?',
-                                        ],
-                                    ],
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                // Moved here from Day 2 (2026-10) — see M02's Day 4 note on why
+                                // partner_speaking_session was cut mission-wide and
+                                // picture_description fills its slot instead.
+                                'duration_minutes' => 10,
+                                'hook' => "Forget your own desk for a minute — what's happening at this one?",
+                                'image_query' => 'team meeting office discussion',
+                                'guiding_questions' => [
+                                    'What are the people doing together?',
+                                    'What is the man in the center wearing, and what is he doing with his hands?',
+                                    'What can you see on the table?',
+                                    'What does the room in the background look like?',
+                                ],
+                                // Hand-verified against the real cached Pexels photo for this
+                                // exact query+orientation (landscape) — four colleagues around
+                                // a wooden table in a bright loft-style office/kitchen space,
+                                // one man in a patterned beanie gesturing with his hands in the
+                                // center, papers and folders spread across the table, kitchen
+                                // cabinets visible in the upper-right background. Changing the
+                                // query or orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 50, 'y' => 55, 'question_index' => 0],
+                                    ['x' => 48, 'y' => 35, 'question_index' => 1],
+                                    ['x' => 42, 'y' => 78, 'question_index' => 2],
+                                    ['x' => 80, 'y' => 15, 'question_index' => 3],
                                 ],
                             ],
                             [
