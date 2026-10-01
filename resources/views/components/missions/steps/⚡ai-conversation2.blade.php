@@ -65,10 +65,10 @@ new class extends Component
     /**
      * Optional extra round (App\Services\PiPrompts): the learner can have
      * this same challenge as a real, live conversation with their
-     * Language Partner chat in Pi, then paste the transcript here for
-     * feedback — the one place a Pi transcript actually comes back into
-     * the app. Saved as its own Evidence row, never touches $checklist or
-     * finishConversation().
+     * Language Partner chat in their voice AI app, then paste the
+     * transcript here for feedback — the one place a Pi transcript
+     * actually comes back into the app. Saved as its own Evidence row,
+     * never touches $checklist or finishConversation().
      */
     public string $piTranscriptInput = '';
 

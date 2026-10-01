@@ -74,7 +74,7 @@ class VideoShadowingStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->assertSee('Pronunciation Coach chat in Pi')
+            ->assertSee('Pronunciation Coach chat in your voice AI app')
             ->assertSee('having cereal this morning');
     }
 
