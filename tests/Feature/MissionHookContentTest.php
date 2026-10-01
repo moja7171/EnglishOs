@@ -46,10 +46,11 @@ class MissionHookContentTest extends TestCase
      * into AI Conversation #1's own first round, and AI Feedback #1 into
      * that same step's completion recap — moving that content from Day 2
      * to Day 3, where AI Conversation #1 itself already lived.
-     * picture_description was later moved again (day-balance pass) to the
-     * end of Day 2, right after video_shadowing — Day 3 had grown to ~80
-     * min against Day 2's ~58, and picture_description doesn't depend on
-     * anything Day 2's own grammar point teaches.
+     * picture_description was later moved again (2026-10, cutting
+     * partner_speaking_session mission-wide — see M02's test below) from
+     * the end of Day 2 to the start of Day 4: it's self-contained, already
+     * AI-graded, and gives the Challenge day a 4th step now that every
+     * mission shares the same Day 4 shape.
      */
     public function test_m01_step_order_matches_the_real_3_day_plan(): void
     {
@@ -69,7 +70,6 @@ class MissionHookContentTest extends TestCase
             'grammar_in_context',
             'story_sequence',
             'video_shadowing',
-            'picture_description',
             // Day 3 · Partner/AI (pages 06-12), split into Practice + Challenge —
             // vocabulary_builder_3 added right at the start, same reason.
             'vocabulary_builder_3',
@@ -80,6 +80,7 @@ class MissionHookContentTest extends TestCase
             // Day 4 · Challenge — daily_listen_4 removed (mission structure
             // sync, 2026-09-23): M01 now matches M02-M04's 3-day listening
             // gate instead of a 4th.
+            'picture_description',
             'error_log',
             'ai_conversation_2',
             'mission_result',
@@ -100,11 +101,15 @@ class MissionHookContentTest extends TestCase
     }
 
     /**
-     * Matches the 4-day solo/partner-optional structure this mission was
-     * designed with (see MissionSeeder::seedM02()) — Day 4's
-     * partner_speaking_session is the one new step type this mission
-     * introduces, reusing the existing PartnerSession system for its
-     * partner path and falling back to a solo recording path otherwise.
+     * Matches the 4-day structure this mission was designed with (see
+     * MissionSeeder::seedM02()). partner_speaking_session was cut
+     * mission-wide (2026-10): its round_groups duplicated ai_conversation_1/2's
+     * questions almost verbatim, its solo fallback (the dominant path for a
+     * learner with no friend yet on the platform) had no AI evaluation at
+     * all, and its transcript was never read by
+     * MissionRun::allLearnerText() — a dead end for every learner, not just
+     * solo ones. picture_description moved from Day 2 to Day 4 to fill that
+     * slot and balance day-load instead.
      */
     public function test_m02_step_order_matches_its_4_day_plan(): void
     {
@@ -122,7 +127,6 @@ class MissionHookContentTest extends TestCase
             'daily_listen_2',
             'grammar_in_context',
             'video_shadowing',
-            'picture_description',
             // Day 3 · Practice — vocabulary_builder_3 added at the start (Epic B).
             'vocabulary_builder_3',
             'daily_listen_3',
@@ -130,8 +134,8 @@ class MissionHookContentTest extends TestCase
             'reading_comprehension',
             'writing',
             // Day 4 · Challenge
+            'picture_description',
             'error_log',
-            'partner_speaking_session',
             'ai_conversation_2',
             'mission_result',
         ], $mission->stepKeys());

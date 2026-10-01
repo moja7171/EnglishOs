@@ -408,6 +408,17 @@ new class extends Component
             $parts[] = "Final challenge requirements met: {$met}/".count($reqs).'.';
         }
 
+        // Day 4's other AI-graded speaking step (see
+        // ⚡picture-description.blade.php) — added once it became a
+        // required step for every mission, not just an optional extra.
+        if ($pictureDescription = $this->run->evidence()->where('phase', 'picture_description')->where('type', Evidence::TYPE_TEXT)->latest()->first()) {
+            $data = json_decode($pictureDescription->content_ref, true) ?? [];
+
+            if ($feedback = $data['feedback'] ?? null) {
+                $parts[] = 'AI feedback from the picture description task: '.json_encode($feedback);
+            }
+        }
+
         $parts[] = 'Recurring mistakes identified and corrected: '.$this->run->errorLogItems()->count().'.';
         $parts[] = 'Learner reflection — what became easier: '.($this->reflection['became_easier'] ?? '');
         $parts[] = 'Learner reflection — what is still difficult: '.($this->reflection['still_difficult'] ?? '');

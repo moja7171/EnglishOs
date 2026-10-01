@@ -37,7 +37,7 @@ new class extends Component
 
     public ?string $transcript = null;
 
-    /** @var array{strength: string, expression: string, correction: string}|null */
+    /** @var array{strength: string, expression: string, correction: string, severity?: string}|null */
     public ?array $feedback = null;
 
     public bool $completed = false;
@@ -133,7 +133,7 @@ new class extends Component
                 ? ' Sequencing words they were encouraged to use: '.implode(', ', $sequencingWords).'.'
                 : '';
 
-            $this->feedback = app(AiFeedbackCard::class)->generate(
+            $data = app(AiFeedbackCard::class)->generate(
                 [['role' => 'user', 'text' => "Transcript of the learner narrating the picture sequence: \"{$this->transcript}\""]],
                 systemPrompt: 'You are an encouraging English speaking coach. '.ucfirst($this->run->learner->levelDescription())
                     .' just narrated a sequence of pictures showing this real order of events: "'.$captions.'". '
@@ -142,10 +142,21 @@ new class extends Component
                     .'sequencing words. Reply with ONLY valid JSON, no markdown fences: {"strength": "one specific '
                     .'thing they did well, one sentence", "expression": "one good sequencing word or phrase they '
                     .'actually used", "correction": "one grammar or vocabulary mistake to fix, one sentence, '
-                    .'phrased kindly — prefer a tense slip (e.g. past instead of present simple) if there is one"}',
+                    .'phrased kindly — prefer a tense slip (e.g. past instead of present simple) if there is one", '
+                    .'"severity": "minor or major — how serious this grammar/vocabulary issue is"}',
                 requiredKeys: ['strength', 'expression', 'correction'],
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
+
+            $this->feedback = $data;
+
+            // Same signal TracksCheckAttempts feeds from every AI-checked
+            // sentence step — see MissionRun::aiToneGuidance(). Was missing
+            // here (this step had no 'severity' key at all), which made it
+            // invisible to mid-run tone adaptation.
+            if (($data['severity'] ?? null) === 'major') {
+                $this->run->recordStruggleSignal();
+            }
         } catch (Throwable) {
             // Silent by design — see method docblock.
         }
@@ -186,6 +197,7 @@ new class extends Component
             @endif
 
             @if ($feedback)
+                @php $severity = $feedback['severity'] ?? null; @endphp
                 <div class="space-y-2">
                     <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                         <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
@@ -195,10 +207,20 @@ new class extends Component
                         <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good sequencing word you used</p>
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
                     </div>
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-amber-600 uppercase">One thing to improve</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
-                    </div>
+                    @if ($severity === 'major')
+                        <div class="rounded-xl border-l-4 border-red-500 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold text-red-600 uppercase dark:text-red-400">
+                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
+                                One thing to improve
+                            </p>
+                            <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
+                        </div>
+                    @else
+                        <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                            <p class="text-xs font-semibold text-amber-600 uppercase">One thing to improve</p>
+                            <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
+                        </div>
+                    @endif
                 </div>
             @endif
 
