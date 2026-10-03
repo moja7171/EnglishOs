@@ -233,7 +233,8 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->call('sendNudge')
+            ->call('draftNudge')
+            ->call('send')
             ->assertSee('Come practice with me today!');
 
         $this->assertDatabaseHas('direct_messages', [
@@ -257,7 +258,7 @@ class FriendsConversationTest extends TestCase
 
         $this->actingAs($me);
 
-        Livewire::test('friends.conversation', ['other' => $bob])->call('sendNudge');
+        Livewire::test('friends.conversation', ['other' => $bob])->call('draftNudge')->call('send');
 
         Notification::assertSentTo($bob, DirectMessageReceived::class);
     }
@@ -288,7 +289,8 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->call('sendNudge')
+            ->call('draftNudge')
+            ->call('send')
             ->assertSee('Keep your 1-day streak going today!');
     }
 
@@ -310,7 +312,8 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->call('sendNudge')
+            ->call('draftNudge')
+            ->call('send')
             ->assertSee('Missed you today — come get some practice in!');
 
         $this->assertDatabaseHas('direct_messages', [
@@ -319,6 +322,137 @@ class FriendsConversationTest extends TestCase
             'type' => DirectMessage::TYPE_NUDGE,
             'body' => 'Missed you today — come get some practice in! 😊',
         ]);
+    }
+
+    public function test_a_recording_waits_for_a_preview_and_can_be_discarded_without_sending(): void
+    {
+        Storage::fake('local');
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('voiceMessage', UploadedFile::fake()->create('voice-message.webm', 500, 'audio/webm'))
+            ->assertSee('Send voice message')
+            ->assertSee('Record again')
+            ->call('discardVoiceMessage')
+            ->assertSet('voiceMessage', null)
+            ->assertDontSee('Send voice message');
+
+        $this->assertDatabaseCount('direct_messages', 0);
+    }
+
+    public function test_the_recipient_sees_a_voice_transcript_only_after_tapping_show_text(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create([
+            'sender_id' => $bob->id,
+            'recipient_id' => $me->id,
+            'type' => DirectMessage::TYPE_AUDIO,
+            'body' => 'I usually wake up at six',
+            'attachment_path' => 'direct-messages/x.webm',
+            'attachment_name' => 'voice-message.webm',
+            'attachment_mime' => 'audio/webm',
+        ]);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('Show text')
+            ->assertSeeHtml('x-show="showText"');
+    }
+
+    public function test_a_nudge_is_only_a_draft_until_the_learner_sends_it(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Come on, you can do it today!'));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('draftNudge')
+            ->assertSet('body', 'Come on, you can do it today!')
+            ->assertSet('draftIsNudge', true);
+
+        $this->assertDatabaseCount('direct_messages', 0);
+    }
+
+    public function test_an_edited_nudge_draft_is_still_sent_as_a_nudge_and_a_cleared_one_is_not(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('draftNudge')
+            ->set('body', 'My own words instead')
+            ->call('send')
+            ->assertSet('draftIsNudge', false);
+
+        $this->assertDatabaseHas('direct_messages', ['body' => 'My own words instead', 'type' => DirectMessage::TYPE_NUDGE]);
+
+        $chat->call('draftNudge')
+            ->set('body', '')
+            ->assertSet('draftIsNudge', false)
+            ->set('body', 'A normal message')
+            ->call('send');
+
+        $this->assertDatabaseHas('direct_messages', ['body' => 'A normal message', 'type' => DirectMessage::TYPE_MESSAGE]);
+    }
+
+    public function test_drafting_a_nudge_never_overwrites_what_was_already_typed(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->never());
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('body', 'half a thought')
+            ->call('draftNudge')
+            ->assertSet('body', 'half a thought')
+            ->assertSet('draftIsNudge', false);
+    }
+
+    public function test_nudge_drafts_stop_calling_the_ai_after_five_per_friend(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(5)->andReturn('AI nudge'));
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+
+        foreach (range(1, 5) as $ignored) {
+            $chat->call('draftNudge')->assertSet('body', 'AI nudge')->call('send');
+        }
+
+        $chat->call('draftNudge')->assertSet('body', 'Come practice with me today!');
     }
 
     public function test_receiving_a_message_marks_it_read_once_viewed(): void
@@ -772,8 +906,8 @@ class FriendsConversationTest extends TestCase
 
         $chat = Livewire::test('friends.conversation', ['other' => $bob]);
         $chat->set('body', 'hi')->call('send');
-        $chat->call('sendNudge');
-        $chat->call('sendNudge');
+        $chat->call('draftNudge')->call('send');
+        $chat->call('draftNudge')->call('send');
 
         $this->assertSame(2, $this->directMessageNotifications($bob)->count());
     }

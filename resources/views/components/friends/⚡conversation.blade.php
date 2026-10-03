@@ -9,6 +9,7 @@ use App\Services\GroqClient;
 use Carbon\CarbonInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -33,6 +34,9 @@ new class extends Component
     public ?array $feedback = null;
 
     public ?string $feedbackError = null;
+
+    /** The composer holds an AI-drafted nudge, so sending it keeps the nudge type. */
+    public bool $draftIsNudge = false;
 
     /** How many of the newest messages are loaded (see window()). */
     public int $limit = 50;
@@ -77,6 +81,17 @@ new class extends Component
         }
     }
 
+    /**
+     * Clearing the box discards a pending nudge draft, so whatever is typed
+     * next goes out as a normal message.
+     */
+    public function updatedBody(string $value): void
+    {
+        if (trim($value) === '') {
+            $this->draftIsNudge = false;
+        }
+    }
+
     public function send(): void
     {
         $text = trim($this->body);
@@ -92,11 +107,12 @@ new class extends Component
         $this->notifyRecipient(DirectMessage::create([
             'sender_id' => auth()->id(),
             'recipient_id' => $this->other->id,
-            'type' => DirectMessage::TYPE_MESSAGE,
+            'type' => $this->draftIsNudge ? DirectMessage::TYPE_NUDGE : DirectMessage::TYPE_MESSAGE,
             'body' => $text,
         ]));
 
         $this->body = '';
+        $this->draftIsNudge = false;
         unset($this->thread);
     }
 
@@ -129,11 +145,12 @@ new class extends Component
     }
 
     /**
-     * Called automatically once <x-voice-recorder>'s upload finishes —
-     * same "record, then auto-submit" pattern as Activation and the AI
-     * Conversation steps, just landing here as a message instead of
-     * Evidence. Stored on the private disk (see the migration + the
-     * friends.attachment route), never Storage::disk('public').
+     * Called from the "Send voice message" button once the learner has
+     * listened to the recording waiting in the preview strip (unlike the
+     * mission steps, which auto-submit — a chat message is public to a
+     * friend, so the sender gets to hear it first). Stored on the private
+     * disk (see the migration + the friends.attachment route), never
+     * Storage::disk('public').
      */
     public function sendVoiceMessage(): void
     {
@@ -174,6 +191,11 @@ new class extends Component
         unset($this->thread);
     }
 
+    public function discardVoiceMessage(): void
+    {
+        $this->voiceMessage = null;
+    }
+
     public function sendFile(): void
     {
         if (! $this->canMessage) {
@@ -204,25 +226,22 @@ new class extends Component
     }
 
     /**
-     * One-tap encouragement instead of typing something from scratch —
-     * the message text adapts to whether the *recipient's* streak
-     * actually needs saving, using the same User::currentStreak() the
-     * header badge and Friends list already trust.
+     * One-tap encouragement instead of typing something from scratch — but it
+     * only fills the composer. The learner reads it, edits it or throws it
+     * away, and sends it themselves (same "never auto-sent" rule as the
+     * mission prefill): nothing goes out under their name unseen. It never
+     * overwrites something they already typed. The text adapts to whether the
+     * *recipient's* streak actually needs saving, using the same
+     * User::currentStreak() the header badge and Friends list already trust.
      */
-    public function sendNudge(): void
+    public function draftNudge(): void
     {
-        if (! $this->canMessage) {
+        if (! $this->canMessage || trim($this->body) !== '') {
             return;
         }
 
-        $this->notifyRecipient(DirectMessage::create([
-            'sender_id' => auth()->id(),
-            'recipient_id' => $this->other->id,
-            'type' => DirectMessage::TYPE_NUDGE,
-            'body' => $this->nudgeMessage(),
-        ]));
-
-        unset($this->thread);
+        $this->body = $this->nudgeMessage();
+        $this->draftIsNudge = true;
     }
 
     /**
@@ -240,6 +259,16 @@ new class extends Component
         $fallback = $streak > 0
             ? "Keep your {$streak}-day streak going today! 🔥"
             : 'Come practice with me today!';
+
+        // Each draft is a paid AI call, so cap them per sender and friend;
+        // past the cap the preset text still works, just without the AI.
+        $limiterKey = 'nudge-draft:'.auth()->id().':'.$this->other->id;
+
+        if (RateLimiter::tooManyAttempts($limiterKey, 5)) {
+            return $fallback;
+        }
+
+        RateLimiter::hit($limiterKey, 3600);
 
         try {
             $context = $streak > 0
@@ -602,7 +631,16 @@ new class extends Component
                         <div>
                             <x-audio-player-compact :url="route('friends.attachment', $message)" :mine="$mine" />
                             @if ($message->body && $message->body !== 'Voice message')
-                                <p class="mt-1.5 text-xs {{ $mine ? 'text-white/75 dark:text-white/75' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $message->body }}</p>
+                                @if ($mine)
+                                    {{-- The sender's own transcript is a mirror of how clearly they came across. --}}
+                                    <p class="mt-1.5 text-xs text-white/75 dark:text-white/75">{{ $message->body }}</p>
+                                @else
+                                    {{-- The listener's job is to listen first; the text is one tap away. --}}
+                                    <div x-data="{ showText: false }">
+                                        <button type="button" x-show="! showText" x-on:click="showText = true" class="mt-1 cursor-pointer text-xs font-semibold text-accent-ink underline decoration-dotted underline-offset-2 dark:text-accent-ink-dark">Show text</button>
+                                        <p x-show="showText" x-cloak class="mt-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">{{ $message->body }}</p>
+                                    </div>
+                                @endif
                             @endif
                         </div>
                     @elseif ($message->type === 'file')
@@ -651,15 +689,19 @@ new class extends Component
             <div class="flex shrink-0 flex-wrap items-center gap-1 border-t border-line bg-surface px-2 py-1.5 dark:border-line-dark dark:bg-surface-dark">
                 <button
                     type="button"
-                    wire:click="sendNudge"
+                    wire:click="draftNudge"
                     wire:loading.attr="disabled"
-                    wire:target="sendNudge"
-                    title="Send an encouragement nudge"
+                    wire:target="draftNudge"
+                    x-bind:disabled="$wire.body.trim() !== ''"
+                    title="Write an encouragement nudge for you to review and send"
                     class="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     @svg('heroicon-s-fire', 'h-4 w-4')
                     Nudge
                 </button>
+                @if ($draftIsNudge)
+                    <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Edit it if you like, then send</span>
+                @endif
 
                 <label title="Attach a file" class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors focus-within:ring-2 focus-within:ring-accent hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
                     @svg('heroicon-o-paper-clip', 'h-4 w-4')
@@ -694,6 +736,36 @@ new class extends Component
                     Check my English
                 </button>
             </div>
+
+            {{-- A recording waits here until the learner has listened to it and
+                 chosen to send it (or record again) — nothing is sent while
+                 they're still deciding. --}}
+            @if ($voiceMessage)
+                <div class="flex shrink-0 flex-wrap items-center gap-2 border-t border-line bg-surface-sunken px-3 py-2 dark:border-line-dark dark:bg-surface-sunken-dark">
+                    @if ($voiceMessage->isPreviewable())
+                        <x-audio-player-compact :url="$voiceMessage->temporaryUrl()" />
+                    @endif
+                    <div class="ms-auto flex items-center gap-2">
+                        <button
+                            type="button"
+                            wire:click="discardVoiceMessage"
+                            wire:loading.attr="disabled"
+                            wire:target="sendVoiceMessage"
+                            class="cursor-pointer rounded-full border border-line px-3 py-2 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark disabled:pointer-events-none disabled:opacity-50"
+                        >Record again</button>
+                        <button
+                            type="button"
+                            wire:click="sendVoiceMessage"
+                            wire:loading.attr="disabled"
+                            wire:target="sendVoiceMessage"
+                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:opacity-50"
+                        >
+                            <span wire:loading.remove wire:target="sendVoiceMessage">Send voice message</span>
+                            <span wire:loading wire:target="sendVoiceMessage">Sending…</span>
+                        </button>
+                    </div>
+                </div>
+            @endif
 
             {{-- Composer — emoji picker, growing text box and the voice recorder
                  in one bar. The box grows to ~5 lines; Enter sends on a
@@ -757,7 +829,7 @@ new class extends Component
                 </form>
 
                 <div wire:key="voice-recorder-{{ $other->id }}" class="shrink-0">
-                    <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" :compact="true" />
+                    <x-voice-recorder field="voiceMessage" file-name="voice-message.webm" :compact="true" />
                 </div>
             </div>
         @endif
