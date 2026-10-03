@@ -4,19 +4,14 @@ namespace App\Notifications;
 
 use App\Models\PartnerSession;
 use App\Models\User;
+use App\Notifications\Concerns\DeliversWebPush;
 use Illuminate\Notifications\Notification;
 
 class PartnerAnswerReceived extends Notification
 {
-    public function __construct(private readonly PartnerSession $session, private readonly User $responder) {}
+    use DeliversWebPush;
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['database'];
-    }
+    public function __construct(private readonly PartnerSession $session, private readonly User $responder) {}
 
     /**
      * @return array{icon: string, title: string, url: string}

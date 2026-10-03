@@ -179,5 +179,7 @@ new class extends Component
                 <p class="px-3 py-6 text-center text-xs text-ink-faint dark:text-ink-faint-dark">Nothing yet — you'll see friend activity and streak badges here.</p>
             @endforelse
         </div>
+
+        <livewire:notifications.push-toggle />
     </div>
 </div>

@@ -3,19 +3,14 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Concerns\DeliversWebPush;
 use Illuminate\Notifications\Notification;
 
 class FollowRequestReceived extends Notification
 {
-    public function __construct(private readonly User $follower) {}
+    use DeliversWebPush;
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['database'];
-    }
+    public function __construct(private readonly User $follower) {}
 
     /**
      * `follower_id` lets the bell offer Accept/Decline right on the row.
