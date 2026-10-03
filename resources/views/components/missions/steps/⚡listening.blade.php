@@ -96,13 +96,18 @@ new class extends Component
     /**
      * Real Whisper segments (text + start/end seconds) driving the synced
      * text panel below the player — see missions:cache-shadow-timestamps.
-     * [] until that command has been run for this mission.
+     * [] until that command has been run for this mission. A conversation's
+     * chunks come speaker-tagged (`listening_turns`, see
+     * missions:align-listening-speakers) so the panel can read as a chat;
+     * anything else keeps the plain Whisper segments.
      *
-     * @return list<array{text: string, start: float, end: float}>
+     * @return list<array{text: string, start: float, end: float, speaker?: string}>
      */
     public function listeningSegments(): array
     {
-        return $this->run->mission->stepContent('listening')['listening_segments'] ?? [];
+        $listening = $this->run->mission->stepContent('listening');
+
+        return ($listening['listening_turns'] ?? []) ?: ($listening['listening_segments'] ?? []);
     }
 
     private function targetPhrases(): array

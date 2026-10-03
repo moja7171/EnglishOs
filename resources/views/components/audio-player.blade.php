@@ -3,12 +3,14 @@
         reaches the end — e.g. onEnded="$dispatch('audio-ended')" so a
         parent listening for that event (bubbles up the DOM) can count real
         completed listens, not just play clicks.
-    @param list<array{text: string, start: float, end: float}> $segments Real,
+    @param list<array{text: string, start: float, end: float, speaker?: string}> $segments Real,
         timed chunks of what's being said (see
         missions:cache-shadow-timestamps) — when given, a synced text panel
         below the controls highlights whichever chunk is playing right now,
-        auto-scrolling into view. [] renders the player exactly as before,
-        with no panel at all.
+        auto-scrolling into view. A chunk may carry the `speaker` saying it
+        (see missions:align-listening-speakers): the panel then reads as a
+        chat, one bubble per speaker turn. [] renders the player exactly as
+        before, with no panel at all.
     @param list<string> $shadowLines Shadowing targets (may carry **bold**
         stress markers), parallel to $shadowTimestamps by index. Given
         together with it, playback auto-pauses the moment it reaches each
@@ -266,7 +268,60 @@
             >@svg('heroicon-o-arrow-down-tray', 'h-3.5 w-3.5')</a>
         </div>
 
-        @if (count($segments))
+        @if (count($segments) && filled($segments[0]['speaker'] ?? null))
+            {{-- Same synced panel, for a conversation: consecutive chunks
+                 by one speaker form one chat bubble headed by their name,
+                 and the chunk being heard right now is highlighted inside
+                 it. Speakers are told apart by colour and side (the first
+                 on the left, the second on the right, and so on). --}}
+            @php
+                $palettes = [
+                    ['name' => 'text-accent-ink dark:text-accent-ink-dark', 'active' => 'bg-accent/15 dark:bg-accent-dark/25'],
+                    ['name' => 'text-success dark:text-success-dark', 'active' => 'bg-success/15 dark:bg-success-dark/25'],
+                    ['name' => 'text-dusk', 'active' => 'bg-dusk/15'],
+                    ['name' => 'text-warning-ink', 'active' => 'bg-warning/15'],
+                ];
+                $speakerOrder = collect($segments)->pluck('speaker')->unique()->values()->flip();
+                $turns = [];
+
+                foreach ($segments as $index => $segment) {
+                    $last = array_key_last($turns);
+
+                    if ($last === null || $turns[$last]['speaker'] !== $segment['speaker']) {
+                        $position = $speakerOrder[$segment['speaker']];
+                        $turns[] = [
+                            'speaker' => $segment['speaker'],
+                            'palette' => $palettes[$position % count($palettes)],
+                            'alignRight' => $position % 2 === 1,
+                            'lines' => [],
+                        ];
+                        $last = array_key_last($turns);
+                    }
+
+                    $turns[$last]['lines'][] = ['index' => $index, 'segment' => $segment];
+                }
+            @endphp
+            <div class="mt-4 max-h-72 space-y-3 overflow-y-auto card-sunken p-3 text-sm">
+                @foreach ($turns as $turn)
+                    <div class="max-w-[90%] {{ $turn['alignRight'] ? 'ml-auto' : '' }}">
+                        <p class="mb-0.5 px-1.5 text-xs font-semibold {{ $turn['palette']['name'] }} {{ $turn['alignRight'] ? 'text-right' : '' }}">{{ $turn['speaker'] }}</p>
+
+                        <div class="space-y-0.5 rounded-2xl bg-surface p-1.5 dark:bg-surface-dark">
+                            @foreach ($turn['lines'] as $line)
+                                <p
+                                    x-ref="segment-{{ $line['index'] }}"
+                                    x-on:click="seekTo({{ (float) $line['segment']['start'] }}); $refs.audio.currentTime = {{ (float) $line['segment']['start'] }}"
+                                    class="cursor-pointer rounded-lg px-1.5 py-0.5 transition-colors"
+                                    :class="activeSegmentIndex === {{ $line['index'] }}
+                                        ? '{{ $turn['palette']['active'] }} font-semibold text-ink dark:text-ink-dark'
+                                        : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
+                                >{{ $line['segment']['text'] }}</p>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @elseif (count($segments))
             {{-- The synced text panel — every real chunk of speech,
                  highlighted the moment playback reaches it. Never a
                  substitute for the caller's own curated shadow_lines

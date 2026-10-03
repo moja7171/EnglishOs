@@ -1226,5 +1226,571 @@
             "start": 300.37,
             "end": 305.82
         }
+    ],
+    "listening_turns": [
+        {
+            "speaker": "Neil",
+            "text": "Hello and welcome to Real Easy English, the podcast where we have real conversations in",
+            "start": 0.88,
+            "end": 7.44
+        },
+        {
+            "speaker": "Neil",
+            "text": "easy English to help you learn. I'm Neil.",
+            "start": 7.44,
+            "end": 10.72
+        },
+        {
+            "speaker": "Georgie",
+            "text": "And I'm Georgie. You can read along with this podcast on our website,",
+            "start": 10.72,
+            "end": 14.8
+        },
+        {
+            "speaker": "Georgie",
+            "text": "where you can also find a free worksheet.",
+            "start": 14.8,
+            "end": 17.2
+        },
+        {
+            "speaker": "Neil",
+            "text": "So, Georgie, how are you today?",
+            "start": 23.52,
+            "end": 25.28
+        },
+        {
+            "speaker": "Georgie",
+            "text": "I'm very well, thank you. How are you?",
+            "start": 25.92,
+            "end": 28.08
+        },
+        {
+            "speaker": "Neil",
+            "text": "I'm well, thank you very much.",
+            "start": 28.08,
+            "end": 29.68
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Good.",
+            "start": 29.68,
+            "end": 30.04
+        },
+        {
+            "speaker": "Neil",
+            "text": "What are we talking about today?",
+            "start": 30.11,
+            "end": 32.42
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Today we are talking about our morning routines.",
+            "start": 32.5,
+            "end": 35.96
+        },
+        {
+            "speaker": "Georgie",
+            "text": "That is what we usually do in the mornings before work.",
+            "start": 36.38,
+            "end": 40.04
+        },
+        {
+            "speaker": "Neil",
+            "text": "Okay, let's get started.",
+            "start": 40.1,
+            "end": 41.7
+        },
+        {
+            "speaker": "Georgie",
+            "text": "So Neil, do you like to get up early or do you prefer to sleep in?",
+            "start": 42.5,
+            "end": 47.68
+        },
+        {
+            "speaker": "Neil",
+            "text": "It depends if I've had enough",
+            "start": 47.76,
+            "end": 50.04
+        },
+        {
+            "speaker": "Neil",
+            "text": "sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about",
+            "start": 50.04,
+            "end": 57.2
+        },
+        {
+            "speaker": "Neil",
+            "text": "you?",
+            "start": 57.2,
+            "end": 57.63
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Well, I like the mornings sometimes because I feel like it's quieter. Not many people are up.",
+            "start": 57.73,
+            "end": 67.66
+        },
+        {
+            "speaker": "Georgie",
+            "text": "I also feel like my brain works better in the mornings. So that helps. But I do like",
+            "start": 67.66,
+            "end": 76.56
+        },
+        {
+            "speaker": "Georgie",
+            "text": "sleeping in sometimes, especially at the weekends.",
+            "start": 76.56,
+            "end": 79.76
+        },
+        {
+            "speaker": "Neil",
+            "text": "So Georgie, you said that your brain works best in the morning. Does that mean that you're a",
+            "start": 80.42,
+            "end": 86.14
+        },
+        {
+            "speaker": "Neil",
+            "text": "morning person?",
+            "start": 86.14,
+            "end": 86.96
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Yes, I think it does.",
+            "start": 87.5,
+            "end": 89.1
+        },
+        {
+            "speaker": "Georgie",
+            "text": "I'm a morning person.",
+            "start": 89.22,
+            "end": 90.4
+        },
+        {
+            "speaker": "Georgie",
+            "text": "That means someone that has a lot of energy at the start of the day.",
+            "start": 90.4,
+            "end": 95.24
+        },
+        {
+            "speaker": "Neil",
+            "text": "Georgie do you eat breakfast",
+            "start": 95.74,
+            "end": 97.9
+        },
+        {
+            "speaker": "Georgie",
+            "text": "That also depends And I have a different breakfast routine depending if I working in the office or at home",
+            "start": 97.98,
+            "end": 106.15
+        },
+        {
+            "speaker": "Georgie",
+            "text": "So if I'm in the office, and you know this,",
+            "start": 106.69,
+            "end": 109.81
+        },
+        {
+            "speaker": "Georgie",
+            "text": "I usually have a pastry or a croissant in the morning",
+            "start": 110.09,
+            "end": 114.29
+        },
+        {
+            "speaker": "Georgie",
+            "text": "and a banana if I'm feeling good.",
+            "start": 114.29,
+            "end": 116.51
+        },
+        {
+            "speaker": "Georgie",
+            "text": "But if I'm at home, I usually have eggs a bit later, around 10.",
+            "start": 116.51,
+            "end": 122.53
+        },
+        {
+            "speaker": "Georgie",
+            "text": "What about you?",
+            "start": 123.09,
+            "end": 124.11
+        },
+        {
+            "speaker": "Neil",
+            "text": "I always have breakfast before I leave the house.",
+            "start": 124.11,
+            "end": 127.61
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Wow.",
+            "start": 128.01,
+            "end": 128.19
+        },
+        {
+            "speaker": "Neil",
+            "text": "Otherwise, I'm very grumpy.",
+            "start": 128.39,
+            "end": 129.99
+        },
+        {
+            "speaker": "Neil",
+            "text": "So at the moment, I am having egg on toast for breakfast and then marmalade on toast as well, but not together.",
+            "start": 130.81,
+            "end": 142.67
+        },
+        {
+            "speaker": "Georgie",
+            "text": "So you said you always have breakfast.",
+            "start": 143.01,
+            "end": 146.33
+        },
+        {
+            "speaker": "Georgie",
+            "text": "You never skip breakfast.",
+            "start": 146.71,
+            "end": 148.29
+        },
+        {
+            "speaker": "Neil",
+            "text": "Never, unless there's a very, very good reason.",
+            "start": 148.81,
+            "end": 152.87
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Okay.",
+            "start": 153.23,
+            "end": 153.83
+        },
+        {
+            "speaker": "Neil",
+            "text": "Like, I think the last time I skipped breakfast, I needed to get up at 3am to catch a flight.",
+            "start": 154.11,
+            "end": 162.25
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Yes, it's very strange to wake up at that time.",
+            "start": 163.11,
+            "end": 166.77
+        },
+        {
+            "speaker": "Georgie",
+            "text": "It changes your routine, doesn't it?",
+            "start": 166.77,
+            "end": 168.87
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Because you don't feel hungry then.",
+            "start": 169.03,
+            "end": 171.01
+        },
+        {
+            "speaker": "Neil",
+            "text": "So how about you, Georgie?",
+            "start": 171.59,
+            "end": 173.07
+        },
+        {
+            "speaker": "Neil",
+            "text": "Do you skip breakfast?",
+            "start": 173.17,
+            "end": 175.01
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Sometimes I skip breakfast because when I wake up, I'm not hungry.",
+            "start": 176.17,
+            "end": 182.49
+        },
+        {
+            "speaker": "Georgie",
+            "text": "So if I don't eat breakfast straight away, I sometimes forget to eat breakfast, but then I have an early lunch.",
+            "start": 182.49,
+            "end": 192.19
+        },
+        {
+            "speaker": "Neil",
+            "text": "Right.",
+            "start": 193.01,
+            "end": 193.21
+        },
+        {
+            "speaker": "Georgie",
+            "text": "So Neil you said that it hard to get up when you haven slept well Does that mean you oversleep You sleep too long",
+            "start": 193.53,
+            "end": 203.42
+        },
+        {
+            "speaker": "Neil",
+            "text": "No Unfortunately I never oversleep In fact I usually wake up before my alarm Do you oversleep",
+            "start": 203.5,
+            "end": 211.64
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Well, I usually wake up with my alarm. I never wake up before my alarm.",
+            "start": 212.74,
+            "end": 219.1
+        },
+        {
+            "speaker": "Georgie",
+            "text": "So sometimes if I don't set my alarm, I oversleep.",
+            "start": 219.1,
+            "end": 224.38
+        },
+        {
+            "speaker": "Georgie",
+            "text": "That actually happened this week, but it was OK because I woke up in time for work.",
+            "start": 224.92,
+            "end": 231.38
+        },
+        {
+            "speaker": "Georgie",
+            "text": "I didn't oversleep that much.",
+            "start": 231.74,
+            "end": 233.72
+        },
+        {
+            "speaker": "Neil",
+            "text": "Right. Have you ever overslept so much that you've missed work or missed the start of the working day?",
+            "start": 234.12,
+            "end": 242.62
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Never work, but yes to a flight.",
+            "start": 243.2,
+            "end": 247.1
+        },
+        {
+            "speaker": "Georgie",
+            "text": "That was one of the most stressful mornings I've had.",
+            "start": 247.1,
+            "end": 252.5
+        },
+        {
+            "speaker": "Neil",
+            "text": "Is there anything else, Georgie, that you do in the morning regularly?",
+            "start": 253.28,
+            "end": 258.16
+        },
+        {
+            "speaker": "Georgie",
+            "text": "Well, regularly, maybe not.",
+            "start": 259.16,
+            "end": 261.24
+        },
+        {
+            "speaker": "Georgie",
+            "text": "But sometimes if I feel motivated, I manage to do some exercise in the mornings,",
+            "start": 261.36,
+            "end": 267.36
+        },
+        {
+            "speaker": "Georgie",
+            "text": "either running or actually this morning, I did a Pilates workout.",
+            "start": 267.92,
+            "end": 272.24
+        },
+        {
+            "speaker": "Georgie",
+            "text": "What about you, Neil?",
+            "start": 273.06,
+            "end": 274.34
+        },
+        {
+            "speaker": "Neil",
+            "text": "No, I can't exercise until later because my body doesn't enjoy that, especially running.",
+            "start": 274.34,
+            "end": 282.78
+        },
+        {
+            "speaker": "Neil",
+            "text": "All of my joints hurt.",
+            "start": 283.72,
+            "end": 286.18
+        },
+        {
+            "speaker": "Georgie",
+            "text": "So what do you do in the mornings?",
+            "start": 286.88,
+            "end": 289.16
+        },
+        {
+            "speaker": "Neil",
+            "text": "I like to know what the weather is going to be like.",
+            "start": 289.66,
+            "end": 292.3
+        },
+        {
+            "speaker": "Neil",
+            "text": "So I check the forecast and I choose my clothes so that I wearing the right thing for the type of weather",
+            "start": 292.38,
+            "end": 299.22
+        },
+        {
+            "speaker": "Georgie",
+            "text": "That very sensible",
+            "start": 299.28,
+            "end": 300.46
+        },
+        {
+            "speaker": "Neil",
+            "text": "especially in the United Kingdom because the weather can be different every day",
+            "start": 300.52,
+            "end": 305.67
+        },
+        {
+            "speaker": "Georgie",
+            "text": "That very true Make sure you got your umbrella",
+            "start": 305.73,
+            "end": 308.73
+        },
+        {
+            "speaker": "Neil",
+            "text": "Or not.",
+            "start": 309.31,
+            "end": 309.89
+        },
+        {
+            "speaker": "Georgie",
+            "text": "OK, let's recap the language we heard during the conversation.",
+            "start": 316.71,
+            "end": 320.37
+        },
+        {
+            "speaker": "Neil",
+            "text": "We heard a few ways to talk about what time we sleep until. We heard sleep in,",
+            "start": 320.81,
+            "end": 326.69
+        },
+        {
+            "speaker": "Neil",
+            "text": "which means staying in bed and sleeping later than we usually do.",
+            "start": 326.69,
+            "end": 331.31
+        },
+        {
+            "speaker": "Neil",
+            "text": "And we also heard oversleep, which means sleeping longer than you should, accidentally.",
+            "start": 331.95,
+            "end": 338.23
+        },
+        {
+            "speaker": "Georgie",
+            "text": "We had get up, which is a phrasal verb we use to say stand up and leave your bed.",
+            "start": 338.75,
+            "end": 344.53
+        },
+        {
+            "speaker": "Neil",
+            "text": "And we heard a morning person.",
+            "start": 345.05,
+            "end": 347.01
+        },
+        {
+            "speaker": "Neil",
+            "text": "Like you, Georgie, you're a morning person.",
+            "start": 347.19,
+            "end": 349.19
+        },
+        {
+            "speaker": "Neil",
+            "text": "A morning person is someone who likes the mornings,",
+            "start": 349.79,
+            "end": 352.45
+        },
+        {
+            "speaker": "Neil",
+            "text": "has lots of energy at the start of the day.",
+            "start": 352.69,
+            "end": 355.15
+        },
+        {
+            "speaker": "Neil",
+            "text": "I'm not really a morning person.",
+            "start": 355.15,
+            "end": 357.29
+        },
+        {
+            "speaker": "Georgie",
+            "text": "We had skip, not do something that you usually do or should do.",
+            "start": 357.93,
+            "end": 362.31
+        },
+        {
+            "speaker": "Georgie",
+            "text": "For example, sometimes I forget to eat in the morning,",
+            "start": 362.53,
+            "end": 365.73
+        },
+        {
+            "speaker": "Georgie",
+            "text": "so I skip breakfast and have an early lunch instead.",
+            "start": 365.93,
+            "end": 369.27
+        },
+        {
+            "speaker": "Neil",
+            "text": "That's it for this episode of Real Easy English.",
+            "start": 370.27,
+            "end": 373.33
+        },
+        {
+            "speaker": "Neil",
+            "text": "You can test what you've learned with our worksheet on our website.",
+            "start": 373.63,
+            "end": 377.57
+        },
+        {
+            "speaker": "Neil",
+            "text": "Find a link in the notes and go there.",
+            "start": 378.13,
+            "end": 380.23
+        },
+        {
+            "speaker": "Georgie",
+            "text": "And if you want to learn more language to talk about your morning routine,",
+            "start": 380.61,
+            "end": 384.27
+        },
+        {
+            "speaker": "Georgie",
+            "text": "I've made a video all about phrasal verbs for your morning routine.",
+            "start": 384.27,
+            "end": 388.11
+        },
+        {
+            "speaker": "Georgie",
+            "text": "You can also find it at bbclearningenglish.com.",
+            "start": 388.39,
+            "end": 391.67
+        },
+        {
+            "speaker": "Neil",
+            "text": "And next time we'll talk about our evening routines,",
+            "start": 392.33,
+            "end": 395.75
+        },
+        {
+            "speaker": "Neil",
+            "text": "what we get up to in the evenings.",
+            "start": 395.99,
+            "end": 397.99
+        },
+        {
+            "speaker": "Georgie",
+            "text": "See you next time.",
+            "start": 398.35,
+            "end": 399.13
+        },
+        {
+            "speaker": "Neil",
+            "text": "Goodbye.",
+            "start": 399.29,
+            "end": 399.55
+        }
     ]
 }

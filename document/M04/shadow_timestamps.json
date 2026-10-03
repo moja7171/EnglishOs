@@ -1026,5 +1026,811 @@
             "start": 541.88,
             "end": 545.5
         }
+    ],
+    "listening_turns": [
+        {
+            "speaker": "Jessica",
+            "text": "Hi everyone, welcome back to the 5-Minute English Practice. I'm Jessica, and I'm really happy you",
+            "start": 0,
+            "end": 6.8
+        },
+        {
+            "speaker": "Jessica",
+            "text": "decided to spend some time with us today. Today we're talking about a topic that comes up a lot",
+            "start": 6.8,
+            "end": 12.96
+        },
+        {
+            "speaker": "Jessica",
+            "text": "when people start caring more about their health, their energy, and the way they feel every day.",
+            "start": 12.96,
+            "end": 18.82
+        },
+        {
+            "speaker": "Jessica",
+            "text": "And that topic is eating clean. Some people feel very excited when they hear this phrase",
+            "start": 19.52,
+            "end": 26.12
+        },
+        {
+            "speaker": "Jessica",
+            "text": "because they think it means a fresh start and better habits, while other people feel stressed",
+            "start": 26.12,
+            "end": 31.92
+        },
+        {
+            "speaker": "Jessica",
+            "text": "right away because they imagine strict rules, boring food, and a lifestyle that feels hard to",
+            "start": 31.92,
+            "end": 39.18
+        },
+        {
+            "speaker": "Jessica",
+            "text": "maintain. So today, instead of giving advice or telling you what you should or shouldn't eat,",
+            "start": 39.18,
+            "end": 45.44
+        },
+        {
+            "speaker": "Jessica",
+            "text": "we're simply going to talk honestly about food, habits, mistakes, and what eating clean actually",
+            "start": 45.98,
+            "end": 52.56
+        },
+        {
+            "speaker": "Jessica",
+            "text": "looks like in real life, not in a perfect online world. I'm not doing this episode alone.",
+            "start": 52.56,
+            "end": 59.36
+        },
+        {
+            "speaker": "Jessica",
+            "text": "I'm here with Lisa, who has tried eating clean in a very realistic way,",
+            "start": 60.64,
+            "end": 65.12
+        },
+        {
+            "speaker": "Jessica",
+            "text": "while working, feeling tired, craving snacks, and still wanting to enjoy food.",
+            "start": 66.16,
+            "end": 71.6
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Hi Lisa, how are you today?",
+            "start": 72.72,
+            "end": 75.11
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Hi Jessica, hi everyone. I'm doing really well, thank you.",
+            "start": 75.19,
+            "end": 80.32
+        },
+        {
+            "speaker": "Lisa",
+            "text": "And I love this topic because eating clean didn't just change what I eat, it really changed",
+            "start": 80.32,
+            "end": 87.58
+        },
+        {
+            "speaker": "Lisa",
+            "text": "how I think about food and how I listen to my body.",
+            "start": 87.58,
+            "end": 91.56
+        },
+        {
+            "speaker": "Jessica",
+            "text": "I really like that you said that.",
+            "start": 91.56,
+            "end": 94.46
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Because eating clean is not just about meals, it's also about awareness and daily choices.",
+            "start": 94.46,
+            "end": 99.88
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Let's go back to the beginning for a moment.",
+            "start": 99.88,
+            "end": 103.16
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Lisa, when you first heard the phrase, eat clean, what did you imagine?",
+            "start": 103.16,
+            "end": 108.48
+        },
+        {
+            "speaker": "Lisa",
+            "text": "To be honest, I imagined a very boring life.",
+            "start": 108.48,
+            "end": 111.8
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I thought eating clean meant eating plain food with no flavor, no sugar, no fun, and",
+            "start": 111.8,
+            "end": 117.8
+        },
+        {
+            "speaker": "Lisa",
+            "text": "no comfort, and I honestly thought I would feel hungry, tired, and unhappy all the time",
+            "start": 117.8,
+            "end": 124.14
+        },
+        {
+            "speaker": "Lisa",
+            "text": "if I tried to eat that way.",
+            "start": 124.14,
+            "end": 126.38
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That image is very common, and I had the exact same thought.",
+            "start": 126.38,
+            "end": 130.86
+        },
+        {
+            "speaker": "Jessica",
+            "text": "I believed eating clean meant giving up food that makes life enjoyable.",
+            "start": 130.86,
+            "end": 135.36
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Yes.",
+            "start": 135.36,
+            "end": 136.78
+        },
+        {
+            "speaker": "Lisa",
+            "text": "And because of that I avoided it for a long time Even though deep down I knew my eating habits were not making me feel very good",
+            "start": 136.78,
+            "end": 145.95
+        },
+        {
+            "speaker": "Jessica",
+            "text": "so what made you finally decide to try eating clean",
+            "start": 146.02,
+            "end": 149.68
+        },
+        {
+            "speaker": "Lisa",
+            "text": "i started noticing that after most meals i felt heavy",
+            "start": 149.75,
+            "end": 153.54
+        },
+        {
+            "speaker": "Lisa",
+            "text": "sleepy and unfocused especially in the afternoon and i realized that even though i was eating enough",
+            "start": 153.54,
+            "end": 160.9
+        },
+        {
+            "speaker": "Lisa",
+            "text": "my body didn't feel satisfied or energized",
+            "start": 161.62,
+            "end": 164.4
+        },
+        {
+            "speaker": "Jessica",
+            "text": "that moment is very important because many people start",
+            "start": 164.47,
+            "end": 168.1
+        },
+        {
+            "speaker": "Jessica",
+            "text": "eating clean not because they want to change how they look but because they",
+            "start": 168.1,
+            "end": 172
+        },
+        {
+            "speaker": "Jessica",
+            "text": "want to change how they feel",
+            "start": 172,
+            "end": 174.3
+        },
+        {
+            "speaker": "Lisa",
+            "text": "exactly I didn't want a perfect diet I just wanted",
+            "start": 174.38,
+            "end": 178.48
+        },
+        {
+            "speaker": "Lisa",
+            "text": "to feel better during the day",
+            "start": 178.48,
+            "end": 180.41
+        },
+        {
+            "speaker": "Jessica",
+            "text": "so now after some time how would you describe",
+            "start": 180.48,
+            "end": 183.46
+        },
+        {
+            "speaker": "Jessica",
+            "text": "eating clean in your own words",
+            "start": 183.46,
+            "end": 185.9
+        },
+        {
+            "speaker": "Lisa",
+            "text": "for me eating clean means choosing simple food",
+            "start": 185.98,
+            "end": 189.7
+        },
+        {
+            "speaker": "Lisa",
+            "text": "that feels natural cooking more meals at home and eating things that make me feel",
+            "start": 189.7,
+            "end": 195.94
+        },
+        {
+            "speaker": "Lisa",
+            "text": "good after I finish eating instead of feeling uncomfortable or tired.",
+            "start": 195.94,
+            "end": 201.23
+        },
+        {
+            "speaker": "Jessica",
+            "text": "I love",
+            "start": 201.3,
+            "end": 201.76
+        },
+        {
+            "speaker": "Jessica",
+            "text": "that description because it feels very realistic and very kind. For me, eating",
+            "start": 201.76,
+            "end": 207.58
+        },
+        {
+            "speaker": "Jessica",
+            "text": "clean means I try to slow down and think about what my body actually needs",
+            "start": 207.58,
+            "end": 211.6
+        },
+        {
+            "speaker": "Jessica",
+            "text": "instead of eating something just because it's fast or easy.",
+            "start": 211.6,
+            "end": 216.11
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Yes, and that mindset",
+            "start": 216.18,
+            "end": 217.78
+        },
+        {
+            "speaker": "Lisa",
+            "text": "already changes a lot.",
+            "start": 217.78,
+            "end": 219.19
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Let's talk about breakfast because the way we start the",
+            "start": 219.25,
+            "end": 222.76
+        },
+        {
+            "speaker": "Jessica",
+            "text": "day often affects everything else. What does a typical clean breakfast look like for you?",
+            "start": 222.76,
+            "end": 228.92
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Most mornings, I eat oatmeal, and I like to take my time preparing it, adding fruit, nuts, maybe a",
+            "start": 229.48,
+            "end": 237.4
+        },
+        {
+            "speaker": "Lisa",
+            "text": "little honey, or peanut butter because it feels warm, filling, and comforting, especially on busy",
+            "start": 237.4,
+            "end": 244.46
+        },
+        {
+            "speaker": "Lisa",
+            "text": "mornings.",
+            "start": 244.46,
+            "end": 245.13
+        },
+        {
+            "speaker": "Jessica",
+            "text": "I really like oatmeal for the same reason. It feels gentle on the body, but it also",
+            "start": 245.2,
+            "end": 251.32
+        },
+        {
+            "speaker": "Jessica",
+            "text": "gives enough energy to start the day without feeling heavy.",
+            "start": 251.32,
+            "end": 255.2
+        },
+        {
+            "speaker": "Lisa",
+            "text": "On other days, I choose eggs,",
+            "start": 255.26,
+            "end": 257.16
+        },
+        {
+            "speaker": "Lisa",
+            "text": "usually scrambled eggs with avocado or eggs with toast, because it keeps me full and focused for",
+            "start": 257.48,
+            "end": 264.58
+        },
+        {
+            "speaker": "Lisa",
+            "text": "a long time.",
+            "start": 264.58,
+            "end": 265.64
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Yes, eggs made a big difference for me. Before, I often skipped breakfast or just had",
+            "start": 265.73,
+            "end": 273.22
+        },
+        {
+            "speaker": "Jessica",
+            "text": "coffee, and I didn't realize how much that affected my mood and energy later in the day.",
+            "start": 273.22,
+            "end": 279.26
+        },
+        {
+            "speaker": "Lisa",
+            "text": "That's such an important point.",
+            "start": 279.26,
+            "end": 281.26
+        },
+        {
+            "speaker": "Lisa",
+            "text": "When you eat real breakfast your whole day feels more balanced Exactly I feel more calm and less rushed when I start the day with proper food",
+            "start": 282.5,
+            "end": 292.27
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Now let move to lunch because lunch is often eaten in a hurry",
+            "start": 292.34,
+            "end": 296.57
+        },
+        {
+            "speaker": "Jessica",
+            "text": "What do you usually eat for lunch when you try to eat clean?",
+            "start": 297.45,
+            "end": 301.3
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I try to keep lunch very simple and",
+            "start": 301.36,
+            "end": 303.61
+        },
+        {
+            "speaker": "Lisa",
+            "text": "satisfying, usually with grilled chicken or fish, a lot of vegetables, and something warm and",
+            "start": 303.61,
+            "end": 310.89
+        },
+        {
+            "speaker": "Lisa",
+            "text": "comforting like roasted potatoes or a big salad with olive oil.",
+            "start": 310.89,
+            "end": 315.39
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That sounds very similar to what",
+            "start": 315.46,
+            "end": 317.75
+        },
+        {
+            "speaker": "Jessica",
+            "text": "I eat. I often prepare chicken or fish in advance and then add vegetables and potatoes because it's",
+            "start": 317.75,
+            "end": 324.49
+        },
+        {
+            "speaker": "Jessica",
+            "text": "easy filling and doesn't make me feel sleepy afterward.",
+            "start": 324.49,
+            "end": 328.73
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Yes, that sleepy feeling after lunch",
+            "start": 328.81,
+            "end": 331.59
+        },
+        {
+            "speaker": "Lisa",
+            "text": "disappeared when I stopped eating heavy and processed food.",
+            "start": 331.59,
+            "end": 335.64
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That's something many people",
+            "start": 335.71,
+            "end": 337.63
+        },
+        {
+            "speaker": "Jessica",
+            "text": "notice clean food doesn't make you feel slow",
+            "start": 337.63,
+            "end": 341.33
+        },
+        {
+            "speaker": "Lisa",
+            "text": "exactly and i also learned that clean food doesn't",
+            "start": 341.42,
+            "end": 345.63
+        },
+        {
+            "speaker": "Lisa",
+            "text": "need to be fancy it just needs to be simple and cooked with care",
+            "start": 345.63,
+            "end": 350.58
+        },
+        {
+            "speaker": "Jessica",
+            "text": "now let's talk about snacks",
+            "start": 350.66,
+            "end": 352.75
+        },
+        {
+            "speaker": "Jessica",
+            "text": "because snacks are where many people feel they fail lisa do you snack during the day",
+            "start": 352.75,
+            "end": 360.84
+        },
+        {
+            "speaker": "Lisa",
+            "text": "yes i do",
+            "start": 360.94,
+            "end": 361.71
+        },
+        {
+            "speaker": "Lisa",
+            "text": "especially in the afternoon when my energy drops and I start craving something sweet or crunchy.",
+            "start": 361.71,
+            "end": 368.75
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That time of day is very dangerous.",
+            "start": 368.75,
+            "end": 370.75
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Very dangerous? In the past, I ate cookies or chips without thinking.",
+            "start": 371.39,
+            "end": 376.51
+        },
+        {
+            "speaker": "Lisa",
+            "text": "When I started eating clean, I tried to stop snacking completely,",
+            "start": 377.47,
+            "end": 381.79
+        },
+        {
+            "speaker": "Lisa",
+            "text": "but that only made me feel frustrated.",
+            "start": 381.79,
+            "end": 384.51
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That never works for long.",
+            "start": 384.51,
+            "end": 385.79
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Exactly. So now, I still snack, but I choose things that actually help my body,",
+            "start": 385.79,
+            "end": 393.39
+        },
+        {
+            "speaker": "Lisa",
+            "text": "like a fruit with peanut butter, yogurt, nuts, or boiled eggs.",
+            "start": 393.95,
+            "end": 399.07
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That's exactly what I do too. I don't try to be perfect. I just try to make better choices",
+            "start": 399.07,
+            "end": 405.95
+        },
+        {
+            "speaker": "Jessica",
+            "text": "most of the time.",
+            "start": 405.95,
+            "end": 407.08
+        },
+        {
+            "speaker": "Lisa",
+            "text": "And that made eating clean feel much more realistic.",
+            "start": 407.14,
+            "end": 410.59
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Let's talk about dinner because many people think dinner should be very small or boring when eating clean.",
+            "start": 410.59,
+            "end": 417.09
+        },
+        {
+            "speaker": "Jessica",
+            "text": "What do you think?",
+            "start": 417.09,
+            "end": 418.59
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I don't agree with that at all.",
+            "start": 418.59,
+            "end": 420.59
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Dinner is the time when I want to relax, slow down, and enjoy my food.",
+            "start": 420.59,
+            "end": 426.59
+        },
+        {
+            "speaker": "Lisa",
+            "text": "So I still eat a proper meal",
+            "start": 426.59,
+            "end": 428.91
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Same here I often eat baked fish with vegetables or chicken with roasted potatoes and salad because it feels complete and satisfying",
+            "start": 428.99,
+            "end": 439.92
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Yes and sometimes I eat pasta but I keep",
+            "start": 440,
+            "end": 443.31
+        },
+        {
+            "speaker": "Lisa",
+            "text": "it simple with olive oil, garlic, vegetables, and maybe some cheese instead of heavy sauce.",
+            "start": 443.31,
+            "end": 451.63
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That's such a good example. Eating clean doesn't mean cutting food out. It means choosing a",
+            "start": 451.63,
+            "end": 457.57
+        },
+        {
+            "speaker": "Jessica",
+            "text": "simpler version exactly now let's talk about processed food how do you see it",
+            "start": 457.57,
+            "end": 463.87
+        },
+        {
+            "speaker": "Lisa",
+            "text": "now processed food is something I still eat sometimes but it's no longer part of",
+            "start": 463.87,
+            "end": 470.35
+        },
+        {
+            "speaker": "Lisa",
+            "text": "my daily routine and I feel the difference very clearly",
+            "start": 470.35,
+            "end": 474.07
+        },
+        {
+            "speaker": "Jessica",
+            "text": "that difference",
+            "start": 474.14,
+            "end": 475.15
+        },
+        {
+            "speaker": "Jessica",
+            "text": "is huge it becomes a choice not a habit",
+            "start": 475.15,
+            "end": 478.57
+        },
+        {
+            "speaker": "Lisa",
+            "text": "yes and when it's a choice you don't",
+            "start": 478.66,
+            "end": 481.81
+        },
+        {
+            "speaker": "Lisa",
+            "text": "feel guilty.",
+            "start": 481.81,
+            "end": 482.79
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Let's talk about eating out because food is social. How do you handle",
+            "start": 482.87,
+            "end": 488.47
+        },
+        {
+            "speaker": "Jessica",
+            "text": "eating clean when you eat out?",
+            "start": 488.47,
+            "end": 490.37
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I stop stressing about it. When I eat out, I",
+            "start": 490.43,
+            "end": 493.21
+        },
+        {
+            "speaker": "Lisa",
+            "text": "choose something simple if I can and if I can't, I enjoy the meal and move on.",
+            "start": 493.21,
+            "end": 499.16
+        },
+        {
+            "speaker": "Jessica",
+            "text": "No",
+            "start": 499.24,
+            "end": 499.39
+        },
+        {
+            "speaker": "Jessica",
+            "text": "guilt, no punishment the next day.",
+            "start": 499.39,
+            "end": 502.01
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Exactly. Guilt only makes things worse.",
+            "start": 502.09,
+            "end": 505.09
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Do you",
+            "start": 505.17,
+            "end": 505.63
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Do you prepare food in advance?",
+            "start": 505.63,
+            "end": 507.63
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Yes, but only basics.",
+            "start": 507.63,
+            "end": 510.19
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I prepare protein, vegetables, and potatoes, so I don't need to think too much during the",
+            "start": 510.19,
+            "end": 516.47
+        },
+        {
+            "speaker": "Lisa",
+            "text": "week.",
+            "start": 516.47,
+            "end": 517.47
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That already saves a lot of time and energy.",
+            "start": 517.47,
+            "end": 520.43
+        },
+        {
+            "speaker": "Jessica",
+            "text": "And it makes eating clean much easier.",
+            "start": 520.43,
+            "end": 523.45
+        },
+        {
+            "speaker": "Jessica",
+            "text": "After eating this way for some time, what changes did you notice?",
+            "start": 523.45,
+            "end": 527.43
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I had more energy, better digestion, clearer skin, and I felt more connected to my body",
+            "start": 527.43,
+            "end": 533.99
+        },
+        {
+            "speaker": "Lisa",
+            "text": "and my needs.",
+            "start": 533.99,
+            "end": 534.99
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That's beautiful.",
+            "start": 534.99,
+            "end": 536.75
+        },
+        {
+            "speaker": "Lisa",
+            "text": "And mentally, I felt proud because I was taking care of myself.",
+            "start": 536.75,
+            "end": 542.03
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That feeling matters more than numbers on a scale.",
+            "start": 542.03,
+            "end": 545.35
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Absolutely.",
+            "start": 545.35,
+            "end": 546.35
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Before we end, what advice would you give to someone who wants to start eating clean?",
+            "start": 546.35,
+            "end": 552.17
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Start small, be patient, and don't try to be perfect.",
+            "start": 552.17,
+            "end": 556.53
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Focus on how food makes you feel, not just what it looks like.",
+            "start": 556.53,
+            "end": 560.91
+        },
+        {
+            "speaker": "Jessica",
+            "text": "That's perfect advice.",
+            "start": 560.91,
+            "end": 563.45
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Thank you so much, Lisa, for this honest and calm conversation, and thank you to everyone",
+            "start": 563.45,
+            "end": 568.21
+        },
+        {
+            "speaker": "Jessica",
+            "text": "listening.",
+            "start": 568.21,
+            "end": 569.21
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Remember, eating clean is about simple food, balance, and listening to your body.",
+            "start": 569.21,
+            "end": 575.79
+        },
+        {
+            "speaker": "Jessica",
+            "text": "Take care, and I'll see you next time.",
+            "start": 575.79,
+            "end": 577.75
+        }
     ]
 }
