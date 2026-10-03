@@ -4,6 +4,7 @@ use App\Models\DirectMessage;
 use App\Models\FriendReport;
 use App\Models\User;
 use App\Notifications\DirectMessageReceived;
+use App\Services\AiFeedbackCard;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Carbon\CarbonInterface;
@@ -30,7 +31,7 @@ new class extends Component
 
     public string $reportReason = '';
 
-    /** @var array{strength: string, expression: string, correction: string}|null */
+    /** @var array{strength: string, expression: string, correction: array{original: string, corrected: string, why: string, suggestion: string}|null}|null */
     public ?array $feedback = null;
 
     public ?string $feedbackError = null;
@@ -330,41 +331,53 @@ new class extends Component
     {
         $this->feedbackError = null;
 
-        $mine = $this->conversationTranscript()->where('mine', true);
+        $transcript = $this->conversationTranscript();
 
-        if ($mine->isEmpty()) {
+        if ($transcript->where('mine', true)->isEmpty()) {
             $this->feedbackError = 'Send a few messages first — there\'s nothing to give feedback on yet.';
 
             return;
         }
 
         try {
-            $transcript = $this->conversationTranscript()
-                ->map(fn ($line) => ($line['mine'] ? 'Me' : $this->other->name).': '.$line['text'])
-                ->implode("\n");
-
-            $raw = app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => $transcript]],
-                systemPrompt: 'You are an encouraging English teacher reviewing a real chat conversation between '
-                    .'two friends practicing English together. Below, "Me" is '.auth()->user()->levelDescription()
-                    .' — give feedback ONLY on "Me"\'s own messages (grammar, natural phrasing, vocabulary). Do '
-                    .'NOT evaluate or comment on the other person\'s messages at all — they are only there for '
-                    .'context. Reply with ONLY valid JSON, no markdown fences, no extra text, in exactly this '
-                    .'shape: {"strength": "one specific thing \"Me\" did well, one sentence", '
-                    .'"expression": "one good word or phrase \"Me\" actually used", '
-                    .'"correction": "one grammar or vocabulary mistake of \"Me\"\'s to fix, one sentence, phrased kindly"}'
+            $data = app(AiFeedbackCard::class)->generate(
+                [['role' => 'user', 'text' => $transcript
+                    ->map(fn ($line) => ($line['mine'] ? 'Me' : $this->other->name).': '.$line['text'])
+                    ->implode("\n")]],
+                systemPrompt: 'You are an encouraging English teacher reviewing a casual text chat between two '
+                    .'friends practicing English together. Below, "Me" is '.auth()->user()->levelDescription()
+                    .' — give feedback ONLY on "Me"\'s own messages. The other person\'s lines are context only and '
+                    .'must never be evaluated or commented on. This is informal chatting, so lowercase, short forms '
+                    .'like "u" or relaxed punctuation are fine — only correct a real grammar or vocabulary error. '
+                    .'Ignore any line that is not written in English. Choose at most ONE correction, the most '
+                    .'useful one; if nothing is worth fixing, set "correction" to null — never invent a mistake. '
+                    .'Keep everything short and kind, the way you would for someone easily overwhelmed. Reply with '
+                    .'ONLY valid JSON, no markdown fences, no extra text, in exactly this shape: '
+                    .'{"strength": "one full sentence, in PERSIAN (Farsi), about one specific thing \"Me\" did well", '
+                    .'"expression": "one full sentence, in PERSIAN (Farsi), pointing out one good English word or '
+                    .'phrase \"Me\" actually used — you can quote the English itself inside the Persian sentence", '
+                    .'"correction": {"original": "\"Me\"\'s own flawed message or sentence, quoted exactly, in ENGLISH", '
+                    .'"corrected": "the corrected version of that same text, in ENGLISH", '
+                    .'"why": "one short sentence, in PERSIAN (Farsi), explaining the underlying rule", '
+                    .'"suggestion": "one short, concrete next step, in PERSIAN (Farsi)"} or null}. '
+                    .'Only "original" and "corrected" are in English; every other field is plain Persian, with no '
+                    .'English words mixed in unless quoting a specific English word or phrase.',
+                requiredKeys: ['strength', 'expression'],
             );
 
-            $data = json_decode(trim($raw), true);
-
-            if (! is_array($data) || ! isset($data['strength'], $data['expression'], $data['correction'])) {
-                throw new RuntimeException('Unexpected AI response format.');
-            }
+            $correction = $data['correction'] ?? null;
 
             $this->feedback = [
                 'strength' => $data['strength'],
                 'expression' => $data['expression'],
-                'correction' => $data['correction'],
+                'correction' => is_array($correction) && filled($correction['original'] ?? null) && filled($correction['corrected'] ?? null)
+                    ? [
+                        'original' => $correction['original'],
+                        'corrected' => $correction['corrected'],
+                        'why' => $correction['why'] ?? '',
+                        'suggestion' => $correction['suggestion'] ?? '',
+                    ]
+                    : null,
             ];
         } catch (Throwable) {
             $this->feedbackError = "Couldn't check your English right now — try again in a moment.";
@@ -382,7 +395,12 @@ new class extends Component
      */
     private function conversationTranscript()
     {
-        return auth()->user()->conversationWith($this->other)->get()
+        return auth()->user()->conversationWith($this->other)
+            ->reorder()
+            ->latest('id')
+            ->limit(40)
+            ->get()
+            ->reverse()
             ->reject(fn ($message) => $message->type === DirectMessage::TYPE_NUDGE)
             ->map(fn ($message) => [
                 'mine' => $message->sender_id === auth()->id(),
@@ -866,18 +884,43 @@ new class extends Component
                 </div>
 
                 @if ($feedback)
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
+                    <div class="rounded-xl border-l-4 border-success bg-success/5 p-3 dark:border-success-dark dark:bg-success-dark/10">
+                        <p class="flex items-center gap-1.5 text-xs font-semibold text-success uppercase dark:text-success-dark">
+                            @svg('heroicon-o-check-circle', 'h-4 w-4')
+                            One thing you did well
+                        </p>
+                        <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['strength'] }}</p>
                     </div>
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good expression you used</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
+
+                    <div class="rounded-xl border-l-4 border-accent bg-accent/5 p-3 dark:border-accent-dark dark:bg-accent-dark/10">
+                        <p class="flex items-center gap-1.5 text-xs font-semibold text-accent uppercase dark:text-accent-dark">
+                            @svg('heroicon-o-book-open', 'h-4 w-4')
+                            A good expression you used
+                        </p>
+                        <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['expression'] }}</p>
                     </div>
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-warning-ink uppercase">One thing to improve</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
-                    </div>
+
+                    @if ($feedback['correction'])
+                        <div class="rounded-xl border-l-4 border-warning bg-warning-soft p-3">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold text-warning-ink uppercase">
+                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
+                                Something to fix
+                            </p>
+                            <p class="mt-2 text-sm text-danger-ink line-through decoration-danger">{{ $feedback['correction']['original'] }}</p>
+                            <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $feedback['correction']['corrected'] }}</p>
+                            @if ($feedback['correction']['why'])
+                                <p class="font-fa mt-2 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['correction']['why'] }}</p>
+                            @endif
+                            @if ($feedback['correction']['suggestion'])
+                                <p class="font-fa mt-1 flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
+                                    @svg('heroicon-o-arrow-trending-up', 'mt-0.5 h-4 w-4 shrink-0')
+                                    {{ $feedback['correction']['suggestion'] }}
+                                </p>
+                            @endif
+                        </div>
+                    @else
+                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Nothing to fix in your recent messages — nice work.</p>
+                    @endif
                 @else
                     <p class="text-sm text-danger-ink">{{ $feedbackError }}</p>
                 @endif
