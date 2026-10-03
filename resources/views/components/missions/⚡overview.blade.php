@@ -27,11 +27,11 @@ new class extends Component
      * is the same day Today shows: the open mission's day, or day 1 of the
      * next mission between missions. Null once all 24 missions are done.
      *
-     * Shown inside the Today box. The "I listened" tick is deliberately not
-     * offered here — it lives only on the /listening page; the box just
-     * reflects whether today's tick has been made.
+     * Shown inside the Today box as a single row linking to /listening,
+     * where the picks themselves and the "I listened" tick live; the box
+     * only reflects whether today's tick has been made.
      *
-     * @return array{missionCode: string, dayNumber: int, picks: list<array<string, mixed>>, listenedToday: bool}|null
+     * @return array{missionCode: string, dayNumber: int, listenedToday: bool}|null
      */
     #[Computed]
     public function listening(): ?array
@@ -45,7 +45,6 @@ new class extends Component
         }
 
         return $day + [
-            'picks' => $trio,
             'listenedToday' => auth()->user()->hasListenedToday(),
         ];
     }
@@ -230,6 +229,37 @@ new class extends Component
         </div>
     </header>
 
+    {{-- The streak line that used to sit in the app header. A thin row
+         (no card border/bg) so it reads as status, not as a second "Today",
+         but it leads the page: the streak is the motivation hook, and the
+         header it came from is deliberately bare now. --}}
+    <a
+        href="{{ route('progress.index') }}"
+        wire:navigate
+        class="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
+    >
+        <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
+                <x-streak-flame :streak="$this->progressSummary['streak']" /> {{ $this->progressSummary['streak'] }}
+            </span>
+            <span class="inline-flex items-center gap-1 font-semibold text-ink dark:text-ink-dark">
+                @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') {{ $this->progressSummary['missionsCompleted'] }} {{ Str::plural('mission', $this->progressSummary['missionsCompleted']) }}
+            </span>
+            @if (($freshness = $this->progressSummary['freshness']) !== null)
+                @php
+                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-warning-ink' : 'text-danger-ink');
+                @endphp
+                <span class="inline-flex items-center gap-1 font-semibold {{ $freshnessColor }}">
+                    @svg('heroicon-o-bolt', 'h-3.5 w-3.5') {{ $freshness }}% fresh
+                </span>
+            @endif
+        </div>
+        <span class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+            My Progress
+            @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
+        </span>
+    </a>
+
     {{-- Today — the one thing this page must answer (see ProgramPlanner). --}}
     <section class="rounded-2xl border-2 border-accent/40 bg-surface p-4 dark:border-accent-dark/40 dark:bg-surface-dark">
         @if ($today['kind'] === 'mission_day')
@@ -240,9 +270,9 @@ new class extends Component
             @if ($today['dayLabel'])
                 <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">{{ $today['dayLabel'] }}</p>
             @endif
-            {{-- The listening picks come first, in their own visibly
-                 different zone: they are NOT part of the steps below
-                 (any time, any order, never blocks Continue). --}}
+            {{-- The listening row comes first, visibly apart from the steps
+                 below: it is NOT one of them (any time, any order, never
+                 blocks Continue). --}}
             @if ($listening = $this->listening)
                 <x-listening-today :listening="$listening" />
             @endif
@@ -328,37 +358,6 @@ new class extends Component
             <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">All 24 missions complete. Keep the streak with Daily Review — and keep talking.</p>
         @endif
     </section>
-
-    {{-- Lighter row style (no card border/bg) than "Today" above it, same
-         treatment as the nudges below — home-page declutter pass: these
-         are all secondary to Today, and sharing its exact card chrome
-         flattened that hierarchy. --}}
-    <a
-        href="{{ route('progress.index') }}"
-        wire:navigate
-        class="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
-    >
-        <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-            <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
-                <x-streak-flame :streak="$this->progressSummary['streak']" /> {{ $this->progressSummary['streak'] }}
-            </span>
-            <span class="inline-flex items-center gap-1 font-semibold text-ink dark:text-ink-dark">
-                @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') {{ $this->progressSummary['missionsCompleted'] }} {{ Str::plural('mission', $this->progressSummary['missionsCompleted']) }}
-            </span>
-            @if (($freshness = $this->progressSummary['freshness']) !== null)
-                @php
-                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-warning-ink' : 'text-danger-ink');
-                @endphp
-                <span class="inline-flex items-center gap-1 font-semibold {{ $freshnessColor }}">
-                    @svg('heroicon-o-bolt', 'h-3.5 w-3.5') {{ $freshness }}% fresh
-                </span>
-            @endif
-        </div>
-        <span class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-            My Progress
-            @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
-        </span>
-    </a>
 
     @if ($this->needsPlacement)
         <a
