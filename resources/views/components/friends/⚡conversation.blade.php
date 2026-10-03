@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\DirectMessageReceived;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use Carbon\CarbonInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -33,6 +34,12 @@ new class extends Component
 
     public ?string $feedbackError = null;
 
+    /** How many of the newest messages are loaded (see window()). */
+    public int $limit = 50;
+
+    /** Read once — the poll re-renders every 5s and the streak is a UNION over all Evidence. */
+    public int $otherStreak = 0;
+
     /**
      * A small curated set rather than a full picker library — no new
      * dependency, no external CDN call, just plain UTF-8 characters
@@ -56,6 +63,8 @@ new class extends Component
         // follow, a stranger, or a blocked pair never reaches this page
         // regardless of how they got the URL.
         abort_unless(auth()->user()->canMessageWith($this->other), 403);
+
+        $this->otherStreak = $this->other->currentStreak();
 
         // Arrives from <x-practice-with-friend> on a mission step — just
         // pre-fills the composer, never auto-sent, so the learner can
@@ -368,16 +377,58 @@ new class extends Component
         return auth()->user()->canMessageWith($this->other);
     }
 
+    /**
+     * The newest $limit messages plus one more, oldest first — the extra
+     * row only tells hasEarlier() whether there's anything above the window.
+     * The poll re-runs this every 5s, so it must never load the full history.
+     *
+     * @return Collection<int, DirectMessage>
+     */
+    #[Computed]
+    public function window()
+    {
+        return auth()->user()->conversationWith($this->other)
+            ->reorder()
+            ->latest('id')
+            ->limit($this->limit + 1)
+            ->get()
+            ->reverse()
+            ->values();
+    }
+
+    #[Computed]
+    public function hasEarlier(): bool
+    {
+        return $this->window->count() > $this->limit;
+    }
+
+    /**
+     * Adds another page above. The scroll position is restored by the button
+     * itself (see the template) — Safari's scroll anchoring isn't reliable.
+     */
+    public function loadEarlier(): void
+    {
+        $this->limit += 50;
+
+        unset($this->window, $this->thread, $this->hasEarlier);
+    }
+
     #[Computed]
     public function thread()
     {
-        $messages = auth()->user()->conversationWith($this->other)->get();
+        $messages = $this->window->take(-$this->limit)->values();
 
         if (! $this->canMessage) {
             return $messages;
         }
 
-        $messages->where('recipient_id', auth()->id())->whereNull('read_at')->each->update(['read_at' => now()]);
+        // One UPDATE for everything unread in the pair — including anything
+        // above the loaded window — and only when there is something to mark.
+        DirectMessage::query()
+            ->where('sender_id', $this->other->id)
+            ->where('recipient_id', auth()->id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
         auth()->user()->unreadNotifications()
             ->where('type', DirectMessageReceived::class)
@@ -385,6 +436,28 @@ new class extends Component
             ->update(['read_at' => now()]);
 
         return $messages;
+    }
+
+    #[Computed]
+    public function timezone(): string
+    {
+        return auth()->user()->displayTimezone();
+    }
+
+    /**
+     * "Today" / "Yesterday" / "Mon, Sep 28" (plus the year when it isn't this
+     * one), judged in the learner's own timezone.
+     */
+    public function dayLabel(CarbonInterface $localDate): string
+    {
+        $today = now($this->timezone)->startOfDay();
+
+        return match (true) {
+            $localDate->isSameDay($today) => 'Today',
+            $localDate->isSameDay($today->copy()->subDay()) => 'Yesterday',
+            $localDate->year === $today->year => $localDate->format('D, M j'),
+            default => $localDate->format('D, M j, Y'),
+        };
     }
 };
 ?>
@@ -402,10 +475,10 @@ new class extends Component
         <x-user-avatar :user="$other" class="h-10 w-10 text-sm" />
         <div class="min-w-0 flex-1">
             <h1 class="truncate font-display text-base font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
-            @if ($streak = $other->currentStreak())
+            @if ($otherStreak)
                 <p class="inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
                     @svg('heroicon-s-fire', 'h-3 w-3 text-accent-ink dark:text-accent-ink-dark')
-                    {{ $streak }}-day streak
+                    {{ $otherStreak }}-day streak
                 </p>
             @endif
         </div>
@@ -491,12 +564,31 @@ new class extends Component
             aria-label="Conversation with {{ $other->name }}"
             class="chat-wallpaper min-h-0 flex-1 space-y-0.5 overflow-y-auto p-4"
         >
+            @if ($this->hasEarlier)
+                <div class="flex justify-center pb-2">
+                    <button
+                        type="button"
+                        x-on:click="const el = $root; const fromBottom = el.scrollHeight - el.scrollTop; $wire.loadEarlier().then(() => $nextTick(() => { el.scrollTop = el.scrollHeight - fromBottom }))"
+                        wire:loading.attr="disabled"
+                        wire:target="loadEarlier"
+                        class="cursor-pointer rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:opacity-50"
+                    >Load earlier messages</button>
+                </div>
+            @endif
+
             @forelse ($this->thread as $message)
             @php
                 $mine = $message->sender_id === auth()->id();
                 $previous = $this->thread[$loop->index - 1] ?? null;
-                $grouped = $previous && $previous->sender_id === $message->sender_id && $previous->type !== 'nudge' && $message->type !== 'nudge';
+                $localTime = $message->created_at->copy()->setTimezone($this->timezone);
+                $newDay = ! $previous || ! $previous->created_at->copy()->setTimezone($this->timezone)->isSameDay($localTime);
+                $grouped = ! $newDay && $previous->sender_id === $message->sender_id && $previous->type !== 'nudge' && $message->type !== 'nudge';
             @endphp
+            @if ($newDay)
+                <div class="flex justify-center pt-2 pb-1">
+                    <span class="rounded-full bg-surface/80 px-3 py-0.5 text-[11px] font-semibold text-ink-faint shadow-sm dark:bg-surface-dark/80 dark:text-ink-faint-dark">{{ $this->dayLabel($localTime) }}</span>
+                </div>
+            @endif
             <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }} {{ $grouped ? 'mt-0.5' : 'mt-2.5' }}">
                 <div class="max-w-[75%] px-3 py-2 text-sm shadow-sm
                     {{ $message->type === 'nudge'
@@ -526,7 +618,7 @@ new class extends Component
                     @endif
 
                     <div class="mt-1 flex items-center justify-end gap-1 {{ $mine ? 'text-white/70 dark:text-white/70' : 'text-ink-faint dark:text-ink-faint-dark' }}">
-                        <span class="text-[10px] tabular-nums">{{ $message->created_at->format('g:i A') }}</span>
+                        <span class="text-[10px] tabular-nums">{{ $localTime->format('g:i A') }}</span>
                         @if ($mine && $message->type !== 'nudge')
                             <span
                                 class="relative inline-flex h-3 w-4 shrink-0 items-center {{ $message->read_at ? 'opacity-100' : 'opacity-60' }}"

@@ -75,6 +75,16 @@
             });
         })();
     </script>
+    {{-- The browser's timezone, for showing message times in the learner's own
+         zone (see User::displayTimezone()). Written once per zone change. --}}
+    <script>
+        try {
+            var eosTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (eosTz && document.cookie.indexOf('eos_tz=' + encodeURIComponent(eosTz)) === -1) {
+                document.cookie = 'eos_tz=' + encodeURIComponent(eosTz) + '; path=/; max-age=31536000; samesite=lax';
+            }
+        } catch (e) {}
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>

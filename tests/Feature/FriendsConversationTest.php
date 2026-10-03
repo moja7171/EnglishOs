@@ -626,6 +626,57 @@ class FriendsConversationTest extends TestCase
             ->assertSee('Check my English');
     }
 
+    public function test_message_times_use_the_learners_timezone_with_day_separators(): void
+    {
+        $this->travelTo('2026-10-03 12:00:00');
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'older one'])->forceFill(['created_at' => '2026-10-01 10:00:00'])->save();
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'late night'])->forceFill(['created_at' => '2026-10-02 22:30:00'])->save();
+
+        $this->actingAs($me);
+
+        // 22:30 UTC is already 02:00 on the 3rd in Tehran (the fallback zone).
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('Thu, Oct 1')
+            ->assertSee('Today')
+            ->assertSee('2:00 AM');
+
+        Livewire::withCookie('eos_tz', 'America/New_York')
+            ->test('friends.conversation', ['other' => $bob])
+            ->assertSee('Yesterday')
+            ->assertSee('6:30 PM');
+    }
+
+    public function test_only_the_latest_page_loads_until_earlier_messages_are_requested(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        foreach (range(1, 60) as $number) {
+            DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => "msg-{$number}-end"]);
+        }
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('Load earlier messages')
+            ->assertSee('msg-60-end')
+            ->assertDontSee('msg-5-end')
+            ->call('loadEarlier')
+            ->assertSee('msg-5-end')
+            ->assertSee('msg-1-end')
+            ->assertDontSee('Load earlier messages');
+
+        $this->assertSame(0, DirectMessage::whereNull('read_at')->where('recipient_id', $me->id)->count());
+    }
+
     public function test_sending_a_file_attaches_it_with_its_original_name(): void
     {
         Storage::fake('local');

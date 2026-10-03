@@ -1404,6 +1404,21 @@ class User extends Authenticatable
         $user->notifications()->where('type', DirectMessageReceived::class)->where('data->sender_id', $this->id)->delete();
     }
 
+    /**
+     * The timezone message times are shown in: the browser's own zone (the
+     * eos_tz cookie, see the layout), validated against the real IANA list.
+     * Display-only — streak days and everything stored stay UTC. Falls back
+     * to Tehran, the app's main audience, when the cookie is missing.
+     */
+    public function displayTimezone(): string
+    {
+        $cookie = request()->cookie('eos_tz');
+
+        return is_string($cookie) && in_array($cookie, timezone_identifiers_list(), true)
+            ? $cookie
+            : 'Asia/Tehran';
+    }
+
     public function hasBlocked(User $user): bool
     {
         return FriendBlock::query()
