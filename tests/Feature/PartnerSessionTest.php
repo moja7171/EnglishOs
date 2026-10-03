@@ -7,6 +7,7 @@ use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
 use App\Notifications\PartnerAnswerReceived;
+use App\Notifications\PartnerSessionStarted;
 use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -58,12 +59,35 @@ class PartnerSessionTest extends TestCase
         );
     }
 
-    public function test_conversation_prompts_flattens_rounds_plus_final_prompt(): void
+    public function test_conversation_prompts_uses_rounds_without_the_solo_final_prompt(): void
     {
         $mission = $this->makeMission();
 
         $this->assertSame(
-            ['Describe your typical weekday.', 'Speak for 3 minutes about your daily life.'],
+            ['Describe your typical weekday.'],
+            $mission->conversationPrompts('ai_conversation_2')
+        );
+    }
+
+    public function test_conversation_prompts_reads_the_seeded_round_pool_shape(): void
+    {
+        $mission = Mission::create([
+            'code' => 'M02',
+            'title' => 'Pool',
+            'module' => 'Me',
+            'outcome' => 'I can talk.',
+            'phases' => [[
+                'phase' => 'mission',
+                'steps' => [[
+                    'key' => 'ai_conversation_2',
+                    'round_pool' => ['Describe your weekday.', 'Compare it with your weekend.', 'What do you enjoy most?', 'What is hardest?'],
+                    'final_prompt' => 'Speak for 3 minutes.',
+                ]],
+            ]],
+        ]);
+
+        $this->assertSame(
+            ['Describe your weekday.', 'Compare it with your weekend.', 'What do you enjoy most?', 'What is hardest?'],
             $mission->conversationPrompts('ai_conversation_2')
         );
     }
@@ -194,7 +218,7 @@ class PartnerSessionTest extends TestCase
         $this->get(route('partner-sessions.show', $session))->assertForbidden();
     }
 
-    public function test_saving_a_text_answer_is_visible_to_the_partner(): void
+    public function test_saving_a_text_answer_is_visible_to_the_partner_once_they_have_answered(): void
     {
         $mission = $this->makeMission();
         $alice = User::factory()->create();
@@ -210,10 +234,98 @@ class PartnerSessionTest extends TestCase
             ->call('saveTextAnswer', 0);
 
         $this->actingAs($bob);
-        Livewire::test('partner-session', ['session' => $session])
-            ->assertSee('Seven in the morning.')
-            ->assertSee('Waiting for '.$alice->name)
+        $bobView = Livewire::test('partner-session', ['session' => $session])
+            ->assertDontSee('Seven in the morning.')
+            ->assertSee("{$alice->name} has answered")
+            ->assertSee('Waiting for '.$alice->name, false)
             ->assertDontSee('Waiting for '.$bob->name);
+
+        $bobView->set('textAnswers.0', 'Eight, I think.')
+            ->call('saveTextAnswer', 0)
+            ->assertSee('Seven in the morning.')
+            ->assertSee('Saved');
+    }
+
+    public function test_starting_a_session_invites_the_partner_once(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+
+        $this->actingAs($alice);
+        $url = route('missions.practice-with-friend', ['mission' => $mission, 'step' => 'ai_conversation_1', 'friend' => $bob]);
+        $this->get($url);
+        $this->get($url);
+
+        $this->assertSame(1, $bob->notifications()->where('type', PartnerSessionStarted::class)->count());
+        $this->assertSame(0, $alice->notifications()->where('type', PartnerSessionStarted::class)->count());
+        $this->assertStringContainsString('invited you to practice', $bob->notifications()->where('type', PartnerSessionStarted::class)->first()->data['title']);
+    }
+
+    public function test_a_run_of_answers_leaves_the_partner_one_unread_alert_that_clears_when_they_open_the_session(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+
+        $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        $this->actingAs($alice);
+        Livewire::test('partner-session', ['session' => $session])
+            ->set('textAnswers.0', 'One.')
+            ->call('saveTextAnswer', 0)
+            ->set('textAnswers.1', 'Two.')
+            ->call('saveTextAnswer', 1);
+
+        $this->assertSame(1, $bob->notifications()->where('type', PartnerAnswerReceived::class)->count());
+
+        $this->actingAs($bob);
+        Livewire::test('partner-session', ['session' => $session]);
+
+        $this->assertSame(0, $bob->unreadNotifications()->where('type', PartnerAnswerReceived::class)->count());
+    }
+
+    public function test_finishing_every_question_shows_the_finish_card_with_a_chat_link(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+
+        $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        foreach ([$alice, $bob] as $person) {
+            $this->actingAs($person);
+            $view = Livewire::test('partner-session', ['session' => $session])
+                ->set('textAnswers.0', 'First.')
+                ->call('saveTextAnswer', 0)
+                ->set('textAnswers.1', 'Second.')
+                ->call('saveTextAnswer', 1);
+        }
+
+        $view->assertSee('You both finished!')
+            ->assertSeeHtml(route('friends.conversation', $alice));
+    }
+
+    public function test_the_session_page_links_to_a_chat_with_the_partner(): void
+    {
+        $mission = $this->makeMission();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+
+        $session = PartnerSession::findOrStartFor($mission, 'ai_conversation_1', $alice, $bob);
+
+        $this->actingAs($alice);
+        Livewire::test('partner-session', ['session' => $session])
+            ->assertSee("Message {$bob->name}")
+            ->assertDontSee('You both finished!');
     }
 
     public function test_saving_a_new_answer_notifies_the_partner(): void

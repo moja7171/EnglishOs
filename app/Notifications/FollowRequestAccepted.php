@@ -3,19 +3,14 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Concerns\DeliversWebPush;
 use Illuminate\Notifications\Notification;
 
 class FollowRequestAccepted extends Notification
 {
-    public function __construct(private readonly User $accepter) {}
+    use DeliversWebPush;
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['database'];
-    }
+    public function __construct(private readonly User $accepter) {}
 
     /**
      * @return array{icon: string, title: string, url: string}

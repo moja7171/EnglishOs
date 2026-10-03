@@ -4,14 +4,19 @@ namespace App\Notifications;
 
 use App\Models\PartnerSession;
 use App\Models\User;
-use App\Notifications\Concerns\DeliversWebPush;
 use Illuminate\Notifications\Notification;
 
-class PartnerAnswerReceived extends Notification
+class PartnerSessionStarted extends Notification
 {
-    use DeliversWebPush;
+    public function __construct(private readonly PartnerSession $session, private readonly User $inviter) {}
 
-    public function __construct(private readonly PartnerSession $session, private readonly User $responder) {}
+    /**
+     * @return list<string>
+     */
+    public function via(object $notifiable): array
+    {
+        return ['database'];
+    }
 
     /**
      * @return array{icon: string, title: string, url: string}
@@ -20,7 +25,7 @@ class PartnerAnswerReceived extends Notification
     {
         return [
             'icon' => 'heroicon-o-users',
-            'title' => "{$this->responder->name} answered a partner session question",
+            'title' => "{$this->inviter->name} invited you to practice \"{$this->session->mission->title}\" together",
             'url' => route('partner-sessions.show', $this->session),
         ];
     }

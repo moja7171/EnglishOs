@@ -319,4 +319,21 @@ class ProfileTest extends TestCase
 
         $this->assertTrue(Hash::check('old-password-123', $me->fresh()->password));
     }
+
+    public function test_the_privacy_tab_lists_blocked_people_and_can_unblock_them(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Blocked']);
+        $me->block($bob);
+
+        $this->actingAs($me);
+
+        Livewire::test('profile')
+            ->assertSee('Bob Blocked')
+            ->call('unblock', $bob->id)
+            ->assertDontSee('Bob Blocked')
+            ->assertSee('blocked anyone.');
+
+        $this->assertFalse($me->fresh()->hasBlocked($bob));
+    }
 }

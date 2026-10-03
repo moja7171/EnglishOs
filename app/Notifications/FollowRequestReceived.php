@@ -3,22 +3,19 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Concerns\DeliversWebPush;
 use Illuminate\Notifications\Notification;
 
 class FollowRequestReceived extends Notification
 {
+    use DeliversWebPush;
+
     public function __construct(private readonly User $follower) {}
 
     /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['database'];
-    }
-
-    /**
-     * @return array{icon: string, title: string, url: string}
+     * `follower_id` lets the bell offer Accept/Decline right on the row.
+     *
+     * @return array{icon: string, title: string, url: string, follower_id: int}
      */
     public function toArray(object $notifiable): array
     {
@@ -26,6 +23,7 @@ class FollowRequestReceived extends Notification
             'icon' => 'heroicon-o-user-plus',
             'title' => "{$this->follower->name} wants to connect",
             'url' => route('friends.index'),
+            'follower_id' => $this->follower->id,
         ];
     }
 }

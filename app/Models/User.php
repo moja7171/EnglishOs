@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\DirectMessageReceived;
 use App\Notifications\FollowRequestAccepted;
 use App\Notifications\FollowRequestReceived;
 use Database\Factories\UserFactory;
@@ -17,13 +18,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 #[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasPushSubscriptions, Notifiable;
 
     /**
      * Explicit, not left to the migration's DB column default — Eloquent
@@ -36,6 +38,7 @@ class User extends Authenticatable
     protected $attributes = [
         'celebrated_streak_milestone' => 0,
         'is_admin' => false,
+        'review_reminder_time' => '19:00',
     ];
 
     /**
@@ -52,6 +55,7 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'program_started_at' => 'datetime',
             'pi_onboarded_at' => 'datetime',
+            'last_review_reminder_on' => 'date',
         ];
     }
 
@@ -1183,6 +1187,15 @@ class User extends Authenticatable
     }
 
     /**
+     * The mirror of hasPendingRequestTo() — $user already asked to follow
+     * THIS user and is waiting on an answer.
+     */
+    public function hasPendingRequestFrom(User $user): bool
+    {
+        return $user->hasPendingRequestTo($this);
+    }
+
+    /**
      * Incoming requests to follow THIS user, newest first — surfaced on
      * the Friends page with Accept/Reject actions, and counted for the
      * notification badge on the Friends nav icon (see
@@ -1235,7 +1248,15 @@ class User extends Authenticatable
      */
     public function follow(User $user): void
     {
-        if ($user->is($this)) {
+        if ($user->is($this) || $this->hasBlocked($user) || $this->isBlockedBy($user)) {
+            return;
+        }
+
+        // They already asked us — following back is just accepting, never a
+        // second competing request.
+        if ($this->hasPendingRequestFrom($user)) {
+            $this->acceptFollowRequest($user);
+
             return;
         }
 
@@ -1269,6 +1290,8 @@ class User extends Authenticatable
             ->where('follower_id', $this->id)
             ->where('followed_id', $user->id)
             ->delete();
+
+        $this->clearMessageNotificationsWith($user);
     }
 
     /**
@@ -1305,6 +1328,142 @@ class User extends Authenticatable
             ->where('followed_id', $this->id)
             ->where('status', Follow::STATUS_PENDING)
             ->delete();
+    }
+
+    /**
+     * Blocking ends the relationship outright: every follow row between the
+     * two (accepted or pending, either direction) is removed, so
+     * unblocking later puts them back to being strangers rather than
+     * silently reopening the conversation. Any notification pointing at the
+     * other person is cleared too — it would only link to a page that now
+     * refuses them.
+     */
+    public function block(User $user): void
+    {
+        if ($user->is($this)) {
+            return;
+        }
+
+        FriendBlock::firstOrCreate([
+            'blocker_id' => $this->id,
+            'blocked_id' => $user->id,
+        ]);
+
+        Follow::query()
+            ->where(fn (Builder $query) => $query->where('follower_id', $this->id)->where('followed_id', $user->id))
+            ->orWhere(fn (Builder $query) => $query->where('follower_id', $user->id)->where('followed_id', $this->id))
+            ->delete();
+
+        $this->clearMessageNotificationsWith($user);
+
+        $this->notifications()->where('type', FollowRequestReceived::class)->where('data->follower_id', $user->id)->delete();
+        $user->notifications()->where('type', FollowRequestReceived::class)->where('data->follower_id', $this->id)->delete();
+    }
+
+    public function unblock(User $user): void
+    {
+        FriendBlock::query()
+            ->where('blocker_id', $this->id)
+            ->where('blocked_id', $user->id)
+            ->delete();
+    }
+
+    /**
+     * Every user with a block relationship with this one, either direction
+     * — the set that must stay out of Following/Followers/search/badges.
+     *
+     * @return Collection<int, int>
+     */
+    public function blockedUserIds(): Collection
+    {
+        return FriendBlock::where('blocker_id', $this->id)->pluck('blocked_id')
+            ->merge(FriendBlock::where('blocked_id', $this->id)->pluck('blocker_id'))
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * The people THIS user blocked (not the reverse), for the unblock list.
+     *
+     * @return Collection<int, User>
+     */
+    public function blockedUsers(): Collection
+    {
+        return User::query()
+            ->whereIn('id', FriendBlock::where('blocker_id', $this->id)->select('blocked_id'))
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Drops the "X sent you a message" notifications between this user and
+     * $user, in both directions — used when messaging between them closes
+     * (unfollow, block) so the bell and badges never point at a chat nobody
+     * can open.
+     */
+    public function clearMessageNotificationsWith(User $user): void
+    {
+        $this->notifications()->where('type', DirectMessageReceived::class)->where('data->sender_id', $user->id)->delete();
+        $user->notifications()->where('type', DirectMessageReceived::class)->where('data->sender_id', $this->id)->delete();
+    }
+
+    /**
+     * The timezone message times are shown in: the browser's own zone (the
+     * eos_tz cookie, see the layout), validated against the real IANA list.
+     * Display-only — streak days and everything stored stay UTC. Falls back
+     * to Tehran, the app's main audience, when the cookie is missing.
+     */
+    public function displayTimezone(): string
+    {
+        return $this->browserTimezone() ?? 'Asia/Tehran';
+    }
+
+    private function browserTimezone(): ?string
+    {
+        $cookie = request()->cookie('eos_tz');
+
+        return is_string($cookie) && in_array($cookie, timezone_identifiers_list(), true)
+            ? $cookie
+            : null;
+    }
+
+    /**
+     * The zone this learner's reminder time is read in — the one saved from
+     * their browser (see rememberTimezone()), Tehran until there is one.
+     */
+    public function reminderTimezone(): string
+    {
+        return is_string($this->timezone) && in_array($this->timezone, timezone_identifiers_list(), true)
+            ? $this->timezone
+            : 'Asia/Tehran';
+    }
+
+    /**
+     * Saves the browser's current zone so a scheduled reminder (which runs
+     * with no browser at all) lands at the learner's own local time.
+     */
+    public function rememberTimezone(): void
+    {
+        $timezone = $this->browserTimezone();
+
+        if ($timezone !== null && $this->timezone !== $timezone) {
+            $this->forceFill(['timezone' => $timezone])->save();
+        }
+    }
+
+    /**
+     * The latest real message $user sent THIS user (nudges aren't evidence of
+     * anything) — what a report keeps as its snapshot, since the sender could
+     * later edit or delete it.
+     */
+    public function lastMessageFrom(User $user): ?string
+    {
+        return DirectMessage::query()
+            ->where('sender_id', $user->id)
+            ->where('recipient_id', $this->id)
+            ->where('type', '!=', DirectMessage::TYPE_NUDGE)
+            ->latest('id')
+            ->value('body');
     }
 
     public function hasBlocked(User $user): bool
@@ -1348,14 +1507,79 @@ class User extends Authenticatable
      */
     public function mutualFriends(): Collection
     {
-        $blockedIds = FriendBlock::where('blocker_id', $this->id)->pluck('blocked_id')
-            ->merge(FriendBlock::where('blocked_id', $this->id)->pluck('blocker_id'));
+        return $this->mutualFriendsQuery()->get();
+    }
 
+    /**
+     * @return Collection<int, int>
+     */
+    public function mutualFriendIds(): Collection
+    {
+        return $this->mutualFriendsQuery()->pluck('users.id');
+    }
+
+    private function mutualFriendsQuery(): BelongsToMany
+    {
         return $this->following()
-            ->whereNotIn('users.id', $blockedIds)
-            ->get()
-            ->filter(fn (User $candidate) => $this->isFollowedBy($candidate))
-            ->values();
+            ->whereNotIn('users.id', $this->blockedUserIds())
+            ->whereIn('users.id', Follow::query()
+                ->where('followed_id', $this->id)
+                ->where('status', Follow::STATUS_ACCEPTED)
+                ->select('follower_id'));
+    }
+
+    /**
+     * Per-friend inbox data in two queries — no conversations table and no
+     * denormalized "last message" column: the latest message id and the
+     * unread count per counterpart come from one grouped query, then one
+     * lookup loads those messages. MAX(id) rather than created_at, since
+     * ids only grow and can't tie. $this->id is an int and inlined on
+     * purpose: bound placeholders in a GROUP BY expression make MySQL's
+     * ONLY_FULL_GROUP_BY treat it as a different expression from the SELECT.
+     *
+     * @return Collection<int, array{last: DirectMessage, unread: int}> keyed by the other user's id
+     */
+    public function conversationSummaries(): Collection
+    {
+        $me = (int) $this->id;
+        $otherSide = "CASE WHEN sender_id = {$me} THEN recipient_id ELSE sender_id END";
+
+        $rows = DirectMessage::query()
+            ->where(fn (Builder $query) => $query->where('sender_id', $me)->orWhere('recipient_id', $me))
+            ->selectRaw("{$otherSide} as other_id, MAX(id) as last_id, SUM(CASE WHEN recipient_id = {$me} AND read_at IS NULL THEN 1 ELSE 0 END) as unread")
+            ->groupByRaw($otherSide)
+            ->get();
+
+        $lastMessages = DirectMessage::query()->whereIn('id', $rows->pluck('last_id'))->get()->keyBy('id');
+
+        return $rows->mapWithKeys(fn ($row) => [
+            (int) $row->other_id => ['last' => $lastMessages[$row->last_id], 'unread' => (int) $row->unread],
+        ]);
+    }
+
+    /**
+     * Conversations with something unread, counting people rather than
+     * messages (a burst of five is one) and only those you can still message
+     * — an unread message from someone since blocked/unfollowed can never be
+     * opened, so it must never keep a badge lit.
+     */
+    public function unreadConversationCount(): int
+    {
+        return DirectMessage::query()
+            ->where('recipient_id', $this->id)
+            ->whereNull('read_at')
+            ->whereIn('sender_id', $this->mutualFriendIds())
+            ->distinct()
+            ->count('sender_id');
+    }
+
+    /**
+     * The one number behind the avatar dot and the Friends menu count:
+     * unread conversations plus pending friend requests.
+     */
+    public function friendsBadgeCount(): int
+    {
+        return $this->unreadConversationCount() + $this->pendingFollowRequestsCount();
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureSessionNotExpired;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,8 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Set from JS (the browser's IANA zone) so times can be shown in the
+        // learner's own timezone; it holds nothing sensitive, so skip encryption.
+        $middleware->encryptCookies(except: ['eos_tz']);
+
         $middleware->alias([
-            'session.absolute_timeout' => \App\Http\Middleware\EnsureSessionNotExpired::class,
+            'session.absolute_timeout' => EnsureSessionNotExpired::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

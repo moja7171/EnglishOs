@@ -373,8 +373,7 @@ new class extends Component
 
         <div
             x-ref="messages"
-            class="flex-1 space-y-2 overflow-y-auto p-3"
-            style="background-color: var(--color-surface-sunken); background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 10%, transparent) 1px, transparent 1px); background-size: 18px 18px;"
+            class="chat-wallpaper flex-1 space-y-2 overflow-y-auto p-3"
         >
             @forelse ($messages as $message)
                 @php $mine = $message['role'] === 'learner'; @endphp

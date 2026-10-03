@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\DirectMessage;
 use App\Models\FriendBlock;
 use App\Models\User;
+use App\Notifications\DirectMessageReceived;
 use App\Notifications\FollowRequestAccepted;
 use App\Notifications\FollowRequestReceived;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -205,5 +206,90 @@ class FriendSystemModelTest extends TestCase
         $message = $alice->conversationWith($bob)->first();
 
         $this->assertSame(DirectMessage::TYPE_NUDGE, $message->type);
+    }
+
+    public function test_blocking_removes_every_follow_and_pending_request_between_the_pair(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+
+        $alice->block($bob);
+
+        $this->assertDatabaseCount('follows', 0);
+        $this->assertTrue($alice->hasBlocked($bob));
+        $this->assertFalse($alice->isFollowing($bob));
+        $this->assertFalse($bob->fresh()->isFollowing($alice));
+    }
+
+    public function test_blocking_clears_message_notifications_between_the_pair(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+        $message = DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $alice->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'hi']);
+        $alice->notify(new DirectMessageReceived($message));
+
+        $alice->block($bob);
+
+        $this->assertSame(0, $alice->notifications()->where('type', DirectMessageReceived::class)->count());
+    }
+
+    public function test_unblocking_returns_them_to_strangers_and_lists_who_you_blocked(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+        $alice->block($bob);
+
+        $this->assertSame([$bob->id], $alice->blockedUsers()->pluck('id')->all());
+        $this->assertSame([], $bob->blockedUsers()->pluck('id')->all());
+
+        $alice->unblock($bob);
+
+        $this->assertFalse($alice->hasBlocked($bob));
+        $this->assertFalse($alice->canMessageWith($bob));
+        $this->assertSame([], $alice->blockedUsers()->pluck('id')->all());
+    }
+
+    public function test_a_blocked_pair_cannot_send_each_other_follow_requests(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->block($bob);
+
+        $bob->follow($alice);
+        $alice->follow($bob);
+
+        $this->assertDatabaseCount('follows', 0);
+    }
+
+    public function test_following_someone_who_already_asked_you_accepts_their_request(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $bob->follow($alice);
+
+        $alice->follow($bob);
+
+        $this->assertTrue($alice->canMessageWith($bob));
+        $this->assertDatabaseCount('follows', 2);
+    }
+
+    public function test_unfollowing_clears_the_message_notifications_between_the_pair(): void
+    {
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $alice->follow($bob);
+        $bob->acceptFollowRequest($alice);
+        $message = DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $alice->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'hi']);
+        $alice->notify(new DirectMessageReceived($message));
+
+        $alice->unfollow($bob);
+
+        $this->assertSame(0, $alice->notifications()->where('type', DirectMessageReceived::class)->count());
     }
 }

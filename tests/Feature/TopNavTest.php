@@ -86,6 +86,8 @@ class TopNavTest extends TestCase
     {
         $learner = User::factory()->create();
         $friend = User::factory()->create();
+        $learner->follow($friend);
+        $friend->acceptFollowRequest($learner);
         DirectMessage::create([
             'sender_id' => $friend->id,
             'recipient_id' => $learner->id,
@@ -96,6 +98,22 @@ class TopNavTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('home'))->assertSee('new in Friends');
+    }
+
+    public function test_the_avatar_dot_ignores_messages_from_someone_you_can_no_longer_message(): void
+    {
+        $learner = User::factory()->create();
+        $friend = User::factory()->create();
+        DirectMessage::create([
+            'sender_id' => $friend->id,
+            'recipient_id' => $learner->id,
+            'type' => DirectMessage::TYPE_MESSAGE,
+            'body' => 'Hi!',
+        ]);
+
+        $this->actingAs($learner);
+
+        $this->get(route('home'))->assertDontSee('new in Friends');
     }
 
     public function test_the_avatar_has_no_dot_when_friends_is_quiet(): void

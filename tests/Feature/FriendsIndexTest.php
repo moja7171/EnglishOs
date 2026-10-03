@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DirectMessage;
 use App\Models\Evidence;
 use App\Models\FriendBlock;
 use App\Models\Mission;
@@ -115,27 +116,34 @@ class FriendsIndexTest extends TestCase
             ->assertDontSee('Bob Blocked');
     }
 
-    public function test_submitting_a_report_creates_a_record_with_the_reason(): void
+    public function test_submitting_a_report_stores_category_details_and_the_last_message(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create(['name' => 'Bob']);
         $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'an unkind message']);
 
         $this->actingAs($me);
 
         Livewire::test('friends.index')
             ->call('startReport', $bob->id)
+            ->set('reportCategory.'.$bob->id, 'rude')
             ->set('reportReason.'.$bob->id, 'Being rude in messages')
-            ->call('submitReport', $bob->id);
+            ->call('submitReport', $bob->id)
+            ->assertSee('Report sent')
+            ->assertSee('Also block Bob');
 
         $this->assertDatabaseHas('friend_reports', [
             'reporter_id' => $me->id,
             'reported_id' => $bob->id,
+            'category' => 'rude',
             'reason' => 'Being rude in messages',
+            'message_snapshot' => 'an unkind message',
         ]);
     }
 
-    public function test_report_is_a_no_op_without_a_reason(): void
+    public function test_report_is_a_no_op_without_a_category(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
@@ -145,9 +153,48 @@ class FriendsIndexTest extends TestCase
 
         Livewire::test('friends.index')
             ->call('startReport', $bob->id)
+            ->set('reportReason.'.$bob->id, 'only details')
             ->call('submitReport', $bob->id);
 
         $this->assertDatabaseCount('friend_reports', 0);
+    }
+
+    public function test_a_report_without_details_falls_back_to_the_category_label(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->call('startReport', $bob->id)
+            ->set('reportCategory.'.$bob->id, 'spam')
+            ->call('submitReport', $bob->id);
+
+        $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'category' => 'spam', 'reason' => 'Spam', 'message_snapshot' => null]);
+    }
+
+    public function test_the_report_form_offers_the_preset_reasons_and_the_confirmation_can_be_dismissed(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->call('startReport', $bob->id)
+            ->assertSee('Rude or hurtful')
+            ->assertSee('Spam')
+            ->assertSee('Inappropriate')
+            ->assertSee('Something else')
+            ->set('reportCategory.'.$bob->id, 'other')
+            ->call('submitReport', $bob->id)
+            ->assertSee('Report sent')
+            ->call('dismissReportSent', $bob->id)
+            ->assertDontSee('Report sent');
     }
 
     public function test_the_active_today_banner_only_counts_real_mutual_friends(): void
@@ -197,5 +244,92 @@ class FriendsIndexTest extends TestCase
 
         Livewire::test('friends.index')
             ->assertDontSee('already practiced today');
+    }
+
+    public function test_unfollow_sits_behind_the_more_menu_with_a_confirmation_step(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Smith']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSeeHtml('aria-label="More options for Bob Smith"')
+            ->assertSee('Unfollow Bob Smith?')
+            ->assertSee('be able to message each other until you follow again.');
+    }
+
+    public function test_friends_are_ordered_by_latest_message_with_preview_and_unread_count(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create(['name' => 'Alice Quiet']);
+        $bob = User::factory()->create(['name' => 'Bob Talker']);
+        $carol = User::factory()->create(['name' => 'Carol Recent']);
+
+        foreach ([$alice, $bob, $carol] as $friend) {
+            $me->follow($friend);
+            $friend->acceptFollowRequest($me);
+        }
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'older']);
+        DirectMessage::create(['sender_id' => $carol->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'newest from carol']);
+        DirectMessage::create(['sender_id' => $carol->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'second unread']);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSeeInOrder(['Carol Recent', 'Bob Talker', 'Alice Quiet'])
+            ->assertSee('second unread')
+            ->assertSee('No messages yet')
+            ->assertSeeHtml('title="2 unread"');
+    }
+
+    public function test_one_way_follows_sit_apart_from_the_inbox_without_a_chat_link(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Oneway']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        $bob->unfollow($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSee('Waiting to follow you back (1)')
+            ->assertDontSee('Friends (')
+            ->assertDontSeeHtml(route('friends.conversation', $bob));
+    }
+
+    public function test_following_search_results_offer_accept_when_they_already_asked_you(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Asked']);
+        $bob->follow($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->set('search', 'Bob Asked')
+            ->assertSee('Accept request')
+            ->call('acceptRequest', $bob->id);
+
+        $this->assertTrue($me->fresh()->canMessageWith($bob));
+    }
+
+    public function test_unfollowing_from_the_menu_removes_the_friend(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')->call('unfollow', $bob->id);
+
+        $this->assertFalse($me->fresh()->isFollowing($bob));
+        $this->assertFalse($me->fresh()->canMessageWith($bob));
     }
 }

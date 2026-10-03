@@ -251,4 +251,30 @@
     .card-accent {
         @apply rounded-2xl border border-accent/30 bg-accent-soft dark:border-accent-dark/40 dark:bg-accent-soft-dark;
     }
+
+    /* The dot-grid "room" behind a chat thread (friend chat and Sage). Both
+       tokens are written out per theme because a plain var(--color-*) is the
+       light value in dark mode too. */
+    .chat-wallpaper {
+        background-color: var(--color-surface-sunken);
+        background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 10%, transparent) 1px, transparent 1px);
+        background-size: 18px 18px;
+    }
+
+    .dark .chat-wallpaper {
+        background-color: var(--color-surface-sunken-dark);
+        background-image: radial-gradient(color-mix(in srgb, var(--color-ink-dark) 10%, transparent) 1px, transparent 1px);
+    }
+}
+
+/* iOS Safari zooms the page whenever a focused field is under 16px, and most
+   inputs here are text-sm. Deliberately UNLAYERED so it beats Tailwind's
+   layered text-* utilities on touch screens only — desktop keeps the compact
+   sizing. (maximum-scale=1 would also stop it, but it disables pinch-zoom.) */
+@media (pointer: coarse) {
+    input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color']),
+    textarea,
+    select {
+        font-size: 16px;
+    }
 }

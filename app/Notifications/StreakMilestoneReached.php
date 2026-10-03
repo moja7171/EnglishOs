@@ -2,19 +2,14 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\DeliversWebPush;
 use Illuminate\Notifications\Notification;
 
 class StreakMilestoneReached extends Notification
 {
-    public function __construct(private readonly int $milestone) {}
+    use DeliversWebPush;
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
-    {
-        return ['database'];
-    }
+    public function __construct(private readonly int $milestone) {}
 
     /**
      * @return array{icon: string, title: string, url: string}

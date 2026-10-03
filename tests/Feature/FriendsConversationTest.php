@@ -233,7 +233,8 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->call('sendNudge')
+            ->call('draftNudge')
+            ->call('send')
             ->assertSee('Come practice with me today!');
 
         $this->assertDatabaseHas('direct_messages', [
@@ -257,7 +258,7 @@ class FriendsConversationTest extends TestCase
 
         $this->actingAs($me);
 
-        Livewire::test('friends.conversation', ['other' => $bob])->call('sendNudge');
+        Livewire::test('friends.conversation', ['other' => $bob])->call('draftNudge')->call('send');
 
         Notification::assertSentTo($bob, DirectMessageReceived::class);
     }
@@ -288,7 +289,8 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->call('sendNudge')
+            ->call('draftNudge')
+            ->call('send')
             ->assertSee('Keep your 1-day streak going today!');
     }
 
@@ -310,7 +312,8 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->call('sendNudge')
+            ->call('draftNudge')
+            ->call('send')
             ->assertSee('Missed you today — come get some practice in!');
 
         $this->assertDatabaseHas('direct_messages', [
@@ -319,6 +322,185 @@ class FriendsConversationTest extends TestCase
             'type' => DirectMessage::TYPE_NUDGE,
             'body' => 'Missed you today — come get some practice in! 😊',
         ]);
+    }
+
+    public function test_the_task_card_offers_questions_from_the_learners_current_mission(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Smith']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [[
+                'phase' => 'mission',
+                'steps' => [[
+                    'key' => 'ai_conversation_1',
+                    'interview_questions' => ['What time do you wake up?', 'What do you eat for breakfast?', 'How do you get to work?'],
+                ]],
+            ]],
+        ]);
+        MissionRun::findOrStart($me, $mission);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSet('starterTitle', 'My Daily Life')
+            ->assertCount('starterQuestions', 3)
+            ->assertSee('What time do you wake up?')
+            ->assertSee('How do you get to work?')
+            ->assertSee('Task: interview')
+            ->assertSee('about Bob Smith');
+    }
+
+    public function test_the_task_card_falls_back_to_generic_questions_without_a_mission_in_progress(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSet('starterTitle', null)
+            ->assertCount('starterQuestions', 3)
+            ->assertSee('Need something to talk about?');
+    }
+
+    public function test_a_recording_waits_for_a_preview_and_can_be_discarded_without_sending(): void
+    {
+        Storage::fake('local');
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('voiceMessage', UploadedFile::fake()->create('voice-message.webm', 500, 'audio/webm'))
+            ->assertSee('Send voice message')
+            ->assertSee('Record again')
+            ->call('discardVoiceMessage')
+            ->assertSet('voiceMessage', null)
+            ->assertDontSee('Send voice message');
+
+        $this->assertDatabaseCount('direct_messages', 0);
+    }
+
+    public function test_the_recipient_sees_a_voice_transcript_only_after_tapping_show_text(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create([
+            'sender_id' => $bob->id,
+            'recipient_id' => $me->id,
+            'type' => DirectMessage::TYPE_AUDIO,
+            'body' => 'I usually wake up at six',
+            'attachment_path' => 'direct-messages/x.webm',
+            'attachment_name' => 'voice-message.webm',
+            'attachment_mime' => 'audio/webm',
+        ]);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('Show text')
+            ->assertSeeHtml('x-show="showText"');
+    }
+
+    public function test_a_nudge_is_only_a_draft_until_the_learner_sends_it(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Come on, you can do it today!'));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('draftNudge')
+            ->assertSet('body', 'Come on, you can do it today!')
+            ->assertSet('draftIsNudge', true);
+
+        $this->assertDatabaseCount('direct_messages', 0);
+    }
+
+    public function test_an_edited_nudge_draft_is_still_sent_as_a_nudge_and_a_cleared_one_is_not(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('draftNudge')
+            ->set('body', 'My own words instead')
+            ->call('send')
+            ->assertSet('draftIsNudge', false);
+
+        $this->assertDatabaseHas('direct_messages', ['body' => 'My own words instead', 'type' => DirectMessage::TYPE_NUDGE]);
+
+        $chat->call('draftNudge')
+            ->set('body', '')
+            ->assertSet('draftIsNudge', false)
+            ->set('body', 'A normal message')
+            ->call('send');
+
+        $this->assertDatabaseHas('direct_messages', ['body' => 'A normal message', 'type' => DirectMessage::TYPE_MESSAGE]);
+    }
+
+    public function test_drafting_a_nudge_never_overwrites_what_was_already_typed(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->never());
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('body', 'half a thought')
+            ->call('draftNudge')
+            ->assertSet('body', 'half a thought')
+            ->assertSet('draftIsNudge', false);
+    }
+
+    public function test_nudge_drafts_stop_calling_the_ai_after_five_per_friend(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(5)->andReturn('AI nudge'));
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+
+        foreach (range(1, 5) as $ignored) {
+            $chat->call('draftNudge')->assertSet('body', 'AI nudge')->call('send');
+        }
+
+        $chat->call('draftNudge')->assertSet('body', 'Come practice with me today!');
     }
 
     public function test_receiving_a_message_marks_it_read_once_viewed(): void
@@ -357,7 +539,7 @@ class FriendsConversationTest extends TestCase
         $this->assertTrue($me->fresh()->hasBlocked($bob));
     }
 
-    public function test_reporting_from_the_conversation_snapshots_the_last_message(): void
+    public function test_reporting_from_the_conversation_stores_the_category_details_and_snapshot(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
@@ -369,15 +551,140 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->set('reportReason', 'They were rude')
-            ->call('submitReport');
+            ->call('startReport')
+            ->set('reportCategory', 'rude')
+            ->set('reportReason', 'They keep insulting me')
+            ->call('submitReport')
+            ->assertSet('reporting', false)
+            ->assertSet('reportSent', true)
+            ->assertSee('Report sent')
+            ->assertSee('Also block');
 
         $this->assertDatabaseHas('friend_reports', [
             'reporter_id' => $me->id,
             'reported_id' => $bob->id,
-            'reason' => 'They were rude',
+            'category' => 'rude',
+            'reason' => 'They keep insulting me',
             'message_snapshot' => 'rude thing',
         ]);
+    }
+
+    public function test_a_report_needs_a_category_but_not_details(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('startReport')
+            ->set('reportReason', 'details only')
+            ->call('submitReport')
+            ->assertSet('reporting', true);
+
+        $this->assertDatabaseCount('friend_reports', 0);
+
+        $chat->set('reportCategory', 'spam')->set('reportReason', '')->call('submitReport');
+
+        $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'category' => 'spam', 'reason' => 'Spam']);
+    }
+
+    public function test_an_unknown_report_category_is_rejected(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('reportCategory', 'made-up')
+            ->call('submitReport');
+
+        $this->assertDatabaseCount('friend_reports', 0);
+    }
+
+    public function test_the_report_confirmation_can_block_straight_away(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('reportCategory', 'rude')
+            ->call('submitReport')
+            ->call('block')
+            ->assertRedirect(route('friends.index'));
+
+        $this->assertTrue($me->fresh()->hasBlocked($bob));
+    }
+
+    public function test_the_report_snapshot_is_the_other_persons_message_not_your_own(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'rude thing']);
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'body' => 'please stop']);
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_NUDGE, 'body' => 'Keep going!']);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('reportCategory', 'rude')
+            ->call('submitReport');
+
+        $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'message_snapshot' => 'rude thing']);
+    }
+
+    public function test_losing_access_mid_conversation_locks_the_composer_and_keeps_the_draft(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertDontSee('right now.');
+
+        $bob->block($me);
+
+        $chat->set('body', 'are you there?')
+            ->call('send')
+            ->assertSet('body', 'are you there?')
+            ->assertSee('right now.')
+            ->assertDontSeeHtml('wire:poll');
+
+        $this->assertDatabaseCount('direct_messages', 0);
+    }
+
+    public function test_a_locked_conversation_does_not_mark_messages_read(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        $message = DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'hi']);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+        $message->forceFill(['read_at' => null])->save();
+
+        $bob->unfollow($me);
+        $chat->call('$refresh');
+
+        $this->assertNull($message->fresh()->read_at);
     }
 
     public function test_a_block_by_either_side_closes_an_already_open_conversation(): void
@@ -499,9 +806,14 @@ class FriendsConversationTest extends TestCase
                     && ! str_contains($messages[0]['text'], 'Keep it up!')
                     && str_contains($systemPrompt, 'ONLY on "Me"'))
                 ->andReturn(json_encode([
-                    'strength' => 'You wrote a clear, complete sentence.',
+                    'strength' => 'جمله‌ات کامل و واضح بود.',
                     'expression' => 'every day',
-                    'correction' => '"I goes" should be "I go".',
+                    'correction' => [
+                        'original' => 'I goes to school every day.',
+                        'corrected' => 'I go to school every day.',
+                        'why' => 'با I فعل بدون s می‌آید.',
+                        'suggestion' => 'چند جمله‌ی دیگر با I بنویس.',
+                    ],
                 ]));
         });
 
@@ -509,7 +821,57 @@ class FriendsConversationTest extends TestCase
 
         Livewire::test('friends.conversation', ['other' => $bob])
             ->call('generateFeedback')
-            ->assertSee('"I goes" should be "I go".');
+            ->assertSee('I goes to school every day.')
+            ->assertSee('I go to school every day.')
+            ->assertSee('با I فعل بدون s می‌آید.');
+    }
+
+    public function test_ai_feedback_can_report_that_there_is_nothing_to_fix(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'I usually wake up at six.']);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'strength' => 'جمله‌ات درست بود.',
+            'expression' => 'usually',
+            'correction' => null,
+        ])));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('generateFeedback')
+            ->assertSee('Nothing to fix in your recent messages')
+            ->assertDontSee('Something to fix');
+    }
+
+    public function test_ai_feedback_only_looks_at_the_most_recent_messages(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        foreach (range(1, 45) as $number) {
+            DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => "line-{$number}-end"]);
+        }
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages) => str_contains($messages[0]['text'], 'line-45-end')
+                    && str_contains($messages[0]['text'], 'line-6-end')
+                    && ! str_contains($messages[0]['text'], 'line-5-end'))
+                ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null]));
+        });
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])->call('generateFeedback');
     }
 
     public function test_a_failed_ai_feedback_call_shows_a_friendly_message(): void
@@ -527,7 +889,93 @@ class FriendsConversationTest extends TestCase
 
         Livewire::test('friends.conversation', ['other' => $bob])
             ->call('generateFeedback')
-            ->assertSee("Couldn't get feedback from the AI Instructor");
+            ->assertSee('check your English right now', false);
+    }
+
+    public function test_dismissing_the_feedback_sheet_clears_it(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        // An empty thread short-circuits with a "send a few messages first"
+        // error before any AI call — enough to have something to dismiss.
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('generateFeedback')
+            ->assertSet('feedbackError', fn ($error) => $error !== null)
+            ->call('dismissFeedback')
+            ->assertSet('feedbackError', null)
+            ->assertSet('feedback', null);
+    }
+
+    public function test_the_composer_is_a_labelled_multiline_box_inside_a_live_region_thread(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Smith']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSeeHtml('<textarea')
+            ->assertSeeHtml('aria-label="Message Bob Smith"')
+            ->assertSeeHtml('role="log"')
+            ->assertSee('Check my English');
+    }
+
+    public function test_message_times_use_the_learners_timezone_with_day_separators(): void
+    {
+        $this->travelTo('2026-10-03 12:00:00');
+
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'older one'])->forceFill(['created_at' => '2026-10-01 10:00:00'])->save();
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'late night'])->forceFill(['created_at' => '2026-10-02 22:30:00'])->save();
+
+        $this->actingAs($me);
+
+        // 22:30 UTC is already 02:00 on the 3rd in Tehran (the fallback zone).
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('Thu, Oct 1')
+            ->assertSee('Today')
+            ->assertSee('2:00 AM');
+
+        Livewire::withCookie('eos_tz', 'America/New_York')
+            ->test('friends.conversation', ['other' => $bob])
+            ->assertSee('Yesterday')
+            ->assertSee('6:30 PM');
+    }
+
+    public function test_only_the_latest_page_loads_until_earlier_messages_are_requested(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        foreach (range(1, 60) as $number) {
+            DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => "msg-{$number}-end"]);
+        }
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('Load earlier messages')
+            ->assertSee('msg-60-end')
+            ->assertDontSee('msg-5-end')
+            ->call('loadEarlier')
+            ->assertSee('msg-5-end')
+            ->assertSee('msg-1-end')
+            ->assertDontSee('Load earlier messages');
+
+        $this->assertSame(0, DirectMessage::whereNull('read_at')->where('recipient_id', $me->id)->count());
     }
 
     public function test_sending_a_file_attaches_it_with_its_original_name(): void
@@ -593,5 +1041,90 @@ class FriendsConversationTest extends TestCase
 
         $this->actingAs($stranger);
         $this->get(route('friends.attachment', $message))->assertForbidden();
+    }
+
+    public function test_a_burst_of_messages_leaves_the_recipient_one_notification(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+        $chat->set('body', 'one')->call('send');
+        $chat->set('body', 'two')->call('send');
+        $chat->set('body', 'three')->call('send');
+
+        $this->assertSame(1, $this->directMessageNotifications($bob)->count());
+    }
+
+    public function test_a_nudge_keeps_its_own_notification_separate_from_messages(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+        $chat->set('body', 'hi')->call('send');
+        $chat->call('draftNudge')->call('send');
+        $chat->call('draftNudge')->call('send');
+
+        $this->assertSame(2, $this->directMessageNotifications($bob)->count());
+    }
+
+    public function test_each_sender_gets_their_own_notification(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+
+        foreach ([$me, $alice] as $friend) {
+            $friend->follow($bob);
+            $bob->acceptFollowRequest($friend);
+        }
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'hi')->call('send');
+
+        $this->actingAs($alice);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'hello')->call('send');
+
+        $this->assertSame(2, $this->directMessageNotifications($bob)->count());
+    }
+
+    public function test_opening_the_conversation_reads_that_senders_notification_and_the_next_message_starts_a_new_one(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'first')->call('send');
+        $this->assertSame(1, $this->directMessageNotifications($bob, unreadOnly: true)->count());
+
+        $this->actingAs($bob);
+        Livewire::test('friends.conversation', ['other' => $me])->assertSee('first');
+        $this->assertSame(0, $this->directMessageNotifications($bob, unreadOnly: true)->count());
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'second')->call('send');
+
+        $this->assertSame(2, $this->directMessageNotifications($bob)->count());
+        $this->assertSame(1, $this->directMessageNotifications($bob, unreadOnly: true)->count());
+    }
+
+    private function directMessageNotifications(User $user, bool $unreadOnly = false)
+    {
+        $relation = $unreadOnly ? $user->unreadNotifications() : $user->notifications();
+
+        return $relation->where('type', DirectMessageReceived::class);
     }
 }
