@@ -13,9 +13,7 @@
 @php
     $user = auth()->user();
 
-    $dueReviewCount = $user->vocabularyWords()->where('next_review_at', '<=', now())->count()
-        + $user->speakingPrompts()->where('next_review_at', '<=', now())->count()
-        + $user->errorPatternReviews()->where('next_review_at', '<=', now())->count();
+    $dueReviewCount = $user->dailyReviewCount();
 
     $tabs = [
         ['label' => 'Home', 'route' => 'home', 'active' => request()->routeIs('home'), 'icon' => 'home'],

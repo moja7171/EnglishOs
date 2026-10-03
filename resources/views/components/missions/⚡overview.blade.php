@@ -50,19 +50,20 @@ new class extends Component
     }
 
     /**
-     * Words, speaking prompts, recurring grammar-mistake patterns, and
-     * taught grammar points combined — one nudge into Daily Review
-     * instead of a separate card per system (see review/⚡index.blade.php).
-     * The dedicated pages (My Words, Speaking Recall) stay reachable from
-     * the nav for anyone who wants to focus on just one.
+     * Today's Daily Review for the Today box's review row — words,
+     * speaking, and grammar combined into one finishable batch (see
+     * User::dailyReviewItems()). Null when there is nothing to do AND
+     * nothing was reviewed today: the row only shows up on days there is
+     * something to review (or just was), so its appearance is the signal.
+     *
+     * @return array{remaining: int, reviewedToday: int, breakdown: array{word: int, grammar: int, speaking: int}}|null
      */
     #[Computed]
-    public function dueReviewCount(): int
+    public function review(): ?array
     {
-        return auth()->user()->vocabularyWords()->where('next_review_at', '<=', now())->count()
-            + auth()->user()->speakingPrompts()->where('next_review_at', '<=', now())->count()
-            + auth()->user()->errorPatternReviews()->where('next_review_at', '<=', now())->count()
-            + auth()->user()->grammarPoints()->where('next_review_at', '<=', now())->count();
+        $summary = auth()->user()->dailyReviewSummary();
+
+        return $summary['remaining'] === 0 && $summary['reviewedToday'] === 0 ? null : $summary;
     }
 
     /**
@@ -276,6 +277,9 @@ new class extends Component
             @if ($listening = $this->listening)
                 <x-listening-today :listening="$listening" />
             @endif
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
             <p class="mt-4 text-xs font-bold text-ink-soft dark:text-ink-soft-dark">Today's steps <span class="font-medium text-ink-faint dark:text-ink-faint-dark">· in order</span></p>
             <ul class="mt-1.5 space-y-1.5">
                 @foreach ($today['steps'] as $step)
@@ -334,6 +338,9 @@ new class extends Component
             @if ($listening = $this->listening)
                 <x-listening-today :listening="$listening" />
             @endif
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
 
         @elseif ($today['kind'] === 'start_next')
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · Start a new mission</p>
@@ -352,10 +359,16 @@ new class extends Component
             @if ($listening = $this->listening)
                 <x-listening-today :listening="$listening" />
             @endif
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
 
         @else
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">100 days · done</p>
             <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">All 24 missions complete. Keep the streak with Daily Review — and keep talking.</p>
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
         @endif
     </section>
 
@@ -421,23 +434,6 @@ new class extends Component
                 <span class="block text-xs text-ink-faint dark:text-ink-faint-dark"><span x-text="remaining"></span> left today</span>
             </span>
         </div>
-    @endif
-
-    @if ($this->dueReviewCount)
-        <a
-            href="{{ route('review.index') }}"
-            wire:navigate
-            class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
-        >
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
-                @svg('heroicon-o-bolt', 'h-4 w-4')
-            </span>
-            <span class="flex-1">
-                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->dueReviewCount }} {{ Str::plural('item', $this->dueReviewCount) }} ready for Daily Review</span>
-                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Words, speaking, and grammar — a couple of minutes keeps them all fresh.</span>
-            </span>
-            @svg('heroicon-o-chevron-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark shrink-0')
-        </a>
     @endif
 
     {{-- Unseeded slots (~20 of 24 right now) used to each render their own

@@ -294,6 +294,106 @@ class User extends Authenticatable
         return $this->hasMany(ListeningLog::class, 'learner_id');
     }
 
+    /**
+     * The four spaced-repetition systems Daily Review mixes, keyed by the
+     * type name its queue and the Today row use.
+     *
+     * @return array<string, HasMany<VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint, $this>>
+     */
+    private function reviewSources(): array
+    {
+        return [
+            'word' => $this->vocabularyWords(),
+            'speaking' => $this->speakingPrompts(),
+            'error' => $this->errorPatternReviews(),
+            'grammar' => $this->grammarPoints(),
+        ];
+    }
+
+    /**
+     * How many items count as "today's review" — a finishable amount, so a
+     * backlog of forty due items reads as eight things to do today, not as
+     * a wall. The rest stay due and roll into tomorrow's eight.
+     */
+    public const DAILY_REVIEW_LIMIT = 8;
+
+    /**
+     * Items reviewed since midnight, from any review flow (Daily Review,
+     * My Words, Speaking Recall) — they all stamp last_reviewed_at.
+     */
+    public function reviewedTodayCount(): int
+    {
+        return collect($this->reviewSources())
+            ->sum(fn (HasMany $relation) => $relation->where('last_reviewed_at', '>=', today())->count());
+    }
+
+    public function dailyReviewAllowance(): int
+    {
+        return max(0, self::DAILY_REVIEW_LIMIT - $this->reviewedTodayCount());
+    }
+
+    /**
+     * Today's review: the most overdue due items across every review
+     * system, up to what is left of the daily limit. Shrinks as items get
+     * reviewed (a reviewed item leaves the due set while the allowance
+     * drops by one), so the same eight stay "today's eight" all day.
+     *
+     * @return Collection<int, array{type: string, id: int}>
+     */
+    public function dailyReviewItems(): Collection
+    {
+        $allowance = $this->dailyReviewAllowance();
+
+        if ($allowance === 0) {
+            return collect();
+        }
+
+        return collect($this->reviewSources())
+            ->flatMap(fn (HasMany $relation, string $type) => $relation
+                ->where('next_review_at', '<=', now())
+                ->get(['id', 'next_review_at'])
+                ->map(fn ($item) => ['type' => $type, 'id' => $item->id, 'dueAt' => $item->next_review_at->getTimestamp()]))
+            ->sortBy([['dueAt', 'asc'], ['type', 'asc'], ['id', 'asc']])
+            ->take($allowance)
+            ->map(fn (array $entry) => ['type' => $entry['type'], 'id' => $entry['id']])
+            ->values();
+    }
+
+    /**
+     * Cheap, count-only twin of dailyReviewItems()->count() for the nav
+     * badge, which renders on every page.
+     */
+    public function dailyReviewCount(): int
+    {
+        $due = collect($this->reviewSources())
+            ->sum(fn (HasMany $relation) => $relation->where('next_review_at', '<=', now())->count());
+
+        return $due === 0 ? 0 : min($due, $this->dailyReviewAllowance());
+    }
+
+    /**
+     * What the Today box's review row needs: how many of today's items are
+     * left, how many were already reviewed today, and what kinds the
+     * remaining ones are (error patterns fold into grammar).
+     *
+     * @return array{remaining: int, reviewedToday: int, breakdown: array{word: int, grammar: int, speaking: int}}
+     */
+    public function dailyReviewSummary(): array
+    {
+        $items = $this->dailyReviewItems();
+        $counts = $items->countBy('type');
+
+        return [
+            'remaining' => $items->count(),
+            'reviewedToday' => $this->reviewedTodayCount(),
+            'breakdown' => [
+                'word' => $counts->get('word', 0),
+                'grammar' => $counts->get('grammar', 0) + $counts->get('error', 0),
+                'speaking' => $counts->get('speaking', 0),
+            ],
+        ];
+    }
+
     public function hasListenedToday(): bool
     {
         return $this->listeningLogs()->where('listened_on', today()->toDateString())->exists();
