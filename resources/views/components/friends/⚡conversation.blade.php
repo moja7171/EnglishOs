@@ -328,9 +328,15 @@ new class extends Component
                 'expression' => $data['expression'],
                 'correction' => $data['correction'],
             ];
-        } catch (Throwable $e) {
-            $this->feedbackError = "Couldn't get feedback from the AI Instructor: {$e->getMessage()}";
+        } catch (Throwable) {
+            $this->feedbackError = "Couldn't check your English right now — try again in a moment.";
         }
+    }
+
+    public function dismissFeedback(): void
+    {
+        $this->feedback = null;
+        $this->feedbackError = null;
     }
 
     /**
@@ -383,46 +389,67 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6" x-data="{ showEmoji: false }">
-    <a href="{{ route('friends.index') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        Friends
-    </a>
-
-    <div class="flex items-center justify-between card p-3">
-        <div class="flex items-center gap-3">
-            <x-user-avatar :user="$other" class="h-10 w-10 text-sm" />
-            <div>
-                <h1 class="font-display text-base font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
-                @if ($streak = $other->currentStreak())
-                    <p class="inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                        @svg('heroicon-s-fire', 'h-3 w-3 text-accent-ink dark:text-accent-ink-dark')
-                        {{ $streak }}-day streak
-                    </p>
-                @endif
-            </div>
+{{-- Full-height chat (the page passes fill to the layout): a compact top bar,
+     the thread taking all the remaining height, and the composer pinned at
+     the bottom — so with the phone keyboard open the input is never pushed
+     below the fold. Report, feedback and the locked state all live inside
+     this one frame instead of stacking below a fixed-height box. --}}
+<div class="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6" x-data="{ showEmoji: false }">
+    <div class="flex shrink-0 items-center gap-2 card p-2 pr-2.5">
+        <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
+            @svg('heroicon-o-chevron-left', 'h-5 w-5')
+        </a>
+        <x-user-avatar :user="$other" class="h-10 w-10 text-sm" />
+        <div class="min-w-0 flex-1">
+            <h1 class="truncate font-display text-base font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
+            @if ($streak = $other->currentStreak())
+                <p class="inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                    @svg('heroicon-s-fire', 'h-3 w-3 text-accent-ink dark:text-accent-ink-dark')
+                    {{ $streak }}-day streak
+                </p>
+            @endif
         </div>
-        <div class="flex items-center gap-1">
+
+        {{-- Same "⋯" pattern as the Friends cards: Report and Block live behind
+             one menu instead of two bare icons a thumb-width apart. --}}
+        <div class="relative" x-data="{ menu: false }" x-on:click.outside="menu = false" x-on:keydown.escape.window="menu = false">
             <button
                 type="button"
-                wire:click="$set('reporting', true)"
-                title="Report"
-                class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-            >@svg('heroicon-o-flag', 'h-4 w-4')</button>
-            <button
-                type="button"
-                wire:click="block"
-                wire:loading.attr="disabled"
-                wire:target="block"
-                wire:confirm="Block {{ $other->name }}? They won't be able to message you."
-                title="Block"
-                class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-danger-soft hover:text-danger-ink dark:text-ink-faint-dark"
-            >@svg('heroicon-o-no-symbol', 'h-4 w-4')</button>
+                x-on:click="menu = ! menu"
+                aria-haspopup="menu"
+                aria-label="More options for {{ $other->name }}"
+                class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+            >@svg('heroicon-o-ellipsis-horizontal', 'h-5 w-5')</button>
+
+            <div x-show="menu" x-cloak x-transition.opacity.duration.150ms role="menu" class="absolute right-0 z-30 mt-1 w-52 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark">
+                <button
+                    type="button"
+                    wire:click="$set('reporting', true)"
+                    x-on:click="menu = false"
+                    role="menuitem"
+                    class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                >
+                    @svg('heroicon-o-flag', 'h-4 w-4')
+                    Report
+                </button>
+                <button
+                    type="button"
+                    wire:click="block"
+                    wire:loading.attr="disabled"
+                    wire:target="block"
+                    wire:confirm="Block {{ $other->name }}? They won't be able to message you."
+                    role="menuitem"
+                    class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:opacity-50"
+                >
+                    @svg('heroicon-o-no-symbol', 'h-4 w-4')
+                    Block
+                </button>
+            </div>
         </div>
     </div>
 
     @if ($reporting)
-        <div class="space-y-2 rounded-xl border border-danger-line bg-danger-soft p-3">
+        <div class="shrink-0 space-y-2 rounded-xl border border-danger-line bg-danger-soft p-3">
             <p class="text-xs font-semibold text-danger-ink">Report {{ $other->name }}</p>
             <textarea
                 wire:model="reportReason"
@@ -431,24 +458,20 @@ new class extends Component
                 class="w-full rounded-lg border border-danger-line bg-transparent px-2 py-1 text-sm text-ink dark:text-ink-dark"
             ></textarea>
             <div class="flex gap-2">
-                <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport" class="cursor-pointer rounded-full border border-danger-line px-3 py-1 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"> <span wire:loading.remove wire:target="submitReport">Submit report</span> <span wire:loading wire:target="submitReport">Submitting…</span></button>
+                <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport" class="cursor-pointer rounded-full border border-danger-line px-3 py-1.5 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"> <span wire:loading.remove wire:target="submitReport">Submit report</span> <span wire:loading wire:target="submitReport">Submitting…</span></button>
                 <button type="button" wire:click="$set('reporting', false)" class="cursor-pointer text-xs text-ink-faint underline dark:text-ink-faint-dark">Cancel</button>
             </div>
         </div>
     @endif
 
-    {{-- Chat card — thread, toolbar, and composer merged into one bordered
-         panel with no gap between them, so the input reads as glued to the
-         conversation the way a real chat app's message list and input bar
-         form a single surface, not three separate floating pieces. --}}
-    <div class="overflow-hidden rounded-2xl border border-line dark:border-line-dark">
-        {{-- Wallpaper — a subtle dot-grid texture (self-hosted CSS, no
-             image/network dependency) so the thread reads as its own
-             "room". Auto-scrolls to the newest message on load and
-             whenever the thread changes (send, poll refresh, a friend's
-             reply) — but only snaps down if the reader was already near
-             the bottom, so scrolling up to reread history isn't yanked
-             out from under them by the 5s poll. --}}
+    {{-- Chat card — thread, toolbar and composer in one bordered panel with no
+         gap between them, like a real chat app's list and input bar. It is
+         also the positioning context for the feedback sheet. --}}
+    <div class="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-line dark:border-line-dark">
+        {{-- Auto-scrolls to the newest message on load and whenever the thread
+             changes (send, poll refresh, a friend's reply) — but only snaps
+             down if the reader was already near the bottom, so scrolling up
+             to reread history isn't yanked away by the 5s poll. --}}
         <div
             x-data="{
                 init() {
@@ -463,7 +486,10 @@ new class extends Component
                 },
             }"
             @if ($this->canMessage) wire:poll.5s="$refresh" @endif
-            class="chat-wallpaper max-h-[28rem] min-h-[16rem] space-y-0.5 overflow-y-auto p-4"
+            role="log"
+            aria-live="polite"
+            aria-label="Conversation with {{ $other->name }}"
+            class="chat-wallpaper min-h-0 flex-1 space-y-0.5 overflow-y-auto p-4"
         >
             @forelse ($this->thread as $message)
             @php
@@ -496,7 +522,7 @@ new class extends Component
                             <span class="underline decoration-dotted underline-offset-2">{{ $message->attachment_name }}</span>
                         </a>
                     @else
-                        <span class="break-words">{{ $message->body }}</span>
+                        <span class="break-words whitespace-pre-line">{{ $message->body }}</span>
                     @endif
 
                     <div class="mt-1 flex items-center justify-end gap-1 {{ $mine ? 'text-white/70 dark:text-white/70' : 'text-ink-faint dark:text-ink-faint-dark' }}">
@@ -522,142 +548,176 @@ new class extends Component
         </div>
 
         @if (! $this->canMessage)
-            <div class="flex items-center gap-2 border-t border-line bg-surface px-4 py-3 text-sm text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">
+            <div class="flex shrink-0 items-center gap-2 border-t border-line bg-surface px-4 py-3 text-sm text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">
                 @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0')
                 You can't message {{ $other->name }} right now.
             </div>
         @else
-        {{-- Toolbar — icon-only actions with a hover tooltip (title)
-             instead of full text labels, so this stays a thin strip glued
-             between the thread and the composer rather than a tall row of
-             text buttons breaking the "one surface" illusion. --}}
-        <div class="flex flex-wrap items-center gap-1 border-t border-line bg-surface px-2 py-1.5 dark:border-line-dark dark:bg-surface-dark">
-            <button
-                type="button"
-                wire:click="sendNudge"
-                wire:loading.attr="disabled"
-                wire:target="sendNudge"
-                title="Send an encouragement nudge"
-                class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-            >@svg('heroicon-s-fire', 'h-4 w-4')</button>
-
-            <label title="Attach a file" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
-                @svg('heroicon-o-paper-clip', 'h-4 w-4')
-                <input type="file" wire:model="attachment" class="hidden">
-            </label>
-            <span wire:loading wire:target="attachment" class="text-xs text-ink-faint dark:text-ink-faint-dark">Uploading…</span>
-
-            @if ($attachment)
-                <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $attachment->getClientOriginalName() }}</span>
+            {{-- Toolbar — the two actions that matter carry a visible label;
+                 attach stays an icon (it has an accessible name). Touch
+                 targets are 40px. --}}
+            <div class="flex shrink-0 flex-wrap items-center gap-1 border-t border-line bg-surface px-2 py-1.5 dark:border-line-dark dark:bg-surface-dark">
                 <button
                     type="button"
-                    wire:click="sendFile"
+                    wire:click="sendNudge"
                     wire:loading.attr="disabled"
-                    class="cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                >Send file</button>
-            @endif
-
-            @error('attachment')
-                <span class="text-xs text-danger-ink">{{ $message }}</span>
-            @enderror
-
-            <button
-                type="button"
-                wire:click="generateFeedback"
-                wire:loading.attr="disabled"
-                wire:target="generateFeedback"
-                title="Get AI feedback on this conversation"
-                class="ms-auto inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink disabled:pointer-events-none disabled:opacity-50 dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-            >
-                <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
-                <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-            </button>
-        </div>
-
-        {{-- Composer — emoji picker, text input, and the voice recorder all
-             in one bar, directly attached under the toolbar with no gap. --}}
-        <div class="relative flex items-center gap-1.5 border-t border-line bg-surface p-1.5 dark:border-line-dark dark:bg-surface-dark">
-            <button
-                type="button"
-                x-on:click="showEmoji = !showEmoji"
-                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-            >@svg('heroicon-o-face-smile', 'h-5 w-5')</button>
-
-            <div
-                x-show="showEmoji"
-                x-cloak
-                x-on:click.outside="showEmoji = false"
-                x-transition.opacity.duration.150ms
-                class="absolute bottom-full left-0 z-10 mb-2 grid w-64 grid-cols-8 gap-0.5 card p-2 shadow-lg"
-            >
-                @foreach ($this->emojis() as $emoji)
-                    <button
-                        type="button"
-                        x-on:click="$wire.body = $wire.body + '{{ $emoji }}'"
-                        class="cursor-pointer rounded-lg py-1 text-lg transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
-                    >{{ $emoji }}</button>
-                @endforeach
-            </div>
-
-            <form wire:submit="send" class="flex flex-1 items-center gap-1.5">
-                <input
-                    type="text"
-                    wire:model="body"
-                    placeholder="Message {{ $other->name }}…"
-                    x-on:focus="showEmoji = false"
-                    class="w-full rounded-full border-0 bg-transparent px-2 py-1.5 text-sm text-ink focus:outline-none dark:text-ink-dark"
+                    wire:target="sendNudge"
+                    title="Send an encouragement nudge"
+                    class="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                <button
-                    type="submit"
-                    wire:loading.attr="disabled"
-                    wire:target="send"
-                    title="Send"
-                    class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
-            </form>
+                    @svg('heroicon-s-fire', 'h-4 w-4')
+                    Nudge
+                </button>
 
-            <div wire:key="voice-recorder-{{ $other->id }}" class="shrink-0">
-                <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" :compact="true" />
-            </div>
-        </div>
-        @endif
-    </div>
+                <label title="Attach a file" class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors focus-within:ring-2 focus-within:ring-accent hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
+                    @svg('heroicon-o-paper-clip', 'h-4 w-4')
+                    <span class="sr-only">Attach a file</span>
+                    <input type="file" wire:model="attachment" class="sr-only">
+                </label>
+                <span wire:loading wire:target="attachment" class="text-xs text-ink-faint dark:text-ink-faint-dark">Uploading…</span>
 
-    {{-- AI feedback result / error — shown below the chat card since it can
-         grow tall; the trigger itself lives in the compact toolbar above so
-         it doesn't take space until there's something to show. --}}
-    <div wire:loading.class="opacity-60" wire:target="generateFeedback">
-        @if ($feedback)
-            <div class="space-y-3 card p-4">
-                <div class="flex items-center justify-between gap-2">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI feedback on your side of the conversation</p>
+                @if ($attachment)
+                    <span class="max-w-32 truncate text-xs text-ink-faint dark:text-ink-faint-dark">{{ $attachment->getClientOriginalName() }}</span>
                     <button
                         type="button"
-                        wire:click="generateFeedback"
+                        wire:click="sendFile"
                         wire:loading.attr="disabled"
-                        wire:target="generateFeedback"
-                        title="Refresh feedback"
-                        class="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')</span>
-                        <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5 animate-spin')</span>
-                    </button>
+                        class="cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                    >Send file</button>
+                @endif
+
+                @error('attachment')
+                    <span class="text-xs text-danger-ink">{{ $message }}</span>
+                @enderror
+
+                <button
+                    type="button"
+                    wire:click="generateFeedback"
+                    wire:loading.attr="disabled"
+                    wire:target="generateFeedback"
+                    class="ms-auto inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
+                >
+                    <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
+                    <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
+                    Check my English
+                </button>
+            </div>
+
+            {{-- Composer — emoji picker, growing text box and the voice recorder
+                 in one bar. The box grows to ~5 lines; Enter sends on a
+                 keyboard, but on a touch screen Enter is a new line and the
+                 send button sends. --}}
+            <div class="relative flex shrink-0 items-end gap-1.5 border-t border-line bg-surface p-1.5 dark:border-line-dark dark:bg-surface-dark">
+                <button
+                    type="button"
+                    x-on:click="showEmoji = !showEmoji"
+                    aria-label="Emoji"
+                    class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                >@svg('heroicon-o-face-smile', 'h-5 w-5')</button>
+
+                <div
+                    x-show="showEmoji"
+                    x-cloak
+                    x-on:click.outside="showEmoji = false"
+                    x-transition.opacity.duration.150ms
+                    class="absolute bottom-full left-0 z-10 mb-2 grid w-64 grid-cols-8 gap-0.5 card p-2 shadow-lg"
+                >
+                    @foreach ($this->emojis() as $emoji)
+                        <button
+                            type="button"
+                            x-on:click="$wire.body = $wire.body + '{{ $emoji }}'"
+                            class="cursor-pointer rounded-lg py-1 text-lg transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
+                        >{{ $emoji }}</button>
+                    @endforeach
                 </div>
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
-                </div>
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good expression you used</p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
-                </div>
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-xs font-semibold text-warning-ink uppercase">One thing to improve</p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
+
+                <form
+                    wire:submit="send"
+                    class="flex min-w-0 flex-1 items-end gap-1.5"
+                    x-data="{
+                        resize() {
+                            const box = this.$refs.box;
+                            box.style.height = 'auto';
+                            box.style.height = Math.min(box.scrollHeight, 128) + 'px';
+                        },
+                    }"
+                    x-init="$watch('$wire.body', () => $nextTick(() => resize())); $nextTick(() => resize())"
+                >
+                    <textarea
+                        x-ref="box"
+                        rows="1"
+                        wire:model="body"
+                        aria-label="Message {{ $other->name }}"
+                        placeholder="Message {{ $other->name }}…"
+                        x-on:focus="showEmoji = false"
+                        x-on:input="resize()"
+                        x-on:keydown.enter="if (! $event.shiftKey && ! window.matchMedia('(pointer: coarse)').matches) { $event.preventDefault(); $el.form.requestSubmit() }"
+                        class="max-h-32 min-w-0 flex-1 resize-none rounded-2xl border-0 bg-transparent px-2 py-2.5 text-sm leading-5 text-ink focus:outline-none dark:text-ink-dark"
+                    ></textarea>
+                    <button
+                        type="submit"
+                        wire:loading.attr="disabled"
+                        wire:target="send"
+                        aria-label="Send"
+                        title="Send"
+                        class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
+                </form>
+
+                <div wire:key="voice-recorder-{{ $other->id }}" class="shrink-0">
+                    <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" :compact="true" />
                 </div>
             </div>
-        @elseif ($feedbackError)
-            <p class="text-xs text-danger-ink">{{ $feedbackError }}</p>
+        @endif
+
+        {{-- Feedback sheet — slides over the chat (it used to render below the
+             fold, invisible on a phone) and closes with ✕. --}}
+        @if ($feedback || $feedbackError)
+            <div wire:loading.class="opacity-60" wire:target="generateFeedback" class="absolute inset-x-0 bottom-0 z-20 max-h-[75%] space-y-3 overflow-y-auto border-t border-line bg-surface p-4 shadow-[0_-8px_24px_rgb(0_0_0/0.12)] dark:border-line-dark dark:bg-surface-dark">
+                <div class="flex items-center justify-between gap-2">
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Feedback on your side of the conversation</p>
+                    <div class="flex items-center gap-1">
+                        @if ($feedback)
+                            <button
+                                type="button"
+                                wire:click="generateFeedback"
+                                wire:loading.attr="disabled"
+                                wire:target="generateFeedback"
+                                aria-label="Refresh feedback"
+                                title="Refresh feedback"
+                                class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4')</span>
+                                <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')</span>
+                            </button>
+                        @endif
+                        <button
+                            type="button"
+                            wire:click="dismissFeedback"
+                            aria-label="Close feedback"
+                            title="Close"
+                            class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                        >@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
+                    </div>
+                </div>
+
+                @if ($feedback)
+                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                        <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
+                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
+                    </div>
+                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good expression you used</p>
+                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
+                    </div>
+                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
+                        <p class="text-xs font-semibold text-warning-ink uppercase">One thing to improve</p>
+                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
+                    </div>
+                @else
+                    <p class="text-sm text-danger-ink">{{ $feedbackError }}</p>
+                @endif
+            </div>
         @endif
     </div>
 </div>

@@ -588,7 +588,42 @@ class FriendsConversationTest extends TestCase
 
         Livewire::test('friends.conversation', ['other' => $bob])
             ->call('generateFeedback')
-            ->assertSee("Couldn't get feedback from the AI Instructor");
+            ->assertSee('check your English right now', false);
+    }
+
+    public function test_dismissing_the_feedback_sheet_clears_it(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        // An empty thread short-circuits with a "send a few messages first"
+        // error before any AI call — enough to have something to dismiss.
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('generateFeedback')
+            ->assertSet('feedbackError', fn ($error) => $error !== null)
+            ->call('dismissFeedback')
+            ->assertSet('feedbackError', null)
+            ->assertSet('feedback', null);
+    }
+
+    public function test_the_composer_is_a_labelled_multiline_box_inside_a_live_region_thread(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Smith']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSeeHtml('<textarea')
+            ->assertSeeHtml('aria-label="Message Bob Smith"')
+            ->assertSeeHtml('role="log"')
+            ->assertSee('Check my English');
     }
 
     public function test_sending_a_file_attaches_it_with_its_original_name(): void

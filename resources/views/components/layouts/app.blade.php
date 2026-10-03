@@ -1,8 +1,10 @@
-{{-- @param bool $focus Hides the bottom nav on full-attention screens (a
+{{-- @param bool $fill Makes the page exactly one viewport tall (h-dvh) so a
+     component below can pin a composer to the bottom (the friend chat).
+     @param bool $focus Hides the bottom nav on full-attention screens (a
      mission, the placement test, a partner session, a chat thread) whose
      own actions sit at the bottom of the page. The header stays, and its
      logo is always a way back home. --}}
-@props(['focus' => false])
+@props(['focus' => false, 'fill' => false])
 
 @php
     $showNav = auth()->check() && ! $focus;
@@ -76,14 +78,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-20' : '' }}">
+<body class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-20' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
     {{-- Deliberately bare: the logo mark on the left; notifications and the
          avatar (which opens <x-account-menu>) on the right. Navigation
          lives in <x-bottom-nav> and everything secondary in the avatar's
          sheet, so the top of the screen stays calm. Signed-out pages keep
          the full wordmark (it is the only branding on the login screen)
          and the theme switch. --}}
-    <div class="mx-auto flex max-w-2xl items-center justify-between gap-2 px-3 pt-4 text-xs text-ink-faint sm:px-6 dark:text-ink-faint-dark">
+    <div class="mx-auto flex w-full max-w-2xl shrink-0 items-center justify-between gap-2 px-3 pt-4 text-xs text-ink-faint sm:px-6 dark:text-ink-faint-dark">
         <a href="{{ route('home') }}" wire:navigate aria-label="English OS home" class="inline-flex w-fit min-w-0 transition-opacity hover:opacity-80">
             <x-logo icon-class="h-8 w-8" :with-text="! auth()->check()" text-class="text-sm sm:text-base" />
         </a>
