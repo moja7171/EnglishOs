@@ -26,6 +26,7 @@ class PushTest extends Notification
             ->title(config('app.name', 'English OS'))
             ->body('Phone alerts are working on this device.')
             ->icon('/icon-192.png')
+            ->badge('/badge-96.png')
             ->data(['url' => url('/')]);
     }
 }

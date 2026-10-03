@@ -30,6 +30,7 @@ trait DeliversWebPush
             ->title(config('app.name', 'English OS'))
             ->body($data['title'])
             ->icon('/icon-192.png')
+            ->badge('/badge-96.png')
             ->data(['url' => $data['url']]);
 
         $tag = $this->webPushTag();

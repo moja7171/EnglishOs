@@ -7,12 +7,14 @@
 // implement an offline-first cache strategy. It only caches the small set
 // of static, rarely-changing assets below, and otherwise passes every
 // request straight to the network — never serves a stale cached page.
-const CACHE_NAME = 'englishos-shell-v1';
+const CACHE_NAME = 'englishos-shell-v2';
 const SHELL_ASSETS = [
     '/favicon.svg',
     '/favicon.ico',
     '/icon-192.png',
     '/icon-512.png',
+    '/icon-maskable-512.png',
+    '/badge-96.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -45,7 +47,8 @@ self.addEventListener('push', (event) => {
     const options = {
         body: payload.body,
         icon: payload.icon || '/icon-192.png',
-        badge: payload.badge,
+        // Without a badge Android shows the browser's own logo in the status bar.
+        badge: payload.badge || '/badge-96.png',
         tag: payload.tag,
         renotify: Boolean(payload.tag) && Boolean(payload.renotify),
         data: payload.data || {},
