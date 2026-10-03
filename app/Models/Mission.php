@@ -442,10 +442,11 @@ class Mission extends Model
 
         return match (true) {
             isset($content['interview_questions']) => $content['interview_questions'],
-            isset($content['rounds']) => [
-                ...$content['rounds'],
-                ...(isset($content['final_prompt']) ? [$content['final_prompt']] : []),
-            ],
+            // ai_conversation_2 seeds `round_pool` (older fixtures: `rounds`).
+            // The 3-minute `final_prompt` is a solo monologue, so it never
+            // becomes a turn-taking question in a Partner Session.
+            isset($content['round_pool']) => $content['round_pool'],
+            isset($content['rounds']) => $content['rounds'],
             // Partner Speaking Session's shape: 3 labeled groups of
             // questions (e.g. "Your Friends" / "Personality" / "Deeper"),
             // flattened into one ordered list the same way the other two

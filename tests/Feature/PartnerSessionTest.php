@@ -58,12 +58,35 @@ class PartnerSessionTest extends TestCase
         );
     }
 
-    public function test_conversation_prompts_flattens_rounds_plus_final_prompt(): void
+    public function test_conversation_prompts_uses_rounds_without_the_solo_final_prompt(): void
     {
         $mission = $this->makeMission();
 
         $this->assertSame(
-            ['Describe your typical weekday.', 'Speak for 3 minutes about your daily life.'],
+            ['Describe your typical weekday.'],
+            $mission->conversationPrompts('ai_conversation_2')
+        );
+    }
+
+    public function test_conversation_prompts_reads_the_seeded_round_pool_shape(): void
+    {
+        $mission = Mission::create([
+            'code' => 'M02',
+            'title' => 'Pool',
+            'module' => 'Me',
+            'outcome' => 'I can talk.',
+            'phases' => [[
+                'phase' => 'mission',
+                'steps' => [[
+                    'key' => 'ai_conversation_2',
+                    'round_pool' => ['Describe your weekday.', 'Compare it with your weekend.', 'What do you enjoy most?', 'What is hardest?'],
+                    'final_prompt' => 'Speak for 3 minutes.',
+                ]],
+            ]],
+        ]);
+
+        $this->assertSame(
+            ['Describe your weekday.', 'Compare it with your weekend.', 'What do you enjoy most?', 'What is hardest?'],
             $mission->conversationPrompts('ai_conversation_2')
         );
     }
