@@ -127,6 +127,49 @@ class UserVocabularyAndProgressTest extends TestCase
         $this->assertSame(5, $learner->fresh()->weekly_goal_days);
     }
 
+    public function test_tapping_a_goal_option_sets_the_weekly_goal(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('progress.index')
+            ->call('setWeeklyGoal', '4')
+            ->assertSet('weeklyGoalSaved', true);
+
+        $this->assertSame(4, $learner->fresh()->weekly_goal_days);
+    }
+
+    public function test_tapping_no_goal_clears_the_weekly_goal(): void
+    {
+        $learner = User::factory()->create(['weekly_goal_days' => 5]);
+        $this->actingAs($learner);
+
+        Livewire::test('progress.index')->call('setWeeklyGoal', '');
+
+        $this->assertNull($learner->fresh()->weekly_goal_days);
+    }
+
+    public function test_an_out_of_range_goal_option_is_ignored(): void
+    {
+        $learner = User::factory()->create(['weekly_goal_days' => 5]);
+        $this->actingAs($learner);
+
+        Livewire::test('progress.index')->call('setWeeklyGoal', '99');
+
+        $this->assertSame(5, $learner->fresh()->weekly_goal_days);
+    }
+
+    public function test_the_progress_page_has_overview_activity_and_skills_tabs(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('progress.index')
+            ->assertSee('Overview')
+            ->assertSee('Activity')
+            ->assertSee('Skills')
+            ->assertDontSee('More stats');
+    }
+
     public function test_clearing_the_weekly_goal_sets_it_back_to_no_goal(): void
     {
         $learner = User::factory()->create(['weekly_goal_days' => 5]);
