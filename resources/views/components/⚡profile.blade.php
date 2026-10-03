@@ -262,6 +262,7 @@ new class extends Component
             'avatar' => 'Avatar',
             'basic-info' => 'Basic info',
             'privacy' => 'Privacy',
+            'reminders' => 'Reminders',
             'password' => 'Password',
         ]"
     />
@@ -547,6 +548,11 @@ new class extends Component
             @endforelse
         </div>
     </div>
+    </div>
+
+    {{-- Reminders --}}
+    <div x-show="activeTab === 'reminders'" x-cloak>
+        <livewire:notifications.review-reminder />
     </div>
 
     {{-- Password --}}

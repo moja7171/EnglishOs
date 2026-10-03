@@ -38,6 +38,7 @@ class User extends Authenticatable
     protected $attributes = [
         'celebrated_streak_milestone' => 0,
         'is_admin' => false,
+        'review_reminder_time' => '19:00',
     ];
 
     /**
@@ -54,6 +55,7 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'program_started_at' => 'datetime',
             'pi_onboarded_at' => 'datetime',
+            'last_review_reminder_on' => 'date',
         ];
     }
 
@@ -1413,11 +1415,40 @@ class User extends Authenticatable
      */
     public function displayTimezone(): string
     {
+        return $this->browserTimezone() ?? 'Asia/Tehran';
+    }
+
+    private function browserTimezone(): ?string
+    {
         $cookie = request()->cookie('eos_tz');
 
         return is_string($cookie) && in_array($cookie, timezone_identifiers_list(), true)
             ? $cookie
+            : null;
+    }
+
+    /**
+     * The zone this learner's reminder time is read in — the one saved from
+     * their browser (see rememberTimezone()), Tehran until there is one.
+     */
+    public function reminderTimezone(): string
+    {
+        return is_string($this->timezone) && in_array($this->timezone, timezone_identifiers_list(), true)
+            ? $this->timezone
             : 'Asia/Tehran';
+    }
+
+    /**
+     * Saves the browser's current zone so a scheduled reminder (which runs
+     * with no browser at all) lands at the learner's own local time.
+     */
+    public function rememberTimezone(): void
+    {
+        $timezone = $this->browserTimezone();
+
+        if ($timezone !== null && $this->timezone !== $timezone) {
+            $this->forceFill(['timezone' => $timezone])->save();
+        }
     }
 
     /**

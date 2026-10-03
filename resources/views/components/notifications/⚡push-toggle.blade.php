@@ -32,7 +32,10 @@ new class extends Component
             ],
         )->validate();
 
-        auth()->user()->updatePushSubscription($endpoint, $key, $token, $encoding ?? 'aes128gcm');
+        $user = auth()->user();
+
+        $user->updatePushSubscription($endpoint, $key, $token, $encoding ?? 'aes128gcm');
+        $user->rememberTimezone();
     }
 
     public function removePushSubscription(string $endpoint): void
