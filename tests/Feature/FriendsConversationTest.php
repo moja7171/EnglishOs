@@ -324,6 +324,54 @@ class FriendsConversationTest extends TestCase
         ]);
     }
 
+    public function test_the_task_card_offers_questions_from_the_learners_current_mission(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Smith']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'Outcome.',
+            'phases' => [[
+                'phase' => 'mission',
+                'steps' => [[
+                    'key' => 'ai_conversation_1',
+                    'interview_questions' => ['What time do you wake up?', 'What do you eat for breakfast?', 'How do you get to work?'],
+                ]],
+            ]],
+        ]);
+        MissionRun::findOrStart($me, $mission);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSet('starterTitle', 'My Daily Life')
+            ->assertCount('starterQuestions', 3)
+            ->assertSee('What time do you wake up?')
+            ->assertSee('How do you get to work?')
+            ->assertSee('Task: interview')
+            ->assertSee('about Bob Smith');
+    }
+
+    public function test_the_task_card_falls_back_to_generic_questions_without_a_mission_in_progress(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSet('starterTitle', null)
+            ->assertCount('starterQuestions', 3)
+            ->assertSee('Need something to talk about?');
+    }
+
     public function test_a_recording_waits_for_a_preview_and_can_be_discarded_without_sending(): void
     {
         Storage::fake('local');

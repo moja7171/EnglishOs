@@ -36,6 +36,15 @@ new class extends Component
 
     public ?string $feedbackError = null;
 
+    /** Mission this learner is on, for the "Interview & report" task card. */
+    public ?string $starterTitle = null;
+
+    /** @var list<string> Three questions to ask the friend — from the current mission, else generic. */
+    public array $starterQuestions = [];
+
+    /** @var list<string> Up to three of the mission's vocabulary words to try using. */
+    public array $starterWords = [];
+
     /** The composer holds an AI-drafted nudge, so sending it keeps the nudge type. */
     public bool $draftIsNudge = false;
 
@@ -71,6 +80,8 @@ new class extends Component
 
         $this->otherStreak = $this->other->currentStreak();
 
+        $this->loadStarters();
+
         // Arrives from <x-practice-with-friend> on a mission step — just
         // pre-fills the composer, never auto-sent, so the learner can
         // still edit or discard it. Length-capped since it's untrusted
@@ -80,6 +91,32 @@ new class extends Component
         if ($prefill !== '') {
             $this->body = str($prefill)->limit(500)->toString();
         }
+    }
+
+    /**
+     * Built once here (public state survives the 5s polls) so the task card
+     * costs nothing per refresh. Questions come from the mission the learner
+     * is on right now — the same interview questions they've been practising —
+     * so the chat extends their lesson; with no mission in progress a few
+     * generic A2-friendly questions stand in.
+     */
+    private function loadStarters(): void
+    {
+        $run = auth()->user()->latestInProgressMissionRun();
+        $questions = $run ? $run->mission->conversationPrompts('ai_conversation_1') : [];
+
+        if ($questions === []) {
+            $questions = [
+                'What did you do today?',
+                'What do you usually do on the weekend?',
+                'What is your favourite place in your city?',
+                'What time do you usually wake up?',
+            ];
+        }
+
+        $this->starterTitle = $run?->mission->title;
+        $this->starterQuestions = collect($questions)->shuffle()->take(3)->values()->all();
+        $this->starterWords = $run ? array_slice($run->selectedVocabularyWords(), 0, 3) : [];
     }
 
     /**
@@ -514,7 +551,7 @@ new class extends Component
      the bottom — so with the phone keyboard open the input is never pushed
      below the fold. Report, feedback and the locked state all live inside
      this one frame instead of stacking below a fixed-height box. --}}
-<div class="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6" x-data="{ showEmoji: false }">
+<div class="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6" x-data="{ showEmoji: false, showIdeas: false }">
     <div class="flex shrink-0 items-center gap-2 card p-2 pr-2.5">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
             @svg('heroicon-o-chevron-left', 'h-5 w-5')
@@ -691,6 +728,9 @@ new class extends Component
             <div class="flex h-full min-h-32 flex-col items-center justify-center gap-2 py-8 text-center">
                 @svg('heroicon-o-chat-bubble-left-right', 'h-8 w-8 text-ink-faint/50 dark:text-ink-faint-dark/50')
                 <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No messages yet — say hello!</p>
+                @if ($this->canMessage)
+                    <button type="button" x-on:click="showIdeas = true" class="mt-1 cursor-pointer rounded-full border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">Need something to talk about?</button>
+                @endif
             </div>
         @endforelse
         </div>
@@ -701,6 +741,34 @@ new class extends Component
                 You can't message {{ $other->name }} right now.
             </div>
         @else
+            {{-- Task card — a goal to chat about instead of a blank box. Tapping a
+                 question just drops it into the composer; nothing is sent. --}}
+            <div x-show="showIdeas" x-cloak x-transition.opacity.duration.150ms class="max-h-56 shrink-0 space-y-2 overflow-y-auto border-t border-line bg-accent-soft/40 px-3 py-3 dark:border-line-dark dark:bg-accent-soft-dark/40">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Task: interview &amp; report</p>
+                        @if ($starterTitle)
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">From your mission “{{ $starterTitle }}”</p>
+                        @endif
+                    </div>
+                    <button type="button" x-on:click="showIdeas = false" aria-label="Close task" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark">@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
+                </div>
+                <p class="text-sm text-ink dark:text-ink-dark">1. Ask {{ $other->name }} two or three of these — tap one to put it in your message.</p>
+                <div class="flex flex-wrap gap-1.5">
+                    @foreach ($starterQuestions as $question)
+                        <button
+                            type="button"
+                            x-on:click="$wire.body = $wire.body ? $wire.body + ' ' + @js($question) : @js($question); showIdeas = false"
+                            class="cursor-pointer rounded-full border border-line bg-surface px-3 py-2 text-left text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        >{{ $question }}</button>
+                    @endforeach
+                </div>
+                <p class="text-sm text-ink dark:text-ink-dark">2. Then write two sentences <em>about {{ $other->name }}</em> — e.g. “{{ $other->name }} gets up at …”. Watch the <strong>-s</strong> on the verb!</p>
+                @if ($starterWords)
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Try using: {{ implode(' · ', $starterWords) }}</p>
+                @endif
+            </div>
+
             {{-- Toolbar — the two actions that matter carry a visible label;
                  attach stays an icon (it has an accessible name). Touch
                  targets are 40px. --}}
@@ -720,6 +788,16 @@ new class extends Component
                 @if ($draftIsNudge)
                     <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Edit it if you like, then send</span>
                 @endif
+
+                <button
+                    type="button"
+                    x-on:click="showIdeas = ! showIdeas"
+                    x-bind:aria-expanded="showIdeas"
+                    class="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                >
+                    @svg('heroicon-o-light-bulb', 'h-4 w-4')
+                    Ideas
+                </button>
 
                 <label title="Attach a file" class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors focus-within:ring-2 focus-within:ring-accent hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
                     @svg('heroicon-o-paper-clip', 'h-4 w-4')
