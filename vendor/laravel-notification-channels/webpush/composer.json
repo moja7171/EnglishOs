@@ -1,0 +1,66 @@
+{
+    "name": "laravel-notification-channels/webpush",
+    "description": "Web Push Notifications driver for Laravel.",
+    "homepage": "https://github.com/laravel-notification-channels/webpush",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cretu Eusebiu",
+            "email": "me@cretueusebiu.com",
+            "homepage": "http://cretueusebiu.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Joost de Bruijn",
+            "email": "joost@aqualabs.nl",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/psr7": "^2.0|^3.0",
+        "illuminate/http": "^12.0|^13.13",
+        "illuminate/notifications": "^12.0|^13.13",
+        "illuminate/support": "^12.0|^13.13",
+        "minishlink/web-push": "^11.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.1",
+        "laravel/pint": "^1.25",
+        "mockery/mockery": "^1.0",
+        "orchestra/testbench": "^9.2|^10.0|^11.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpunit/phpunit": "^11.5.3|^12.5.12|^13.1.11",
+        "rector/rector": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "NotificationChannels\\WebPush\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NotificationChannels\\WebPush\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NotificationChannels\\WebPush\\WebPushServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    }
+}
