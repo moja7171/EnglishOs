@@ -227,13 +227,17 @@ new class extends Component
                         <x-user-avatar :user="$user" class="h-9 w-9 text-xs" />
                         <span class="flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $user->name }}</span>
                         @if (auth()->user()->isFollowing($user))
+                            {{-- Two taps, like Unfollow in the "⋯" menu: the first arms the
+                                 button for a few seconds, the second actually unfollows. --}}
                             <button
                                 type="button"
-                                wire:click="unfollow({{ $user->id }})"
+                                x-data="{ armed: false, timer: null }"
+                                x-on:click="if (! armed) { armed = true; timer = setTimeout(() => armed = false, 3000) } else { clearTimeout(timer); $wire.unfollow({{ $user->id }}) }"
                                 wire:loading.attr="disabled"
                                 wire:target="unfollow({{ $user->id }})"
-                                class="shrink-0 cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >Following</button>
+                                x-bind:class="armed ? 'border-danger-line bg-danger-soft text-danger-ink' : 'border-line text-ink-soft hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark'"
+                                class="shrink-0 cursor-pointer rounded-full border px-3 py-1 text-xs font-semibold transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                            ><span x-show="! armed">Following</span><span x-show="armed" x-cloak>Unfollow?</span></button>
                         @elseif (auth()->user()->hasPendingRequestTo($user))
                             <button
                                 type="button"
@@ -325,13 +329,87 @@ new class extends Component
                                     class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-ink text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                                 >@svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4')</a>
                             @endif
-                            <button
-                                type="button"
-                                wire:click="unfollow({{ $friend->id }})"
-                                wire:loading.attr="disabled"
-                                wire:target="unfollow({{ $friend->id }})"
-                                class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >Unfollow</button>
+                            {{-- Everything destructive lives behind "⋯" (anchored dropdown, same
+                                 pattern as the account menu — not a bottom sheet) so Unfollow is
+                                 never a thumb-width from Message. Unfollow asks for a second tap
+                                 inside the menu: it also closes the conversation until they follow
+                                 back, which is a bigger deal than the label suggests. --}}
+                            <div
+                                class="relative"
+                                x-data="{ menu: false, confirming: false }"
+                                x-on:click.outside="menu = false; confirming = false"
+                                x-on:keydown.escape.window="menu = false; confirming = false"
+                            >
+                                <button
+                                    type="button"
+                                    x-on:click="menu = ! menu; confirming = false"
+                                    aria-haspopup="menu"
+                                    aria-label="More options for {{ $friend->name }}"
+                                    class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                                >@svg('heroicon-o-ellipsis-horizontal', 'h-5 w-5')</button>
+
+                                <div
+                                    x-show="menu"
+                                    x-cloak
+                                    x-transition.opacity.duration.150ms
+                                    role="menu"
+                                    class="absolute right-0 z-20 mt-1 w-56 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark"
+                                >
+                                    <div x-show="! confirming">
+                                        <button
+                                            type="button"
+                                            x-on:click="confirming = true"
+                                            role="menuitem"
+                                            class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft"
+                                        >
+                                            @svg('heroicon-o-user-minus', 'h-4 w-4')
+                                            Unfollow
+                                        </button>
+                                        <button
+                                            type="button"
+                                            wire:click="block({{ $friend->id }})"
+                                            wire:loading.attr="disabled"
+                                            wire:target="block({{ $friend->id }})"
+                                            wire:confirm="Block {{ $friend->name }}? They won't be able to message you, and you won't see each other's activity."
+                                            role="menuitem"
+                                            class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            @svg('heroicon-o-no-symbol', 'h-4 w-4')
+                                            Block
+                                        </button>
+                                        <button
+                                            type="button"
+                                            wire:click="startReport({{ $friend->id }})"
+                                            x-on:click="menu = false"
+                                            role="menuitem"
+                                            class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                                        >
+                                            @svg('heroicon-o-flag', 'h-4 w-4')
+                                            Report
+                                        </button>
+                                    </div>
+
+                                    <div x-show="confirming" x-cloak class="space-y-2.5 px-4 py-3">
+                                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
+                                            Unfollow {{ $friend->name }}? @if ($mutual) You won't be able to message each other until you follow again. @endif
+                                        </p>
+                                        <div class="flex gap-2">
+                                            <button
+                                                type="button"
+                                                wire:click="unfollow({{ $friend->id }})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="unfollow({{ $friend->id }})"
+                                                class="cursor-pointer rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                                            >Unfollow</button>
+                                            <button
+                                                type="button"
+                                                x-on:click="confirming = false"
+                                                class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                                            >Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -342,27 +420,7 @@ new class extends Component
                         </p>
                     @endif
 
-                    @if (! isset($reporting[$friend->id]))
-                        <div class="mt-2.5 flex items-center gap-1 border-t border-line pt-2.5 dark:border-line-dark">
-                            <button
-                                type="button"
-                                wire:click="block({{ $friend->id }})"
-                                wire:loading.attr="disabled"
-                                wire:target="block({{ $friend->id }})"
-                                wire:confirm="Block {{ $friend->name }}? They won't be able to message you, and you won't see each other's activity."
-                                title="Block"
-                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-danger-soft hover:text-danger-ink dark:text-ink-faint-dark"
-                            >@svg('heroicon-o-no-symbol', 'h-3.5 w-3.5')</button>
-                            <button
-                                type="button"
-                                wire:click="startReport({{ $friend->id }})"
-                                wire:loading.attr="disabled"
-                                wire:target="startReport({{ $friend->id }})"
-                                title="Report"
-                                class="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >@svg('heroicon-o-flag', 'h-3.5 w-3.5')</button>
-                        </div>
-                    @else
+                    @if (isset($reporting[$friend->id]))
                         <div class="mt-2.5 space-y-2 rounded-xl border border-danger-line bg-danger-soft p-3">
                             <textarea
                                 wire:model="reportReason.{{ $friend->id }}"

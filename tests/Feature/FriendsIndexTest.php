@@ -198,4 +198,34 @@ class FriendsIndexTest extends TestCase
         Livewire::test('friends.index')
             ->assertDontSee('already practiced today');
     }
+
+    public function test_unfollow_sits_behind_the_more_menu_with_a_confirmation_step(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Smith']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSeeHtml('aria-label="More options for Bob Smith"')
+            ->assertSee('Unfollow Bob Smith?')
+            ->assertSee('be able to message each other until you follow again.');
+    }
+
+    public function test_unfollowing_from_the_menu_removes_the_friend(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')->call('unfollow', $bob->id);
+
+        $this->assertFalse($me->fresh()->isFollowing($bob));
+        $this->assertFalse($me->fresh()->canMessageWith($bob));
+    }
 }
