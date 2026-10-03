@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DirectMessage;
 use App\Models\Evidence;
 use App\Models\FriendBlock;
 use App\Models\Mission;
@@ -212,6 +213,63 @@ class FriendsIndexTest extends TestCase
             ->assertSeeHtml('aria-label="More options for Bob Smith"')
             ->assertSee('Unfollow Bob Smith?')
             ->assertSee('be able to message each other until you follow again.');
+    }
+
+    public function test_friends_are_ordered_by_latest_message_with_preview_and_unread_count(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create(['name' => 'Alice Quiet']);
+        $bob = User::factory()->create(['name' => 'Bob Talker']);
+        $carol = User::factory()->create(['name' => 'Carol Recent']);
+
+        foreach ([$alice, $bob, $carol] as $friend) {
+            $me->follow($friend);
+            $friend->acceptFollowRequest($me);
+        }
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'older']);
+        DirectMessage::create(['sender_id' => $carol->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'newest from carol']);
+        DirectMessage::create(['sender_id' => $carol->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'second unread']);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSeeInOrder(['Carol Recent', 'Bob Talker', 'Alice Quiet'])
+            ->assertSee('second unread')
+            ->assertSee('No messages yet')
+            ->assertSeeHtml('title="2 unread"');
+    }
+
+    public function test_one_way_follows_sit_apart_from_the_inbox_without_a_chat_link(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Oneway']);
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        $bob->unfollow($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSee('Waiting to follow you back (1)')
+            ->assertDontSee('Friends (')
+            ->assertDontSeeHtml(route('friends.conversation', $bob));
+    }
+
+    public function test_following_search_results_offer_accept_when_they_already_asked_you(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create(['name' => 'Bob Asked']);
+        $bob->follow($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->set('search', 'Bob Asked')
+            ->assertSee('Accept request')
+            ->call('acceptRequest', $bob->id);
+
+        $this->assertTrue($me->fresh()->canMessageWith($bob));
     }
 
     public function test_unfollowing_from_the_menu_removes_the_friend(): void

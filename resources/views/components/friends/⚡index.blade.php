@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\DirectMessage;
 use App\Models\FriendReport;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -27,7 +28,7 @@ new class extends Component
         $target = User::findOrFail($userId);
 
         auth()->user()->follow($target);
-        unset($this->following, $this->searchResults);
+        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->searchResults);
     }
 
     public function unfollow(int $userId): void
@@ -35,7 +36,7 @@ new class extends Component
         $target = User::findOrFail($userId);
 
         auth()->user()->unfollow($target);
-        unset($this->following, $this->searchResults);
+        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->searchResults);
     }
 
     public function acceptRequest(int $userId): void
@@ -43,7 +44,7 @@ new class extends Component
         $requester = User::findOrFail($userId);
 
         auth()->user()->acceptFollowRequest($requester);
-        unset($this->following, $this->followers, $this->pendingRequests, $this->searchResults);
+        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->followers, $this->pendingRequests, $this->searchResults);
     }
 
     public function rejectRequest(int $userId): void
@@ -60,7 +61,7 @@ new class extends Component
 
         auth()->user()->block($target);
 
-        unset($this->following, $this->followers, $this->pendingRequests, $this->searchResults);
+        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->followers, $this->pendingRequests, $this->searchResults);
     }
 
     public function startReport(int $userId): void
@@ -136,6 +137,59 @@ new class extends Component
             ->whereNotIn('users.id', $this->blockedUserIds())
             ->orderBy('name')
             ->get();
+    }
+
+    /**
+     * Inbox data (last message + unread per friend), see
+     * User::conversationSummaries().
+     */
+    #[Computed]
+    public function summaries()
+    {
+        return auth()->user()->conversationSummaries();
+    }
+
+    /**
+     * Mutual friends — the ones you can message — most recent conversation
+     * first, then A–Z for people you've never talked to.
+     */
+    #[Computed]
+    public function friends()
+    {
+        $mutual = auth()->user()->mutualFriendIds();
+        $summaries = $this->summaries;
+
+        return $this->following
+            ->filter(fn (User $user) => $mutual->contains($user->id))
+            ->sort(fn (User $a, User $b) => [$summaries[$b->id]['last']->id ?? 0, strtolower($a->name)] <=> [$summaries[$a->id]['last']->id ?? 0, strtolower($b->name)])
+            ->values();
+    }
+
+    /**
+     * People you follow who haven't followed back — no chat yet, so they sit
+     * apart from the inbox.
+     */
+    #[Computed]
+    public function oneWayFollowing()
+    {
+        $mutual = auth()->user()->mutualFriendIds();
+
+        return $this->following->reject(fn (User $user) => $mutual->contains($user->id))->values();
+    }
+
+    /**
+     * One-line inbox preview of the latest message in a thread.
+     */
+    public function preview(DirectMessage $message): string
+    {
+        $text = match ($message->type) {
+            DirectMessage::TYPE_AUDIO => 'Voice message',
+            DirectMessage::TYPE_FILE => $message->attachment_name ?? 'File',
+            DirectMessage::TYPE_NUDGE => 'Nudge: '.$message->body,
+            default => $message->body,
+        };
+
+        return $message->sender_id === auth()->id() ? "You: {$text}" : $text;
     }
 
     #[Computed]
@@ -300,164 +354,98 @@ new class extends Component
         </div>
     @endif
 
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Following ({{ $this->following->count() }})</p>
-        <div class="mt-2 space-y-2.5">
-            @forelse ($this->following as $friend)
-                @php $stats = $this->stats($friend); $mutual = auth()->user()->isMutualWith($friend); @endphp
-                <div class="card p-3.5 shadow-sm transition-shadow hover:shadow-md">
-                    <div class="flex items-center gap-3">
-                        <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
-                            <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                                @if ($stats['streak'] > 0)
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                                        <x-streak-flame :streak="$stats['streak']" size="h-3 w-3" />
-                                        {{ $stats['streak'] }}-day streak
-                                    </span>
-                                @endif
-                                <span class="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2 py-0.5 text-[11px] font-medium text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
-                                    @svg('heroicon-o-check-badge', 'h-3 w-3')
-                                    {{ $stats['missionsCompleted'] }} {{ Str::plural('mission', $stats['missionsCompleted']) }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex shrink-0 items-center gap-1.5">
-                            @if ($mutual)
-                                <a
-                                    href="{{ route('friends.conversation', $friend) }}"
-                                    wire:navigate
-                                    title="Message"
-                                    class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-ink text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
-                                >@svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4')</a>
-                            @endif
-                            {{-- Everything destructive lives behind "⋯" (anchored dropdown, same
-                                 pattern as the account menu — not a bottom sheet) so Unfollow is
-                                 never a thumb-width from Message. Unfollow asks for a second tap
-                                 inside the menu: it also closes the conversation until they follow
-                                 back, which is a bigger deal than the label suggests. --}}
-                            <div
-                                class="relative"
-                                x-data="{ menu: false, confirming: false }"
-                                x-on:click.outside="menu = false; confirming = false"
-                                x-on:keydown.escape.window="menu = false; confirming = false"
-                            >
-                                <button
-                                    type="button"
-                                    x-on:click="menu = ! menu; confirming = false"
-                                    aria-haspopup="menu"
-                                    aria-label="More options for {{ $friend->name }}"
-                                    class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-                                >@svg('heroicon-o-ellipsis-horizontal', 'h-5 w-5')</button>
-
-                                <div
-                                    x-show="menu"
-                                    x-cloak
-                                    x-transition.opacity.duration.150ms
-                                    role="menu"
-                                    class="absolute right-0 z-20 mt-1 w-56 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark"
-                                >
-                                    <div x-show="! confirming">
-                                        <button
-                                            type="button"
-                                            x-on:click="confirming = true"
-                                            role="menuitem"
-                                            class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft"
-                                        >
-                                            @svg('heroicon-o-user-minus', 'h-4 w-4')
-                                            Unfollow
-                                        </button>
-                                        <button
-                                            type="button"
-                                            wire:click="block({{ $friend->id }})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="block({{ $friend->id }})"
-                                            wire:confirm="Block {{ $friend->name }}? They won't be able to message you, and you won't see each other's activity."
-                                            role="menuitem"
-                                            class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            @svg('heroicon-o-no-symbol', 'h-4 w-4')
-                                            Block
-                                        </button>
-                                        <button
-                                            type="button"
-                                            wire:click="startReport({{ $friend->id }})"
-                                            x-on:click="menu = false"
-                                            role="menuitem"
-                                            class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                                        >
-                                            @svg('heroicon-o-flag', 'h-4 w-4')
-                                            Report
-                                        </button>
-                                    </div>
-
-                                    <div x-show="confirming" x-cloak class="space-y-2.5 px-4 py-3">
-                                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
-                                            Unfollow {{ $friend->name }}? @if ($mutual) You won't be able to message each other until you follow again. @endif
-                                        </p>
-                                        <div class="flex gap-2">
-                                            <button
-                                                type="button"
-                                                wire:click="unfollow({{ $friend->id }})"
-                                                wire:loading.attr="disabled"
-                                                wire:target="unfollow({{ $friend->id }})"
-                                                class="cursor-pointer rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                                            >Unfollow</button>
-                                            <button
-                                                type="button"
-                                                x-on:click="confirming = false"
-                                                class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                                            >Cancel</button>
-                                        </div>
-                                    </div>
+    @if ($this->friends->isNotEmpty())
+        <div>
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Friends ({{ $this->friends->count() }})</p>
+            <div class="mt-2 space-y-2.5">
+                @foreach ($this->friends as $friend)
+                    @php
+                        $summary = $this->summaries[$friend->id] ?? null;
+                        $unread = $summary['unread'] ?? 0;
+                        $stats = $this->stats($friend);
+                    @endphp
+                    {{-- The whole card opens the chat (stretched link under the content);
+                         only the "⋯" menu and the report form sit above it. --}}
+                    <div wire:key="friend-{{ $friend->id }}" class="relative card p-3.5 shadow-sm transition-shadow hover:shadow-md">
+                        <a
+                            href="{{ route('friends.conversation', $friend) }}"
+                            wire:navigate
+                            aria-label="Open chat with {{ $friend->name }}"
+                            class="absolute inset-0 z-0 rounded-2xl"
+                        ></a>
+                        <div class="pointer-events-none relative flex items-center gap-3">
+                            <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-baseline justify-between gap-2">
+                                    <p class="truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
+                                    @if ($summary)
+                                        <span class="shrink-0 text-[11px] text-ink-faint tabular-nums dark:text-ink-faint-dark">{{ $summary['last']->created_at->diffForHumans(['short' => true, 'parts' => 1]) }}</span>
+                                    @endif
                                 </div>
+                                <p class="mt-0.5 truncate text-xs {{ $unread ? 'font-semibold text-ink dark:text-ink-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+                                    {{ $summary ? $this->preview($summary['last']) : 'No messages yet — say hello' }}
+                                </p>
+                                @if ($stats['streak'] > 0)
+                                    <div class="mt-1 flex flex-wrap items-center gap-1.5">
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                                            <x-streak-flame :streak="$stats['streak']" size="h-3 w-3" />
+                                            {{ $stats['streak'] }}-day streak
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="pointer-events-auto relative z-10 flex shrink-0 items-center gap-1.5">
+                                @if ($unread)
+                                    <span class="pointer-events-none inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white dark:bg-accent-dark" title="{{ $unread }} unread">{{ $unread }}</span>
+                                @endif
+                                <x-friends.card-menu :friend="$friend" :mutual="true" />
                             </div>
                         </div>
+
+                        @if (isset($reporting[$friend->id]))
+                            <div class="relative z-10">
+                                <x-friends.report-form :friend="$friend" />
+                            </div>
+                        @endif
                     </div>
-
-                    @if (! $mutual)
-                        <p class="mt-2.5 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                            @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
-                            They don't follow you back yet — messaging unlocks once they do.
-                        </p>
-                    @endif
-
-                    @if (isset($reporting[$friend->id]))
-                        <div class="mt-2.5 space-y-2 rounded-xl border border-danger-line bg-danger-soft p-3">
-                            <textarea
-                                wire:model="reportReason.{{ $friend->id }}"
-                                rows="2"
-                                placeholder="What happened?"
-                                class="w-full rounded-lg border border-danger-line bg-transparent px-2 py-1 text-sm text-ink dark:text-ink-dark"
-                            ></textarea>
-                            <div class="flex gap-2">
-                                <button
-                                    type="button"
-                                    wire:click="submitReport({{ $friend->id }})"
-                                    wire:loading.attr="disabled"
-                                    wire:target="submitReport({{ $friend->id }})"
-                                    class="cursor-pointer rounded-full border border-danger-line px-3 py-1 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                                >Submit report</button>
-                                <button
-                                    type="button"
-                                    wire:click="cancelReport({{ $friend->id }})"
-                                    wire:loading.attr="disabled"
-                                    wire:target="cancelReport({{ $friend->id }})"
-                                    class="cursor-pointer text-xs text-ink-faint underline dark:text-ink-faint-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                                >Cancel</button>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            @empty
-                <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-8 text-center dark:border-line-dark">
-                    @svg('heroicon-o-user-plus', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
-                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Search above to follow your first classmate.</p>
-                </div>
-            @endforelse
+                @endforeach
+            </div>
         </div>
-    </div>
+    @endif
+
+    @if ($this->oneWayFollowing->isNotEmpty())
+        <div>
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Waiting to follow you back ({{ $this->oneWayFollowing->count() }})</p>
+            <div class="mt-2 space-y-2.5">
+                @foreach ($this->oneWayFollowing as $friend)
+                    <div wire:key="following-{{ $friend->id }}" class="card p-3.5 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
+                                <p class="mt-0.5 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
+                                    They don't follow you back yet — messaging unlocks once they do.
+                                </p>
+                            </div>
+                            <x-friends.card-menu :friend="$friend" :mutual="false" />
+                        </div>
+
+                        @if (isset($reporting[$friend->id]))
+                            <x-friends.report-form :friend="$friend" />
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    @if ($this->friends->isEmpty() && $this->oneWayFollowing->isEmpty())
+        <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-8 text-center dark:border-line-dark">
+            @svg('heroicon-o-user-plus', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
+            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Search above to follow your first classmate.</p>
+        </div>
+    @endif
 
     @if ($this->followers->count())
         <div x-data="{ showFollowers: false }">
