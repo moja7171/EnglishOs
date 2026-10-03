@@ -173,7 +173,7 @@ new class extends Component
                 {{ $this->dueWords->count() }} {{ Str::plural('word', $this->dueWords->count()) }} due for review
             </p>
 
-            <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $word->word }}</p>
+            <x-pronounce-on-tap :word="$word->word" class="block font-display text-2xl font-extrabold text-ink dark:text-ink-dark" />
 
             {{--
                 Checked first, ahead of needsWrittenReview(): checkSentence()
@@ -278,7 +278,7 @@ new class extends Component
             <div x-show="showAll" x-cloak x-transition.opacity.duration.150ms class="mt-2 space-y-1.5">
                 @foreach ($this->allWords as $item)
                     <div class="flex items-center justify-between gap-3 rounded-xl border border-line px-3.5 py-2 dark:border-line-dark">
-                        <span class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $item->word }}</span>
+                        <x-pronounce-on-tap :word="$item->word" class="text-sm font-semibold text-ink dark:text-ink-dark" />
                         <span class="text-xs text-ink-faint dark:text-ink-faint-dark">
                             @if ($item->isDue())
                                 Due now

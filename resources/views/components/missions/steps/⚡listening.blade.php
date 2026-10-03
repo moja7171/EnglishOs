@@ -271,7 +271,7 @@ new class extends Component
                             class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                         >
                         <span>
-                            <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $item['phrase'] }}</span>
+                            <x-pronounce-on-tap :word="$item['phrase']" class="block text-sm font-bold text-ink dark:text-ink-dark" />
                             <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</span>
                         </span>
                     </label>
@@ -341,7 +341,7 @@ new class extends Component
             @if (count($targetPhrases))
                 <div class="mt-3 flex flex-wrap gap-1.5">
                     @foreach ($this->gapFillBankOrder as $bankPhrase)
-                        <span class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">{{ $bankPhrase }}</span>
+                        <x-pronounce-on-tap :word="$bankPhrase" class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
                     @endforeach
                 </div>
 

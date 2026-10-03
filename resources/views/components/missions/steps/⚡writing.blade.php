@@ -238,7 +238,7 @@ new class extends Component
                     @else
                         <div class="flex h-14 w-14 items-center justify-center rounded-xl border border-line dark:border-line-dark"></div>
                     @endif
-                    <span class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $label }}</span>
+                    <x-pronounce-on-tap :word="$label" class="text-xs text-ink-soft dark:text-ink-soft-dark" />
                 </div>
             @endforeach
         </div>
@@ -251,7 +251,7 @@ new class extends Component
             <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Connectors that help</p>
             <div class="mt-1 flex flex-wrap gap-1.5">
                 @foreach ($writing['try_to_use'] as $word)
-                    <span class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">{{ $word }}</span>
+                    <x-pronounce-on-tap :word="$word" class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
                 @endforeach
             </div>
         </div>

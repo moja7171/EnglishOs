@@ -8,9 +8,12 @@
     short word/phrase a learner is already looking at, rather than a whole
     question.
 
-    Scoped to Vocabulary Builder's own words only (and anywhere they're
-    redisplayed, e.g. <x-vocabulary-pills>) — a deliberate product decision,
-    not wired into Reading/Writing/AI-conversation prose.
+    Used on every standalone word/phrase chip, card, or list row across the
+    app (Vocabulary Builder, My Words, Daily Review, Listening/Reading new-
+    words lists, Writing's word bank, etc.) — but deliberately NOT wired
+    into continuous prose (reading passages, AI-conversation messages,
+    full sentences), where wrapping every word would need splitting running
+    text apart and risks colliding with text selection/zoom gestures.
 
     @param string $word The word or phrase to speak when tapped.
 --}}

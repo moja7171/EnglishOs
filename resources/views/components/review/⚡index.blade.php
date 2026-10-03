@@ -396,7 +396,7 @@ new class extends Component
             </p>
 
             @if ($type === 'word')
-                <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $model->word }}</p>
+                <x-pronounce-on-tap :word="$model->word" class="block font-display text-2xl font-extrabold text-ink dark:text-ink-dark" />
 
                 {{--
                     Checked first, ahead of needsWrittenReview() — same

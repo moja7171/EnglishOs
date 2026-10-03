@@ -395,7 +395,7 @@ new class extends Component
                                     class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                                 >
                                 <span>
-                                    <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $word['phrase'] }}</span>
+                                    <x-pronounce-on-tap :word="$word['phrase']" class="block text-sm font-bold text-ink dark:text-ink-dark" />
                                     <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</span>
                                 </span>
                             </label>
@@ -482,7 +482,7 @@ new class extends Component
                     @foreach ($this->newWords() as $word)
                         <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                             <div class="flex items-baseline gap-2">
-                                <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $word['phrase'] }}</p>
+                                <x-pronounce-on-tap :word="$word['phrase']" class="text-sm font-bold text-ink dark:text-ink-dark" />
                                 @if (! empty($word['pos']))
                                     <p class="text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $word['pos'] }}</p>
                                 @endif

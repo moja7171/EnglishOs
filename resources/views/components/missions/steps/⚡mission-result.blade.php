@@ -782,7 +782,7 @@ new class extends Component
                                 @if ($item['used'])
                                     @svg('heroicon-o-check-circle', 'h-3 w-3')
                                 @endif
-                                {{ $item['word'] }}
+                                <x-pronounce-on-tap :word="$item['word']" />
                             </span>
                         @endforeach
                     </div>
