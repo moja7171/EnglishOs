@@ -9,6 +9,11 @@
     every day. Everything secondary — Friends, Listening, profile, the
     theme and sound switches, Sign out — lives behind the avatar in the
     header, see <x-account-menu>.
+
+    It steps aside while the learner is typing (the on-screen keyboard
+    would otherwise leave it floating above the keys, eating room) and
+    while the mic is recording (a stray tap mid-take would lose it) — see
+    the x-show below and the eos-recording event in <x-voice-recorder>.
 --}}
 @php
     $user = auth()->user();
@@ -23,6 +28,22 @@
 @endphp
 
 <nav
+    x-data="{
+        typing: false,
+        recording: false,
+        // Re-read from the real focus on every focus change and click, so a
+        // field that vanishes while focused (a step re-render) can never
+        // leave the nav stuck hidden.
+        checkTyping() {
+            this.typing = document.activeElement?.matches('textarea, select, [contenteditable=true], input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range]):not([type=file])') ?? false;
+        },
+    }"
+    x-show="! typing && ! recording"
+    x-transition.opacity.duration.150ms
+    x-on:focusin.window="checkTyping()"
+    x-on:focusout.window="checkTyping()"
+    x-on:click.window="checkTyping()"
+    x-on:eos-recording.window="recording = $event.detail"
     aria-label="Primary"
     class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 backdrop-blur dark:border-line-dark dark:bg-surface-dark/95"
 >
