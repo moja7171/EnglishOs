@@ -24,20 +24,44 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-    {{-- Applies the dark class before first paint (saved toggle choice, else
-         the OS preference) so a dark-mode learner never sees a white flash.
-         wire:navigate keeps <html> between pages, so this only runs on a
-         full load. --}}
+    {{-- Theme (light/dark). Applies the dark class before first paint (saved
+         toggle choice, else the OS preference) so a dark-mode learner never
+         sees a white flash. wire:navigate copies the NEW page's <html>
+         attributes over the current ones on every navigation — which strips
+         the class, since the server never renders it — so a MutationObserver
+         puts it straight back (microtask, i.e. before paint). window.eosTheme
+         is the single source of truth; the header toggle just calls set(). --}}
     <script>
         (function () {
-            var dark;
-            try { var saved = localStorage.getItem('eosTheme'); } catch (e) {}
-            dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.classList.toggle('dark', dark);
-            if (dark) {
+            var root = document.documentElement;
+            var media = window.matchMedia('(prefers-color-scheme: dark)');
+            var saved = null;
+            try { saved = localStorage.getItem('eosTheme'); } catch (e) {}
+
+            var theme = window.eosTheme = {
+                dark: saved ? saved === 'dark' : media.matches,
+                set: function (dark) {
+                    theme.dark = dark;
+                    try { localStorage.setItem('eosTheme', dark ? 'dark' : 'light'); } catch (e) {}
+                    apply();
+                },
+            };
+
+            function apply() {
+                if (root.classList.contains('dark') !== theme.dark) {
+                    root.classList.toggle('dark', theme.dark);
+                }
                 var meta = document.querySelector('meta[name=theme-color]');
-                if (meta) { meta.setAttribute('content', '#0f0d21'); }
+                if (meta) { meta.setAttribute('content', theme.dark ? '#0f0d21' : '#211d3f'); }
             }
+
+            apply();
+            new MutationObserver(apply).observe(root, { attributes: true, attributeFilter: ['class'] });
+            media.addEventListener('change', function (event) {
+                var chosen = null;
+                try { chosen = localStorage.getItem('eosTheme'); } catch (e) {}
+                if (! chosen) { theme.dark = event.matches; apply(); }
+            });
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

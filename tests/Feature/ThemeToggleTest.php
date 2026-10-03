@@ -25,10 +25,10 @@ class ThemeToggleTest extends TestCase
             ->assertSee('Switch to dark mode');
     }
 
-    public function test_the_saved_theme_is_applied_before_first_paint(): void
+    public function test_the_saved_theme_is_applied_before_first_paint_and_restored_after_navigation(): void
     {
         $this->get(route('login'))
             ->assertSee("localStorage.getItem('eosTheme')", false)
-            ->assertSee("classList.toggle('dark', dark)", false);
+            ->assertSee('new MutationObserver(apply)', false);
     }
 }
