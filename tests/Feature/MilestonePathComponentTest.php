@@ -21,6 +21,23 @@ class MilestonePathComponentTest extends TestCase
         $this->assertStringContainsString("You've earned every streak badge", $html);
     }
 
+    public function test_the_last_marker_stays_inside_the_bar_instead_of_overflowing(): void
+    {
+        $html = Blade::render('<x-milestone-path :current-streak="0" />');
+
+        $this->assertStringContainsString('>100d<', $html);
+        $this->assertStringNotContainsString('-translate-x-1/2', $html);
+    }
+
+    public function test_each_segment_fills_on_its_own(): void
+    {
+        $html = Blade::render('<x-milestone-path :current-streak="18" />');
+
+        $this->assertStringContainsString('width: 100%', $html);
+        $this->assertStringContainsString('width: 47.826', $html);
+        $this->assertStringContainsString('width: 0%', $html);
+    }
+
     public function test_reached_tiers_render_as_filled(): void
     {
         $html = Blade::render('<x-milestone-path :current-streak="10" />');

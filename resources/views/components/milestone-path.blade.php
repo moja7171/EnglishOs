@@ -4,37 +4,45 @@
     term goal than a bare badge collection. See User::nextStreakMilestone()
     / daysUntilNextMilestone().
 
+    One equal-width segment per tier (0→7, 7→30, 30→100) instead of a
+    single 0→100 bar: a linear bar left the 7-day tier crammed against
+    the start and pushed the last marker/label past the card's edge. Each
+    segment fills on its own, and its marker sits INSIDE its right edge.
+
     @param int $currentStreak
 --}}
 @props(['currentStreak' => 0])
 
 @php
     $tiers = [7, 30, 100];
-    $max = end($tiers);
-    $progressPercent = min(100, $currentStreak / $max * 100);
     $next = collect($tiers)->first(fn ($tier) => $tier > $currentStreak);
 @endphp
 
 <div {{ $attributes }}>
-    <div class="relative mt-2 mb-5 h-2 rounded-full bg-surface-sunken dark:bg-surface-sunken-dark">
-        <div
-            class="h-full rounded-full bg-accent transition-all duration-500 dark:bg-accent-dark"
-            style="width: {{ $progressPercent }}%"
-        ></div>
-        @foreach ($tiers as $tier)
+    <div class="mt-2 mb-6 flex gap-2">
+        @foreach ($tiers as $index => $tier)
             @php
-                $position = min(100, $tier / $max * 100);
+                $previousTier = $index === 0 ? 0 : $tiers[$index - 1];
+                $fillPercent = max(0, min(100, ($currentStreak - $previousTier) / ($tier - $previousTier) * 100));
                 $reached = $currentStreak >= $tier;
             @endphp
-            <div class="absolute top-1/2 -translate-y-1/2" style="left: {{ $position }}%">
+            <div class="relative h-2 flex-1 rounded-full bg-surface-sunken dark:bg-surface-sunken-dark">
+                <div
+                    class="h-full rounded-full bg-accent transition-all duration-500 dark:bg-accent-dark"
+                    style="width: {{ $fillPercent }}%"
+                ></div>
                 <span
                     @class([
-                        'block h-3.5 w-3.5 -translate-x-1/2 rounded-full border-2',
-                        'border-accent bg-accent dark:border-accent-dark dark:bg-accent-dark' => $reached,
+                        'absolute top-1/2 right-0 inline-flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full border-2',
+                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $reached,
                         'border-line bg-ground dark:border-line-dark dark:bg-ground-dark' => ! $reached,
                     ])
-                ></span>
-                <span class="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap text-ink-faint dark:text-ink-faint-dark">{{ $tier }}d</span>
+                >
+                    @if ($reached)
+                        @svg('heroicon-s-check', 'h-2.5 w-2.5')
+                    @endif
+                </span>
+                <span class="absolute top-4 right-0 text-[10px] whitespace-nowrap text-ink-faint dark:text-ink-faint-dark">{{ $tier }}d</span>
             </div>
         @endforeach
     </div>
