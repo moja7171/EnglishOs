@@ -120,20 +120,28 @@
          automatic "Add to Home screen" banner years ago — a site now has to
          capture beforeinstallprompt itself and offer its own call to action,
          or nothing ever invites the user to install at all (the browser's
-         only remaining affordance is a buried "Install app" menu item). --}}
+         only remaining affordance is a buried "Install app" menu item).
+         "Not now" only hides it for a week, and installing never sets a
+         permanent flag: uninstalling the app leaves localStorage behind, and
+         a forever-dismissed banner meant a reinstall was never offered again.
+         Chrome only fires beforeinstallprompt while the app is NOT installed,
+         so its firing is itself the "show it" signal. --}}
     <div
         x-data="{
             deferredPrompt: null,
             dismissed: false,
             init() {
-                try { this.dismissed = localStorage.getItem('eosInstallPromptDismissed') === 'true' } catch (e) {}
+                try {
+                    this.dismissed = Number(localStorage.getItem('eosInstallPromptDismissedUntil')) > Date.now();
+                    localStorage.removeItem('eosInstallPromptDismissed');
+                } catch (e) {}
 
                 window.addEventListener('beforeinstallprompt', (event) => {
                     event.preventDefault();
                     this.deferredPrompt = event;
                 });
 
-                window.addEventListener('appinstalled', () => this.dismiss());
+                window.addEventListener('appinstalled', () => { this.deferredPrompt = null });
             },
             async install() {
                 if (! this.deferredPrompt) { return }
@@ -143,7 +151,7 @@
             },
             dismiss() {
                 this.dismissed = true;
-                try { localStorage.setItem('eosInstallPromptDismissed', 'true') } catch (e) {}
+                try { localStorage.setItem('eosInstallPromptDismissedUntil', Date.now() + 7 * 24 * 60 * 60 * 1000) } catch (e) {}
             },
         }"
         x-show="deferredPrompt && !dismissed"
