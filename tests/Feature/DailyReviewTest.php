@@ -333,6 +333,86 @@ class DailyReviewTest extends TestCase
             ->assertSee('3 items ready for Daily Review');
     }
 
+    public function test_todays_review_is_capped_at_the_daily_limit_with_the_most_overdue_first(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        foreach (range(1, 10) as $minutesOverdue) {
+            $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue)]);
+        }
+
+        $items = $learner->dailyReviewItems();
+
+        $this->assertCount(User::DAILY_REVIEW_LIMIT, $items);
+        $this->assertSame(8, $learner->dailyReviewCount());
+        $this->assertNotContains(
+            VocabularyWord::where('word', 'word1')->value('id'),
+            $items->pluck('id')->all(),
+        );
+
+        Livewire::test('missions.overview')->assertSee('8 items ready for Daily Review');
+    }
+
+    public function test_reviewing_an_item_uses_up_one_of_todays_eight_instead_of_pulling_in_a_ninth(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        foreach (range(1, 10) as $minutesOverdue) {
+            $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue), 'repetitions' => 1]);
+        }
+
+        Livewire::test('review.index')
+            ->set('revealed', true)
+            ->call('gradeSelf', 4);
+
+        $this->assertSame(1, $learner->reviewedTodayCount());
+        $this->assertCount(7, $learner->dailyReviewItems());
+        $this->assertSame(7, $learner->dailyReviewCount());
+    }
+
+    public function test_finishing_todays_batch_shows_reviewed_today_even_with_more_still_due(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        foreach (range(1, 9) as $i) {
+            $this->makeDueWord($learner, ['word' => "word{$i}", 'last_reviewed_at' => $i <= 8 ? now() : null, 'next_review_at' => $i <= 8 ? now()->addDay() : now()->subMinute()]);
+        }
+
+        $this->assertSame(0, $learner->dailyReviewCount());
+
+        Livewire::test('missions.overview')
+            ->assertSee('Reviewed today')
+            ->assertDontSee('ready for Daily Review');
+
+        Livewire::test('review.index')
+            ->assertSee('review done');
+    }
+
+    public function test_the_todays_box_row_is_hidden_on_a_day_with_nothing_to_review(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSee('Daily Review')
+            ->assertDontSee('Reviewed today');
+    }
+
+    public function test_the_todays_box_row_breaks_the_batch_down_by_kind(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner);
+        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('1 word · 1 grammar · 1 speaking');
+    }
+
     /**
      * Task 3 of the Daily Review UX audit: a learner stuck on one item
      * (e.g. denied microphone access — see voice-recorder.blade.php) must

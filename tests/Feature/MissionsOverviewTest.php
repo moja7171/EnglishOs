@@ -290,26 +290,82 @@ class MissionsOverviewTest extends TestCase
             ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-brief.jpg');
     }
 
-    public function test_the_listen_today_card_opens_the_picks_page_on_the_current_program_day(): void
+    public function test_the_today_box_shows_one_listening_row_not_the_picks_themselves(): void
     {
         $learner = User::factory()->create();
         MissionRun::findOrStart($learner, $this->makeMission());
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Listen today · M01 · Day 1')
+            ->assertSee('Listen today')
             ->assertSeeHtml('href="'.route('listening.show').'"')
-            ->assertSee('I listened');
+            ->assertDontSee('Routines')
+            ->assertDontSee('Describing Your Day: Mornings')
+            ->assertDontSeeHtml('target="_blank"');
     }
 
-    public function test_the_listen_today_card_previews_day_1_of_the_first_mission_before_any_run_exists(): void
+    public function test_the_today_box_makes_clear_listening_is_not_one_of_the_steps(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission());
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('any order, not a step')
+            ->assertSeeInOrder(['Listen today', "Today's steps", 'in order']);
+    }
+
+    public function test_the_today_box_has_no_i_listened_button_only_a_link_to_the_page(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission());
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSee('I listened')
+            ->assertSeeHtml('href="'.route('listening.show').'"');
+    }
+
+    public function test_the_today_box_reflects_a_tick_made_today(): void
+    {
+        $learner = User::factory()->create();
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Listened today')
+            ->assertDontSee('any order, not a step');
+    }
+
+    public function test_a_tick_from_yesterday_does_not_mark_today_as_listened(): void
+    {
+        $learner = User::factory()->create();
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->subDay()->toDateString()]);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('any order, not a step')
+            ->assertDontSee('Listened today');
+    }
+
+    public function test_another_learners_tick_does_not_mark_today_as_listened(): void
+    {
+        ListeningLog::factory()->create(['listened_on' => now()->toDateString()]);
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('missions.overview')
+            ->assertSee('any order, not a step')
+            ->assertDontSee('Listened today');
+    }
+
+    public function test_the_today_box_previews_day_1_picks_before_any_run_exists(): void
     {
         $this->actingAs(User::factory()->create());
 
-        Livewire::test('missions.overview')->assertSee('Listen today · M01 · Day 1');
+        Livewire::test('missions.overview')->assertSee('Listen today');
     }
 
-    public function test_the_listen_today_card_points_at_the_next_mission_when_a_checkpoint_is_offered(): void
+    public function test_the_today_box_shows_the_next_missions_picks_when_a_checkpoint_is_offered(): void
     {
         $learner = User::factory()->create();
 
@@ -326,10 +382,10 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSee('Your voice, M06 in')
-            ->assertSee('Listen today · M07 · Day 1');
+            ->assertSee('Listen today');
     }
 
-    public function test_the_listen_today_card_is_hidden_once_all_missions_are_complete(): void
+    public function test_the_today_box_has_no_listening_once_all_missions_are_complete(): void
     {
         $learner = User::factory()->create();
 
@@ -341,75 +397,6 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')->assertDontSee('Listen today');
-    }
-
-    public function test_ticking_i_listened_records_the_day_extends_the_streak_and_shows_the_done_state(): void
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission());
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->call('markListened')
-            ->assertSee('Listened today')
-            ->assertDontSee('Counts toward your streak');
-
-        $this->assertDatabaseHas('listening_logs', [
-            'learner_id' => $learner->id,
-            'listened_on' => now()->toDateString(),
-            'mission_code' => 'M01',
-            'day_number' => 1,
-        ]);
-        $this->assertSame(1, $learner->currentStreak());
-    }
-
-    public function test_ticking_i_listened_twice_on_the_same_day_keeps_a_single_row(): void
-    {
-        $learner = User::factory()->create();
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->call('markListened')
-            ->call('markListened');
-
-        $this->assertSame(1, $learner->listeningLogs()->count());
-    }
-
-    public function test_ticking_i_listened_records_nothing_once_all_missions_are_complete(): void
-    {
-        $learner = User::factory()->create();
-
-        foreach (range(1, Mission::TOTAL_ROADMAP_MISSIONS) as $number) {
-            $run = MissionRun::findOrStart($learner, $this->makeMission(sprintf('M%02d', $number)));
-            $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
-        }
-
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')->call('markListened');
-
-        $this->assertDatabaseCount('listening_logs', 0);
-    }
-
-    public function test_a_tick_from_yesterday_does_not_mark_today_as_listened(): void
-    {
-        $learner = User::factory()->create();
-        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->subDay()->toDateString()]);
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->assertSee('I listened')
-            ->assertDontSee('Listened today');
-    }
-
-    public function test_another_learners_tick_does_not_mark_today_as_listened(): void
-    {
-        ListeningLog::factory()->create(['listened_on' => now()->toDateString()]);
-        $this->actingAs(User::factory()->create());
-
-        Livewire::test('missions.overview')
-            ->assertSee('I listened')
-            ->assertDontSee('Listened today');
     }
 
     public function test_no_thumbnail_without_a_cached_cover_image(): void

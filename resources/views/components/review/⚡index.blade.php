@@ -95,22 +95,11 @@ new class extends Component
     #[Computed]
     public function queue(): array
     {
-        $words = auth()->user()->vocabularyWords()->where('next_review_at', '<=', now())->get()
-            ->map(fn ($item) => ['type' => 'word', 'id' => $item->id]);
-
-        $prompts = auth()->user()->speakingPrompts()->where('next_review_at', '<=', now())->get()
-            ->map(fn ($item) => ['type' => 'speaking', 'id' => $item->id]);
-
-        $errors = auth()->user()->errorPatternReviews()->where('next_review_at', '<=', now())->get()
-            ->map(fn ($item) => ['type' => 'error', 'id' => $item->id]);
-
-        $grammarPoints = auth()->user()->grammarPoints()->where('next_review_at', '<=', now())->get()
-            ->map(fn ($item) => ['type' => 'grammar', 'id' => $item->id]);
-
+        // Today's eight, not the whole backlog — see User::dailyReviewItems().
         // A seeded sort, not ->shuffle() — see $shuffleSeed for why this
         // has to stay stable across requests rather than re-randomizing
         // on every single one.
-        $all = $words->concat($prompts)->concat($errors)->concat($grammarPoints)
+        $all = auth()->user()->dailyReviewItems()
             ->sortBy(fn (array $entry) => md5($this->shuffleSeed.$this->itemKey($entry['type'], $entry['id'])))
             ->values();
 
@@ -372,7 +361,11 @@ new class extends Component
             <div class="flex flex-col items-center gap-2 card p-8 text-center">
                 @svg('heroicon-o-check-badge', 'h-6 w-6 text-success dark:text-success-dark')
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">You're all caught up!</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing due across My Words, Speaking Recall, grammar patterns, or grammar points — come back later.</p>
+                @if (auth()->user()->reviewedTodayCount() > 0)
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">That's today's review done — whatever is still waiting rolls into tomorrow.</p>
+                @else
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing due across My Words, Speaking Recall, grammar patterns, or grammar points — come back later.</p>
+                @endif
             </div>
         @endif
     @else

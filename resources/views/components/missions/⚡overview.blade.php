@@ -27,55 +27,43 @@ new class extends Component
      * is the same day Today shows: the open mission's day, or day 1 of the
      * next mission between missions. Null once all 24 missions are done.
      *
-     * @return array{label: string, missionCode: string, dayNumber: int, listenedToday: bool}|null
+     * Shown inside the Today box as a single row linking to /listening,
+     * where the picks themselves and the "I listened" tick live; the box
+     * only reflects whether today's tick has been made.
+     *
+     * @return array{missionCode: string, dayNumber: int, listenedToday: bool}|null
      */
     #[Computed]
     public function listening(): ?array
     {
-        $day = app(ListeningPicks::class)->dayFor($this->program['today']);
+        $picks = app(ListeningPicks::class);
+        $day = $picks->dayFor($this->program['today']);
+        $trio = $day === null ? null : $picks->forDay($day['missionCode'], $day['dayNumber']);
 
-        if ($day === null) {
+        if ($trio === null) {
             return null;
         }
 
         return $day + [
-            'label' => $day['missionCode'].' · Day '.$day['dayNumber'],
             'listenedToday' => auth()->user()->hasListenedToday(),
         ];
     }
 
     /**
-     * The learner's "I listened" tick. Counts today toward the streak (see
-     * User::activeDates()). Which day it belongs to is worked out here from
-     * the program, never taken from the browser.
-     */
-    public function markListened(): void
-    {
-        $listening = $this->listening;
-
-        if ($listening === null) {
-            return;
-        }
-
-        auth()->user()->recordListeningToday($listening['missionCode'], $listening['dayNumber']);
-
-        unset($this->listening);
-    }
-
-    /**
-     * Words, speaking prompts, recurring grammar-mistake patterns, and
-     * taught grammar points combined — one nudge into Daily Review
-     * instead of a separate card per system (see review/⚡index.blade.php).
-     * The dedicated pages (My Words, Speaking Recall) stay reachable from
-     * the nav for anyone who wants to focus on just one.
+     * Today's Daily Review for the Today box's review row — words,
+     * speaking, and grammar combined into one finishable batch (see
+     * User::dailyReviewItems()). Null when there is nothing to do AND
+     * nothing was reviewed today: the row only shows up on days there is
+     * something to review (or just was), so its appearance is the signal.
+     *
+     * @return array{remaining: int, reviewedToday: int, breakdown: array{word: int, grammar: int, speaking: int}}|null
      */
     #[Computed]
-    public function dueReviewCount(): int
+    public function review(): ?array
     {
-        return auth()->user()->vocabularyWords()->where('next_review_at', '<=', now())->count()
-            + auth()->user()->speakingPrompts()->where('next_review_at', '<=', now())->count()
-            + auth()->user()->errorPatternReviews()->where('next_review_at', '<=', now())->count()
-            + auth()->user()->grammarPoints()->where('next_review_at', '<=', now())->count();
+        $summary = auth()->user()->dailyReviewSummary();
+
+        return $summary['remaining'] === 0 && $summary['reviewedToday'] === 0 ? null : $summary;
     }
 
     /**
@@ -242,6 +230,37 @@ new class extends Component
         </div>
     </header>
 
+    {{-- The streak line that used to sit in the app header. A thin row
+         (no card border/bg) so it reads as status, not as a second "Today",
+         but it leads the page: the streak is the motivation hook, and the
+         header it came from is deliberately bare now. --}}
+    <a
+        href="{{ route('progress.index') }}"
+        wire:navigate
+        class="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
+    >
+        <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
+                <x-streak-flame :streak="$this->progressSummary['streak']" /> {{ $this->progressSummary['streak'] }}
+            </span>
+            <span class="inline-flex items-center gap-1 font-semibold text-ink dark:text-ink-dark">
+                @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') {{ $this->progressSummary['missionsCompleted'] }} {{ Str::plural('mission', $this->progressSummary['missionsCompleted']) }}
+            </span>
+            @if (($freshness = $this->progressSummary['freshness']) !== null)
+                @php
+                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-warning-ink' : 'text-danger-ink');
+                @endphp
+                <span class="inline-flex items-center gap-1 font-semibold {{ $freshnessColor }}">
+                    @svg('heroicon-o-bolt', 'h-3.5 w-3.5') {{ $freshness }}% fresh
+                </span>
+            @endif
+        </div>
+        <span class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+            My Progress
+            @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
+        </span>
+    </a>
+
     {{-- Today — the one thing this page must answer (see ProgramPlanner). --}}
     <section class="rounded-2xl border-2 border-accent/40 bg-surface p-4 dark:border-accent-dark/40 dark:bg-surface-dark">
         @if ($today['kind'] === 'mission_day')
@@ -252,7 +271,17 @@ new class extends Component
             @if ($today['dayLabel'])
                 <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">{{ $today['dayLabel'] }}</p>
             @endif
-            <ul class="mt-3 space-y-1.5">
+            {{-- The listening row comes first, visibly apart from the steps
+                 below: it is NOT one of them (any time, any order, never
+                 blocks Continue). --}}
+            @if ($listening = $this->listening)
+                <x-listening-today :listening="$listening" />
+            @endif
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
+            <p class="mt-4 text-xs font-bold text-ink-soft dark:text-ink-soft-dark">Today's steps <span class="font-medium text-ink-faint dark:text-ink-faint-dark">· in order</span></p>
+            <ul class="mt-1.5 space-y-1.5">
                 @foreach ($today['steps'] as $step)
                     <li>
                         <a
@@ -306,6 +335,13 @@ new class extends Component
                 </p>
             @endif
 
+            @if ($listening = $this->listening)
+                <x-listening-today :listening="$listening" />
+            @endif
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
+
         @elseif ($today['kind'] === 'start_next')
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · Start a new mission</p>
             @if ($today['nextMission'])
@@ -320,77 +356,21 @@ new class extends Component
                 <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} isn't built yet — until it is, keep the streak alive with a <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a> session and a chat with your voice AI partner.</p>
             @endif
 
+            @if ($listening = $this->listening)
+                <x-listening-today :listening="$listening" />
+            @endif
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
+
         @else
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">100 days · done</p>
             <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">All 24 missions complete. Keep the streak with Daily Review — and keep talking.</p>
+            @if ($review = $this->review)
+                <x-review-today :review="$review" />
+            @endif
         @endif
     </section>
-
-    {{-- Daily listening — a separate habit from the mission steps (it lives
-         outside the app), so it gets its own row under Today rather than
-         a step inside it. The tick counts toward the streak. --}}
-    @if ($listening = $this->listening)
-        <section class="flex items-start gap-3 rounded-xl px-3.5 py-2.5" aria-label="Daily listening">
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                @svg('heroicon-o-speaker-wave', 'h-4 w-4')
-            </span>
-            <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Listen today · {{ $listening['label'] }}</p>
-                <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">Listen to at least one, or all three if you like.</p>
-                <div class="mt-2 flex flex-wrap items-center gap-2">
-                    <a
-                        href="{{ route('listening.show') }}"
-                        wire:navigate
-                        class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >Open today's picks @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
-                    @if ($listening['listenedToday'])
-                        <span class="inline-flex items-center gap-1 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
-                            @svg('heroicon-s-check', 'h-3.5 w-3.5') Listened today
-                        </span>
-                    @else
-                        <button
-                            type="button"
-                            wire:click="markListened"
-                            wire:loading.attr="disabled"
-                            class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-                        >I listened @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
-                        <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak</span>
-                    @endif
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- Lighter row style (no card border/bg) than "Today" above it, same
-         treatment as the nudges below — home-page declutter pass: these
-         are all secondary to Today, and sharing its exact card chrome
-         flattened that hierarchy. --}}
-    <a
-        href="{{ route('progress.index') }}"
-        wire:navigate
-        class="flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
-    >
-        <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-            <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
-                <x-streak-flame :streak="$this->progressSummary['streak']" /> {{ $this->progressSummary['streak'] }}
-            </span>
-            <span class="inline-flex items-center gap-1 font-semibold text-ink dark:text-ink-dark">
-                @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') {{ $this->progressSummary['missionsCompleted'] }} {{ Str::plural('mission', $this->progressSummary['missionsCompleted']) }}
-            </span>
-            @if (($freshness = $this->progressSummary['freshness']) !== null)
-                @php
-                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-warning-ink' : 'text-danger-ink');
-                @endphp
-                <span class="inline-flex items-center gap-1 font-semibold {{ $freshnessColor }}">
-                    @svg('heroicon-o-bolt', 'h-3.5 w-3.5') {{ $freshness }}% fresh
-                </span>
-            @endif
-        </div>
-        <span class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-            My Progress
-            @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
-        </span>
-    </a>
 
     @if ($this->needsPlacement)
         <a
@@ -454,23 +434,6 @@ new class extends Component
                 <span class="block text-xs text-ink-faint dark:text-ink-faint-dark"><span x-text="remaining"></span> left today</span>
             </span>
         </div>
-    @endif
-
-    @if ($this->dueReviewCount)
-        <a
-            href="{{ route('review.index') }}"
-            wire:navigate
-            class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
-        >
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
-                @svg('heroicon-o-bolt', 'h-4 w-4')
-            </span>
-            <span class="flex-1">
-                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->dueReviewCount }} {{ Str::plural('item', $this->dueReviewCount) }} ready for Daily Review</span>
-                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Words, speaking, and grammar — a couple of minutes keeps them all fresh.</span>
-            </span>
-            @svg('heroicon-o-chevron-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark shrink-0')
-        </a>
     @endif
 
     {{-- Unseeded slots (~20 of 24 right now) used to each render their own

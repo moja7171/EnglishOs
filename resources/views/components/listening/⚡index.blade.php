@@ -9,17 +9,6 @@ use Livewire\Component;
 
 new class extends Component
 {
-    private const SOURCES = [
-        'lee' => 'BBC · Real Easy English',
-        'sme' => 'BBC · 6 Minute English',
-        'voa' => 'VOA Learning English',
-        'teded' => 'TED-Ed',
-        'talk' => 'TED Talk',
-        'lk' => 'NPR · Life Kit',
-    ];
-
-    private const LEVELS = ['Lighter', 'Medium', 'Challenging'];
-
     /**
      * Locked: these decide which day's picks are shown AND which day an
      * "I listened" tick is filed under, so the browser must never be able
@@ -81,24 +70,6 @@ new class extends Component
     }
 
     /**
-     * @return array<string, string>
-     */
-    #[Computed]
-    public function sources(): array
-    {
-        return self::SOURCES;
-    }
-
-    /**
-     * @return list<string>
-     */
-    #[Computed]
-    public function levels(): array
-    {
-        return self::LEVELS;
-    }
-
-    /**
      * @return array{missionCode: string, dayNumber: int}|null null once all 24 missions are done
      */
     #[Computed]
@@ -156,6 +127,19 @@ new class extends Component
     }
 
     /**
+     * The four days of the mission on screen, for the quick day switcher
+     * under the title — the fast way back through a finished mission's
+     * picks without hunting in the 24-mission path.
+     *
+     * @return list<array{number: int, state: string, viewing: bool}>
+     */
+    #[Computed]
+    public function missionDays(): array
+    {
+        return collect($this->path)->firstWhere('code', $this->missionCode)['days'] ?? [];
+    }
+
+    /**
      * Every mission with its 4 days, each marked past / today / future
      * against the learner's own position, plus which one is on screen.
      *
@@ -206,6 +190,32 @@ new class extends Component
                 <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }} of 4</p>
             </div>
         </div>
+        <nav class="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Days of {{ $missionCode }}">
+            @foreach ($this->missionDays as $dayInfo)
+                @php
+                    $pill = 'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold';
+                @endphp
+                @if ($dayInfo['state'] === 'future')
+                    <span
+                        class="{{ $pill }} cursor-not-allowed border-dashed border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark"
+                        title="Not reached yet"
+                        aria-label="Day {{ $dayInfo['number'] }}, not reached yet"
+                    >Day {{ $dayInfo['number'] }}</span>
+                @else
+                    <a
+                        href="{{ route('listening.show', [$missionCode, $dayInfo['number']]) }}"
+                        wire:navigate
+                        @if ($dayInfo['viewing']) aria-current="page" @endif
+                        @class([
+                            $pill,
+                            'border-ink bg-ink text-ground dark:border-ink-dark dark:bg-ink-dark dark:text-ground-dark' => $dayInfo['viewing'],
+                            'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
+                            'border-line text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
+                        ])
+                    >Day {{ $dayInfo['number'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}</a>
+                @endif
+            @endforeach
+        </nav>
         @if (! $this->isToday && $this->currentDay)
             <a href="{{ route('listening.show') }}" wire:navigate class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">
                 Back to today ({{ $this->currentDay['missionCode'] }} · Day {{ $this->currentDay['dayNumber'] }})
@@ -223,9 +233,9 @@ new class extends Component
         @foreach ($this->picks as $level => $pick)
             <article class="card space-y-2.5 p-4" wire:key="pick-{{ $missionCode }}-{{ $day }}-{{ $level }}">
                 <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $this->sources[$pick['src']] ?? $pick['src'] }}</span>
+                    <span class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">{{ \App\Services\ListeningPicks::SOURCES[$pick['src']] ?? $pick['src'] }}</span>
                     <span class="inline-flex items-center gap-2 text-xs text-ink-soft dark:text-ink-soft-dark">
-                        <span class="inline-flex h-4 items-end gap-0.5" role="img" aria-label="Difficulty: {{ $this->levels[$level] }}">
+                        <span class="inline-flex h-4 items-end gap-0.5" role="img" aria-label="Difficulty: {{ \App\Services\ListeningPicks::LEVELS[$level] }}">
                             @foreach ([2, 3, 4] as $bar => $height)
                                 <span @class([
                                     'w-1 rounded-sm',
@@ -237,7 +247,7 @@ new class extends Component
                                 ])></span>
                             @endforeach
                         </span>
-                        {{ $this->levels[$level] }}
+                        {{ \App\Services\ListeningPicks::LEVELS[$level] }}
                     </span>
                 </div>
 

@@ -166,6 +166,29 @@ class ListeningPageTest extends TestCase
         ]);
     }
 
+    public function test_ticking_i_listened_twice_on_the_same_day_keeps_a_single_row(): void
+    {
+        $learner = $this->learnerOnDay2();
+        $this->actingAs($learner);
+
+        Livewire::test('listening.index')
+            ->call('markListened')
+            ->call('markListened');
+
+        $this->assertSame(1, $learner->listeningLogs()->count());
+    }
+
+    public function test_the_page_offers_a_switcher_for_the_four_days_of_the_mission_on_screen(): void
+    {
+        $this->actingAs($this->learnerOnDay2());
+
+        $this->get(route('listening.show', ['M01', 1]))
+            ->assertSeeHtml('aria-label="Days of M01"')
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 2]).'"')
+            ->assertSee('Day 2 · today')
+            ->assertSeeHtml('aria-label="Day 3, not reached yet"');
+    }
+
     public function test_a_learner_who_already_ticked_today_sees_the_done_state(): void
     {
         $learner = User::factory()->create();

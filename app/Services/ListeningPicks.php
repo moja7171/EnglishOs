@@ -19,6 +19,27 @@ namespace App\Services;
  */
 class ListeningPicks
 {
+    /**
+     * How each pick's `src` is shown to the learner.
+     *
+     * @var array<string, string>
+     */
+    public const SOURCES = [
+        'lee' => 'BBC · Real Easy English',
+        'sme' => 'BBC · 6 Minute English',
+        'voa' => 'VOA Learning English',
+        'teded' => 'TED-Ed',
+        'talk' => 'TED Talk',
+        'lk' => 'NPR · Life Kit',
+    ];
+
+    /**
+     * The three picks of a day, in the order they appear (easiest first).
+     *
+     * @var list<string>
+     */
+    public const LEVELS = ['Lighter', 'Medium', 'Challenging'];
+
     /** @var array<string, list<list<array<string, mixed>>>>|null */
     private static ?array $picks = null;
 
