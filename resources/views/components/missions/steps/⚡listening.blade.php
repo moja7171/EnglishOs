@@ -6,7 +6,6 @@ use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\PexelsClient;
-use App\Services\PiPrompts;
 use Livewire\Component;
 
 /**
@@ -215,12 +214,6 @@ new class extends Component
     {
         return "eos-draft:{$this->run->id}:listening:";
     }
-
-    /** @return array{instruction: string, prompt: string}|null */
-    public function piTask(): ?array
-    {
-        return app(PiPrompts::class)->partnerTask($this->run, 'listening');
-    }
 };
 ?>
 
@@ -249,10 +242,6 @@ new class extends Component
     @endif
 
     <x-hook :text="$listening['hook'] ?? null" />
-
-    @unless ($readOnly)
-        <x-pi-practice-card role-label="Language Partner" :task="$this->piTask()" />
-    @endunless
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>

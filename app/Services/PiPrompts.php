@@ -61,7 +61,7 @@ class PiPrompts
             ],
             self::ROLE_PARTNER => [
                 'label' => 'Language Partner',
-                'when' => 'Live spoken conversation practice, in Listening and speaking steps.',
+                'when' => 'A 2-minute warm-up before Talk It Out\'s speaking challenge.',
                 'setupMessage' => "Hi! I'm learning English, currently around {$level} level. From now on in "
                     .'this chat, please be a friendly English conversation partner. When I ask you to talk about '
                     .'something, keep it light and spoken — ask me one question at a time, wait for my spoken '
@@ -132,13 +132,9 @@ class PiPrompts
     }
 
     /**
-     * Shared by Listening (Day 1) and Talk It Out's warm-up round — both
-     * are conversation-shaped and read the mission's own topic, but the
-     * framing differs so the two don't feel like the same exercise twice:
-     * Listening is the learner's first real exposure to the topic, so it
-     * plays as a relaxed getting-to-know-the-topic chat grounded in the
-     * episode's own phrases; Talk It Out's round comes right before the
-     * main challenge, so it plays as a fast, playful warm-up instead.
+     * Talk It Out's warm-up round, right before the main speaking
+     * challenge — a fast, playful round grounded in the mission's topic
+     * and that step's own target phrases.
      *
      * @return array{instruction: string, prompt: string}|null
      */
@@ -152,20 +148,6 @@ class PiPrompts
         }
 
         $phrases = collect($mission->stepContent($stepKey)['target_phrases'] ?? [])->pluck('phrase')->filter();
-
-        if ($stepKey === 'listening') {
-            $phraseHint = $phrases->isNotEmpty()
-                ? ' Try to use these words if it feels natural: '.$phrases->implode(', ').'.'
-                : '';
-
-            return [
-                'instruction' => 'Go to your Language Partner chat and try this:',
-                'prompt' => "Like always, let's get warmed up on today's topic — \"{$topic}\". Ask me a few easy, casual "
-                    .'questions about my own life that connect to it, one at a time, and wait for me to answer '
-                    .'out loud before the next one — like we just started chatting.'.$phraseHint,
-            ];
-        }
-
         $phraseHint = $phrases->isNotEmpty()
             ? ' If it fits naturally, try working in: '.$phrases->implode(', ').'.'
             : '';
