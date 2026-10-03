@@ -380,6 +380,67 @@ class FriendsConversationTest extends TestCase
         ]);
     }
 
+    public function test_the_report_snapshot_is_the_other_persons_message_not_your_own(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'rude thing']);
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'body' => 'please stop']);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('reportReason', 'They were rude')
+            ->call('submitReport');
+
+        $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'message_snapshot' => 'rude thing']);
+    }
+
+    public function test_losing_access_mid_conversation_locks_the_composer_and_keeps_the_draft(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertDontSee('right now.');
+
+        $bob->block($me);
+
+        $chat->set('body', 'are you there?')
+            ->call('send')
+            ->assertSet('body', 'are you there?')
+            ->assertSee('right now.')
+            ->assertDontSeeHtml('wire:poll');
+
+        $this->assertDatabaseCount('direct_messages', 0);
+    }
+
+    public function test_a_locked_conversation_does_not_mark_messages_read(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        $message = DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'hi']);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+        $message->forceFill(['read_at' => null])->save();
+
+        $bob->unfollow($me);
+        $chat->call('$refresh');
+
+        $this->assertNull($message->fresh()->read_at);
+    }
+
     public function test_a_block_by_either_side_closes_an_already_open_conversation(): void
     {
         $me = User::factory()->create();

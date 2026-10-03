@@ -76,7 +76,9 @@ new class extends Component
             return;
         }
 
-        abort_unless(auth()->user()->canMessageWith($this->other), 403);
+        if (! $this->canMessage) {
+            return;
+        }
 
         $this->notifyRecipient(DirectMessage::create([
             'sender_id' => auth()->id(),
@@ -126,7 +128,9 @@ new class extends Component
      */
     public function sendVoiceMessage(): void
     {
-        abort_unless(auth()->user()->canMessageWith($this->other), 403);
+        if (! $this->canMessage) {
+            return;
+        }
 
         if (! $this->voiceMessage) {
             return;
@@ -163,7 +167,9 @@ new class extends Component
 
     public function sendFile(): void
     {
-        abort_unless(auth()->user()->canMessageWith($this->other), 403);
+        if (! $this->canMessage) {
+            return;
+        }
 
         $this->validate([
             // 15MB, and an explicit allowlist — never trust the browser's
@@ -196,7 +202,9 @@ new class extends Component
      */
     public function sendNudge(): void
     {
-        abort_unless(auth()->user()->canMessageWith($this->other), 403);
+        if (! $this->canMessage) {
+            return;
+        }
 
         $this->notifyRecipient(DirectMessage::create([
             'sender_id' => auth()->id(),
@@ -264,7 +272,7 @@ new class extends Component
             'reporter_id' => auth()->id(),
             'reported_id' => $this->other->id,
             'reason' => $reason,
-            'message_snapshot' => $this->thread->last()?->body,
+            'message_snapshot' => $this->thread->where('sender_id', $this->other->id)->where('type', '!=', DirectMessage::TYPE_NUDGE)->last()?->body,
         ]);
 
         $this->reporting = false;
@@ -341,10 +349,27 @@ new class extends Component
             ->values();
     }
 
+    /**
+     * Re-evaluated on every request (so on every poll) — the other side can
+     * unfollow or block while this page is open, and mount() only checked
+     * once. When false the composer is replaced by a calm locked bar, the
+     * poll stops, and sending is a quiet no-op that leaves any typed draft
+     * in place instead of throwing a 403.
+     */
+    #[Computed]
+    public function canMessage(): bool
+    {
+        return auth()->user()->canMessageWith($this->other);
+    }
+
     #[Computed]
     public function thread()
     {
         $messages = auth()->user()->conversationWith($this->other)->get();
+
+        if (! $this->canMessage) {
+            return $messages;
+        }
 
         $messages->where('recipient_id', auth()->id())->whereNull('read_at')->each->update(['read_at' => now()]);
 
@@ -437,9 +462,8 @@ new class extends Component
                     });
                 },
             }"
-            wire:poll.5s="$refresh"
-            class="max-h-[28rem] min-h-[16rem] space-y-0.5 overflow-y-auto p-4"
-            style="background-color: var(--color-surface-sunken); background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 10%, transparent) 1px, transparent 1px); background-size: 18px 18px;"
+            @if ($this->canMessage) wire:poll.5s="$refresh" @endif
+            class="chat-wallpaper max-h-[28rem] min-h-[16rem] space-y-0.5 overflow-y-auto p-4"
         >
             @forelse ($this->thread as $message)
             @php
@@ -497,6 +521,12 @@ new class extends Component
         @endforelse
         </div>
 
+        @if (! $this->canMessage)
+            <div class="flex items-center gap-2 border-t border-line bg-surface px-4 py-3 text-sm text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">
+                @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0')
+                You can't message {{ $other->name }} right now.
+            </div>
+        @else
         {{-- Toolbar — icon-only actions with a hover tooltip (title)
              instead of full text labels, so this stays a thin strip glued
              between the thread and the composer rather than a tall row of
@@ -590,6 +620,7 @@ new class extends Component
                 <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" :compact="true" />
             </div>
         </div>
+        @endif
     </div>
 
     {{-- AI feedback result / error — shown below the chat card since it can
