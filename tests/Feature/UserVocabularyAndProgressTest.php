@@ -166,7 +166,9 @@ class UserVocabularyAndProgressTest extends TestCase
         Livewire::test('progress.index')
             ->assertSee('Overview')
             ->assertSee('Activity')
-            ->assertSee('Skills')
+            ->assertSee('Growth')
+            ->assertSee('Mistakes you no longer make')
+            ->assertDontSee('New wins to see')
             ->assertDontSee('More stats');
     }
 
