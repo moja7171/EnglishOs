@@ -345,7 +345,7 @@
         {{-- Synced text panel, same idea as <x-audio-player>'s — visible
              alongside the video whenever it's NOT fullscreen (fullscreen
              uses the real <track> captions above instead). --}}
-        <div class="mt-3 max-h-40 space-y-1.5 overflow-y-auto rounded-2xl border border-line bg-surface-sunken p-3 text-sm dark:border-line-dark dark:bg-surface-sunken-dark">
+        <div class="mt-3 max-h-40 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm">
             @foreach ($segments as $index => $segment)
                 <p
                     x-ref="segment-{{ $index }}"

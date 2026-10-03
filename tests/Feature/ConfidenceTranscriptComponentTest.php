@@ -14,8 +14,8 @@ class ConfidenceTranscriptComponentTest extends TestCase
         $html = Blade::render('<x-confidence-transcript :segments="$segments" />', ['segments' => $segments]);
 
         $this->assertStringContainsString('This part was clear.', $html);
-        $this->assertStringNotContainsString('text-amber-600', $html);
-        $this->assertStringNotContainsString('text-red-600', $html);
+        $this->assertStringNotContainsString('text-warning-ink', $html);
+        $this->assertStringNotContainsString('text-danger-ink', $html);
     }
 
     public function test_medium_and_low_confidence_segments_get_their_own_color(): void
@@ -27,8 +27,8 @@ class ConfidenceTranscriptComponentTest extends TestCase
 
         $html = Blade::render('<x-confidence-transcript :segments="$segments" />', ['segments' => $segments]);
 
-        $this->assertStringContainsString('text-amber-600', $html);
-        $this->assertStringContainsString('text-red-600', $html);
+        $this->assertStringContainsString('text-warning-ink', $html);
+        $this->assertStringContainsString('text-danger-ink', $html);
     }
 
     public function test_a_fully_high_confidence_transcript_has_no_explanatory_caption(): void
@@ -48,8 +48,8 @@ class ConfidenceTranscriptComponentTest extends TestCase
         );
 
         $this->assertStringContainsString('The plain saved transcript.', $html);
-        $this->assertStringNotContainsString('text-amber-600', $html);
-        $this->assertStringNotContainsString('text-red-600', $html);
+        $this->assertStringNotContainsString('text-warning-ink', $html);
+        $this->assertStringNotContainsString('text-danger-ink', $html);
     }
 
     public function test_renders_nothing_when_both_segments_and_fallback_are_empty(): void

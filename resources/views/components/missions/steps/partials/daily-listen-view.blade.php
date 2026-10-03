@@ -90,7 +90,7 @@
                     </div>
                     <x-ai-thinking wire:loading wire:target="checkShadowLine({{ $index }})" class="mt-2" label="Listening to your recording…" />
                     @if ($shadowFeedback)
-                        <p class="mt-2 text-xs {{ $shadowFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-amber-600' }}">
+                        <p class="mt-2 text-xs {{ $shadowFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}">
                             @if ($shadowFeedback['severity'] === 'none')
                                 @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Nice — that counts.
                             @else
@@ -99,14 +99,14 @@
                         </p>
                     @endif
                     @if ($checkErrors[$shadowKey] ?? null)
-                        <p class="mt-2 text-xs text-red-600">{{ $checkErrors[$shadowKey] }}</p>
+                        <p class="mt-2 text-xs text-danger-ink">{{ $checkErrors[$shadowKey] }}</p>
                     @endif
                 @endif
             </div>
         @endforeach
 
         @error('shadowRecordings')
-            <p class="text-sm text-red-600">{{ $message }}</p>
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
         @enderror
 
         @unless ($readOnly)

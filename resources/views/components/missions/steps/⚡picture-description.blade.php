@@ -239,16 +239,16 @@ new class extends Component
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
                     </div>
                     @if ($severity === 'major')
-                        <div class="rounded-xl border-l-4 border-red-500 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-red-600 uppercase dark:text-red-400">
+                        <div class="rounded-xl border-l-4 border-danger bg-danger-soft p-3">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold text-danger-ink uppercase">
                                 @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
                                 One thing to improve
                             </p>
                             <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
                         </div>
                     @else
-                        <div class="rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 uppercase dark:text-amber-400">
+                        <div class="rounded-xl border-l-4 border-warning bg-warning-soft p-3">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold text-warning-ink uppercase">
                                 @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
                                 One thing to improve
                             </p>
@@ -308,7 +308,7 @@ new class extends Component
             @endif
 
             @if (count($content['guiding_questions'] ?? []))
-                <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                <div class="mt-3 card-sunken p-4">
                     <p class="text-xs font-semibold text-ink dark:text-ink-dark">Try to cover:</p>
                     <ul class="mt-2 space-y-1.5">
                         @foreach ($content['guiding_questions'] as $qi => $question)
@@ -332,12 +332,12 @@ new class extends Component
                     <x-audio-player :url="$savedAudioUrl" />
                 </div>
             @else
-                <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                <div class="mt-3 card-sunken p-4">
                     <x-voice-recorder field="recording" :file="$recording" file-name="picture-description.webm" />
                 </div>
 
                 @error('recording')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
                 @enderror
 
                 {{-- Always on screen, disabled until there's a recording —

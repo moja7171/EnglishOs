@@ -353,7 +353,7 @@ new class extends Component
         x-cloak
         x-transition.opacity.duration.150ms
         x-on:click.outside="open = false"
-        class="fixed right-5 bottom-40 z-40 flex h-[28rem] max-h-[calc(100vh-8rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl sm:bottom-24 dark:border-line-dark dark:bg-surface-dark"
+        class="fixed right-5 bottom-40 z-40 flex h-[28rem] max-h-[calc(100vh-8rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden card shadow-2xl sm:bottom-24"
     >
         <div class="flex shrink-0 items-center gap-2.5 border-b border-line px-4 py-3 dark:border-line-dark">
             <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
@@ -425,10 +425,10 @@ new class extends Component
 
         <div class="shrink-0 space-y-2 border-t border-line p-2 dark:border-line-dark">
             @if ($error)
-                <p class="px-1 text-xs text-red-600">{{ $error }}</p>
+                <p class="px-1 text-xs text-danger-ink">{{ $error }}</p>
             @endif
             @error('fileAttachment')
-                <p class="px-1 text-xs text-red-600">{{ $message }}</p>
+                <p class="px-1 text-xs text-danger-ink">{{ $message }}</p>
             @enderror
 
             @if ($fileAttachment)

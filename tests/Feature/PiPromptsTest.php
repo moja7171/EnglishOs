@@ -85,13 +85,13 @@ class PiPromptsTest extends TestCase
     public function test_partner_task_uses_the_mission_title_and_grounds_target_phrases(): void
     {
         $run = $this->makeRun([
-            ['key' => 'listening', 'target_phrases' => [
+            ['key' => 'ai_conversation_1', 'target_phrases' => [
                 ['phrase' => 'get up', 'meaning' => 'to stand up and leave your bed'],
                 ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should'],
             ]],
         ]);
 
-        $task = app(PiPrompts::class)->partnerTask($run, 'listening');
+        $task = app(PiPrompts::class)->partnerTask($run, 'ai_conversation_1');
 
         $this->assertNotNull($task);
         $this->assertStringContainsString('Language Partner chat', $task['instruction']);

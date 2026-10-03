@@ -125,7 +125,7 @@ new class extends Component
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     @if ($completed)
         @php $level = $result['level']; @endphp
-        <div class="space-y-5 rounded-2xl border border-line bg-surface p-6 text-center dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-5 card p-6 text-center">
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your starting level</p>
             <p class="font-display text-5xl font-extrabold text-accent dark:text-accent-dark">{{ $level }}</p>
             <p class="text-sm text-ink dark:text-ink-dark">{{ \App\Models\User::levelOptions()[$level] ?? $level }}</p>
@@ -255,7 +255,7 @@ new class extends Component
 
             {{-- Part 3 — the spoken answer --}}
             <div x-show="part === 2" x-cloak class="space-y-4">
-                <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <div class="card p-4">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speak for about {{ $speaking['seconds'] }} seconds</p>
                     <p class="mt-1 text-lg font-semibold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>
                     <ul class="mt-2 list-disc space-y-0.5 pl-5 text-sm text-ink-soft dark:text-ink-soft-dark">

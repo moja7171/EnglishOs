@@ -176,7 +176,7 @@ new class extends Component
     <x-hook :text="$writing['hook'] ?? null" />
 
     @if ($completed || ($readOnly && $feedback))
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
@@ -198,7 +198,7 @@ new class extends Component
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
                     </div>
                     <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-amber-600 uppercase">One thing to improve</p>
+                        <p class="text-xs font-semibold text-warning-ink uppercase">One thing to improve</p>
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
                     </div>
                 </div>
@@ -238,7 +238,7 @@ new class extends Component
                     @else
                         <div class="flex h-14 w-14 items-center justify-center rounded-xl border border-line dark:border-line-dark"></div>
                     @endif
-                    <span class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $label }}</span>
+                    <x-pronounce-on-tap :word="$label" class="text-xs text-ink-soft dark:text-ink-soft-dark" />
                 </div>
             @endforeach
         </div>
@@ -251,7 +251,7 @@ new class extends Component
             <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Connectors that help</p>
             <div class="mt-1 flex flex-wrap gap-1.5">
                 @foreach ($writing['try_to_use'] as $word)
-                    <span class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">{{ $word }}</span>
+                    <x-pronounce-on-tap :word="$word" class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
                 @endforeach
             </div>
         </div>
@@ -277,7 +277,7 @@ new class extends Component
     ></textarea>
 
     @error('text')
-        <p class="text-sm text-red-600">{{ $message }}</p>
+        <p class="text-sm text-danger-ink">{{ $message }}</p>
     @enderror
 
     {{-- Always on screen, disabled until the minimum is reached — the

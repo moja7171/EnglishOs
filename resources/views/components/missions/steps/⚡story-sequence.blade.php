@@ -182,7 +182,7 @@ new class extends Component
     <x-hook :text="$content['hook'] ?? null" />
 
     @if ($completed || ($readOnly && ($transcript || $feedback)))
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
@@ -218,16 +218,16 @@ new class extends Component
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
                     </div>
                     @if ($severity === 'major')
-                        <div class="rounded-xl border-l-4 border-red-500 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-red-600 uppercase dark:text-red-400">
+                        <div class="rounded-xl border-l-4 border-danger bg-danger-soft p-3">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold text-danger-ink uppercase">
                                 @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
                                 One thing to improve
                             </p>
                             <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
                         </div>
                     @else
-                        <div class="rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 uppercase dark:text-amber-400">
+                        <div class="rounded-xl border-l-4 border-warning bg-warning-soft p-3">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold text-warning-ink uppercase">
                                 @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
                                 One thing to improve
                             </p>
@@ -281,7 +281,7 @@ new class extends Component
             </div>
 
             @error('recording')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
 
             <div class="mt-4">

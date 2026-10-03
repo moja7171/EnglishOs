@@ -337,7 +337,7 @@ new class extends Component
         All missions
     </a>
 
-    <header class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <header class="flex items-center gap-3 card p-4">
         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
             @svg('heroicon-o-bolt', 'h-5 w-5')
         </span>
@@ -363,13 +363,13 @@ new class extends Component
                 every one of these is exactly as due as it was before;
                 they're just one page reload away from showing again.
             --}}
-            <div class="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-8 text-center dark:border-line-dark dark:bg-surface-dark">
+            <div class="flex flex-col items-center gap-2 card p-8 text-center">
                 @svg('heroicon-o-forward', 'h-6 w-6 text-ink-faint dark:text-ink-faint-dark')
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">You've skipped everything for today.</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing here was graded — come back to the rest whenever you're ready.</p>
             </div>
         @else
-            <div class="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-8 text-center dark:border-line-dark dark:bg-surface-dark">
+            <div class="flex flex-col items-center gap-2 card p-8 text-center">
                 @svg('heroicon-o-check-badge', 'h-6 w-6 text-success dark:text-success-dark')
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">You're all caught up!</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing due across My Words, Speaking Recall, grammar patterns, or grammar points — come back later.</p>
@@ -381,7 +381,7 @@ new class extends Component
             $type = $item['type'];
             $model = $item['model'];
         @endphp
-        <div wire:key="review-{{ $type }}-{{ $model->id }}" class="space-y-4 rounded-2xl border border-line bg-surface p-5 dark:border-line-dark dark:bg-surface-dark">
+        <div wire:key="review-{{ $type }}-{{ $model->id }}" class="space-y-4 card p-5">
             <p class="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                 @if ($type === 'word')
                     @svg('heroicon-o-book-open', 'h-3.5 w-3.5') Word
@@ -396,7 +396,7 @@ new class extends Component
             </p>
 
             @if ($type === 'word')
-                <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $model->word }}</p>
+                <x-pronounce-on-tap :word="$model->word" class="block font-display text-2xl font-extrabold text-ink dark:text-ink-dark" />
 
                 {{--
                     Checked first, ahead of needsWrittenReview() — same
@@ -454,7 +454,7 @@ new class extends Component
                     </div>
                     <x-ai-thinking wire:loading wire:target="checkWordSentence" />
                     @if ($wordCheckError)
-                        <p class="text-xs text-red-600">{{ $wordCheckError }}</p>
+                        <p class="text-xs text-danger-ink">{{ $wordCheckError }}</p>
                     @endif
                 @else
                     @if (! $revealed)
@@ -481,7 +481,7 @@ new class extends Component
                 <x-voice-recorder field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
             @elseif ($type === 'error')
                 <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                    You've mixed this up before: <span class="text-red-600 line-through decoration-red-500">{{ $model->last_error }}</span>
+                    You've mixed this up before: <span class="text-danger-ink line-through decoration-danger">{{ $model->last_error }}</span>
                 </p>
                 @if (! $revealed)
                     <button
@@ -515,7 +515,7 @@ new class extends Component
                         <button
                             type="button"
                             wire:click="gradeSelf(1)"
-                            class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-red-950"
+                            class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-danger-line hover:bg-danger-soft hover:text-danger-ink dark:border-line-dark dark:text-ink-soft-dark"
                         >Forgot it</button>
                         <button
                             type="button"

@@ -32,7 +32,7 @@
 
 @if (! empty($url))
     <div
-        class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark"
+        class="card p-4"
         x-data="{
             playing: false,
             currentTime: 0,
@@ -245,7 +245,7 @@
                  substitute for the caller's own curated shadow_lines
                  display below (if any); this is just "what's being said,
                  right now", the same idea as karaoke captions. --}}
-            <div class="mt-4 max-h-56 space-y-1.5 overflow-y-auto rounded-2xl border border-line bg-surface-sunken p-3 text-sm dark:border-line-dark dark:bg-surface-sunken-dark">
+            <div class="mt-4 max-h-56 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm">
                 @foreach ($segments as $index => $segment)
                     <p
                         x-ref="segment-{{ $index }}"

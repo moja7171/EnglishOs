@@ -287,6 +287,32 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<ListeningLog, $this>
+     */
+    public function listeningLogs(): HasMany
+    {
+        return $this->hasMany(ListeningLog::class, 'learner_id');
+    }
+
+    public function hasListenedToday(): bool
+    {
+        return $this->listeningLogs()->where('listened_on', today()->toDateString())->exists();
+    }
+
+    /**
+     * The "I listened" tick for today's outside-the-app listening picks.
+     * Idempotent: a second tick on the same calendar day returns the
+     * existing row instead of adding a second one.
+     */
+    public function recordListeningToday(string $missionCode, int $dayNumber): ListeningLog
+    {
+        return $this->listeningLogs()->firstOrCreate(
+            ['listened_on' => today()->toDateString()],
+            ['mission_code' => $missionCode, 'day_number' => $dayNumber],
+        );
+    }
+
+    /**
      * @return HasMany<PlacementTest, $this>
      */
     public function placementTests(): HasMany
@@ -447,14 +473,25 @@ class User extends Authenticatable
      * opening the app. No new counter column: computed fresh each time
      * so it can never drift from what Evidence actually says happened.
      *
+     * One deliberate exception: the learner's own "I listened" tick for
+     * the daily listening picks outside the app (ListeningLog) also makes
+     * a day active. It is a self-report with nothing to attach, counted on
+     * purpose so the daily listening habit keeps the streak alive. Every
+     * streak consumer reads this method, so they all stay consistent.
+     *
      * @return Collection<int, Carbon> most recent date first
      */
     public function activeDates(): Collection
     {
+        $listenedDays = ListeningLog::query()
+            ->where('learner_id', $this->id)
+            ->selectRaw('DATE(listening_logs.listened_on) as day');
+
         return Evidence::query()
             ->join('mission_runs', 'mission_runs.id', '=', 'evidences.mission_run_id')
             ->where('mission_runs.learner_id', $this->id)
-            ->selectRaw('DISTINCT DATE(evidences.created_at) as day')
+            ->selectRaw('DATE(evidences.created_at) as day')
+            ->union($listenedDays)
             ->orderByDesc('day')
             ->pluck('day')
             ->map(fn ($day) => Carbon::parse($day));

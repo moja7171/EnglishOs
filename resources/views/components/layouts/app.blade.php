@@ -24,6 +24,46 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {{-- Theme (light/dark). Applies the dark class before first paint (saved
+         toggle choice, else the OS preference) so a dark-mode learner never
+         sees a white flash. wire:navigate copies the NEW page's <html>
+         attributes over the current ones on every navigation — which strips
+         the class, since the server never renders it — so a MutationObserver
+         puts it straight back (microtask, i.e. before paint). window.eosTheme
+         is the single source of truth; the header toggle just calls set(). --}}
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var media = window.matchMedia('(prefers-color-scheme: dark)');
+            var saved = null;
+            try { saved = localStorage.getItem('eosTheme'); } catch (e) {}
+
+            var theme = window.eosTheme = {
+                dark: saved ? saved === 'dark' : media.matches,
+                set: function (dark) {
+                    theme.dark = dark;
+                    try { localStorage.setItem('eosTheme', dark ? 'dark' : 'light'); } catch (e) {}
+                    apply();
+                },
+            };
+
+            function apply() {
+                if (root.classList.contains('dark') !== theme.dark) {
+                    root.classList.toggle('dark', theme.dark);
+                }
+                var meta = document.querySelector('meta[name=theme-color]');
+                if (meta) { meta.setAttribute('content', theme.dark ? '#0f0d21' : '#211d3f'); }
+            }
+
+            apply();
+            new MutationObserver(apply).observe(root, { attributes: true, attributeFilter: ['class'] });
+            media.addEventListener('change', function (event) {
+                var chosen = null;
+                try { chosen = localStorage.getItem('eosTheme'); } catch (e) {}
+                if (! chosen) { theme.dark = event.matches; apply(); }
+            });
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -81,6 +121,8 @@
                         {{ $streak }}
                     </span>
                 @endif
+
+                <x-theme-toggle />
 
                 <button
                     type="button"
@@ -140,11 +182,15 @@
                             @csrf
                             <button
                                 type="submit"
-                                class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left font-semibold text-ink-soft transition-colors hover:bg-red-50 hover:text-red-600 dark:text-ink-soft-dark dark:hover:bg-red-950"
+                                class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left font-semibold text-ink-soft transition-colors hover:bg-danger-soft hover:text-danger-ink dark:text-ink-soft-dark"
                             >@svg('heroicon-o-arrow-right-start-on-rectangle', 'h-4 w-4') Sign out</button>
                         </form>
                     </div>
                 </div>
+            </div>
+        @else
+            <div class="col-start-3 flex items-center justify-self-end">
+                <x-theme-toggle />
             </div>
         @endauth
     </div>

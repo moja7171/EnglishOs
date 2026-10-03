@@ -20,11 +20,11 @@ class SessionTimeoutTest extends TestCase
         $this->assertIsInt(session('auth_login_at'));
     }
 
-    public function test_a_session_within_30_days_of_login_stays_logged_in(): void
+    public function test_a_session_within_365_days_of_login_stays_logged_in(): void
     {
         $learner = User::factory()->create();
 
-        $response = $this->withSession(['auth_login_at' => now()->subDays(29)->timestamp])
+        $response = $this->withSession(['auth_login_at' => now()->subDays(364)->timestamp])
             ->actingAs($learner)
             ->get('/');
 
@@ -32,11 +32,11 @@ class SessionTimeoutTest extends TestCase
         $this->assertAuthenticated();
     }
 
-    public function test_a_session_older_than_30_days_is_signed_out(): void
+    public function test_a_session_older_than_365_days_is_signed_out(): void
     {
         $learner = User::factory()->create();
 
-        $response = $this->withSession(['auth_login_at' => now()->subDays(31)->timestamp])
+        $response = $this->withSession(['auth_login_at' => now()->subDays(366)->timestamp])
             ->actingAs($learner)
             ->get('/');
 

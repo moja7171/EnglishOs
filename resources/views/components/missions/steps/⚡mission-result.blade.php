@@ -532,7 +532,7 @@ new class extends Component
                 @endforeach
             </div>
             @error('scores')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
 
@@ -578,7 +578,7 @@ new class extends Component
             </div>
 
             @if ($error)
-                <p class="mt-2 text-sm text-red-600">{{ $error }}</p>
+                <p class="mt-2 text-sm text-danger-ink">{{ $error }}</p>
             @endif
 
             <button
@@ -615,7 +615,7 @@ new class extends Component
                 || ($status === 'complete' && ! $readOnly);
         @endphp
 
-        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="card p-4">
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your result</p>
 
             @if ($milestoneJustReached)
@@ -633,7 +633,7 @@ new class extends Component
                      canvases at once. --}}
                 <div
                     x-init="{{ $status === 'complete' && ! $readOnly ? '' : 'window.eosConfetti?.burst()' }}"
-                    class="mt-2 mb-3 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 text-center dark:border-accent-soft-dark dark:bg-accent-soft-dark/60"
+                    class="mt-2 mb-3 rounded-xl card-accent p-3 text-center"
                 >
                     <span class="animate-trophy-pop inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
                         @svg('heroicon-s-trophy', 'h-5 w-5')
@@ -657,7 +657,7 @@ new class extends Component
             @endif
 
             <p class="mt-2 text-xs font-semibold uppercase tracking-wide
-                {{ $status === 'complete' ? 'text-success dark:text-success-dark' : ($status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
+                {{ $status === 'complete' ? 'text-success dark:text-success-dark' : ($status === 'needs_review' ? 'text-warning-ink' : 'text-danger-ink') }}">
                 {{ str($status)->replace('_', ' ')->title() }}
             </p>
             <p class="mt-2 text-sm text-ink dark:text-ink-dark">{{ $reason }}</p>
@@ -673,7 +673,7 @@ new class extends Component
         </div>
 
         @if ($hasGrowthSection)
-            <div class="mt-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <div class="mt-4 card p-4">
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your growth</p>
 
             @if (collect($scores)->every(fn ($pair) => $pair['before'] && $pair['after']))
@@ -688,7 +688,7 @@ new class extends Component
                         <div>
                             <div class="flex items-center justify-between text-xs text-ink-soft dark:text-ink-soft-dark">
                                 <span>{{ $skill }}</span>
-                                <span class="font-semibold {{ $delta > 0 ? 'text-success dark:text-success-dark' : ($delta < 0 ? 'text-red-600' : 'text-ink-faint dark:text-ink-faint-dark') }}">
+                                <span class="font-semibold {{ $delta > 0 ? 'text-success dark:text-success-dark' : ($delta < 0 ? 'text-danger-ink' : 'text-ink-faint dark:text-ink-faint-dark') }}">
                                     {{ $before }} → {{ $after }} ({{ $delta > 0 ? '+' : '' }}{{ $delta }})
                                 </span>
                             </div>
@@ -782,7 +782,7 @@ new class extends Component
                                 @if ($item['used'])
                                     @svg('heroicon-o-check-circle', 'h-3 w-3')
                                 @endif
-                                {{ $item['word'] }}
+                                <x-pronounce-on-tap :word="$item['word']" />
                             </span>
                         @endforeach
                     </div>
@@ -799,13 +799,13 @@ new class extends Component
             @endif
 
             @if ($this->recurringError)
-                <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950">
-                    <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
+                <div class="mt-4 rounded-xl border border-warning-line bg-warning-soft p-3">
+                    <p class="inline-flex items-center gap-1 text-xs font-semibold text-warning-ink uppercase">
                         @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')
                         A pattern to keep an eye on
                     </p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">
-                        <span class="text-red-600 line-through decoration-red-500">{{ $this->recurringError->error }}</span>
+                        <span class="text-danger-ink line-through decoration-danger">{{ $this->recurringError->error }}</span>
                         <span class="text-success dark:text-success-dark">{{ $this->recurringError->correction }}</span>
                     </p>
                 </div>
@@ -814,7 +814,7 @@ new class extends Component
         @endif
 
         @if ($hasKeepPracticingSection)
-            <div class="mt-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <div class="mt-4 card p-4">
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Keep practicing</p>
 
             @if (! $readOnly && count($this->speakingPromptCandidates()))

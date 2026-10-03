@@ -37,7 +37,7 @@
             </div>
         </header>
 
-        <section class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <section class="card p-4">
             <p class="text-sm leading-8 text-ink-soft dark:text-ink-soft-dark">
                 <strong class="text-ink dark:text-ink-dark">English OS</strong> یه برنامه‌ی یادگیری انگلیسیه که <strong class="text-accent-ink dark:text-accent-ink-dark">با کمک هوش مصنوعی</strong> کارهای گفتاری و نوشتاریت رو چک می‌کنه و بهت فیدبک می‌ده — نه یه معلم واقعی پشت صحنه، بلکه یه AI Instructor که صدا و متنت رو گوش می‌ده/می‌خونه و بهت می‌گه چی خوب بوده و چی رو باید اصلاح کنی. کل برنامه ۲۴ ماموریت و ۱۰۰ روزه؛ هر روز حدود ۴۰ دقیقه.
             </p>
@@ -55,12 +55,12 @@
             </div>
         </section>
 
-        <section class="flex items-start gap-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400">
+        <section class="flex items-start gap-3 card-sunken p-4">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning-ink">
                 @svg('heroicon-o-heart', 'h-4 w-4')
             </span>
             <div>
-                <p class="text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">خیالت راحت باشه</p>
+                <p class="text-xs font-semibold tracking-wide text-warning-ink uppercase">خیالت راحت باشه</p>
                 <p class="mt-1 text-sm leading-8 text-ink-soft dark:text-ink-soft-dark">
                     هیچ‌وقت توی این برنامه به‌خاطر اشتباه سرزنش نمی‌شی. اگه چندبار پشت‌سرهم یه چیزی رو درست نگی/ننویسی، AI به‌جای سخت‌گیری بیشتر، <strong class="text-ink dark:text-ink-dark">زودتر بهت کمک پیشنهاد می‌ده</strong>. ضبط صدات بد بود؟ جمله‌ت گرامر نداشت؟ مشکلی نیست — دقیقاً برای همینه که این تمرین‌ها وجود دارن. هدف اینجا امتحان دادن نیست، تمرین کردنه.
                 </p>
@@ -81,7 +81,7 @@
                     ['۳', 'تمرین', 'به‌کاربردن', 'با هوش مصنوعی مکالمه می‌کنی، یه متن می‌خونی، و یه متن می‌نویسی.', '۶۵'],
                     ['۴', 'چالش', 'جمع‌بندی', 'یه تصویر رو توصیف می‌کنی، اشتباهاتت رو رفع می‌کنی، یه مکالمه‌ی نهایی بدون آمادگی انجام می‌دی، و نتیجه رو می‌بینی.', '۳۵'],
                 ] as [$num, $phase, $title, $desc, $minutes])
-                    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                    <div class="card p-4">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-2">
                                 <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white dark:bg-accent-dark">{{ $num }}</span>
@@ -108,7 +108,7 @@
             </ul>
         </section>
 
-        <section class="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <section class="flex items-start gap-3 card p-4">
             <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                 @svg('heroicon-o-shield-check', 'h-4 w-4')
             </span>
@@ -127,7 +127,7 @@
             </div>
 
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <div class="card p-4" x-data="{ open: false }">
                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                         @svg('heroicon-o-speaker-wave', 'h-4 w-4')
                     </span>
@@ -136,8 +136,45 @@
                         <li>کانال‌های BBC Learning English و Rachel's English روی یوتیوب</li>
                         <li>کلمات «My Words» رو دوبار لمس کن تا تلفظ امریکنش رو بشنوی</li>
                     </ul>
+
+                    <button
+                        type="button"
+                        x-on:click="open = ! open"
+                        class="mt-2 flex w-full cursor-pointer items-center justify-between gap-2 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark"
+                    >
+                        <span>راهنمای کامل تمرین شنیداری بیرون از اپ</span>
+                        <span class="shrink-0" :class="open ? 'rotate-180' : ''" style="transition: transform 150ms">
+                            @svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')
+                        </span>
+                    </button>
+
+                    <div x-show="open" x-cloak x-transition.opacity.duration.150ms class="mt-2 space-y-2.5 border-t border-line pt-2.5 dark:border-line-dark">
+                        <div>
+                            <p class="text-xs font-bold text-ink dark:text-ink-dark">چرا این کار رو بکنم؟</p>
+                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">توی اپ، Listening عمیقه: یه فایل کوتاه رو چندبار گوش می‌دی تا همه‌چیزش رو بفهمی. این خوبه، ولی کافی نیست — زبان واقعی سریع‌تر و نامنظم‌تره. این بخش برعکسشه: زیاد گوش بده، راحت، بدون توقف، تا گوشت به سرعت و لهجه‌ی واقعی عادت کنه.</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-ink dark:text-ink-dark">چقدر و چطور؟</p>
+                            <ul class="mt-1 list-disc space-y-1 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
+                                <li>روزی ۱۵ تا ۲۰ دقیقه کافیه، همین.</li>
+                                <li>برای هر کلمه‌ی ناآشنا نایست — فقط ادامه بده.</li>
+                                <li>فایلی رو انتخاب کن که بدون زحمت حدود ۷۰ تا ۸۰ درصدش رو می‌فهمی. اگه کمتره، یه پله ساده‌تر برو.</li>
+                                <li>هیچ‌وقت زیرنویس فارسی نذار؛ اگه لازم شد، فقط زیرنویس انگلیسی.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-ink dark:text-ink-dark">از کجا شروع کنم؟</p>
+                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">برای هر روز برنامه، سه پیشنهاد آماده‌ست، از سبک‌تر تا چالشی‌تر. <strong class="text-ink dark:text-ink-dark">حداقل یکی رو گوش بده، دوست داشتی هر سه تا رو.</strong></p>
+                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">کارت «Listen today» توی صفحه‌ی اصلی، پیشنهادهای روز خودت رو باز می‌کنه. بعدش «I listened» رو بزن تا توی استریک حساب بشه.</p>
+                            <a
+                                href="{{ route('listening.show') }}"
+                                wire:navigate
+                                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                            >باز کردن پیشنهادهای شنیدن @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <div class="card p-4">
                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                         @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4')
                     </span>
@@ -147,7 +184,7 @@
                         <li>جلوی آینه جواب سوال‌های همون روز رو بدون آمادگی تمرین کن</li>
                     </ul>
                 </div>
-                <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <div class="card p-4">
                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                         @svg('heroicon-o-sparkles', 'h-4 w-4')
                     </span>

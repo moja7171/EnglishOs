@@ -477,7 +477,7 @@ new class extends Component
     <x-hook :text="$conversation['hook'] ?? null" />
 
     @if ($completed)
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
@@ -494,7 +494,7 @@ new class extends Component
             @endif
 
             @if ($reflection)
-                <div class="space-y-2 rounded-2xl border border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark" dir="rtl">
+                <div class="space-y-2 card-sunken p-3" dir="rtl">
                     <p class="text-sm text-ink dark:text-ink-dark">{{ $reflection['highlight'] }}</p>
                     <p class="flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
                         @svg('heroicon-o-light-bulb', 'h-4 w-4 shrink-0 mt-0.5')
@@ -542,12 +542,12 @@ new class extends Component
                     </div>
 
                     @if (collect([$fbCorrectionOriginal, $fbCorrectionCorrected, $fbCorrectionWhy, $fbCorrectionSuggestion])->filter(fn ($v) => filled($v))->isNotEmpty())
-                        <div class="rounded-xl border-l-4 {{ $fbSeverity === 'major' ? 'border-red-500 bg-red-50 dark:border-red-800 dark:bg-red-950/30' : 'border-amber-500 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30' }} p-3">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold {{ $fbSeverity === 'major' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400' }} uppercase">
+                        <div class="rounded-xl border-l-4 {{ $fbSeverity === 'major' ? 'border-danger bg-danger-soft' : 'border-warning bg-warning-soft' }} p-3">
+                            <p class="flex items-center gap-1.5 text-xs font-semibold {{ $fbSeverity === 'major' ? 'text-danger-ink' : 'text-warning-ink' }} uppercase">
                                 @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
                                 Something to fix
                             </p>
-                            <p class="mt-2 text-sm text-red-600 line-through decoration-red-500">{{ $fbCorrectionOriginal }}</p>
+                            <p class="mt-2 text-sm text-danger-ink line-through decoration-danger">{{ $fbCorrectionOriginal }}</p>
                             <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $fbCorrectionCorrected }}</p>
                             <p class="font-fa mt-2 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $fbCorrectionWhy }}</p>
                             <p class="font-fa mt-1 flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
@@ -648,7 +648,7 @@ new class extends Component
             </div>
 
             @error('warmUpAudioFile')
-                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
 
@@ -699,7 +699,7 @@ new class extends Component
         @endif
 
         @if ($this->currentQuestion)
-            <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <div class="card p-4">
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $round + 1 }} of {{ count($this->questions) }}</p>
                 <div class="mt-1 flex items-start justify-between gap-2">
                     <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentQuestion }}</p>
@@ -722,7 +722,7 @@ new class extends Component
                 <x-ai-thinking wire:loading wire:target="submitAnswer" label="Transcribing and thinking of a follow-up…" class="mt-3" />
 
                 @if ($exampleAnswer[$round] ?? null)
-                    <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                    <div class="mt-2 rounded-xl card-accent px-3 py-2">
                         <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
                         <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer[$round] }}</p>
                     </div>
@@ -745,10 +745,10 @@ new class extends Component
                 />
 
                 @error('audioFile')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
                 @enderror
                 @if ($error)
-                    <p class="mt-2 text-sm text-red-600">{{ $error }}</p>
+                    <p class="mt-2 text-sm text-danger-ink">{{ $error }}</p>
                 @endif
             </div>
         @endif

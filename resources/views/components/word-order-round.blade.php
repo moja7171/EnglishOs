@@ -137,7 +137,7 @@
                         x-on:click="advance"
                         class="cursor-pointer rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white dark:bg-accent-dark"
                     >Continue</button>
-                    <span x-show="checked" x-cloak class="inline-flex items-center gap-1 text-sm font-semibold" :class="correct ? 'text-success dark:text-success-dark' : 'text-red-600 dark:text-red-400'">
+                    <span x-show="checked" x-cloak class="inline-flex items-center gap-1 text-sm font-semibold" :class="correct ? 'text-success dark:text-success-dark' : 'text-danger-ink'">
                         <span x-show="correct">@svg('heroicon-o-check-circle', 'h-4 w-4')</span>
                         <span x-text="correct ? 'Correct!' : 'Not quite — try again.'"></span>
                     </span>

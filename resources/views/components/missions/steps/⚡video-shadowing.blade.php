@@ -214,7 +214,7 @@ new class extends Component
     </div>
 
     @if ($completed)
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Video Shadowing complete
@@ -261,7 +261,7 @@ new class extends Component
                             I watched with captions on
                         </label>
                         @error('watched')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -303,7 +303,7 @@ new class extends Component
 
                         <div class="mt-2 space-y-3">
                             @foreach ($shadowLines as $index => $line)
-                                <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                                <div class="card-sunken p-4">
                                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
                                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
 
@@ -322,7 +322,7 @@ new class extends Component
                             @endforeach
                         </div>
                         @error('shadowRecordings')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
                         @enderror
 
                         @unless ($readOnly)

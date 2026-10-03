@@ -2,6 +2,7 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Services\ListeningPicks;
 use App\Services\PexelsClient;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
@@ -18,6 +19,47 @@ new class extends Component
     public function program(): array
     {
         return app(ProgramPlanner::class)->plan(auth()->user());
+    }
+
+    /**
+     * The daily listening picks for the learner's current program day (see
+     * App\Services\ListeningPicks and the /listening page). "Current day"
+     * is the same day Today shows: the open mission's day, or day 1 of the
+     * next mission between missions. Null once all 24 missions are done.
+     *
+     * @return array{label: string, missionCode: string, dayNumber: int, listenedToday: bool}|null
+     */
+    #[Computed]
+    public function listening(): ?array
+    {
+        $day = app(ListeningPicks::class)->dayFor($this->program['today']);
+
+        if ($day === null) {
+            return null;
+        }
+
+        return $day + [
+            'label' => $day['missionCode'].' · Day '.$day['dayNumber'],
+            'listenedToday' => auth()->user()->hasListenedToday(),
+        ];
+    }
+
+    /**
+     * The learner's "I listened" tick. Counts today toward the streak (see
+     * User::activeDates()). Which day it belongs to is worked out here from
+     * the program, never taken from the browser.
+     */
+    public function markListened(): void
+    {
+        $listening = $this->listening;
+
+        if ($listening === null) {
+            return;
+        }
+
+        auth()->user()->recordListeningToday($listening['missionCode'], $listening['dayNumber']);
+
+        unset($this->listening);
     }
 
     /**
@@ -174,8 +216,8 @@ new class extends Component
                 <span @class([
                     'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold',
                     'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $delta >= 0,
-                    'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' => $delta < 0 && $delta >= -7,
-                    'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300' => $delta < -7,
+                    'bg-warning-soft text-warning-ink' => $delta < 0 && $delta >= -7,
+                    'bg-danger-soft text-danger-ink' => $delta < -7,
                 ])>
                     @if ($delta > 0) @svg('heroicon-s-bolt', 'h-3 w-3') {{ $delta }} {{ Str::plural('day', $delta) }} ahead
                     @elseif ($delta === 0) @svg('heroicon-s-check', 'h-3 w-3') On track
@@ -248,7 +290,7 @@ new class extends Component
                  offered, never pushed, right after a checkpoint mission
                  closes and before nudging toward the next one. --}}
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · {{ $today['mission']->code }} done</p>
-            <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+            <div class="mt-2 rounded-xl card-accent p-3">
                 <p class="text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Want to hear how far you've come?</p>
                 <p class="mt-0.5 text-xs text-accent-ink/80 dark:text-accent-ink-dark/80">Answer the same question from your placement test again, and listen to both side by side. Takes about a minute — entirely optional.</p>
                 <a
@@ -284,6 +326,41 @@ new class extends Component
         @endif
     </section>
 
+    {{-- Daily listening — a separate habit from the mission steps (it lives
+         outside the app), so it gets its own row under Today rather than
+         a step inside it. The tick counts toward the streak. --}}
+    @if ($listening = $this->listening)
+        <section class="flex items-start gap-3 rounded-xl px-3.5 py-2.5" aria-label="Daily listening">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-o-speaker-wave', 'h-4 w-4')
+            </span>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Listen today · {{ $listening['label'] }}</p>
+                <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">Listen to at least one, or all three if you like.</p>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <a
+                        href="{{ route('listening.show') }}"
+                        wire:navigate
+                        class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    >Open today's picks @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+                    @if ($listening['listenedToday'])
+                        <span class="inline-flex items-center gap-1 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
+                            @svg('heroicon-s-check', 'h-3.5 w-3.5') Listened today
+                        </span>
+                    @else
+                        <button
+                            type="button"
+                            wire:click="markListened"
+                            wire:loading.attr="disabled"
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
+                        >I listened @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
+                        <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak</span>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- Lighter row style (no card border/bg) than "Today" above it, same
          treatment as the nudges below — home-page declutter pass: these
          are all secondary to Today, and sharing its exact card chrome
@@ -302,7 +379,7 @@ new class extends Component
             </span>
             @if (($freshness = $this->progressSummary['freshness']) !== null)
                 @php
-                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-amber-600' : 'text-red-600');
+                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-warning-ink' : 'text-danger-ink');
                 @endphp
                 <span class="inline-flex items-center gap-1 font-semibold {{ $freshnessColor }}">
                     @svg('heroicon-o-bolt', 'h-3.5 w-3.5') {{ $freshness }}% fresh
@@ -354,7 +431,7 @@ new class extends Component
         </div>
     @elseif ($this->needsTodayReminder)
         <div
-            class="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950"
+            class="flex items-center gap-3 rounded-2xl border border-warning-line bg-warning-soft p-4"
             x-data="{
                 remaining: '',
                 updateRemaining() {
@@ -369,7 +446,7 @@ new class extends Component
             }"
             x-init="updateRemaining(); setInterval(() => updateRemaining(), 60000)"
         >
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning-ink">
                 <x-streak-flame :streak="auth()->user()->currentStreak()" size="h-4 w-4" />
             </span>
             <span class="flex-1">
@@ -408,7 +485,7 @@ new class extends Component
             @php $roadmapRemaining = true; @endphp
             @break
         @elseif ($slot['blockedBy'])
-            <div class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+            <div class="flex items-center justify-between gap-3 card-sunken p-4">
                 <div>
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
                     <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['mission']->title }}</p>
@@ -425,7 +502,7 @@ new class extends Component
             @php $coverUrl = $this->missionCoverUrl($slot['mission']); @endphp
             <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}"
                data-mood="{{ $slot['mission']->moodKey() }}"
-               class="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
+               class="flex items-center gap-3.5 card p-4 transition-colors hover:border-accent dark:hover:border-accent-dark">
                 @if ($coverUrl)
                     <img src="{{ $coverUrl }}" alt="" class="h-14 w-14 shrink-0 rounded-xl object-cover">
                 @endif

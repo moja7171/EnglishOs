@@ -139,7 +139,7 @@ new class extends Component
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     @php $earlier = $this->earlier(); @endphp
     @if ($completed)
-        <div class="space-y-5 rounded-2xl border border-line bg-surface p-6 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-5 card p-6">
             <div class="text-center">
                 <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Your voice, {{ $this->mission->code }} in</p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Same question you answered before. Listen to both.</p>
@@ -204,7 +204,7 @@ new class extends Component
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">The exact same question you answered when you started — then you'll hear both side by side.</p>
             </header>
 
-            <div class="mt-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <div class="mt-4 card p-4">
                 @php $speaking = $this->test->speaking(); @endphp
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speak for about {{ $speaking['seconds'] }} seconds</p>
                 <p class="mt-1 text-lg font-semibold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>

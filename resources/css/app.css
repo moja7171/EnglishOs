@@ -3,6 +3,12 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* Class-based dark mode (not the default prefers-color-scheme media
+   query) so the header's theme toggle can override the OS setting. The
+   .dark class on <html> is set by the inline script in the app layout:
+   the learner's saved choice if any, otherwise the OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
     --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
@@ -18,39 +24,55 @@
        existing dark: convention (e.g. bg-ground dark:bg-ground-dark),
        since Tailwind can't auto-invert a custom color. */
     --color-ground: #f6f5fb;
-    --color-ground-dark: #15132a;
+    --color-ground-dark: #0f0d21;
     --color-surface: #ffffff;
-    --color-surface-dark: #1e1c38;
+    --color-surface-dark: #201e3e;
     --color-surface-sunken: #efeef8;
-    --color-surface-sunken-dark: #191733;
+    --color-surface-sunken-dark: #151331;
 
     --color-ink: #1d1b3a;
     --color-ink-dark: #f2f1fb;
     --color-ink-soft: #57547e;
     --color-ink-soft-dark: #b9b6db;
     --color-ink-faint: #8f8cb0;
-    --color-ink-faint-dark: #7a77a0;
+    --color-ink-faint-dark: #9a97bf;
 
     --color-line: #e2e0f0;
-    --color-line-dark: #322f57;
+    --color-line-dark: #463f7a;
 
     --color-accent: #ff6b4a;
     --color-accent-dark: #ff8163;
     --color-accent-soft: #ffe4da;
-    --color-accent-soft-dark: #3a2233;
+    --color-accent-soft-dark: #4a2a3e;
     --color-accent-ink: #a8391c;
     --color-accent-ink-dark: #ffb49c;
 
     --color-success: #1fa98a;
     --color-success-dark: #4cceb0;
     --color-success-soft: #d9f3ec;
-    --color-success-soft-dark: #163a34;
+    --color-success-soft-dark: #1d4a42;
+
+    /* Status colors. Unlike the pairs above these flip themselves: the
+       :root.dark block below swaps their values, so a single class
+       (text-danger-ink, bg-warning-soft, ...) is right in both themes with
+       no dark: twin to forget. danger = errors/major mistakes; warning =
+       minor mistakes/caution. -soft is a tinted fill, -line a border,
+       -ink readable text on either surface, plain is the accent bar. */
+    --color-danger: #ef4444;
+    --color-danger-soft: #fef2f2;
+    --color-danger-line: #fca5a5;
+    --color-danger-ink: #c81e1e;
+    --color-warning: #f59e0b;
+    --color-warning-soft: #fffbeb;
+    --color-warning-line: #fcd34d;
+    --color-warning-ink: #b45309;
 
     --color-dawn: #ffb17a;
     --color-dusk: #8b7ce0;
 
-    /* Fixed, deliberately theme-independent — a signature dark "night
-       sky" surface for the mission hero, same in light and dark mode. */
+    /* A signature dark "night sky" surface for the mission hero. Always
+       dark, but lifted a step in dark mode (see :root.dark below) so it
+       still reads as its own surface against the dark page. */
     --color-hero: #211d3f;
     --color-hero-2: #322d5c;
 }
@@ -71,7 +93,10 @@
    soft dot-grid (morning-light speckle); connection gets fine diagonal
    threads (things linking up). */
 :root {
-    --mood-texture: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--color-accent) 12%, transparent) 1.5px, transparent 0);
+    /* Dark surfaces swallow a faint tint, so .dark raises this multiplier
+       to keep each mission's texture as visible as it is on light. */
+    --mood-boost: 1;
+    --mood-texture: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--color-accent) calc(12% * var(--mood-boost)), transparent) 1.5px, transparent 0);
     --mood-texture-size: 22px 22px;
 }
 
@@ -79,12 +104,12 @@
     --color-accent: #2fa6a6;
     --color-accent-dark: #4fc4c4;
     --color-accent-soft: #d9f2f0;
-    --color-accent-soft-dark: #163634;
+    --color-accent-soft-dark: #1b4a48;
     --color-accent-ink: #0f6b6b;
     --color-accent-ink-dark: #8fe0dc;
     --color-dawn: #6fd9c7;
     --color-dusk: #4a8fbf;
-    --mood-texture: repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 10%, transparent) 0 2px, transparent 2px 20px);
+    --mood-texture: repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-accent) calc(10% * var(--mood-boost)), transparent) 0 2px, transparent 2px 20px);
     --mood-texture-size: auto;
 }
 
@@ -96,13 +121,13 @@
     --color-accent: #4a5fd6;
     --color-accent-dark: #7c8bf2;
     --color-accent-soft: #e1e3fb;
-    --color-accent-soft-dark: #201f3f;
+    --color-accent-soft-dark: #2b2e66;
     --color-accent-ink: #2d3aa0;
     --color-accent-ink-dark: #b6c0ff;
     --color-dawn: #7c94ff;
     --color-dusk: #35408f;
-    --mood-texture: repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-accent) 9%, transparent) 0 1px, transparent 1px 24px),
-        repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 9%, transparent) 0 1px, transparent 1px 24px);
+    --mood-texture: repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-accent) calc(9% * var(--mood-boost)), transparent) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-accent) calc(9% * var(--mood-boost)), transparent) 0 1px, transparent 1px 24px);
     --mood-texture-size: auto;
 }
 
@@ -115,13 +140,13 @@
     --color-accent: #d9932e;
     --color-accent-dark: #f0ad4e;
     --color-accent-soft: #faecd3;
-    --color-accent-soft-dark: #3a2c15;
+    --color-accent-soft-dark: #4f3a17;
     --color-accent-ink: #8a5a12;
     --color-accent-ink-dark: #ffd694;
     --color-dawn: #f2b25c;
     --color-dusk: #b5741f;
-    --mood-texture: radial-gradient(circle at 25% 25%, color-mix(in srgb, var(--color-accent) 14%, transparent) 2px, transparent 0),
-        radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--color-accent) 10%, transparent) 1.5px, transparent 0);
+    --mood-texture: radial-gradient(circle at 25% 25%, color-mix(in srgb, var(--color-accent) calc(14% * var(--mood-boost)), transparent) 2px, transparent 0),
+        radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--color-accent) calc(10% * var(--mood-boost)), transparent) 1.5px, transparent 0);
     --mood-texture-size: 28px 28px;
 }
 
@@ -178,4 +203,52 @@
 
 .animate-trophy-pop {
     animation: trophy-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Dark-mode-only global adjustments: tell the browser to render native
+   controls/scrollbars dark, lift the hero off the (much darker) page, and
+   strengthen the per-mission background textures. */
+:root {
+    color-scheme: light;
+}
+
+:root.dark {
+    color-scheme: dark;
+    --color-hero: #2c2757;
+    --color-hero-2: #3d3775;
+    --mood-boost: 1.7;
+    --color-danger: #f87171;
+    --color-danger-soft: #4a1f2f;
+    --color-danger-line: #9c3a52;
+    --color-danger-ink: #ff9fae;
+    --color-warning: #fbbf24;
+    --color-warning-soft: #46341a;
+    --color-warning-line: #92692a;
+    --color-warning-ink: #fcc765;
+}
+
+/* Surface levels. A light page separates cards with a pale border; a dark
+   page can't — borders and fills that close in luminance just vanish — so
+   depth is expressed as three explicit levels rather than repeating the
+   same border/background utilities on every element:
+   - .card         a primary section on the page
+   - .card-sunken  a recessed well, usually nested inside a .card
+   - .card-accent  an emphasized/highlight card using the mood accent
+   Plain utilities (shadow-sm, border-dashed, p-*, ...) still layer on top. */
+@layer components {
+    .card {
+        @apply rounded-2xl border border-line bg-surface dark:border-line-dark dark:bg-surface-dark;
+    }
+
+    .dark .card {
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+    }
+
+    .card-sunken {
+        @apply rounded-2xl border border-line bg-surface-sunken dark:border-line-dark dark:bg-surface-sunken-dark;
+    }
+
+    .card-accent {
+        @apply rounded-2xl border border-accent/30 bg-accent-soft dark:border-accent-dark/40 dark:bg-accent-soft-dark;
+    }
 }

@@ -144,7 +144,7 @@ new class extends Component
             {{-- Epic F: tied to ONE specific, named question — the old copy
                  ("record yourself answering one") never said which,
                  leaving the learner to guess. --}}
-            <div class="mt-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+            <div class="mt-3 card-sunken p-4">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record yourself answering this one:</p>
                 <p class="mt-1 text-sm text-ink dark:text-ink-dark">"{{ $brief['warm_up_questions'][0] ?? '' }}"</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Never graded, never required — just something real to look back on later in this mission.</p>
@@ -191,7 +191,7 @@ new class extends Component
             @endforeach
         </div>
         @error('score')
-            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
         @enderror
     </div>
 

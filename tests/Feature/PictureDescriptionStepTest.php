@@ -230,7 +230,7 @@ class PictureDescriptionStepTest extends TestCase
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
 
         Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->assertSeeHtml('rounded-2xl border border-line bg-surface-sunken p-4');
+            ->assertSeeHtml('card-sunken p-4');
     }
 
     public function test_hotspot_markers_are_rendered_at_their_seeded_coordinates(): void

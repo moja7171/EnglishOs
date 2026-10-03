@@ -148,7 +148,7 @@
                             :disabled="selected !== null"
                             :class="{
                                 'border-success bg-success-soft text-success dark:border-success-dark dark:bg-success-soft-dark dark:text-success-dark': selected !== null && i === card.correct,
-                                'border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950': selected === i && i !== card.correct,
+                                'border-danger-line bg-danger-soft text-danger-ink': selected === i && i !== card.correct,
                                 'border-line text-ink hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark': selected === null || (i !== card.correct && selected !== i),
                                 'p-1.5': card.optionType === 'image',
                                 'px-3 py-2.5 text-left': card.optionType !== 'image',

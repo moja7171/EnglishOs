@@ -160,7 +160,7 @@ new class extends Component
                 $mine = $this->answersByQuestion->get($index, collect())->firstWhere('responder_id', auth()->id());
                 $partnerAnswer = $this->answersByQuestion->get($index, collect())->firstWhere('responder_id', $this->partner->id);
             @endphp
-            <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark" wire:key="question-{{ $index }}">
+            <div class="card p-4" wire:key="question-{{ $index }}">
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $index + 1 }} of {{ count($this->prompts) }}</p>
                 <div class="mt-1 flex items-start justify-between gap-2">
                     <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $prompt }}</p>

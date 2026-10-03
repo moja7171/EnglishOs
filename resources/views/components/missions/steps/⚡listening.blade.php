@@ -6,7 +6,6 @@ use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\PexelsClient;
-use App\Services\PiPrompts;
 use Livewire\Component;
 
 /**
@@ -215,12 +214,6 @@ new class extends Component
     {
         return "eos-draft:{$this->run->id}:listening:";
     }
-
-    /** @return array{instruction: string, prompt: string}|null */
-    public function piTask(): ?array
-    {
-        return app(PiPrompts::class)->partnerTask($this->run, 'listening');
-    }
 };
 ?>
 
@@ -250,10 +243,6 @@ new class extends Component
 
     <x-hook :text="$listening['hook'] ?? null" />
 
-    @unless ($readOnly)
-        <x-pi-practice-card role-label="Language Partner" :task="$this->piTask()" />
-    @endunless
-
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>
         @unless ($readOnly)
@@ -265,7 +254,7 @@ new class extends Component
     </div>
 
     @if ($completed)
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
@@ -282,7 +271,7 @@ new class extends Component
                             class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                         >
                         <span>
-                            <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $item['phrase'] }}</span>
+                            <x-pronounce-on-tap :word="$item['phrase']" class="block text-sm font-bold text-ink dark:text-ink-dark" />
                             <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</span>
                         </span>
                     </label>
@@ -352,7 +341,7 @@ new class extends Component
             @if (count($targetPhrases))
                 <div class="mt-3 flex flex-wrap gap-1.5">
                     @foreach ($this->gapFillBankOrder as $bankPhrase)
-                        <span class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">{{ $bankPhrase }}</span>
+                        <x-pronounce-on-tap :word="$bankPhrase" class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
                     @endforeach
                 </div>
 
@@ -376,7 +365,7 @@ new class extends Component
                                 {{ $item['gap_after'] ?? '' }}
                             </p>
                             @if ($gapFeedback)
-                                <p class="mt-1 text-xs {{ $gapFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-amber-600' }}">
+                                <p class="mt-1 text-xs {{ $gapFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}">
                                     @if ($gapFeedback['severity'] === 'none')
                                         @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') That's it.
                                     @else
@@ -389,7 +378,7 @@ new class extends Component
                 </div>
 
                 @error('gapFill')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
                 @enderror
             @endif
 

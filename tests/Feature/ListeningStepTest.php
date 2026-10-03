@@ -68,14 +68,16 @@ class ListeningStepTest extends TestCase
             ->call('checkGapFill', 1);
     }
 
-    public function test_shows_a_pi_partner_card_grounded_in_the_mission_topic_and_target_phrases(): void
+    public function test_does_not_show_a_pi_language_partner_practice_card(): void
     {
+        // The very first step of the mission, before the learner has heard
+        // anything — a Pi warm-up here meant asking them to "use" words
+        // they hadn't been taught yet. Dropped entirely rather than moved,
+        // since a pre-task warm-up has nowhere later in this step to land.
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.listening', ['run' => $run])
-            ->assertSee('Language Partner chat in your voice AI app')
-            ->assertSee('My Daily Life')
-            ->assertSee('sleep in, morning person');
+            ->assertDontSee('Language Partner chat in your voice AI app');
     }
 
     public function test_the_wrap_up_offers_discussing_the_topic_with_a_mutual_friend(): void
