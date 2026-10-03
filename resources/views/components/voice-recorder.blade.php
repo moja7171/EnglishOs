@@ -33,6 +33,13 @@
 
 <div
     x-data="{
+        // Tells the bottom nav to get out of the way while the mic is live:
+        // a stray tap on a tab mid-recording would throw the take away.
+        // (An init() method rather than an init attribute on purpose —
+        // some tests assert a step renders no auto-run attribute at all.)
+        init() {
+            this.$watch('recording', (isRecording) => window.dispatchEvent(new CustomEvent('eos-recording', { detail: isRecording })));
+        },
         recording: false,
         cancelled: false,
         seconds: 0,
@@ -98,6 +105,12 @@
             const m = Math.floor(this.seconds / 60).toString().padStart(2, '0');
             const s = (this.seconds % 60).toString().padStart(2, '0');
             return m + ':' + s;
+        },
+        // Alpine calls this when the recorder leaves the page (step change,
+        // re-render) so the bottom nav can't be left hidden by a take that
+        // no longer exists.
+        destroy() {
+            window.dispatchEvent(new CustomEvent('eos-recording', { detail: false }));
         },
     }"
 >
