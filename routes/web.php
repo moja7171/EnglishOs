@@ -57,6 +57,14 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('learner-guide');
     })->name('learner.guide');
 
+    // The daily listening picks. No parameters = the learner's own current
+    // program day; /listening/M03/2 opens a specific day (days ahead of the
+    // learner are bounced back to today by the component, not here, since
+    // only it knows the learner's progress).
+    Route::get('/listening/{missionCode?}/{day?}', function (?string $missionCode = null, ?int $day = null) {
+        return view('listening', compact('missionCode', 'day'));
+    })->where(['missionCode' => 'M(0[1-9]|1[0-9]|2[0-4])', 'day' => '[1-4]'])->name('listening.show');
+
     Route::get('/placement', function () {
         return view('placement');
     })->name('placement');

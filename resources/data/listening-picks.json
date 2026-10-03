@@ -1,0 +1,530 @@
+{
+  "M01" : [
+    [
+      {"src":"lee","title":"Routines","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240607","min":6,"tx":"page"},
+      {"src":"voa","title":"Describing Your Day: Mornings","url":"https://learningenglish.voanews.com/a/describing-your-day-mornings/6241274.html","min":5,"tx":"page"},
+      {"src":"sme","title":"Why you need a good night's sleep","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241031","min":6,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about evenings","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250307","min":6,"tx":"page"},
+      {"src":"voa","title":"Bad Habits, Adjectives and the Simple Present","url":"https://learningenglish.voanews.com/a/bad-habits-adjectives-and-the-simple-present-/6225926.html","min":4,"tx":"page","grammar":true},
+      {"src":"sme","title":"Is breakfast the most important meal of the day?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251030","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about naps","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/251114","min":6,"tx":"page"},
+      {"src":"voa","title":"Describing Your Day: Midday Activities","url":"https://learningenglish.voanews.com/a/describing-your-day-midday-activities-/6253876.html","min":4,"tx":"page"},
+      {"src":"sme","title":"Who does the housework?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260813","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about weekends","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260320","min":5,"tx":"page"},
+      {"src":"voa","title":"Describing Your Day: The Evening","url":"https://learningenglish.voanews.com/a/describing-your-day-the-evening/6267836.html","min":5,"tx":"page"},
+      {"src":"sme","title":"The joys of writing lists","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250904","min":7,"tx":"page"}
+    ]
+  ],
+  "M02" : [
+    [
+      {"src":"lee","title":"Friends","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240517","min":5,"tx":"page"},
+      {"src":"voa","title":"Use Possessive Pronouns to Talk about Friends, Family","url":"https://learningenglish.voanews.com/a/use-possessive-pronouns-to-talk-about-friends-family/6785136.html","tx":"page"},
+      {"src":"sme","title":"Making 'mum friends'","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241212","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about siblings","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250613","min":5,"tx":"page"},
+      {"src":"voa","title":"Are You Learning the Progressive Tenses?","url":"https://learningenglish.voanews.com/a/7861613.html","min":5,"tx":"page","grammar":true},
+      {"src":"sme","title":"The bond between sisters","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241114","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about old friends","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260605","min":6,"tx":"page"},
+      {"src":"voa","title":"Describing Your Favorite Character","url":"https://learningenglish.voanews.com/a/describing-your-favorite-character-/6747800.html","min":10,"tx":"page"},
+      {"src":"sme","title":"What's it like to be a twin?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250828","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about socialising","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250606","min":6,"tx":"page"},
+      {"src":"voa","title":"Grammar and Gossip","url":"https://learningenglish.voanews.com/a/grammar-and-gossip-/6825557.html","min":5,"tx":"page"},
+      {"src":"sme","title":"Can you keep a secret?","url":"https://podcasts.apple.com/us/podcast/can-you-keep-a-secret/id262026947?i=1000655784306","min":6,"apple":true}
+    ]
+  ],
+  "M03" : [
+    [
+      {"src":"lee","title":"Jobs","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240531","min":6,"tx":"page"},
+      {"src":"voa","title":"US Workers Secretly Take 'Workations'","url":"https://learningenglish.voanews.com/a/us-workers-secretly-take-workations-/7642462.html","min":7,"tx":"page"},
+      {"src":"sme","title":"Are you unhappy at work?","url":"https://podcasts.apple.com/us/podcast/are-you-unhappy-at-work/id262026947?i=1000624747300","min":6,"apple":true}
+    ],
+    [
+      {"src":"lee","title":"Talking about the office","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250404","min":6,"tx":"page"},
+      {"src":"voa","title":"'Must' or 'Have To'?","url":"https://learningenglish.voanews.com/a/must-or-have-to-/7508873.html","min":3,"tx":"page","grammar":true},
+      {"src":"sme","title":"What is the future of work?","url":"https://podcasts.apple.com/us/podcast/what-is-the-future-of-work/id262026947?i=1000643782201","min":7,"apple":true}
+    ],
+    [
+      {"src":"lee","title":"Talking about school","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240809","min":5,"tx":"page"},
+      {"src":"voa","title":"Saying 'No' at Work Can Be Good for Your Health","url":"https://learningenglish.voanews.com/a/saying-no-at-work-can-be-good-for-your-health/7945653.html","min":7,"tx":"page"},
+      {"src":"sme","title":"Which country has the best schools?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250116","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about dream jobs","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250725","min":6,"tx":"page"},
+      {"src":"voa","title":"Making Polite Requests in Email","url":"https://learningenglish.voanews.com/a/making-polite-requests-in-email/6667153.html","min":6,"tx":"page"},
+      {"src":"sme","title":"Rude emails","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260702","min":7,"tx":"page"}
+    ]
+  ],
+  "M04" : [
+    [
+      {"src":"lee","title":"Food","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240510","min":6,"tx":"page"},
+      {"src":"voa","title":"What Is Your Country's National Dish?","url":"https://learningenglish.voanews.com/a/what-is-your-country-s-national-dish-/7526178.html","min":5,"tx":"page"},
+      {"src":"sme","title":"Healthy meals on a budget","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250320","min":6,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about food shopping","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250110","min":6,"tx":"page"},
+      {"src":"voa","title":"How Much Do You Know about Quantifiers?","url":"https://learningenglish.voanews.com/a/how-much-do-you-know-about-quantifiers/3206680.html","min":8,"tx":"page","grammar":true},
+      {"src":"sme","title":"Addicted to sugar","url":"https://podcasts.apple.com/us/podcast/addicted-to-sugar/id262026947?i=1000641299770","min":6,"apple":true}
+    ],
+    [
+      {"src":"lee","title":"Talking about cooking","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240913","min":5,"tx":"page"},
+      {"src":"voa","title":"Most Useful Eating and Drinking Expressions","url":"https://learningenglish.voanews.com/a/most-useful-eating-and-drinking-expressions/6647799.html","min":8,"tx":"page"},
+      {"src":"sme","title":"Are you drinking enough water?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250102","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about health","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241129","min":5,"tx":"page"},
+      {"src":"voa","title":"What Is the Healthiest Way to Prepare Vegetables?","url":"https://learningenglish.voanews.com/a/what-is-the-healthiest-way-to-prepare-vegetables-/7967294.html","min":6,"tx":"page"},
+      {"src":"sme","title":"Do you have good dining etiquette?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251120","min":7,"tx":"page"}
+    ]
+  ],
+  "M05" : [
+    [
+      {"src":"lee","title":"Talking about hobbies","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241122","min":6,"tx":"page"},
+      {"src":"voa","title":"Hobbies and Studies","url":"https://learningenglish.voanews.com/a/hobbies-and-studies-/6576966.html","min":5,"tx":"page"},
+      {"src":"sme","title":"How important is play?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251113","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about playing sports","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260227","min":5,"tx":"page"},
+      {"src":"voa","title":"Getting to Know Gerunds and Infinitives","url":"https://learningenglish.voanews.com/a/getting-to-know-gerunds-and-infinitives/3111996.html","tx":"page","grammar":true},
+      {"src":"sme","title":"Dancing for the brain","url":"https://podcasts.apple.com/us/podcast/dancing-for-the-brain/id262026947?i=1000652845524","min":6,"apple":true}
+    ],
+    [
+      {"src":"lee","title":"Talking about books","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260403","min":6,"tx":"page"},
+      {"src":"voa","title":"How to Talk about Music","url":"https://learningenglish.voanews.com/a/how-to-talk-about-music/6855015.html","min":5,"tx":"page"},
+      {"src":"sme","title":"Exercise for The Lazy","url":"https://podcasts.apple.com/us/podcast/exercise-for-the-lazy/id262026947?i=1000597684410","min":6,"apple":true}
+    ],
+    [
+      {"src":"lee","title":"Talking about relaxing","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/251017","min":5,"tx":"page"},
+      {"src":"voa","title":"How to Talk about a Movie","url":"https://learningenglish.voanews.com/a/how-to-talk-about-a-movie-/6656880.html","min":7,"tx":"page"},
+      {"src":"sme","title":"How fans talk about their passions","url":"https://podcasts.apple.com/us/podcast/how-fans-talk-about-their-passions/id262026947?i=1000628686268","min":6,"apple":true}
+    ]
+  ],
+  "M06" : [
+    [
+      {"src":"lee","title":"Talking about speaking languages","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260130","min":6,"tx":"page"},
+      {"src":"voa","title":"Thinking in English","url":"https://learningenglish.voanews.com/a/thinking-in-english/7829311.html","min":5,"tx":"page"},
+      {"src":"sme","title":"Scared to speak English?","url":"https://podcasts.apple.com/us/podcast/scared-to-speak-english/id262026947?i=1000746200239","min":7,"apple":true}
+    ],
+    [
+      {"src":"lee","title":"Talking about childhood","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250523","min":6,"tx":"page"},
+      {"src":"voa","title":"'When' with Past Tense","url":"https://learningenglish.voanews.com/a/when-with-past-tense/7316547.html","min":3,"tx":"page","grammar":true},
+      {"src":"sme","title":"Learning multiple languages","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250410","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about mistakes","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250502","min":6,"tx":"page"},
+      {"src":"voa","title":"Start New Year by Setting Reasonable Learning Goals","url":"https://learningenglish.voanews.com/a/start-the-new-year-by-setting-reasonable-learning-goals-/3637982.html","min":7,"tx":"page"},
+      {"src":"sme","title":"Can apps teach you a language?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260910","min":7,"tx":"page"}
+    ],
+    [
+      {"src":"lee","title":"Talking about confidence","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250711","min":6,"tx":"page"},
+      {"src":"voa","title":"Learn to Pronounce Past Tense -ed with Taylor Swift","url":"https://learningenglish.voanews.com/a/learn-to-pronounce-past-tense--ed-with-taylor-swift/6608811.html","min":9,"tx":"page"},
+      {"src":"sme","title":"What English phrases really mean","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260115","min":7,"tx":"page"}
+    ]
+  ],
+  "M07" : [
+    [
+      {"src":"sme","title":"Stress-free family meals","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260625","min":7,"tx":"page"},
+      {"src":"voa","title":"Summer Fun with Family Expressions","url":"https://learningenglish.voanews.com/a/summer-fun-with-family-expressions/5972820.html","tx":"page"},
+      {"src":"teded","title":"Should you care what your parents value?","url":"https://ed.ted.com/lessons/would-you-stop-dating-someone-your-parents-didn-t-like","min":9}
+    ],
+    [
+      {"src":"sme","title":"Was Christmas better in the past?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225","min":7,"tx":"page"},
+      {"src":"voa","title":"The Difference: Used to, Be Used to, Get Used to","url":"https://learningenglish.voanews.com/a/the-difference-used-to-be-used-to-get-used-to/5245290.html","tx":"page","grammar":true},
+      {"src":"teded","title":"Are all of your memories real?","url":"https://ed.ted.com/lessons/are-all-of-your-memories-real-daniel-l-schacter","min":8}
+    ],
+    [
+      {"src":"sme","title":"Can you trust ancestry DNA kits?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241205","min":7,"tx":"page"},
+      {"src":"voa","title":"Is Blood Thicker Than Water?","url":"https://learningenglish.voanews.com/a/is-blood-thicker-than-water-/4558634.html","tx":"page"},
+      {"src":"teded","title":"The sibling rivalry that tore a town apart","url":"https://ed.ted.com/lessons/the-sibling-rivalry-that-divided-a-town-jay-van-bavel-and-dominic-packer","min":8}
+    ],
+    [
+      {"src":"sme","title":"The secrets to a healthy old age","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241121","min":7,"tx":"page"},
+      {"src":"voa","title":"How to Use 'When' and 'While'","url":"https://learningenglish.voanews.com/a/how-to-use-when-and-while-/5888101.html","tx":"page"},
+      {"src":"teded","title":"What adults can learn from children","url":"https://ed.ted.com/lessons/what-adults-can-learn-from-kids-adora-svitak","min":11}
+    ]
+  ],
+  "M08" : [
+    [
+      {"src":"sme","title":"Fighting loneliness with soup","url":"https://podcasts.apple.com/us/podcast/fighting-loneliness-with-soup/id262026947?i=1000644645860","min":7,"apple":true},
+      {"src":"voa","title":"Besties, Buds, BFFs ... Friends!","url":"https://learningenglish.voanews.com/a/2977108.html","tx":"page"},
+      {"src":"teded","title":"How friendship alters your brain","url":"https://ed.ted.com/lessons/how-friendship-affects-your-brain-shannon-odell","min":6}
+    ],
+    [
+      {"src":"sme","title":"Would you like a robot companion?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250918","min":7,"tx":"page"},
+      {"src":"voa","title":"Everyday Grammar: Comparatives and Superlatives","url":"https://learningenglish.voanews.com/a/everyday-grammar-comparatives-superlatives/2989386.html","tx":"page","grammar":true},
+      {"src":"teded","title":"How certain friendships persist — and others fade","url":"https://ed.ted.com/lessons/how-some-friendships-last-and-others-dont-iseult-gillespie","min":7}
+    ],
+    [
+      {"src":"sme","title":"Are you lonely in a crowd?","url":"https://podcasts.apple.com/us/podcast/are-you-lonely-in-a-crowd/id262026947?i=1000605536269","min":6,"apple":true},
+      {"src":"voa","title":"Sharing Our Loneliness May Help Us Feel Less Lonely","url":"https://learningenglish.voanews.com/amp/sharing-our-loneliness-may-help-us-feel-less-lonely/6563851.html","tx":"page"},
+      {"src":"teded","title":"Have you ever created an imaginary friend? Watch this","url":"https://ed.ted.com/lessons/is-it-normal-to-have-imaginary-friends","min":8}
+    ],
+    [
+      {"src":"sme","title":"How do you say sorry?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250703","min":7,"tx":"page"},
+      {"src":"voa","title":"Friendship Idioms","url":"https://learningenglish.voanews.com/a/friendship-idioms/5666309.html","tx":"page"},
+      {"src":"teded","title":"The best way to make amends (according to science)","url":"https://ed.ted.com/lessons/the-best-way-to-apologize-according-to-science","min":8}
+    ]
+  ],
+  "M09" : [
+    [
+      {"src":"sme","title":"Do you get jealous easily?","url":"https://podcasts.apple.com/us/podcast/do-you-get-jealous-easily/id262026947?i=1000606585114","min":6,"apple":true},
+      {"src":"voa","title":"Introvert or Extrovert. Which One Are You?","url":"https://learningenglish.voanews.com/a/introvert-or-extrovert-which-are-you/3025369.html","tx":"page"},
+      {"src":"teded","title":"Should you trust your first impression? - Peter Mende-Siedlecki","url":"https://ed.ted.com/lessons/should-you-trust-your-first-impression-peter-mende-siedlecki","min":6}
+    ],
+    [
+      {"src":"sme","title":"Why everyone loves the underdog","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-240328","min":6,"tx":"page"},
+      {"src":"voa","title":"Everyday Grammar: Relative Pronouns","url":"https://learningenglish.voanews.com/a/everyday-grammar-relative-pronouns/2793920.html","tx":"page","grammar":true},
+      {"src":"teded","title":"How to handle your emotions","url":"https://ed.ted.com/lessons/how-to-manage-your-emotions","min":7}
+    ],
+    [
+      {"src":"sme","title":"The psychology of greed","url":"https://podcasts.apple.com/us/podcast/the-psychology-of-greed/id262026947?i=1000642081712","min":6,"apple":true},
+      {"src":"voa","title":"Grammar and Optimism","url":"https://learningenglish.voanews.com/a/grammar-and-optimism-/7334755.html","min":6,"tx":"page"},
+      {"src":"teded","title":"How do you know who deserves your trust?","url":"https://ed.ted.com/lessons/how-do-you-know-whom-to-trust-ram-neta","min":6}
+    ],
+    [
+      {"src":"sme","title":"How important is politeness?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250605","min":6,"tx":"page"},
+      {"src":"voa","title":"'When Life Gives You Lemons ...'","url":"https://learningenglish.voanews.com/a/words-and-their-stories-when-life-gives-you-lemons-/4254126.html","tx":"page"},
+      {"src":"teded","title":"Ethical dilemma: Would you stretch the truth?","url":"https://ed.ted.com/lessons/ethical-dilemma-would-you-lie-sarah-stroud","min":6}
+    ]
+  ],
+  "M10" : [
+    [
+      {"src":"sme","title":"The science of falling in love","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-240801","min":6,"tx":"page"},
+      {"src":"voa","title":"Romantic Relationships. Let's Talk.","url":"https://learningenglish.voanews.com/a/words-and-their-stories-romantic-relationships/3714928.html","tx":"page"},
+      {"src":"teded","title":"What is love?","url":"https://ed.ted.com/lessons/what-is-love-brad-troeger","min":7}
+    ],
+    [
+      {"src":"sme","title":"Divorce: Why does it happen?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241024","min":7,"tx":"page"},
+      {"src":"voa","title":"Have You Perfected the Perfect Tenses?","url":"https://learningenglish.voanews.com/a/everyday-grammar-have-you-perfected-the-perfect-tenses/3137265.html","tx":"page","grammar":true},
+      {"src":"teded","title":"The science of attraction","url":"https://ed.ted.com/lessons/the-science-of-attraction-dawn-maslar","min":6}
+    ],
+    [
+      {"src":"sme","title":"Is rejection good for us?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260917","min":6,"tx":"page"},
+      {"src":"voa","title":"What Does It Take to Be a 'Power Couple'?","url":"https://learningenglish.voanews.com/a/what-does-it-take-to-be-a-power-couple-/7963076.html","min":5,"tx":"page"},
+      {"src":"teded","title":"The history of marriage","url":"https://ed.ted.com/lessons/the-history-of-marriage-alex-gendler","min":6}
+    ],
+    [
+      {"src":"sme","title":"Why does heartbreak hurt so much?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-261001","min":7,"tx":"page"},
+      {"src":"voa","title":"'Love Hurts' & Other Love Expressions","url":"https://learningenglish.voanews.com/a/love-hurts-other-love-expressions/4775439.html","tx":"page"},
+      {"src":"teded","title":"The science of love's fall","url":"https://ed.ted.com/lessons/the-science-of-falling-in-love-shannon-odell","min":9}
+    ]
+  ],
+  "M11" : [
+    [
+      {"src":"sme","title":"Dreaming of being a chef","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260219","min":7,"tx":"page"},
+      {"src":"voa","title":"Job and Career","url":"https://learningenglish.voanews.com/a/job-and-career/5647041.html","tx":"page"},
+      {"src":"teded","title":"How to get motivated even when you lack the urge","url":"https://ed.ted.com/lessons/how-to-get-motivated-even-when-you-don-t-feel-like-it","min":8}
+    ],
+    [
+      {"src":"sme","title":"Becoming a musician","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250130","min":7,"tx":"page"},
+      {"src":"voa","title":"Fun with Future Tenses","url":"https://learningenglish.voanews.com/a/everyday-grammar-fun-with-future-tenses/2935173.html","min":6,"tx":"page","grammar":true},
+      {"src":"teded","title":"Why you feel stuck — and how to get energized","url":"https://ed.ted.com/lessons/why-you-feel-stuck-and-how-to-get-motivated-shannon-odell","min":7}
+    ],
+    [
+      {"src":"sme","title":"Why do we procrastinate?","url":"https://podcasts.apple.com/us/podcast/why-do-we-procrastinate/id262026947?i=1000599936223","min":6,"apple":true},
+      {"src":"voa","title":"Tips for Better Conversations in English at Work","url":"https://learningenglish.voanews.com/a/tips-for-better-conversations-at-work/5726549.html","tx":"page"},
+      {"src":"teded","title":"Why you procrastinate even when it's unpleasant","url":"https://ed.ted.com/lessons/why-you-procrastinate-even-when-it-feels-bad","min":9}
+    ],
+    [
+      {"src":"sme","title":"Call centres: Are you talking to AI?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241219","min":6,"tx":"page"},
+      {"src":"voa","title":"Let's Learn English Level 2, Lesson 2: The Interview","url":"https://learningenglish.voanews.com/a/lets-learn-english-level-2-lesson-2/3960471.html","tx":"page"},
+      {"src":"teded","title":"Career of an astronaut","url":"https://ed.ted.com/lessons/life-of-an-astronaut-jerry-carr","min":7}
+    ]
+  ],
+  "M12" : [
+    [
+      {"src":"sme","title":"The school that puts the kids in charge","url":"https://podcasts.apple.com/us/podcast/the-school-that-puts-the-kids-in-charge/id262026947?i=1000661885085","min":6,"apple":true},
+      {"src":"voa","title":"Finnish Students Go Back to School with Books, Not Screens","url":"https://learningenglish.voanews.com/a/finnish-students-go-back-to-school-with-books-not-screens/7780131.html","min":4,"tx":"page"},
+      {"src":"teded","title":"3 tips on how to study effectively","url":"https://ed.ted.com/lessons/3-tips-on-how-to-study-effectively","min":8}
+    ],
+    [
+      {"src":"sme","title":"Rethinking dyslexia","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260205","min":7,"tx":"page"},
+      {"src":"voa","title":"Everyday Grammar: Mastering Reported Speech","url":"https://learningenglish.voanews.com/a/everyday-grammar-reported-speech/2856671.html","tx":"page","grammar":true},
+      {"src":"teded","title":"How comic books can improve your learning","url":"https://ed.ted.com/lessons/how-comic-books-can-help-you-learn-gene-luen-yang","min":8}
+    ],
+    [
+      {"src":"sme","title":"How reading shapes your brain","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260514","min":7,"tx":"page"},
+      {"src":"voa","title":"For Some Retirees, It's Not Time to Stop Learning","url":"https://learningenglish.voanews.com/a/for-some-retirees-it-s-not-time-to-stop-learning/7014637.html","min":6,"tx":"page"},
+      {"src":"teded","title":"How to learn? From mistakes","url":"https://ed.ted.com/lessons/how-to-learn-from-mistakes-diana-laufenberg","min":14}
+    ],
+    [
+      {"src":"sme","title":"What makes a great library?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-240314","min":6,"tx":"page"},
+      {"src":"voa","title":"Debate Brings Many Benefits to Students","url":"https://learningenglish.voanews.com/a/debate-brings-many-benefits-to-students/7075563.html","min":8,"tx":"page"},
+      {"src":"teded","title":"The sweaty teacher's lament","url":"https://ed.ted.com/lessons/the-sweaty-teacher-s-lament-justin-lamb","min":5}
+    ]
+  ],
+  "M13" : [
+    [
+      {"src":"sme","title":"Tech that refuses to die","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241017","min":7,"tx":"page"},
+      {"src":"voa","title":"30 Phrasal Verbs to Help You With Technology","url":"https://learningenglish.voanews.com/a/phrasal-verbs-to-help-you-with-technology/3085650.html","tx":"page"},
+      {"src":"teded","title":"The shape-shifting future of the mobile phone","url":"https://ed.ted.com/lessons/the-shape-shifting-future-of-the-mobile-phone-fabian-hemmert","min":6}
+    ],
+    [
+      {"src":"sme","title":"Is social media dead?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260108","min":7,"tx":"page"},
+      {"src":"voa","title":"Simple Past and Present Perfect","url":"https://learningenglish.voanews.com/a/everyday-grammar-simple-past-and-present-perfect/2752310.html","min":4,"tx":"page","grammar":true},
+      {"src":"teded","title":"A brief history of video games (Part I)","url":"https://ed.ted.com/lessons/a-brief-history-of-video-games-part-i-safwat-saleem","min":7}
+    ],
+    [
+      {"src":"sme","title":"Sharing the road with driverless cars","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260820","min":7,"tx":"page"},
+      {"src":"voa","title":"Talking Robot Helps Seniors Fight Loneliness","url":"https://learningenglish.voanews.com/a/talking-robot-helps-seniors-fight-loneliness/7409230.html","min":7,"tx":"page"},
+      {"src":"teded","title":"How will AI impact the world?","url":"https://ed.ted.com/lessons/things-are-going-to-get-weird","min":9}
+    ],
+    [
+      {"src":"sme","title":"Doomscrolling: Why do we do it?","url":"https://podcasts.apple.com/us/podcast/doomscrolling-why-do-we-do-it/id262026947?i=1000598836530","min":6,"apple":true},
+      {"src":"voa","title":"Should Schools Ban Mobile Phones?","url":"https://learningenglish.voanews.com/a/should-schools-ban-mobile-phones-/5273391.html","tx":"page"},
+      {"src":"teded","title":"What happens if you forget airplane mode on your phone?","url":"https://ed.ted.com/lessons/what-happens-if-you-don-t-put-your-phone-in-airplane-mode-lindsay-demarchi","min":7}
+    ]
+  ],
+  "M14" : [
+    [
+      {"src":"sme","title":"Living with debt","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260528","min":7,"tx":"page"},
+      {"src":"voa","title":"Words and Their Stories: Money Talks","url":"https://learningenglish.voanews.com/a/money-talks/1681384.html","tx":"page"},
+      {"src":"teded","title":"How we became addicted to credit cards","url":"https://ed.ted.com/lessons/a-brief-history-of-credit-cards-nidhi-upadhyaya","min":7}
+    ],
+    [
+      {"src":"sme","title":"How green is your money?","url":"https://podcasts.apple.com/us/podcast/how-green-is-your-money/id262026947?i=1000631847356","min":6,"apple":true},
+      {"src":"voa","title":"If You Learn Conditionals, You'll Be Glad You Did!","url":"https://learningenglish.voanews.com/a/if-you-learn-conditionals-you-ll-be-glad-you-did-/3173342.html","tx":"page","grammar":true},
+      {"src":"teded","title":"What gives a dollar bill its value?","url":"https://ed.ted.com/lessons/what-gives-a-dollar-bill-its-value-doug-levinson","min":6}
+    ],
+    [
+      {"src":"sme","title":"Should we pay more for chocolate?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260312","min":6,"tx":"page"},
+      {"src":"voa","title":"Feel the Pinch","url":"https://learningenglish.voanews.com/a/words-and-their-stories-feel-the-pinch/2942530.html","tx":"page"},
+      {"src":"teded","title":"How does the stock market work?","url":"https://ed.ted.com/lessons/how-does-the-stock-market-work-oliver-elfenbaum","min":6}
+    ],
+    [
+      {"src":"sme","title":"Why are billionaires building bunkers?","url":"https://podcasts.apple.com/us/podcast/why-are-billionaires-building-bunkers/id262026947?i=1000747153145","min":7,"apple":true},
+      {"src":"voa","title":"Be Careful What You 'Bank On'","url":"https://learningenglish.voanews.com/a/be-careful-what-you-bank-on-/7703514.html","min":5,"tx":"page"},
+      {"src":"teded","title":"Why can’t governments print an unlimited amount of money?","url":"https://ed.ted.com/lessons/how-do-governments-create-money-out-of-thin-air-jonathan-smith","min":7}
+    ]
+  ],
+  "M15" : [
+    [
+      {"src":"sme","title":"How advertisers make us spend money","url":"https://podcasts.apple.com/us/podcast/how-advertisers-make-us-spend-money/id262026947?i=1000772201004","min":7,"apple":true},
+      {"src":"voa","title":"Buy and Pay","url":"https://learningenglish.voanews.com/a/buy-and-pay/5845605.html","tx":"page"},
+      {"src":"teded","title":"Why do your jeans wear out so quickly?","url":"https://ed.ted.com/lessons/the-life-cycle-of-a-pair-of-jeans-madhavi-venkatesan","min":6}
+    ],
+    [
+      {"src":"sme","title":"Grown-ups buying kids’ toys","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250814","min":7,"tx":"page"},
+      {"src":"voa","title":"Using the Passive Voice","url":"https://learningenglish.voanews.com/a/using-the-passive-voice/3247545.html","tx":"page","grammar":true},
+      {"src":"teded","title":"Why is cotton in everything?","url":"https://ed.ted.com/lessons/why-is-cotton-in-everything-michael-r-stiff","min":7}
+    ],
+    [
+      {"src":"sme","title":"Do you need to declutter your home?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250710","min":7,"tx":"page"},
+      {"src":"voa","title":"Set 'No-buy' Rules to Save Money, Cut Waste","url":"https://learningenglish.voanews.com/a/set-no-buy-rules-to-save-money-cut-waste/7640615.html","min":6,"tx":"page"},
+      {"src":"teded","title":"Why don't businesses want you to mend your stuff?","url":"https://ed.ted.com/lessons/why-dont-companies-want-you-to-repair-your-stuff-aaron-perzanowski","min":9}
+    ],
+    [
+      {"src":"sme","title":"Could we live without plastic?","url":"https://podcasts.apple.com/us/podcast/could-we-live-without-plastic/id262026947?i=1000638540627","min":6,"apple":true},
+      {"src":"voa","title":"Why Do We 'Pay Through the Nose' for Costly Things?","url":"https://learningenglish.voanews.com/a/why-do-we-pay-through-the-nose-for-costly-things-/5588260.html","tx":"page"},
+      {"src":"teded","title":"Less stuff, greater joy","url":"https://ed.ted.com/lessons/less-stuff-more-happiness-graham-hill","min":9}
+    ]
+  ],
+  "M16" : [
+    [
+      {"src":"teded","title":"Why are airplanes slower than they used to be?","url":"https://ed.ted.com/lessons/why-are-airplanes-slower-than-they-used-to-be-alex-gendler","min":7},
+      {"src":"talk","title":"Why overtourism could ruin your next vacation","by":"Suresh Subudhi","url":"https://www.ted.com/talks/suresh_subudhi_why_overtourism_could_ruin_your_next_vacation","min":14,"tx":"link","txUrl":"https://www.ted.com/talks/suresh_subudhi_why_overtourism_could_ruin_your_next_vacation/transcript"},
+      {"src":"lk","title":"How to travel on a budget","url":"https://www.npr.org/2025/01/23/1226281133/how-to-travel-on-a-budget","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/1226281133"}
+    ],
+    [
+      {"src":"teded","title":"The Silk Road: Connecting the ancient world through trade","url":"https://ed.ted.com/lessons/the-silk-road-history-s-first-world-wide-web-shannon-harris-castelo","min":8},
+      {"src":"talk","title":"My epic journey becoming the fastest person to paddle around Australia","by":"Bonnie Hancock","url":"https://www.ted.com/talks/bonnie_hancock_my_epic_journey_becoming_the_fastest_person_to_paddle_around_australia","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/bonnie_hancock_my_epic_journey_becoming_the_fastest_person_to_paddle_around_australia/transcript"},
+      {"src":"lk","title":"How to make your solo trip a success","url":"https://www.npr.org/2026/01/15/nx-s1-5676052/how-to-make-your-solo-trip-a-success","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5676052"}
+    ],
+    [
+      {"src":"teded","title":"Why every world map is wrong","url":"https://ed.ted.com/lessons/why-every-world-map-is-wrong-kayla-wolf","min":7},
+      {"src":"talk","title":"Why the passport needs an upgrade","by":"Karoli Hindriks","url":"https://www.ted.com/talks/karoli_hindriks_why_the_passport_needs_an_upgrade","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/karoli_hindriks_why_the_passport_needs_an_upgrade/transcript"},
+      {"src":"lk","title":"How to plan your dream vacation","url":"https://www.npr.org/2026/02/23/nx-s1-5702807/how-to-plan-your-dream-vacation","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5702807"}
+    ],
+    [
+      {"src":"teded","title":"What's the ideal country to live in?","url":"https://ed.ted.com/lessons/what-s-the-best-country-to-live-in","min":6},
+      {"src":"talk","title":"My journey mapping the uncharted world","by":"Tawanda Kanhema","url":"https://www.ted.com/talks/tawanda_kanhema_my_journey_mapping_the_uncharted_world","min":8,"tx":"link","txUrl":"https://www.ted.com/talks/tawanda_kanhema_my_journey_mapping_the_uncharted_world/transcript"},
+      {"src":"lk","title":"Want to avoid flight delays this holiday season? Follow these tips now","url":"https://www.npr.org/2025/10/28/nx-s1-5587617/want-to-avoid-flight-delays-this-holiday-season-follow-these-tips-now","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5587617"}
+    ]
+  ],
+  "M17" : [
+    [
+      {"src":"teded","title":"How languages evolve","url":"https://ed.ted.com/lessons/how-languages-evolve-alex-gendler","min":6},
+      {"src":"talk","title":"The beautiful paradoxes of a multicultural identity","by":"Farhad Mohit","url":"https://www.ted.com/talks/farhad_mohit_the_beautiful_paradoxes_of_a_multicultural_identity","min":6,"tx":"link","txUrl":"https://www.ted.com/talks/farhad_mohit_the_beautiful_paradoxes_of_a_multicultural_identity/transcript"},
+      {"src":"lk","title":"Check, please! The etiquette of splitting the tab","url":"https://www.npr.org/2024/07/02/1196979691/splitting-the-tab","min":13,"tx":"link","txUrl":"https://www.npr.org/transcripts/1196979691"}
+    ],
+    [
+      {"src":"teded","title":"What do dumplings look like throughout the world?","url":"https://ed.ted.com/lessons/a-brief-history-of-dumplings-miranda-brown","min":6},
+      {"src":"talk","title":"Reimagining traditional architecture for modern needs","by":"Riyad Joucka","url":"https://www.ted.com/talks/riyad_joucka_reimagining_traditional_architecture_for_modern_needs","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/riyad_joucka_reimagining_traditional_architecture_for_modern_needs/transcript"},
+      {"src":"lk","title":"The key to a less frantic holiday season","url":"https://www.npr.org/2025/12/01/nx-s1-5622083/the-key-to-a-less-frantic-holiday-season","min":23,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5622083"}
+    ],
+    [
+      {"src":"teded","title":"What do all languages have in common?","url":"https://ed.ted.com/lessons/what-do-all-languages-have-in-common-cameron-morin","min":8},
+      {"src":"talk","title":"How to weave a cultural legacy through storytelling","by":"Cohen Bradley","url":"https://www.ted.com/talks/cohen_bradley_how_to_weave_a_cultural_legacy_through_storytelling","min":11,"tx":"link","txUrl":"https://www.ted.com/talks/cohen_bradley_how_to_weave_a_cultural_legacy_through_storytelling/transcript"},
+      {"src":"lk","title":"Dear Life Kit: I have the same holiday drama with my family every year","url":"https://www.npr.org/2025/12/16/nx-s1-5645195/dear-life-kit-i-have-the-same-holiday-drama-with-my-family-every-year","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5645195"}
+    ],
+    [
+      {"src":"teded","title":"Music as a tongue","url":"https://ed.ted.com/lessons/victor-wooten-music-as-a-language","min":7},
+      {"src":"talk","title":"A taste of Mexico’s ancient chocolate-making tradition","by":"Germán Santillán","url":"https://www.ted.com/talks/german_santillan_a_taste_of_mexico_s_ancient_chocolate_making_tradition","min":6,"tx":"link","txUrl":"https://www.ted.com/talks/german_santillan_a_taste_of_mexico_s_ancient_chocolate_making_tradition/transcript"},
+      {"src":"lk","title":"Dear Life Kit: Your wedding etiquette questions, answered","url":"https://www.npr.org/2024/04/18/1196979077/wedding-etiquette-gifts-budgets-mother-in-law-contribution","min":15,"tx":"link","txUrl":"https://www.npr.org/transcripts/1196979077"}
+    ]
+  ],
+  "M18" : [
+    [
+      {"src":"teded","title":"Climate change: Earth's giant game of Tetris","url":"https://ed.ted.com/lessons/climate-change-earth-s-giant-game-of-tetris-joss-fong","min":5},
+      {"src":"talk","title":"How we’re turning pollution into toys, toothpaste and more","by":"Xu Hao","url":"https://www.ted.com/talks/xu_hao_how_we_re_turning_pollution_into_toys_toothpaste_and_more","min":14,"tx":"link","txUrl":"https://www.ted.com/talks/xu_hao_how_we_re_turning_pollution_into_toys_toothpaste_and_more/transcript"},
+      {"src":"lk","title":"How to reduce your climate footprint in 2023","url":"https://www.npr.org/2023/01/13/1149021742/reduce-carbon-footprint","min":9,"tx":"link","txUrl":"https://www.npr.org/transcripts/1149021742"}
+    ],
+    [
+      {"src":"teded","title":"Can planting trees actually cool the planet?","url":"https://ed.ted.com/lessons/does-planting-trees-actually-fight-climate-change-carolyn-beans","min":8},
+      {"src":"talk","title":"Will climate change make your home uninsurable?","by":"Amy Barnes","url":"https://www.ted.com/talks/amy_barnes_will_climate_change_make_your_home_uninsurable","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/amy_barnes_will_climate_change_make_your_home_uninsurable/transcript"},
+      {"src":"lk","title":"I ditched plastic for a week. Here's what I learned","url":"https://www.npr.org/2024/10/01/1202891560/reduce-plastic-waste-tips","min":19,"tx":"link","txUrl":"https://www.npr.org/transcripts/1202891560"}
+    ],
+    [
+      {"src":"teded","title":"Bewildered by recycling? It's not your fault","url":"https://ed.ted.com/lessons/does-recycling-your-plastic-actually-work-shannon-odell","min":8},
+      {"src":"talk","title":"How to see (and stop) deforestation from space","by":"Tasso Azevedo","url":"https://www.ted.com/talks/tasso_azevedo_how_to_see_and_stop_deforestation_from_space","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/tasso_azevedo_how_to_see_and_stop_deforestation_from_space/transcript"},
+      {"src":"lk","title":"How to build low-waste practices into your life","url":"https://www.npr.org/2023/11/06/1199885874/low-waste-practices","min":18,"tx":"link","txUrl":"https://www.npr.org/transcripts/1199885874"}
+    ],
+    [
+      {"src":"teded","title":"Underwater farms vs. climate change","url":"https://ed.ted.com/lessons/could-underwater-farms-help-fight-climate-change-ayana-elizabeth-johnson-and-megan-davis","min":6},
+      {"src":"talk","title":"The eco-creators helping the climate through social media","by":"Zahra Biabani","url":"https://www.ted.com/talks/zahra_biabani_the_eco_creators_helping_the_climate_through_social_media","min":8,"tx":"link","txUrl":"https://www.ted.com/talks/zahra_biabani_the_eco_creators_helping_the_climate_through_social_media/transcript"},
+      {"src":"lk","title":"Our favorite ways to live sustainably","url":"https://www.npr.org/2022/04/18/1093387207/earth-day-live-sustainably-tips","min":17,"tx":"link","txUrl":"https://www.npr.org/transcripts/1093387207"}
+    ]
+  ],
+  "M19" : [
+    [
+      {"src":"teded","title":"How to choose your news","url":"https://ed.ted.com/lessons/how-to-choose-your-news-damon-brown","min":7},
+      {"src":"talk","title":"The good news you might have missed","by":"Angus Hervey","url":"https://www.ted.com/talks/angus_hervey_the_good_news_you_might_have_missed","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/angus_hervey_the_good_news_you_might_have_missed/transcript"},
+      {"src":"lk","title":"How to get better at staying off your phone","url":"https://www.npr.org/2026/03/10/nx-s1-5742809/how-to-get-better-at-staying-off-your-phone","min":16,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5742809"}
+    ],
+    [
+      {"src":"teded","title":"The key to media's secret codes","url":"https://ed.ted.com/lessons/the-key-to-media-s-hidden-codes","min":9},
+      {"src":"talk","title":"The problem with streaming — and the case for physical media","by":"Tom Rizzuto","url":"https://www.ted.com/talks/tom_rizzuto_the_problem_with_streaming_and_the_case_for_physical_media","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/tom_rizzuto_the_problem_with_streaming_and_the_case_for_physical_media/transcript"},
+      {"src":"lk","title":"4 Tips For Cleaning Up Your Social Media Diet","url":"https://www.npr.org/2021/07/16/1016854764/social-media-balance-relationship-boundaries","min":23,"tx":"link","txUrl":"https://www.npr.org/transcripts/1016854764"}
+    ],
+    [
+      {"src":"teded","title":"Why people fall for misinformation","url":"https://ed.ted.com/lessons/why-people-fall-for-misinformation-joseph-isaac","min":8},
+      {"src":"talk","title":"News tells you what happened. Drawing shows you how it felt","by":"George Butler","url":"https://www.ted.com/talks/george_butler_news_tells_you_what_happened_drawing_shows_you_how_it_felt","min":11,"tx":"link","txUrl":"https://www.ted.com/talks/george_butler_news_tells_you_what_happened_drawing_shows_you_how_it_felt/transcript"},
+      {"src":"lk","title":"How to be a better movie watcher, according to film critics","url":"https://www.npr.org/2022/12/16/1143623199/how-to-be-a-better-movie-watcher-according-to-film-critics","min":21,"tx":"link","txUrl":"https://www.npr.org/transcripts/1143623199"}
+    ],
+    [
+      {"src":"teded","title":"Revealing photography: From camera obscura to camera phone","url":"https://ed.ted.com/lessons/illuminating-photography-eva-timothy","min":7},
+      {"src":"talk","title":"A surprisingly effective way to fight misinformation","by":"Dave Jorgenson","url":"https://www.ted.com/talks/dave_jorgenson_a_surprisingly_effective_way_to_fight_misinformation","min":16,"tx":"link","txUrl":"https://www.ted.com/talks/dave_jorgenson_a_surprisingly_effective_way_to_fight_misinformation/transcript"},
+      {"src":"lk","title":"How to reset your digital life","url":"https://www.npr.org/2022/07/11/1110926267/digital-minimalism-can-help-find-balance","min":16,"tx":"link","txUrl":"https://www.npr.org/transcripts/1110926267"}
+    ]
+  ],
+  "M20" : [
+    [
+      {"src":"teded","title":"This tool will help improve your critical thinking","url":"https://ed.ted.com/lessons/this-tool-will-help-improve-your-critical-thinking-erick-wilberding","min":8},
+      {"src":"talk","title":"How to be a great listener","by":"Maegan Stephens, Nicole Lowenbraun","url":"https://www.ted.com/talks/maegan_stephens_and_nicole_lowenbraun_how_to_be_a_great_listener","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/maegan_stephens_and_nicole_lowenbraun_how_to_be_a_great_listener/transcript"},
+      {"src":"lk","title":"Dear Life Kit: How much advice is too much advice?","url":"https://www.npr.org/2026/09/21/nx-s1-5973311/dear-life-kit-how-much-advice-is-too-much-advice","min":14,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5973311"}
+    ],
+    [
+      {"src":"teded","title":"Merits and limitations of public opinion polls","url":"https://ed.ted.com/lessons/pros-and-cons-of-public-opinion-polls-jason-robert-jaffe","min":6},
+      {"src":"talk","title":"The science behind dramatically better conversations","by":"Charles Duhigg","url":"https://www.ted.com/talks/charles_duhigg_the_science_behind_dramatically_better_conversations_sep_2025","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/charles_duhigg_the_science_behind_dramatically_better_conversations_sep_2025/transcript"},
+      {"src":"lk","title":"How to have better conversations","url":"https://www.npr.org/2026/07/28/nx-s1-5909587/how-to-have-better-conversations","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5909587"}
+    ],
+    [
+      {"src":"teded","title":"What Aristotle and Joshua Bell can teach us about influence","url":"https://ed.ted.com/lessons/what-aristotle-and-joshua-bell-can-teach-us-about-persuasion-conor-neill","min":6},
+      {"src":"talk","title":"The 60 seconds that make or break a conversation","by":"Chris Fenning","url":"https://www.ted.com/talks/chris_fenning_the_60_seconds_that_make_or_break_a_conversation","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/chris_fenning_the_60_seconds_that_make_or_break_a_conversation/transcript"},
+      {"src":"lk","title":"Elevate group conversations with a 'magical question'","url":"https://www.npr.org/2026/07/02/nx-s1-5877856/elevate-group-conversations-with-a-magical-question","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5877856"}
+    ],
+    [
+      {"src":"teded","title":"Ethical dilemma: Who deserves your credence?","url":"https://ed.ted.com/lessons/the-ethical-dilemma-of-the-accused-spouse-alex-worsnip","min":7},
+      {"src":"talk","title":"The art of persuasive storytelling","by":"Kelly D. Parker","url":"https://www.ted.com/talks/kelly_d_parker_the_art_of_persuasive_storytelling","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/kelly_d_parker_the_art_of_persuasive_storytelling/transcript"},
+      {"src":"lk","title":"Unhappy at work? How to plan your next move","url":"https://www.npr.org/2024/07/23/1196979919/career-advice-unhappy-at-work","min":18,"tx":"link","txUrl":"https://www.npr.org/transcripts/1196979919"}
+    ]
+  ],
+  "M21" : [
+    [
+      {"src":"teded","title":"Can you solve the unstoppable blob riddle?","url":"https://ed.ted.com/lessons/can-you-solve-the-unstoppable-blob-riddle-dan-finkel","min":5},
+      {"src":"talk","title":"Origami, the ancient art form solving modern problems","by":"Miles Wu","url":"https://www.ted.com/talks/miles_wu_origami_the_ancient_art_form_solving_modern_problems","min":11,"tx":"link","txUrl":"https://www.ted.com/talks/miles_wu_origami_the_ancient_art_form_solving_modern_problems/transcript"},
+      {"src":"lk","title":"Tiny pep talks for everyday problems","url":"https://www.npr.org/2026/08/06/nx-s1-5920285/tiny-pep-talks-for-everyday-problems","min":13,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5920285"}
+    ],
+    [
+      {"src":"teded","title":"Can you solve the honeybee riddle?","url":"https://ed.ted.com/lessons/can-you-solve-the-honeybee-riddle-dan-finkel","min":8},
+      {"src":"talk","title":"A simple solution to fix workplace miscommunication","by":"Melissa M. Mikus","url":"https://www.ted.com/talks/melissa_m_mikus_a_simple_solution_to_fix_workplace_miscommunication","min":12,"tx":"link","txUrl":"https://www.ted.com/talks/melissa_m_mikus_a_simple_solution_to_fix_workplace_miscommunication/transcript"},
+      {"src":"lk","title":"Your perfectionism isn't a problem — if you know how to use it","url":"https://www.npr.org/2026/08/18/nx-s1-5935568/your-perfectionism-isnt-a-problem-if-you-know-how-to-use-it","min":21,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5935568"}
+    ],
+    [
+      {"src":"teded","title":"How to outsmart the Prisoner’s Dilemma","url":"https://ed.ted.com/lessons/how-to-outsmart-the-prisoner-s-dilemma-lucas-husted","min":8},
+      {"src":"talk","title":"Why the best ideas come from play","by":"Maxwell Pearce","url":"https://www.ted.com/talks/maxwell_pearce_why_the_best_ideas_come_from_play","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/maxwell_pearce_why_the_best_ideas_come_from_play/transcript"},
+      {"src":"lk","title":"How to cope if you can't find a job","url":"https://www.npr.org/2025/12/15/nx-s1-5643042/how-to-cope-if-you-cant-find-a-job","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5643042"}
+    ],
+    [
+      {"src":"teded","title":"How to spot a pyramid scheme","url":"https://ed.ted.com/lessons/how-to-spot-a-pyramid-scheme-stacie-bosley","min":8},
+      {"src":"talk","title":"A small nation’s surprising solution to unemployment","by":"James Mnyupe","url":"https://www.ted.com/talks/james_mnyupe_a_small_nation_s_surprising_solution_to_unemployment","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/james_mnyupe_a_small_nation_s_surprising_solution_to_unemployment/transcript"},
+      {"src":"lk","title":"Avoid these common financial mistakes","url":"https://www.npr.org/2025/12/29/nx-s1-5655911/avoid-these-common-financial-mistakes","min":21,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5655911"}
+    ]
+  ],
+  "M22" : [
+    [
+      {"src":"teded","title":"How Two Decisions Brought Me to Olympic Glory","url":"https://ed.ted.com/lessons/how-two-decisions-led-me-to-olympic-glory","min":6},
+      {"src":"talk","title":"How ethics can help you make better decisions","by":"Michael Schur","url":"https://www.ted.com/talks/michael_schur_how_ethics_can_help_you_make_better_decisions","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/michael_schur_how_ethics_can_help_you_make_better_decisions/transcript"},
+      {"src":"lk","title":"A decision coach's approach to making hard decisions","url":"https://www.npr.org/2026/07/21/nx-s1-5900920/a-decision-coachs-approach-to-making-hard-decisions","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5900920"}
+    ],
+    [
+      {"src":"teded","title":"Why kids should take bigger risks","url":"https://ed.ted.com/lessons/the-best-playgrounds-according-to-science","min":8},
+      {"src":"talk","title":"3 reasons to take risks like a teenager","by":"Adriana Galván","url":"https://www.ted.com/talks/adriana_galvan_3_reasons_to_take_risks_like_a_teenager","min":9,"tx":"link","txUrl":"https://www.ted.com/talks/adriana_galvan_3_reasons_to_take_risks_like_a_teenager/transcript"},
+      {"src":"lk","title":"Four ways to combat everyday indecision","url":"https://www.npr.org/2022/03/07/1084907897/any-decision-is-better-than-indecision-try-these-tips-to-actually-choose","min":19,"tx":"link","txUrl":"https://www.npr.org/transcripts/1084907897"}
+    ],
+    [
+      {"src":"teded","title":"How do you select where to go in a zombie apocalypse?","url":"https://ed.ted.com/lessons/how-do-you-decide-where-to-go-in-a-zombie-apocalypse-david-hunter","min":5},
+      {"src":"talk","title":"Why does uncertainty bother us so much?","by":"Adam Kucharski","url":"https://www.ted.com/talks/adam_kucharski_why_does_uncertainty_bother_us_so_much","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/adam_kucharski_why_does_uncertainty_bother_us_so_much/transcript"},
+      {"src":"lk","title":"Quitting is sometimes the right decision. Here's how to know when to walk away","url":"https://www.npr.org/2026/09/14/nx-s1-5965755/quitting-is-sometimes-the-right-decision-heres-how-to-know-when-to-walk-away","min":17,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5965755"}
+    ],
+    [
+      {"src":"teded","title":"Can you solve Dongle's Difficult Dilemma?","url":"https://ed.ted.com/lessons/can-you-solve-dongle-s-difficult-dilemma-dennis-e-shasha","min":8},
+      {"src":"talk","title":"How to make big decisions in challenging circumstances","by":"Jonathan Reimer","url":"https://www.ted.com/talks/jonathan_reimer_how_to_make_big_decisions_in_challenging_circumstances","min":15,"tx":"link","txUrl":"https://www.ted.com/talks/jonathan_reimer_how_to_make_big_decisions_in_challenging_circumstances/transcript"},
+      {"src":"lk","title":"Regret is universal, here's what to do when you feel it","url":"https://www.npr.org/2022/03/16/1087010308/the-power-of-regret-how-examining-regret-can-help-you-live-a-meaningful-life","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/1087010308"}
+    ]
+  ],
+  "M23" : [
+    [
+      {"src":"teded","title":"What Earth in 2050 might look like","url":"https://ed.ted.com/lessons/what-earth-in-2050-could-look-like-shannon-odell","min":7},
+      {"src":"talk","title":"The psychology of your future self","by":"Dan Gilbert","url":"https://www.ted.com/talks/dan_gilbert_the_psychology_of_your_future_self","min":9,"tx":"link","txUrl":"https://www.ted.com/talks/dan_gilbert_the_psychology_of_your_future_self/transcript"},
+      {"src":"lk","title":"How to set resolutions you'll actually keep","url":"https://www.npr.org/2026/01/01/nx-s1-5661536/how-to-set-resolutions-youll-actually-keep","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5661536"}
+    ],
+    [
+      {"src":"teded","title":"Navigating Our Global Future","url":"https://ed.ted.com/lessons/ian-goldin-navigating-our-global-future","min":10},
+      {"src":"talk","title":"Essential questions to ask your future self","by":"Meg Jay","url":"https://www.ted.com/talks/meg_jay_essential_questions_to_ask_your_future_self","min":13,"tx":"link","txUrl":"https://www.ted.com/talks/meg_jay_essential_questions_to_ask_your_future_self/transcript"},
+      {"src":"lk","title":"Too many goals and too little time? How to focus your attention","url":"https://www.npr.org/2026/01/19/nx-s1-5677260/too-many-goals-and-too-little-time-how-to-focus-your-attention","min":18,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5677260"}
+    ],
+    [
+      {"src":"teded","title":"Population pyramids: Powerful predictors of the future","url":"https://ed.ted.com/lessons/population-pyramids-powerful-predictors-of-the-future-kim-preshoff","min":8},
+      {"src":"talk","title":"Let your ambition light you up, not burn you out","by":"Tarveen Forrester","url":"https://www.ted.com/talks/tarveen_forrester_let_your_ambition_light_you_up_not_burn_you_out","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/tarveen_forrester_let_your_ambition_light_you_up_not_burn_you_out/transcript"},
+      {"src":"lk","title":"Can you afford to make a big life change?","url":"https://www.npr.org/2025/09/30/nx-s1-5553340/can-you-afford-to-make-a-big-life-change","min":19,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5553340"}
+    ],
+    [
+      {"src":"teded","title":"How to navigate rejection","url":"https://ed.ted.com/lessons/how-to-deal-with-rejection","min":8},
+      {"src":"talk","title":"Why you should stop setting goals (yes, really)","by":"Emmanuel Acho","url":"https://www.ted.com/talks/emmanuel_acho_why_you_should_stop_setting_goals_yes_really","min":14,"tx":"link","txUrl":"https://www.ted.com/talks/emmanuel_acho_why_you_should_stop_setting_goals_yes_really/transcript"},
+      {"src":"lk","title":"There's still time to reach your 2026 money goals","url":"https://www.npr.org/2026/10/01/nx-s1-5986354/theres-still-time-to-reach-your-2026-money-goals","min":19,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5986354"}
+    ]
+  ],
+  "M24" : [
+    [
+      {"src":"teded","title":"Can you outsmart this logical fallacy?","url":"https://ed.ted.com/lessons/can-you-outsmart-this-logical-fallacy-alex-gendler","min":5},
+      {"src":"talk","title":"How to disagree productively and find common ground","by":"Julia Dhar","url":"https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground","min":15,"tx":"link","txUrl":"https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground/transcript"},
+      {"src":"lk","title":"How To Win An Argument: Brainstorm Instead","url":"https://www.npr.org/2020/08/28/907043503/make-all-your-arguments-win-win-stop-fighting-and-start-brainstorming","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/907043503"}
+    ],
+    [
+      {"src":"teded","title":"Can you outsmart the slippery slope fallacy?","url":"https://ed.ted.com/lessons/can-you-outsmart-the-slippery-slope-fallacy-elizabeth-cox","min":11},
+      {"src":"talk","title":"Why it's worth listening to people we disagree with","by":"Zachary R. Wood","url":"https://www.ted.com/talks/zachary_r_wood_why_it_s_worth_listening_to_people_you_disagree_with","min":11,"tx":"link","txUrl":"https://www.ted.com/talks/zachary_r_wood_why_it_s_worth_listening_to_people_you_disagree_with/transcript"},
+      {"src":"lk","title":"Tips for dealing with conflict in the workplace","url":"https://www.npr.org/2022/04/07/1091455113/how-to-handle-conflict-at-work","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/1091455113"}
+    ],
+    [
+      {"src":"teded","title":"What is rhetorical irony?","url":"https://ed.ted.com/lessons/what-is-verbal-irony-christopher-warner","min":5},
+      {"src":"talk","title":"How to lead a conversation between people who disagree","by":"Eve Pearlman","url":"https://www.ted.com/talks/eve_pearlman_how_to_lead_a_conversation_between_people_who_disagree","min":9,"tx":"link","txUrl":"https://www.ted.com/talks/eve_pearlman_how_to_lead_a_conversation_between_people_who_disagree/transcript"},
+      {"src":"lk","title":"Dear LK: My group chat is toxic","url":"https://www.npr.org/2023/06/29/1185112917/friends-fighting-advice","min":11,"tx":"link","txUrl":"https://www.npr.org/transcripts/1185112917"}
+    ],
+    [
+      {"src":"teded","title":"Why is Marie Antoinette so debated?","url":"https://ed.ted.com/lessons/why-is-marie-antoinette-so-controversial-carolyn-harris","min":9},
+      {"src":"talk","title":"What you can learn from people who disagree with you","by":"Shreya Joshi","url":"https://www.ted.com/talks/shreya_joshi_what_you_can_learn_from_people_who_disagree_with_you","min":11,"tx":"link","txUrl":"https://www.ted.com/talks/shreya_joshi_what_you_can_learn_from_people_who_disagree_with_you/transcript"},
+      {"src":"lk","title":"How to minimize family fights during the holidays","url":"https://www.npr.org/2023/12/14/1196978388/techniques-to-help-cope-with-family-fights-during-the-holidays","min":17,"tx":"link","txUrl":"https://www.npr.org/transcripts/1196978388"}
+    ]
+  ]
+}

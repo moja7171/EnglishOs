@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Evidence;
+use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
@@ -464,6 +465,60 @@ class LearningStreakTest extends TestCase
 
         $this->assertNull($learner->nextStreakMilestone());
         $this->assertNull($learner->daysUntilNextMilestone());
+    }
+
+    public function test_a_listening_tick_alone_gives_a_streak_of_one(): void
+    {
+        $learner = User::factory()->create();
+
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
+
+        $this->assertSame(1, $learner->currentStreak());
+        $this->assertSame(1, $learner->longestStreak());
+    }
+
+    public function test_listening_and_evidence_on_the_same_day_count_as_one_active_day(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->toDateString());
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
+
+        $this->assertSame(1, $learner->activeDates()->count());
+        $this->assertSame(1, $learner->currentStreak());
+    }
+
+    public function test_listening_ticks_join_evidence_days_into_one_streak(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->recordEvidenceOn($run, now()->subDays(2)->toDateString());
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->subDay()->toDateString()]);
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
+
+        $this->assertSame(3, $learner->currentStreak());
+    }
+
+    public function test_listening_days_count_toward_the_weekly_goal(): void
+    {
+        $this->travelTo(now()->startOfWeek(Carbon::SUNDAY)->addDays(3));
+        $learner = User::factory()->create();
+
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->subDay()->toDateString()]);
+
+        $this->assertSame(2, $learner->activeDaysThisWeek());
+    }
+
+    public function test_another_learners_listening_never_counts(): void
+    {
+        $learner = User::factory()->create();
+
+        ListeningLog::factory()->create(['listened_on' => now()->toDateString()]);
+
+        $this->assertSame(0, $learner->currentStreak());
     }
 
     public function test_current_mission_number_defaults_to_1_with_no_runs_yet(): void

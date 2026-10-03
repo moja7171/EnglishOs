@@ -242,4 +242,14 @@ class ProgramPlannerTest extends TestCase
 
         $this->get(route('learner.guide'))->assertOk()->assertSee('نقشه‌ی ۲۴ ماموریت')->assertSee('M24');
     }
+
+    public function test_the_learner_guide_links_to_the_listening_picks_page(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('learner.guide'))
+            ->assertOk()
+            ->assertSeeHtml('href="'.route('listening.show').'"')
+            ->assertSee('باز کردن پیشنهادهای شنیدن');
+    }
 }

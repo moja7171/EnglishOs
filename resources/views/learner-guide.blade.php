@@ -164,11 +164,13 @@
                         </div>
                         <div>
                             <p class="text-xs font-bold text-ink dark:text-ink-dark">از کجا شروع کنم؟</p>
-                            <ul class="mt-1 list-disc space-y-1 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
-                                <li><strong class="text-ink dark:text-ink-dark">BBC 6 Minute English</strong> — یه قسمت که موضوعش به ماموریت فعلیت نزدیکه.</li>
-                                <li><strong class="text-ink dark:text-ink-dark">BBC Real Easy English</strong> — ادامه‌ی همون پادکستی که با M01 شروع شد.</li>
-                                <li>هرچی توی ماموریت‌ها جلوتر رفتی، سراغ منابع با سرعت طبیعی‌تر برو (مثل All Ears English یا TED-Ed)، و توی ماموریت‌های آخر حتی یه سریال یا یه TED Talk واقعی.</li>
-                            </ul>
+                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">برای هر روز برنامه، سه پیشنهاد آماده‌ست، از سبک‌تر تا چالشی‌تر. <strong class="text-ink dark:text-ink-dark">حداقل یکی رو گوش بده، دوست داشتی هر سه تا رو.</strong></p>
+                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">کارت «Listen today» توی صفحه‌ی اصلی، پیشنهادهای روز خودت رو باز می‌کنه. بعدش «I listened» رو بزن تا توی استریک حساب بشه.</p>
+                            <a
+                                href="{{ route('listening.show') }}"
+                                wire:navigate
+                                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                            >باز کردن پیشنهادهای شنیدن @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</a>
                         </div>
                     </div>
                 </div>

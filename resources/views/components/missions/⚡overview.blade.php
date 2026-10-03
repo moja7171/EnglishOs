@@ -2,6 +2,7 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Services\ListeningPicks;
 use App\Services\PexelsClient;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
@@ -18,6 +19,47 @@ new class extends Component
     public function program(): array
     {
         return app(ProgramPlanner::class)->plan(auth()->user());
+    }
+
+    /**
+     * The daily listening picks for the learner's current program day (see
+     * App\Services\ListeningPicks and the /listening page). "Current day"
+     * is the same day Today shows: the open mission's day, or day 1 of the
+     * next mission between missions. Null once all 24 missions are done.
+     *
+     * @return array{label: string, missionCode: string, dayNumber: int, listenedToday: bool}|null
+     */
+    #[Computed]
+    public function listening(): ?array
+    {
+        $day = app(ListeningPicks::class)->dayFor($this->program['today']);
+
+        if ($day === null) {
+            return null;
+        }
+
+        return $day + [
+            'label' => $day['missionCode'].' · Day '.$day['dayNumber'],
+            'listenedToday' => auth()->user()->hasListenedToday(),
+        ];
+    }
+
+    /**
+     * The learner's "I listened" tick. Counts today toward the streak (see
+     * User::activeDates()). Which day it belongs to is worked out here from
+     * the program, never taken from the browser.
+     */
+    public function markListened(): void
+    {
+        $listening = $this->listening;
+
+        if ($listening === null) {
+            return;
+        }
+
+        auth()->user()->recordListeningToday($listening['missionCode'], $listening['dayNumber']);
+
+        unset($this->listening);
     }
 
     /**
@@ -283,6 +325,41 @@ new class extends Component
             <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">All 24 missions complete. Keep the streak with Daily Review — and keep talking.</p>
         @endif
     </section>
+
+    {{-- Daily listening — a separate habit from the mission steps (it lives
+         outside the app), so it gets its own row under Today rather than
+         a step inside it. The tick counts toward the streak. --}}
+    @if ($listening = $this->listening)
+        <section class="flex items-start gap-3 rounded-xl px-3.5 py-2.5" aria-label="Daily listening">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-o-speaker-wave', 'h-4 w-4')
+            </span>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Listen today · {{ $listening['label'] }}</p>
+                <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">Listen to at least one, or all three if you like.</p>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <a
+                        href="{{ route('listening.show') }}"
+                        wire:navigate
+                        class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    >Open today's picks @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+                    @if ($listening['listenedToday'])
+                        <span class="inline-flex items-center gap-1 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
+                            @svg('heroicon-s-check', 'h-3.5 w-3.5') Listened today
+                        </span>
+                    @else
+                        <button
+                            type="button"
+                            wire:click="markListened"
+                            wire:loading.attr="disabled"
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
+                        >I listened @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
+                        <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak</span>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- Lighter row style (no card border/bg) than "Today" above it, same
          treatment as the nudges below — home-page declutter pass: these
