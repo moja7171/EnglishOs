@@ -372,6 +372,48 @@ class ListeningStepTest extends TestCase
             ->assertDontSee('Show transcript');
     }
 
+    /**
+     * A conversation's chunks come speaker-tagged (see
+     * missions:align-listening-speakers): the panel then reads as a
+     * chat — each speaker's name once per turn — and uses those chunks
+     * instead of the plain segments.
+     */
+    public function test_the_synced_text_panel_separates_the_speakers_when_turns_are_cached(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [[
+                    'key' => 'listening',
+                    'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
+                    'listening_segments' => [
+                        ['text' => 'Plain segment only.', 'start' => 0.0, 'end' => 2.0],
+                    ],
+                    'listening_turns' => [
+                        ['speaker' => 'Neil', 'text' => 'How are you today?', 'start' => 0.0, 'end' => 2.0],
+                        ['speaker' => 'Neil', 'text' => 'Did you sleep well?', 'start' => 2.0, 'end' => 4.0],
+                        ['speaker' => 'Georgie', 'text' => "I'm very well.", 'start' => 4.0, 'end' => 6.0],
+                    ],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $html = Livewire::test('missions.steps.listening', ['run' => $run])
+            ->assertSeeInOrder(['Neil', 'How are you today?', 'Did you sleep well?', 'Georgie', 'well.'])
+            ->assertDontSee('Plain segment only.')
+            ->html();
+
+        $this->assertSame(1, substr_count($html, '>Neil</p>'));
+        $this->assertSame(1, substr_count($html, '>Georgie</p>'));
+    }
+
     private function makeRunWithDetailQuestion(): MissionRun
     {
         $learner = User::factory()->create();

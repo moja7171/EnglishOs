@@ -831,5 +831,403 @@
             "start": 200.58,
             "end": 204.28
         }
+    ],
+    "listening_turns": [
+        {
+            "speaker": "Narrator",
+            "text": "Hi there, and welcome to the 5-Minute English Podcast, the place where you learn real English",
+            "start": 0,
+            "end": 5.18
+        },
+        {
+            "speaker": "Narrator",
+            "text": "for real life in just five minutes a day. Here, we keep things simple, practical, and easy to follow.",
+            "start": 5.18,
+            "end": 11.92
+        },
+        {
+            "speaker": "Narrator",
+            "text": "You'll hear clear English, useful conversations, and everyday vocabulary that you can actually use,",
+            "start": 12.66,
+            "end": 18.1
+        },
+        {
+            "speaker": "Narrator",
+            "text": "whether you're learning at home, on a break, or on the go. New episodes drop regularly,",
+            "start": 18.48,
+            "end": 23.78
+        },
+        {
+            "speaker": "Narrator",
+            "text": "so don't forget to follow, subscribe, and turn on the bell if you're watching on YouTube.",
+            "start": 24.12,
+            "end": 28.16
+        },
+        {
+            "speaker": "Narrator",
+            "text": "We've got a free vocabulary PDF waiting for you in the description.",
+            "start": 29.02,
+            "end": 32.34
+        },
+        {
+            "speaker": "Narrator",
+            "text": "Let's dive in and start learning.",
+            "start": 33.44,
+            "end": 35
+        },
+        {
+            "speaker": "Narrator",
+            "text": "Today's episode is called Talking About Your Job.",
+            "start": 35.76,
+            "end": 38.34
+        },
+        {
+            "speaker": "Narrator",
+            "text": "We'll listen to Lisa and her old university friend, Emily, who meet again at a cafe after a long time.",
+            "start": 38.88,
+            "end": 44.52
+        },
+        {
+            "speaker": "Narrator",
+            "text": "They talk about their current jobs, what they do every day, and how they feel about work.",
+            "start": 45.24,
+            "end": 49.54
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Lisa, wow, it's so good to see you. I didn't expect to run into you here.",
+            "start": 51.06,
+            "end": 55.38
+        },
+        {
+            "speaker": "Emily",
+            "text": "Emily, what a surprise.",
+            "start": 55.86,
+            "end": 57.68
+        },
+        {
+            "speaker": "Emily",
+            "text": "I was just grabbing a coffee before heading back to the office.",
+            "start": 58.16,
+            "end": 61
+        },
+        {
+            "speaker": "Emily",
+            "text": "How have you been?",
+            "start": 61.44,
+            "end": 62.18
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Pretty good, thanks.",
+            "start": 62.68,
+            "end": 63.64
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Just busy with work.",
+            "start": 64.02,
+            "end": 64.98
+        },
+        {
+            "speaker": "Lisa",
+            "text": "You know how it is.",
+            "start": 65.1,
+            "end": 65.86
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Are you still in marketing",
+            "start": 66.52,
+            "end": 68.25
+        },
+        {
+            "speaker": "Emily",
+            "text": "Yes I am I been working as a marketing assistant at a tech company for almost two years now",
+            "start": 68.32,
+            "end": 74.39
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Nice What exactly do you do there",
+            "start": 74.45,
+            "end": 76.65
+        },
+        {
+            "speaker": "Emily",
+            "text": "Well, I help manage our social media accounts, write content for the website, and support the team during product launches.",
+            "start": 77.09,
+            "end": 83.99
+        },
+        {
+            "speaker": "Emily",
+            "text": "Sometimes I even work on creating short videos for our campaigns.",
+            "start": 84.61,
+            "end": 88.25
+        },
+        {
+            "speaker": "Lisa",
+            "text": "That sounds creative.",
+            "start": 88.95,
+            "end": 89.91
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Do you like it?",
+            "start": 90.29,
+            "end": 91.01
+        },
+        {
+            "speaker": "Emily",
+            "text": "Most of the time, yes. The team is great, and I get to learn new things every day.",
+            "start": 91.01,
+            "end": 96.73
+        },
+        {
+            "speaker": "Emily",
+            "text": "But it can get stressful, especially when we're close to a deadline or launching a new product.",
+            "start": 97.19,
+            "end": 102.01
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I totally get that. I work in customer service for an online clothing store.",
+            "start": 102.53,
+            "end": 106.71
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I deal with customer emails and help people track their orders or solve delivery problems.",
+            "start": 107.25,
+            "end": 112.39
+        },
+        {
+            "speaker": "Emily",
+            "text": "Wow, that must be intense. Do you do that in the office?",
+            "start": 112.89,
+            "end": 116.17
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Not always. It's a hybrid role, so I work from home three days a week and go to the office twice a week.",
+            "start": 116.79,
+            "end": 122.63
+        },
+        {
+            "speaker": "Lisa",
+            "text": "I actually like the flexibility. It saves time and helps with work-life balance.",
+            "start": 122.83,
+            "end": 127.29
+        },
+        {
+            "speaker": "Emily",
+            "text": "I wish I had that. I work from the office most days, although we're allowed to work remotely once a week.",
+            "start": 127.89,
+            "end": 133.53
+        },
+        {
+            "speaker": "Emily",
+            "text": "If I had to go in every day, I'd probably spend half my time stuck in traffic.",
+            "start": 133.87,
+            "end": 137.91
+        },
+        {
+            "speaker": "Lisa",
+            "text": "Exactly Sometimes I listen to podcasts on the way Actually this one called 5 English is great",
+            "start": 138.55,
+            "end": 144.95
+        },
+        {
+            "speaker": "Emily",
+            "text": "No way I heard of it too Maybe we should start one about our work lives",
+            "start": 145.02,
+            "end": 149.91
+        },
+        {
+            "speaker": "Narrator",
+            "text": "Great job listening. Now let's take a moment to go over some useful words and expressions from the conversation.",
+            "start": 152.03,
+            "end": 158.41
+        },
+        {
+            "speaker": "Narrator",
+            "text": "1. Marketing Assistant",
+            "start": 159.23,
+            "end": 161.09
+        },
+        {
+            "speaker": "Narrator",
+            "text": "This is someone who works with the marketing team.",
+            "start": 161.09,
+            "end": 164.21
+        },
+        {
+            "speaker": "Narrator",
+            "text": "They help with different tasks like writing, posting on social media, or helping with events and promotions.",
+            "start": 164.21,
+            "end": 170.43
+        },
+        {
+            "speaker": "Narrator",
+            "text": "2. Product Launch",
+            "start": 171.81,
+            "end": 173.55
+        },
+        {
+            "speaker": "Narrator",
+            "text": "When a company is ready to show and sell a new product to the public, that's called a product launch.",
+            "start": 173.55,
+            "end": 179.31
+        },
+        {
+            "speaker": "Narrator",
+            "text": "It's often a big event or campaign.",
+            "start": 180.05,
+            "end": 181.83
+        },
+        {
+            "speaker": "Narrator",
+            "text": "3. Hybrid Role",
+            "start": 182.99,
+            "end": 184.71
+        },
+        {
+            "speaker": "Narrator",
+            "text": "This kind of job lets you work in two places, partly from home and partly at the office.",
+            "start": 184.71,
+            "end": 190.19
+        },
+        {
+            "speaker": "Narrator",
+            "text": "It gives people more flexibility during the week.",
+            "start": 190.85,
+            "end": 193.03
+        },
+        {
+            "speaker": "Narrator",
+            "text": "4. Work-Life Balance This means having a healthy mix between your",
+            "start": 193.03,
+            "end": 199.15
+        },
+        {
+            "speaker": "Narrator",
+            "text": "work and your personal time. When you have good work-life balance, you're not too stressed",
+            "start": 199.15,
+            "end": 204.13
+        },
+        {
+            "speaker": "Narrator",
+            "text": "and still have time to relax or be with your family and friends.",
+            "start": 204.13,
+            "end": 207.97
+        },
+        {
+            "speaker": "Narrator",
+            "text": "5 Deadline A deadline is the latest time or date when something must be done When people say they have a deadline it means they need to finish their work by that time 6 Customer Service",
+            "start": 207.97,
+            "end": 221.28
+        },
+        {
+            "speaker": "Narrator",
+            "text": "This is a type of job where you help people who have questions or problems with a product or service.",
+            "start": 221.28,
+            "end": 226.96
+        },
+        {
+            "speaker": "Narrator",
+            "text": "It's about making sure customers are happy and supported.",
+            "start": 227.78,
+            "end": 230.18
+        },
+        {
+            "speaker": "Narrator",
+            "text": "7. Content",
+            "start": 231.4,
+            "end": 232.86
+        },
+        {
+            "speaker": "Narrator",
+            "text": "Content is anything you create and share online, like writing, photos, or videos.",
+            "start": 232.86,
+            "end": 238.04
+        },
+        {
+            "speaker": "Narrator",
+            "text": "It's often used for websites, blogs, or social media.",
+            "start": 239.02,
+            "end": 242
+        },
+        {
+            "speaker": "Narrator",
+            "text": "8. Campaign",
+            "start": 243.1,
+            "end": 244.4
+        },
+        {
+            "speaker": "Narrator",
+            "text": "A campaign is a set of planned actions to promote or advertise something.",
+            "start": 244.4,
+            "end": 248.92
+        },
+        {
+            "speaker": "Narrator",
+            "text": "It often includes emails, social media posts, videos, and more.",
+            "start": 249.74,
+            "end": 253.66
+        },
+        {
+            "speaker": "Narrator",
+            "text": "9. Intense",
+            "start": 254.78,
+            "end": 256.46
+        },
+        {
+            "speaker": "Narrator",
+            "text": "When something is intense, it feels strong or difficult.",
+            "start": 256.46,
+            "end": 260.12
+        },
+        {
+            "speaker": "Narrator",
+            "text": "A job or day can be intense if there's a lot to do, or if it's stressful or fast-paced.",
+            "start": 260.58,
+            "end": 266
+        },
+        {
+            "speaker": "Narrator",
+            "text": "That's it for today's episode of the 5-Minute English Podcast.",
+            "start": 266,
+            "end": 270.32
+        },
+        {
+            "speaker": "Narrator",
+            "text": "Want more daily English practice?",
+            "start": 271.02,
+            "end": 272.38
+        },
+        {
+            "speaker": "Narrator",
+            "text": "Subscribe to 5-Minute English Podcast for more beginner lessons every week.",
+            "start": 272.92,
+            "end": 276.78
+        },
+        {
+            "speaker": "Narrator",
+            "text": "Like, comment, and share if you found this helpful.",
+            "start": 277.46,
+            "end": 280.28
+        },
+        {
+            "speaker": "Narrator",
+            "text": "See you next time, and remember, practice a little every day.",
+            "start": 280.8,
+            "end": 284.06
+        },
+        {
+            "speaker": "Narrator",
+            "text": "You're doing great.",
+            "start": 284.66,
+            "end": 285.42
+        }
     ]
 }

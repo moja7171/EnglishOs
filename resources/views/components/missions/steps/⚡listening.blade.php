@@ -96,13 +96,18 @@ new class extends Component
     /**
      * Real Whisper segments (text + start/end seconds) driving the synced
      * text panel below the player — see missions:cache-shadow-timestamps.
-     * [] until that command has been run for this mission.
+     * [] until that command has been run for this mission. A conversation's
+     * chunks come speaker-tagged (`listening_turns`, see
+     * missions:align-listening-speakers) so the panel can read as a chat;
+     * anything else keeps the plain Whisper segments.
      *
-     * @return list<array{text: string, start: float, end: float}>
+     * @return list<array{text: string, start: float, end: float, speaker?: string}>
      */
     public function listeningSegments(): array
     {
-        return $this->run->mission->stepContent('listening')['listening_segments'] ?? [];
+        $listening = $this->run->mission->stepContent('listening');
+
+        return ($listening['listening_turns'] ?? []) ?: ($listening['listening_segments'] ?? []);
     }
 
     private function targetPhrases(): array
@@ -221,6 +226,7 @@ new class extends Component
     $listening = $run->mission->stepContent('listening');
     $targetPhrases = $listening['target_phrases'] ?? [];
     $detailQuestion = $listening['detail_question'] ?? null;
+    $listenCount = $run->learner->audioListenCount($run->mission->code, \App\Models\AudioListen::SOURCE_LISTENING);
 
     $detailCard = $detailQuestion ? [[
         'prompt' => $detailQuestion['question'],
@@ -249,7 +255,7 @@ new class extends Component
             <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Try listening first without reading — the text below is there if you need it.</p>
         @endunless
         <div class="mt-2">
-            <x-audio-player :url="$listening['audio_url'] ?? null" on-ended="$dispatch('audio-ended')" :segments="$this->listeningSegments()" />
+            <x-audio-player :url="$listening['audio_url'] ?? null" :listen="['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING]" :segments="$this->listeningSegments()" />
         </div>
     </div>
 
@@ -261,6 +267,7 @@ new class extends Component
                     Listening complete
                 </p>
                 <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's today's language — pick which ones to save to My Words.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">You've listened to this episode {{ $listenCount }} {{ Str::plural('time', $listenCount) }} so far.</p>
             </div>
             <div class="space-y-2">
                 @foreach ($targetPhrases as $index => $item)

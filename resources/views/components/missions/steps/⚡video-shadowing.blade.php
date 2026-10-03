@@ -177,6 +177,7 @@ new class extends Component
     $video = $run->mission->stepContent('video_shadowing');
     $shadowLines = $video['shadow_lines'] ?? [];
     $targetPhrases = $video['target_phrases'] ?? [];
+    $listenCount = $run->learner->audioListenCount($run->mission->code, \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING);
     // Two focused sub-steps instead of one long scroll (EOS-009 §8's
     // UI/UX review) — watch/setup first, the actual shadowing (a full
     // voice-recorder per line) second, so the recorders never bury the
@@ -202,6 +203,7 @@ new class extends Component
         <div class="mt-2">
             <x-video-player
                 :url="$video['video_url'] ?? ''"
+                :listen="['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING]"
                 :captions-url="$video['captions_url'] ?? null"
                 :title="$video['source'] ?? 'Video'"
                 :segments="$video['video_segments'] ?? []"
@@ -219,6 +221,7 @@ new class extends Component
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Video Shadowing complete
             </p>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You've watched this video {{ $listenCount }} {{ Str::plural('time', $listenCount) }} so far.</p>
 
             <button
                 wire:click="proceed"

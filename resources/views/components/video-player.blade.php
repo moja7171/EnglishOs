@@ -33,9 +33,13 @@
         cards only exist on its shadowing sub-step) pass an expression
         tied to that state so the pause-and-prompt never fires on a
         sub-step where "find this line below" wouldn't be true yet.
+    @param array{mission_code: string, source: string}|null $listen Counts
+        real watches (at least 90% played through, never skipped to) and
+        shows a "Listens: N" chip — see <x-audio-player>. null = no counting.
 --}}
 @props([
     'url',
+    'listen' => null,
     'captionsUrl' => null,
     'poster' => null,
     'title' => 'Video',
@@ -100,6 +104,16 @@
                 video.addEventListener('pause', () => { this.playing = false; this.showControls() });
                 video.addEventListener('ended', () => { this.playing = false; this.showControls(); {{ $onEnded }} });
                 if (video.readyState >= 1) this.duration = video.duration;
+
+                @if ($listen)
+                    window.eosListenTracker(video, (duration) => {
+                        Livewire.dispatchTo('listen-counter', 'listen-completed', {
+                            missionCode: {{ Illuminate\Support\Js::from($listen['mission_code']) }},
+                            source: {{ Illuminate\Support\Js::from($listen['source']) }},
+                            duration: duration,
+                        });
+                    });
+                @endif
 
                 if (this.$refs.track) {
                     this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
@@ -216,6 +230,16 @@
                 if (key === 'c' && {{ $captionsUrl ? 'true' : 'false' }}) { this.toggleCaptions(); return; }
             },
         }">
+    @if ($listen)
+        <div class="mb-2 flex justify-end">
+            <livewire:listen-counter
+                :mission-code="$listen['mission_code']"
+                :source="$listen['source']"
+                :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
+            />
+        </div>
+    @endif
+
     <div
         tabindex="0"
         x-on:keydown="onKeydown($event)"

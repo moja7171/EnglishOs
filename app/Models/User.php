@@ -299,6 +299,27 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<AudioListen, $this>
+     */
+    public function audioListens(): HasMany
+    {
+        return $this->hasMany(AudioListen::class, 'learner_id');
+    }
+
+    /**
+     * How many full listens this learner has completed of one mission's
+     * recording or video — the number shown beside the player and in the
+     * step's recap.
+     */
+    public function audioListenCount(string $missionCode, string $source): int
+    {
+        return $this->audioListens()
+            ->where('mission_code', $missionCode)
+            ->where('source', $source)
+            ->count();
+    }
+
+    /**
      * The four spaced-repetition systems Daily Review mixes, keyed by the
      * type name its queue and the Today row use.
      *

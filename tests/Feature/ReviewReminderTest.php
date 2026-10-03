@@ -180,36 +180,64 @@ class ReviewReminderTest extends TestCase
         $this->assertSame('review-reminder', $payload['tag']);
     }
 
-    public function test_a_learner_can_pick_a_reminder_time(): void
+    public function test_the_reminder_is_honoured_to_the_exact_minute(): void
+    {
+        Carbon::setTestNow('2026-10-03 15:36:00');
+        $user = $this->learner(['review_reminder_time' => '19:07']);
+        $this->expectReminders(1);
+
+        $this->runCommand();
+
+        $this->assertNull($user->fresh()->last_review_reminder_on);
+
+        Carbon::setTestNow('2026-10-03 15:37:00');
+        $this->runCommand();
+
+        $this->assertNotNull($user->fresh()->last_review_reminder_on);
+    }
+
+    public function test_the_picker_shows_the_saved_time(): void
+    {
+        $this->actingAs(User::factory()->create(['review_reminder_time' => '07:45']));
+
+        Livewire::test('notifications.review-reminder')
+            ->assertSet('enabled', true)
+            ->assertSet('hour', '07')
+            ->assertSet('minute', '45');
+    }
+
+    public function test_a_learner_can_set_any_hour_and_minute_on_a_24_hour_clock(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
 
         Livewire::test('notifications.review-reminder')
-            ->set('time', '08:00')
+            ->set('hour', '23')
+            ->set('minute', '59')
             ->assertHasNoErrors();
 
-        $this->assertSame('08:00', $user->fresh()->review_reminder_time);
+        $this->assertSame('23:59', $user->fresh()->review_reminder_time);
     }
 
-    public function test_a_learner_can_turn_the_reminder_off(): void
+    public function test_a_learner_can_turn_the_reminder_off_and_on_again(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['review_reminder_time' => '08:30']);
         $this->actingAs($user);
 
-        Livewire::test('notifications.review-reminder')->set('time', '');
-
+        $component = Livewire::test('notifications.review-reminder')->set('enabled', false);
         $this->assertNull($user->fresh()->review_reminder_time);
+
+        $component->set('enabled', true);
+        $this->assertSame('08:30', $user->fresh()->review_reminder_time);
     }
 
-    public function test_a_time_outside_the_offered_list_is_rejected(): void
+    public function test_a_time_that_does_not_exist_is_rejected(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        Livewire::test('notifications.review-reminder')
-            ->set('time', '03:00')
-            ->assertHasErrors('time');
+        Livewire::test('notifications.review-reminder')->set('hour', '24')->assertHasErrors('hour');
+        Livewire::test('notifications.review-reminder')->set('minute', '60')->assertHasErrors('minute');
 
         $this->assertSame('19:00', $user->fresh()->review_reminder_time);
     }
@@ -221,7 +249,7 @@ class ReviewReminderTest extends TestCase
 
         Livewire::withCookie('eos_tz', 'Europe/London')
             ->test('notifications.review-reminder')
-            ->set('time', '20:00');
+            ->set('hour', '20');
 
         $this->assertSame('Europe/London', $user->fresh()->timezone);
     }

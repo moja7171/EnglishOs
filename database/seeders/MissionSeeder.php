@@ -107,6 +107,9 @@ class MissionSeeder extends Seeder
                                 // missions:cache-shadow-timestamps. [] until that command has been
                                 // run for this mission.
                                 'listening_segments' => $this->shadowTimestampsFor('M01', 'listening_segments'),
+                                // The same chunks split at every change of speaker and tagged with who is
+                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                'listening_turns' => $this->shadowTimestampsFor('M01', 'listening_turns'),
                                 'transcript_ref' => 'document/M01/RealEasyEnglish_mornings__transcript.pdf',
                                 // Full real transcript (BBC Learning English, "Real Easy English:
                                 // Mornings", 2025) — shown in-app only after the learner has genuinely
@@ -959,6 +962,9 @@ class MissionSeeder extends Seeder
                                 'image_query' => 'two friends talking coffee shop',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M02', 'listening_segments'),
+                                // The same chunks split at every change of speaker and tagged with who is
+                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                'listening_turns' => $this->shadowTimestampsFor('M02', 'listening_turns'),
                                 'transcript_ref' => 'document/M02/6_minute_english_making_male_friends.pdf',
                                 // Full real transcript (BBC Learning English, "6 Minute English:
                                 // Making Male Friends", 2023 — the PDF's own disclaimer notes it's
@@ -1565,6 +1571,9 @@ class MissionSeeder extends Seeder
                                 'image_query' => 'healthy breakfast oatmeal fruit',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M04', 'listening_segments'),
+                                // The same chunks split at every change of speaker and tagged with who is
+                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                'listening_turns' => $this->shadowTimestampsFor('M04', 'listening_turns'),
                                 'transcript_ref' => 'document/M04/Eat Clean Without Stress - Simple Habits for Everyday Life.transcript.pdf',
                                 // Full real transcript, reconstructed from the podcast's own
                                 // auto-captions (no built-in speaker diarization, so a few
@@ -2150,6 +2159,9 @@ class MissionSeeder extends Seeder
                                 'image_query' => 'two friends talking cafe',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M03', 'listening_segments'),
+                                // The same chunks split at every change of speaker and tagged with who is
+                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                'listening_turns' => $this->shadowTimestampsFor('M03', 'listening_turns'),
                                 'transcript_ref' => 'document/M03/How to Talk About Your Work - English Listening and Speaking Practice.transcript.pdf',
                                 // Full real transcript, reconstructed from the podcast's own
                                 // captions — narration bookends the dialogue (intro, vocabulary

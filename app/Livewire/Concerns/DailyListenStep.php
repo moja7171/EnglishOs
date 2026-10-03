@@ -110,13 +110,18 @@ trait DailyListenStep
     /**
      * Every real chunk of Day 1's Listening audio (this day's own, reused
      * audio) with real timing — drives the synced text panel. Same cache
-     * as shadowTimestamps(), different key.
+     * as shadowTimestamps(), different key. A conversation's chunks come
+     * speaker-tagged (`listening_turns`, see
+     * missions:align-listening-speakers) so the panel can read as a chat;
+     * anything else keeps the plain Whisper segments.
      *
-     * @return list<array{text: string, start: float, end: float}>
+     * @return list<array{text: string, start: float, end: float, speaker?: string}>
      */
     public function listeningSegments(): array
     {
-        return $this->listeningContent()['listening_segments'] ?? [];
+        $content = $this->listeningContent();
+
+        return ($content['listening_turns'] ?? []) ?: ($content['listening_segments'] ?? []);
     }
 
     public function shadowedCount(): int
