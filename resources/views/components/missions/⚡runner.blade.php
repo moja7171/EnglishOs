@@ -434,7 +434,7 @@ new class extends Component
             @endforeach
         </nav>
 
-        <div class="rounded-2xl border border-line bg-surface p-5 dark:border-line-dark dark:bg-surface-dark">
+        <div class="card p-5">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                     Step {{ $position }} of {{ count($daySteps) }}
@@ -522,7 +522,7 @@ new class extends Component
     @else
         <article class="rounded-2xl border-2 border-ink p-5 dark:border-ink-dark">
             <p class="text-xs font-semibold tracking-wide uppercase
-                {{ $run->status === 'complete' ? 'text-success dark:text-success-dark' : ($run->status === 'needs_review' ? 'text-amber-600' : 'text-red-600') }}">
+                {{ $run->status === 'complete' ? 'text-success dark:text-success-dark' : ($run->status === 'needs_review' ? 'text-warning-ink' : 'text-danger-ink') }}">
                 Mission {{ str($run->status)->replace('_', ' ')->title() }}
             </p>
             <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->title }} — done</h2>

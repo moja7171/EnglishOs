@@ -303,7 +303,7 @@ new class extends Component
     <x-hook :text="$content['hook'] ?? null" />
 
     @if ($completed || $readOnly)
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Partner Speaking Session complete
@@ -357,7 +357,7 @@ new class extends Component
         @endif
 
         @if ($mode === 'choice')
-            <div class="space-y-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+            <div class="space-y-3 card-sunken p-4">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">How do you want to practice this?</p>
                 <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Talk it through with a real friend, or record your own answers alone — either way counts.</p>
                 <div class="flex flex-wrap items-center gap-2">
@@ -377,7 +377,7 @@ new class extends Component
             </div>
         @elseif ($mode === 'partner')
             <div wire:poll.10s="syncPartnerCompletion" class="space-y-3">
-                <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+                <div class="card p-4">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your progress</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">
                         You've answered {{ $this->myAnsweredCount() }} of {{ count($this->prompts) }} questions
@@ -404,7 +404,7 @@ new class extends Component
                 </div>
 
                 @if ($this->isPartnerStale())
-                    <div class="rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+                    <div class="rounded-2xl border border-warning-line bg-warning-soft p-4">
                         <p class="text-sm text-ink dark:text-ink-dark">
                             {{ $this->partner?->name ?? 'Your partner' }} hasn't answered anything here in a while.
                             You don't have to wait — switch to solo and finish this on your own.
@@ -426,7 +426,7 @@ new class extends Component
             <div wire:loading.class="pointer-events-none" wire:target="saveSolo">
                 <div class="space-y-3">
                     @foreach ($roundGroups as $index => $group)
-                        <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark" wire:key="solo-round-{{ $index }}">
+                        <div class="card-sunken p-4" wire:key="solo-round-{{ $index }}">
                             <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $group['label'] ?? 'Round '.($index + 1) }}</p>
                             <ul class="mt-1 space-y-1">
                                 @foreach ($group['questions'] ?? [] as $question)
@@ -441,7 +441,7 @@ new class extends Component
                     @endforeach
                 </div>
                 @error('soloRecordings')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
                 @enderror
             </div>
 

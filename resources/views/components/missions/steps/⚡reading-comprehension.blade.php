@@ -373,7 +373,7 @@ new class extends Component
     <x-hook :text="$reading['hook'] ?? null" />
 
     @if ($completed)
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Reading complete
@@ -453,7 +453,7 @@ new class extends Component
 
     {{-- Sub-step: the passage itself + the ungraded warm-up --}}
     <div x-show="activeSubstep === 0" x-cloak>
-        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="card p-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
                 @if ($imageUrl = $this->passageImageUrl())
                     <img src="{{ $imageUrl }}" alt="" class="h-12 w-12 shrink-0 rounded-full object-cover sm:h-16 sm:w-16">
@@ -553,7 +553,7 @@ new class extends Component
             @endforeach
         </div>
         @error('answers')
-            <p class="text-sm text-red-600">{{ $message }}</p>
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
         @enderror
 
         {{-- Always on screen, disabled until every answer is written.

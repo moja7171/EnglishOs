@@ -174,8 +174,8 @@ new class extends Component
                 <span @class([
                     'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold',
                     'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $delta >= 0,
-                    'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' => $delta < 0 && $delta >= -7,
-                    'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300' => $delta < -7,
+                    'bg-warning-soft text-warning-ink' => $delta < 0 && $delta >= -7,
+                    'bg-danger-soft text-danger-ink' => $delta < -7,
                 ])>
                     @if ($delta > 0) @svg('heroicon-s-bolt', 'h-3 w-3') {{ $delta }} {{ Str::plural('day', $delta) }} ahead
                     @elseif ($delta === 0) @svg('heroicon-s-check', 'h-3 w-3') On track
@@ -248,7 +248,7 @@ new class extends Component
                  offered, never pushed, right after a checkpoint mission
                  closes and before nudging toward the next one. --}}
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · {{ $today['mission']->code }} done</p>
-            <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 p-3 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+            <div class="mt-2 rounded-xl card-accent p-3">
                 <p class="text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Want to hear how far you've come?</p>
                 <p class="mt-0.5 text-xs text-accent-ink/80 dark:text-accent-ink-dark/80">Answer the same question from your placement test again, and listen to both side by side. Takes about a minute — entirely optional.</p>
                 <a
@@ -302,7 +302,7 @@ new class extends Component
             </span>
             @if (($freshness = $this->progressSummary['freshness']) !== null)
                 @php
-                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-amber-600' : 'text-red-600');
+                    $freshnessColor = $freshness >= 66 ? 'text-success dark:text-success-dark' : ($freshness >= 33 ? 'text-warning-ink' : 'text-danger-ink');
                 @endphp
                 <span class="inline-flex items-center gap-1 font-semibold {{ $freshnessColor }}">
                     @svg('heroicon-o-bolt', 'h-3.5 w-3.5') {{ $freshness }}% fresh
@@ -354,7 +354,7 @@ new class extends Component
         </div>
     @elseif ($this->needsTodayReminder)
         <div
-            class="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950"
+            class="flex items-center gap-3 rounded-2xl border border-warning-line bg-warning-soft p-4"
             x-data="{
                 remaining: '',
                 updateRemaining() {
@@ -369,7 +369,7 @@ new class extends Component
             }"
             x-init="updateRemaining(); setInterval(() => updateRemaining(), 60000)"
         >
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning-ink">
                 <x-streak-flame :streak="auth()->user()->currentStreak()" size="h-4 w-4" />
             </span>
             <span class="flex-1">
@@ -408,7 +408,7 @@ new class extends Component
             @php $roadmapRemaining = true; @endphp
             @break
         @elseif ($slot['blockedBy'])
-            <div class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+            <div class="flex items-center justify-between gap-3 card-sunken p-4">
                 <div>
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
                     <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['mission']->title }}</p>
@@ -425,7 +425,7 @@ new class extends Component
             @php $coverUrl = $this->missionCoverUrl($slot['mission']); @endphp
             <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}"
                data-mood="{{ $slot['mission']->moodKey() }}"
-               class="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:hover:border-accent-dark">
+               class="flex items-center gap-3.5 card p-4 transition-colors hover:border-accent dark:hover:border-accent-dark">
                 @if ($coverUrl)
                     <img src="{{ $coverUrl }}" alt="" class="h-14 w-14 shrink-0 rounded-xl object-cover">
                 @endif

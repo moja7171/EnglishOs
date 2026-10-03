@@ -193,7 +193,7 @@ new class extends Component
         <div class="mt-2 space-y-3">
             @foreach ($this->friendCards as $card)
                 @php $isExpanded = $expanded[$card['user']->id] ?? false; @endphp
-                <div class="rounded-2xl border border-line bg-surface p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-line-dark dark:bg-surface-dark">
+                <div class="card p-3.5 shadow-sm transition-shadow hover:shadow-md">
                     <div class="flex items-center gap-3">
                         <x-user-avatar :user="$card['user']" class="h-11 w-11 text-sm" />
                         <div class="min-w-0 flex-1">

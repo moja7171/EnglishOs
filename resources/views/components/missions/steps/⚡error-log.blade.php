@@ -208,13 +208,13 @@ new class extends Component
     </div>
 
     @if ($error)
-        <div class="rounded-xl border border-red-300 p-3 text-sm text-red-600">
+        <div class="rounded-xl border border-danger-line p-3 text-sm text-danger-ink">
             {{ $error }}
             <button
                 wire:click="generate"
                 wire:loading.attr="disabled"
                 wire:target="generate"
-                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:hover:bg-red-950"
+                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full border border-danger-line px-3 py-1 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-50"
             >
                 <span wire:loading.remove wire:target="generate">Try again</span>
                 <span wire:loading wire:target="generate">Trying again…</span>
@@ -255,7 +255,7 @@ new class extends Component
         <div class="space-y-4" x-data="{ dismissed: {} }">
             @foreach ($mistakes as $i => $item)
                 <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-sm text-red-600 line-through decoration-red-500">{{ $item['error'] }}</p>
+                    <p class="text-sm text-danger-ink line-through decoration-danger">{{ $item['error'] }}</p>
                     <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $item['correction'] }}</p>
                     @if (! empty($item['why']))
                         <p class="font-fa mt-1 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $item['why'] }}</p>
@@ -301,7 +301,7 @@ new class extends Component
                                     </p>
                                     <p
                                         x-show="!dismissed['{{ $drillKey }}']"
-                                        class="mt-1 text-xs {{ $checked ? 'text-success dark:text-success-dark' : 'text-amber-600' }}"
+                                        class="mt-1 text-xs {{ $checked ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}"
                                     >
                                         @if ($drillError)
                                             {{ $drillError }}
@@ -324,7 +324,7 @@ new class extends Component
         </p>
 
         @error('newExamples')
-            <p class="text-sm text-red-600">{{ $message }}</p>
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
         @enderror
 
         {{-- newExamples uses wire:model.live, so this is already known

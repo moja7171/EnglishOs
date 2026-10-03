@@ -97,7 +97,7 @@ new class extends Component
         All missions
     </a>
 
-    <header class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <header class="flex items-center gap-3 card p-4">
         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
             @svg('heroicon-o-microphone', 'h-5 w-5')
         </span>
@@ -113,14 +113,14 @@ new class extends Component
             <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Finish a mission and pick a few questions in Mission Result — they'll show up here.</p>
         </div>
     @elseif (! $this->currentPrompt)
-        <div class="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-8 text-center dark:border-line-dark dark:bg-surface-dark">
+        <div class="flex flex-col items-center gap-2 card p-8 text-center">
             @svg('heroicon-o-check-badge', 'h-6 w-6 text-success dark:text-success-dark')
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">You're all caught up!</p>
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing due for review right now — come back later.</p>
         </div>
     @else
         @php $prompt = $this->currentPrompt; @endphp
-        <div wire:key="recall-{{ $prompt->id }}" class="space-y-4 rounded-2xl border border-line bg-surface p-5 dark:border-line-dark dark:bg-surface-dark">
+        <div wire:key="recall-{{ $prompt->id }}" class="space-y-4 card p-5">
             <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                 {{ $this->duePrompts->count() }} {{ Str::plural('question', $this->duePrompts->count()) }} due for review
                 @if ($prompt->mission_code)
@@ -155,7 +155,7 @@ new class extends Component
                         <button
                             type="button"
                             wire:click="gradeSelf(1)"
-                            class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-red-950"
+                            class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-danger-line hover:bg-danger-soft hover:text-danger-ink dark:border-line-dark dark:text-ink-soft-dark"
                         >Forgot it</button>
                         <button
                             type="button"

@@ -12,15 +12,15 @@
     <p {{ $attributes->class(['text-sm text-ink-soft dark:text-ink-soft-dark']) }}>
         @foreach ($segments as $segment)
             <span @class([
-                'text-amber-600 dark:text-amber-400' => $segment['confidence'] === 'medium',
-                'text-red-600 dark:text-red-400' => $segment['confidence'] === 'low',
+                'text-warning-ink' => $segment['confidence'] === 'medium',
+                'text-danger-ink' => $segment['confidence'] === 'low',
             ])>{{ $segment['text'] }}</span>{{ ' ' }}
         @endforeach
     </p>
 
     @if (collect($segments)->contains(fn ($segment) => $segment['confidence'] !== 'high'))
         <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-            Parts in <span class="text-amber-600 dark:text-amber-400">amber</span>/<span class="text-red-600 dark:text-red-400">red</span> were harder to make out — might be worth saying again out loud.
+            Parts in <span class="text-warning-ink">amber</span>/<span class="text-danger-ink">red</span> were harder to make out — might be worth saying again out loud.
         </p>
     @endif
 @elseif ($fallback)

@@ -134,7 +134,7 @@
             </span>
         </div>
 
-        <p x-show="error" x-cloak x-text="error" class="mt-1 text-xs text-red-600"></p>
+        <p x-show="error" x-cloak x-text="error" class="mt-1 text-xs text-danger-ink"></p>
     @else
         <div class="flex items-center gap-3">
             <button
@@ -172,7 +172,7 @@
             </span>
         </div>
 
-        <p x-show="error" x-text="error" class="mt-2 text-sm text-red-600"></p>
+        <p x-show="error" x-text="error" class="mt-2 text-sm text-danger-ink"></p>
 
         @if ($file)
             <div class="mt-3">

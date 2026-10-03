@@ -474,7 +474,7 @@ new class extends Component
     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $grammar['focus'] ?? 'Grammar' }}</p>
 
     @if ($completed)
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Grammar Time complete
@@ -516,7 +516,7 @@ new class extends Component
             </div>
 
             @foreach ($lessonSectionsData as $sectionIndex => $section)
-                <div x-show="lessonStep === {{ $sectionIndex }}" x-cloak class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                <div x-show="lessonStep === {{ $sectionIndex }}" x-cloak class="card-sunken p-4">
                     @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
 
                     @if ($loop->last && ! empty($lesson['bridge_note']))
@@ -566,7 +566,7 @@ new class extends Component
                 <span x-show="!showLessonAgain" class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-right', 'h-3 w-3') Show the lesson again</span>
                 <span x-show="showLessonAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the lesson</span>
             </button>
-            <div x-show="showLessonAgain" x-cloak class="mt-2 space-y-4 rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+            <div x-show="showLessonAgain" x-cloak class="mt-2 space-y-4 card-sunken p-4">
                 @foreach ($lessonSectionsData as $section)
                     @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
                 @endforeach
@@ -693,7 +693,7 @@ new class extends Component
                 @endforeach
             </div>
             @error('frequencySentences')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
 

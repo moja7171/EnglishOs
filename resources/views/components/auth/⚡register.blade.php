@@ -68,7 +68,7 @@ new class extends Component
                 class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
             @error('name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
         <div>
@@ -79,14 +79,14 @@ new class extends Component
                 class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
             @error('email')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Password</label>
             <x-password-input wire-model="password" />
             @error('password')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
         <div>
@@ -105,7 +105,7 @@ new class extends Component
             </select>
             <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Just your best guess — this helps the AI Instructor pitch things at the right level. You can always change it later.</p>
             @error('cefr_level')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
         <div>

@@ -226,7 +226,7 @@ new class extends Component
         All missions
     </a>
 
-    <header class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <header class="flex items-center gap-3 card p-4">
         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
             @svg('heroicon-o-user-circle', 'h-5 w-5')
         </span>
@@ -247,7 +247,7 @@ new class extends Component
     />
 
     {{-- Avatar --}}
-    <div x-show="activeTab === 'avatar'" x-cloak class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <div x-show="activeTab === 'avatar'" x-cloak class="space-y-4 card p-4">
         <div class="flex items-center gap-4">
             <x-user-avatar :user="auth()->user()" class="h-16 w-16 text-xl" />
             <div>
@@ -364,7 +364,7 @@ new class extends Component
                         wire:loading.attr="disabled"
                         wire:target="removeAvatar"
                         wire:confirm="Remove your photo and go back to a color avatar?"
-                        class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-red-600 dark:text-ink-faint-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                        class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-danger-ink dark:text-ink-faint-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <span wire:loading.remove wire:target="removeAvatar">Remove photo</span>
                         <span wire:loading wire:target="removeAvatar">Removing…</span>
@@ -406,13 +406,13 @@ new class extends Component
             </div>
 
             @error('newAvatar')
-                <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                <p class="mt-1.5 text-xs text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
     </div>
 
     {{-- Basic info --}}
-    <form wire:submit="updateBasicInfo" x-show="activeTab === 'basic-info'" x-cloak class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <form wire:submit="updateBasicInfo" x-show="activeTab === 'basic-info'" x-cloak class="space-y-3 card p-4">
         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Basic info</p>
 
         <div>
@@ -423,7 +423,7 @@ new class extends Component
                 class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
             @error('name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
 
@@ -438,7 +438,7 @@ new class extends Component
                 @endforeach
             </select>
             @error('cefr_level')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
 
@@ -486,7 +486,7 @@ new class extends Component
     </form>
 
     {{-- Privacy --}}
-    <div x-show="activeTab === 'privacy'" x-cloak class="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <div x-show="activeTab === 'privacy'" x-cloak class="flex items-center justify-between gap-3 card p-4">
         <div>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Discoverable in Friends search</p>
             <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Turn this off and new people won't find you by name — anyone you're already connected with is unaffected.</p>
@@ -505,14 +505,14 @@ new class extends Component
     </div>
 
     {{-- Password --}}
-    <form wire:submit="updatePassword" x-show="activeTab === 'password'" x-cloak class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <form wire:submit="updatePassword" x-show="activeTab === 'password'" x-cloak class="space-y-3 card p-4">
         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Change password</p>
 
         <div>
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Current password</label>
             <x-password-input wire-model="currentPassword" />
             @error('currentPassword')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
 
@@ -520,7 +520,7 @@ new class extends Component
             <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">New password</label>
             <x-password-input wire-model="newPassword" />
             @error('newPassword')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
 

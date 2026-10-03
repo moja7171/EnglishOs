@@ -24,6 +24,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {{-- Applies the dark class before first paint (saved toggle choice, else
+         the OS preference) so a dark-mode learner never sees a white flash.
+         wire:navigate keeps <html> between pages, so this only runs on a
+         full load. --}}
+    <script>
+        (function () {
+            var dark;
+            try { var saved = localStorage.getItem('eosTheme'); } catch (e) {}
+            dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.classList.toggle('dark', dark);
+            if (dark) {
+                var meta = document.querySelector('meta[name=theme-color]');
+                if (meta) { meta.setAttribute('content', '#0f0d21'); }
+            }
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -81,6 +97,8 @@
                         {{ $streak }}
                     </span>
                 @endif
+
+                <x-theme-toggle />
 
                 <button
                     type="button"
@@ -140,11 +158,15 @@
                             @csrf
                             <button
                                 type="submit"
-                                class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left font-semibold text-ink-soft transition-colors hover:bg-red-50 hover:text-red-600 dark:text-ink-soft-dark dark:hover:bg-red-950"
+                                class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left font-semibold text-ink-soft transition-colors hover:bg-danger-soft hover:text-danger-ink dark:text-ink-soft-dark"
                             >@svg('heroicon-o-arrow-right-start-on-rectangle', 'h-4 w-4') Sign out</button>
                         </form>
                     </div>
                 </div>
+            </div>
+        @else
+            <div class="col-start-3 flex items-center justify-self-end">
+                <x-theme-toggle />
             </div>
         @endauth
     </div>

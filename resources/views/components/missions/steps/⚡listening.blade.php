@@ -254,7 +254,7 @@ new class extends Component
     </div>
 
     @if ($completed)
-        <div class="space-y-4 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="space-y-4 card p-4">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
@@ -365,7 +365,7 @@ new class extends Component
                                 {{ $item['gap_after'] ?? '' }}
                             </p>
                             @if ($gapFeedback)
-                                <p class="mt-1 text-xs {{ $gapFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-amber-600' }}">
+                                <p class="mt-1 text-xs {{ $gapFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}">
                                     @if ($gapFeedback['severity'] === 'none')
                                         @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') That's it.
                                     @else
@@ -378,7 +378,7 @@ new class extends Component
                 </div>
 
                 @error('gapFill')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
                 @enderror
             @endif
 

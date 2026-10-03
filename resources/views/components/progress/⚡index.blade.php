@@ -205,7 +205,7 @@ new class extends Component
         All missions
     </a>
 
-    <header class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <header class="flex items-center gap-3 card p-4">
         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
             @svg('heroicon-o-chart-bar', 'h-5 w-5')
         </span>
@@ -217,7 +217,7 @@ new class extends Component
 
     {{-- Streak hero — current streak, longest streak, and the path to the
          next badge, all in one card instead of three separate ones. --}}
-    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <div class="card p-4">
         <div class="flex items-center justify-between">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
@@ -235,7 +235,7 @@ new class extends Component
     {{-- Today — the two things actually actionable right now (what to
          review, whether the weekly goal is on track), merged into one
          card so the daily-relevant stuff never gets buried under charts. --}}
-    <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+    <div class="card p-4">
         <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
             @svg('heroicon-o-bolt', 'h-3.5 w-3.5') Memory freshness
         </p>
@@ -245,8 +245,8 @@ new class extends Component
         @else
             @php
                 $avg = $this->averageFreshness;
-                $barColor = $avg >= 66 ? 'bg-success dark:bg-success-dark' : ($avg >= 33 ? 'bg-amber-500' : 'bg-red-600');
-                $textColor = $avg >= 66 ? 'text-success dark:text-success-dark' : ($avg >= 33 ? 'text-amber-600' : 'text-red-600');
+                $barColor = $avg >= 66 ? 'bg-success dark:bg-success-dark' : ($avg >= 33 ? 'bg-warning' : 'bg-red-600');
+                $textColor = $avg >= 66 ? 'text-success dark:text-success-dark' : ($avg >= 33 ? 'text-warning-ink' : 'text-danger-ink');
             @endphp
             <div class="mt-2 flex items-center gap-3">
                 <div class="flex-1">
@@ -261,7 +261,7 @@ new class extends Component
                 <div class="mt-2 space-y-1.5">
                     @foreach (array_slice($this->freshnessItems, 0, 3) as $item)
                         @php
-                            $itemColor = $item['freshness'] >= 66 ? 'text-success dark:text-success-dark' : ($item['freshness'] >= 33 ? 'text-amber-600' : 'text-red-600');
+                            $itemColor = $item['freshness'] >= 66 ? 'text-success dark:text-success-dark' : ($item['freshness'] >= 33 ? 'text-warning-ink' : 'text-danger-ink');
                         @endphp
                         <div class="flex items-center justify-between gap-2 text-sm text-ink dark:text-ink-dark">
                             <span class="truncate">{{ $item['label'] }} <span class="text-xs text-ink-faint dark:text-ink-faint-dark">({{ $item['type'] }})</span></span>
@@ -329,7 +329,7 @@ new class extends Component
     </div>
 
     {{-- A slim inline strip instead of 3 separate boxy tiles. --}}
-    <div class="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-xs dark:border-line-dark dark:bg-surface-dark">
+    <div class="flex items-center justify-between card px-4 py-3 text-xs">
         <span class="inline-flex items-center gap-1.5 font-semibold text-ink dark:text-ink-dark">
             @svg('heroicon-o-book-open', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['vocabularyCount'] }} {{ Str::plural('word', $this->progressStats['vocabularyCount']) }}
         </span>
@@ -346,7 +346,7 @@ new class extends Component
     {{-- Everything below is reflective, not actionable — collapsed by
          default (native <details>, no extra JS) so it stays one tap away
          instead of pushing the actionable cards above off-screen. --}}
-    <details class="group rounded-2xl border border-line bg-surface open:pb-1 dark:border-line-dark dark:bg-surface-dark">
+    <details class="group card open:pb-1">
         <summary class="flex cursor-pointer list-none items-center justify-between p-4 text-sm font-semibold text-ink dark:text-ink-dark">
             More stats
             @svg('heroicon-o-chevron-down', 'h-4 w-4 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
@@ -461,11 +461,11 @@ new class extends Component
 
             <div class="border-t border-line pt-4 dark:border-line-dark">
                 @if ($topError = $this->progressStats['topError'])
-                    <p class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 uppercase dark:text-amber-400">
+                    <p class="inline-flex items-center gap-1 text-xs font-semibold text-warning-ink uppercase">
                         @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Your most recurring mistake
                     </p>
                     @if ($trend = $this->topErrorTrend)
-                        <p class="mt-1 flex items-center gap-1 text-sm font-semibold {{ $trend['recentCount'] === 0 ? 'text-success dark:text-success-dark' : 'text-amber-700 dark:text-amber-400' }}">
+                        <p class="mt-1 flex items-center gap-1 text-sm font-semibold {{ $trend['recentCount'] === 0 ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}">
                             @svg($trend['recentCount'] === 0 ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-trending-down', 'h-3.5 w-3.5')
                             @if ($trend['recentCount'] === 0)
                                 Hasn't come up in your last 2 missions — looking good!

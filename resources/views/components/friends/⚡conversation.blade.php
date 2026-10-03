@@ -345,7 +345,7 @@ new class extends Component
         Friends
     </a>
 
-    <div class="flex items-center justify-between rounded-2xl border border-line bg-surface p-3 dark:border-line-dark dark:bg-surface-dark">
+    <div class="flex items-center justify-between card p-3">
         <div class="flex items-center gap-3">
             <x-user-avatar :user="$other" class="h-10 w-10 text-sm" />
             <div>
@@ -372,22 +372,22 @@ new class extends Component
                 wire:target="block"
                 wire:confirm="Block {{ $other->name }}? They won't be able to message you."
                 title="Block"
-                class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-red-100 hover:text-red-600 dark:text-ink-faint-dark dark:hover:bg-red-950"
+                class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-danger-soft hover:text-danger-ink dark:text-ink-faint-dark"
             >@svg('heroicon-o-no-symbol', 'h-4 w-4')</button>
         </div>
     </div>
 
     @if ($reporting)
-        <div class="space-y-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950">
-            <p class="text-xs font-semibold text-red-600">Report {{ $other->name }}</p>
+        <div class="space-y-2 rounded-xl border border-danger-line bg-danger-soft p-3">
+            <p class="text-xs font-semibold text-danger-ink">Report {{ $other->name }}</p>
             <textarea
                 wire:model="reportReason"
                 rows="2"
                 placeholder="What happened?"
-                class="w-full rounded-lg border border-red-300 bg-transparent px-2 py-1 text-sm text-ink dark:border-red-800 dark:text-ink-dark"
+                class="w-full rounded-lg border border-danger-line bg-transparent px-2 py-1 text-sm text-ink dark:text-ink-dark"
             ></textarea>
             <div class="flex gap-2">
-                <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport" class="cursor-pointer rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:border-red-800 dark:hover:bg-red-950 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"> <span wire:loading.remove wire:target="submitReport">Submit report</span> <span wire:loading wire:target="submitReport">Submitting…</span></button>
+                <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport" class="cursor-pointer rounded-full border border-danger-line px-3 py-1 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"> <span wire:loading.remove wire:target="submitReport">Submit report</span> <span wire:loading wire:target="submitReport">Submitting…</span></button>
                 <button type="button" wire:click="$set('reporting', false)" class="cursor-pointer text-xs text-ink-faint underline dark:text-ink-faint-dark">Cancel</button>
             </div>
         </div>
@@ -509,7 +509,7 @@ new class extends Component
             @endif
 
             @error('attachment')
-                <span class="text-xs text-red-600">{{ $message }}</span>
+                <span class="text-xs text-danger-ink">{{ $message }}</span>
             @enderror
 
             <button
@@ -539,7 +539,7 @@ new class extends Component
                 x-cloak
                 x-on:click.outside="showEmoji = false"
                 x-transition.opacity.duration.150ms
-                class="absolute bottom-full left-0 z-10 mb-2 grid w-64 grid-cols-8 gap-0.5 rounded-2xl border border-line bg-surface p-2 shadow-lg dark:border-line-dark dark:bg-surface-dark"
+                class="absolute bottom-full left-0 z-10 mb-2 grid w-64 grid-cols-8 gap-0.5 card p-2 shadow-lg"
             >
                 @foreach ($this->emojis() as $emoji)
                     <button
@@ -578,7 +578,7 @@ new class extends Component
          it doesn't take space until there's something to show. --}}
     <div wire:loading.class="opacity-60" wire:target="generateFeedback">
         @if ($feedback)
-            <div class="space-y-3 rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+            <div class="space-y-3 card p-4">
                 <div class="flex items-center justify-between gap-2">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">AI feedback on your side of the conversation</p>
                     <button
@@ -602,12 +602,12 @@ new class extends Component
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
                 </div>
                 <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-xs font-semibold text-amber-600 uppercase">One thing to improve</p>
+                    <p class="text-xs font-semibold text-warning-ink uppercase">One thing to improve</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
                 </div>
             </div>
         @elseif ($feedbackError)
-            <p class="text-xs text-red-600">{{ $feedbackError }}</p>
+            <p class="text-xs text-danger-ink">{{ $feedbackError }}</p>
         @endif
     </div>
 </div>

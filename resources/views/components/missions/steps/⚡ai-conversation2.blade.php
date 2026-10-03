@@ -525,7 +525,7 @@ new class extends Component
              [[project_xdata_interpolation_resets_alpine_state]] for why a
              literal x-data string plus a changing wire:key, not an
              interpolated value INSIDE x-data, is the safe pattern here. --}}
-        <div wire:key="round-card-{{ $roundIndex }}" class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark" x-data="{ revealed: false }">
+        <div wire:key="round-card-{{ $roundIndex }}" class="card p-4" x-data="{ revealed: false }">
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
 
             @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL && ! $readOnly)
@@ -576,7 +576,7 @@ new class extends Component
             <p wire:loading wire:target="submitRoundAnswer" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
 
             @if ($exampleAnswer[$roundIndex] ?? null)
-                <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                <div class="mt-2 rounded-xl card-accent px-3 py-2">
                     <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer[$roundIndex] }}</p>
                 </div>
@@ -604,7 +604,7 @@ new class extends Component
         {{-- Role-reversal round (Epic E): the learner asks a question
              instead of answering one — the same recorder mechanics, a
              different check (checkGenuineQuestion, not checkRelevance). --}}
-        <div class="rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark">
+        <div class="card p-4">
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your turn to ask</p>
             <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">Ask the AI Instructor a real question about {{ $this->roleReversalTopic }}.</p>
 
@@ -620,7 +620,7 @@ new class extends Component
             <p wire:loading wire:target="submitLearnerQuestion" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
 
             @if ($exampleAnswer['role_reversal'] ?? null)
-                <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                <div class="mt-2 rounded-xl card-accent px-3 py-2">
                     <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer['role_reversal'] }}</p>
                 </div>
@@ -645,7 +645,7 @@ new class extends Component
             @endunless
         </div>
     @elseif (! $checklist)
-        <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+        <div class="card-sunken p-4">
             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Final Challenge · Topic: My Daily Life</p>
             <div class="mt-1 flex items-start justify-between gap-2">
                 <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->finalPrompt }}</p>
@@ -672,7 +672,7 @@ new class extends Component
             </p>
 
             @if ($exampleAnswer['final'] ?? null)
-                <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+                <div class="mt-2 rounded-xl card-accent px-3 py-2">
                     <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer['final'] }}</p>
                 </div>
@@ -770,9 +770,9 @@ new class extends Component
     @endif
 
     @error('audioFile')
-        <p class="text-sm text-red-600">{{ $message }}</p>
+        <p class="text-sm text-danger-ink">{{ $message }}</p>
     @enderror
     @if ($error)
-        <p class="text-sm text-red-600">{{ $error }}</p>
+        <p class="text-sm text-danger-ink">{{ $error }}</p>
     @endif
 </div>

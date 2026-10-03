@@ -15,7 +15,7 @@
 ])
 
 @if ($show)
-    <div class="mt-2 rounded-xl border border-accent-soft bg-accent-soft/60 px-3 py-2 dark:border-accent-soft-dark dark:bg-accent-soft-dark/60">
+    <div class="mt-2 rounded-xl card-accent px-3 py-2">
         <p class="text-sm text-accent-ink dark:text-accent-ink-dark">{{ $label }}</p>
         <div class="mt-2 flex gap-2">
             <button
