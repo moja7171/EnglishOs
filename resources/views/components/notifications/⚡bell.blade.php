@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -40,6 +41,55 @@ new class extends Component
         $unread->markAsRead();
 
         unset($this->items, $this->unreadCount);
+    }
+
+    /**
+     * Who still has a pending request to this user — a follow-request
+     * notification only shows Accept/Decline while its request is open
+     * (it may have been answered from the Friends page in the meantime).
+     *
+     * @return list<int>
+     */
+    #[Computed]
+    public function pendingRequesterIds(): array
+    {
+        return auth()->user()->pendingFollowRequests()->pluck('id')->all();
+    }
+
+    public function acceptRequest(string $notificationId): void
+    {
+        $this->answerRequest($notificationId, accept: true);
+    }
+
+    public function rejectRequest(string $notificationId): void
+    {
+        $this->answerRequest($notificationId, accept: false);
+    }
+
+    /**
+     * The notification is looked up through the signed-in user's own
+     * notifications, and the request must still be pending — a stale or
+     * forged id can't act on anyone else's requests. Answered either way,
+     * the notification has done its job and is removed.
+     */
+    private function answerRequest(string $notificationId, bool $accept): void
+    {
+        $notification = auth()->user()->notifications()->findOrFail($notificationId);
+        $followerId = $notification->data['follower_id'] ?? null;
+
+        if ($followerId !== null && in_array($followerId, $this->pendingRequesterIds, true)) {
+            $follower = User::findOrFail($followerId);
+
+            if ($accept) {
+                auth()->user()->acceptFollowRequest($follower);
+            } else {
+                auth()->user()->rejectFollowRequest($follower);
+            }
+        }
+
+        $notification->delete();
+
+        unset($this->items, $this->unreadCount, $this->pendingRequesterIds);
     }
 
     /**
@@ -87,23 +137,44 @@ new class extends Component
 
         <div class="max-h-80 overflow-y-auto">
             @forelse ($this->items as $item)
-                <a
-                    href="{{ $item->data['url'] }}"
-                    wire:navigate
-                    x-on:click="open = false"
+                <div
+                    wire:key="notification-{{ $item->id }}"
                     @class([
-                        'flex items-start gap-2.5 border-b border-line px-3 py-2.5 text-xs transition-colors last:border-b-0 hover:bg-surface-sunken dark:border-line-dark dark:hover:bg-surface-sunken-dark',
+                        'border-b border-line px-3 py-2.5 text-xs transition-colors last:border-b-0 dark:border-line-dark',
                         'bg-accent-soft/40 dark:bg-accent-soft-dark/40' => in_array($item->id, $this->freshIds, true),
                     ])
                 >
-                    <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                        @svg($item->data['icon'], 'h-3.5 w-3.5')
-                    </span>
-                    <span>
-                        <span class="block font-semibold text-ink dark:text-ink-dark">{{ $item->data['title'] }}</span>
-                        <span class="mt-0.5 block text-ink-faint dark:text-ink-faint-dark">{{ $item->created_at->diffForHumans() }}</span>
-                    </span>
-                </a>
+                    <a
+                        href="{{ $item->data['url'] }}"
+                        wire:navigate
+                        x-on:click="open = false"
+                        class="flex items-start gap-2.5"
+                    >
+                        <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                            @svg($item->data['icon'], 'h-3.5 w-3.5')
+                        </span>
+                        <span>
+                            <span class="block font-semibold text-ink dark:text-ink-dark">{{ $item->data['title'] }}</span>
+                            <span class="mt-0.5 block text-ink-faint dark:text-ink-faint-dark">{{ $item->created_at->diffForHumans() }}</span>
+                        </span>
+                    </a>
+                    @if (isset($item->data['follower_id']) && in_array($item->data['follower_id'], $this->pendingRequesterIds, true))
+                        <div class="mt-2 flex gap-2 pl-8">
+                            <button
+                                type="button"
+                                wire:click="acceptRequest('{{ $item->id }}')"
+                                wire:loading.attr="disabled"
+                                class="cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >Accept</button>
+                            <button
+                                type="button"
+                                wire:click="rejectRequest('{{ $item->id }}')"
+                                wire:loading.attr="disabled"
+                                class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-faint transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >Decline</button>
+                        </div>
+                    @endif
+                </div>
             @empty
                 <p class="px-3 py-6 text-center text-xs text-ink-faint dark:text-ink-faint-dark">Nothing yet — you'll see friend activity and streak badges here.</p>
             @endforelse
