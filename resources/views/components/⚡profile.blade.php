@@ -139,6 +139,26 @@ new class extends Component
         $user->update(['discoverable' => ! $user->discoverable]);
     }
 
+    /**
+     * @return \Illuminate\Support\Collection<int, User>
+     */
+    #[Computed]
+    public function blockedUsers()
+    {
+        return auth()->user()->blockedUsers();
+    }
+
+    /**
+     * Unblocking only lifts the block — blocking removed the follows, so
+     * they're back to being strangers and have to be re-added.
+     */
+    public function unblock(int $userId): void
+    {
+        auth()->user()->unblock(User::findOrFail($userId));
+
+        unset($this->blockedUsers);
+    }
+
     public function updatePassword(): void
     {
         $this->passwordSaved = false;
@@ -486,7 +506,8 @@ new class extends Component
     </form>
 
     {{-- Privacy --}}
-    <div x-show="activeTab === 'privacy'" x-cloak class="flex items-center justify-between gap-3 card p-4">
+    <div x-show="activeTab === 'privacy'" x-cloak class="space-y-3">
+    <div class="flex items-center justify-between gap-3 card p-4">
         <div>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Discoverable in Friends search</p>
             <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Turn this off and new people won't find you by name — anyone you're already connected with is unaffected.</p>
@@ -502,6 +523,30 @@ new class extends Component
         >
             <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform {{ auth()->user()->discoverable ? 'translate-x-6' : 'translate-x-1' }}"></span>
         </button>
+    </div>
+
+    <div class="card p-4">
+        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Blocked people</p>
+        <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Unblocking doesn't reconnect you — you'd both need to send a new friend request.</p>
+
+        <div class="mt-3 space-y-2">
+            @forelse ($this->blockedUsers as $blocked)
+                <div class="flex items-center gap-3">
+                    <x-user-avatar :user="$blocked" class="h-8 w-8 text-xs" />
+                    <span class="flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $blocked->name }}</span>
+                    <button
+                        type="button"
+                        wire:click="unblock({{ $blocked->id }})"
+                        wire:loading.attr="disabled"
+                        wire:target="unblock({{ $blocked->id }})"
+                        class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >Unblock</button>
+                </div>
+            @empty
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You haven't blocked anyone.</p>
+            @endforelse
+        </div>
+    </div>
     </div>
 
     {{-- Password --}}

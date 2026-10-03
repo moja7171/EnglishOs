@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\DirectMessageReceived;
 use App\Notifications\FollowRequestAccepted;
 use App\Notifications\FollowRequestReceived;
 use Database\Factories\UserFactory;
@@ -1183,6 +1184,15 @@ class User extends Authenticatable
     }
 
     /**
+     * The mirror of hasPendingRequestTo() — $user already asked to follow
+     * THIS user and is waiting on an answer.
+     */
+    public function hasPendingRequestFrom(User $user): bool
+    {
+        return $user->hasPendingRequestTo($this);
+    }
+
+    /**
      * Incoming requests to follow THIS user, newest first — surfaced on
      * the Friends page with Accept/Reject actions, and counted for the
      * notification badge on the Friends nav icon (see
@@ -1235,7 +1245,15 @@ class User extends Authenticatable
      */
     public function follow(User $user): void
     {
-        if ($user->is($this)) {
+        if ($user->is($this) || $this->hasBlocked($user) || $this->isBlockedBy($user)) {
+            return;
+        }
+
+        // They already asked us — following back is just accepting, never a
+        // second competing request.
+        if ($this->hasPendingRequestFrom($user)) {
+            $this->acceptFollowRequest($user);
+
             return;
         }
 
@@ -1269,6 +1287,8 @@ class User extends Authenticatable
             ->where('follower_id', $this->id)
             ->where('followed_id', $user->id)
             ->delete();
+
+        $this->clearMessageNotificationsWith($user);
     }
 
     /**
@@ -1305,6 +1325,83 @@ class User extends Authenticatable
             ->where('followed_id', $this->id)
             ->where('status', Follow::STATUS_PENDING)
             ->delete();
+    }
+
+    /**
+     * Blocking ends the relationship outright: every follow row between the
+     * two (accepted or pending, either direction) is removed, so
+     * unblocking later puts them back to being strangers rather than
+     * silently reopening the conversation. Any notification pointing at the
+     * other person is cleared too — it would only link to a page that now
+     * refuses them.
+     */
+    public function block(User $user): void
+    {
+        if ($user->is($this)) {
+            return;
+        }
+
+        FriendBlock::firstOrCreate([
+            'blocker_id' => $this->id,
+            'blocked_id' => $user->id,
+        ]);
+
+        Follow::query()
+            ->where(fn (Builder $query) => $query->where('follower_id', $this->id)->where('followed_id', $user->id))
+            ->orWhere(fn (Builder $query) => $query->where('follower_id', $user->id)->where('followed_id', $this->id))
+            ->delete();
+
+        $this->clearMessageNotificationsWith($user);
+
+        $this->notifications()->where('type', FollowRequestReceived::class)->where('data->follower_id', $user->id)->delete();
+        $user->notifications()->where('type', FollowRequestReceived::class)->where('data->follower_id', $this->id)->delete();
+    }
+
+    public function unblock(User $user): void
+    {
+        FriendBlock::query()
+            ->where('blocker_id', $this->id)
+            ->where('blocked_id', $user->id)
+            ->delete();
+    }
+
+    /**
+     * Every user with a block relationship with this one, either direction
+     * — the set that must stay out of Following/Followers/search/badges.
+     *
+     * @return Collection<int, int>
+     */
+    public function blockedUserIds(): Collection
+    {
+        return FriendBlock::where('blocker_id', $this->id)->pluck('blocked_id')
+            ->merge(FriendBlock::where('blocked_id', $this->id)->pluck('blocker_id'))
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * The people THIS user blocked (not the reverse), for the unblock list.
+     *
+     * @return Collection<int, User>
+     */
+    public function blockedUsers(): Collection
+    {
+        return User::query()
+            ->whereIn('id', FriendBlock::where('blocker_id', $this->id)->select('blocked_id'))
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Drops the "X sent you a message" notifications between this user and
+     * $user, in both directions — used when messaging between them closes
+     * (unfollow, block) so the bell and badges never point at a chat nobody
+     * can open.
+     */
+    public function clearMessageNotificationsWith(User $user): void
+    {
+        $this->notifications()->where('type', DirectMessageReceived::class)->where('data->sender_id', $user->id)->delete();
+        $user->notifications()->where('type', DirectMessageReceived::class)->where('data->sender_id', $this->id)->delete();
     }
 
     public function hasBlocked(User $user): bool
@@ -1348,14 +1445,13 @@ class User extends Authenticatable
      */
     public function mutualFriends(): Collection
     {
-        $blockedIds = FriendBlock::where('blocker_id', $this->id)->pluck('blocked_id')
-            ->merge(FriendBlock::where('blocked_id', $this->id)->pluck('blocker_id'));
-
         return $this->following()
-            ->whereNotIn('users.id', $blockedIds)
-            ->get()
-            ->filter(fn (User $candidate) => $this->isFollowedBy($candidate))
-            ->values();
+            ->whereNotIn('users.id', $this->blockedUserIds())
+            ->whereIn('users.id', Follow::query()
+                ->where('followed_id', $this->id)
+                ->where('status', Follow::STATUS_ACCEPTED)
+                ->select('follower_id'))
+            ->get();
     }
 
     /**

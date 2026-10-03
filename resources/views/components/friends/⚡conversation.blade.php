@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\DirectMessage;
-use App\Models\FriendBlock;
 use App\Models\FriendReport;
 use App\Models\User;
 use App\Notifications\DirectMessageReceived;
@@ -248,10 +247,7 @@ new class extends Component
 
     public function block(): void
     {
-        FriendBlock::firstOrCreate([
-            'blocker_id' => auth()->id(),
-            'blocked_id' => $this->other->id,
-        ]);
+        auth()->user()->block($this->other);
 
         $this->redirect(route('friends.index'), navigate: true);
     }

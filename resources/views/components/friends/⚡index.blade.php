@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\FriendBlock;
 use App\Models\FriendReport;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -59,10 +58,7 @@ new class extends Component
     {
         $target = User::findOrFail($userId);
 
-        FriendBlock::firstOrCreate([
-            'blocker_id' => auth()->id(),
-            'blocked_id' => $target->id,
-        ]);
+        auth()->user()->block($target);
 
         unset($this->following, $this->followers, $this->pendingRequests, $this->searchResults);
     }
@@ -120,8 +116,7 @@ new class extends Component
      */
     private function blockedUserIds()
     {
-        return FriendBlock::where('blocker_id', auth()->id())->pluck('blocked_id')
-            ->merge(FriendBlock::where('blocked_id', auth()->id())->pluck('blocker_id'));
+        return auth()->user()->blockedUserIds();
     }
 
     #[Computed]
@@ -247,6 +242,14 @@ new class extends Component
                                 title="Cancel request"
                                 class="shrink-0 cursor-pointer rounded-full border border-dashed border-line px-3 py-1 text-xs font-semibold text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                             >Requested</button>
+                        @elseif (auth()->user()->hasPendingRequestFrom($user))
+                            <button
+                                type="button"
+                                wire:click="acceptRequest({{ $user->id }})"
+                                wire:loading.attr="disabled"
+                                wire:target="acceptRequest({{ $user->id }})"
+                                class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >Accept request</button>
                         @else
                             <button
                                 type="button"
