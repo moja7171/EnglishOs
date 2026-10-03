@@ -6,6 +6,7 @@ use App\Models\Mission;
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
+use App\Notifications\PartnerSessionStarted;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -131,6 +132,13 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         abort_unless(auth()->user()->canMessageWith($friend), 403);
 
         $session = PartnerSession::findOrStartFor($mission, $step, auth()->user(), $friend);
+
+        // The partner has no other way to learn a session exists until the
+        // first answer lands, so starting one is the invite. Only a brand-new
+        // session notifies — revisiting it never re-fires.
+        if ($session->wasRecentlyCreated) {
+            $friend->notify(new PartnerSessionStarted($session, auth()->user()));
+        }
 
         return redirect()->route('partner-sessions.show', $session);
     })->name('missions.practice-with-friend');
