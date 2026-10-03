@@ -15,8 +15,9 @@
 @php
     $user = auth()->user();
 
-    $friendsBadge = \App\Models\DirectMessage::where('recipient_id', $user->id)->whereNull('read_at')->count()
-        + $user->pendingFollowRequestsCount();
+    // Unread *conversations* (not messages) plus pending requests — the same
+    // unit the bell uses, and never counting someone you can no longer message.
+    $friendsBadge = $user->friendsBadgeCount();
 
     $menuLinkClass = 'flex items-center gap-3 px-4 py-3 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark';
 @endphp

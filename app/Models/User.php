@@ -1445,13 +1445,79 @@ class User extends Authenticatable
      */
     public function mutualFriends(): Collection
     {
+        return $this->mutualFriendsQuery()->get();
+    }
+
+    /**
+     * @return Collection<int, int>
+     */
+    public function mutualFriendIds(): Collection
+    {
+        return $this->mutualFriendsQuery()->pluck('users.id');
+    }
+
+    private function mutualFriendsQuery(): BelongsToMany
+    {
         return $this->following()
             ->whereNotIn('users.id', $this->blockedUserIds())
             ->whereIn('users.id', Follow::query()
                 ->where('followed_id', $this->id)
                 ->where('status', Follow::STATUS_ACCEPTED)
-                ->select('follower_id'))
+                ->select('follower_id'));
+    }
+
+    /**
+     * Per-friend inbox data in two queries — no conversations table and no
+     * denormalized "last message" column: the latest message id and the
+     * unread count per counterpart come from one grouped query, then one
+     * lookup loads those messages. MAX(id) rather than created_at, since
+     * ids only grow and can't tie. $this->id is an int and inlined on
+     * purpose: bound placeholders in a GROUP BY expression make MySQL's
+     * ONLY_FULL_GROUP_BY treat it as a different expression from the SELECT.
+     *
+     * @return Collection<int, array{last: DirectMessage, unread: int}> keyed by the other user's id
+     */
+    public function conversationSummaries(): Collection
+    {
+        $me = (int) $this->id;
+        $otherSide = "CASE WHEN sender_id = {$me} THEN recipient_id ELSE sender_id END";
+
+        $rows = DirectMessage::query()
+            ->where(fn (Builder $query) => $query->where('sender_id', $me)->orWhere('recipient_id', $me))
+            ->selectRaw("{$otherSide} as other_id, MAX(id) as last_id, SUM(CASE WHEN recipient_id = {$me} AND read_at IS NULL THEN 1 ELSE 0 END) as unread")
+            ->groupByRaw($otherSide)
             ->get();
+
+        $lastMessages = DirectMessage::query()->whereIn('id', $rows->pluck('last_id'))->get()->keyBy('id');
+
+        return $rows->mapWithKeys(fn ($row) => [
+            (int) $row->other_id => ['last' => $lastMessages[$row->last_id], 'unread' => (int) $row->unread],
+        ]);
+    }
+
+    /**
+     * Conversations with something unread, counting people rather than
+     * messages (a burst of five is one) and only those you can still message
+     * — an unread message from someone since blocked/unfollowed can never be
+     * opened, so it must never keep a badge lit.
+     */
+    public function unreadConversationCount(): int
+    {
+        return DirectMessage::query()
+            ->where('recipient_id', $this->id)
+            ->whereNull('read_at')
+            ->whereIn('sender_id', $this->mutualFriendIds())
+            ->distinct()
+            ->count('sender_id');
+    }
+
+    /**
+     * The one number behind the avatar dot and the Friends menu count:
+     * unread conversations plus pending friend requests.
+     */
+    public function friendsBadgeCount(): int
+    {
+        return $this->unreadConversationCount() + $this->pendingFollowRequestsCount();
     }
 
     /**

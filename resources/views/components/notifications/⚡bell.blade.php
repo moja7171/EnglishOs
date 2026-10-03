@@ -106,7 +106,7 @@ new class extends Component
 };
 ?>
 
-<div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
+<div class="relative" x-data="{ open: false }" x-on:click.outside="open = false" wire:poll.30s.visible>
     <button
         type="button"
         x-on:click="open = !open"
