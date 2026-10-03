@@ -121,11 +121,12 @@
          capture beforeinstallprompt itself and offer its own call to action,
          or nothing ever invites the user to install at all (the browser's
          only remaining affordance is a buried "Install app" menu item).
-         "Not now" only hides it for a week, and installing never sets a
-         permanent flag: uninstalling the app leaves localStorage behind, and
+         "Not now" hides it for a week and a successful install for a month —
+         never forever: uninstalling the app leaves localStorage behind, and
          a forever-dismissed banner meant a reinstall was never offered again.
-         Chrome only fires beforeinstallprompt while the app is NOT installed,
-         so its firing is itself the "show it" signal. --}}
+         The month matters too: when Chrome can only make a plain shortcut
+         (no WebAPK) it keeps firing beforeinstallprompt, which would
+         otherwise bring the banner straight back in the browser tab. --}}
     <div
         x-data="{
             deferredPrompt: null,
@@ -141,17 +142,21 @@
                     this.deferredPrompt = event;
                 });
 
-                window.addEventListener('appinstalled', () => { this.deferredPrompt = null });
+                window.addEventListener('appinstalled', () => { this.deferredPrompt = null; this.hideFor(30) });
             },
             async install() {
                 if (! this.deferredPrompt) { return }
                 this.deferredPrompt.prompt();
-                await this.deferredPrompt.userChoice;
+                const choice = await this.deferredPrompt.userChoice;
                 this.deferredPrompt = null;
+                if (choice.outcome === 'accepted') { this.hideFor(30) }
             },
             dismiss() {
+                this.hideFor(7);
+            },
+            hideFor(days) {
                 this.dismissed = true;
-                try { localStorage.setItem('eosInstallPromptDismissedUntil', Date.now() + 7 * 24 * 60 * 60 * 1000) } catch (e) {}
+                try { localStorage.setItem('eosInstallPromptDismissedUntil', Date.now() + days * 24 * 60 * 60 * 1000) } catch (e) {}
             },
         }"
         x-show="deferredPrompt && !dismissed"
