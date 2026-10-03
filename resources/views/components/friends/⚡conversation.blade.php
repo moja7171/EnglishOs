@@ -851,11 +851,12 @@ new class extends Component
                     wire:click="generateFeedback"
                     wire:loading.attr="disabled"
                     wire:target="generateFeedback"
-                    class="ms-auto inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
+                    title="Check my English"
+                    aria-label="Check my English"
+                    class="ms-auto inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
                 >
                     <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
                     <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-                    Check my English
                 </button>
             </div>
 

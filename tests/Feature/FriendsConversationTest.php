@@ -924,7 +924,7 @@ class FriendsConversationTest extends TestCase
             ->assertSeeHtml('<textarea')
             ->assertSeeHtml('aria-label="Message Bob Smith"')
             ->assertSeeHtml('role="log"')
-            ->assertSee('Check my English');
+            ->assertSeeHtml('aria-label="Check my English"');
     }
 
     public function test_message_times_use_the_learners_timezone_with_day_separators(): void
