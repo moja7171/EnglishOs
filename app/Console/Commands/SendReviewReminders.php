@@ -9,8 +9,8 @@ use Throwable;
 
 /**
  * Sends each learner their daily review reminder at the time they chose, in
- * their own timezone. Scheduled every 15 minutes in routes/console.php, so
- * "at their time" means within the next quarter hour.
+ * their own timezone, to the minute. Scheduled every minute in
+ * routes/console.php.
  */
 class SendReviewReminders extends Command
 {

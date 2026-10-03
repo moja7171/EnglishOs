@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('notifications:prune-read')->daily();
-Schedule::command('review:send-reminders')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('review:send-reminders')->everyMinute()->withoutOverlapping();

@@ -13,7 +13,10 @@
 --}}
 @props(['tabVar', 'tabs'])
 
-<div class="inline-flex flex-wrap items-center gap-1 rounded-full border border-line bg-surface-sunken p-1 dark:border-line-dark dark:bg-surface-sunken-dark">
+{{-- One row that never wraps: tabs share the width and tighten their padding
+     on a phone, and if there are still too many for the screen the row
+     scrolls sideways instead of dropping the last tab onto a second line. --}}
+<div class="flex w-full items-center gap-1 overflow-x-auto rounded-full border border-line bg-surface-sunken p-1 [scrollbar-width:none] sm:w-auto sm:inline-flex dark:border-line-dark dark:bg-surface-sunken-dark">
     @foreach ($tabs as $key => $label)
         <button
             type="button"
@@ -21,7 +24,7 @@
             :class="{{ $tabVar }} === '{{ $key }}'
                 ? 'bg-surface text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark'
                 : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
-            class="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold transition-colors"
+            class="flex-1 cursor-pointer rounded-full px-2 py-1.5 text-center text-xs font-semibold whitespace-nowrap transition-colors sm:flex-none sm:px-3"
         >{{ $label }}</button>
     @endforeach
 </div>

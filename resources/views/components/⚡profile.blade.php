@@ -260,7 +260,7 @@ new class extends Component
         tab-var="activeTab"
         :tabs="[
             'avatar' => 'Avatar',
-            'basic-info' => 'Basic info',
+            'basic-info' => 'Info',
             'privacy' => 'Privacy',
             'reminders' => 'Reminders',
             'password' => 'Password',
