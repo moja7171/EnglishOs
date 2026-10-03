@@ -19,16 +19,17 @@
 @endphp
 
 <div {{ $attributes }}>
-    <div class="mt-2 mb-6 flex gap-2">
+    <div class="mt-2 mb-6 flex">
         @foreach ($tiers as $index => $tier)
             @php
+                $edgeRounding = ($index === 0 ? 'rounded-l-full ' : '').($index === count($tiers) - 1 ? 'rounded-r-full' : '');
                 $previousTier = $index === 0 ? 0 : $tiers[$index - 1];
                 $fillPercent = max(0, min(100, ($currentStreak - $previousTier) / ($tier - $previousTier) * 100));
                 $reached = $currentStreak >= $tier;
             @endphp
-            <div class="relative h-2 flex-1 rounded-full bg-surface-sunken dark:bg-surface-sunken-dark">
+            <div class="relative h-2 flex-1 bg-surface-sunken dark:bg-surface-sunken-dark {{ $edgeRounding }}">
                 <div
-                    class="h-full rounded-full bg-accent transition-all duration-500 dark:bg-accent-dark"
+                    class="h-full bg-accent transition-all duration-500 dark:bg-accent-dark {{ $edgeRounding }}"
                     style="width: {{ $fillPercent }}%"
                 ></div>
                 <span
