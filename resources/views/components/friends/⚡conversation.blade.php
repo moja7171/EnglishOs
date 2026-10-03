@@ -568,7 +568,7 @@ new class extends Component
             </form>
 
             <div wire:key="voice-recorder-{{ $other->id }}" class="shrink-0">
-                <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" />
+                <x-voice-recorder field="voiceMessage" on-recorded="sendVoiceMessage" file-name="voice-message.webm" :compact="true" />
             </div>
         </div>
     </div>
