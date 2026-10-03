@@ -373,6 +373,36 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSet('showOverview', true);
     }
 
+    public function test_the_day_overview_links_to_the_missions_listening_picks(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertSee('Listening picks for this mission')
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"');
+    }
+
+    public function test_a_finished_mission_still_links_to_its_listening_picks(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        foreach ($mission->stepKeys() as $key) {
+            Evidence::create(['mission_run_id' => $run->id, 'phase' => $key, 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'done']);
+        }
+        $run->update(['status' => 'complete']);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission])
+            ->assertSee('My Daily Life — done')
+            ->assertSee('Listening picks for this mission')
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"');
+    }
+
     public function test_the_within_day_checklist_shows_real_step_labels_not_just_numbers(): void
     {
         $this->seed(MissionSeeder::class);
