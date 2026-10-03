@@ -211,7 +211,7 @@ new class extends Component
 <div
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
     x-data="{
-        tab: ['overview', 'activity', 'skills'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview',
+        tab: ['overview', 'activity', 'growth'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview',
         setTab(name) {
             this.tab = name;
             history.replaceState(history.state, '', '#' + name);
@@ -241,7 +241,7 @@ new class extends Component
     </header>
 
     <div role="tablist" aria-label="Progress sections" class="grid grid-cols-3 gap-1 card p-1">
-        @foreach (['overview' => 'Overview', 'activity' => 'Activity', 'skills' => 'Skills'] as $tabKey => $tabLabel)
+        @foreach (['overview' => 'Overview', 'activity' => 'Activity', 'growth' => 'Growth'] as $tabKey => $tabLabel)
             <button
                 type="button"
                 role="tab"
@@ -249,7 +249,13 @@ new class extends Component
                 :aria-selected="tab === '{{ $tabKey }}'"
                 :class="tab === '{{ $tabKey }}' ? 'bg-accent text-white dark:bg-accent-dark' : 'text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark'"
                 class="cursor-pointer rounded-full px-3 py-2 text-sm font-semibold transition-colors"
-            >{{ $tabLabel }}</button>
+            >
+                {{ $tabLabel }}
+                @if ($tabKey === 'growth' && ($this->masteredErrors->isNotEmpty() || $this->fadingErrors->isNotEmpty()))
+                    {{-- A bare dot, never a count: see <x-mistakes-you-fixed>. --}}
+                    <span class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-success align-middle dark:bg-success-dark" title="New wins to see"></span>
+                @endif
+            </button>
         @endforeach
     </div>
 
@@ -404,10 +410,6 @@ new class extends Component
                 </a>
             @endif
         </div>
-
-        {{-- The one surface whose whole job is to reassure — it lives on
-             the default tab so it never hides behind a tap. --}}
-        <x-mistakes-you-fixed :mastered="$this->masteredErrors" :fading="$this->fadingErrors" />
     </div>
 
     {{-- Activity — looking back: the 12-week strip and a real month. --}}
@@ -443,11 +445,13 @@ new class extends Component
         </div>
     </div>
 
-    {{-- Skills — reflective, not actionable: what's been learned and
-         where the patterns are. --}}
-    <div x-show="tab === 'skills'" x-cloak role="tabpanel" class="card space-y-4 p-4">
+    {{-- Growth — everything that answers "what got better": the
+         reassurance surface first, then skills, vocabulary and grammar. --}}
+    <div x-show="tab === 'growth'" x-cloak role="tabpanel" class="card space-y-4 p-4">
+        <x-mistakes-you-fixed :mastered="$this->masteredErrors" :fading="$this->fadingErrors" :boxed="false" />
+
         @if (count($this->skillAverages))
-            <div>
+            <div class="border-t border-line pt-4 dark:border-line-dark">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Skills</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your average self-assessment across every completed mission.</p>
                 <x-skill-radar :skills="$this->skillAverages" class="mt-2" />
@@ -455,7 +459,7 @@ new class extends Component
         @endif
 
         @if (collect($this->vocabularyGrowth)->sum('count') > 0)
-            <div class="@if (count($this->skillAverages)) border-t border-line pt-4 dark:border-line-dark @endif">
+            <div class="border-t border-line pt-4 dark:border-line-dark">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Vocabulary growth</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">New words added per week.</p>
                 <x-bar-chart :data="$this->vocabularyGrowth" class="mt-2" />
@@ -469,7 +473,7 @@ new class extends Component
             User::masteredGrammarPoints()/learningGrammarPoints().
         --}}
         @if ($this->masteredGrammarPoints->isNotEmpty() || $this->learningGrammarPoints->isNotEmpty())
-            <div class="@if (count($this->skillAverages) || collect($this->vocabularyGrowth)->sum('count') > 0) border-t border-line pt-4 dark:border-line-dark @endif">
+            <div class="border-t border-line pt-4 dark:border-line-dark">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Grammar points</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Rules taught across your missions, each on its own review schedule.</p>
 
@@ -503,7 +507,7 @@ new class extends Component
             </div>
         @endif
 
-        <div class="border-t border-line pt-4 first:border-t-0 first:pt-0 dark:border-line-dark">
+        <div class="border-t border-line pt-4 dark:border-line-dark">
             @if ($topError = $this->progressStats['topError'])
                 <p class="inline-flex items-center gap-1 text-xs font-semibold text-warning-ink uppercase">
                     @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Your most recurring mistake
