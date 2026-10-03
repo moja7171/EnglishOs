@@ -116,27 +116,34 @@ class FriendsIndexTest extends TestCase
             ->assertDontSee('Bob Blocked');
     }
 
-    public function test_submitting_a_report_creates_a_record_with_the_reason(): void
+    public function test_submitting_a_report_stores_category_details_and_the_last_message(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create(['name' => 'Bob']);
         $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'an unkind message']);
 
         $this->actingAs($me);
 
         Livewire::test('friends.index')
             ->call('startReport', $bob->id)
+            ->set('reportCategory.'.$bob->id, 'rude')
             ->set('reportReason.'.$bob->id, 'Being rude in messages')
-            ->call('submitReport', $bob->id);
+            ->call('submitReport', $bob->id)
+            ->assertSee('Report sent')
+            ->assertSee('Also block Bob');
 
         $this->assertDatabaseHas('friend_reports', [
             'reporter_id' => $me->id,
             'reported_id' => $bob->id,
+            'category' => 'rude',
             'reason' => 'Being rude in messages',
+            'message_snapshot' => 'an unkind message',
         ]);
     }
 
-    public function test_report_is_a_no_op_without_a_reason(): void
+    public function test_report_is_a_no_op_without_a_category(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
@@ -146,9 +153,48 @@ class FriendsIndexTest extends TestCase
 
         Livewire::test('friends.index')
             ->call('startReport', $bob->id)
+            ->set('reportReason.'.$bob->id, 'only details')
             ->call('submitReport', $bob->id);
 
         $this->assertDatabaseCount('friend_reports', 0);
+    }
+
+    public function test_a_report_without_details_falls_back_to_the_category_label(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->call('startReport', $bob->id)
+            ->set('reportCategory.'.$bob->id, 'spam')
+            ->call('submitReport', $bob->id);
+
+        $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'category' => 'spam', 'reason' => 'Spam', 'message_snapshot' => null]);
+    }
+
+    public function test_the_report_form_offers_the_preset_reasons_and_the_confirmation_can_be_dismissed(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->call('startReport', $bob->id)
+            ->assertSee('Rude or hurtful')
+            ->assertSee('Spam')
+            ->assertSee('Inappropriate')
+            ->assertSee('Something else')
+            ->set('reportCategory.'.$bob->id, 'other')
+            ->call('submitReport', $bob->id)
+            ->assertSee('Report sent')
+            ->call('dismissReportSent', $bob->id)
+            ->assertDontSee('Report sent');
     }
 
     public function test_the_active_today_banner_only_counts_real_mutual_friends(): void

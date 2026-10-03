@@ -1420,6 +1420,21 @@ class User extends Authenticatable
             : 'Asia/Tehran';
     }
 
+    /**
+     * The latest real message $user sent THIS user (nudges aren't evidence of
+     * anything) — what a report keeps as its snapshot, since the sender could
+     * later edit or delete it.
+     */
+    public function lastMessageFrom(User $user): ?string
+    {
+        return DirectMessage::query()
+            ->where('sender_id', $user->id)
+            ->where('recipient_id', $this->id)
+            ->where('type', '!=', DirectMessage::TYPE_NUDGE)
+            ->latest('id')
+            ->value('body');
+    }
+
     public function hasBlocked(User $user): bool
     {
         return FriendBlock::query()

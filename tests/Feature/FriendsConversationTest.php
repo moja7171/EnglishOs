@@ -539,7 +539,7 @@ class FriendsConversationTest extends TestCase
         $this->assertTrue($me->fresh()->hasBlocked($bob));
     }
 
-    public function test_reporting_from_the_conversation_snapshots_the_last_message(): void
+    public function test_reporting_from_the_conversation_stores_the_category_details_and_snapshot(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
@@ -551,15 +551,78 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->set('reportReason', 'They were rude')
-            ->call('submitReport');
+            ->call('startReport')
+            ->set('reportCategory', 'rude')
+            ->set('reportReason', 'They keep insulting me')
+            ->call('submitReport')
+            ->assertSet('reporting', false)
+            ->assertSet('reportSent', true)
+            ->assertSee('Report sent')
+            ->assertSee('Also block');
 
         $this->assertDatabaseHas('friend_reports', [
             'reporter_id' => $me->id,
             'reported_id' => $bob->id,
-            'reason' => 'They were rude',
+            'category' => 'rude',
+            'reason' => 'They keep insulting me',
             'message_snapshot' => 'rude thing',
         ]);
+    }
+
+    public function test_a_report_needs_a_category_but_not_details(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('startReport')
+            ->set('reportReason', 'details only')
+            ->call('submitReport')
+            ->assertSet('reporting', true);
+
+        $this->assertDatabaseCount('friend_reports', 0);
+
+        $chat->set('reportCategory', 'spam')->set('reportReason', '')->call('submitReport');
+
+        $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'category' => 'spam', 'reason' => 'Spam']);
+    }
+
+    public function test_an_unknown_report_category_is_rejected(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('reportCategory', 'made-up')
+            ->call('submitReport');
+
+        $this->assertDatabaseCount('friend_reports', 0);
+    }
+
+    public function test_the_report_confirmation_can_block_straight_away(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->set('reportCategory', 'rude')
+            ->call('submitReport')
+            ->call('block')
+            ->assertRedirect(route('friends.index'));
+
+        $this->assertTrue($me->fresh()->hasBlocked($bob));
     }
 
     public function test_the_report_snapshot_is_the_other_persons_message_not_your_own(): void
@@ -571,11 +634,12 @@ class FriendsConversationTest extends TestCase
 
         DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'body' => 'rude thing']);
         DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'body' => 'please stop']);
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_NUDGE, 'body' => 'Keep going!']);
 
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->set('reportReason', 'They were rude')
+            ->set('reportCategory', 'rude')
             ->call('submitReport');
 
         $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'message_snapshot' => 'rude thing']);

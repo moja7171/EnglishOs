@@ -20,8 +20,14 @@ new class extends Component
     /** @var array<int, string> keyed by user id — shows the report textarea for that row */
     public array $reporting = [];
 
-    /** @var array<int, string> keyed by user id — the reason typed for that row */
+    /** @var array<int, string> keyed by user id — the optional details typed for that row */
     public array $reportReason = [];
+
+    /** @var array<int, string> keyed by user id — the chosen FriendReport::CATEGORIES key */
+    public array $reportCategory = [];
+
+    /** @var array<int, bool> keyed by user id — a report was just sent for that row */
+    public array $reportSent = [];
 
     public function follow(int $userId): void
     {
@@ -66,29 +72,45 @@ new class extends Component
 
     public function startReport(int $userId): void
     {
+        unset($this->reportSent[$userId]);
         $this->reporting[$userId] = true;
     }
 
     public function cancelReport(int $userId): void
     {
-        unset($this->reporting[$userId], $this->reportReason[$userId]);
+        unset($this->reporting[$userId], $this->reportReason[$userId], $this->reportCategory[$userId]);
     }
 
+    public function dismissReportSent(int $userId): void
+    {
+        unset($this->reportSent[$userId]);
+    }
+
+    /**
+     * A category is required (it is what makes the report actionable); the
+     * details are optional. The reported person's latest real message is kept
+     * as the snapshot.
+     */
     public function submitReport(int $userId): void
     {
-        $reason = trim($this->reportReason[$userId] ?? '');
+        $category = $this->reportCategory[$userId] ?? '';
 
-        if ($reason === '') {
+        if (! array_key_exists($category, FriendReport::CATEGORIES)) {
             return;
         }
+
+        $details = trim($this->reportReason[$userId] ?? '');
 
         FriendReport::create([
             'reporter_id' => auth()->id(),
             'reported_id' => $userId,
-            'reason' => $reason,
+            'category' => $category,
+            'reason' => $details !== '' ? mb_substr($details, 0, 1000) : FriendReport::CATEGORIES[$category],
+            'message_snapshot' => auth()->user()->lastMessageFrom(User::findOrFail($userId)),
         ]);
 
-        unset($this->reporting[$userId], $this->reportReason[$userId]);
+        unset($this->reporting[$userId], $this->reportReason[$userId], $this->reportCategory[$userId]);
+        $this->reportSent[$userId] = true;
     }
 
     /**
@@ -404,7 +426,11 @@ new class extends Component
 
                         @if (isset($reporting[$friend->id]))
                             <div class="relative z-10">
-                                <x-friends.report-form :friend="$friend" />
+                                <x-friends.report-form :friend="$friend" :selected="$reportCategory[$friend->id] ?? null" :category-model="'reportCategory.'.$friend->id" :details-model="'reportReason.'.$friend->id" :submit-action="'submitReport('.$friend->id.')'" :cancel-action="'cancelReport('.$friend->id.')'" />
+                            </div>
+                        @elseif (isset($reportSent[$friend->id]))
+                            <div class="relative z-10">
+                                <x-friends.report-sent :friend="$friend" :block-action="'block('.$friend->id.')'" :dismiss-action="'dismissReportSent('.$friend->id.')'" />
                             </div>
                         @endif
                     </div>
@@ -432,7 +458,9 @@ new class extends Component
                         </div>
 
                         @if (isset($reporting[$friend->id]))
-                            <x-friends.report-form :friend="$friend" />
+                            <x-friends.report-form :friend="$friend" :selected="$reportCategory[$friend->id] ?? null" :category-model="'reportCategory.'.$friend->id" :details-model="'reportReason.'.$friend->id" :submit-action="'submitReport('.$friend->id.')'" :cancel-action="'cancelReport('.$friend->id.')'" />
+                        @elseif (isset($reportSent[$friend->id]))
+                            <x-friends.report-sent :friend="$friend" :block-action="'block('.$friend->id.')'" :dismiss-action="'dismissReportSent('.$friend->id.')'" />
                         @endif
                     </div>
                 @endforeach

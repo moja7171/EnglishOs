@@ -31,6 +31,12 @@ new class extends Component
 
     public string $reportReason = '';
 
+    /** The chosen FriendReport::CATEGORIES key. */
+    public string $reportCategory = '';
+
+    /** A report was just sent — show the confirmation instead of the form. */
+    public bool $reportSent = false;
+
     /** @var array{strength: string, expression: string, correction: array{original: string, corrected: string, why: string, suggestion: string}|null}|null */
     public ?array $feedback = null;
 
@@ -336,23 +342,49 @@ new class extends Component
         $this->redirect(route('friends.index'), navigate: true);
     }
 
+    public function startReport(): void
+    {
+        $this->reportSent = false;
+        $this->reporting = true;
+    }
+
+    public function cancelReport(): void
+    {
+        $this->reporting = false;
+        $this->reportReason = '';
+        $this->reportCategory = '';
+    }
+
+    public function dismissReportSent(): void
+    {
+        $this->reportSent = false;
+    }
+
+    /**
+     * Same rules as the Friends page: a preset category is required, details
+     * are optional, and the other person's latest real message is the
+     * snapshot (never the reporter's own, never a nudge).
+     */
     public function submitReport(): void
     {
-        $reason = trim($this->reportReason);
-
-        if ($reason === '') {
+        if (! array_key_exists($this->reportCategory, FriendReport::CATEGORIES)) {
             return;
         }
+
+        $details = trim($this->reportReason);
 
         FriendReport::create([
             'reporter_id' => auth()->id(),
             'reported_id' => $this->other->id,
-            'reason' => $reason,
-            'message_snapshot' => $this->thread->where('sender_id', $this->other->id)->where('type', '!=', DirectMessage::TYPE_NUDGE)->last()?->body,
+            'category' => $this->reportCategory,
+            'reason' => $details !== '' ? mb_substr($details, 0, 1000) : FriendReport::CATEGORIES[$this->reportCategory],
+            'message_snapshot' => auth()->user()->lastMessageFrom($this->other),
         ]);
 
         $this->reporting = false;
         $this->reportReason = '';
+        $this->reportCategory = '';
+        $this->reportSent = true;
     }
 
     /**
@@ -581,7 +613,7 @@ new class extends Component
             <div x-show="menu" x-cloak x-transition.opacity.duration.150ms role="menu" class="absolute right-0 z-30 mt-1 w-52 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark">
                 <button
                     type="button"
-                    wire:click="$set('reporting', true)"
+                    wire:click="startReport"
                     x-on:click="menu = false"
                     role="menuitem"
                     class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
@@ -606,18 +638,12 @@ new class extends Component
     </div>
 
     @if ($reporting)
-        <div class="shrink-0 space-y-2 rounded-xl border border-danger-line bg-danger-soft p-3">
-            <p class="text-xs font-semibold text-danger-ink">Report {{ $other->name }}</p>
-            <textarea
-                wire:model="reportReason"
-                rows="2"
-                placeholder="What happened?"
-                class="w-full rounded-lg border border-danger-line bg-transparent px-2 py-1 text-sm text-ink dark:text-ink-dark"
-            ></textarea>
-            <div class="flex gap-2">
-                <button type="button" wire:click="submitReport" wire:loading.attr="disabled" wire:target="submitReport" class="cursor-pointer rounded-full border border-danger-line px-3 py-1.5 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"> <span wire:loading.remove wire:target="submitReport">Submit report</span> <span wire:loading wire:target="submitReport">Submitting…</span></button>
-                <button type="button" wire:click="$set('reporting', false)" class="cursor-pointer text-xs text-ink-faint underline dark:text-ink-faint-dark">Cancel</button>
-            </div>
+        <div class="shrink-0">
+            <x-friends.report-form :friend="$other" :selected="$reportCategory" category-model="reportCategory" details-model="reportReason" submit-action="submitReport" cancel-action="cancelReport" />
+        </div>
+    @elseif ($reportSent)
+        <div class="shrink-0">
+            <x-friends.report-sent :friend="$other" block-action="block" dismiss-action="dismissReportSent" />
         </div>
     @endif
 
