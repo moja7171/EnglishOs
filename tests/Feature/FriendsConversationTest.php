@@ -594,4 +594,89 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($stranger);
         $this->get(route('friends.attachment', $message))->assertForbidden();
     }
+
+    public function test_a_burst_of_messages_leaves_the_recipient_one_notification(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+        $chat->set('body', 'one')->call('send');
+        $chat->set('body', 'two')->call('send');
+        $chat->set('body', 'three')->call('send');
+
+        $this->assertSame(1, $this->directMessageNotifications($bob)->count());
+    }
+
+    public function test_a_nudge_keeps_its_own_notification_separate_from_messages(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new \RuntimeException('down')));
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+        $chat->set('body', 'hi')->call('send');
+        $chat->call('sendNudge');
+        $chat->call('sendNudge');
+
+        $this->assertSame(2, $this->directMessageNotifications($bob)->count());
+    }
+
+    public function test_each_sender_gets_their_own_notification(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+
+        foreach ([$me, $alice] as $friend) {
+            $friend->follow($bob);
+            $bob->acceptFollowRequest($friend);
+        }
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'hi')->call('send');
+
+        $this->actingAs($alice);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'hello')->call('send');
+
+        $this->assertSame(2, $this->directMessageNotifications($bob)->count());
+    }
+
+    public function test_opening_the_conversation_reads_that_senders_notification_and_the_next_message_starts_a_new_one(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'first')->call('send');
+        $this->assertSame(1, $this->directMessageNotifications($bob, unreadOnly: true)->count());
+
+        $this->actingAs($bob);
+        Livewire::test('friends.conversation', ['other' => $me])->assertSee('first');
+        $this->assertSame(0, $this->directMessageNotifications($bob, unreadOnly: true)->count());
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])->set('body', 'second')->call('send');
+
+        $this->assertSame(2, $this->directMessageNotifications($bob)->count());
+        $this->assertSame(1, $this->directMessageNotifications($bob, unreadOnly: true)->count());
+    }
+
+    private function directMessageNotifications(User $user, bool $unreadOnly = false)
+    {
+        $relation = $unreadOnly ? $user->unreadNotifications() : $user->notifications();
+
+        return $relation->where('type', DirectMessageReceived::class);
+    }
 }

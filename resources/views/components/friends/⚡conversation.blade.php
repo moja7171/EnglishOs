@@ -92,11 +92,29 @@ new class extends Component
 
     /**
      * Shared by every send*() method below — a friend only ever needs to
-     * hear about a message once, regardless of whether it arrived as text,
-     * voice, a file, or a nudge.
+     * hear about a burst of messages once. While an unread notification
+     * from this sender already exists, the new message just bumps it to the
+     * top of the bell instead of stacking another row; it's marked read the
+     * moment the recipient opens (or is sitting in) the conversation, which
+     * starts a fresh notification for whatever comes next. Nudges keep
+     * their own notification since they read and look different.
      */
     private function notifyRecipient(DirectMessage $message): void
     {
+        $kind = $message->type === DirectMessage::TYPE_NUDGE ? DirectMessage::TYPE_NUDGE : DirectMessage::TYPE_MESSAGE;
+
+        $existing = $this->other->unreadNotifications()
+            ->where('type', DirectMessageReceived::class)
+            ->where('data->sender_id', auth()->id())
+            ->where('data->kind', $kind)
+            ->first();
+
+        if ($existing) {
+            $existing->forceFill(['created_at' => now()])->save();
+
+            return;
+        }
+
         $this->other->notify(new DirectMessageReceived($message));
     }
 
@@ -333,6 +351,11 @@ new class extends Component
         $messages = auth()->user()->conversationWith($this->other)->get();
 
         $messages->where('recipient_id', auth()->id())->whereNull('read_at')->each->update(['read_at' => now()]);
+
+        auth()->user()->unreadNotifications()
+            ->where('type', DirectMessageReceived::class)
+            ->where('data->sender_id', $this->other->id)
+            ->update(['read_at' => now()]);
 
         return $messages;
     }

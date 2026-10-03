@@ -66,4 +66,57 @@ class NotificationBellTest extends TestCase
 
         Livewire::test('notifications.bell')->assertDontSee("{$alice->name} wants to connect");
     }
+
+    public function test_notifications_that_were_unread_on_open_stay_highlighted(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create();
+        $me->notify(new FollowRequestReceived($alice));
+        $notification = $me->unreadNotifications()->first();
+
+        $this->actingAs($me);
+
+        $component = Livewire::test('notifications.bell')->call('markAllAsRead');
+
+        $this->assertSame([$notification->id], $component->get('freshIds'));
+        $this->assertSame(0, $component->instance()->unreadCount());
+    }
+
+    public function test_clear_all_deletes_only_the_users_own_notifications(): void
+    {
+        $me = User::factory()->create();
+        $someoneElse = User::factory()->create();
+        $alice = User::factory()->create();
+        $me->notify(new FollowRequestReceived($alice));
+        $someoneElse->notify(new FollowRequestReceived($alice));
+
+        $this->actingAs($me);
+
+        Livewire::test('notifications.bell')
+            ->call('clearAll')
+            ->assertSee('Nothing yet');
+
+        $this->assertSame(0, $me->notifications()->count());
+        $this->assertSame(1, $someoneElse->notifications()->count());
+    }
+
+    public function test_prune_command_removes_only_old_read_notifications(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create();
+        foreach (range(1, 3) as $ignored) {
+            $me->notify(new FollowRequestReceived($alice));
+        }
+        [$oldRead, $recentRead, $oldUnread] = $me->notifications()->get()->all();
+
+        $oldRead->forceFill(['read_at' => now()->subDays(40)])->save();
+        $recentRead->forceFill(['read_at' => now()->subDays(2)])->save();
+
+        $this->artisan('notifications:prune-read')->assertSuccessful();
+
+        $remaining = $me->notifications()->pluck('id')->all();
+        $this->assertNotContains($oldRead->id, $remaining);
+        $this->assertContains($recentRead->id, $remaining);
+        $this->assertContains($oldUnread->id, $remaining);
+    }
 }

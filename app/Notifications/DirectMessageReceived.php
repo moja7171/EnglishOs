@@ -18,7 +18,11 @@ class DirectMessageReceived extends Notification
     }
 
     /**
-     * @return array{icon: string, title: string, url: string}
+     * `sender_id` and `kind` let the conversation collapse a burst of
+     * messages into one notification per sender (see
+     * ⚡conversation.blade.php) without matching on the title or URL.
+     *
+     * @return array{icon: string, title: string, url: string, sender_id: int, kind: string}
      */
     public function toArray(object $notifiable): array
     {
@@ -32,6 +36,8 @@ class DirectMessageReceived extends Notification
             'icon' => $this->message->type === DirectMessage::TYPE_NUDGE ? 'heroicon-s-fire' : 'heroicon-o-chat-bubble-left-right',
             'title' => $title,
             'url' => route('friends.conversation', $sender),
+            'sender_id' => $sender->id,
+            'kind' => $this->message->type === DirectMessage::TYPE_NUDGE ? DirectMessage::TYPE_NUDGE : DirectMessage::TYPE_MESSAGE,
         ];
     }
 }

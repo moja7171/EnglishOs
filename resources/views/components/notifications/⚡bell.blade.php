@@ -5,6 +5,14 @@ use Livewire\Component;
 
 new class extends Component
 {
+    /**
+     * IDs that were unread at the moment the dropdown opened — they stay
+     * highlighted while it's open even though the badge is already clear.
+     *
+     * @var list<string>
+     */
+    public array $freshIds = [];
+
     #[Computed]
     public function items()
     {
@@ -20,12 +28,28 @@ new class extends Component
     /**
      * Fires the moment the dropdown opens (see the button below) — viewing
      * the list IS reading it, same "open = read" pattern the DM thread
-     * already uses. The rows themselves don't need a separate read/unread
-     * style since the badge is already cleared by the time they're shown.
+     * already uses. The badge clears immediately, but the rows that were
+     * new keep a highlight (via $freshIds) so the user can still tell which
+     * ones they are.
      */
     public function markAllAsRead(): void
     {
-        auth()->user()->unreadNotifications->markAsRead();
+        $unread = auth()->user()->unreadNotifications;
+
+        $this->freshIds = $unread->pluck('id')->all();
+        $unread->markAsRead();
+
+        unset($this->items, $this->unreadCount);
+    }
+
+    /**
+     * No history is kept on purpose — a cleared bell is a deleted bell.
+     */
+    public function clearAll(): void
+    {
+        auth()->user()->notifications()->delete();
+
+        $this->freshIds = [];
 
         unset($this->items, $this->unreadCount);
     }
@@ -54,7 +78,12 @@ new class extends Component
         x-transition.opacity.duration.150ms
         class="absolute right-0 z-20 mt-2 w-72 overflow-hidden rounded-xl border border-line bg-surface shadow-lg dark:border-line-dark dark:bg-surface-dark"
     >
-        <p class="border-b border-line px-3 py-2 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:border-line-dark dark:text-ink-faint-dark">Notifications</p>
+        <div class="flex items-center justify-between border-b border-line px-3 py-2 dark:border-line-dark">
+            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Notifications</p>
+            @if ($this->items->isNotEmpty())
+                <button type="button" wire:click="clearAll" class="cursor-pointer text-xs font-semibold text-accent-ink transition-colors hover:underline dark:text-accent-ink-dark">Clear all</button>
+            @endif
+        </div>
 
         <div class="max-h-80 overflow-y-auto">
             @forelse ($this->items as $item)
@@ -62,7 +91,10 @@ new class extends Component
                     href="{{ $item->data['url'] }}"
                     wire:navigate
                     x-on:click="open = false"
-                    class="flex items-start gap-2.5 border-b border-line px-3 py-2.5 text-xs transition-colors last:border-b-0 hover:bg-surface-sunken dark:border-line-dark dark:hover:bg-surface-sunken-dark"
+                    @class([
+                        'flex items-start gap-2.5 border-b border-line px-3 py-2.5 text-xs transition-colors last:border-b-0 hover:bg-surface-sunken dark:border-line-dark dark:hover:bg-surface-sunken-dark',
+                        'bg-accent-soft/40 dark:bg-accent-soft-dark/40' => in_array($item->id, $this->freshIds, true),
+                    ])
                 >
                     <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                         @svg($item->data['icon'], 'h-3.5 w-3.5')
