@@ -468,3 +468,68 @@ window.eosConfetti = {
         } catch (e) {}
     },
 };
+
+/**
+ * Decides when an <audio>/<video> element has really been listened to, for
+ * the "Listens: N" counter (see the listen-counter Livewire component).
+ *
+ * A listen counts once at least `threshold` (90%) of the recording's seconds
+ * have genuinely played — measured by distinct whole seconds, so replaying a
+ * line or rewinding 10 seconds never counts the same second twice, and
+ * jumping the seek bar forward (to the very end, say) credits nothing: only
+ * continuous playback marks seconds. Pausing and resuming is fine, and
+ * speed doesn't matter because it counts seconds of the recording, not of
+ * the clock.
+ *
+ * After a listen is counted the tracker stays idle until the recording
+ * ends or the learner goes back near the start, so the last 10% of the
+ * same play-through can't be credited towards the next listen.
+ */
+window.eosListenTracker = function (media, onListened, threshold = 0.9) {
+    const heard = new Set();
+    let last = null;
+    let waitingForRestart = false;
+
+    const reset = () => {
+        heard.clear();
+        last = null;
+        waitingForRestart = false;
+    };
+
+    media.addEventListener('seeking', () => { last = null; });
+    media.addEventListener('ended', reset);
+
+    media.addEventListener('timeupdate', () => {
+        const duration = media.duration;
+
+        if (!Number.isFinite(duration) || duration <= 0 || media.paused || media.seeking) {
+            return;
+        }
+
+        const now = media.currentTime;
+
+        if (waitingForRestart) {
+            if (now < duration * 0.1) {
+                reset();
+            }
+
+            return;
+        }
+
+        // Only fully played seconds are marked. Continuous playback only: a gap this big between two updates is a
+        // jump (a seek the 'seeking' event didn't flag first), not listening.
+        if (last !== null && now >= last && now - last <= 2.5) {
+            for (let second = Math.floor(last); second < Math.floor(now); second++) {
+                heard.add(second);
+            }
+        }
+
+        last = now;
+
+        if (heard.size / Math.ceil(duration) >= threshold) {
+            reset();
+            waitingForRestart = true;
+            onListened(duration);
+        }
+    });
+};

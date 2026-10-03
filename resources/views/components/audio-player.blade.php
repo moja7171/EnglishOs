@@ -21,9 +21,15 @@
         always available, never a dead end" principle). "Continue
         listening" here just resumes playback.
     @param list<array{start: float, end: float}|null> $shadowTimestamps
+    @param array{mission_code: string, source: string}|null $listen When
+        given, the player counts real listens of this recording (at least
+        90% played through, never skipped to — see eosListenTracker),
+        shows a "Listens: N" chip, and dispatches 'audio-listened' each
+        time one completes. null = no counting, the player as before.
 --}}
 @props([
     'url',
+    'listen' => null,
     'onEnded' => null,
     'segments' => [],
     'shadowLines' => [],
@@ -102,6 +108,17 @@
                 // were attached.
                 if (audio.readyState >= 1) resolveDuration();
 
+                @if ($listen)
+                    window.eosListenTracker(audio, (duration) => {
+                        Livewire.dispatchTo('listen-counter', 'listen-completed', {
+                            missionCode: {{ Illuminate\Support\Js::from($listen['mission_code']) }},
+                            source: {{ Illuminate\Support\Js::from($listen['source']) }},
+                            duration: duration,
+                        });
+                        this.$dispatch('audio-listened');
+                    });
+                @endif
+
                 this.$watch('activeSegmentIndex', (index) => {
                     this.$nextTick(() => this.$refs['segment-' + index]?.scrollIntoView({block: 'center'}));
                 });
@@ -153,6 +170,16 @@
         <audio wire:ignore wire:key="audio-el-{{ md5($url) }}" x-ref="audio" preload="auto" class="hidden">
             <source src="{{ $url }}" type="audio/mpeg">
         </audio>
+
+        @if ($listen)
+            <div class="mb-3 flex justify-end">
+                <livewire:listen-counter
+                    :mission-code="$listen['mission_code']"
+                    :source="$listen['source']"
+                    :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
+                />
+            </div>
+        @endif
 
         {{-- Seek bar — a real filled progress track under the native range
              input (transparent, custom thumb only) rather than a bare

@@ -36,7 +36,7 @@
         hasListened: false,
         init() { this.hasListened = this.$el.dataset.listened === '1' },
     }"
-    x-on:audio-ended="hasListened = true; $wire.markListened()"
+    x-on:audio-listened="hasListened = true; $wire.markListened()"
 >
     @if ($imageUrl = $this->heroImageUrl())
         <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
@@ -53,7 +53,7 @@
         <div class="mt-2">
             <x-audio-player
                 :url="$listening['audio_url'] ?? null"
-                on-ended="$dispatch('audio-ended')"
+                :listen="['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING]"
                 :segments="$this->listeningSegments()"
                 :shadow-lines="$readOnly ? [] : $shadowLines"
                 :shadow-timestamps="$readOnly ? [] : $shadowTimestamps"
