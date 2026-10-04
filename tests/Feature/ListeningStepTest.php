@@ -208,6 +208,40 @@ class ListeningStepTest extends TestCase
         $this->assertDatabaseHas('vocabulary_words', ['learner_id' => $run->learner_id, 'word' => 'morning person']);
     }
 
+    public function test_phrases_already_in_my_words_are_not_offered_again(): void
+    {
+        $run = $this->makeRun();
+        VocabularyWord::create(['learner_id' => $run->learner_id, 'word' => 'sleep in', 'meaning' => 'x', 'next_review_at' => now()]);
+
+        $component = Livewire::test('missions.steps.listening', ['run' => $run]);
+        $this->fillGapsCorrectly($component);
+
+        $component
+            ->call('save')
+            ->assertSet('alreadyTracked', [true, false])
+            ->assertSet('wordsToTrack', [false, true])
+            ->assertSee('Already in My Words')
+            ->call('addWordsToNotebook');
+
+        $this->assertSame(2, VocabularyWord::where('learner_id', $run->learner_id)->count());
+    }
+
+    public function test_when_every_phrase_is_already_in_my_words_the_add_button_is_hidden(): void
+    {
+        $run = $this->makeRun();
+        VocabularyWord::create(['learner_id' => $run->learner_id, 'word' => 'sleep in', 'meaning' => 'x', 'next_review_at' => now()]);
+        VocabularyWord::create(['learner_id' => $run->learner_id, 'word' => 'morning person', 'meaning' => 'x', 'next_review_at' => now()]);
+
+        $component = Livewire::test('missions.steps.listening', ['run' => $run]);
+        $this->fillGapsCorrectly($component);
+
+        $component
+            ->call('save')
+            ->assertSee('all of it is already in My Words')
+            ->assertDontSee('Add to My Words')
+            ->assertSee('Continue');
+    }
+
     public function test_completing_the_step_shows_a_language_recap_before_proceeding(): void
     {
         $run = $this->makeRun();

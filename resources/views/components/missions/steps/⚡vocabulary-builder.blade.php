@@ -457,11 +457,25 @@ new class extends Component
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Vocabulary saved
             </p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to keep practicing these? Pick which ones to save to My Words.</p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">@if ($this->allWordsAlreadyTracked())
+                    These words are already in My Words — nothing more to add.
+                @else
+                    Want to keep practicing these? Pick which ones to save to My Words.
+                @endif</p>
         </div>
 
         <div class="space-y-2">
             @foreach ($this->notebookCandidates() as $index => $candidate)
+                @if ($alreadyTracked[$index] ?? false)
+                    <div class="flex items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
+                        @svg('heroicon-o-check-circle', 'mt-0.5 h-4 w-4 shrink-0 text-success dark:text-success-dark')
+                        <span>
+                            <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $candidate['word'] }}</span>
+                            <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $candidate['meaning'] }}</span>
+                            <span class="block text-xs font-semibold text-success dark:text-success-dark">Already in My Words</span>
+                        </span>
+                    </div>
+                @else
                 <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
                     <input
                         type="checkbox"
@@ -473,6 +487,7 @@ new class extends Component
                         <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $candidate['meaning'] }}</span>
                     </span>
                 </label>
+                @endif
             @endforeach
         </div>
 
@@ -481,7 +496,7 @@ new class extends Component
                 <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
                 </span>
-            @else
+            @elseif (! $this->allWordsAlreadyTracked())
                 <button
                     type="button"
                     wire:click="addWordsToNotebook"
