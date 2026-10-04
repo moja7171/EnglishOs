@@ -36,9 +36,9 @@ class GeminiClient
      *
      * @param  array<int, array{role: string, text: string}>  $messages  Chat history, oldest first. role is 'user' or 'model'.
      * @param  int|null  $maxOutputTokens  A hard cap on reply length, e.g. for a chat persona that
-     *     must stay short (see ⚡ask-instructor's Sage prompt) — prompt wording alone doesn't
-     *     reliably stop the model from drifting long. Omit for callers that need their full,
-     *     uncapped answer (grading feedback, mission recaps, ...).
+     *                                     must stay short (see ⚡ask-instructor's Sage prompt) — prompt wording alone doesn't
+     *                                     reliably stop the model from drifting long. Omit for callers that need their full,
+     *                                     uncapped answer (grading feedback, mission recaps, ...).
      */
     public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null): string
     {
@@ -79,6 +79,8 @@ class GeminiClient
             return $this->attempt($this->model, $payload);
         } catch (Throwable $e) {
             if ($this->fallbackModel === '' || $this->fallbackModel === $this->model) {
+                $this->logFailure($e, $e);
+
                 throw $e;
             }
 
@@ -88,8 +90,33 @@ class GeminiClient
                 'error' => $e->getMessage(),
             ]);
 
-            return $this->attempt($this->fallbackModel, $payload);
+            try {
+                return $this->attempt($this->fallbackModel, $payload);
+            } catch (Throwable $fallbackError) {
+                $this->logFailure($e, $fallbackError);
+
+                throw $fallbackError;
+            }
         }
+    }
+
+    /**
+     * Callers catch these failures and show the learner a generic "couldn't
+     * reach the AI service" line, and production runs at LOG_LEVEL=error
+     * (which drops the fallback warning above) — so without this the real
+     * cause (relay down, 403/429/5xx, cURL timeout) was recorded nowhere.
+     * Logged at error level, once per request that exhausted every model.
+     */
+    private function logFailure(Throwable $primaryError, Throwable $finalError): void
+    {
+        Log::error('GeminiClient: request failed on every model.', [
+            'primary_model' => $this->model,
+            'primary_error' => mb_substr($primaryError->getMessage(), 0, 500),
+            'fallback_model' => $this->fallbackModel,
+            'final_error_class' => $finalError::class,
+            'final_error' => mb_substr($finalError->getMessage(), 0, 500),
+            'relay' => (string) config('services.ai_proxy.url'),
+        ]);
     }
 
     /**
