@@ -8,5 +8,14 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('notifications:prune-read')->daily();
-Schedule::command('review:send-reminders')->everyMinute()->withoutOverlapping();
+/*
+ * The shared host disables proc_open(), and Schedule::command() launches each
+ * task as a child process, so it would fail there. Closures run in-process.
+ */
+Schedule::call(fn () => Artisan::call('notifications:prune-read'))
+    ->name('notifications:prune-read')
+    ->daily();
+Schedule::call(fn () => Artisan::call('review:send-reminders'))
+    ->name('review:send-reminders')
+    ->everyMinute()
+    ->withoutOverlapping();
