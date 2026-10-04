@@ -208,11 +208,8 @@ new class extends Component
                                     type="button"
                                     wire:click="answerVocabulary({{ $index }}, {{ $option }})"
                                     x-on:click="if (!$el.dataset.counted) { $el.dataset.counted = 1; $dispatch('placement-answered') }"
-                                    @class([
-                                        'cursor-pointer rounded-xl border px-3 py-2 text-left text-sm transition-colors' => true,
-                                        'border-accent bg-accent-soft font-semibold text-accent-ink dark:border-accent-dark dark:bg-accent-soft-dark dark:text-accent-ink-dark' => ($vocabularyAnswers[$index] ?? null) === $option,
-                                        'border-line text-ink-soft hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ($vocabularyAnswers[$index] ?? null) !== $option,
-                                    ])
+                                    data-state="{{ ($vocabularyAnswers[$index] ?? null) === $option ? 'selected' : 'idle' }}"
+                                    class="choice"
                                 >{{ $text }}</button>
                             @endforeach
                         </div>
@@ -237,11 +234,8 @@ new class extends Component
                                     type="button"
                                     wire:click="answerGrammar({{ $index }}, {{ $option }})"
                                     x-on:click="if (!$el.dataset.counted) { $el.dataset.counted = 1; $dispatch('placement-answered') }"
-                                    @class([
-                                        'cursor-pointer rounded-full border px-3 py-1.5 text-sm transition-colors' => true,
-                                        'border-accent bg-accent-soft font-semibold text-accent-ink dark:border-accent-dark dark:bg-accent-soft-dark dark:text-accent-ink-dark' => ($grammarAnswers[$index] ?? null) === $option,
-                                        'border-line text-ink-soft hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ($grammarAnswers[$index] ?? null) !== $option,
-                                    ])
+                                    data-state="{{ ($grammarAnswers[$index] ?? null) === $option ? 'selected' : 'idle' }}"
+                                    class="choice w-auto! rounded-full px-5"
                                 >{{ $text }}</button>
                             @endforeach
                         </div>

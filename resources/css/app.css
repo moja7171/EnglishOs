@@ -222,8 +222,58 @@
     animation: review-card-in 0.24s ease-out both;
 }
 
+/* Multiple-choice answers (<x-quick-round>, the placement test). A correct
+   pick settles with a soft "pop"; a wrong one gives a short, low-amplitude
+   wobble — felt, not startling. The finish badge reuses the same pop. */
+@keyframes choice-pop {
+    0% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes choice-wobble {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-3px);
+    }
+    60% {
+        transform: translateX(3px);
+    }
+    85% {
+        transform: translateX(-1px);
+    }
+}
+
+@keyframes badge-pop {
+    0% {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.12);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-badge-pop {
+    animation: badge-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .animate-review-card-in {
+    .animate-review-card-in,
+    .animate-badge-pop {
         animation: none;
     }
 }
@@ -273,6 +323,67 @@
 
     .card-accent {
         @apply rounded-2xl border border-accent/30 bg-accent-soft dark:border-accent-dark/40 dark:bg-accent-soft-dark;
+    }
+
+    /* A tappable answer in a multiple-choice question. Roomy, softly rounded,
+       and pressable (the `active` squish is what makes it feel tactile on a
+       phone, where there is no hover). The state is carried by a data-state
+       attribute — idle | selected | correct | wrong | muted — so the same
+       look serves both the Alpine quick round and the Livewire placement
+       test. Danger colors flip themselves per theme; the rest are paired. */
+    .choice {
+        @apply relative flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-2xl border-[1.5px] border-line bg-surface px-3.5 py-2.5 text-left text-[15px] font-semibold text-ink transition duration-150 select-none active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100 dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark;
+    }
+
+    .choice:disabled {
+        @apply cursor-default active:scale-100;
+    }
+
+    .choice:not(:disabled):hover {
+        @apply border-accent/50 bg-accent-soft/40 dark:border-accent-dark/50 dark:bg-accent-soft-dark/40;
+    }
+
+    .choice[data-state='selected'] {
+        @apply border-accent bg-accent-soft text-accent-ink dark:border-accent-dark dark:bg-accent-soft-dark dark:text-accent-ink-dark;
+    }
+
+    .choice[data-state='correct'] {
+        @apply border-success bg-success-soft text-success dark:border-success-dark dark:bg-success-soft-dark dark:text-success-dark;
+        animation: choice-pop 0.35s ease-out;
+    }
+
+    .choice[data-state='wrong'] {
+        @apply border-danger-line bg-danger-soft text-danger-ink;
+        animation: choice-wobble 0.32s ease-in-out;
+    }
+
+    .choice[data-state='muted'] {
+        @apply opacity-55;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .choice[data-state='correct'],
+        .choice[data-state='wrong'] {
+            animation: none;
+        }
+    }
+
+    /* The small A/B/C/D chip at the start of an answer; it takes on the
+       answer's state color so the whole row reads as one piece. */
+    .choice-key {
+        @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-xs font-bold text-ink-soft transition-colors duration-150 dark:bg-surface-sunken-dark dark:text-ink-soft-dark;
+    }
+
+    .choice[data-state='selected'] .choice-key {
+        @apply bg-accent text-white dark:bg-accent-dark;
+    }
+
+    .choice[data-state='correct'] .choice-key {
+        @apply bg-success text-white dark:bg-success-dark dark:text-surface-sunken-dark;
+    }
+
+    .choice[data-state='wrong'] .choice-key {
+        @apply bg-danger text-white;
     }
 
     /* Review card with more cards waiting behind it: two paper edges peeking

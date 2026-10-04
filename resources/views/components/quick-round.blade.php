@@ -49,6 +49,8 @@
             correctStreak: 0,
             finished: false,
             skipped: false,
+            entering: false,
+            letters: ['A', 'B', 'C', 'D', 'E', 'F'],
             get adaptive() { return this.cards.some(c => c.difficulty !== undefined) },
             get card() { return this.adaptive ? (this.cards[this.shown[this.index]] ?? null) : (this.cards[this.index] ?? null) },
             get isLast() { return this.index >= this.cards.length - 1 },
@@ -80,7 +82,18 @@
                 } else {
                     this.correctStreak = 0;
                 }
-                setTimeout(() => this.advance(), 700);
+                setTimeout(() => this.advance(), 900);
+            },
+            // The next card fades/slides in: flip `entering` on for one
+            // frame so the transition has a start state to animate from.
+            settle() {
+                this.entering = true;
+                this.$nextTick(() => requestAnimationFrame(() => { this.entering = false }));
+            },
+            stateOf(i) {
+                if (this.selected === null) return 'idle';
+                if (i === this.card.correct) return 'correct';
+                return this.selected === i ? 'wrong' : 'muted';
             },
             advance() {
                 if (this.adaptive) {
@@ -94,6 +107,7 @@
                     this.shown.push(this.pickNextIndex(levels));
                     this.index++;
                     this.selected = null;
+                    this.settle();
                     return;
                 }
                 if (this.isLast) {
@@ -104,6 +118,7 @@
                 }
                 this.index++;
                 this.selected = null;
+                this.settle();
             },
             skip() {
                 this.skipped = true;
@@ -112,7 +127,7 @@
             },
         }"
         x-show="!skipped"
-        {{ $attributes->class(['rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark']) }}
+        {{ $attributes->class(['card-sunken p-4 shadow-sm sm:p-5']) }}
     >
         <template x-if="!finished && card">
             <div>
@@ -120,65 +135,73 @@
                     <div class="flex-1">
                         <x-progress-bar>
                             <div
-                                class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
+                                class="h-full rounded-full bg-accent transition-all duration-500 ease-out dark:bg-accent-dark"
                                 :style="`width: ${(index + 1) / cards.length * 100}%`"
                             ></div>
                         </x-progress-bar>
                     </div>
+                    <span class="shrink-0 text-xs font-bold text-ink-faint tabular-nums dark:text-ink-faint-dark" x-text="`${index + 1}/${cards.length}`"></span>
                     <button
                         type="button"
                         x-on:click="skip"
-                        class="shrink-0 cursor-pointer text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
+                        class="-my-1 -mr-1.5 shrink-0 cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold text-ink-faint transition-colors hover:bg-surface hover:text-ink-soft dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-soft-dark"
                     >Skip</button>
                 </div>
 
-                <p class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                    Quick check
-                    <span x-show="correctStreak >= 3" x-cloak class="inline-flex items-center gap-0.5 text-accent-ink dark:text-accent-ink-dark">
-                        @svg('heroicon-s-fire', 'h-3.5 w-3.5') <span x-text="correctStreak"></span>
-                    </span>
-                </p>
-                <p class="mt-1 text-base font-bold text-ink dark:text-ink-dark" x-text="card.prompt"></p>
+                <div
+                    class="transition duration-200 ease-out motion-reduce:transition-none"
+                    :class="entering ? 'translate-y-1.5 opacity-0' : 'translate-y-0 opacity-100'"
+                >
+                    <p class="mt-4 flex items-center gap-2 text-xs font-bold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">
+                        Quick check
+                        <span x-show="correctStreak >= 3" x-cloak class="inline-flex items-center gap-0.5 rounded-full bg-accent-soft px-2 py-0.5 normal-case dark:bg-accent-soft-dark">
+                            @svg('heroicon-s-fire', 'h-3.5 w-3.5') <span x-text="correctStreak"></span>
+                        </span>
+                    </p>
+                    <p class="mt-1.5 font-display text-xl leading-snug font-bold text-ink dark:text-ink-dark" x-text="card.prompt"></p>
 
-                <div class="mt-3 grid gap-2" :class="card.options.length <= 2 ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'">
-                    <template x-for="(option, i) in card.options" :key="i">
-                        <button
-                            type="button"
-                            x-on:click="pick(i)"
-                            :disabled="selected !== null"
-                            :class="{
-                                'border-success bg-success-soft text-success dark:border-success-dark dark:bg-success-soft-dark dark:text-success-dark': selected !== null && i === card.correct,
-                                'border-danger-line bg-danger-soft text-danger-ink': selected === i && i !== card.correct,
-                                'border-line text-ink hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark': selected === null || (i !== card.correct && selected !== i),
-                                'p-1.5': card.optionType === 'image',
-                                'px-3 py-2.5 text-left': card.optionType !== 'image',
-                            }"
-                            class="cursor-pointer overflow-hidden rounded-xl border text-sm font-semibold transition-colors disabled:cursor-not-allowed"
-                        >
-                            {{-- The `<img>` markup only ships in the server-rendered HTML when
-                                 THIS invocation actually has an image card — every caller that
-                                 never uses optionType:'image' (My Words, Listening, Grammar in
-                                 Context, Mission Brief) keeps emitting exactly the same output
-                                 as before this feature existed, not a dead `<template>` block. --}}
-                            @if (collect($cards)->contains('optionType', 'image'))
-                            <template x-if="card.optionType === 'image'">
-                                <img :src="option" alt="" class="h-20 w-full rounded-lg object-cover">
-                            </template>
-                            @endif
-                            <template x-if="card.optionType !== 'image'">
-                                <span x-text="option"></span>
-                            </template>
-                        </button>
-                    </template>
+                    <div class="mt-4 grid gap-2.5" :class="card.optionType === 'image' ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'">
+                        <template x-for="(option, i) in card.options" :key="i">
+                            <button
+                                type="button"
+                                x-on:click="pick(i)"
+                                :disabled="selected !== null"
+                                :data-state="stateOf(i)"
+                                :class="card.optionType === 'image' ? 'overflow-hidden p-1.5!' : ''"
+                                class="choice"
+                            >
+                                {{-- The `<img>` markup only ships in the server-rendered HTML when
+                                     THIS invocation actually has an image card — every caller that
+                                     never uses optionType:'image' (My Words, Listening, Grammar in
+                                     Context, Mission Brief) keeps emitting exactly the same output
+                                     as before this feature existed, not a dead `<template>` block. --}}
+                                @if (collect($cards)->contains('optionType', 'image'))
+                                <template x-if="card.optionType === 'image'">
+                                    <img :src="option" alt="" class="h-20 w-full rounded-xl object-cover">
+                                </template>
+                                @endif
+                                <template x-if="card.optionType !== 'image'">
+                                    <span class="flex min-w-0 flex-1 items-center gap-3">
+                                        <span class="choice-key" x-text="letters[i]"></span>
+                                        <span class="min-w-0 flex-1 leading-snug" x-text="option"></span>
+                                        <span x-show="stateOf(i) === 'correct'" x-cloak class="shrink-0">@svg('heroicon-s-check-circle', 'h-5 w-5')</span>
+                                        <span x-show="stateOf(i) === 'wrong'" x-cloak class="shrink-0">@svg('heroicon-s-x-circle', 'h-5 w-5')</span>
+                                    </span>
+                                </template>
+                            </button>
+                        </template>
+                    </div>
                 </div>
             </div>
         </template>
 
         <template x-if="finished">
-            <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-success dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-4 w-4')
-                <span x-text="correctCount === cards.length ? `All ${cards.length} — nice!` : `${correctCount} of ${cards.length} — nice!`"></span>
-            </p>
+            <div class="flex items-center gap-3">
+                <span class="animate-badge-pop flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
+                    @svg('heroicon-s-check', 'h-6 w-6')
+                </span>
+                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark" x-text="correctCount === cards.length ? `All ${cards.length} — nice!` : `${correctCount} of ${cards.length} — nice!`"></p>
+            </div>
         </template>
     </div>
 @endif
