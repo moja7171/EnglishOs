@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
 use App\Models\Evidence;
@@ -9,6 +10,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use PreviewsStep;
     use TracksAiUsage;
 
     public MissionRun $run;
@@ -43,7 +45,9 @@ new class extends Component
      */
     public function mount(): void
     {
-        if ($this->readOnly) {
+        // A preview has no mistakes of its own to show — leave it on the
+        // "not reviewed yet" state, which the view words for previews.
+        if ($this->readOnly && ! $this->preview) {
             $items = $this->run->errorLogItems;
             $this->mistakes = $items->map(fn ($i) => [
                 'error' => $i->error,
@@ -224,16 +228,20 @@ new class extends Component
         <div class="rounded-xl border border-dashed border-line p-6 text-center dark:border-line-dark">
             <div wire:loading.remove wire:target="generate">
                 @svg('heroicon-o-magnifying-glass', 'mx-auto h-6 w-6 text-ink-faint dark:text-ink-faint-dark')
-                <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your mistakes haven't been reviewed yet.</p>
-                <button
-                    wire:click="generate"
-                    wire:loading.attr="disabled"
-                    wire:target="generate"
-                    class="mt-3 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    <span wire:loading.remove wire:target="generate">Review my mistakes</span>
-                    <span wire:loading wire:target="generate">Reviewing…</span>
-                </button>
+                @if ($preview)
+                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Here the AI reviews the mistakes you made in your own speaking and writing, then you fix each one with a new example. It fills in once you reach this step.</p>
+                @else
+                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your mistakes haven't been reviewed yet.</p>
+                    <button
+                        wire:click="generate"
+                        wire:loading.attr="disabled"
+                        wire:target="generate"
+                        class="mt-3 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="generate">Review my mistakes</span>
+                        <span wire:loading wire:target="generate">Reviewing…</span>
+                    </button>
+                @endif
             </div>
             <div wire:loading wire:target="generate">
                 <x-ai-thinking label="Reviewing everything you said and wrote…" class="mx-auto max-w-xs" />

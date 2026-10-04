@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
@@ -13,6 +14,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use PreviewsStep;
     use WithFileUploads;
     use TracksAiUsage;
     use TracksCheckAttempts;

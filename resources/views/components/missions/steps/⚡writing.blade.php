@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
@@ -9,6 +10,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use PreviewsStep;
     use TracksAiUsage;
 
     public MissionRun $run;

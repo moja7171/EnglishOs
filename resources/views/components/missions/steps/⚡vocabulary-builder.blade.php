@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
@@ -24,6 +25,7 @@ use Livewire\Component;
  */
 new class extends Component
 {
+    use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
     use TracksVocabularyNotebook;

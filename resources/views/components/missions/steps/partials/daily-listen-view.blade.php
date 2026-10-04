@@ -53,7 +53,7 @@
         <div class="mt-2">
             <x-audio-player
                 :url="$listening['audio_url'] ?? null"
-                :listen="['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING]"
+                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING]"
                 :segments="$this->listeningSegments()"
                 :shadow-lines="$readOnly ? [] : $shadowLines"
                 :shadow-timestamps="$readOnly ? [] : $shadowTimestamps"

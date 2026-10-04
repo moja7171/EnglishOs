@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
@@ -11,6 +12,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use PreviewsStep;
     use WithFileUploads;
 
     public MissionRun $run;
