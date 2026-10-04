@@ -36,6 +36,7 @@ class AiDiagnosticTest extends TestCase
     {
         Http::fake([
             'relay.test/*' => Http::response('bad auth secret-relay-value', 401),
+            '*' => Http::response('blocked', 403),
         ]);
 
         $response = $this->get('/_diag/ai?token=diag-token');
@@ -44,6 +45,8 @@ class AiDiagnosticTest extends TestCase
         $response->assertSee('HTTP 401', false);
         $response->assertSee('FAILED', false);
         $response->assertSee('response status: 401', false);
+        $response->assertSee('Sage-style chat', false);
+        $response->assertSee('SentenceChecker::check()', false);
         $response->assertDontSee('secret-relay-value', false);
         $response->assertDontSee('secret-gemini-key', false);
     }
