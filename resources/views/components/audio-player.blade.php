@@ -348,7 +348,7 @@
                 x-transition.opacity.duration.200ms
                 class="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-4 dark:border-accent-dark/30 dark:bg-accent-dark/10"
             >
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Now you say it</p>
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Now you say it</p>
 
                 @foreach ($shadowLines as $index => $line)
                     <div x-show="activeShadowIndex === {{ $index }}" x-cloak>
