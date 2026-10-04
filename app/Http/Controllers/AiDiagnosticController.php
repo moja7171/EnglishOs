@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Services\GeminiClient;
-use App\Services\SentenceChecker;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -43,11 +42,11 @@ class AiDiagnosticController extends Controller
             '== 2. Exact app path: GeminiClient::chat() — what Sage and Check run ==',
             ...$this->probeGeminiClient(),
             '',
-            '== 2b. Realistic requests: Sage-style chat and a real sentence check (full app chain) ==',
-            ...$this->probeRealisticRequests(),
-            '',
-            '== 2c. Relay POST body-size x HTTP version sweep (real countTokens call; finds what kills big requests) ==',
+            '== 2c. Relay POST body-size sweep (HTTP/1.1, real countTokens call; finds the size where requests start to hang) ==',
             ...$this->probeRelaySizeSweep(),
+            '',
+            '== 2d. Control: big POST bodies straight to Google, no relay and no Cloudflare (403 fast = body got out; timeout = host drops big outbound bodies) ==',
+            ...$this->probeDirectBigBodies(),
             '',
             '== 3. Direct to Google, no relay (informational — expected to fail on a filtered host) ==',
             ...$this->probeDirect(),
@@ -109,44 +108,6 @@ class AiDiagnosticController extends Controller
     }
 
     /** @return array<int, string> */
-    private function probeRealisticRequests(): array
-    {
-        $systemPrompt = str_repeat('You are Sage, a warm, concise English tutor for an intermediate learner. Keep answers short and encouraging. ', 12);
-        $lines = [];
-
-        foreach (range(1, 1) as $run) {
-            $lines[] = "Sage-style chat (systemInstruction + maxOutputTokens 220 + history), run {$run}:";
-
-            foreach ($this->timed(fn (): string => 'OK — '.mb_substr(app(GeminiClient::class)->chat([
-                ['role' => 'user', 'text' => 'Hi Sage'],
-                ['role' => 'model', 'text' => 'Hello! How can I help with your English today?'],
-                ['role' => 'user', 'text' => 'What is the difference between "make" and "do"?'],
-            ], $systemPrompt, 220), 0, 120)) as $line) {
-                $lines[] = '  '.str_replace(chr(10), chr(10).'  ', $line);
-            }
-        }
-
-        foreach (range(1, 1) as $run) {
-            $lines[] = "SentenceChecker::check() (what the Check button runs), run {$run}:";
-
-            foreach ($this->timed(function (): string {
-                $result = app(SentenceChecker::class)->check(
-                    'Judge whether the learner used the target word correctly.',
-                    'the word is missing or used with the wrong meaning',
-                    'A personal sentence using the word "routine".',
-                    'I have a morning routine, I wake up at seven.',
-                );
-
-                return 'OK — '.json_encode($result);
-            }) as $line) {
-                $lines[] = '  '.str_replace(chr(10), chr(10).'  ', $line);
-            }
-        }
-
-        return $lines;
-    }
-
-    /** @return array<int, string> */
     private function probeRelaySizeSweep(): array
     {
         if ($this->relayUrl() === '') {
@@ -156,7 +117,7 @@ class AiDiagnosticController extends Controller
         $target = 'https://generativelanguage.googleapis.com/v1beta/models/'.config('services.gemini.model').':countTokens';
         $lines = [];
 
-        foreach ([[100, 1.1], [100, 2.0], [3000, 1.1], [3000, 2.0], [8000, 1.1], [8000, 2.0]] as [$bytes, $version]) {
+        foreach ([[100, 1.1], [400, 1.1], [800, 1.1], [1100, 1.1], [1300, 1.1], [1450, 1.1], [2000, 1.1], [3000, 1.1]] as [$bytes, $version]) {
             $lines[] = "body ~{$bytes} bytes, HTTP/{$version} to relay:";
 
             foreach ($this->timed(function () use ($bytes, $version, $target): string {
@@ -166,12 +127,35 @@ class AiDiagnosticController extends Controller
                     'X-Relay-Auth' => (string) config('services.ai_proxy.secret'),
                 ])
                     ->withOptions(['version' => $version])
-                    ->timeout(10)
+                    ->timeout(6)
                     ->post($this->relayUrl(), ['contents' => [['role' => 'user', 'parts' => [['text' => str_repeat('hello ', intdiv($bytes, 6))]]]]]);
 
                 $negotiated = $response->handlerStats()['http_version'] ?? '?';
 
                 return 'HTTP '.$response->status().' (negotiated curl http_version code '.$negotiated.', 2=1.1, 3=h2) — '.mb_substr(preg_replace('/\s+/', ' ', $response->body()), 0, 80);
+            }) as $line) {
+                $lines[] = '  '.$line;
+            }
+        }
+
+        return $lines;
+    }
+
+    /** @return array<int, string> */
+    private function probeDirectBigBodies(): array
+    {
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/'.config('services.gemini.model').':countTokens';
+        $lines = [];
+
+        foreach ([3000, 8000] as $bytes) {
+            $lines[] = "body ~{$bytes} bytes, direct to Google:";
+
+            foreach ($this->timed(function () use ($bytes, $url): string {
+                $response = Http::withHeaders(['x-goog-api-key' => (string) config('services.gemini.key')])
+                    ->timeout(8)
+                    ->post($url, ['contents' => [['role' => 'user', 'parts' => [['text' => str_repeat('hello ', intdiv($bytes, 6))]]]]]);
+
+                return 'HTTP '.$response->status().' — '.mb_substr((string) preg_replace('/\s+/', ' ', strip_tags($response->body())), 0, 60);
             }) as $line) {
                 $lines[] = '  '.$line;
             }
