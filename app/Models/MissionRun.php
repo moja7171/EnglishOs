@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
-#[Fillable(['learner_id', 'mission_id', 'status', 'started_at', 'completed_at'])]
+#[Fillable(['learner_id', 'mission_id', 'status', 'started_at', 'completed_at', 'listened_phases'])]
 class MissionRun extends Model
 {
     use HasFactory;
@@ -36,7 +36,22 @@ class MissionRun extends Model
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'struggle_signal_count' => 'integer',
+            'listened_phases' => 'array',
         ];
+    }
+
+    public function hasListenedIn(string $phase): bool
+    {
+        return in_array($phase, $this->listened_phases ?? [], true);
+    }
+
+    public function markListenedIn(string $phase): void
+    {
+        if ($this->hasListenedIn($phase)) {
+            return;
+        }
+
+        $this->update(['listened_phases' => [...($this->listened_phases ?? []), $phase]]);
     }
 
     /**

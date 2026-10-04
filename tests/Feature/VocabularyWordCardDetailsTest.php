@@ -117,6 +117,35 @@ class VocabularyWordCardDetailsTest extends TestCase
         $this->assertNull($unmatched->fresh()->example);
     }
 
+    public function test_the_target_word_is_picked_out_in_a_sentence(): void
+    {
+        $run = $this->makeRun();
+        $bold = fn (string $word) => '<strong class="font-bold text-accent-ink dark:text-accent-ink-dark">'.$word.'</strong>';
+
+        $commute = $this->makeWord($run, 'commute');
+        $this->assertSame('I '.$bold('commute').' by train.', (string) $commute->highlightIn('I commute by train.'));
+        $this->assertSame('He '.$bold('commutes').' daily.', (string) $commute->highlightIn('He commutes daily.')); // an ending is allowed
+
+        $phrasal = $this->makeWord($run, 'get up');
+        $this->assertSame('She '.$bold('gets up').' at six.', (string) $phrasal->highlightIn('She gets up at six.'));
+
+        $this->assertSame('I '.$bold('Commute').' a lot.', (string) $commute->highlightIn('I Commute a lot.')); // case-insensitive
+    }
+
+    public function test_the_highlight_leaves_unmatched_sentences_plain_and_escapes_html(): void
+    {
+        $run = $this->makeRun();
+
+        $oversleep = $this->makeWord($run, 'oversleep');
+        $this->assertSame('I overslept again.', (string) $oversleep->highlightIn('I overslept again.')); // irregular form: no guess
+
+        // A short word is only matched exactly, never as the start of another word.
+        $go = $this->makeWord($run, 'go');
+        $this->assertSame('That is good.', (string) $go->highlightIn('That is good.'));
+
+        $this->assertSame('a &lt;b&gt;bold&lt;/b&gt; move', (string) $go->highlightIn('a <b>bold</b> move'));
+    }
+
     public function test_a_gap_with_no_surrounding_text_gives_no_example(): void
     {
         $this->assertNull(VocabularyWord::exampleFromGap(['phrase' => 'sleep in']));

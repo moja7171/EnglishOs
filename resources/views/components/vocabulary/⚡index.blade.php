@@ -6,12 +6,6 @@ use Livewire\Component;
 
 new class extends Component
 {
-    /** True once the learner has opened the recall card to see the answer. */
-    public bool $revealed = false;
-
-    /** True when the learner said "I remember" before opening the card. */
-    public bool $recalled = false;
-
     #[Computed]
     public function dueWords()
     {
@@ -33,35 +27,17 @@ new class extends Component
         return auth()->user()->vocabularyWords()->orderBy('word')->get();
     }
 
-    public function revealWord(bool $remembered = false): void
-    {
-        $this->revealed = true;
-        $this->recalled = $remembered;
-    }
-
     /**
-     * Again/Good/Easy map onto SM-2's 0-5 quality scale the same way
-     * Anki's simplified grading does: a real fail, a normal pass, and a
-     * confident pass. Only reachable once the card has been opened, and
-     * a learner who wasn't sure ("show me") can only ever fail the word —
-     * checked here, not just hidden in the card, so it holds server-side.
+     * The card flips and animates in the browser (see <x-vocabulary-review-card>),
+     * so this is the one round-trip per word. Again/Good/Easy map onto
+     * SM-2's 0-5 quality scale (1/4/5) the way Anki's simplified grading
+     * does. A learner who wasn't sure ("show me") can only ever fail the
+     * word — enforced here, not just by hiding the other buttons.
      */
-    public function gradeSelf(int $quality): void
+    public function gradeWord(int $quality, bool $remembered): void
     {
-        $word = $this->currentWord;
+        $this->currentWord?->review($remembered ? $quality : 1);
 
-        if (! $word || ! $this->revealed) {
-            return;
-        }
-
-        $word->review($this->recalled ? $quality : 1);
-        $this->advance();
-    }
-
-    private function advance(): void
-    {
-        $this->revealed = false;
-        $this->recalled = false;
         unset($this->dueWords, $this->currentWord);
     }
 };
@@ -96,14 +72,12 @@ new class extends Component
         </div>
     @else
         @php $word = $this->currentWord; @endphp
-        <div wire:key="review-{{ $word->id }}" class="space-y-4 card p-5">
-            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                {{ $this->dueWords->count() }} {{ Str::plural('word', $this->dueWords->count()) }} due for review
-            </p>
-
-            <x-speak-word :word="$word->word" block class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark" />
-
-            <x-vocabulary-review-card :word="$word" :revealed="$revealed" :recalled="$recalled" />
+        <div wire:key="review-{{ $word->id }}">
+            <x-vocabulary-review-card
+                :word="$word"
+                :remaining="$this->dueWords->count() - 1"
+                :caption="$this->dueWords->count().' due'"
+            />
         </div>
     @endif
 

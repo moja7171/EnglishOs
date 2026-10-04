@@ -10,14 +10,17 @@
     Any class passed in styles the whole wrapper, so a chip's border,
     padding and colors simply wrap the text and icon together.
 
-    @param string $word  The text to show and speak.
+    @param string $word  The text to speak, and to show unless a slot is given.
     @param string $size  'md' (default) or 'sm' for tight spots like chips.
     @param bool  $block  Lay the wrapper out as a block-level row instead of inline.
+    @param bool  $top    Pin the icon to the first line (for a sentence that wraps).
+    Slot (optional): markup to show instead of the plain $word — e.g. a
+    sentence with its target word in bold. The icon still speaks $word.
 --}}
-@props(['word', 'size' => 'md', 'block' => false])
+@props(['word', 'size' => 'md', 'block' => false, 'top' => false])
 
-<span {{ $attributes->class([$block ? 'flex' : 'inline-flex', 'items-center', $size === 'sm' ? 'gap-1' : 'gap-1.5']) }}>
-    <span>{{ $word }}</span>
+<span {{ $attributes->class([$block ? 'flex' : 'inline-flex', $top ? 'items-start' : 'items-center', $size === 'sm' ? 'gap-1' : 'gap-1.5']) }}>
+    <span>{{ $slot->isNotEmpty() ? $slot : $word }}</span>
     <button
         type="button"
         x-data

@@ -27,7 +27,11 @@
         given, the player counts real listens of this recording (at least
         90% played through, never skipped to — see eosListenTracker),
         shows a "Listens: N" chip, and dispatches 'audio-listened' each
-        time one completes. null = no counting, the player as before.
+        time one completes — and also when the audio plays out to its
+        natural end with at least 60% genuinely heard, so a callback that
+        gates a Continue button doesn't lock out someone whose pauses and
+        replays kept them just under 90% (that case never touches the
+        counter). null = no counting, the player as before.
 --}}
 @props([
     'url',
@@ -118,7 +122,7 @@
                             duration: duration,
                         });
                         this.$dispatch('audio-listened');
-                    });
+                    }, 0.9, () => this.$dispatch('audio-listened'));
                 @endif
 
                 this.$watch('activeSegmentIndex', (index) => {

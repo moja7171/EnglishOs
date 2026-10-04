@@ -55,6 +55,8 @@ trait DailyListenStep
     public function mount(): void
     {
         if (! $this->readOnly) {
+            $this->listened = $this->run->hasListenedIn($this->phaseKey());
+
             return;
         }
 
@@ -73,11 +75,17 @@ trait DailyListenStep
      * Called the moment the audio finishes playing once — real completed
      * listens only (the same "audio-ended" signal Day 1's own Listening
      * step uses), not just pressing play. Shadowing only makes sense once
-     * the learner has actually heard the line in context first.
+     * the learner has actually heard the line in context first. Remembered
+     * on the run, so leaving mid-step and coming back doesn't lock Continue
+     * behind another full listen.
      */
     public function markListened(): void
     {
         $this->listened = true;
+
+        if (! $this->readOnly) {
+            $this->run->markListenedIn($this->phaseKey());
+        }
     }
 
     /**
