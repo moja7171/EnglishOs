@@ -120,6 +120,23 @@ new class extends Component
         return ['title' => $catalog['title'], 'grammar' => $catalog['grammar']];
     }
 
+    /**
+     * The synced text of every in-app pick of the day, by its level —
+     * read once per render instead of from inside the markup.
+     *
+     * @return array<int, list<array{text: string, start: float, end: float, speaker?: string}>>
+     */
+    #[Computed]
+    public function localSegments(): array
+    {
+        $picks = app(ListeningPicks::class);
+
+        return collect($this->picks)
+            ->filter(fn (array $pick) => $pick['local'] !== null)
+            ->map(fn (array $pick) => $picks->segmentsFor($this->missionCode, $pick['local']['slug']))
+            ->all();
+    }
+
     #[Computed]
     public function listenedToday(): bool
     {
@@ -263,7 +280,9 @@ new class extends Component
                     @if ($pick['grammar'])
                         <span class="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Grammar of the day</span>
                     @endif
-                    @if ($pick['tx'] === 'page')
+                    @if ($pick['local'])
+                        <span class="rounded-full bg-success-soft px-2.5 py-0.5 text-xs text-success dark:bg-success-soft-dark dark:text-success-dark">Plays here · text follows the audio</span>
+                    @elseif ($pick['tx'] === 'page')
                         <span class="rounded-full bg-success-soft px-2.5 py-0.5 text-xs text-success dark:bg-success-soft-dark dark:text-success-dark">Full transcript</span>
                     @endif
                     @if ($pick['src'] === 'teded')
@@ -274,15 +293,42 @@ new class extends Component
                     @endif
                 </div>
 
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-0.5">
-                    <a
-                        href="{{ $pick['url'] }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >Listen @svg('heroicon-o-arrow-top-right-on-square', 'h-4 w-4')</a>
-                    @if ($pick['tx'] === 'link' && $pick['txUrl'])
-                        <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
+                <div x-data="{ open: false, loaded: false }" class="space-y-3">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-0.5">
+                        @if ($pick['local'])
+                            <button
+                                type="button"
+                                x-on:click="open = ! open; loaded = true"
+                                x-bind:aria-expanded="open"
+                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                            >
+                                @svg('heroicon-s-play', 'h-4 w-4')
+                                <span x-text="open ? 'Hide player' : 'Listen here'">Listen here</span>
+                            </button>
+                            <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-accent-ink underline dark:text-accent-ink-dark">Original page</a>
+                        @else
+                            <a
+                                href="{{ $pick['url'] }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                            >Listen @svg('heroicon-o-arrow-top-right-on-square', 'h-4 w-4')</a>
+                        @endif
+                        @if ($pick['tx'] === 'link' && $pick['txUrl'])
+                            <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
+                        @endif
+                    </div>
+
+                    @if ($pick['local'])
+                        {{-- Built on the first click, so the page doesn't start downloading
+                             three audio files nobody asked for; hidden, not destroyed, after. --}}
+                        <div wire:ignore>
+                            <template x-if="loaded">
+                                <div x-show="open" x-cloak>
+                                    <x-audio-player :url="$pick['local']['audioUrl']" :segments="$this->localSegments[$level] ?? []" />
+                                </div>
+                            </template>
+                        </div>
                     @endif
                 </div>
             </article>
