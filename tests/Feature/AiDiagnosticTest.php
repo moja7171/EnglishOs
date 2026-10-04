@@ -47,6 +47,7 @@ class AiDiagnosticTest extends TestCase
         $response->assertSee('response status: 401', false);
         $response->assertSee('body-size sweep', false);
         $response->assertSee('Control: big POST bodies', false);
+        $response->assertSee('relay VPS itself', false);
         $response->assertDontSee('secret-relay-value', false);
         $response->assertDontSee('secret-gemini-key', false);
     }
