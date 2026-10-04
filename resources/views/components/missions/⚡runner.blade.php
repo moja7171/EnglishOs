@@ -310,6 +310,7 @@ new class extends Component
 
     @if ($this->showOverview && $this->currentStepKey !== null)
         <x-mission-listening-link :mission="$mission" />
+        <x-mission-pi-link :mission="$mission" />
 
         {{-- Mission overview, styled as a journey path --}}
         <div class="relative pl-11">
@@ -531,5 +532,6 @@ new class extends Component
         </article>
 
         <x-mission-listening-link :mission="$mission" />
+        <x-mission-pi-link :mission="$mission" />
     @endif
 </div>

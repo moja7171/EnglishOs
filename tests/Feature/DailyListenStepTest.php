@@ -123,13 +123,12 @@ class DailyListenStepTest extends TestCase
             ->assertDontSee('Show transcript');
     }
 
-    public function test_shows_a_pi_pronunciation_coach_card_for_this_days_own_shadow_lines(): void
+    public function test_does_not_show_a_pi_practice_card_inside_the_step(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->assertSee('Pronunciation Coach chat in your voice AI app')
-            ->assertSee('I usually get up early.');
+            ->assertDontSee('chat in your voice AI app');
     }
 
     public function test_this_days_own_shadow_lines_are_shown(): void

@@ -67,13 +67,12 @@ class VideoShadowingStepTest extends TestCase
         return $component->set('watchedWithCaptions', true);
     }
 
-    public function test_shows_a_pi_pronunciation_coach_card_grounded_in_the_shadow_lines(): void
+    public function test_does_not_show_a_pi_practice_card_inside_the_step(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->assertSee('Pronunciation Coach chat in your voice AI app')
-            ->assertSee('having cereal this morning');
+            ->assertDontSee('chat in your voice AI app');
     }
 
     public function test_the_video_is_embedded_with_its_captions(): void

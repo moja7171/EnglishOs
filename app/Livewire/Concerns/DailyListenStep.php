@@ -6,7 +6,6 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
-use App\Services\PiPrompts;
 use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -236,12 +235,6 @@ trait DailyListenStep
         }
 
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-'.$this->phaseKey(), $query);
-    }
-
-    /** @return array{instruction: string, prompt: string}|null */
-    public function piTask(): ?array
-    {
-        return app(PiPrompts::class)->coachTask($this->run, $this->phaseKey());
     }
 
     abstract protected function phaseKey(): string;

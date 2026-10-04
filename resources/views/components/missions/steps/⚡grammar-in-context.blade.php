@@ -4,7 +4,6 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\PiPrompts;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -419,12 +418,6 @@ new class extends Component
     {
         return "eos-draft:{$this->run->id}:grammar_in_context:";
     }
-
-    /** @return array{instruction: string, prompt: string}|null */
-    public function piTask(): ?array
-    {
-        return app(PiPrompts::class)->teacherTask($this->run->mission);
-    }
 };
 ?>
 
@@ -605,10 +598,6 @@ new class extends Component
                 </div>
             @endif
         @endif
-
-        @unless ($readOnly)
-            <x-pi-practice-card role-label="Teacher" :task="$this->piTask()" />
-        @endunless
 
         <div>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Make it personal</p>

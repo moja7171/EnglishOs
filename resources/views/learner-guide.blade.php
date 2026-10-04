@@ -182,7 +182,13 @@
                     <ul class="mt-1.5 list-disc space-y-1.5 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
                         <li>اگه دوستی روی پلتفرم داری، باهاش تمرین کن</li>
                         <li>جلوی آینه جواب سوال‌های همون روز رو بدون آمادگی تمرین کن</li>
+                        <li>آخر هر روز، ۱۰ دقیقه تمرین صوتی با یه هوش مصنوعی صوتی (Pi یا هر کدوم که خودت دوست داری): روز اول تلفظ، روز دوم گرامر، روز سوم مکالمه، روز چهارم تعریف کردن ماجرای ماموریت با زبان خودت. «Voice practice» توی صفحه‌ی اصلی پرامپت آماده‌ش رو داره؛ بعدش «I practiced» رو بزن تا توی استریک حساب بشه.</li>
                     </ul>
+                    <a
+                        href="{{ route('pi.practice') }}"
+                        wire:navigate
+                        class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    >باز کردن تمرین صوتی امروز @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</a>
                 </div>
                 <div class="card p-4">
                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">

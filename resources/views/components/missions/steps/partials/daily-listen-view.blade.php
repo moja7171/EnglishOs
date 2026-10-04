@@ -108,10 +108,6 @@
         @error('shadowRecordings')
             <p class="text-sm text-danger-ink">{{ $message }}</p>
         @enderror
-
-        @unless ($readOnly)
-            <x-pi-practice-card role-label="Pronunciation Coach" :task="$this->piTask()" />
-        @endunless
     </div>
 
     @unless ($readOnly)
