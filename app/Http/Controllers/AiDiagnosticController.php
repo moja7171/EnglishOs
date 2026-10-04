@@ -56,6 +56,10 @@ class AiDiagnosticController extends Controller
             ...$this->logTail(),
         ];
 
+        if ($request->boolean('clear_log')) {
+            array_push($lines, '', '== 6. Clearing laravel.log (?clear_log=1) ==', $this->clearLog());
+        }
+
         return response($this->redact(implode("\n", $lines)), 200, ['Content-Type' => 'text/plain; charset=utf-8']);
     }
 
@@ -202,6 +206,26 @@ class AiDiagnosticController extends Controller
         $entries = array_map(fn (string $line): string => mb_substr($line, 0, 400), array_slice(array_values($entries), -20));
 
         return $entries === [] ? ['(none in the last 3 MB)'] : $entries;
+    }
+
+    /**
+     * Empties laravel.log (the report above has already printed what was
+     * worth keeping from it). Truncates in place rather than deleting so the
+     * file keeps its owner and permissions for the app to keep writing to.
+     */
+    private function clearLog(): string
+    {
+        $path = storage_path('logs/laravel.log');
+
+        if (! is_file($path)) {
+            return '(no laravel.log file)';
+        }
+
+        $before = filesize($path);
+
+        return file_put_contents($path, '') === false
+            ? 'FAILED to clear (not writable?)'
+            : 'cleared: freed '.number_format($before).' bytes';
     }
 
     /** @return array<int, string> */
