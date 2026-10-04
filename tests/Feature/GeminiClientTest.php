@@ -90,6 +90,29 @@ class GeminiClientTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    public function test_exhausting_every_model_logs_the_real_cause_at_error_level(): void
+    {
+        Log::spy();
+
+        Http::fake([
+            self::PRIMARY_URL => Http::response(['error' => 'quota'], 429),
+            self::FALLBACK_URL => Http::response(['error' => 'blocked'], 403),
+        ]);
+
+        try {
+            (new GeminiClient('test-key', 'gemini-3.5-flash-lite', 'gemini-flash-latest'))
+                ->chat([['role' => 'user', 'text' => 'Hi']]);
+        } catch (\Throwable) {
+            // expected
+        }
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(fn (string $message, array $context) => str_contains($context['primary_error'], '429')
+                && str_contains($context['final_error'], '403')
+                && ! str_contains(json_encode($context), 'test-key'));
+    }
+
     public function test_max_output_tokens_is_sent_only_when_given(): void
     {
         Http::fake([

@@ -36,6 +36,7 @@ class AiDiagnosticTest extends TestCase
     {
         Http::fake([
             'relay.test/*' => Http::response('bad auth secret-relay-value', 401),
+            '*' => Http::response('blocked', 403),
         ]);
 
         $response = $this->get('/_diag/ai?token=diag-token');
@@ -44,7 +45,28 @@ class AiDiagnosticTest extends TestCase
         $response->assertSee('HTTP 401', false);
         $response->assertSee('FAILED', false);
         $response->assertSee('response status: 401', false);
+        $response->assertSee('Sage-style chat', false);
+        $response->assertSee('SentenceChecker::check()', false);
         $response->assertDontSee('secret-relay-value', false);
         $response->assertDontSee('secret-gemini-key', false);
+    }
+
+    public function test_clear_log_only_empties_the_log_when_asked(): void
+    {
+        Http::fake(['*' => Http::response('blocked', 403)]);
+        $log = storage_path('logs/laravel.log');
+        $original = is_file($log) ? file_get_contents($log) : null;
+
+        try {
+            file_put_contents($log, 'old noisy log');
+
+            $this->get('/_diag/ai?token=diag-token')->assertOk();
+            $this->assertStringContainsString('old noisy log', file_get_contents($log));
+
+            $this->get('/_diag/ai?token=diag-token&clear_log=1')->assertOk()->assertSee('cleared: freed', false);
+            $this->assertSame('', file_get_contents($log));
+        } finally {
+            $original === null ? @unlink($log) : file_put_contents($log, $original);
+        }
     }
 }

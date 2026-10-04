@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\GeminiClient;
+use App\Services\SentenceChecker;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -42,12 +43,22 @@ class AiDiagnosticController extends Controller
             '== 2. Exact app path: GeminiClient::chat() — what Sage and Check run ==',
             ...$this->probeGeminiClient(),
             '',
+            '== 2b. Realistic requests: Sage-style chat and a real sentence check (full app chain, 2 runs each) ==',
+            ...$this->probeRealisticRequests(),
+            '',
             '== 3. Direct to Google, no relay (informational — expected to fail on a filtered host) ==',
             ...$this->probeDirect(),
             '',
-            '== 4. Tail of storage/logs/laravel.log ==',
+            '== 4. Recent non-proc_open errors/warnings in laravel.log (newest last) ==',
+            ...$this->recentLogErrors(),
+            '',
+            '== 5. Tail of storage/logs/laravel.log ==',
             ...$this->logTail(),
         ];
+
+        if ($request->boolean('clear_log')) {
+            array_push($lines, '', '== 6. Clearing laravel.log (?clear_log=1) ==', $this->clearLog());
+        }
 
         return response($this->redact(implode("\n", $lines)), 200, ['Content-Type' => 'text/plain; charset=utf-8']);
     }
@@ -95,6 +106,44 @@ class AiDiagnosticController extends Controller
     }
 
     /** @return array<int, string> */
+    private function probeRealisticRequests(): array
+    {
+        $systemPrompt = str_repeat('You are Sage, a warm, concise English tutor for an intermediate learner. Keep answers short and encouraging. ', 12);
+        $lines = [];
+
+        foreach (range(1, 2) as $run) {
+            $lines[] = "Sage-style chat (systemInstruction + maxOutputTokens 220 + history), run {$run}:";
+
+            foreach ($this->timed(fn (): string => 'OK — '.mb_substr(app(GeminiClient::class)->chat([
+                ['role' => 'user', 'text' => 'Hi Sage'],
+                ['role' => 'model', 'text' => 'Hello! How can I help with your English today?'],
+                ['role' => 'user', 'text' => 'What is the difference between "make" and "do"?'],
+            ], $systemPrompt, 220), 0, 120)) as $line) {
+                $lines[] = '  '.str_replace(chr(10), chr(10).'  ', $line);
+            }
+        }
+
+        foreach (range(1, 2) as $run) {
+            $lines[] = "SentenceChecker::check() (what the Check button runs), run {$run}:";
+
+            foreach ($this->timed(function (): string {
+                $result = app(SentenceChecker::class)->check(
+                    'Judge whether the learner used the target word correctly.',
+                    'the word is missing or used with the wrong meaning',
+                    'A personal sentence using the word "routine".',
+                    'I have a morning routine, I wake up at seven.',
+                );
+
+                return 'OK — '.json_encode($result);
+            }) as $line) {
+                $lines[] = '  '.str_replace(chr(10), chr(10).'  ', $line);
+            }
+        }
+
+        return $lines;
+    }
+
+    /** @return array<int, string> */
     private function probeDirect(): array
     {
         $url = 'https://generativelanguage.googleapis.com/v1beta/models/'.config('services.gemini.fallback_model').':generateContent';
@@ -130,6 +179,53 @@ class AiDiagnosticController extends Controller
         }
 
         return [$result, sprintf('(took %.1fs)', microtime(true) - $start)];
+    }
+
+    /**
+     * First line of each recent ERROR/WARNING entry, skipping the host's
+     * constant scheduler proc_open noise that fills the log.
+     *
+     * @return array<int, string>
+     */
+    private function recentLogErrors(): array
+    {
+        $path = storage_path('logs/laravel.log');
+
+        if (! is_file($path)) {
+            return ['(no laravel.log file)'];
+        }
+
+        $handle = fopen($path, 'rb');
+        fseek($handle, max(0, filesize($path) - 3_000_000));
+        $chunk = (string) stream_get_contents($handle);
+        fclose($handle);
+
+        preg_match_all('/^\[\d{4}-\d\d-\d\d [\d:]+\] \w+\.(?:ERROR|WARNING): .*$/m', $chunk, $matches);
+
+        $entries = array_filter($matches[0], fn (string $line): bool => ! str_contains($line, 'proc_open'));
+        $entries = array_map(fn (string $line): string => mb_substr($line, 0, 400), array_slice(array_values($entries), -20));
+
+        return $entries === [] ? ['(none in the last 3 MB)'] : $entries;
+    }
+
+    /**
+     * Empties laravel.log (the report above has already printed what was
+     * worth keeping from it). Truncates in place rather than deleting so the
+     * file keeps its owner and permissions for the app to keep writing to.
+     */
+    private function clearLog(): string
+    {
+        $path = storage_path('logs/laravel.log');
+
+        if (! is_file($path)) {
+            return '(no laravel.log file)';
+        }
+
+        $before = filesize($path);
+
+        return file_put_contents($path, '') === false
+            ? 'FAILED to clear (not writable?)'
+            : 'cleared: freed '.number_format($before).' bytes';
     }
 
     /** @return array<int, string> */
