@@ -325,7 +325,11 @@ new class extends Component
                         <div wire:ignore>
                             <template x-if="loaded">
                                 <div x-show="open" x-cloak>
-                                    <x-audio-player :url="$pick['local']['audioUrl']" :segments="$this->localSegments[$level] ?? []" />
+                                    <x-audio-player
+                                        :url="$pick['local']['audioUrl']"
+                                        :segments="$this->localSegments[$level] ?? []"
+                                        onListened="$wire.markListened()"
+                                    />
                                 </div>
                             </template>
                         </div>
@@ -347,7 +351,7 @@ new class extends Component
                 wire:loading.attr="disabled"
                 class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
             >I listened @svg('heroicon-s-check', 'h-4 w-4')</button>
-            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak</span>
+            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak. Listening to a pick here all the way through ticks it for you.</span>
         @endif
     </section>
 

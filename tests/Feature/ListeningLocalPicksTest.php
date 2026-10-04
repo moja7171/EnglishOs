@@ -104,6 +104,7 @@ class ListeningLocalPicksTest extends TestCase
             ->assertSeeHtml('src="'.route('listening.audio', ['M01', 'lee-fixture']).'"')
             ->assertSeeInOrder(['Alex', 'First fixture line.', 'Sam', 'Second fixture line.'])
             ->assertSee('Original page')
+            ->assertSeeHtml('window.eosListenTracker(audio, () => { $wire.markListened() }, 0.9);')
             ->assertSeeHtml('href="https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240607"');
     }
 
