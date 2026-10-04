@@ -5,9 +5,12 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Notifications\ReviewReminder;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
+use Minishlink\WebPush\MessageSentReport;
 use Mockery\MockInterface;
 use NotificationChannels\WebPush\WebPushChannel;
 use Tests\TestCase;
@@ -150,6 +153,52 @@ class ReviewReminderTest extends TestCase
         $this->expectReminders(0);
 
         $this->runCommand();
+    }
+
+    public function test_a_window_opened_before_midnight_is_still_honoured_after_it(): void
+    {
+        // 00:10 in Tehran; the chosen 23:30 was 40 minutes ago, on the day before.
+        Carbon::setTestNow('2026-10-03 20:40:00');
+        $user = $this->learner(['review_reminder_time' => '23:30']);
+        $this->expectReminders(1);
+
+        $this->runCommand();
+
+        $this->assertSame('2026-10-03', $user->fresh()->last_review_reminder_on->toDateString());
+    }
+
+    public function test_the_same_late_window_is_not_sent_twice(): void
+    {
+        Carbon::setTestNow('2026-10-03 20:40:00');
+        $this->learner(['review_reminder_time' => '23:30', 'last_review_reminder_on' => '2026-10-03']);
+        $this->expectReminders(0);
+
+        $this->runCommand();
+    }
+
+    public function test_a_review_after_the_learners_midnight_counts_as_today(): void
+    {
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        $user = $this->learner();
+        // 01:30 in Tehran on the 3rd — still the 2nd by the server's UTC clock.
+        $this->dueWord($user, ['word' => 'late', 'last_reviewed_at' => '2026-10-02 22:00:00', 'next_review_at' => now()->addDay()]);
+        $this->expectReminders(0);
+
+        $this->runCommand();
+    }
+
+    public function test_a_push_the_service_refuses_is_logged(): void
+    {
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        $this->learner();
+        Log::spy();
+
+        $refusal = new MessageSentReport(new Request('POST', 'https://push.example.test/send/1'), null, false, 'unreachable');
+        $this->mock(WebPushChannel::class)->shouldReceive('send')->once()->andReturn([$refusal]);
+
+        $this->runCommand();
+
+        Log::shouldHaveReceived('error')->once();
     }
 
     public function test_a_failing_push_does_not_stop_the_other_learners(): void

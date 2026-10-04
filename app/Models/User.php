@@ -351,13 +351,26 @@ class User extends Authenticatable
     public const DAILY_REVIEW_LIMIT = 8;
 
     /**
-     * Items reviewed since midnight, from any review flow (Daily Review,
-     * My Words, Speaking Recall) — they all stamp last_reviewed_at.
+     * The moment the learner's current day began, as UTC for querying: their
+     * own midnight (the browser's zone while they are in the app, the saved
+     * one for the scheduled reminder), not the server's.
+     */
+    public function localDayStart(): Carbon
+    {
+        return now($this->browserTimezone() ?? $this->reminderTimezone())->startOfDay()->utc();
+    }
+
+    /**
+     * Items reviewed since the learner's own midnight, from any review flow
+     * (Daily Review, My Words, Speaking Recall) — they all stamp
+     * last_reviewed_at.
      */
     public function reviewedTodayCount(): int
     {
+        $dayStart = $this->localDayStart();
+
         return collect($this->reviewSources())
-            ->sum(fn (HasMany $relation) => $relation->where('last_reviewed_at', '>=', today())->count());
+            ->sum(fn (HasMany $relation) => $relation->where('last_reviewed_at', '>=', $dayStart)->count());
     }
 
     public function dailyReviewAllowance(): int

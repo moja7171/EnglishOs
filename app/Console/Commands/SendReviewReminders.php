@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Notifications\ReviewReminder;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use NotificationChannels\WebPush\WebPushChannel;
 use Throwable;
 
 /**
@@ -45,18 +48,24 @@ class SendReviewReminders extends Command
 
     private function remind(User $user): bool
     {
-        $timezone = $user->reminderTimezone();
-        $localNow = now($timezone);
-        $today = $localNow->toDateString();
+        $localNow = now($user->reminderTimezone());
 
-        if ($user->last_review_reminder_on?->toDateString() === $today) {
+        // The latest occurrence of the chosen time: today's, or yesterday's
+        // while today's hasn't come yet — so a window that opened just before
+        // midnight is still honoured after it.
+        $chosenTime = $localNow->copy()->setTimeFromTimeString($user->review_reminder_time);
+
+        if ($chosenTime->greaterThan($localNow)) {
+            $chosenTime->subDay();
+        }
+
+        $day = $chosenTime->toDateString();
+
+        if ($user->last_review_reminder_on?->toDateString() === $day) {
             return false;
         }
 
-        $chosenTime = $localNow->copy()->setTimeFromTimeString($user->review_reminder_time);
-        $minutesLate = ($localNow->getTimestamp() - $chosenTime->getTimestamp()) / 60;
-
-        if ($minutesLate < 0 || $minutesLate > self::GRACE_MINUTES) {
+        if ($chosenTime->diffInMinutes($localNow) > self::GRACE_MINUTES) {
             return false;
         }
 
@@ -73,14 +82,37 @@ class SendReviewReminders extends Command
 
         // Marked before sending: a push service that is slow or unreachable
         // must not be retried every 15 minutes for the rest of the window.
-        $user->forceFill(['last_review_reminder_on' => $today])->save();
+        $user->forceFill(['last_review_reminder_on' => $day])->save();
 
-        try {
-            $user->notify(new ReviewReminder($dueCount));
-        } catch (Throwable $e) {
-            report($e);
-        }
+        $this->send($user, $dueCount);
 
         return true;
+    }
+
+    /**
+     * Goes straight through the push channel (not notify()) to see whether
+     * the push service accepted it — a refusal is logged at error level, the
+     * only level production keeps, so an unreachable service shows up in the
+     * log instead of reminders silently never arriving.
+     */
+    private function send(User $user, int $dueCount): void
+    {
+        try {
+            $reports = app(WebPushChannel::class)->send($user, new ReviewReminder($dueCount));
+        } catch (Throwable $e) {
+            report($e);
+
+            return;
+        }
+
+        foreach ($reports as $report) {
+            if (! $report->isSuccess()) {
+                Log::error('Review reminder push was not accepted', [
+                    'user_id' => $user->id,
+                    'expired' => $report->isSubscriptionExpired(),
+                    'reason' => Str::limit($report->getReason(), 200),
+                ]);
+            }
+        }
     }
 }
