@@ -667,8 +667,16 @@ window.eosConfetti = {
  * After a listen is counted the tracker stays idle until the recording
  * ends or the learner goes back near the start, so the last 10% of the
  * same play-through can't be credited towards the next listen.
+ *
+ * `onFinished` is the forgiving companion for gating a "Continue" button
+ * (it never touches the counter): when the recording plays to its natural
+ * end and at least `finishedThreshold` of its seconds were genuinely heard,
+ * it fires even though the strict 90% rule fell short — pauses, replays and
+ * auto-pauses can cost a few seconds, but a learner who clearly listened
+ * through to the end must not stay locked out. Jumping straight to the end
+ * credits nothing, so it still can't be skipped.
  */
-window.eosListenTracker = function (media, onListened, threshold = 0.9) {
+window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6) {
     const heard = new Set();
     let last = null;
     let waitingForRestart = false;
@@ -680,7 +688,15 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9) {
     };
 
     media.addEventListener('seeking', () => { last = null; });
-    media.addEventListener('ended', reset);
+    media.addEventListener('ended', () => {
+        const duration = media.duration;
+
+        if (onFinished && ! waitingForRestart && Number.isFinite(duration) && duration > 0 && heard.size / Math.ceil(duration) >= finishedThreshold) {
+            onFinished();
+        }
+
+        reset();
+    });
 
     media.addEventListener('timeupdate', () => {
         const duration = media.duration;

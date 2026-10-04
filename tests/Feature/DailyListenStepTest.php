@@ -174,6 +174,23 @@ class DailyListenStepTest extends TestCase
         $this->assertSame('daily_listen_2', $run->fresh()->currentStepKey());
     }
 
+    public function test_having_listened_is_remembered_when_the_learner_comes_back(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSet('listened', false)
+            ->call('markListened');
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run->fresh()])
+            ->assertSet('listened', true);
+
+        // Per day, and never counted as the step's own Evidence.
+        Livewire::test('missions.steps.daily-listen-3', ['run' => $run->fresh()])
+            ->assertSet('listened', false);
+        $this->assertSame('daily_listen_2', $run->fresh()->currentStepKey());
+    }
+
     public function test_continue_is_blocked_until_every_line_is_shadowed(): void
     {
         $run = $this->makeRun();
