@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AiDiagnosticController;
 use App\Http\Controllers\ListeningAudioController;
+use App\Http\Controllers\ServiceHealthController;
 use App\Models\DirectMessage;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
@@ -16,6 +17,10 @@ use Illuminate\Support\Facades\Storage;
 // Temporary: token-gated report on why the host can't reach Gemini. Remove
 // together with AiDiagnosticController once the cause is found.
 Route::get('/_diag/ai', AiDiagnosticController::class)->middleware('throttle:6,1');
+
+// Token-gated health report for the cron + phone-alert service (reminders and
+// every other push). Same token as above; see ServiceHealthController.
+Route::get('/_diag/health', ServiceHealthController::class)->middleware('throttle:6,1');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', fn () => view('auth.login'))->name('login');

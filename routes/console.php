@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -19,3 +20,11 @@ Schedule::call(fn () => Artisan::call('review:send-reminders'))
     ->name('review:send-reminders')
     ->everyMinute()
     ->withoutOverlapping();
+
+/*
+ * Proof the host's cron really fires every minute, for a host with no
+ * terminal: /_diag/ai?only=scheduler shows when this last ran.
+ */
+Schedule::call(fn () => Cache::forever('scheduler:last-run', now()->getTimestamp()))
+    ->name('scheduler:heartbeat')
+    ->everyMinute();
