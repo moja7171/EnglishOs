@@ -299,6 +299,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<PiPracticeLog, $this>
+     */
+    public function piPracticeLogs(): HasMany
+    {
+        return $this->hasMany(PiPracticeLog::class, 'learner_id');
+    }
+
+    /**
      * @return HasMany<AudioListen, $this>
      */
     public function audioListens(): HasMany
@@ -437,6 +445,23 @@ class User extends Authenticatable
         );
     }
 
+    public function hasPracticedWithPiToday(): bool
+    {
+        return $this->piPracticeLogs()->where('practiced_on', today()->toDateString())->exists();
+    }
+
+    /**
+     * The "I practiced" tick for today's outside-the-app voice practice
+     * with Pi. Idempotent in the same way as recordListeningToday().
+     */
+    public function recordPiPracticeToday(string $missionCode, int $dayNumber): PiPracticeLog
+    {
+        return $this->piPracticeLogs()->firstOrCreate(
+            ['practiced_on' => today()->toDateString()],
+            ['mission_code' => $missionCode, 'day_number' => $dayNumber],
+        );
+    }
+
     /**
      * @return HasMany<PlacementTest, $this>
      */
@@ -456,8 +481,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Every actively-tracked spaced-repetition item (repetitions > 0 —
-     * see HasSpacedRepetition::needsWrittenReview()) across all four
+     * Every actively-tracked spaced-repetition item (repetitions > 0,
+     * i.e. reviewed successfully at least once) across all four
      * review systems, with its current freshness() — sorted so the most
      * decayed item comes first, since that's the one worth surfacing.
      * Feeds the "My Progress" page's memory-freshness section.
@@ -603,6 +628,9 @@ class User extends Authenticatable
      * a day active. It is a self-report with nothing to attach, counted on
      * purpose so the daily listening habit keeps the streak alive. Every
      * streak consumer reads this method, so they all stay consistent.
+     * The "I practiced" tick for the daily voice practice with Pi
+     * (PiPracticeLog) is the same kind of self-report and counts the same
+     * way, independently of the listening tick.
      *
      * @return Collection<int, Carbon> most recent date first
      */
@@ -612,11 +640,16 @@ class User extends Authenticatable
             ->where('learner_id', $this->id)
             ->selectRaw('DATE(listening_logs.listened_on) as day');
 
+        $practicedDays = PiPracticeLog::query()
+            ->where('learner_id', $this->id)
+            ->selectRaw('DATE(pi_practice_logs.practiced_on) as day');
+
         return Evidence::query()
             ->join('mission_runs', 'mission_runs.id', '=', 'evidences.mission_run_id')
             ->where('mission_runs.learner_id', $this->id)
             ->selectRaw('DATE(evidences.created_at) as day')
             ->union($listenedDays)
+            ->union($practicedDays)
             ->orderByDesc('day')
             ->pluck('day')
             ->map(fn ($day) => Carbon::parse($day));

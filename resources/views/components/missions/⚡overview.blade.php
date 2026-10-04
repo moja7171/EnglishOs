@@ -4,6 +4,8 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Services\ListeningPicks;
 use App\Services\PexelsClient;
+use App\Services\PiPractice;
+use App\Services\PiPrompts;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -46,6 +48,31 @@ new class extends Component
 
         return $day + [
             'listenedToday' => auth()->user()->hasListenedToday(),
+        ];
+    }
+
+    /**
+     * The daily voice practice with Pi (see App\Services\PiPractice and the
+     * /pi page), shown at the bottom of the Today box as one quiet row.
+     * The row points at the day the learner just finished and hasn't
+     * practiced yet, otherwise at their current day; null when there is
+     * neither (every mission done, nothing finished today).
+     *
+     * @return array{missionCode: string, dayNumber: int, title: string, practicedToday: bool}|null
+     */
+    #[Computed]
+    public function piPractice(): ?array
+    {
+        $learner = auth()->user();
+        $target = app(PiPractice::class)->targetFor($learner, $this->program['today']);
+
+        if ($target === null) {
+            return null;
+        }
+
+        return $target + [
+            'title' => PiPrompts::DAYS[$target['dayNumber']]['title'],
+            'practicedToday' => $learner->hasPracticedWithPiToday(),
         ];
     }
 
@@ -313,6 +340,9 @@ new class extends Component
                 wire:navigate
                 class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
             >{{ $currentStep ? 'Continue' : 'Open mission' }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+            @if ($piPractice = $this->piPractice)
+                <x-pi-today :practice="$piPractice" />
+            @endif
 
         @elseif ($today['kind'] === 'checkpoint')
             {{-- S3 of [[project_growth_without_discouragement_stories]] —
@@ -341,6 +371,9 @@ new class extends Component
             @if ($review = $this->review)
                 <x-review-today :review="$review" />
             @endif
+            @if ($piPractice = $this->piPractice)
+                <x-pi-today :practice="$piPractice" />
+            @endif
 
         @elseif ($today['kind'] === 'start_next')
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · Start a new mission</p>
@@ -362,12 +395,18 @@ new class extends Component
             @if ($review = $this->review)
                 <x-review-today :review="$review" />
             @endif
+            @if ($piPractice = $this->piPractice)
+                <x-pi-today :practice="$piPractice" />
+            @endif
 
         @else
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">100 days · done</p>
             <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">All 24 missions complete. Keep the streak with Daily Review — and keep talking.</p>
             @if ($review = $this->review)
                 <x-review-today :review="$review" />
+            @endif
+            @if ($piPractice = $this->piPractice)
+                <x-pi-today :practice="$piPractice" />
             @endif
         @endif
     </section>

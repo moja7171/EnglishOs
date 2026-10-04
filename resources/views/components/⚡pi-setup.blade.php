@@ -7,9 +7,9 @@ use Livewire\Component;
  * A one-time screen before a learner's first mission: set up 3 persistent
  * chats in Pi (or any other live-voice AI assistant), each with a fixed
  * persona (teacher/language partner/pronunciation coach — see
- * App\Services\PiPrompts). Individual missions then just say "paste this
- * in your Teacher chat" via <x-pi-practice-card> — this page is the only
- * place the setup message itself is shown.
+ * App\Services\PiPrompts). The daily voice practice page (/pi) then just says
+ * "paste this in your Teacher chat" via <x-pi-practice-card> — this page is
+ * the only place the setup message itself is shown.
  *
  * The home route (routes/web.php) forces this on anyone whose
  * pi_onboarded_at is still null; existing users are grandfathered by that
@@ -38,8 +38,8 @@ new class extends Component
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Set up your voice practice partners</h1>
         <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
             Pi and Google's Gemini Live are both free, separate voice AI apps — you talk to them live and they write
-            down both sides as you go. Use whichever one you like (or both). Missions will send you to it for real
-            spoken practice. Open it now and start 3 separate chats, one per card below, and paste in that card's
+            down both sides as you go. Use whichever one you like (or both). Your daily voice practice sends you to it
+            for real spoken practice. Open it now and start 3 separate chats, one per card below, and paste in that card's
             message to set its role. You only do this once.
         </p>
     </header>

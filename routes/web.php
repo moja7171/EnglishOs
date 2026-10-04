@@ -66,6 +66,14 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('listening', compact('missionCode', 'day'));
     })->where(['missionCode' => 'M(0[1-9]|1[0-9]|2[0-4])', 'day' => '[1-4]'])->name('listening.show');
 
+    // The daily voice practice with Pi, outside the app — same shape as
+    // /listening: no parameters = the day the learner is pointed at today,
+    // /pi/M03/2 opens a specific day (days ahead of the learner are bounced
+    // back by the component, which alone knows their progress).
+    Route::get('/pi/{missionCode?}/{day?}', function (?string $missionCode = null, ?int $day = null) {
+        return view('pi-practice', compact('missionCode', 'day'));
+    })->where(['missionCode' => 'M(0[1-9]|1[0-9]|2[0-4])', 'day' => '[1-4]'])->name('pi.practice');
+
     Route::get('/placement', function () {
         return view('placement');
     })->name('placement');

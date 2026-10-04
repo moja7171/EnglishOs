@@ -8,7 +8,6 @@ use App\Models\MissionRun;
 use App\Services\AiFeedbackCard;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
-use App\Services\PiPrompts;
 use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -458,12 +457,6 @@ new class extends Component
     {
         return "eos-draft:{$this->run->id}:ai_conversation_1:";
     }
-
-    /** @return array{instruction: string, prompt: string}|null */
-    public function piTask(): ?array
-    {
-        return app(PiPrompts::class)->partnerTask($this->run, 'ai_conversation_1');
-    }
 };
 ?>
 
@@ -583,13 +576,13 @@ new class extends Component
     @elseif (! $warmUpDone)
         {{-- Warm-up round: was the standalone Activation step. UX audit fix:
              this used to read like a multi-question quiz (bold task text +
-             4-item question list + Pi card all with equal visual weight)
+             4-item question list all with equal visual weight)
              when it's actually ONE continuous ~2-minute recording — see
              finishWarmUp(), which just checks a file exists and transcribes
              it, never per-question. Below: the task box is the only
              required thing (accent left border); the "same questions" list
-             and the Pi card are optional context, deliberately de-weighted
-             (lighter box / collapsed) so they don't read as a checklist.
+             is optional context, deliberately de-weighted (lighter box /
+             collapsed) so it doesn't read as a checklist.
 
              No <x-substep-nav> here: the two phases aren't both pre-rendered
              behind one toggle (the interview only exists once finishWarmUp()
@@ -628,16 +621,6 @@ new class extends Component
                     </div>
                 </div>
             @endif
-
-            <details class="group mt-3 rounded-2xl border border-dashed border-line dark:border-line-dark">
-                <summary class="flex cursor-pointer list-none items-center justify-between p-3 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
-                    Want more practice? (optional, in your voice AI app)
-                    @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
-                </summary>
-                <div class="px-3 pb-3">
-                    <x-pi-practice-card role-label="Language Partner" :task="$this->piTask()" />
-                </div>
-            </details>
 
             <p class="mt-3 text-sm text-ink-soft dark:text-ink-soft-dark">
                 This is one continuous recording — just talk freely for 2 minutes, you don't need to answer the ideas above in order.

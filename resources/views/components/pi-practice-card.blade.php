@@ -1,8 +1,7 @@
 {{--
-    An optional practice prompt for one of the learner's 3 persistent Pi
-    chats (see App\Services\PiPrompts and /pi-setup) — purely a suggestion,
-    never touches Evidence, never blocks the step, same register as
-    <x-optional-challenge>/<x-practice-with-friend>.
+    A practice prompt for one of the learner's 3 persistent Pi chats (see
+    App\Services\PiPrompts and /pi-setup), shown on the daily voice practice
+    page (/pi) — purely a suggestion, never touches Evidence.
 
     Renders nothing if $task is null (the caller passes a PiPrompts
     *Task() result straight through — same fail-soft convention as every
@@ -10,8 +9,9 @@
 
     @param string $roleLabel One of PiPrompts::onboardingRoles()'s labels, e.g. "Teacher".
     @param array{instruction: string, prompt: string}|null $task
+    @param int $rows Visible height of the prompt box.
 --}}
-@props(['roleLabel', 'task'])
+@props(['roleLabel', 'task', 'rows' => 2])
 
 @if ($task)
     <div
@@ -26,7 +26,7 @@
         <textarea
             x-ref="prompt"
             readonly
-            rows="2"
+            rows="{{ $rows }}"
             class="mt-2 w-full resize-none rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark"
         >{{ $task['prompt'] }}</textarea>
         <button

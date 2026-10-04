@@ -71,12 +71,17 @@ new class extends Component
     }
 
     /**
-     * @return list<array{word: string, meaning: string}>
+     * @return list<array{word: string, meaning: string, pos: ?string, example: ?string}>
      */
     protected function notebookCandidates(): array
     {
         return collect($this->newWords())
-            ->map(fn ($item) => ['word' => $item['phrase'], 'meaning' => $item['definition'] ?? ''])
+            ->map(fn ($item) => [
+                'word' => $item['phrase'],
+                'meaning' => $item['definition'] ?? '',
+                'pos' => $item['pos'] ?? null,
+                'example' => $item['example'] ?? null,
+            ])
             ->values()
             ->all();
     }
@@ -385,9 +390,23 @@ new class extends Component
 
             @if (count($this->newWords()))
                 <div>
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Here are today's new words — pick which ones to save to My Words.</p>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">@if ($this->allWordsAlreadyTracked())
+                            Here are today's new words — all of them are already in My Words.
+                        @else
+                            Here are today's new words — pick which ones to save to My Words.
+                        @endif</p>
                     <div class="mt-2 space-y-2">
                         @foreach ($this->newWords() as $index => $word)
+                            @if ($alreadyTracked[$index] ?? false)
+                                <div class="flex items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
+                                    @svg('heroicon-o-check-circle', 'mt-0.5 h-4 w-4 shrink-0 text-success dark:text-success-dark')
+                                    <span>
+                                        <x-speak-word :word="$word['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
+                                        <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</span>
+                                        <span class="block text-xs font-semibold text-success dark:text-success-dark">Already in My Words</span>
+                                    </span>
+                                </div>
+                            @else
                             <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
                                 <input
                                     type="checkbox"
@@ -395,10 +414,11 @@ new class extends Component
                                     class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                                 >
                                 <span>
-                                    <x-pronounce-on-tap :word="$word['phrase']" class="block text-sm font-bold text-ink dark:text-ink-dark" />
+                                    <x-speak-word :word="$word['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
                                     <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</span>
                                 </span>
                             </label>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -410,7 +430,7 @@ new class extends Component
                         <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
                             @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
                         </span>
-                    @elseif (count($this->newWords()))
+                    @elseif (count($this->newWords()) && ! $this->allWordsAlreadyTracked())
                         <button
                             type="button"
                             wire:click="addWordsToNotebook"
@@ -482,7 +502,7 @@ new class extends Component
                     @foreach ($this->newWords() as $word)
                         <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                             <div class="flex items-baseline gap-2">
-                                <x-pronounce-on-tap :word="$word['phrase']" class="text-sm font-bold text-ink dark:text-ink-dark" />
+                                <x-speak-word :word="$word['phrase']" class="text-sm font-bold text-ink dark:text-ink-dark" />
                                 @if (! empty($word['pos']))
                                     <p class="text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $word['pos'] }}</p>
                                 @endif

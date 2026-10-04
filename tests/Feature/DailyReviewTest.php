@@ -7,7 +7,6 @@ use App\Models\GrammarPoint;
 use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
-use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -84,7 +83,7 @@ class DailyReviewTest extends TestCase
         $this->assertEqualsCanonicalizing(['word', 'speaking', 'error', 'grammar'], array_column($queue, 'type'));
     }
 
-    public function test_an_experienced_word_requires_revealing_the_meaning_before_grading(): void
+    public function test_a_word_requires_opening_its_card_before_grading(): void
     {
         $learner = User::factory()->create();
         $word = $this->makeDueWord($learner, ['repetitions' => 2]);
@@ -92,134 +91,103 @@ class DailyReviewTest extends TestCase
 
         Livewire::test('review.index')
             ->assertSee('commute')
-            ->assertDontSee('Did you remember it?')
+            ->assertSee('I remember')
+            ->assertDontSee('to travel to work')
+            ->assertDontSee('Did you really remember it?')
             ->call('gradeSelf', 5);
 
         $this->assertSame(2, $word->fresh()->repetitions);
     }
 
-    public function test_revealing_an_experienced_word_then_grading_advances_its_schedule(): void
+    public function test_saying_i_remember_opens_the_card_and_grading_advances_its_schedule(): void
     {
         $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner, ['repetitions' => 2]);
+        $word = $this->makeDueWord($learner, [
+            'repetitions' => 2,
+            'pos' => 'verb',
+            'example' => 'I commute by train.',
+            'user_sentence' => 'I commute to the office every day.',
+        ]);
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->call('reveal')
+            ->call('revealWord', true)
             ->assertSee('to travel to work')
+            ->assertSee('I commute by train.')
+            ->assertSee('I commute to the office every day.')
+            ->assertSee('Knew it instantly')
             ->call('gradeSelf', 5);
 
         $this->assertSame(3, $word->fresh()->repetitions);
     }
 
     /**
-     * Task 1 of the Daily Review UX audit: a brand-new word (or one just
-     * knocked back to day 1 by a failed review) must get the exact same
-     * AI-checked written-review flow My Words uses — see
-     * VocabularyWord::needsWrittenReview() and ChecksVocabularyWordSentences.
-     * Before this, Daily Review always showed the shallow reveal + tap-to-grade
-     * flow regardless of needsWrittenReview(), letting a learner clear a
-     * brand-new word's very first review with one tap on "Knew it instantly"
-     * and never write a real sentence.
+     * A brand-new word used to be forced through an AI-checked written
+     * review here; now every word, new or not, gets the same quick recall
+     * card — the sentence was already written and checked in the mission.
      */
-    public function test_a_brand_new_due_word_shows_the_written_review_flow_not_the_quick_grade_buttons(): void
+    public function test_a_brand_new_word_gets_the_same_recall_card_as_any_other(): void
     {
         $learner = User::factory()->create();
-        $this->makeDueWord($learner); // repetitions 0 — the model default
+        $word = $this->makeDueWord($learner); // repetitions 0 — the model default
 
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->assertSee('commute')
-            ->assertSee('to travel to work')
-            ->assertSee('Write a sentence using this word.')
-            ->assertDontSee('Show meaning')
-            ->assertDontSee('Knew it instantly');
-    }
-
-    /**
-     * The actual bypass this whole task closes: gradeSelf() must refuse to
-     * grade a word that still needsWrittenReview(), even if called
-     * directly (e.g. a crafted wire:click), not merely hidden in the view.
-     */
-    public function test_grading_self_is_a_no_op_on_a_word_that_still_needs_a_written_review(): void
-    {
-        $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner); // repetitions 0
-
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')->call('gradeSelf', 5);
-
-        $this->assertSame(0, $word->fresh()->repetitions);
-        $this->assertNull($word->fresh()->last_reviewed_at);
-    }
-
-    public function test_checking_a_good_sentence_in_daily_review_advances_the_word_and_shows_feedback(): void
-    {
-        $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
-            ->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
-
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')
-            ->set('wordSentence', 'I commute to work by train every day.')
-            ->call('checkWordSentence')
-            ->assertSee('Looks good');
+            ->assertSee('I remember')
+            ->assertDontSee('Write a sentence using this word.')
+            ->call('revealWord', true)
+            ->call('gradeSelf', 4);
 
         $this->assertSame(1, $word->fresh()->repetitions);
     }
 
-    public function test_a_major_issue_in_daily_review_sends_the_word_back_to_day_1(): void
+    public function test_a_word_the_learner_was_not_sure_about_can_only_be_graded_as_forgotten(): void
     {
         $learner = User::factory()->create();
         $word = $this->makeDueWord($learner, ['repetitions' => 3, 'interval_days' => 16, 'ease_factor' => 2.8]);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
-            ->andReturn(json_encode(['severity' => 'major', 'hint' => 'The word is missing.'])));
-
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->set('wordSentence', 'Not using the word at all.')
-            ->call('checkWordSentence');
+            ->call('revealWord', false)
+            ->assertSee('see it again soon')
+            ->assertDontSee('Knew it instantly')
+            ->call('gradeSelf', 5);
 
         $fresh = $word->fresh();
         $this->assertSame(0, $fresh->repetitions);
         $this->assertSame(1, $fresh->interval_days);
     }
 
-    /**
-     * "Forgot it" (gradeSelf(1), quality < 3) resets repetitions to 0 —
-     * exactly needsWrittenReview()'s condition — so the same gate must
-     * come right back the next time this word is due, in Daily Review same
-     * as My Words.
-     */
-    public function test_forgetting_an_experienced_word_reactivates_the_written_review_gate(): void
+    public function test_the_recall_state_resets_for_the_next_item(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['word' => 'commute', 'next_review_at' => now()->subMinutes(2)]);
+        $this->makeDueWord($learner, ['word' => 'errand', 'next_review_at' => now()->subMinute()]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->call('revealWord', true)
+            ->call('gradeSelf', 4)
+            ->assertSet('revealed', false)
+            ->assertSet('recalledWord', false)
+            ->assertSee('I remember');
+    }
+
+    public function test_forgetting_an_experienced_word_brings_it_back_tomorrow(): void
     {
         $learner = User::factory()->create();
         $word = $this->makeDueWord($learner, ['repetitions' => 2]);
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->call('reveal')
+            ->call('revealWord', true)
             ->call('gradeSelf', 1);
 
         $fresh = $word->fresh();
         $this->assertSame(0, $fresh->repetitions);
-        $this->assertTrue($fresh->needsWrittenReview());
-
-        // A failed review schedules the next attempt a day out — pull it
-        // back to "due now" to check what Daily Review would show THEN,
-        // without waiting on the real calendar.
-        $fresh->update(['next_review_at' => now()->subMinute()]);
-
-        Livewire::test('review.index')
-            ->assertSee('Write a sentence using this word.')
-            ->assertDontSee('Show meaning');
+        $this->assertFalse($fresh->isDue());
+        $this->assertEqualsWithDelta(now()->addDay()->timestamp, $fresh->next_review_at->timestamp, 5);
     }
 
     public function test_an_error_pattern_requires_revealing_the_fix_before_grading(): void

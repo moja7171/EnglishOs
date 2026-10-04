@@ -1,6 +1,5 @@
 <?php
 
-use App\Livewire\Concerns\ChecksVocabularyWordSentences;
 use App\Models\ErrorPatternReview;
 use App\Models\GrammarPoint;
 use App\Models\SpeakingPrompt;
@@ -14,7 +13,6 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
-    use ChecksVocabularyWordSentences;
     use WithFileUploads;
 
     /**
@@ -37,26 +35,12 @@ new class extends Component
      * True once the meaning/correction has been revealed for the current
      * item — error patterns and grammar points start hidden ("what was
      * wrong?" / "quick reminder?") so grading is an honest self-test, not
-     * just reading and tapping Easy. A word never uses this flag: see
-     * $wordSentence below for why it has its own gate instead.
+     * just reading and tapping Easy. A word's recall card shares this flag.
      */
     public bool $revealed = false;
 
-    /**
-     * The written-review path for a word item — see
-     * ChecksVocabularyWordSentences and VocabularyWord::needsWrittenReview().
-     * Mirrors My Words' own $sentence/$feedback/$checkError/$diagnosticDone
-     * under distinct names (this component already has unrelated
-     * $recording/$revealed state to keep separate from).
-     */
-    public string $wordSentence = '';
-
-    /** @var array{severity: string, hint: string}|null */
-    public ?array $wordFeedback = null;
-
-    public ?string $wordCheckError = null;
-
-    public bool $wordDiagnosticDone = false;
+    /** True when the learner said "I remember" on a word before opening its card. */
+    public bool $recalledWord = false;
 
     /**
      * "type:id" keys (see itemKey()) for every item the learner has
@@ -81,14 +65,7 @@ new class extends Component
      * patterns, and taught grammar points (Grammar in Context) —
      * interleaved into one queue instead of four separate places to
      * check. Most types use the LIGHT self-assessment interaction here
-     * (Again/Good/Easy after a reveal, or after a fresh recording) — but
-     * a word that still needsWrittenReview() (brand new, or just knocked
-     * back to day 1 by a failed review) gets the exact same deeper,
-     * AI-checked sentence-writing flow My Words uses, not a shortcut
-     * version of it. Letting a fresh word skip straight to a one-tap
-     * grade here would let a learner permanently dodge the one AI check
-     * that verifies they can actually use the word, just by reviewing it
-     * from this page instead of My Words.
+     * (Again/Good/Easy after a reveal, or after a fresh recording).
      *
      * @return list<array{type: string, id: int}>
      */
@@ -189,6 +166,16 @@ new class extends Component
     }
 
     /**
+     * A word's recall card — "I remember" or "Not sure — show me", then
+     * the card opens either way (see <x-vocabulary-review-card>).
+     */
+    public function revealWord(bool $remembered = false): void
+    {
+        $this->revealed = true;
+        $this->recalledWord = $remembered;
+    }
+
+    /**
      * Fired automatically once a speaking recording uploads (see
      * <x-voice-recorder>'s on-recorded) — same idea as Speaking Recall's
      * own page: the recording itself is the artifact, no extra send step.
@@ -211,23 +198,18 @@ new class extends Component
     /**
      * Again/Good/Easy → SM-2's 0-5 quality scale (1/4/5), same mapping
      * every other review flow in the app already uses. A speaking item
-     * needs a fresh recording first (see recordedThisTurn); an error
-     * pattern or grammar point needs the correction/reminder revealed
-     * first (see $revealed) — both just guard against grading something
-     * without actually looking at or attempting it. A word that still
-     * needsWrittenReview() is NEVER gradable through this quick path at
-     * all — checked server-side here too, not just hidden in the view —
-     * it only ever advances via checkWordSentence()'s AI-checked flow.
+     * needs a fresh recording first (see recordedThisTurn); every other
+     * item needs its answer revealed first (see $revealed) — both just
+     * guard against grading something without actually looking at or
+     * attempting it. A word the learner wasn't sure about ("show me") can
+     * only ever be graded as forgotten — enforced here, not just hidden
+     * in the card.
      */
     public function gradeSelf(int $quality): void
     {
         $item = $this->currentItem;
 
         if (! $item) {
-            return;
-        }
-
-        if ($item['type'] === 'word' && $item['model']->needsWrittenReview()) {
             return;
         }
 
@@ -239,62 +221,15 @@ new class extends Component
             return;
         }
 
+        if ($item['type'] === 'word' && ! $this->recalledWord) {
+            $quality = 1;
+        }
+
         $item['model']->review($quality);
         $this->advance();
     }
 
-    /**
-     * The written-review path for the current item, when it's a word —
-     * see ChecksVocabularyWordSentences for the shared SentenceChecker
-     * judgment + grading this calls. Identical behavior to My Words' own
-     * checkSentence(), just reading/writing this component's own
-     * $wordSentence/$wordFeedback/$wordCheckError instead. No
-     * needsWrittenReview() guard here either, same as checkSentence() —
-     * the view only ever renders the form that calls this when
-     * needsWrittenReview() is true (see currentWordDiagnosticCard()'s
-     * sibling branch below), so the gate that matters is on gradeSelf(),
-     * the method this one is NOT.
-     */
-    public function checkWordSentence(): void
-    {
-        $item = $this->currentItem;
-        $text = trim($this->wordSentence);
-
-        if (! $item || $item['type'] !== 'word') {
-            return;
-        }
-
-        if ($text === '') {
-            $this->wordCheckError = 'Write a sentence first.';
-
-            return;
-        }
-
-        $this->wordCheckError = null;
-
-        $result = $this->runWordSentenceCheck($item['model'], $text);
-        $this->wordFeedback = $result['feedback'];
-        $this->wordCheckError = $result['error'];
-    }
-
-    /**
-     * @return array{prompt: string, options: list<string>, correct: int}|null
-     */
-    public function currentWordDiagnosticCard(): ?array
-    {
-        $item = $this->currentItem;
-
-        return ($item && $item['type'] === 'word') ? $this->wordDiagnosticCard($item['model']) : null;
-    }
-
-    /**
-     * Public (unlike most of this component's internals) because the
-     * word written-review path's own "Next" button (shown after
-     * checkWordSentence() returns a verdict) calls it directly from the
-     * view, the same way My Words' nextWord() wraps it for its own Next
-     * button.
-     */
-    public function advance(): void
+    private function advance(): void
     {
         $this->resetItemState();
         unset($this->queue, $this->currentItem, $this->hasSkippedEverything);
@@ -309,10 +244,7 @@ new class extends Component
      */
     private function resetItemState(): void
     {
-        $this->wordSentence = '';
-        $this->wordFeedback = null;
-        $this->wordCheckError = null;
-        $this->wordDiagnosticDone = false;
+        $this->recalledWord = false;
         $this->recording = null;
         $this->recordedThisTurn = false;
         $this->revealed = false;
@@ -389,77 +321,9 @@ new class extends Component
             </p>
 
             @if ($type === 'word')
-                <x-pronounce-on-tap :word="$model->word" class="block font-display text-2xl font-extrabold text-ink dark:text-ink-dark" />
+                <x-speak-word :word="$model->word" block class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark" />
 
-                {{--
-                    Checked first, ahead of needsWrittenReview() — same
-                    ordering reason as My Words: checkWordSentence()
-                    already calls $word->review() the moment it gets a
-                    verdict, which immediately changes repetitions, so
-                    branching on the word's live state here would yank the
-                    feedback UI away before the learner ever sees it.
-                --}}
-                @if ($wordFeedback)
-                    <x-severity-feedback :feedback="$wordFeedback" />
-
-                    <button
-                        type="button"
-                        wire:click="advance"
-                        class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >Next @svg('heroicon-o-arrow-right', 'h-3.5 w-3.5')</button>
-                @elseif ($model->needsWrittenReview() && ! $wordDiagnosticDone && ($wordDiagnosticCard = $this->currentWordDiagnosticCard()))
-                    {{-- A quick meaning-match warm-up before the deeper
-                         written review below — ungraded, always skippable,
-                         same as My Words. --}}
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Quick check before you write — pick the right meaning.</p>
-                    <x-quick-round
-                        :cards="[$wordDiagnosticCard]"
-                        on-complete="$wire.set('wordDiagnosticDone', true)"
-                        on-skip="$wire.set('wordDiagnosticDone', true)"
-                    />
-                @elseif ($model->needsWrittenReview())
-                    {{--
-                        The deeper, AI-checked written review — a brand-new
-                        word (or one just knocked back to day 1 by a failed
-                        review) gets exactly the same flow here as it would
-                        on My Words, so there's no shortcut path to clear
-                        it from Daily Review instead.
-                    --}}
-                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">{{ $model->meaning }}</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Write a sentence using this word.</p>
-                    <div class="flex items-center gap-2">
-                        <input
-                            type="text"
-                            wire:model="wordSentence"
-                            wire:keydown.enter="checkWordSentence"
-                            placeholder="My example…"
-                            wire:loading.attr="disabled"
-                            wire:target="checkWordSentence"
-                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                        >
-                        <button
-                            type="button"
-                            wire:click="checkWordSentence"
-                            wire:loading.attr="disabled"
-                            wire:target="checkWordSentence"
-                            class="shrink-0 cursor-pointer rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                        >Check</button>
-                    </div>
-                    <x-ai-thinking wire:loading wire:target="checkWordSentence" />
-                    @if ($wordCheckError)
-                        <p class="text-xs text-danger-ink">{{ $wordCheckError }}</p>
-                    @endif
-                @else
-                    @if (! $revealed)
-                        <button
-                            type="button"
-                            wire:click="reveal"
-                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >@svg('heroicon-o-eye', 'h-4 w-4') Show meaning</button>
-                    @else
-                        <p class="text-sm text-ink-faint dark:text-ink-faint-dark">{{ $model->meaning }}</p>
-                    @endif
-                @endif
+                <x-vocabulary-review-card :word="$model" :revealed="$revealed" :recalled="$recalledWord" />
             @elseif ($type === 'speaking')
                 <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Answer out loud, without preparing first.</p>
@@ -499,7 +363,7 @@ new class extends Component
                 @endif
             @endif
 
-            @if ($type === 'speaking' ? $recordedThisTurn : $revealed)
+            @if ($type === 'speaking' ? $recordedThisTurn : ($type !== 'word' && $revealed))
                 <div>
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
                         @if ($type === 'speaking') How did that feel? @else Did you remember it? @endif
@@ -529,19 +393,14 @@ new class extends Component
                 plain text link, not a pill button — this is an escape
                 hatch for a stuck item (e.g. denied microphone access, see
                 voice-recorder.blade.php), not a normal everyday action.
-                Hidden once a word's AI check has already returned a
-                verdict ($wordFeedback): at that point it's already
-                reviewed, so "Next" is the only action that makes sense.
             --}}
-            @unless ($type === 'word' && $wordFeedback)
-                <div class="pt-1 text-center">
-                    <button
-                        type="button"
-                        wire:click="skip"
-                        class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
-                    >@svg('heroicon-o-forward', 'h-3.5 w-3.5') Skip for now</button>
-                </div>
-            @endunless
+            <div class="pt-1 text-center">
+                <button
+                    type="button"
+                    wire:click="skip"
+                    class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
+                >@svg('heroicon-o-forward', 'h-3.5 w-3.5') Skip for now</button>
+            </div>
         </div>
     @endif
 </div>

@@ -108,14 +108,7 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertSame(self::DAY1_WORDS, collect($component->instance()->words())->pluck('phrase')->all());
     }
 
-    public function test_day_one_has_no_spiral_review_since_there_is_no_previous_day(): void
-    {
-        [, , $run] = $this->makeMissionAndRun();
-
-        $this->assertSame([], $this->testComponent($run)->instance()->spiralReviewCards());
-    }
-
-    public function test_day_two_offers_a_spiral_review_of_day_ones_words(): void
+    public function test_day_two_goes_straight_to_todays_words_with_no_recap_of_day_ones(): void
     {
         $learner = User::factory()->create();
         $mission = Mission::create([
@@ -140,10 +133,10 @@ class VocabularyBuilderStepTest extends TestCase
             'stepKey' => 'vocabulary_builder_2',
         ]);
 
-        $cards = $component->instance()->spiralReviewCards();
-
-        $this->assertCount(4, $cards);
-        $this->assertSame(self::DAY1_WORDS, collect($cards)->pluck('prompt')->all());
+        // Yesterday's words already live in My Words and Daily Review, so
+        // the step opens on today's story as part 1 of 3.
+        $component->assertDontSee('Quick reminder')
+            ->assertSee('Part 1 of 3');
     }
 
     public function test_a_meaning_check_quick_round_covers_every_word(): void
@@ -359,7 +352,40 @@ class VocabularyBuilderStepTest extends TestCase
         $wakeUp = VocabularyWord::where('learner_id', $learner->id)->where('word', 'wake up')->firstOrFail();
         $this->assertSame($run->id, $wakeUp->source_mission_run_id);
         $this->assertSame('to stop sleeping', $wakeUp->meaning);
-        $this->assertTrue($wakeUp->isDue());
+        // The learner's own checked sentence travels with the word to the review card.
+        $this->assertSame('I usually wake up around 7.', $wakeUp->user_sentence);
+        // Just practiced it here, so the first review is tomorrow.
+        $this->assertFalse($wakeUp->isDue());
+        $this->assertEqualsWithDelta(now()->addDay()->timestamp, $wakeUp->next_review_at->timestamp, 5);
+    }
+
+    public function test_the_authored_part_of_speech_and_example_are_saved_with_the_word(): void
+    {
+        [$learner, $mission, $run] = $this->makeMissionAndRun();
+
+        $steps = $mission->phases;
+        $steps[0]['steps'][1]['words'][0] += ['pos' => 'phrasal verb', 'example' => 'I wake up at six.'];
+        $mission->update(['phases' => $steps]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        $this->testComponent($run->fresh())
+            ->set('examples.0', 'I usually wake up around 7.')
+            ->set('examples.1', 'I have a morning routine.')
+            ->set('examples.2', 'I get up straight away.')
+            ->set('examples.3', 'I commute by bus.')
+            ->call('save')
+            ->call('addWordsToNotebook');
+
+        $wakeUp = VocabularyWord::where('learner_id', $learner->id)->where('word', 'wake up')->firstOrFail();
+        $this->assertSame('phrasal verb', $wakeUp->pos);
+        $this->assertSame('I wake up at six.', $wakeUp->example);
+
+        $routine = VocabularyWord::where('learner_id', $learner->id)->where('word', 'routine')->firstOrFail();
+        $this->assertNull($routine->pos);
+        $this->assertNull($routine->example);
     }
 
     public function test_words_are_only_enrolled_once_add_to_notebook_is_pressed(): void

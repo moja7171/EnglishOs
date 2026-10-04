@@ -117,13 +117,13 @@ class AiConversation1StepTest extends TestCase
             ->assertSee('wake up');
     }
 
-    public function test_the_warm_up_shows_a_pi_partner_card_grounded_in_the_mission_title(): void
+    public function test_the_warm_up_does_not_show_a_pi_practice_card(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSee('Language Partner chat in your voice AI app')
-            ->assertSee('My Daily Life');
+            ->assertDontSee('chat in your voice AI app')
+            ->assertDontSee('Want more practice?');
     }
 
     public function test_finishing_the_warm_up_moves_into_the_interview_without_saving_evidence_yet(): void
