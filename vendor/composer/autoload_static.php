@@ -558,6 +558,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Http\\Controllers\\AiDiagnosticController' => __DIR__ . '/../..' . '/app/Http/Controllers/AiDiagnosticController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\ListeningAudioController' => __DIR__ . '/../..' . '/app/Http/Controllers/ListeningAudioController.php',
+        'App\\Http\\Controllers\\ServiceHealthController' => __DIR__ . '/../..' . '/app/Http/Controllers/ServiceHealthController.php',
         'App\\Http\\Middleware\\EnsureSessionNotExpired' => __DIR__ . '/../..' . '/app/Http/Middleware/EnsureSessionNotExpired.php',
         'App\\Livewire\\Concerns\\DailyListenStep' => __DIR__ . '/../..' . '/app/Livewire/Concerns/DailyListenStep.php',
         'App\\Livewire\\Concerns\\PreviewsStep' => __DIR__ . '/../..' . '/app/Livewire/Concerns/PreviewsStep.php',

@@ -16,6 +16,7 @@ return array(
     'App\\Http\\Controllers\\AiDiagnosticController' => $baseDir . '/app/Http/Controllers/AiDiagnosticController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\ListeningAudioController' => $baseDir . '/app/Http/Controllers/ListeningAudioController.php',
+    'App\\Http\\Controllers\\ServiceHealthController' => $baseDir . '/app/Http/Controllers/ServiceHealthController.php',
     'App\\Http\\Middleware\\EnsureSessionNotExpired' => $baseDir . '/app/Http/Middleware/EnsureSessionNotExpired.php',
     'App\\Livewire\\Concerns\\DailyListenStep' => $baseDir . '/app/Livewire/Concerns/DailyListenStep.php',
     'App\\Livewire\\Concerns\\PreviewsStep' => $baseDir . '/app/Livewire/Concerns/PreviewsStep.php',
