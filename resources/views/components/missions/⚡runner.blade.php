@@ -2,7 +2,9 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PreviewMissionRun;
 use App\Services\PexelsClient;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -26,25 +28,47 @@ new class extends Component
     public bool $retry = false;
 
     /**
-     * Checked BEFORE findOrStart() deliberately — that call is a
-     * firstOrCreate() and would otherwise plant an 'in_progress' run for a
-     * still-gated mission on the mere act of visiting its URL, which would
-     * then permanently exempt it from the gate (see
-     * MissionRun::gatingMission()'s "already has ANY run" carve-out).
-     * Direct-URL access is the only way in that skips the overview page's
-     * own gated card, so this is real enforcement, not just UI decoration.
+     * True while looking at a mission the learner hasn't unlocked yet:
+     * every day and step of it is viewable, none is doable, and nothing is
+     * recorded — $run is then a throwaway PreviewMissionRun, not a database
+     * row.
+     */
+    #[Locked]
+    public bool $missionLocked = false;
+
+    /**
+     * The gate is checked BEFORE findOrStart() deliberately — that call is
+     * a firstOrCreate() and would otherwise plant an 'in_progress' run for
+     * a still-gated mission on the mere act of visiting its URL, which
+     * would then permanently exempt it from the gate (see
+     * MissionRun::gatingMission()'s "already has ANY run" carve-out). A
+     * gated mission is previewed on an in-memory run instead, so visiting
+     * it never starts it.
      */
     public function mount(Mission $mission, ?string $step = null): void
     {
+        $this->mission = $mission;
+        $this->viewStep = $step;
+
         if (MissionRun::gatingMission(auth()->user(), $mission)) {
-            $this->redirect(route('home'), navigate: true);
+            $this->missionLocked = true;
+            $this->run = PreviewMissionRun::for(auth()->user(), $mission);
 
             return;
         }
 
-        $this->mission = $mission;
         $this->run = MissionRun::findOrStart(auth()->user(), $mission);
-        $this->viewStep = $step;
+    }
+
+    /**
+     * The earlier mission that has to be finished before this one unlocks,
+     * while previewing a locked mission.
+     */
+    public function getGatingMissionProperty(): ?Mission
+    {
+        return $this->missionLocked
+            ? MissionRun::gatingMission(auth()->user(), $this->mission)
+            : null;
     }
 
     public function getCurrentStepKeyProperty(): ?string
@@ -68,6 +92,10 @@ new class extends Component
      */
     public function getReachableStepKeysProperty(): array
     {
+        if ($this->missionLocked) {
+            return [];
+        }
+
         if ($this->run->learner->bypassesEvidenceGating()) {
             return $this->stepKeys;
         }
@@ -136,7 +164,7 @@ new class extends Component
      */
     public function getCurrentPositionProperty(): ?array
     {
-        if ($this->currentStepKey === null) {
+        if ($this->missionLocked || $this->currentStepKey === null) {
             return null;
         }
 
@@ -356,8 +384,12 @@ new class extends Component
     @endif
 
     @if ($this->showOverview && $this->currentStepKey !== null)
-        <x-mission-listening-link :mission="$mission" />
-        <x-mission-pi-link :mission="$mission" />
+        @if ($this->missionLocked)
+            <x-missions.locked-notice :gating-mission="$this->gatingMission" />
+        @else
+            <x-mission-listening-link :mission="$mission" />
+            <x-mission-pi-link :mission="$mission" />
+        @endif
 
         {{-- Mission overview, styled as a journey path --}}
         <div class="relative pl-11">
@@ -365,6 +397,11 @@ new class extends Component
 
             @foreach ($run->dayProgress() as $index => $day)
                 @php
+                    if ($this->missionLocked) {
+                        $day['current'] = false;
+                        $day['locked'] = true;
+                    }
+
                     $isPreviewDay = $day['locked'];
                     // Every day opens: done days to review, the current day to
                     // continue, later days as a look-only preview.
@@ -464,7 +501,7 @@ new class extends Component
                 >
                     @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
                     <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
-                    @if ($key === $this->currentStepKey && ! $active)
+                    @if ($key === $this->currentStepKey && ! $active && ! $this->missionLocked)
                         <span class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
                     @endif
                     @if ($duration = $mission->stepDuration($key))
@@ -485,7 +522,19 @@ new class extends Component
                     @svg('heroicon-o-eye', 'h-4 w-4 shrink-0')
                     Preview only: you can't do this step yet
                 </p>
-                @if ($this->currentPosition)
+                @if ($this->missionLocked && $this->gatingMission)
+                    <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
+                        This mission unlocks when you finish {{ $this->gatingMission->code }} · {{ $this->gatingMission->title }}.
+                    </p>
+                    <a
+                        href="{{ route('missions.show', [$this->gatingMission, 'overview']) }}"
+                        wire:navigate
+                        class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
+                    >
+                        Go to {{ $this->gatingMission->code }}
+                        @svg('heroicon-o-chevron-right', 'h-3 w-3')
+                    </a>
+                @elseif ($this->currentPosition)
                     <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
                         You are on Day {{ $this->currentPosition['dayNumber'] }} · {{ $this->currentPosition['dayLabel'] }}, at
                         <span class="font-semibold">{{ $this->currentPosition['stepLabel'] }}</span>.

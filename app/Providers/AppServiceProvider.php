@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Livewire\Concerns\PreviewsStep;
+use App\Livewire\Synthesizers\PreviewMissionRunSynth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 use function Livewire\on;
 
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         // (191*4=764) is the standard Laravel fix and is a no-op on Postgres.
         Schema::defaultStringLength(191);
 
+        Livewire::propertySynthesizer(PreviewMissionRunSynth::class);
         $this->refuseActionsOnPreviewedSteps();
     }
 

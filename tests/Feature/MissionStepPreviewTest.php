@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PreviewMissionRun;
 use App\Models\User;
 use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
+use LogicException;
 use Tests\TestCase;
 
 /**
@@ -225,5 +227,93 @@ class MissionStepPreviewTest extends TestCase
             ->call('save');
 
         $this->assertSame(1, Evidence::count());
+    }
+
+    private function lockedMission(): Mission
+    {
+        $this->seed(MissionSeeder::class);
+        $this->actingAs(User::factory()->create());
+
+        return Mission::where('code', 'M02')->firstOrFail();
+    }
+
+    public function test_a_locked_mission_opens_on_an_overview_of_all_its_days_as_a_preview(): void
+    {
+        $mission = $this->lockedMission();
+
+        $component = Livewire::test('missions.runner', ['mission' => $mission])
+            ->assertSet('missionLocked', true)
+            ->assertSet('showOverview', true)
+            ->assertSee('Preview only')
+            ->assertSee('M01')
+            ->assertDontSee('You are here')
+            ->assertDontSee('Continue');
+
+        $days = MissionRun::query()->make()->setRelation('mission', $mission)->mission->phases;
+        foreach ($days as $day) {
+            $first = $day['steps'][0];
+            $component->assertSeeHtml('href="'.route('missions.show', [$mission, is_array($first) ? $first['key'] : $first]).'"');
+        }
+    }
+
+    public function test_every_step_of_every_locked_mission_renders_as_a_preview_and_starts_nothing(): void
+    {
+        Http::fake();
+        $this->seed(MissionSeeder::class);
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        foreach (Mission::where('code', '!=', 'M01')->get() as $mission) {
+            foreach ($mission->stepKeys() as $key) {
+                Livewire::test('missions.runner', ['mission' => $mission, 'step' => $key])
+                    ->assertSet('isPreviewing', true)
+                    ->assertSee('Preview only');
+            }
+        }
+
+        $this->assertSame(0, MissionRun::count());
+        $this->assertSame(0, Evidence::count());
+        Http::assertNothingSent();
+    }
+
+    public function test_a_locked_mission_preview_survives_livewire_round_trips_and_stays_look_only(): void
+    {
+        $mission = $this->lockedMission();
+        $learner = auth()->user();
+        $stepKey = $mission->stepKeys()[0];
+
+        // Livewire rebuilds the in-memory run from the snapshot on each request.
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => $stepKey])
+            ->call('$refresh')
+            ->assertSet('isPreviewing', true)
+            ->assertSet('run.mission_id', $mission->id);
+
+        $run = PreviewMissionRun::for($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run, 'readOnly' => true, 'preview' => true])
+            ->call('save')
+            ->assertForbidden();
+
+        $this->assertSame(0, Evidence::count());
+        $this->assertSame(0, MissionRun::count());
+    }
+
+    public function test_a_locked_missions_preview_run_cannot_be_saved(): void
+    {
+        $mission = $this->lockedMission();
+
+        $this->expectException(LogicException::class);
+
+        PreviewMissionRun::for(auth()->user(), $mission)->save();
+    }
+
+    public function test_the_home_page_lets_you_open_a_locked_mission_as_a_preview(): void
+    {
+        $mission = $this->lockedMission();
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Finish M01 first to unlock this one.')
+            ->assertSeeHtml('href="'.route('missions.show', [$mission, 'overview']).'"');
     }
 }

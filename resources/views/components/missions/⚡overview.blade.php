@@ -488,11 +488,14 @@ new class extends Component
             @break
         @elseif ($slot['blockedBy'])
             <div class="flex items-center justify-between gap-3 card-sunken p-4">
-                <div>
+                <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}" wire:navigate class="block min-w-0 flex-1">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
                     <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['mission']->title }}</p>
                     <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Finish {{ $slot['blockedBy']->code }} first to unlock this one.</p>
-                </div>
+                    <span class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-accent-ink dark:text-accent-ink-dark">
+                        @svg('heroicon-o-eye', 'h-3.5 w-3.5') Preview
+                    </span>
+                </a>
                 <a
                     href="{{ route('missions.show', [$slot['blockedBy'], 'overview']) }}"
                     wire:navigate
