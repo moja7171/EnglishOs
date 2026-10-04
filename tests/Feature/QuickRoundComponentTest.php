@@ -96,7 +96,7 @@ class QuickRoundComponentTest extends TestCase
         $html = Blade::render('<x-quick-round :cards="$cards" class="mt-4" />', ['cards' => $cards]);
 
         $this->assertStringContainsString('mt-4', $html);
-        $this->assertStringContainsString('rounded-2xl', $html);
+        $this->assertStringContainsString('card-sunken', $html);
     }
 
     public function test_a_card_with_a_difficulty_field_embeds_the_adaptive_selection_logic(): void
