@@ -48,6 +48,9 @@ class AiDiagnosticController extends Controller
             '== 2d. Control: big POST bodies straight to Google, no relay and no Cloudflare (403 fast = body got out; timeout = host drops big outbound bodies) ==',
             ...$this->probeDirectBigBodies(),
             '',
+            '== 2e. Control: big POST bodies to the relay VPS itself, bypassing Cloudflare (any quick HTTP status = body got out) ==',
+            ...$this->probeVpsBigBodies(),
+            '',
             '== 3. Direct to Google, no relay (informational — expected to fail on a filtered host) ==',
             ...$this->probeDirect(),
             '',
@@ -158,6 +161,31 @@ class AiDiagnosticController extends Controller
                 return 'HTTP '.$response->status().' — '.mb_substr((string) preg_replace('/\s+/', ' ', strip_tags($response->body())), 0, 60);
             }) as $line) {
                 $lines[] = '  '.$line;
+            }
+        }
+
+        return $lines;
+    }
+
+    /** @return array<int, string> */
+    private function probeVpsBigBodies(): array
+    {
+        $lines = [];
+
+        foreach (['http://64.226.95.102/', 'https://64.226.95.102/'] as $url) {
+            foreach ([3000, 8000] as $bytes) {
+                $lines[] = "body ~{$bytes} bytes to {$url}:";
+
+                foreach ($this->timed(function () use ($bytes, $url): string {
+                    $response = Http::withoutVerifying()
+                        ->withOptions(['allow_redirects' => false])
+                        ->timeout(8)
+                        ->post($url, ['pad' => str_repeat('hello ', intdiv($bytes, 6))]);
+
+                    return 'HTTP '.$response->status();
+                }) as $line) {
+                    $lines[] = '  '.$line;
+                }
             }
         }
 
