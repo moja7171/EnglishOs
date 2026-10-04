@@ -554,6 +554,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Console\\Commands\\CacheShadowTimestamps' => __DIR__ . '/../..' . '/app/Console/Commands/CacheShadowTimestamps.php',
         'App\\Console\\Commands\\PruneReadNotifications' => __DIR__ . '/../..' . '/app/Console/Commands/PruneReadNotifications.php',
         'App\\Console\\Commands\\SendReviewReminders' => __DIR__ . '/../..' . '/app/Console/Commands/SendReviewReminders.php',
+        'App\\Http\\Controllers\\AiDiagnosticController' => __DIR__ . '/../..' . '/app/Http/Controllers/AiDiagnosticController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Middleware\\EnsureSessionNotExpired' => __DIR__ . '/../..' . '/app/Http/Middleware/EnsureSessionNotExpired.php',
         'App\\Livewire\\Concerns\\DailyListenStep' => __DIR__ . '/../..' . '/app/Livewire/Concerns/DailyListenStep.php',

@@ -12,6 +12,7 @@ return array(
     'App\\Console\\Commands\\CacheShadowTimestamps' => $baseDir . '/app/Console/Commands/CacheShadowTimestamps.php',
     'App\\Console\\Commands\\PruneReadNotifications' => $baseDir . '/app/Console/Commands/PruneReadNotifications.php',
     'App\\Console\\Commands\\SendReviewReminders' => $baseDir . '/app/Console/Commands/SendReviewReminders.php',
+    'App\\Http\\Controllers\\AiDiagnosticController' => $baseDir . '/app/Http/Controllers/AiDiagnosticController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Middleware\\EnsureSessionNotExpired' => $baseDir . '/app/Http/Middleware/EnsureSessionNotExpired.php',
     'App\\Livewire\\Concerns\\DailyListenStep' => $baseDir . '/app/Livewire/Concerns/DailyListenStep.php',
