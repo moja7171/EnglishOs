@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
 use App\Models\ErrorPatternReview;
@@ -16,6 +17,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use PreviewsStep;
     use TracksAiUsage;
 
     public MissionRun $run;
@@ -518,12 +520,12 @@ new class extends Component
                         <span class="w-24">{{ $skill }}</span>
                         <span class="flex items-center gap-2">
                             <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Before</span>
-                            <select wire:model="scores.{{ $skill }}.before" class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
+                            <select wire:model="scores.{{ $skill }}.before" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
                                 <option value="">–</option>
                                 @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
                             </select>
                             <span class="text-xs text-ink-faint dark:text-ink-faint-dark">After</span>
-                            <select wire:model="scores.{{ $skill }}.after" class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
+                            <select wire:model="scores.{{ $skill }}.after" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
                                 <option value="">–</option>
                                 @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
                             </select>
@@ -581,14 +583,16 @@ new class extends Component
                 <p class="mt-2 text-sm text-danger-ink">{{ $error }}</p>
             @endif
 
-            <button
-                wire:click="getResult"
-                wire:loading.attr="disabled"
-                class="mt-4 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-            >
-                <span wire:loading.remove wire:target="getResult">Get My Result</span>
-                <span wire:loading wire:target="getResult">Reviewing your mission…</span>
-            </button>
+            @unless ($preview)
+                <button
+                    wire:click="getResult"
+                    wire:loading.attr="disabled"
+                    class="mt-4 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                >
+                    <span wire:loading.remove wire:target="getResult">Get My Result</span>
+                    <span wire:loading wire:target="getResult">Reviewing your mission…</span>
+                </button>
+            @endunless
         </div>
 
         <div class="mt-4">

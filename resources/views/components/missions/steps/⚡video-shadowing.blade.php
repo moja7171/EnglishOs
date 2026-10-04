@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use Illuminate\Http\UploadedFile;
@@ -9,6 +10,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use PreviewsStep;
     use WithFileUploads;
 
     public MissionRun $run;
@@ -196,7 +198,7 @@ new class extends Component
         <div class="mt-2">
             <x-video-player
                 :url="$video['video_url'] ?? ''"
-                :listen="['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING]"
+                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING]"
                 :captions-url="$video['captions_url'] ?? null"
                 :title="$video['source'] ?? 'Video'"
                 :segments="$video['video_segments'] ?? []"

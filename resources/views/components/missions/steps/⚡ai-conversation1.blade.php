@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\AIFeedback;
@@ -27,6 +28,7 @@ use Livewire\WithFileUploads;
  */
 new class extends Component
 {
+    use PreviewsStep;
     use WithFileUploads;
     use TracksAiUsage;
     use TracksCheckAttempts;
@@ -104,7 +106,9 @@ new class extends Component
 
     public function mount(): void
     {
-        if (! $this->readOnly) {
+        // A preview shows the step as it opens (nothing recorded yet), not
+        // as a completed recap — the view makes it inert.
+        if (! $this->readOnly || $this->preview) {
             return;
         }
 
@@ -466,7 +470,7 @@ new class extends Component
     $warmUpQuestions = $run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
 @endphp
 
-<div class="space-y-6">
+<div class="space-y-6" @if ($preview) inert @endif>
     <x-hook :text="$conversation['hook'] ?? null" />
 
     @if ($completed)

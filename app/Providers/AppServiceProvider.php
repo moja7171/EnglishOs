@@ -2,8 +2,13 @@
 
 namespace App\Providers;
 
+use App\Livewire\Concerns\PreviewsStep;
+use App\Livewire\Synthesizers\PreviewMissionRunSynth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+
+use function Livewire\on;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +31,28 @@ class AppServiceProvider extends ServiceProvider
         // with "Specified key too long" — capping the default length at 191
         // (191*4=764) is the standard Laravel fix and is a no-op on Postgres.
         Schema::defaultStringLength(191);
+
+        Livewire::propertySynthesizer(PreviewMissionRunSynth::class);
+        $this->refuseActionsOnPreviewedSteps();
+    }
+
+    /**
+     * A step shown in preview (see PreviewsStep) is look-only: any action a
+     * client sends to it - save, proceed, an AI call, a file upload - is
+     * refused before it runs. Property updates are harmless on their own
+     * (nothing persists without an action) and the inputs are disabled by
+     * readOnly anyway.
+     */
+    private function refuseActionsOnPreviewedSteps(): void
+    {
+        on('call', function ($component, string $method) {
+            if (! in_array(PreviewsStep::class, class_uses_recursive($component), true)) {
+                return;
+            }
+
+            if ($component->preview && $method !== '$refresh') {
+                abort(403, 'This step is preview-only.');
+            }
+        });
     }
 }

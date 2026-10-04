@@ -36,7 +36,7 @@ class MissionRunnerNavigationTest extends TestCase
         ]);
     }
 
-    public function test_a_future_step_is_not_reachable_and_falls_back_to_the_current_step(): void
+    public function test_a_future_step_is_not_reachable_but_opens_as_a_preview(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission();
@@ -45,8 +45,24 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'listening'])
-            ->assertSet('activeStepKey', 'mission_brief')
+            ->assertSet('activeStepKey', 'listening')
+            ->assertSet('reachableStepKeys', ['mission_brief'])
+            ->assertSet('currentStepKey', 'mission_brief')
+            ->assertSet('isPreviewing', true)
             ->assertSet('isReviewing', false);
+    }
+
+    public function test_an_unknown_step_key_still_falls_back_to_the_current_step(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        MissionRun::findOrStart($learner, $mission);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'no_such_step'])
+            ->assertSet('activeStepKey', 'mission_brief')
+            ->assertSet('isPreviewing', false);
     }
 
     public function test_a_completed_step_can_be_reviewed_without_disturbing_progress(): void
@@ -162,7 +178,7 @@ class MissionRunnerNavigationTest extends TestCase
      * can't cover, since it never renders a link to a gated mission in
      * the first place.
      */
-    public function test_direct_url_access_to_a_gated_mission_redirects_home(): void
+    public function test_direct_url_access_to_a_gated_mission_is_a_preview_that_never_starts_it(): void
     {
         $learner = User::factory()->create();
         $m01 = $this->makeMission();
@@ -177,9 +193,13 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.runner', ['mission' => $m02, 'step' => null])
-            ->assertRedirect(route('home'));
+            ->assertNoRedirect()
+            ->assertSet('missionLocked', true)
+            ->assertSet('gatingMission.code', 'M01');
 
+        // Visiting must not plant a run - that would exempt M02 from its gate.
         $this->assertDatabaseMissing('mission_runs', ['learner_id' => $learner->id, 'mission_id' => $m02->id]);
+        $this->assertSame($m01->id, MissionRun::gatingMission($learner, $m02)?->id);
     }
 
     public function test_previous_and_next_step_keys_only_span_reachable_steps(): void

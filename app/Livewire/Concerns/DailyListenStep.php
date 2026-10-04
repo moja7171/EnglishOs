@@ -30,6 +30,7 @@ use Livewire\WithFileUploads;
  */
 trait DailyListenStep
 {
+    use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
     use WithFileUploads;

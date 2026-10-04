@@ -2,7 +2,9 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PreviewMissionRun;
 use App\Services\PexelsClient;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -26,25 +28,47 @@ new class extends Component
     public bool $retry = false;
 
     /**
-     * Checked BEFORE findOrStart() deliberately — that call is a
-     * firstOrCreate() and would otherwise plant an 'in_progress' run for a
-     * still-gated mission on the mere act of visiting its URL, which would
-     * then permanently exempt it from the gate (see
-     * MissionRun::gatingMission()'s "already has ANY run" carve-out).
-     * Direct-URL access is the only way in that skips the overview page's
-     * own gated card, so this is real enforcement, not just UI decoration.
+     * True while looking at a mission the learner hasn't unlocked yet:
+     * every day and step of it is viewable, none is doable, and nothing is
+     * recorded — $run is then a throwaway PreviewMissionRun, not a database
+     * row.
+     */
+    #[Locked]
+    public bool $missionLocked = false;
+
+    /**
+     * The gate is checked BEFORE findOrStart() deliberately — that call is
+     * a firstOrCreate() and would otherwise plant an 'in_progress' run for
+     * a still-gated mission on the mere act of visiting its URL, which
+     * would then permanently exempt it from the gate (see
+     * MissionRun::gatingMission()'s "already has ANY run" carve-out). A
+     * gated mission is previewed on an in-memory run instead, so visiting
+     * it never starts it.
      */
     public function mount(Mission $mission, ?string $step = null): void
     {
+        $this->mission = $mission;
+        $this->viewStep = $step;
+
         if (MissionRun::gatingMission(auth()->user(), $mission)) {
-            $this->redirect(route('home'), navigate: true);
+            $this->missionLocked = true;
+            $this->run = PreviewMissionRun::for(auth()->user(), $mission);
 
             return;
         }
 
-        $this->mission = $mission;
         $this->run = MissionRun::findOrStart(auth()->user(), $mission);
-        $this->viewStep = $step;
+    }
+
+    /**
+     * The earlier mission that has to be finished before this one unlocks,
+     * while previewing a locked mission.
+     */
+    public function getGatingMissionProperty(): ?Mission
+    {
+        return $this->missionLocked
+            ? MissionRun::gatingMission(auth()->user(), $this->mission)
+            : null;
     }
 
     public function getCurrentStepKeyProperty(): ?string
@@ -58,15 +82,20 @@ new class extends Component
     }
 
     /**
-     * Steps the learner has already reached — done steps plus the current
-     * one. Evidence Before Progress (EOS-003 §7) still applies: you can
-     * look back at any of these, but never jump ahead of the current step
-     * — except for an admin account (User::bypassesEvidenceGating()),
-     * which reaches everything. Single source of truth for this bypass,
-     * also used by dayProgress()'s 'locked' flag below.
+     * Steps the learner can DO — done steps plus the current one. Evidence
+     * Before Progress (EOS-003 §7) still applies: you can redo any of
+     * these, but never complete a step ahead of the current one — except
+     * for an admin account (User::bypassesEvidenceGating()), which reaches
+     * everything. Steps beyond this set are still viewable, just only as a
+     * look-but-don't-touch preview (see isPreviewing). Single source of
+     * truth for this bypass, also used by dayProgress()'s 'locked' flag.
      */
     public function getReachableStepKeysProperty(): array
     {
+        if ($this->missionLocked) {
+            return [];
+        }
+
         if ($this->run->learner->bypassesEvidenceGating()) {
             return $this->stepKeys;
         }
@@ -93,7 +122,7 @@ new class extends Component
             return true;
         }
 
-        if ($this->viewStep && in_array($this->viewStep, $this->reachableStepKeys, true)) {
+        if ($this->viewStep && in_array($this->viewStep, $this->stepKeys, true)) {
             return false;
         }
 
@@ -101,16 +130,56 @@ new class extends Component
     }
 
     /**
-     * The step actually being displayed: the requested ?step=, if it's
-     * somewhere the learner has already reached, otherwise the current step.
+     * The step actually being displayed: the requested ?step= if it is any
+     * real step of this mission (reached or not — see isPreviewing),
+     * otherwise the current step.
      */
     public function getActiveStepKeyProperty(): ?string
     {
-        if ($this->viewStep && in_array($this->viewStep, $this->reachableStepKeys, true)) {
+        if ($this->viewStep && in_array($this->viewStep, $this->stepKeys, true)) {
             return $this->viewStep;
         }
 
         return $this->currentStepKey;
+    }
+
+    /**
+     * True when the displayed step is one the learner hasn't reached yet:
+     * they get the real screen, but read-only and with every action
+     * refused server-side (see PreviewsStep) — so they can see what's
+     * coming without being able to do it or skip ahead.
+     */
+    public function getIsPreviewingProperty(): bool
+    {
+        return $this->activeStepKey !== null
+            && ! in_array($this->activeStepKey, $this->reachableStepKeys, true);
+    }
+
+    /**
+     * Where the learner actually is — day number, day label and step label
+     * of the current step — for the "you are here" cue shown while they're
+     * looking at a step ahead of it.
+     *
+     * @return ?array{dayNumber: int, dayLabel: string, stepKey: string, stepLabel: string}
+     */
+    public function getCurrentPositionProperty(): ?array
+    {
+        if ($this->missionLocked || $this->currentStepKey === null) {
+            return null;
+        }
+
+        foreach ($this->run->dayProgress() as $index => $day) {
+            if (in_array($this->currentStepKey, $day['stepKeys'], true)) {
+                return [
+                    'dayNumber' => $index + 1,
+                    'dayLabel' => $day['label'],
+                    'stepKey' => $this->currentStepKey,
+                    'stepLabel' => $this->mission->stepLabel($this->currentStepKey),
+                ];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -184,6 +253,12 @@ new class extends Component
         $daySteps = $this->activeDay['stepKeys'] ?? [];
         $index = array_search($this->activeStepKey, $daySteps, true);
         $next = $daySteps[$index + 1] ?? null;
+
+        // Live: never offer a step you can't do yet. Previewing: walking
+        // forward through what's coming is the whole point.
+        if ($this->isPreviewing) {
+            return $next;
+        }
 
         return $next && in_array($next, $this->reachableStepKeys, true) ? $next : null;
     }
@@ -309,8 +384,12 @@ new class extends Component
     @endif
 
     @if ($this->showOverview && $this->currentStepKey !== null)
-        <x-mission-listening-link :mission="$mission" />
-        <x-mission-pi-link :mission="$mission" />
+        @if ($this->missionLocked)
+            <x-missions.locked-notice :gating-mission="$this->gatingMission" />
+        @else
+            <x-mission-listening-link :mission="$mission" />
+            <x-mission-pi-link :mission="$mission" />
+        @endif
 
         {{-- Mission overview, styled as a journey path --}}
         <div class="relative pl-11">
@@ -318,11 +397,15 @@ new class extends Component
 
             @foreach ($run->dayProgress() as $index => $day)
                 @php
-                    $entryStep = $day['done']
-                        ? $day['stepKeys'][0]
-                        : ($day['current']
-                            ? $this->currentStepKey
-                            : ($run->learner->bypassesEvidenceGating() ? $day['stepKeys'][0] : null));
+                    if ($this->missionLocked) {
+                        $day['current'] = false;
+                        $day['locked'] = true;
+                    }
+
+                    $isPreviewDay = $day['locked'];
+                    // Every day opens: done days to review, the current day to
+                    // continue, later days as a look-only preview.
+                    $entryStep = $day['current'] ? $this->currentStepKey : $day['stepKeys'][0];
                 @endphp
                 <div class="relative mb-3.5">
                     <div class="absolute top-3.5 -left-11 flex h-9 w-9 items-center justify-center rounded-full border-2 font-display text-sm font-semibold
@@ -333,8 +416,8 @@ new class extends Component
                                 : 'border-line bg-ground text-ink-faint dark:border-line-dark dark:bg-ground-dark dark:text-ink-faint-dark') }}">
                         @if ($day['done'])
                             @svg('heroicon-o-check', 'h-4 w-4')
-                        @elseif ($day['locked'])
-                            @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5')
+                        @elseif ($isPreviewDay)
+                            @svg('heroicon-o-eye', 'h-3.5 w-3.5')
                         @else
                             {{ $index + 1 }}
                         @endif
@@ -347,14 +430,16 @@ new class extends Component
                         @endif
                         class="block rounded-2xl border bg-surface p-4.5 dark:bg-surface-dark
                         {{ $day['current'] ? 'border-accent dark:border-accent-dark' : 'border-line dark:border-line-dark' }}
-                        {{ $day['locked'] ? 'opacity-55' : '' }}
+                        {{ $isPreviewDay ? 'border-dashed' : '' }}
                         {{ $entryStep ? 'cursor-pointer transition-colors hover:border-accent dark:hover:border-accent-dark' : '' }}"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
                                 Day {{ $index + 1 }} · {{ $day['label'] }}
                             </p>
-                            @if ($day['done'])
+                            @if ($day['current'])
+                                <span class="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
+                            @elseif ($day['done'])
                                 <span class="text-xs font-semibold text-success dark:text-success-dark">Completed {{ $day['completedAt']->format('M j') }}</span>
                             @elseif ($day['startedAt'])
                                 <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Started {{ $day['startedAt']->format('M j') }}</span>
@@ -368,7 +453,7 @@ new class extends Component
 
                         @if ($entryStep)
                             <span class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-accent-ink dark:text-accent-ink-dark">
-                                {{ $day['done'] ? 'Review' : 'Continue' }} @svg('heroicon-o-chevron-right', 'h-3 w-3')
+                                {{ $day['done'] ? 'Review' : ($isPreviewDay ? 'Preview' : 'Continue') }} @svg('heroicon-o-chevron-right', 'h-3 w-3')
                             </span>
                         @endif
                     </{{ $entryStep ? 'a' : 'div' }}>
@@ -400,49 +485,82 @@ new class extends Component
                 @php
                     $done = $key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true);
                     $active = $key === $this->activeStepKey;
-                    $reachable = in_array($key, $this->reachableStepKeys, true);
+                    $ahead = ! in_array($key, $this->reachableStepKeys, true);
                 @endphp
-                @if ($reachable)
-                    <a
-                        href="{{ route('missions.show', [$mission, $key]) }}"
-                        wire:navigate
-                        class="flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm transition-colors
-                            {{ match (true) {
-                                $active => 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark',
-                                $done => 'border-success/30 bg-success-soft text-success dark:border-success-dark/30 dark:bg-success-soft-dark dark:text-success-dark',
-                                default => 'border-line text-ink-soft dark:border-line-dark dark:text-ink-soft-dark',
-                            } }}"
-                    >
-                        @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
-                        <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
-                        @if ($duration = $mission->stepDuration($key))
-                            <span class="shrink-0 text-xs {{ $active ? 'text-white/80' : 'opacity-70' }}">~{{ Mission::formatDuration($duration) }}</span>
-                        @endif
-                        @if ($done && ! $active)
-                            @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
-                        @endif
-                    </a>
-                @else
-                    <span
-                        class="flex items-center gap-3 rounded-xl border border-line/60 px-3.5 py-2.5 text-sm text-ink-faint/70 dark:border-line-dark/60 dark:text-ink-faint-dark/70"
-                    >
-                        @svg($this->stepIcon($key), 'h-4 w-4 shrink-0 opacity-40')
-                        <span class="flex-1">{{ $mission->stepLabel($key) }}</span>
-                        @if ($duration = $mission->stepDuration($key))
-                            <span class="shrink-0 text-xs">~{{ Mission::formatDuration($duration) }}</span>
-                        @endif
-                        @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
-                    </span>
-                @endif
+                <a
+                    href="{{ route('missions.show', [$mission, $key]) }}"
+                    wire:navigate
+                    @if ($active) aria-current="step" @endif
+                    class="flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm transition-colors
+                        {{ match (true) {
+                            $active => 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark',
+                            $done => 'border-success/30 bg-success-soft text-success dark:border-success-dark/30 dark:bg-success-soft-dark dark:text-success-dark',
+                            $ahead => 'border-dashed border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark',
+                            default => 'border-line text-ink-soft dark:border-line-dark dark:text-ink-soft-dark',
+                        } }}"
+                >
+                    @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
+                    <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
+                    @if ($key === $this->currentStepKey && ! $active && ! $this->missionLocked)
+                        <span class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
+                    @endif
+                    @if ($duration = $mission->stepDuration($key))
+                        <span class="shrink-0 text-xs {{ $active ? 'text-white/80' : 'opacity-70' }}">~{{ Mission::formatDuration($duration) }}</span>
+                    @endif
+                    @if ($done && ! $active)
+                        @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
+                    @elseif ($ahead)
+                        @svg('heroicon-o-eye', 'h-3.5 w-3.5 shrink-0')
+                    @endif
+                </a>
             @endforeach
         </nav>
+
+        @if ($this->isPreviewing)
+            <div class="rounded-2xl border border-dashed border-accent bg-accent-soft p-4 text-sm dark:border-accent-dark dark:bg-accent-soft-dark" role="status">
+                <p class="flex items-center gap-2 font-semibold text-accent-ink dark:text-accent-ink-dark">
+                    @svg('heroicon-o-eye', 'h-4 w-4 shrink-0')
+                    Preview only: you can't do this step yet
+                </p>
+                @if ($this->missionLocked && $this->gatingMission)
+                    <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
+                        This mission unlocks when you finish {{ $this->gatingMission->code }} · {{ $this->gatingMission->title }}.
+                    </p>
+                    <a
+                        href="{{ route('missions.show', [$this->gatingMission, 'overview']) }}"
+                        wire:navigate
+                        class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
+                    >
+                        Go to {{ $this->gatingMission->code }}
+                        @svg('heroicon-o-chevron-right', 'h-3 w-3')
+                    </a>
+                @elseif ($this->currentPosition)
+                    <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
+                        You are on Day {{ $this->currentPosition['dayNumber'] }} · {{ $this->currentPosition['dayLabel'] }}, at
+                        <span class="font-semibold">{{ $this->currentPosition['stepLabel'] }}</span>.
+                    </p>
+                    <a
+                        href="{{ route('missions.show', [$mission, $this->currentPosition['stepKey']]) }}"
+                        wire:navigate
+                        class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
+                    >
+                        Go to where I am
+                        @svg('heroicon-o-chevron-right', 'h-3 w-3')
+                    </a>
+                @endif
+            </div>
+        @endif
 
         <div class="card p-5">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                     Step {{ $position }} of {{ count($daySteps) }}
                 </p>
-                @if ($this->isReviewing)
+                @if ($this->isPreviewing)
+                    <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+                        Preview
+                    </span>
+                @elseif ($this->isReviewing)
                     <span class="flex items-center gap-2">
                         <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
                             Reviewing a completed step
@@ -477,16 +595,18 @@ new class extends Component
                         : [];
                 @endphp
                 <div class="mt-4">
-                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing, ...$extraProps], key($run->id.'-'.$this->activeStepKey.'-'.($this->isReviewing ? 'ro' : 'live')))
+                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing || $this->isPreviewing, 'preview' => $this->isPreviewing, ...$extraProps], key($run->id.'-'.$this->activeStepKey.'-'.($this->isPreviewing ? 'pv' : ($this->isReviewing ? 'ro' : 'live'))))
                 </div>
             @else
                 <p class="mt-2 text-sm text-ink-faint dark:text-ink-faint-dark">Step screen not built yet.</p>
             @endif
         </div>
 
-        <div>
-            @livewire('missions.ask-instructor', ['run' => $run, 'stepKey' => $this->activeStepKey], key('ask-instructor-'.$run->id.'-'.$this->activeStepKey))
-        </div>
+        @unless ($this->isPreviewing)
+            <div>
+                @livewire('missions.ask-instructor', ['run' => $run, 'stepKey' => $this->activeStepKey], key('ask-instructor-'.$run->id.'-'.$this->activeStepKey))
+            </div>
+        @endunless
 
         <div class="flex items-center justify-between text-sm">
             @if ($this->previousStepKey)
@@ -511,7 +631,7 @@ new class extends Component
                     Next
                     @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
                 </a>
-            @elseif ($this->isReviewing)
+            @elseif ($this->isReviewing || $this->isPreviewing)
                 <a
                     href="{{ route('missions.show', [$mission, 'overview']) }}"
                     wire:navigate
