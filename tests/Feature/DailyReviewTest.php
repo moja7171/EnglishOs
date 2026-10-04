@@ -83,42 +83,61 @@ class DailyReviewTest extends TestCase
         $this->assertEqualsCanonicalizing(['word', 'speaking', 'error', 'grammar'], array_column($queue, 'type'));
     }
 
-    public function test_a_word_requires_opening_its_card_before_grading(): void
+    public function test_a_word_shows_the_front_of_a_recall_card_with_session_progress(): void
     {
         $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner, ['repetitions' => 2]);
+        $this->makeDueWord($learner, ['repetitions' => 2]);
         $this->actingAs($learner);
 
         Livewire::test('review.index')
             ->assertSee('commute')
+            ->assertSee('Do you remember it?')
             ->assertSee('I remember')
-            ->assertDontSee('to travel to work')
-            ->assertDontSee('Did you really remember it?')
-            ->call('gradeSelf', 5);
-
-        $this->assertSame(2, $word->fresh()->repetitions);
+            ->assertSee('1 / 1')
+            ->assertSee('Skip for now')
+            ->assertSeeHtml('x-data="recallCard"');
     }
 
-    public function test_saying_i_remember_opens_the_card_and_grading_advances_its_schedule(): void
+    public function test_grading_a_word_advances_its_schedule_and_the_session_progress(): void
     {
         $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner, [
+        $this->makeDueWord($learner, ['word' => 'commute', 'repetitions' => 2, 'interval_days' => 6, 'next_review_at' => now()->subMinutes(5)]);
+        $this->makeDueWord($learner, ['word' => 'errand', 'repetitions' => 2, 'interval_days' => 6, 'next_review_at' => now()->subMinutes(4)]);
+        $this->makeDueWord($learner, ['word' => 'chore', 'repetitions' => 2, 'interval_days' => 6, 'next_review_at' => now()->subMinutes(3)]);
+        $this->actingAs($learner);
+
+        $component = Livewire::test('review.index');
+        $currentWord = $component->instance()->currentItem['model'];
+
+        $component->assertSee('1 / 3')
+            ->call('gradeWord', 5, true)
+            ->assertSee('2 / 3')
+            ->assertSet('sessionGraded', 1)
+            ->assertSet('sessionRemembered', 1);
+
+        $this->assertSame(3, $currentWord->fresh()->repetitions);
+    }
+
+    public function test_the_back_of_a_word_card_has_its_details_and_grade_gaps(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, [
             'repetitions' => 2,
+            'interval_days' => 6,
             'pos' => 'verb',
             'example' => 'I commute by train.',
-            'user_sentence' => 'I commute to the office every day.',
+            'user_sentence' => 'He commutes to the office every day.',
         ]);
         $this->actingAs($learner);
 
-        Livewire::test('review.index')
-            ->call('revealWord', true)
-            ->assertSee('to travel to work')
-            ->assertSee('I commute by train.')
-            ->assertSee('I commute to the office every day.')
-            ->assertSee('Knew it instantly')
-            ->call('gradeSelf', 5);
+        $bold = '<strong class="font-bold text-accent-ink dark:text-accent-ink-dark">';
 
-        $this->assertSame(3, $word->fresh()->repetitions);
+        Livewire::test('review.index')
+            ->assertSee('to travel to work')
+            ->assertSee('You wrote')
+            ->assertSeeHtml($bold.'commute</strong> by train.')
+            ->assertSeeHtml($bold.'commutes</strong> to the office every day.')
+            ->assertSeeInOrder(['Again', '1d', 'Good', '15d', 'Easy', '20d']);
     }
 
     /**
@@ -136,8 +155,7 @@ class DailyReviewTest extends TestCase
         Livewire::test('review.index')
             ->assertSee('I remember')
             ->assertDontSee('Write a sentence using this word.')
-            ->call('revealWord', true)
-            ->call('gradeSelf', 4);
+            ->call('gradeWord', 4, true);
 
         $this->assertSame(1, $word->fresh()->repetitions);
     }
@@ -149,29 +167,36 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->call('revealWord', false)
-            ->assertSee('see it again soon')
-            ->assertDontSee('Knew it instantly')
-            ->call('gradeSelf', 5);
+            ->call('gradeWord', 5, false)
+            ->assertSet('sessionGraded', 1)
+            ->assertSet('sessionRemembered', 0);
 
         $fresh = $word->fresh();
         $this->assertSame(0, $fresh->repetitions);
         $this->assertSame(1, $fresh->interval_days);
     }
 
-    public function test_the_recall_state_resets_for_the_next_item(): void
+    public function test_the_word_and_non_word_grading_paths_do_not_cross_over(): void
     {
         $learner = User::factory()->create();
-        $this->makeDueWord($learner, ['word' => 'commute', 'next_review_at' => now()->subMinutes(2)]);
-        $this->makeDueWord($learner, ['word' => 'errand', 'next_review_at' => now()->subMinute()]);
+        $word = $this->makeDueWord($learner, ['repetitions' => 2]);
         $this->actingAs($learner);
 
+        // gradeSelf is for the other card types; a word must go through gradeWord.
         Livewire::test('review.index')
-            ->call('revealWord', true)
-            ->call('gradeSelf', 4)
-            ->assertSet('revealed', false)
-            ->assertSet('recalledWord', false)
-            ->assertSee('I remember');
+            ->set('revealed', true)
+            ->call('gradeSelf', 5);
+
+        $this->assertSame(2, $word->fresh()->repetitions);
+
+        // ...and gradeWord must not grade a non-word card.
+        $other = User::factory()->create();
+        $error = $this->makeDueError($other);
+        $this->actingAs($other);
+
+        Livewire::test('review.index')->call('gradeWord', 5, true);
+
+        $this->assertSame(0, $error->fresh()->repetitions);
     }
 
     public function test_forgetting_an_experienced_word_brings_it_back_tomorrow(): void
@@ -180,14 +205,54 @@ class DailyReviewTest extends TestCase
         $word = $this->makeDueWord($learner, ['repetitions' => 2]);
         $this->actingAs($learner);
 
-        Livewire::test('review.index')
-            ->call('revealWord', true)
-            ->call('gradeSelf', 1);
+        Livewire::test('review.index')->call('gradeWord', 1, true);
 
         $fresh = $word->fresh();
         $this->assertSame(0, $fresh->repetitions);
         $this->assertFalse($fresh->isDue());
         $this->assertEqualsWithDelta(now()->addDay()->timestamp, $fresh->next_review_at->timestamp, 5);
+    }
+
+    public function test_finishing_the_session_shows_a_summary_of_what_was_remembered(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['word' => 'commute', 'next_review_at' => now()->subMinutes(2)]);
+        $this->makeDueWord($learner, ['word' => 'errand', 'next_review_at' => now()->subMinute()]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->call('gradeWord', 4, true)
+            ->assertDontSee('Session done!')
+            ->call('gradeWord', 1, true)
+            ->assertSee('Session done!')
+            ->assertSee('2 items reviewed')
+            ->assertSee('1 remembered')
+            ->assertSee('1 coming back tomorrow')
+            ->assertDontSee("You're all caught up");
+    }
+
+    public function test_arriving_on_an_already_finished_day_still_just_says_all_caught_up(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSee('all caught up')
+            ->assertDontSee('Session done!');
+    }
+
+    public function test_non_word_cards_use_the_shared_frame_and_show_grade_gaps(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueError($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSee('Grammar pattern')
+            ->assertSee('1 / 1')
+            ->assertDontSee('Again')
+            ->call('reveal')
+            ->assertSeeInOrder(['Again', '1d', 'Good', 'Easy']);
     }
 
     public function test_an_error_pattern_requires_revealing_the_fix_before_grading(): void
@@ -331,9 +396,7 @@ class DailyReviewTest extends TestCase
             $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue), 'repetitions' => 1]);
         }
 
-        Livewire::test('review.index')
-            ->set('revealed', true)
-            ->call('gradeSelf', 4);
+        Livewire::test('review.index')->call('gradeWord', 4, true);
 
         $this->assertSame(1, $learner->reviewedTodayCount());
         $this->assertCount(7, $learner->dailyReviewItems());

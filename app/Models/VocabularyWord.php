@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\HtmlString;
 
 #[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class VocabularyWord extends Model
@@ -111,6 +112,47 @@ class VocabularyWord extends Model
         if ($blanksFilled !== []) {
             $this->update($blanksFilled);
         }
+    }
+
+    /**
+     * $sentence as safe HTML with this word picked out in bold — the
+     * exact phrase if it's there, else the phrase with its first word
+     * allowed to carry an ending ("get up" in "he gets up", "oversleep"
+     * in "oversleeping"). An irregular form ("overslept") isn't found, and
+     * then the sentence is returned plain rather than guessing.
+     */
+    public function highlightIn(string $sentence): HtmlString
+    {
+        $words = preg_split('/\s+/u', trim($this->word), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if ($words === []) {
+            return new HtmlString(e($sentence));
+        }
+
+        $quoted = array_map(fn (string $part) => preg_quote($part, '/'), $words);
+        $patterns = [implode('\s+', $quoted)];
+
+        // A lone short word ("go", "be") would match half the dictionary
+        // once an ending is allowed, so it is only inflected when the rest
+        // of a phrase ("get up" -> "gets up") pins the match down.
+        if (mb_strlen($words[0]) >= 4 || count($words) > 1) {
+            $stem = preg_quote(preg_replace('/e$/iu', '', $words[0]), '/');
+            $patterns[] = implode('\s+', [$stem.'\w*', ...array_slice($quoted, 1)]);
+        }
+
+        foreach ($patterns as $pattern) {
+            if (preg_match('/(?<![\w])'.$pattern.'(?![\w])/iu', $sentence, $match, PREG_OFFSET_CAPTURE)) {
+                [$found, $offset] = $match[0];
+
+                return new HtmlString(
+                    e(substr($sentence, 0, $offset))
+                    .'<strong class="font-bold text-accent-ink dark:text-accent-ink-dark">'.e($found).'</strong>'
+                    .e(substr($sentence, $offset + strlen($found)))
+                );
+            }
+        }
+
+        return new HtmlString(e($sentence));
     }
 
     /**

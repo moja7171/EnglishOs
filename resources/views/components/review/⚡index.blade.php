@@ -35,12 +35,21 @@ new class extends Component
      * True once the meaning/correction has been revealed for the current
      * item — error patterns and grammar points start hidden ("what was
      * wrong?" / "quick reminder?") so grading is an honest self-test, not
-     * just reading and tapping Easy. A word's recall card shares this flag.
+     * just reading and tapping Easy. (A word's card flips in the browser
+     * and never uses this — see gradeWord().)
      */
     public bool $revealed = false;
 
-    /** True when the learner said "I remember" on a word before opening its card. */
-    public bool $recalledWord = false;
+    /**
+     * How many items were graded in THIS page session, and how many of
+     * those the learner remembered (quality 3+) — the progress counter's
+     * "3 / 8" and the end-of-session summary. Plain component state: a
+     * reload starts a fresh session, and what was already graded simply
+     * isn't due any more.
+     */
+    public int $sessionGraded = 0;
+
+    public int $sessionRemembered = 0;
 
     /**
      * "type:id" keys (see itemKey()) for every item the learner has
@@ -166,16 +175,6 @@ new class extends Component
     }
 
     /**
-     * A word's recall card — "I remember" or "Not sure — show me", then
-     * the card opens either way (see <x-vocabulary-review-card>).
-     */
-    public function revealWord(bool $remembered = false): void
-    {
-        $this->revealed = true;
-        $this->recalledWord = $remembered;
-    }
-
-    /**
      * Fired automatically once a speaking recording uploads (see
      * <x-voice-recorder>'s on-recorded) — same idea as Speaking Recall's
      * own page: the recording itself is the artifact, no extra send step.
@@ -197,19 +196,18 @@ new class extends Component
 
     /**
      * Again/Good/Easy → SM-2's 0-5 quality scale (1/4/5), same mapping
-     * every other review flow in the app already uses. A speaking item
-     * needs a fresh recording first (see recordedThisTurn); every other
-     * item needs its answer revealed first (see $revealed) — both just
-     * guard against grading something without actually looking at or
-     * attempting it. A word the learner wasn't sure about ("show me") can
-     * only ever be graded as forgotten — enforced here, not just hidden
-     * in the card.
+     * every other review flow in the app already uses, for the speaking,
+     * grammar-pattern and grammar-point cards. A speaking item needs a
+     * fresh recording first (see recordedThisTurn); the others need their
+     * answer revealed first (see $revealed) — both just guard against
+     * grading something without actually looking at or attempting it.
+     * Words have their own entry point, gradeWord().
      */
     public function gradeSelf(int $quality): void
     {
         $item = $this->currentItem;
 
-        if (! $item) {
+        if (! $item || $item['type'] === 'word') {
             return;
         }
 
@@ -221,11 +219,36 @@ new class extends Component
             return;
         }
 
-        if ($item['type'] === 'word' && ! $this->recalledWord) {
-            $quality = 1;
+        $this->gradeCurrent($item['model'], $quality);
+    }
+
+    /**
+     * A word's one round-trip: the card flips, swipes and animates out in
+     * the browser (see <x-vocabulary-review-card>) and then reports the
+     * grade. A learner who wasn't sure ("show me") can only ever fail the
+     * word — enforced here, not just by hiding the other buttons.
+     */
+    public function gradeWord(int $quality, bool $remembered): void
+    {
+        $item = $this->currentItem;
+
+        if (! $item || $item['type'] !== 'word') {
+            return;
         }
 
-        $item['model']->review($quality);
+        $this->gradeCurrent($item['model'], $remembered ? $quality : 1);
+    }
+
+    private function gradeCurrent(VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint $model, int $quality): void
+    {
+        $model->review($quality);
+
+        $this->sessionGraded++;
+
+        if ($quality >= 3) {
+            $this->sessionRemembered++;
+        }
+
         $this->advance();
     }
 
@@ -244,7 +267,6 @@ new class extends Component
      */
     private function resetItemState(): void
     {
-        $this->recalledWord = false;
         $this->recording = null;
         $this->recordedThisTurn = false;
         $this->revealed = false;
@@ -289,6 +311,36 @@ new class extends Component
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">You've skipped everything for today.</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing here was graded — come back to the rest whenever you're ready.</p>
             </div>
+        @elseif ($sessionGraded > 0)
+            {{--
+                This page session's wrap-up: how many were graded and how
+                they split into "remembered" vs "back tomorrow" (a failed
+                review is rescheduled a day out). Shown only after at
+                least one grade this session — arriving on an already
+                finished day still gets the plain "all caught up" below.
+            --}}
+            <div class="flex flex-col items-center gap-3 card p-8 text-center" @if ($sessionRemembered > 0) x-data x-init="window.eosConfetti?.burst()" @endif>
+                <span class="animate-trophy-pop inline-flex h-14 w-14 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
+                    @svg('heroicon-o-check-badge', 'h-8 w-8')
+                </span>
+                <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Session done!</p>
+                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $sessionGraded }} {{ Str::plural('item', $sessionGraded) }} reviewed</p>
+                <div class="flex flex-wrap justify-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-success dark:bg-success-soft-dark dark:text-success-dark">
+                        @svg('heroicon-o-check', 'h-4 w-4') {{ $sessionRemembered }} remembered
+                    </span>
+                    @if ($sessionGraded - $sessionRemembered > 0)
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-3 py-1 text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+                            @svg('heroicon-o-arrow-path', 'h-4 w-4') {{ $sessionGraded - $sessionRemembered }} coming back tomorrow
+                        </span>
+                    @endif
+                </div>
+                <a
+                    href="{{ route('home') }}"
+                    wire:navigate
+                    class="mt-2 inline-flex cursor-pointer items-center rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                >Done</a>
+            </div>
         @else
             <div class="flex flex-col items-center gap-2 card p-8 text-center">
                 @svg('heroicon-o-check-badge', 'h-6 w-6 text-success dark:text-success-dark')
@@ -305,102 +357,123 @@ new class extends Component
             $item = $this->currentItem;
             $type = $item['type'];
             $model = $item['model'];
+            $position = $sessionGraded + 1;
+            $total = $sessionGraded + count($this->queue);
+            $remaining = count($this->queue) - 1;
+            $label = match ($type) {
+                'speaking' => 'Speaking',
+                'error' => 'Grammar pattern',
+                default => 'Grammar point',
+            };
+            $icon = match ($type) {
+                'speaking' => 'heroicon-o-microphone',
+                'error' => 'heroicon-o-pencil',
+                default => 'heroicon-o-academic-cap',
+            };
         @endphp
-        <div wire:key="review-{{ $type }}-{{ $model->id }}" class="space-y-4 card p-5">
-            <p class="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                @if ($type === 'word')
-                    @svg('heroicon-o-book-open', 'h-3.5 w-3.5') Word
-                @elseif ($type === 'speaking')
-                    @svg('heroicon-o-microphone', 'h-3.5 w-3.5') Speaking
-                @elseif ($type === 'error')
-                    @svg('heroicon-o-pencil', 'h-3.5 w-3.5') Grammar pattern
-                @else
-                    @svg('heroicon-o-academic-cap', 'h-3.5 w-3.5') Grammar point
-                @endif
-                · {{ count($this->queue) }} left today
-            </p>
 
-            @if ($type === 'word')
-                <x-speak-word :word="$model->word" block class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark" />
-
-                <x-vocabulary-review-card :word="$model" :revealed="$revealed" :recalled="$recalledWord" />
-            @elseif ($type === 'speaking')
-                <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Answer out loud, without preparing first.</p>
-
-                @if ($model->last_recording_url && ! $recordedThisTurn)
-                    <div>
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your last attempt:</p>
-                        <div class="mt-1"><x-audio-player :url="$model->last_recording_url" /></div>
-                    </div>
-                @endif
-
-                <x-voice-recorder field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
-            @elseif ($type === 'error')
-                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                    You've mixed this up before: <span class="text-danger-ink line-through decoration-danger">{{ $model->last_error }}</span>
-                </p>
-                @if (! $revealed)
-                    <button
-                        type="button"
-                        wire:click="reveal"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                    >@svg('heroicon-o-eye', 'h-4 w-4') Show the fix</button>
-                @else
-                    <p class="text-sm text-success dark:text-success-dark">{{ $model->last_correction }}</p>
-                @endif
-            @else
-                <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
-                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Can you still write a sentence like this? <span class="text-ink-faint italic dark:text-ink-faint-dark">"{{ $model->example_sentence }}"</span></p>
-                @if (! $revealed)
-                    <button
-                        type="button"
-                        wire:click="reveal"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                    >@svg('heroicon-o-eye', 'h-4 w-4') Show a quick reminder</button>
-                @else
-                    <p class="text-sm text-success dark:text-success-dark">{{ $model->rule_reminder }}</p>
-                @endif
-            @endif
-
-            @if ($type === 'speaking' ? $recordedThisTurn : ($type !== 'word' && $revealed))
-                <div>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                        @if ($type === 'speaking') How did that feel? @else Did you remember it? @endif
-                    </p>
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        <button
-                            type="button"
-                            wire:click="gradeSelf(1)"
-                            class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-danger-line hover:bg-danger-soft hover:text-danger-ink dark:border-line-dark dark:text-ink-soft-dark"
-                        >Forgot it</button>
-                        <button
-                            type="button"
-                            wire:click="gradeSelf(4)"
-                            class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >Remembered it</button>
-                        <button
-                            type="button"
-                            wire:click="gradeSelf(5)"
-                            class="cursor-pointer rounded-full border border-success/40 px-4 py-2 text-sm font-semibold text-success transition-colors hover:bg-success-soft dark:border-success-dark/40 dark:text-success-dark dark:hover:bg-success-soft-dark"
-                        >Knew it instantly</button>
-                    </div>
-                </div>
-            @endif
-
-            {{--
-                Deliberately far lighter than Again/Good/Easy above — a
-                plain text link, not a pill button — this is an escape
-                hatch for a stuck item (e.g. denied microphone access, see
-                voice-recorder.blade.php), not a normal everyday action.
-            --}}
-            <div class="pt-1 text-center">
-                <button
-                    type="button"
-                    wire:click="skip"
-                    class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
-                >@svg('heroicon-o-forward', 'h-3.5 w-3.5') Skip for now</button>
+        @if ($type === 'word')
+            <div wire:key="review-word-{{ $model->id }}">
+                <x-vocabulary-review-card :word="$model" :position="$position" :total="$total" :remaining="$remaining" />
             </div>
+        @else
+            <div wire:key="review-{{ $type }}-{{ $model->id }}">
+                <x-review-shell
+                    :label="$label"
+                    :icon="$icon"
+                    :position="$position"
+                    :total="$total"
+                    :remaining="$remaining"
+                    class="animate-review-card-in"
+                >
+                    @if ($type === 'speaking')
+                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Answer out loud, without preparing first.</p>
+
+                        @if ($model->last_recording_url && ! $recordedThisTurn)
+                            <div>
+                                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your last attempt:</p>
+                                <div class="mt-1"><x-audio-player :url="$model->last_recording_url" /></div>
+                            </div>
+                        @endif
+
+                        <x-voice-recorder field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
+                    @elseif ($type === 'error')
+                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                            You've mixed this up before: <span class="text-danger-ink line-through decoration-danger">{{ $model->last_error }}</span>
+                        </p>
+                        @if (! $revealed)
+                            <button
+                                type="button"
+                                wire:click="reveal"
+                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                            >@svg('heroicon-o-eye', 'h-4 w-4') Show the fix</button>
+                        @else
+                            <p class="text-sm text-success dark:text-success-dark">{{ $model->last_correction }}</p>
+                        @endif
+                    @else
+                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
+                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Can you still write a sentence like this? <span class="text-ink-faint italic dark:text-ink-faint-dark">"{{ $model->example_sentence }}"</span></p>
+                        @if (! $revealed)
+                            <button
+                                type="button"
+                                wire:click="reveal"
+                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                            >@svg('heroicon-o-eye', 'h-4 w-4') Show a quick reminder</button>
+                        @else
+                            <p class="text-sm text-success dark:text-success-dark">{{ $model->rule_reminder }}</p>
+                        @endif
+                    @endif
+
+                    @if ($type === 'speaking' ? $recordedThisTurn : $revealed)
+                        <div>
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+                                @if ($type === 'speaking') How did that feel? @else Did you remember it? @endif
+                            </p>
+                            <div class="mt-2 grid grid-cols-3 gap-2">
+                                <button
+                                    type="button"
+                                    wire:click="gradeSelf(1)"
+                                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-danger-line bg-danger-soft px-2 py-2.5 text-danger-ink transition-colors hover:opacity-90"
+                                >
+                                    <span class="text-sm font-bold">Again</span>
+                                    <span class="text-[11px] font-semibold opacity-70">{{ $model->nextIntervalLabel(1) }}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="gradeSelf(4)"
+                                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-line px-2 py-2.5 text-ink transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
+                                >
+                                    <span class="text-sm font-bold">Good</span>
+                                    <span class="text-[11px] font-semibold opacity-70">{{ $model->nextIntervalLabel(4) }}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="gradeSelf(5)"
+                                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-success/40 bg-success-soft px-2 py-2.5 text-success transition-colors hover:opacity-90 dark:border-success-dark/40 dark:bg-success-soft-dark dark:text-success-dark"
+                                >
+                                    <span class="text-sm font-bold">Easy</span>
+                                    <span class="text-[11px] font-semibold opacity-70">{{ $model->nextIntervalLabel(5) }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+                </x-review-shell>
+            </div>
+        @endif
+
+        {{--
+            Deliberately far lighter than the grade buttons — a plain text
+            link, not a pill button — this is an escape hatch for a stuck
+            item (e.g. denied microphone access, see voice-recorder.blade.php),
+            not a normal everyday action.
+        --}}
+        <div class="pt-1 text-center">
+            <button
+                type="button"
+                wire:click="skip"
+                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
+            >@svg('heroicon-o-forward', 'h-3.5 w-3.5') Skip for now</button>
         </div>
     @endif
 </div>
