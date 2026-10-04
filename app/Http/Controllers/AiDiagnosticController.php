@@ -43,8 +43,11 @@ class AiDiagnosticController extends Controller
             '== 2. Exact app path: GeminiClient::chat() — what Sage and Check run ==',
             ...$this->probeGeminiClient(),
             '',
-            '== 2b. Realistic requests: Sage-style chat and a real sentence check (full app chain, 2 runs each) ==',
+            '== 2b. Realistic requests: Sage-style chat and a real sentence check (full app chain) ==',
             ...$this->probeRealisticRequests(),
+            '',
+            '== 2c. Relay POST body-size x HTTP version sweep (real countTokens call; finds what kills big requests) ==',
+            ...$this->probeRelaySizeSweep(),
             '',
             '== 3. Direct to Google, no relay (informational — expected to fail on a filtered host) ==',
             ...$this->probeDirect(),
@@ -111,7 +114,7 @@ class AiDiagnosticController extends Controller
         $systemPrompt = str_repeat('You are Sage, a warm, concise English tutor for an intermediate learner. Keep answers short and encouraging. ', 12);
         $lines = [];
 
-        foreach (range(1, 2) as $run) {
+        foreach (range(1, 1) as $run) {
             $lines[] = "Sage-style chat (systemInstruction + maxOutputTokens 220 + history), run {$run}:";
 
             foreach ($this->timed(fn (): string => 'OK — '.mb_substr(app(GeminiClient::class)->chat([
@@ -123,7 +126,7 @@ class AiDiagnosticController extends Controller
             }
         }
 
-        foreach (range(1, 2) as $run) {
+        foreach (range(1, 1) as $run) {
             $lines[] = "SentenceChecker::check() (what the Check button runs), run {$run}:";
 
             foreach ($this->timed(function (): string {
@@ -137,6 +140,40 @@ class AiDiagnosticController extends Controller
                 return 'OK — '.json_encode($result);
             }) as $line) {
                 $lines[] = '  '.str_replace(chr(10), chr(10).'  ', $line);
+            }
+        }
+
+        return $lines;
+    }
+
+    /** @return array<int, string> */
+    private function probeRelaySizeSweep(): array
+    {
+        if ($this->relayUrl() === '') {
+            return ['skipped — no relay configured'];
+        }
+
+        $target = 'https://generativelanguage.googleapis.com/v1beta/models/'.config('services.gemini.model').':countTokens';
+        $lines = [];
+
+        foreach ([[100, 1.1], [100, 2.0], [3000, 1.1], [3000, 2.0], [8000, 1.1], [8000, 2.0]] as [$bytes, $version]) {
+            $lines[] = "body ~{$bytes} bytes, HTTP/{$version} to relay:";
+
+            foreach ($this->timed(function () use ($bytes, $version, $target): string {
+                $response = Http::withHeaders([
+                    'x-goog-api-key' => (string) config('services.gemini.key'),
+                    'X-Relay-Url' => $target,
+                    'X-Relay-Auth' => (string) config('services.ai_proxy.secret'),
+                ])
+                    ->withOptions(['version' => $version])
+                    ->timeout(10)
+                    ->post($this->relayUrl(), ['contents' => [['role' => 'user', 'parts' => [['text' => str_repeat('hello ', intdiv($bytes, 6))]]]]]);
+
+                $negotiated = $response->handlerStats()['http_version'] ?? '?';
+
+                return 'HTTP '.$response->status().' (negotiated curl http_version code '.$negotiated.', 2=1.1, 3=h2) — '.mb_substr(preg_replace('/\s+/', ' ', $response->body()), 0, 80);
+            }) as $line) {
+                $lines[] = '  '.$line;
             }
         }
 

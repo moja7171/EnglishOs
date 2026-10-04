@@ -47,6 +47,7 @@ class AiDiagnosticTest extends TestCase
         $response->assertSee('response status: 401', false);
         $response->assertSee('Sage-style chat', false);
         $response->assertSee('SentenceChecker::check()', false);
+        $response->assertSee('size x HTTP version sweep', false);
         $response->assertDontSee('secret-relay-value', false);
         $response->assertDontSee('secret-gemini-key', false);
     }
