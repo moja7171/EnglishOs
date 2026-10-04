@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiDiagnosticController;
 use App\Models\DirectMessage;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
@@ -10,6 +11,10 @@ use App\Notifications\PartnerSessionStarted;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+
+// Temporary: token-gated report on why the host can't reach Gemini. Remove
+// together with AiDiagnosticController once the cause is found.
+Route::get('/_diag/ai', AiDiagnosticController::class)->middleware('throttle:6,1');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', fn () => view('auth.login'))->name('login');

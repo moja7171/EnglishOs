@@ -82,4 +82,10 @@ return [
         'secret' => env('AI_PROXY_SECRET'),
     ],
 
+    // Gates the temporary /_diag/ai report (App\Http\Controllers\AiDiagnosticController).
+    // Empty token = the route 404s.
+    'diagnostics' => [
+        'token' => env('DEPLOY_TOKEN'),
+    ],
+
 ];
