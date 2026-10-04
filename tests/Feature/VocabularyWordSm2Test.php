@@ -20,13 +20,6 @@ class VocabularyWordSm2Test extends TestCase
         ], $attributes));
     }
 
-    public function test_a_brand_new_word_needs_a_written_review(): void
-    {
-        $word = $this->makeWord();
-
-        $this->assertTrue($word->needsWrittenReview());
-    }
-
     public function test_the_first_successful_review_sets_a_1_day_interval(): void
     {
         $word = $this->makeWord();
@@ -36,7 +29,6 @@ class VocabularyWordSm2Test extends TestCase
         $this->assertSame(1, $word->repetitions);
         $this->assertSame(1, $word->interval_days);
         $this->assertEqualsWithDelta(2.6, $word->ease_factor, 0.001);
-        $this->assertFalse($word->needsWrittenReview());
         $this->assertEqualsWithDelta(now()->addDay()->timestamp, $word->next_review_at->timestamp, 5);
     }
 
@@ -73,7 +65,6 @@ class VocabularyWordSm2Test extends TestCase
 
         $this->assertSame(0, $word->repetitions);
         $this->assertSame(1, $word->interval_days);
-        $this->assertTrue($word->needsWrittenReview());
     }
 
     public function test_a_failed_review_still_lowers_the_ease_factor(): void

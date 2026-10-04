@@ -243,9 +243,6 @@ class MissionSeeder extends Seeder
                                 'label' => 'New Words',
                                 'duration_minutes' => 10,
                                 'hook' => 'A few more everyday words — the kind you actually reach for at home.',
-                                // Starts with a spiral-review warm-up of Day 1's words (built into
-                                // the component itself from the mission's own content, not seeded
-                                // separately) before these new ones are introduced.
                                 'story' => 'For breakfast I usually have **cereal**. In the morning I **have a '
                                     .'shower** and **clean my teeth** before I leave. In the afternoon I have a '
                                     .'**snack** if I\'m hungry. If I\'m tired in the evening, we sometimes order '

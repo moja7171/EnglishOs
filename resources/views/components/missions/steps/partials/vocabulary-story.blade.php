@@ -25,7 +25,7 @@
     @foreach ($words as $word)
         <div class="rounded-xl border border-line p-2.5 dark:border-line-dark">
             <p class="flex items-baseline gap-2">
-                <x-pronounce-on-tap :word="$word['phrase']" class="text-sm font-bold text-ink dark:text-ink-dark" />
+                <x-speak-word :word="$word['phrase']" class="text-sm font-bold text-ink dark:text-ink-dark" />
                 @if (! empty($word['pos']))
                     <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">{{ $word['pos'] }}</span>
                 @endif

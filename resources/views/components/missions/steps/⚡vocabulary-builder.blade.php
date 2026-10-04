@@ -37,8 +37,8 @@ new class extends Component
 
     /**
      * True once the learner has moved into practice at least once — after
-     * this, the spiral-review/story phases stay reachable via "show again"
-     * links, but the phase machine defaults straight back to practice on
+     * this, the story phase stays reachable via a "show again" link, but
+     * the phase machine defaults straight back to practice on
      * re-render so a Check click doesn't bounce them back to page 1.
      */
     public bool $practiceStarted = false;
@@ -89,22 +89,6 @@ new class extends Component
     }
 
     /**
-     * Yesterday's words, for the spiral-review warm-up (see
-     * spiralReviewCards()) — null on day 1, which has no "yesterday"
-     * inside this mission.
-     */
-    private function previousDayWords(): ?array
-    {
-        $day = $this->dayNumber();
-
-        if ($day <= 1) {
-            return null;
-        }
-
-        return $this->run->mission->stepContent('vocabulary_builder_'.($day - 1))['words'] ?? null;
-    }
-
-    /**
      * Splits the day's story on **word** markers into ordered plain-text/
      * highlighted-phrase segments, each highlighted segment carrying its
      * own meaning right alongside it — the template shows that meaning
@@ -146,40 +130,6 @@ new class extends Component
         }
 
         return app(PexelsClient::class)->imageUrlFor($phrase, $query, null);
-    }
-
-    /**
-     * The spiral-review warm-up (Epic B decision) — a quick, ungraded
-     * meaning-match round on YESTERDAY's words, shown before today's new
-     * ones are introduced (days 2 and 3 only). Distractors drawn from
-     * today's own words so they're always plausible, never random.
-     *
-     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
-     */
-    public function spiralReviewCards(): array
-    {
-        $previous = $this->previousDayWords();
-
-        if (! $previous) {
-            return [];
-        }
-
-        $today = collect($this->words());
-
-        return collect($previous)
-            ->map(function (array $entry) use ($today) {
-                $distractors = $today->pluck('meaning')->filter()->shuffle()->take(2);
-                $options = collect([$entry['meaning'], ...$distractors])->shuffle()->values();
-
-                return [
-                    'prompt' => $entry['phrase'],
-                    'options' => $options->all(),
-                    'correct' => $options->search($entry['meaning']),
-                    ...(isset($entry['difficulty']) ? ['difficulty' => $entry['difficulty']] : []),
-                ];
-            })
-            ->values()
-            ->all();
     }
 
     /**
@@ -419,12 +369,18 @@ new class extends Component
     }
 
     /**
-     * @return list<array{word: string, meaning: string}>
+     * @return list<array{word: string, meaning: string, pos: ?string, example: ?string, user_sentence: ?string}>
      */
     protected function notebookCandidates(): array
     {
         return collect($this->words())
-            ->map(fn (array $entry) => ['word' => $entry['phrase'], 'meaning' => $entry['meaning']])
+            ->map(fn (array $entry, int $index) => [
+                'word' => $entry['phrase'],
+                'meaning' => $entry['meaning'],
+                'pos' => $entry['pos'] ?? null,
+                'example' => $entry['example'] ?? null,
+                'user_sentence' => trim((string) ($this->examples[$index] ?? '')) ?: null,
+            ])
             ->values()
             ->all();
     }
@@ -445,7 +401,6 @@ new class extends Component
 @php
     $words = $this->words();
     $storySegments = $this->storySegments();
-    $spiralCards = $this->readOnly ? [] : $this->spiralReviewCards();
     $initialFilled = collect($examples)->map(fn ($e) => trim((string) $e) !== '')->values();
     $draftPrefix = $this->draftPrefix();
 @endphp
@@ -523,7 +478,7 @@ new class extends Component
 @else
 <div
     class="space-y-6"
-    data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : (count($spiralCards) ? 'spiral' : 'story') }}"
+    data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : 'story' }}"
     data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
         phase: 'story',
@@ -540,27 +495,12 @@ new class extends Component
     <x-hook :text="$run->mission->stepContent($stepKey)['hook'] ?? null" />
 
     @php
-        // Phase count varies: "spiral" only renders when yesterday's words
-        // exist to review. Used only for the "Part X of Y" orientation
-        // label below — unlike Grammar in Context's Alpine-driven lesson,
-        // this funnel's phases are server-conditional, so the numbering is
-        // computed once here rather than read from client state.
-        $vbPhaseCount = (count($spiralCards) ? 1 : 0) + 3;
-        $vbPhaseIndex = ['spiral' => 1, 'story' => count($spiralCards) ? 2 : 1, 'meaning_check' => count($spiralCards) ? 3 : 2, 'practice' => $vbPhaseCount];
+        // Used only for the "Part X of Y" orientation label below.
+        $vbPhaseCount = 3;
+        $vbPhaseIndex = ['story' => 1, 'meaning_check' => 2, 'practice' => 3];
     @endphp
 
     @unless ($readOnly)
-        @if (count($spiralCards))
-            <div x-show="phase === 'spiral'" x-cloak class="space-y-4">
-                <div>
-                    <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['spiral'] }} of {{ $vbPhaseCount }}</p>
-                    <p class="mt-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick reminder — yesterday's words</p>
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Before today's new words, a fast recap of yesterday's — just a warm-up, skip anytime.</p>
-                </div>
-                <x-quick-round :cards="$spiralCards" on-complete="phase = 'story'" on-skip="phase = 'story'" />
-            </div>
-        @endif
-
         <div x-show="phase === 'story'" x-cloak class="space-y-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['story'] }} of {{ $vbPhaseCount }}</p>
@@ -637,7 +577,7 @@ new class extends Component
                 @php $word = $entry['phrase']; $itemFeedback = $feedback[$word] ?? null; @endphp
                 <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                     <p class="flex items-baseline gap-2">
-                        <x-pronounce-on-tap :word="$word" class="text-sm font-bold text-ink dark:text-ink-dark" />
+                        <x-speak-word :word="$word" class="text-sm font-bold text-ink dark:text-ink-dark" />
                         @if (! empty($entry['pos']))
                             <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">{{ $entry['pos'] }}</span>
                         @endif

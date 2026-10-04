@@ -5,6 +5,7 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Models\VocabularyWord;
 use App\Services\PexelsClient;
 use Livewire\Component;
 
@@ -201,12 +202,16 @@ new class extends Component
     }
 
     /**
-     * @return list<array{word: string, meaning: string}>
+     * @return list<array{word: string, meaning: string, example: ?string}>
      */
     protected function notebookCandidates(): array
     {
         return collect($this->targetPhrases())
-            ->map(fn ($item) => ['word' => $item['phrase'], 'meaning' => $item['meaning'] ?? ''])
+            ->map(fn ($item) => [
+                'word' => $item['phrase'],
+                'meaning' => $item['meaning'] ?? '',
+                'example' => VocabularyWord::exampleFromGap($item),
+            ])
             ->values()
             ->all();
     }
@@ -279,7 +284,7 @@ new class extends Component
                         <div class="flex items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
                             @svg('heroicon-o-check-circle', 'mt-0.5 h-4 w-4 shrink-0 text-success dark:text-success-dark')
                             <span>
-                                <x-pronounce-on-tap :word="$item['phrase']" class="block text-sm font-bold text-ink dark:text-ink-dark" />
+                                <x-speak-word :word="$item['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
                                 <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</span>
                                 <span class="block text-xs font-semibold text-success dark:text-success-dark">Already in My Words</span>
                             </span>
@@ -292,7 +297,7 @@ new class extends Component
                             class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
                         >
                         <span>
-                            <x-pronounce-on-tap :word="$item['phrase']" class="block text-sm font-bold text-ink dark:text-ink-dark" />
+                            <x-speak-word :word="$item['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
                             <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</span>
                         </span>
                     </label>
@@ -363,7 +368,7 @@ new class extends Component
             @if (count($targetPhrases))
                 <div class="mt-3 flex flex-wrap gap-1.5">
                     @foreach ($this->gapFillBankOrder as $bankPhrase)
-                        <x-pronounce-on-tap :word="$bankPhrase" class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
+                        <x-speak-word :word="$bankPhrase" size="sm" class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
                     @endforeach
                 </div>
 

@@ -456,8 +456,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Every actively-tracked spaced-repetition item (repetitions > 0 —
-     * see HasSpacedRepetition::needsWrittenReview()) across all four
+     * Every actively-tracked spaced-repetition item (repetitions > 0,
+     * i.e. reviewed successfully at least once) across all four
      * review systems, with its current freshness() — sorted so the most
      * decayed item comes first, since that's the one worth surfacing.
      * Feeds the "My Progress" page's memory-freshness section.

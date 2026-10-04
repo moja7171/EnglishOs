@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\VocabularyWord;
-use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -42,134 +41,82 @@ class VocabularyReviewTest extends TestCase
             ->assertSee('all caught up');
     }
 
-    public function test_a_brand_new_due_word_shows_the_written_review_flow(): void
+    public function test_a_due_word_asks_if_you_remember_it_without_giving_the_answer_away(): void
     {
         $learner = User::factory()->create();
-        $this->makeDueWord($learner);
+        $this->makeDueWord($learner); // brand new: same flow as any other word
         $this->actingAs($learner);
 
         Livewire::test('vocabulary.index')
             ->assertSee('commute')
-            ->assertSee('to travel to work')
-            ->assertSee('Write a sentence using this word.')
-            ->assertDontSee('Show meaning');
-    }
-
-    public function test_a_brand_new_word_offers_a_meaning_check_diagnostic_first_when_other_words_exist(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDueWord($learner, ['word' => 'commute', 'meaning' => 'to travel to work']);
-        $this->makeDueWord($learner, ['word' => 'errand', 'meaning' => 'a short trip to do a task', 'next_review_at' => now()->addWeek()]);
-        $this->makeDueWord($learner, ['word' => 'chore', 'meaning' => 'a routine task', 'next_review_at' => now()->addWeek()]);
-        $this->actingAs($learner);
-
-        Livewire::test('vocabulary.index')
-            ->assertSee('Quick check before you write')
-            ->assertSee('quick-round-completed')
-            ->assertDontSee('Write a sentence using this word.');
-    }
-
-    public function test_the_diagnostic_is_skipped_when_the_learner_has_fewer_than_three_words(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDueWord($learner, ['word' => 'commute']);
-        $this->makeDueWord($learner, ['word' => 'errand', 'next_review_at' => now()->addWeek()]);
-        $this->actingAs($learner);
-
-        Livewire::test('vocabulary.index')
-            ->assertDontSee('Quick check before you write')
-            ->assertSee('Write a sentence using this word.');
-    }
-
-    public function test_completing_the_diagnostic_reveals_the_written_review(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDueWord($learner, ['word' => 'commute']);
-        $this->makeDueWord($learner, ['word' => 'errand', 'next_review_at' => now()->addWeek()]);
-        $this->makeDueWord($learner, ['word' => 'chore', 'next_review_at' => now()->addWeek()]);
-        $this->actingAs($learner);
-
-        Livewire::test('vocabulary.index')
-            ->set('diagnosticDone', true)
-            ->assertSee('Write a sentence using this word.')
+            ->assertSee('I remember')
+            ->assertSee('Not sure — show me')
+            ->assertDontSee('to travel to work') // hidden until the card opens
+            ->assertDontSee('Write a sentence using this word.')
             ->assertDontSee('Quick check before you write');
     }
 
-    public function test_checking_a_good_sentence_advances_the_word_and_shows_feedback(): void
+    public function test_the_word_has_a_visible_speaker_button_instead_of_a_hidden_double_tap(): void
     {
         $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
-            ->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
-
+        $this->makeDueWord($learner, ['example' => 'I commute by train.']);
         $this->actingAs($learner);
 
-        Livewire::test('vocabulary.index')
-            ->set('sentence', 'I commute to work by train every day.')
-            ->call('checkSentence')
-            ->assertSee('Next word');
+        $component = Livewire::test('vocabulary.index');
 
-        $this->assertSame(1, $word->fresh()->repetitions);
+        $component->assertSeeHtml('data-text="commute"')
+            ->assertDontSee('Double-tap to hear it')
+            ->assertDontSeeHtml('dblclick');
+
+        // The example sentence gets its own speaker once the card is open.
+        $component->call('revealWord', true)->assertSeeHtml('data-text="I commute by train."');
     }
 
-    public function test_a_major_issue_sends_the_word_back_to_day_1(): void
+    public function test_saying_i_remember_opens_the_card_with_every_detail_and_the_three_grades(): void
     {
         $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner, ['repetitions' => 3, 'interval_days' => 16, 'ease_factor' => 2.8]);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
-            ->andReturn(json_encode(['severity' => 'major', 'hint' => 'The word is missing.'])));
-
+        $this->makeDueWord($learner, [
+            'pos' => 'verb',
+            'example' => 'I commute by train.',
+            'user_sentence' => 'I commute to the office every day.',
+        ]);
         $this->actingAs($learner);
 
         Livewire::test('vocabulary.index')
-            ->set('sentence', 'Not using the word at all.')
-            ->call('checkSentence');
-
-        $fresh = $word->fresh();
-        $this->assertSame(0, $fresh->repetitions);
-        $this->assertSame(1, $fresh->interval_days);
-    }
-
-    public function test_an_empty_sentence_is_rejected_without_calling_the_ai(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDueWord($learner);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
-
-        $this->actingAs($learner);
-
-        Livewire::test('vocabulary.index')
-            ->set('sentence', '   ')
-            ->call('checkSentence')
-            ->assertSee('Write a sentence first.');
-    }
-
-    public function test_an_already_passed_word_shows_the_self_assessment_flow(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDueWord($learner, ['repetitions' => 2, 'interval_days' => 6]);
-        $this->actingAs($learner);
-
-        Livewire::test('vocabulary.index')
-            ->assertSee('Show meaning')
-            ->assertDontSee('to travel to work'); // hidden until revealed
-    }
-
-    public function test_revealing_shows_the_meaning_and_grading_buttons(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDueWord($learner, ['repetitions' => 2, 'interval_days' => 6]);
-        $this->actingAs($learner);
-
-        Livewire::test('vocabulary.index')
-            ->call('reveal')
+            ->call('revealWord', true)
             ->assertSee('to travel to work')
+            ->assertSee('verb')
+            ->assertSee('I commute by train.')
+            ->assertSee('I commute to the office every day.')
             ->assertSee('Forgot it')
             ->assertSee('Remembered it')
             ->assertSee('Knew it instantly');
+    }
+
+    public function test_asking_to_be_shown_the_word_opens_the_card_with_a_single_next_button(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')
+            ->call('revealWord', false)
+            ->assertSee('to travel to work')
+            ->assertSee('see it again soon')
+            ->assertDontSee('Knew it instantly');
+    }
+
+    public function test_a_word_with_no_extra_details_just_shows_its_meaning(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')
+            ->call('revealWord', true)
+            ->assertSee('to travel to work')
+            ->assertDontSee('Your sentence')
+            ->assertDontSee('Example');
     }
 
     public function test_grading_self_reviews_the_word_and_moves_to_the_next_one(): void
@@ -181,17 +128,52 @@ class VocabularyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('vocabulary.index')
-            ->call('reveal')
+            ->call('revealWord', true)
             ->call('gradeSelf', 5)
-            ->assertSee('errand');
+            ->assertSee('errand')
+            ->assertSet('revealed', false)
+            ->assertSet('recalled', false);
 
         $this->assertSame(3, $word->fresh()->repetitions);
     }
 
-    public function test_grading_self_is_a_no_op_on_a_word_that_still_needs_a_written_review(): void
+    public function test_a_brand_new_word_is_graded_like_any_other(): void
     {
         $learner = User::factory()->create();
         $word = $this->makeDueWord($learner); // repetitions 0
+
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')
+            ->call('revealWord', true)
+            ->call('gradeSelf', 4);
+
+        $fresh = $word->fresh();
+        $this->assertSame(1, $fresh->repetitions);
+        $this->assertSame(1, $fresh->interval_days);
+    }
+
+    public function test_a_word_the_learner_was_not_sure_about_can_only_be_graded_as_forgotten(): void
+    {
+        $learner = User::factory()->create();
+        $word = $this->makeDueWord($learner, ['repetitions' => 3, 'interval_days' => 16, 'ease_factor' => 2.8]);
+
+        $this->actingAs($learner);
+
+        // A crafted gradeSelf(5) after "show me" must not count as knowing it.
+        Livewire::test('vocabulary.index')
+            ->call('revealWord', false)
+            ->call('gradeSelf', 5);
+
+        $fresh = $word->fresh();
+        $this->assertSame(0, $fresh->repetitions);
+        $this->assertSame(1, $fresh->interval_days);
+    }
+
+    public function test_grading_self_is_a_no_op_until_the_card_has_been_opened(): void
+    {
+        $learner = User::factory()->create();
+        $word = $this->makeDueWord($learner);
 
         $this->actingAs($learner);
 

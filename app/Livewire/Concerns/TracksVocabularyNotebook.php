@@ -34,9 +34,11 @@ trait TracksVocabularyNotebook
     /**
      * The word list to offer, in the shape the checkbox UI and
      * addWordsToNotebook() both need — e.g. Vocabulary Builder's own
-     * words() + their meanings, or Listening's target_phrases.
+     * words() + their meanings, or Listening's target_phrases. pos,
+     * example and user_sentence are optional: they only feed the review
+     * card, so a step that has none of them just leaves them out.
      *
-     * @return list<array{word: string, meaning: string}>
+     * @return list<array{word: string, meaning: string, pos?: ?string, example?: ?string, user_sentence?: ?string}>
      */
     abstract protected function notebookCandidates(): array;
 
@@ -79,7 +81,8 @@ trait TracksVocabularyNotebook
     /**
      * firstOrCreate per checked word, same as before — re-adding an
      * already-tracked word (from this mission or a past one) never resets
-     * its review progress.
+     * its review progress. A new word's first review is tomorrow: the
+     * learner has just practiced it in this very step.
      */
     public function addWordsToNotebook(): void
     {
@@ -93,7 +96,10 @@ trait TracksVocabularyNotebook
                 [
                     'source_mission_run_id' => $this->run->id,
                     'meaning' => $candidate['meaning'],
-                    'next_review_at' => now(),
+                    'pos' => filled($candidate['pos'] ?? null) ? $candidate['pos'] : null,
+                    'example' => filled($candidate['example'] ?? null) ? $candidate['example'] : null,
+                    'user_sentence' => filled($candidate['user_sentence'] ?? null) ? $candidate['user_sentence'] : null,
+                    'next_review_at' => now()->addDay(),
                 ],
             );
         }

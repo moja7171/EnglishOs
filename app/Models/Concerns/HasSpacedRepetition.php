@@ -19,9 +19,8 @@ namespace App\Models\Concerns;
  * ease_factor (2.5), interval_days (0), repetitions (0) — Eloquent
  * doesn't re-fetch a Postgres row's own column defaults after
  * insert(), so a freshly created instance would otherwise read these
- * as null in the very same request/test instead of their real value,
- * breaking needsWrittenReview()'s repetitions === 0 check for a
- * brand-new item. See VocabularyWord for a worked example.
+ * as null in the very same request/test instead of their real value.
+ * See VocabularyWord for a worked example.
  */
 trait HasSpacedRepetition
 {
@@ -31,25 +30,13 @@ trait HasSpacedRepetition
     }
 
     /**
-     * True the moment this item is "fresh" — brand new (repetitions is
-     * still its default 0) or just knocked back to the start by a
-     * failed review — which is exactly when a review flow should ask
-     * for the deeper, fully-checked form of practice instead of a
-     * quick self-assessment.
-     */
-    public function needsWrittenReview(): bool
-    {
-        return $this->repetitions === 0;
-    }
-
-    /**
      * A 0-100 "memory freshness" indicator — 100 right after a review,
      * decaying to 0 by twice the current interval overdue (Duolingo-style
      * skill-strength decay). Deliberately NOT tied to isDue(): an item can
      * read as, say, 40% fresh well before its next_review_at arrives,
      * since decay is continuous while isDue() is a hard cutoff. Only
-     * meaningful once repetitions > 0 (see needsWrittenReview()) — a
-     * brand-new item hasn't started decaying yet, so this returns 100 for
+     * meaningful once repetitions > 0 — a brand-new item hasn't started
+     * decaying yet, so this returns 100 for
      * it rather than a number that would misleadingly suggest otherwise.
      */
     public function freshness(): int
@@ -66,14 +53,12 @@ trait HasSpacedRepetition
 
     /**
      * $quality is a 0-5 recall score, clamped: <3 is a failed recall
-     * (back to day 1, repetitions reset to 0 — see needsWrittenReview());
-     * >=3 grows the interval, using ease_factor to adapt per item rather
-     * than jumping a fixed amount. A typical review flow maps its own
-     * grading modes onto this same scale — e.g. a self-assessment tap
-     * (Again/Good/Easy → 1/4/5) once an item has passed at least once,
-     * or an AI-checked severity (major/minor/none → 1/4/5) the first
-     * time (or right after a failure) — see VocabularyWord's My Words
-     * flow for the reference implementation.
+     * (back to day 1, repetitions reset to 0); >=3 grows the interval,
+     * using ease_factor to adapt per item rather than jumping a fixed
+     * amount. A typical review flow maps its own grading modes onto this
+     * same scale — e.g. a self-assessment tap (Again/Good/Easy → 1/4/5)
+     * — see VocabularyWord's My Words flow for the reference
+     * implementation.
      */
     public function review(int $quality): void
     {
