@@ -23,6 +23,11 @@
         always available, never a dead end" principle). "Continue
         listening" here just resumes playback.
     @param list<array{start: float, end: float}|null> $shadowTimestamps
+    @param string|null $onListened Raw Alpine statement(s) run once each
+        time the recording has genuinely been listened through (at least 90%
+        played, never skipped to — see eosListenTracker). Unlike $listen it
+        keeps no count and needs no mission step, so any page can react to
+        "the learner really listened", e.g. ticking an "I listened" box.
     @param array{mission_code: string, source: string}|null $listen When
         given, the player counts real listens of this recording (at least
         90% played through, never skipped to — see eosListenTracker),
@@ -37,6 +42,7 @@
     'url',
     'listen' => null,
     'onEnded' => null,
+    'onListened' => null,
     'segments' => [],
     'shadowLines' => [],
     'shadowTimestamps' => [],
@@ -123,6 +129,10 @@
                         });
                         this.$dispatch('audio-listened');
                     }, 0.9, () => this.$dispatch('audio-listened'));
+                @endif
+
+                @if ($onListened)
+                    window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9);
                 @endif
 
                 this.$watch('activeSegmentIndex', (index) => {
