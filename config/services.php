@@ -75,12 +75,33 @@ return [
     // over a simple HTTP tunnel (e.g. a free localhost.run/ngrok HTTP
     // tunnel to the relay script in scripts/ai-relay.py, run on a machine
     // that CAN reach these providers). See
-    // App\Services\Concerns\UsesOutboundProxy. Empty by default: every
-    // call connects directly, same as before this existed.
-    'ai_proxy' => [
-        'url' => env('AI_PROXY_URL'),
-        'secret' => env('AI_PROXY_SECRET'),
-    ],
+    // App\Services\Concerns\UsesOutboundProxy.
+    //
+    // Two relay slots are kept side by side — "vps" (a real always-on VPS,
+    // scripts/vps-relay-setup.sh) and "local" (a laptop running
+    // scripts/ai-relay.js plus a localhost.run tunnel, started by hand) —
+    // and AI_PROXY_TARGET picks which one is live. Switch with
+    // `php artisan ai:relay-use vps|local` (see App\Console\Commands\
+    // AiRelayUse), or the token-gated /_diag/ai-relay-use route on a host
+    // with no SSH/terminal. Both slots empty by default: every call
+    // connects directly, same as before this existed.
+    'ai_proxy' => (static function (): array {
+        $target = env('AI_PROXY_TARGET', 'vps') === 'local' ? 'local' : 'vps';
+
+        return [
+            'target' => $target,
+            'url' => $target === 'local' ? env('AI_PROXY_URL_LOCAL') : env('AI_PROXY_URL_VPS'),
+            'secret' => $target === 'local' ? env('AI_PROXY_SECRET_LOCAL') : env('AI_PROXY_SECRET_VPS'),
+            // Whether each slot has a URL set, for the profile page's
+            // admin-only "AI Relay" tab — read here (not via env() in the
+            // view) because env() outside config files returns null once
+            // config:cache has run.
+            'configured' => [
+                'vps' => env('AI_PROXY_URL_VPS') !== null && env('AI_PROXY_URL_VPS') !== '',
+                'local' => env('AI_PROXY_URL_LOCAL') !== null && env('AI_PROXY_URL_LOCAL') !== '',
+            ],
+        ];
+    })(),
 
     // Gates the temporary /_diag/ai report (App\Http\Controllers\AiDiagnosticController).
     // Empty token = the route 404s.
