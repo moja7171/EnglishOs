@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 
 /**
- * Switches which of the two AI_PROXY_URL_*/AI_PROXY_SECRET_* slots in .env
- * (see config/services.php's ai_proxy.target) GeminiClient/GroqClient/
+ * Switches which of the two AI_PROXY_URL_{VPS,LOCAL}/AI_PROXY_SECRET_{VPS,LOCAL}
+ * slots in .env (see config/services.php's ai_proxy.target) GeminiClient/GroqClient/
  * PexelsClient route through, by rewriting AI_PROXY_TARGET in .env and
  * clearing the config cache. "vps" is a real always-on VPS
  * (scripts/vps-relay-setup.sh); "local" is a laptop running
