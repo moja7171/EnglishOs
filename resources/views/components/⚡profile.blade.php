@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -159,6 +160,27 @@ new class extends Component
         unset($this->blockedUsers);
     }
 
+    /**
+     * Admin-only (see the "AI Relay" tab, hidden for everyone else).
+     * Switches config('services.ai_proxy.target') by rewriting
+     * AI_PROXY_TARGET in .env — see App\Console\Commands\AiRelayUse. A
+     * full-page redirect, not a Livewire one, so the next request re-reads
+     * .env fresh instead of showing the target this request already booted
+     * with.
+     */
+    public function switchAiRelay(string $target): void
+    {
+        abort_unless(auth()->user()->is_admin, 403);
+
+        if (! in_array($target, ['vps', 'local'], true)) {
+            return;
+        }
+
+        Artisan::call('ai:relay-use', ['target' => $target]);
+
+        $this->redirect(route('profile'), navigate: false);
+    }
+
     public function updatePassword(): void
     {
         $this->passwordSaved = false;
@@ -264,6 +286,7 @@ new class extends Component
             'privacy' => 'Privacy',
             'reminders' => 'Reminders',
             'password' => 'Password',
+            ...(auth()->user()->is_admin ? ['ai-relay' => 'AI Relay'] : []),
         ]"
     />
 
@@ -597,4 +620,49 @@ new class extends Component
             @endif
         </div>
     </form>
+
+    {{-- AI Relay (admin-only) --}}
+    @if (auth()->user()->is_admin)
+        @php
+            $relayTarget = config('services.ai_proxy.target');
+            $relayConfigured = config('services.ai_proxy.configured');
+        @endphp
+        <div x-show="activeTab === 'ai-relay'" x-cloak class="space-y-3 card p-4">
+            <div>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">AI proxy relay</p>
+                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Which relay Gemini/Groq/Pexels calls go through. Active: <span class="font-semibold text-ink dark:text-ink-dark">{{ $relayTarget }}</span>.</p>
+            </div>
+
+            <div class="space-y-2">
+                @foreach (['vps' => 'VPS', 'local' => 'This laptop'] as $key => $label)
+                    <div class="flex items-center justify-between gap-3 rounded-lg border border-line p-3 dark:border-line-dark">
+                        <div>
+                            <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $label }}</p>
+                            <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">
+                                {{ $relayConfigured[$key] ? 'Configured' : 'No URL set for this slot yet' }}
+                            </p>
+                        </div>
+
+                        @if ($relayTarget === $key)
+                            <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success-ink dark:bg-success-soft-dark dark:text-success-ink-dark">
+                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Active
+                            </span>
+                        @else
+                            <button
+                                type="button"
+                                wire:click="switchAiRelay('{{ $key }}')"
+                                wire:loading.attr="disabled"
+                                wire:target="switchAiRelay('{{ $key }}')"
+                                wire:confirm="Switch the AI relay to {{ $label }}?"
+                                class="shrink-0 cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                            >
+                                <span wire:loading.remove wire:target="switchAiRelay('{{ $key }}')">Use this</span>
+                                <span wire:loading wire:target="switchAiRelay('{{ $key }}')">Switching…</span>
+                            </button>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>

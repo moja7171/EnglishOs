@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AiDiagnosticController;
+use App\Http\Controllers\AiRelayUseController;
 use App\Http\Controllers\ListeningAudioController;
 use App\Http\Controllers\ServiceHealthController;
 use App\Models\DirectMessage;
@@ -21,6 +22,11 @@ Route::get('/_diag/ai', AiDiagnosticController::class)->middleware('throttle:6,1
 // Token-gated health report for the cron + phone-alert service (reminders and
 // every other push). Same token as above; see ServiceHealthController.
 Route::get('/_diag/health', ServiceHealthController::class)->middleware('throttle:6,1');
+
+// Token-gated web wrapper around `php artisan ai:relay-use` for a host with
+// no SSH/terminal — the profile page's admin-only "AI Relay" tab is the
+// normal way to do this; this route is the fallback if that's unreachable.
+Route::get('/_diag/ai-relay-use', AiRelayUseController::class)->middleware('throttle:6,1');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', fn () => view('auth.login'))->name('login');

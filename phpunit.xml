@@ -39,7 +39,9 @@
         <!-- GeminiClientTest/GroqClientTest/PexelsClientTest fake specific
              direct-provider URLs; a relay configured in .env would send
              requests there instead and silently bypass those fakes. -->
-        <env name="AI_PROXY_URL" value=""/>
-        <env name="AI_PROXY_SECRET" value=""/>
+        <env name="AI_PROXY_URL_VPS" value=""/>
+        <env name="AI_PROXY_SECRET_VPS" value=""/>
+        <env name="AI_PROXY_URL_LOCAL" value=""/>
+        <env name="AI_PROXY_SECRET_LOCAL" value=""/>
     </php>
 </phpunit>
