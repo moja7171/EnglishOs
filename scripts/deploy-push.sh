@@ -17,7 +17,7 @@
 set -euo pipefail
 
 MAIN_REPO="/var/www/EnglishOS"
-WORKTREE="/home/moja/englishos-deploy-worktree"
+WORKTREE="${DEPLOY_WORKTREE:-/home/moja/englishos-deploy-worktree}"
 
 if [ ! -d "$WORKTREE" ]; then
     echo "Worktree not found at $WORKTREE — has it been removed?" >&2
