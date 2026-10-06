@@ -72,6 +72,52 @@ class AiRelayUseTest extends TestCase
         $this->assertStringContainsString('AI_PROXY_TARGET=local', file_get_contents($this->envPath));
     }
 
+    public function test_local_url_appends_the_line_when_missing_and_leaves_the_target_alone(): void
+    {
+        $this->artisan('ai:relay-use', ['--local-url' => 'https://abc123.lhr.life'])
+            ->expectsOutputToContain('AI_PROXY_URL_LOCAL set to "https://abc123.lhr.life"')
+            ->assertExitCode(0);
+
+        $contents = file_get_contents($this->envPath);
+        $this->assertStringContainsString('AI_PROXY_URL_LOCAL=https://abc123.lhr.life', $contents);
+        $this->assertStringContainsString('AI_PROXY_TARGET=vps', $contents);
+    }
+
+    public function test_local_url_rewrites_an_existing_line_and_drops_a_trailing_slash(): void
+    {
+        file_put_contents($this->envPath, "AI_PROXY_URL_LOCAL=https://old.lhr.life\nAI_PROXY_TARGET=vps\n");
+
+        $this->artisan('ai:relay-use', ['target' => 'local', '--local-url' => 'https://new456.lhr.life/'])
+            ->assertExitCode(0);
+
+        $contents = file_get_contents($this->envPath);
+        $this->assertStringContainsString("AI_PROXY_URL_LOCAL=https://new456.lhr.life\n", $contents);
+        $this->assertStringNotContainsString('old.lhr.life', $contents);
+        $this->assertStringContainsString('AI_PROXY_TARGET=local', $contents);
+    }
+
+    public function test_local_url_rejects_anything_but_an_https_lhr_life_host_without_touching_env(): void
+    {
+        foreach (['http://abc.lhr.life', 'https://evil.example', 'https://abc.lhr.life.evil.example', 'https://abc.lhr.life/path'] as $bad) {
+            $this->artisan('ai:relay-use', ['--local-url' => $bad])
+                ->expectsOutputToContain('--local-url must look like')
+                ->assertExitCode(1);
+        }
+
+        $this->assertSame("APP_NAME=Test\nAI_PROXY_TARGET=vps\n", file_get_contents($this->envPath));
+    }
+
+    public function test_the_web_wrapper_sets_the_local_url_with_a_valid_token(): void
+    {
+        config(['services.diagnostics.token' => 'diag-token']);
+
+        $this->get('/_diag/ai-relay-use?token=diag-token&url=https://abc123.lhr.life')
+            ->assertOk()
+            ->assertSee('AI_PROXY_URL_LOCAL set to "https://abc123.lhr.life"', false);
+
+        $this->assertStringContainsString('AI_PROXY_URL_LOCAL=https://abc123.lhr.life', file_get_contents($this->envPath));
+    }
+
     public function test_the_web_wrapper_404s_without_the_right_token(): void
     {
         config(['services.diagnostics.token' => 'diag-token']);
