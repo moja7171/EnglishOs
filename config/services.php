@@ -42,10 +42,16 @@ return [
         'model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
         // Used only when the primary model's own timeout+retry is exhausted
         // (e.g. the 2026-09-04 outage where the pinned model hung outright
-        // while this alias, on the same key, responded fine). A moving
-        // "-latest" alias on purpose — uptime over behavioral pinning,
-        // since its only job here is "something that works".
-        'fallback_model' => env('GEMINI_FALLBACK_MODEL', 'gemini-flash-latest'),
+        // while another model, on the same key, responded fine). Chosen as
+        // a different "-flash-lite" model (2026-10-07): quota is counted per
+        // model, so it has its own allowance, and the lite tier's is the
+        // generous one — the free tier capped gemini-3.6-flash at 20
+        // requests a day. Not a thinking "-flash" model: those spend the
+        // whole 220-token budget Sage's replies are capped at on thinking
+        // and answer with a cut-off sentence (and take ~35 s). Not a moving
+        // "-latest" alias either, which can resolve to the primary model
+        // and share its quota.
+        'fallback_model' => env('GEMINI_FALLBACK_MODEL', 'gemini-3.1-flash-lite'),
     ],
 
     // Speech-to-text for recorded Evidence audio — EOS-009 §11.

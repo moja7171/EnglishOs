@@ -27,7 +27,7 @@ class GeminiClient
     {
         $this->apiKey = $apiKey ?? (string) config('services.gemini.key');
         $this->model = $model ?? (string) config('services.gemini.model', 'gemini-3.5-flash-lite');
-        $this->fallbackModel = $fallbackModel ?? (string) config('services.gemini.fallback_model', 'gemini-flash-latest');
+        $this->fallbackModel = $fallbackModel ?? (string) config('services.gemini.fallback_model', 'gemini-3.1-flash-lite');
     }
 
     /**
