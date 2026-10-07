@@ -658,7 +658,7 @@ new class extends Component
                     x-init="{{ $status === 'complete' && ! $readOnly ? '' : 'window.eosConfetti?.burst()' }}"
                     class="mt-2 mb-3 rounded-xl card-accent p-3 text-center"
                 >
-                    <span class="animate-trophy-pop inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
+                    <span class="animate-trophy-ring inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
                         @svg('heroicon-s-trophy', 'h-5 w-5')
                     </span>
                     <p class="mt-1.5 text-sm font-bold text-accent-ink dark:text-accent-ink-dark">{{ $milestoneJustReached }}-day streak!</p>
@@ -674,12 +674,12 @@ new class extends Component
                 </div>
             @elseif ($streak = $this->run->learner->currentStreak())
                 <p class="mt-2 mb-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
-                    <x-streak-flame :streak="$streak" />
+                    <x-streak-flame :streak="$streak" animated />
                     {{ $streak === 1 ? "You're on a 1-day streak — nice start!" : "You're on a {$streak}-day streak — keep it going!" }}
                 </p>
             @endif
 
-            <p class="mt-2 text-xs font-semibold uppercase tracking-wide
+            <p class="mt-2 text-xs font-semibold uppercase tracking-wide {{ $status === 'complete' && ! $readOnly ? 'inline-block origin-left animate-badge-pop' : '' }}
                 {{ $status === 'complete' ? 'text-success dark:text-success-dark' : ($status === 'needs_review' ? 'text-warning-ink' : 'text-danger-ink') }}">
                 {{ str($status)->replace('_', ' ')->title() }}
             </p>

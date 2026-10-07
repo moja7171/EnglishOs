@@ -84,6 +84,35 @@ document.addEventListener('alpine:init', () => {
     }));
 
     /**
+     * x-count-up="1234" — counts the number up from zero when it first
+     * appears, so a streak or a total reads as something earned rather than
+     * something printed. The server-rendered text is already the final
+     * number, so a browser without JS, or a reduced-motion preference, just
+     * keeps it. Runs once on init; later Livewire updates change the text
+     * in place without replaying it.
+     */
+    Alpine.directive('count-up', (el, { expression }, { evaluate }) => {
+        const target = Number(evaluate(expression));
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (!Number.isFinite(target) || target <= 0 || calm) return;
+
+        const duration = Math.min(900, 300 + target * 25);
+        const start = performance.now();
+
+        el.textContent = '0';
+
+        const tick = (now) => {
+            const t = Math.min(1, (now - start) / duration);
+            el.textContent = String(Math.round(target * (1 - Math.pow(1 - t, 3))));
+
+            if (t < 1) requestAnimationFrame(tick);
+        };
+
+        requestAnimationFrame(tick);
+    });
+
+    /**
      * Recovers in-progress typed answers after a browser refresh — nothing
      * in the app auto-saves to the server until Continue is pressed, so a
      * refresh used to silently wipe whatever the learner had typed. Scoped
@@ -688,6 +717,8 @@ window.eosConfetti = {
         try {
             if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
 
+            window.eosHaptic?.done();
+
             const canvas = document.createElement('canvas');
             canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;';
             canvas.width = window.innerWidth;
@@ -836,5 +867,55 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
 
         document.body.setAttribute('data-page-enter', '');
         setTimeout(() => document.body.removeAttribute('data-page-enter'), 300);
+    });
+})();
+
+/**
+ * Haptics: a short buzz when an answer is marked right or wrong, wherever the
+ * app draws one (.choice carries data-state — see app.css), and a longer one
+ * for a finished mission. Android only in practice (iOS Safari has no
+ * vibrate()), so it is a bonus, never the only signal; reduced-motion users
+ * get none. When one update marks both the wrong pick and the revealed
+ * right one, only the "wrong" buzz plays.
+ */
+(() => {
+    const buzz = (pattern) => {
+        try {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            navigator.vibrate?.(pattern);
+        } catch (e) {}
+    };
+
+    window.eosHaptic = {
+        correct: () => buzz(12),
+        wrong: () => buzz([10, 40, 10]),
+        done: () => buzz([18, 50, 28]),
+    };
+
+    new MutationObserver((mutations) => {
+        let right = false;
+        let wrong = false;
+
+        mutations.forEach((mutation) => {
+            const el = mutation.target;
+
+            if (!el.matches?.('.choice')) return;
+
+            const state = el.getAttribute('data-state');
+
+            if (state === mutation.oldValue) return;
+
+            right ||= state === 'correct';
+            wrong ||= state === 'wrong';
+        });
+
+        if (wrong) window.eosHaptic.wrong();
+        else if (right) window.eosHaptic.correct();
+    }).observe(document.documentElement, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['data-state'],
+        attributeOldValue: true,
     });
 })();

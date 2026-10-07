@@ -438,7 +438,7 @@ new class extends Component
                                 Day {{ $index + 1 }} · {{ $day['label'] }}
                             </p>
                             @if ($day['current'])
-                                <span class="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
+                                <span class="animate-badge-pop rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
                             @elseif ($day['done'])
                                 <span class="text-xs font-semibold text-success dark:text-success-dark">Completed {{ $day['completedAt']->format('M j') }}</span>
                             @elseif ($day['startedAt'])
@@ -515,7 +515,7 @@ new class extends Component
                     @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
                     <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
                     @if ($key === $this->currentStepKey && ! $active && ! $this->missionLocked)
-                        <span class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
+                        <span class="shrink-0 animate-badge-pop rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
                     @endif
                     @if ($duration = $mission->stepDuration($key))
                         <span class="shrink-0 text-xs {{ $active ? 'text-white/80' : 'opacity-70' }}">~{{ Mission::formatDuration($duration) }}</span>
