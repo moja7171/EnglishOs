@@ -122,12 +122,7 @@ new class extends Component
         @endif
     </button>
 
-    <div
-        x-show="open"
-        x-cloak
-        x-transition.opacity.duration.150ms
-        class="absolute right-0 z-20 mt-2 w-72 overflow-hidden rounded-xl border border-line bg-surface shadow-lg dark:border-line-dark dark:bg-surface-dark"
-    >
+    <x-menu-panel width="sm:w-72" aria-label="Notifications">
         <div class="flex items-center justify-between border-b border-line px-3 py-2 dark:border-line-dark">
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Notifications</p>
             @if ($this->items->isNotEmpty())
@@ -181,5 +176,5 @@ new class extends Component
         </div>
 
         <livewire:notifications.push-toggle />
-    </div>
+    </x-menu-panel>
 </div>

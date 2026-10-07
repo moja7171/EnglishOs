@@ -36,14 +36,7 @@
         @endif
     </button>
 
-    <div
-        x-show="open"
-        x-cloak
-        x-transition.opacity.duration.150ms
-        role="menu"
-        aria-label="Account menu"
-        class="absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark"
-    >
+    <x-menu-panel role="menu" aria-label="Account menu" class="sm:py-1">
         <div class="flex items-center gap-3 border-b border-line px-4 py-2.5 dark:border-line-dark">
             <x-user-avatar :user="$user" class="h-8 w-8 text-xs" />
             <p class="flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $user->name }}</p>
@@ -102,5 +95,5 @@
                 class="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-ink-soft transition-colors hover:bg-danger-soft hover:text-danger-ink dark:text-ink-soft-dark"
             >@svg('heroicon-o-arrow-right-start-on-rectangle', 'h-5 w-5') Sign out</button>
         </form>
-    </div>
+    </x-menu-panel>
 </div>

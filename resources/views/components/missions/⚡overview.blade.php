@@ -217,7 +217,7 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
+<div class="stagger-children mx-auto max-w-2xl space-y-6 p-6">
     @php $program = $this->program; $today = $program['today']; @endphp
 
     <header class="border-b border-line pb-4 dark:border-line-dark">
@@ -268,7 +268,7 @@ new class extends Component
     >
         <div class="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-xs">
             <span class="inline-flex items-center gap-1 font-semibold text-accent-ink dark:text-accent-ink-dark">
-                <x-streak-flame :streak="$this->progressSummary['streak']" /> {{ $this->progressSummary['streak'] }}
+                <x-streak-flame :streak="$this->progressSummary['streak']" animated /> <span x-data x-count-up="{{ $this->progressSummary['streak'] }}">{{ $this->progressSummary['streak'] }}</span>
             </span>
             <span class="inline-flex items-center gap-1 font-semibold text-ink dark:text-ink-dark">
                 @svg('heroicon-o-check-badge', 'h-3.5 w-3.5') {{ $this->progressSummary['missionsCompleted'] }} {{ Str::plural('mission', $this->progressSummary['missionsCompleted']) }}

@@ -10,8 +10,11 @@
 
     @param int $streak
     @param string $size Tailwind size classes for the icon, e.g. "h-4 w-4".
+    @param bool $animated Lights the flame up once as it appears. For the
+        places the streak is the headline (Home, My Progress, Mission
+        Result), not for every little badge in a list.
 --}}
-@props(['streak' => 0, 'size' => 'h-3.5 w-3.5'])
+@props(['streak' => 0, 'size' => 'h-3.5 w-3.5', 'animated' => false])
 
 @php
     $tier = match (true) {
@@ -24,7 +27,7 @@
 @endphp
 
 @if ($tier)
-    <span {{ $attributes->class(["inline-flex items-center {$tier['color']}"]) }}>
+    <span {{ $attributes->class(["inline-flex items-center {$tier['color']}", 'animate-flame-pop' => $animated]) }}>
         @svg($tier['icon'], $size)
     </span>
 @endif

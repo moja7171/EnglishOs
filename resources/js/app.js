@@ -22,6 +22,152 @@ document.addEventListener('alpine:init', () => {
     });
 
     /**
+     * The slim "you are here" bar for a mission step (<x-missions.step-bar>).
+     * Hidden while the day's step list is on screen; once the learner has
+     * scrolled past it the bar slides in at the top of the screen, so which
+     * day, step and screen they are on never scrolls out of reach. Its
+     * progress line fills as they read down through the step card.
+     *
+     * Expects x-ref="anchor" on the step list and data-step-card on the card
+     * whose content is being read. Scrolling is batched into one update per
+     * frame, and the card is watched too since a step grows and shrinks as
+     * its sections change without any scrolling.
+     */
+    Alpine.data('missionStepBar', () => ({
+        visible: false,
+        progress: 0,
+        frame: null,
+        observer: null,
+
+        init() {
+            const card = document.querySelector('[data-step-card]');
+
+            if (card && 'ResizeObserver' in window) {
+                this.observer = new ResizeObserver(() => this.queue());
+                this.observer.observe(card);
+            }
+
+            this.update();
+        },
+
+        destroy() {
+            this.observer?.disconnect();
+            cancelAnimationFrame(this.frame);
+        },
+
+        queue() {
+            if (this.frame) return;
+
+            this.frame = requestAnimationFrame(() => {
+                this.frame = null;
+                this.update();
+            });
+        },
+
+        update() {
+            const anchor = this.$refs.anchor;
+            const card = document.querySelector('[data-step-card]');
+
+            this.visible = !!anchor && anchor.getBoundingClientRect().bottom < 0;
+
+            if (!card) return;
+
+            const { top, height } = card.getBoundingClientRect();
+            this.progress = height > 0 ? Math.min(1, Math.max(0, (window.innerHeight - top) / height)) : 0;
+        },
+
+        toTop() {
+            const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+        },
+    }));
+
+    /**
+     * x-swipe-close="open = false" — lets a bottom sheet be pulled down to
+     * dismiss it. The sheet follows the finger, and past a short distance it
+     * closes; let go early and it springs back. Only on phone-width screens
+     * (where <x-menu-panel> is a sheet), and only when the sheet is scrolled
+     * to its top so it never fights its own scrolling. Moves `transform`, not
+     * `translate`, so it composes with the open/close transition's own.
+     */
+    Alpine.directive('swipe-close', (el, { expression }, { evaluate, cleanup }) => {
+        const phone = window.matchMedia('(max-width: 639px)');
+        let startY = null;
+        let pull = 0;
+
+        const start = (event) => {
+            if (!phone.matches || el.scrollTop > 0) return;
+
+            startY = event.touches[0].clientY;
+            pull = 0;
+            el.style.transition = 'none';
+        };
+
+        const move = (event) => {
+            if (startY === null) return;
+
+            pull = Math.max(0, event.touches[0].clientY - startY);
+            el.style.transform = `translateY(${pull}px)`;
+        };
+
+        const end = () => {
+            if (startY === null) return;
+
+            startY = null;
+            el.style.transition = '';
+
+            if (pull > 90) {
+                evaluate(expression);
+                setTimeout(() => (el.style.transform = ''), 300);
+            } else {
+                el.style.transform = '';
+            }
+        };
+
+        el.addEventListener('touchstart', start, { passive: true });
+        el.addEventListener('touchmove', move, { passive: true });
+        el.addEventListener('touchend', end);
+        el.addEventListener('touchcancel', end);
+
+        cleanup(() => {
+            el.removeEventListener('touchstart', start);
+            el.removeEventListener('touchmove', move);
+            el.removeEventListener('touchend', end);
+            el.removeEventListener('touchcancel', end);
+        });
+    });
+
+    /**
+     * x-count-up="1234" — counts the number up from zero when it first
+     * appears, so a streak or a total reads as something earned rather than
+     * something printed. The server-rendered text is already the final
+     * number, so a browser without JS, or a reduced-motion preference, just
+     * keeps it. Runs once on init; later Livewire updates change the text
+     * in place without replaying it.
+     */
+    Alpine.directive('count-up', (el, { expression }, { evaluate }) => {
+        const target = Number(evaluate(expression));
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (!Number.isFinite(target) || target <= 0 || calm) return;
+
+        const duration = Math.min(900, 300 + target * 25);
+        const start = performance.now();
+
+        el.textContent = '0';
+
+        const tick = (now) => {
+            const t = Math.min(1, (now - start) / duration);
+            el.textContent = String(Math.round(target * (1 - Math.pow(1 - t, 3))));
+
+            if (t < 1) requestAnimationFrame(tick);
+        };
+
+        requestAnimationFrame(tick);
+    });
+
+    /**
      * Recovers in-progress typed answers after a browser refresh — nothing
      * in the app auto-saves to the server until Continue is pressed, so a
      * refresh used to silently wipe whatever the learner had typed. Scoped
@@ -626,6 +772,8 @@ window.eosConfetti = {
         try {
             if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
 
+            window.eosHaptic?.done();
+
             const canvas = document.createElement('canvas');
             canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;';
             canvas.width = window.innerWidth;
@@ -754,3 +902,100 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
         }
     });
 };
+
+/**
+ * A page that is slow to arrive says so: if a wire:navigate has not landed
+ * after a short grace period the current page dims and stops taking taps (see
+ * html[data-navigating] in app.css), so a slow connection reads as "working"
+ * rather than "my tap did nothing". Fast navigations never get that far.
+ */
+(() => {
+    let timer = null;
+    let giveUp = null;
+
+    const clear = () => {
+        clearTimeout(timer);
+        clearTimeout(giveUp);
+        document.documentElement.removeAttribute('data-navigating');
+    };
+
+    document.addEventListener('livewire:navigate', () => {
+        clear();
+        timer = setTimeout(() => document.documentElement.setAttribute('data-navigating', ''), 200);
+        giveUp = setTimeout(clear, 10000);
+    });
+
+    document.addEventListener('livewire:navigated', clear);
+})();
+
+/**
+ * Pages arrive with a short fade instead of a hard cut. wire:navigate swaps
+ * the whole body, so each navigation (not the very first load) marks the new
+ * body for a moment and the CSS in app.css does the rest. Opacity only — a
+ * transform on those wrappers would drag every position: fixed element in
+ * the page (the instructor button, the sticky step bar) along with it.
+ */
+(() => {
+    let booted = false;
+
+    document.addEventListener('livewire:navigated', () => {
+        if (!booted) {
+            booted = true;
+
+            return;
+        }
+
+        document.body.setAttribute('data-page-enter', '');
+        setTimeout(() => document.body.removeAttribute('data-page-enter'), 300);
+    });
+})();
+
+/**
+ * Haptics: a short buzz when an answer is marked right or wrong, wherever the
+ * app draws one (.choice carries data-state — see app.css), and a longer one
+ * for a finished mission. Android only in practice (iOS Safari has no
+ * vibrate()), so it is a bonus, never the only signal; reduced-motion users
+ * get none. When one update marks both the wrong pick and the revealed
+ * right one, only the "wrong" buzz plays.
+ */
+(() => {
+    const buzz = (pattern) => {
+        try {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            navigator.vibrate?.(pattern);
+        } catch (e) {}
+    };
+
+    window.eosHaptic = {
+        correct: () => buzz(12),
+        wrong: () => buzz([10, 40, 10]),
+        done: () => buzz([18, 50, 28]),
+    };
+
+    new MutationObserver((mutations) => {
+        let right = false;
+        let wrong = false;
+
+        mutations.forEach((mutation) => {
+            const el = mutation.target;
+
+            if (!el.matches?.('.choice')) return;
+
+            const state = el.getAttribute('data-state');
+
+            if (state === mutation.oldValue) return;
+
+            right ||= state === 'correct';
+            wrong ||= state === 'wrong';
+        });
+
+        if (wrong) window.eosHaptic.wrong();
+        else if (right) window.eosHaptic.correct();
+    }).observe(document.documentElement, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['data-state'],
+        attributeOldValue: true,
+    });
+})();

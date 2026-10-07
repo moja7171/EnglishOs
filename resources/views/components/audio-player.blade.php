@@ -51,7 +51,11 @@
 @if (! empty($url))
     <div
         class="card p-4"
+        :class="focus ? 'fixed inset-0 z-50 flex flex-col overflow-hidden rounded-none border-0 bg-ground sm:p-6 dark:bg-ground-dark' : ''"
+        x-on:keydown.escape.window="focus = false"
         x-data="{
+            focus: false,
+            focusOnPlay: false,
             playing: false,
             currentTime: 0,
             duration: 0,
@@ -113,7 +117,10 @@
                         }
                     }
                 });
-                audio.addEventListener('play', () => this.playing = true);
+                audio.addEventListener('play', () => {
+                    this.playing = true;
+                    if (this.focusOnPlay && this.segments.length) this.focus = true;
+                });
                 audio.addEventListener('pause', () => this.playing = false);
                 audio.addEventListener('ended', () => { this.playing = false; {{ $onEnded }} });
                 // Metadata may already have loaded before these listeners
@@ -138,6 +145,26 @@
                 this.$watch('activeSegmentIndex', (index) => {
                     this.$nextTick(() => this.$refs['segment-' + index]?.scrollIntoView({block: 'center'}));
                 });
+
+                // The learner's 'full screen when I press play' choice
+                // survives reloads; storage can be blocked, so it is only a
+                // convenience and never required.
+                try { this.focusOnPlay = localStorage.getItem('eos-listen-focus-on-play') === '1'; } catch (e) {}
+                this.$watch('focusOnPlay', (on) => {
+                    try { localStorage.setItem('eos-listen-focus-on-play', on ? '1' : '0'); } catch (e) {}
+                });
+
+                // Full screen is only the same elements restyled — the
+                // <audio> never moves, so playback carries on uninterrupted.
+                this.$watch('focus', (open) => {
+                    document.documentElement.classList.toggle('overflow-hidden', open);
+                    if (open) {
+                        this.$nextTick(() => this.$refs['segment-' + this.activeSegmentIndex]?.scrollIntoView({block: 'center'}));
+                    }
+                });
+            },
+            destroy() {
+                if (this.focus) document.documentElement.classList.remove('overflow-hidden');
             },
             togglePlay() { this.playing ? this.$refs.audio.pause() : this.$refs.audio.play() },
             cycleSpeed() {
@@ -197,6 +224,9 @@
             </div>
         @endif
 
+        {{-- Seek bar + controls share one wrapper so full screen can pin
+             them to the bottom of the screen under the text. --}}
+        <div :class="focus ? 'order-3 mx-auto w-full max-w-3xl shrink-0 pt-4' : ''">
         {{-- Seek bar — a real filled progress track under the native range
              input (transparent, custom thumb only) rather than a bare
              unstyled OS slider. --}}
@@ -257,7 +287,8 @@
                 <button
                     type="button"
                     x-on:click="togglePlay()"
-                    class="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-sm transition-transform hover:scale-105 active:scale-95 dark:bg-accent-dark"
+                    :class="focus ? 'h-16 w-16' : 'h-12 w-12'"
+                    class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-sm transition-transform hover:scale-105 active:scale-95 dark:bg-accent-dark"
                 >
                     <span x-show="!playing">@svg('heroicon-s-play', 'ml-0.5 h-5 w-5')</span>
                     <span x-show="playing" x-cloak>@svg('heroicon-s-pause', 'h-5 w-5')</span>
@@ -281,6 +312,36 @@
                 class="inline-flex w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line py-1.5 text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >@svg('heroicon-o-arrow-down-tray', 'h-3.5 w-3.5')</a>
         </div>
+        </div>
+
+        @if (count($segments))
+            {{-- Full-screen entry (and its way out): the text is always
+                 shown, this only makes it big. In full screen this row
+                 moves to the top. --}}
+            <div
+                class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+                :class="focus ? 'order-0 mx-auto mb-3 w-full max-w-3xl shrink-0' : 'mt-3'"
+            >
+                <button
+                    type="button"
+                    x-on:click="focus = ! focus"
+                    x-bind:aria-pressed="focus"
+                    class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                >
+                    <span x-show="! focus" class="inline-flex items-center gap-1.5">@svg('heroicon-o-arrows-pointing-out', 'h-4 w-4') Full screen</span>
+                    <span x-show="focus" x-cloak class="inline-flex items-center gap-1.5">@svg('heroicon-o-arrows-pointing-in', 'h-4 w-4') Exit</span>
+                </button>
+
+                <label class="inline-flex cursor-pointer items-center gap-2 text-xs text-ink-soft dark:text-ink-soft-dark">
+                    <input
+                        type="checkbox"
+                        x-model="focusOnPlay"
+                        class="h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
+                    >
+                    Full screen when I press play
+                </label>
+            </div>
+        @endif
 
         @if (count($segments) && filled($segments[0]['speaker'] ?? null))
             {{-- Same synced panel, for a conversation: consecutive chunks
@@ -315,7 +376,10 @@
                     $turns[$last]['lines'][] = ['index' => $index, 'segment' => $segment];
                 }
             @endphp
-            <div class="mt-4 max-h-72 space-y-3 overflow-y-auto card-sunken p-3 text-sm">
+            <div
+                class="space-y-3 overflow-y-auto card-sunken p-3"
+                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-lg leading-relaxed sm:text-xl' : 'mt-4 max-h-72 text-sm'"
+            >
                 @foreach ($turns as $turn)
                     <div class="max-w-[90%] {{ $turn['alignRight'] ? 'ml-auto' : '' }}">
                         <p class="mb-0.5 px-1.5 text-xs font-semibold {{ $turn['palette']['name'] }} {{ $turn['alignRight'] ? 'text-right' : '' }}">{{ $turn['speaker'] }}</p>
@@ -341,7 +405,10 @@
                  substitute for the caller's own curated shadow_lines
                  display below (if any); this is just "what's being said,
                  right now", the same idea as karaoke captions. --}}
-            <div class="mt-4 max-h-56 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm">
+            <div
+                class="space-y-1.5 overflow-y-auto card-sunken p-3"
+                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : 'mt-4 max-h-56 text-sm'"
+            >
                 @foreach ($segments as $index => $segment)
                     <p
                         x-ref="segment-{{ $index }}"
@@ -360,6 +427,7 @@
                 x-show="activeShadowIndex !== null"
                 x-cloak
                 x-transition.opacity.duration.200ms
+                :class="focus ? 'order-2 mx-auto w-full max-w-3xl shrink-0' : ''"
                 class="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-4 dark:border-accent-dark/30 dark:bg-accent-dark/10"
             >
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Now you say it</p>

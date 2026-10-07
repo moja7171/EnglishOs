@@ -496,7 +496,7 @@ class MissionResultStepTest extends TestCase
             ->set('scores.Writing.before', 3)->set('scores.Writing.after', 3)
             ->call('getResult')
             ->assertSee('7-day streak!')
-            ->assertSeeHtml('animate-trophy-pop')
+            ->assertSeeHtml('animate-trophy-ring')
             ->assertSeeHtml('window.eosConfetti?.burst()');
     }
 

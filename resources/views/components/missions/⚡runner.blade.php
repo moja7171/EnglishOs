@@ -392,7 +392,7 @@ new class extends Component
         @endif
 
         {{-- Mission overview, styled as a journey path --}}
-        <div class="relative pl-11">
+        <div class="stagger-children relative pl-11">
             <div class="absolute top-5 bottom-5 left-[18px] w-0.5 bg-line dark:bg-line-dark"></div>
 
             @foreach ($run->dayProgress() as $index => $day)
@@ -438,7 +438,7 @@ new class extends Component
                                 Day {{ $index + 1 }} · {{ $day['label'] }}
                             </p>
                             @if ($day['current'])
-                                <span class="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
+                                <span class="animate-badge-pop rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
                             @elseif ($day['done'])
                                 <span class="text-xs font-semibold text-success dark:text-success-dark">Completed {{ $day['completedAt']->format('M j') }}</span>
                             @elseif ($day['startedAt'])
@@ -479,8 +479,21 @@ new class extends Component
             </p>
         </div>
 
+        {{-- The checklist is the "you are here" cue while it is on screen; once
+             it has scrolled away the slim bar takes over (see <x-missions.step-bar>). --}}
+        <div x-data="missionStepBar" x-on:scroll.window.passive="queue()" x-on:resize.window="queue()">
+        <x-missions.step-bar
+            :day-number="$this->activeDayIndex + 1"
+            :day-label="$this->activeDay['label'] ?? ''"
+            :step-label="$mission->stepLabel($this->activeStepKey)"
+            :icon="$this->stepIcon($this->activeStepKey)"
+            :states="collect($daySteps)->map(fn ($key) => $key === $this->activeStepKey
+                ? 'active'
+                : ($key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true) ? 'done' : 'ahead'))->all()"
+        />
+
         {{-- Vertical checklist, scoped to this day only --}}
-        <nav class="space-y-1">
+        <nav x-ref="anchor" class="space-y-1">
             @foreach ($daySteps as $key)
                 @php
                     $done = $key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true);
@@ -502,7 +515,7 @@ new class extends Component
                     @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
                     <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
                     @if ($key === $this->currentStepKey && ! $active && ! $this->missionLocked)
-                        <span class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
+                        <span class="shrink-0 animate-badge-pop rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
                     @endif
                     @if ($duration = $mission->stepDuration($key))
                         <span class="shrink-0 text-xs {{ $active ? 'text-white/80' : 'opacity-70' }}">~{{ Mission::formatDuration($duration) }}</span>
@@ -515,6 +528,7 @@ new class extends Component
                 </a>
             @endforeach
         </nav>
+        </div>
 
         @if ($this->isPreviewing)
             <div class="rounded-2xl border border-dashed border-accent bg-accent-soft p-4 text-sm dark:border-accent-dark dark:bg-accent-soft-dark" role="status">
@@ -551,7 +565,7 @@ new class extends Component
             </div>
         @endif
 
-        <div class="card p-5">
+        <div class="card p-5" data-step-card>
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                     Step {{ $position }} of {{ count($daySteps) }}

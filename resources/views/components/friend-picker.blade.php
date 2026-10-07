@@ -25,7 +25,7 @@
         x-show="open"
         x-cloak
         x-on:click.outside="open = false"
-        x-transition.opacity.duration.150ms
+        x-transition.origin.top.left.scale.95.opacity.duration.150ms
         class="absolute z-10 mt-1 w-56 space-y-1 rounded-xl border border-line bg-surface p-2 shadow-lg dark:border-line-dark dark:bg-surface-dark"
     >
         @forelse ($friends as $friend)

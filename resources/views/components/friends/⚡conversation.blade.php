@@ -610,7 +610,7 @@ new class extends Component
                 class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
             >@svg('heroicon-o-ellipsis-horizontal', 'h-5 w-5')</button>
 
-            <div x-show="menu" x-cloak x-transition.opacity.duration.150ms role="menu" class="absolute right-0 z-30 mt-1 w-52 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark">
+            <div x-show="menu" x-cloak x-transition.origin.top.right.scale.95.opacity.duration.150ms role="menu" class="absolute right-0 z-30 mt-1 w-52 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark">
                 <button
                     type="button"
                     wire:click="startReport"

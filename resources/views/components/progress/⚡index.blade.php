@@ -266,10 +266,10 @@ new class extends Component
             <div class="flex items-end justify-between gap-3">
                 <div>
                     <p class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">
-                        <x-streak-flame :streak="$this->progressStats['currentStreak']" /> Current streak
+                        <x-streak-flame :streak="$this->progressStats['currentStreak']" animated /> Current streak
                     </p>
                     <p class="mt-1 text-3xl font-extrabold text-accent-ink dark:text-accent-ink-dark">
-                        {{ $this->progressStats['currentStreak'] }}
+                        <span x-data x-count-up="{{ $this->progressStats['currentStreak'] }}">{{ $this->progressStats['currentStreak'] }}</span>
                         <span class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">{{ Str::plural('day', $this->progressStats['currentStreak']) }}</span>
                     </p>
                 </div>

@@ -2,7 +2,8 @@
     A small circular percentage indicator — reusable anywhere a plain
     progress bar feels too flat (see friends/⚡board.blade.php's per-
     friend mission-progress ring). Pure SVG, no JS, animates via CSS
-    transition on stroke-dashoffset when $percent changes.
+    transition on stroke-dashoffset when $percent changes, and fills from
+    empty the first time it appears.
 
     @param int $percent 0-100.
     @param int $size Outer diameter in pixels.
@@ -18,6 +19,8 @@
 @endphp
 
 <span
+    x-data="{ filled: false }"
+    x-init="requestAnimationFrame(() => requestAnimationFrame(() => filled = true))"
     {{ $attributes->class(['relative inline-flex shrink-0 items-center justify-center']) }}
     style="width: {{ $size }}px; height: {{ $size }}px;"
 >
@@ -33,7 +36,9 @@
             stroke-linecap="round"
             stroke-dasharray="{{ $circumference }}"
             stroke-dashoffset="{{ $offset }}"
-            class="stroke-accent transition-[stroke-dashoffset] duration-500 dark:stroke-accent-dark"
+            x-bind:stroke-dashoffset="filled ? {{ $offset }} : {{ $circumference }}"
+            x-bind:class="filled && 'transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none'"
+            class="stroke-accent dark:stroke-accent-dark"
         ></circle>
     </svg>
     <span class="absolute text-[11px] font-bold text-ink dark:text-ink-dark">{{ $clamped }}%</span>
