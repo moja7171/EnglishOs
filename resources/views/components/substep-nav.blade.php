@@ -12,6 +12,11 @@
     adjacent "Part X of Y" label this pairs with already gives the count/
     context a word would otherwise carry.
 
+    Moving between sub-steps also brings the top of the step back into view
+    ($scrollToStepTop, see app.js) — the sections swap in place, so without
+    it a learner who tapped Next at the bottom of a long section landed at
+    the bottom of the next one.
+
     @param string $indexVar The Alpine variable name (in the caller's own
         x-data, on the same element or an ancestor) that holds the current
         0-based sub-step index — this component reads/writes it directly
@@ -30,7 +35,7 @@
 <div class="inline-flex items-center gap-1 rounded-full border border-line bg-surface-sunken p-1 dark:border-line-dark dark:bg-surface-sunken-dark">
     <button
         type="button"
-        x-on:click="{{ $indexVar }}--"
+        x-on:click="{{ $indexVar }}--; $nextTick(() => $scrollToStepTop())"
         :disabled="{{ $indexVar }} === 0"
         title="Back"
         class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface disabled:pointer-events-none disabled:opacity-30 dark:text-ink-soft-dark dark:hover:bg-surface-dark"
@@ -39,7 +44,7 @@
     <button
         type="button"
         x-show="{{ $indexVar }} < {{ $total - 1 }}"
-        x-on:click="{{ $indexVar }}++"
+        x-on:click="{{ $indexVar }}++; $nextTick(() => $scrollToStepTop())"
         :disabled="{{ $nextDisabled }}"
         title="Next"
         class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface disabled:pointer-events-none disabled:opacity-30 dark:text-ink-soft-dark dark:hover:bg-surface-dark"

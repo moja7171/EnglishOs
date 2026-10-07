@@ -1,5 +1,27 @@
 document.addEventListener('alpine:init', () => {
     /**
+     * $scrollToStepTop() — after a step swaps one of its sections in place
+     * (the shared sub-step pager, Grammar's lesson → practice), the page keeps
+     * its old scroll offset, so the learner lands at the BOTTOM of the new,
+     * often shorter, section. This brings the top of the step back into view.
+     *
+     * Only scrolls when the top of the step has actually scrolled out of
+     * view, so someone already at the top never sees the page jump; smooth
+     * unless the OS asks for reduced motion. The 80px keeps the top clear
+     * of the app's header.
+     */
+    Alpine.magic('scrollToStepTop', (el) => () => {
+        const step = el.closest('[wire\\:id]');
+        if (!step) return;
+
+        const top = step.getBoundingClientRect().top;
+        if (top >= 0) return;
+
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: Math.max(0, window.scrollY + top - 80), behavior: calm ? 'auto' : 'smooth' });
+    });
+
+    /**
      * Recovers in-progress typed answers after a browser refresh — nothing
      * in the app auto-saves to the server until Continue is pressed, so a
      * refresh used to silently wipe whatever the learner had typed. Scoped
