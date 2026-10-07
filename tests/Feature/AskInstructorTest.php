@@ -11,6 +11,7 @@ use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -341,6 +342,60 @@ class AskInstructorTest extends TestCase
         $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
         $this->assertSame("Couldn't transcribe this recording.", $message->body);
         Storage::disk('local')->assertExists($message->attachment_path);
+    }
+
+    public function test_a_failed_voice_transcription_logs_the_real_cause_with_the_recording_details(): void
+    {
+        Storage::fake('local');
+        Log::spy();
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('relay down')));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Could you type that instead?'));
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+            ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('sendVoiceQuestion');
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(fn (string $message, array $context) => str_contains($context['reason'], 'relay down')
+                && $context['name'] === 'question.webm'
+                && $context['bytes'] > 0);
+    }
+
+    public function test_an_empty_transcript_is_logged_as_whisper_returning_no_text(): void
+    {
+        Storage::fake('local');
+        Log::spy();
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('   '));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Could you type that instead?'));
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+            ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('sendVoiceQuestion');
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(fn (string $message, array $context) => $context['reason'] === 'Whisper returned no text');
+    }
+
+    public function test_a_successful_voice_transcription_logs_no_error(): void
+    {
+        Storage::fake('local');
+        Log::spy();
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('What does "articles" mean?'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('An article is a small word.'));
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+            ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
+            ->call('sendVoiceQuestion');
+
+        Log::shouldNotHaveReceived('error');
     }
 
     public function test_sending_a_file_attaches_it_and_tells_the_ai_it_cannot_see_it(): void
