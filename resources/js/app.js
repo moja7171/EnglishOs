@@ -816,3 +816,25 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
         }
     });
 };
+
+/**
+ * Pages arrive with a short fade instead of a hard cut. wire:navigate swaps
+ * the whole body, so each navigation (not the very first load) marks the new
+ * body for a moment and the CSS in app.css does the rest. Opacity only — a
+ * transform on those wrappers would drag every position: fixed element in
+ * the page (the instructor button, the sticky step bar) along with it.
+ */
+(() => {
+    let booted = false;
+
+    document.addEventListener('livewire:navigated', () => {
+        if (!booted) {
+            booted = true;
+
+            return;
+        }
+
+        document.body.setAttribute('data-page-enter', '');
+        setTimeout(() => document.body.removeAttribute('data-page-enter'), 300);
+    });
+})();

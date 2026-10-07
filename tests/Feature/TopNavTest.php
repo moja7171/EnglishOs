@@ -55,6 +55,16 @@ class TopNavTest extends TestCase
             ->assertSee('href="'.route('review.index').'"', false);
     }
 
+    public function test_the_nav_pill_sits_under_the_current_tab_and_hides_on_other_pages(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('progress.index'))->assertSee('style="translate: 100% 0"', false);
+        $this->get(route('review.index'))->assertSee('style="translate: 200% 0"', false);
+
+        $this->get(route('friends.index'))->assertSee('motion-reduce:transition-none opacity-0', false);
+    }
+
     public function test_the_header_shows_only_the_logo_mark_for_a_signed_in_learner(): void
     {
         $this->actingAs(User::factory()->create());
