@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Notifications\PushTest;
+use App\Services\AiModelChain;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
@@ -46,6 +49,7 @@ class ServiceHealthController extends Controller
             $this->learners(),
             $this->pushServices(),
             $this->recentPushFailures(),
+            $this->aiModelChains(),
         ];
 
         if ($request->filled('send_test')) {
@@ -267,6 +271,39 @@ class ServiceHealthController extends Controller
     }
 
     /**
+     * A chain with no usable model left makes that AI feature fail for
+     * every learner; one with a single model left is one outage from it.
+     *
+     * @return list<string>
+     */
+    private function aiModelChains(): array
+    {
+        $lines = ['== 7. AI model chains (details: profile page, AI Relay tab) =='];
+        $chains = new AiModelChain;
+        $gemini = new GeminiClient;
+
+        $configured = [
+            ['gemini', 'Gemini chat', $gemini->configuredChain(GeminiClient::PROFILE_CHAT)],
+            ['gemini', 'Gemini judge', $gemini->configuredChain(GeminiClient::PROFILE_JUDGE)],
+            ['groq', 'Groq Whisper', (new GroqClient)->configuredChain()],
+        ];
+
+        foreach ($configured as [$provider, $name, $chain]) {
+            $rows = $chains->status($provider, $chain);
+            $available = count(array_filter($rows, fn (array $row): bool => $row['available']));
+            $detail = $available.' of '.count($rows).' model(s) in rotation';
+
+            $lines[] = match (true) {
+                $available === 0 => $this->fail($name, $detail.' — every model is skipped right now', "{$name}: every model is down"),
+                $available === 1 && count($rows) > 1 => $this->warn($name, $detail.' — down to the last model'),
+                default => $this->ok($name, $detail),
+            };
+        }
+
+        return $lines;
+    }
+
+    /**
      * Sends through the exact channel every alert uses and prints what the
      * push service said for each of the learner's devices.
      *
@@ -274,7 +311,7 @@ class ServiceHealthController extends Controller
      */
     private function sendTest(string $who): array
     {
-        $lines = ['== 7. Test alert to '.Str::limit($who, 60).' =='];
+        $lines = ['== 8. Test alert to '.Str::limit($who, 60).' =='];
 
         $user = ctype_digit($who) ? User::find((int) $who) : User::where('email', $who)->first();
 

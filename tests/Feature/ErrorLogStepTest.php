@@ -10,6 +10,7 @@ use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -81,6 +82,24 @@ class ErrorLogStepTest extends TestCase
                 'drills' => [],
                 'category' => null,
             ]]);
+    }
+
+    public function test_the_learner_can_skip_the_step_when_the_review_cannot_be_generated(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('every model down'));
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
+            ->assertSet('generated', false)
+            ->assertSee('Skip this step for now')
+            ->call('skipForNow');
+
+        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'error_log', 'content_ref' => '[]']);
+        $this->assertDatabaseCount('error_log_items', 0);
     }
 
     public function test_the_why_explanation_and_recurrence_note_are_shown(): void

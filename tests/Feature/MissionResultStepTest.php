@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Notifications\StreakMilestoneReached;
 use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -50,6 +51,32 @@ class MissionResultStepTest extends TestCase
         $this->actingAs($learner);
 
         return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_the_mission_can_still_be_finished_when_every_judge_model_fails(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('every model down'));
+        });
+
+        $component = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->call('getResult')
+            ->assertSet('error', null)
+            ->assertSet('status', 'needs_review')
+            ->assertSet('evaluationUnavailable', true);
+
+        $component->call('finish');
+
+        $run->refresh();
+        $this->assertSame('needs_review', $run->status);
+        $this->assertNotNull($run->completed_at);
+
+        $evidence = Evidence::where('mission_run_id', $run->id)->where('phase', 'mission_result')->firstOrFail();
+        $this->assertTrue(json_decode($evidence->content_ref, true)['evaluation_unavailable']);
     }
 
     public function test_all_skills_must_be_rated_before_and_after(): void

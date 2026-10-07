@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\AiModelChain;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
@@ -48,6 +49,16 @@ class ServiceHealthTest extends TestCase
         $response->assertSee('firing every minute', false);
         $response->assertDontSee('private-key-value', false);
         $response->assertDontSee('public-key-value', false);
+    }
+
+    public function test_a_model_chain_with_nothing_in_rotation_is_reported_as_a_problem(): void
+    {
+        config(['services.gemini.judge_models' => ['only-judge']]);
+        (new AiModelChain)->markUnavailable('gemini', 'only-judge', AiModelChain::KIND_DAILY_QUOTA, 3600);
+
+        $this->get('/_diag/health?token=diag-token')
+            ->assertSee('Gemini judge: every model is down', false)
+            ->assertSee('[FAIL] Gemini judge: 0 of 1 model(s) in rotation', false);
     }
 
     public function test_a_cron_that_never_ran_is_reported_as_a_problem(): void

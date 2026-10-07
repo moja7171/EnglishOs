@@ -47,7 +47,8 @@ class SentenceChecker
     ): array {
         $raw = $this->gemini->chat(
             [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
-            systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth)
+            systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth),
+            profile: GeminiClient::PROFILE_JUDGE,
         );
 
         $data = json_decode(trim($raw), true);
@@ -77,7 +78,8 @@ class SentenceChecker
                 .'has tried several times and is stuck. Rewrite their sentence into a correct, natural version — '
                 .'fixing grammar, spelling, word choice, and tense — while keeping their original personal '
                 .'meaning as much as possible. Reply with ONLY the corrected sentence, no quotation marks, no '
-                .'explanation, nothing else.'
+                .'explanation, nothing else.',
+            profile: GeminiClient::PROFILE_JUDGE,
         ));
     }
 

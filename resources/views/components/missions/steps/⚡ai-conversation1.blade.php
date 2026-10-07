@@ -74,6 +74,9 @@ new class extends Component
 
     public ?string $error = null;
 
+    /** Shown when the AI could not check an answer: the learner still moves on, unevaluated. */
+    public ?string $notice = null;
+
     /** @var array<int, string> keyed by round — set when the last spoken attempt was off-topic/empty */
     public array $offTopicHint = [];
 
@@ -222,7 +225,8 @@ new class extends Component
                     .'Only mention pace or filler words if the numbers given are genuinely notable (very slow, '
                     .'very fast, or many filler words) — otherwise focus the tip on content/language as usual. '
                     .'Keep both simple, plain Persian, no jargon, no English words mixed in unless quoting a '
-                    .'specific English word or phrase they actually said.'
+                    .'specific English word or phrase they actually said.',
+                profile: GeminiClient::PROFILE_JUDGE,
             );
             $this->recordGeminiCall();
 
@@ -257,6 +261,7 @@ new class extends Component
     public function submitAnswer(): void
     {
         $this->error = null;
+        $this->notice = null;
         $this->processing = true;
         $round = $this->round;
 
@@ -269,34 +274,49 @@ new class extends Component
             $this->recordGroqCall();
             $this->audioFile = null;
 
-            $check = app(SpokenAnswerChecker::class)->checkRelevance(
-                $this->currentQuestion,
-                $answer,
-                $this->run->learner->levelDescription(),
-                $this->run->aiToneGuidance(),
-            );
-            $this->recordGeminiCall();
+            // Once every judge model has failed (GeminiClient has already
+            // logged why), the answer is accepted unevaluated — the learner
+            // must never be stuck on a round because the AI is down.
+            $check = null;
 
-            $this->trackCheckAttempt($round, $check['severity']);
+            try {
+                $check = app(SpokenAnswerChecker::class)->checkRelevance(
+                    $this->currentQuestion,
+                    $answer,
+                    $this->run->learner->levelDescription(),
+                    $this->run->aiToneGuidance(),
+                );
+                $this->recordGeminiCall();
+            } catch (Throwable) {
+                $this->notice = "Your answer was saved, but we couldn't check it just now — keep going.";
+            }
 
-            if ($check['severity'] === 'major') {
-                $this->offTopicHint[$round] = $check['hint'];
+            if ($check !== null) {
+                $this->trackCheckAttempt($round, $check['severity']);
 
-                return;
+                if ($check['severity'] === 'major') {
+                    $this->offTopicHint[$round] = $check['hint'];
+
+                    return;
+                }
             }
 
             unset($this->offTopicHint[$round], $this->exampleAnswer[$round]);
 
-            $followup = trim(app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => "Interview question: \"{$this->currentQuestion}\"\nLearner's answer: \"{$answer}\""]],
-                systemPrompt: 'You are a friendly English conversation partner interviewing '
-                    .$this->run->learner->levelDescription().' about their daily '
-                    ."life. Given the question you asked and the learner's transcribed spoken answer, reply with exactly "
-                    .'ONE short, natural follow-up question (max 15 words) that shows you listened — no preamble, no '
-                    .'quotation marks, just the question.'
-                    .$this->run->aiToneGuidance()
-            ));
-            $this->recordGeminiCall();
+            try {
+                $followup = trim(app(GeminiClient::class)->chat(
+                    [['role' => 'user', 'text' => "Interview question: \"{$this->currentQuestion}\"\nLearner's answer: \"{$answer}\""]],
+                    systemPrompt: 'You are a friendly English conversation partner interviewing '
+                        .$this->run->learner->levelDescription().' about their daily '
+                        ."life. Given the question you asked and the learner's transcribed spoken answer, reply with exactly "
+                        .'ONE short, natural follow-up question (max 15 words) that shows you listened — no preamble, no '
+                        .'quotation marks, just the question.'
+                        .$this->run->aiToneGuidance()
+                ));
+                $this->recordGeminiCall();
+            } catch (Throwable) {
+                $followup = '';
+            }
 
             $this->turns[] = [
                 'question' => $this->currentQuestion,
@@ -734,6 +754,9 @@ new class extends Component
                 @error('audioFile')
                     <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
                 @enderror
+                @if ($notice)
+                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
+                @endif
                 @if ($error)
                     <p class="mt-2 text-sm text-danger-ink">{{ $error }}</p>
                 @endif

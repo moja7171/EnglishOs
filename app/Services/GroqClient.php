@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
@@ -16,17 +15,56 @@ class GroqClient
 {
     use UsesOutboundProxy;
 
+    private const PROVIDER = 'groq';
+
     private readonly string $apiKey;
 
-    private readonly string $whisperModel;
+    /**
+     * Set only when the caller pinned models in the constructor (ad-hoc
+     * probes such as the diagnostics report); a pinned chain never touches
+     * the shared "unavailable" memory.
+     *
+     * @var list<array{model: string, thinking_level: ?string}>|null
+     */
+    private readonly ?array $pinnedChain;
 
-    private readonly string $fallbackModel;
+    private readonly AiModelChain $chain;
 
     public function __construct(?string $apiKey = null, ?string $whisperModel = null, ?string $fallbackModel = null)
     {
         $this->apiKey = $apiKey ?? (string) config('services.groq.key');
-        $this->whisperModel = $whisperModel ?? (string) config('services.groq.whisper_model', 'whisper-large-v3-turbo');
-        $this->fallbackModel = $fallbackModel ?? (string) config('services.groq.fallback_model', 'whisper-large-v3');
+        $this->chain = new AiModelChain;
+
+        $this->pinnedChain = ($whisperModel !== null || $fallbackModel !== null)
+            ? AiModelChain::parseChain([
+                $whisperModel ?? (string) config('services.groq.whisper_model', 'whisper-large-v3-turbo'),
+                $fallbackModel ?? (string) config('services.groq.fallback_model', 'whisper-large-v3'),
+            ])
+            : null;
+    }
+
+    /**
+     * The configured Whisper chain, best first, with the legacy model +
+     * fallback pair standing in when no list is configured.
+     *
+     * @return list<array{model: string, thinking_level: ?string}>
+     */
+    public function configuredChain(): array
+    {
+        if ($this->pinnedChain !== null) {
+            return $this->pinnedChain;
+        }
+
+        $configured = AiModelChain::parseChain((array) config('services.groq.whisper_models', []));
+
+        if ($configured !== []) {
+            return $configured;
+        }
+
+        return AiModelChain::parseChain([
+            (string) config('services.groq.whisper_model', 'whisper-large-v3-turbo'),
+            (string) config('services.groq.fallback_model', 'whisper-large-v3'),
+        ]);
     }
 
     /**
@@ -137,61 +175,54 @@ class GroqClient
         $fileBody = file_get_contents($audioPath);
         $filename = basename($audioPath);
 
-        // Same treatment as GeminiClient::chat() — Groq's Whisper endpoint
-        // occasionally 503s or hangs outright under load too, and this
-        // backs every transcription call site (Activation, Story Sequence,
-        // Picture Description, both AI Conversation steps, partner
-        // sessions, friends conversation). Once the primary model's own
-        // attempt is exhausted, fall back to a single attempt against a
-        // second, genuinely available Whisper variant before giving up.
-        // Each model gets exactly 1 attempt (see attempt()'s retry(1, ...))
-        // — the fallback model IS the retry, keeping the worst case at ~40s
-        // (2 models × 1 attempt × 20s) instead of doubling again per model.
-        try {
-            return $this->attempt($this->whisperModel, $payload, $fileBody, $filename);
-        } catch (Throwable $e) {
-            if ($this->fallbackModel === '' || $this->fallbackModel === $this->whisperModel) {
-                $this->logFailure($e, $e, strlen($fileBody));
-
-                throw $e;
-            }
-
-            Log::warning('GroqClient: primary whisper model failed, retrying with fallback model.', [
-                'primary_model' => $this->whisperModel,
-                'fallback_model' => $this->fallbackModel,
-                'error' => $e->getMessage(),
-            ]);
-
-            try {
-                return $this->attempt($this->fallbackModel, $payload, $fileBody, $filename);
-            } catch (Throwable $fallbackError) {
-                $this->logFailure($e, $fallbackError, strlen($fileBody));
-
-                throw $fallbackError;
-            }
-        }
+        // Same chain walk as GeminiClient::chat() — Groq's Whisper endpoint
+        // occasionally 503s, hangs, or runs out of its per-day audio
+        // allowance too, and this backs every transcription call site
+        // (Activation, Story Sequence, Picture Description, both AI
+        // Conversation steps, partner sessions, friends conversation, Sage
+        // voice). The big upload is read once into a string above, so the
+        // same bytes are safe to resend to the next model.
+        return $this->chain->walk(
+            provider: self::PROVIDER,
+            logLabel: 'GroqClient',
+            chain: $this->configuredChain(),
+            attempt: fn (array $entry, int $timeout) => $this->attempt($entry['model'], $payload, $fileBody, $filename, $timeout),
+            limits: [
+                'max_attempts' => (int) config('services.groq.max_attempts', 3),
+                'budget' => (int) config('services.groq.total_budget', 25),
+                'attempt_timeout' => (int) config('services.groq.attempt_timeout', 12),
+            ],
+            tracked: $this->pinnedChain === null,
+            // The upload size is what failed on the Iranian host's network
+            // path for big bodies, so it is part of every failure line.
+            logContext: ['audio_bytes' => strlen($fileBody)],
+            chainName: 'Groq Whisper',
+        );
     }
 
     /**
-     * Callers (the voice question in Sage, every Speaking step) catch this
-     * and show a generic "couldn't transcribe", and production runs at
-     * LOG_LEVEL=error, which drops the fallback warning above — so without
-     * this the real cause (relay down, 4xx/5xx, cURL timeout on a big
-     * upload) was recorded nowhere. Same idea as GeminiClient::logFailure().
-     * The upload size is included because big bodies were what failed on
-     * the Iranian host's network path.
+     * The model ids Groq currently lists for this key, or null when the
+     * listing itself failed — lets diagnostics spot a retired Whisper model.
+     * Costs no transcription quota.
+     *
+     * @return list<string>|null
      */
-    private function logFailure(Throwable $primaryError, Throwable $finalError, int $audioBytes): void
+    public function listedModels(): ?array
     {
-        Log::error('GroqClient: transcription failed on every model.', [
-            'primary_model' => $this->whisperModel,
-            'primary_error' => mb_substr($primaryError->getMessage(), 0, 500),
-            'fallback_model' => $this->fallbackModel,
-            'final_error_class' => $finalError::class,
-            'final_error' => mb_substr($finalError->getMessage(), 0, 500),
-            'audio_bytes' => $audioBytes,
-            'relay' => (string) config('services.ai_proxy.url'),
-        ]);
+        $url = 'https://api.groq.com/openai/v1/models';
+
+        try {
+            $response = $this->withOutboundProxy(Http::withToken($this->apiKey)->timeout(10), $url)
+                ->get($this->outboundUrl($url));
+        } catch (Throwable) {
+            return null;
+        }
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        return array_values(array_map('strval', array_filter((array) $response->json('data.*.id'))));
     }
 
     /**
@@ -201,17 +232,16 @@ class GroqClient
      *
      * @return array{text: string, duration: float, segments: array}
      */
-    private function attempt(string $model, array $payload, string $fileBody, string $filename): array
+    private function attempt(string $model, array $payload, string $fileBody, string $filename, int $timeoutSeconds): array
     {
         $payload['model'] = $model;
 
-        // 1 attempt per model — see the worst-case-latency note in
-        // request() above.
+        // 1 attempt per model: the next model in the chain IS the retry.
         $url = 'https://api.groq.com/openai/v1/audio/transcriptions';
 
         $response = $this->withOutboundProxy(
             Http::withToken($this->apiKey)
-                ->timeout(20)
+                ->timeout($timeoutSeconds)
                 ->retry(1, 500, throw: false),
             $url,
         )

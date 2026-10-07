@@ -47,6 +47,9 @@ new class extends Component
 
     public ?string $error = null;
 
+    /** True when every judge model failed and the result below is the neutral fallback, not an AI decision. */
+    public bool $evaluationUnavailable = false;
+
     /**
      * Set once, inside getResult() — never in readOnly mode, and never
      * recomputed on every render, since streakMilestoneJustReached() has
@@ -337,32 +340,46 @@ new class extends Component
             // too, in case the AI ignores this list).
             $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), Mission::isStepRedoable(...)));
 
-            $raw = app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => $this->buildSummary()]],
-                systemPrompt: 'You are the AI Instructor deciding whether '.$this->run->learner->levelDescription()
-                    .' has completed this '
-                    .'mission. Based on the summary, reply with ONLY valid JSON, no markdown fences: '
-                    .'{"status": "complete" or "needs_review" or "retry_evidence", "reason": "one short, clear, '
-                    .'encouraging sentence explaining the decision to the learner", "weak_step": "if status is '
-                    .'not complete, the single step key most worth revisiting — exactly one of: '.$redoableStepKeys
-                    .' — never a step that is just an automatic AI-generated summary with no learner input, '
-                    .'otherwise null"}'
-            );
-            $this->recordGeminiCall();
+            // When every judge model has failed (GeminiClient has already
+            // logged why) the learner must still be able to finish the
+            // mission: 'needs_review' counts as done for progression (see
+            // ProgramPlanner) but flags the run for a later look, so nothing
+            // is falsely marked 'complete'.
+            try {
+                $raw = app(GeminiClient::class)->chat(
+                    [['role' => 'user', 'text' => $this->buildSummary()]],
+                    systemPrompt: 'You are the AI Instructor deciding whether '.$this->run->learner->levelDescription()
+                        .' has completed this '
+                        .'mission. Based on the summary, reply with ONLY valid JSON, no markdown fences: '
+                        .'{"status": "complete" or "needs_review" or "retry_evidence", "reason": "one short, clear, '
+                        .'encouraging sentence explaining the decision to the learner", "weak_step": "if status is '
+                        .'not complete, the single step key most worth revisiting — exactly one of: '.$redoableStepKeys
+                        .' — never a step that is just an automatic AI-generated summary with no learner input, '
+                        .'otherwise null"}',
+                    profile: GeminiClient::PROFILE_JUDGE,
+                );
+                $this->recordGeminiCall();
 
-            $data = json_decode(trim($raw), true);
+                $data = json_decode(trim($raw), true);
 
-            if (! is_array($data) || ! isset($data['status'], $data['reason'])) {
-                throw new RuntimeException('Unexpected AI response format.');
+                if (! is_array($data) || ! isset($data['status'], $data['reason'])) {
+                    throw new RuntimeException('Unexpected AI response format.');
+                }
+
+                $this->status = $data['status'];
+                $this->reason = $data['reason'];
+                // Never trust the AI's step key blindly — only a real,
+                // existing, redoable step in this mission is ever offered as a link.
+                $weakStep = $data['weak_step'] ?? null;
+                $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && Mission::isStepRedoable($weakStep))
+                    ? $weakStep : null;
+            } catch (Throwable) {
+                $this->evaluationUnavailable = true;
+                $this->status = MissionRun::STATUS_NEEDS_REVIEW;
+                $this->reason = "We couldn't review this mission just now, so it's saved for a later review. You can carry on.";
+                $this->weakStep = null;
             }
 
-            $this->status = $data['status'];
-            $this->reason = $data['reason'];
-            // Never trust the AI's step key blindly — only a real,
-            // existing, redoable step in this mission is ever offered as a link.
-            $weakStep = $data['weak_step'] ?? null;
-            $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && Mission::isStepRedoable($weakStep))
-                ? $weakStep : null;
             $this->milestoneJustReached = $this->run->learner->streakMilestoneJustReached();
 
             if ($this->milestoneJustReached !== null) {
@@ -456,6 +473,7 @@ new class extends Component
                 'status' => $this->status,
                 'reason' => $this->reason,
                 'weak_step' => $this->weakStep,
+                'evaluation_unavailable' => $this->evaluationUnavailable,
                 // Optional — null if the learner never tapped it, never
                 // required to reach here.
                 'topic_comfort_after' => $this->afterScore,

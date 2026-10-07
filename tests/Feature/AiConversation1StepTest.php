@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -341,6 +342,29 @@ class AiConversation1StepTest extends TestCase
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_TEXT]);
         $this->assertDatabaseCount('ai_feedbacks', 0);
         $this->assertSame('writing', $run->fresh()->currentStepKey());
+    }
+
+    public function test_an_answer_is_accepted_unevaluated_when_every_judge_model_fails(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        $run = $this->makeRun(questionCount: 2);
+
+        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
+        $this->completeWarmUp($component);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->twice()->andThrow(new ConnectionException('every model down'));
+        });
+
+        $component->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSet('round', 1)
+            ->assertSet('error', null)
+            ->assertSet('notice', fn ($notice) => str_contains($notice, "couldn't check it just now"))
+            ->assertSet('turns.0.answer', 'I wake up at seven.')
+            ->assertSet('turns.0.followup', '');
     }
 
     public function test_a_failed_ai_call_shows_an_error_without_losing_progress(): void

@@ -1,6 +1,9 @@
 <?php
 
 use App\Models\User;
+use App\Services\AiModelChain;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -158,6 +161,35 @@ new class extends Component
         auth()->user()->unblock(User::findOrFail($userId));
 
         unset($this->blockedUsers);
+    }
+
+    /**
+     * Admin-only, read-only: every AI model chain with each model's place in
+     * the order, whether the app is currently skipping it (and why/until
+     * when) and today's success/failure counts — failures used to be
+     * invisible. A model skipped as "retired" means the configured list is
+     * stale. Shown in the "AI Relay" tab.
+     *
+     * @return array<string, array{rows: list<array<string, mixed>>, available: int}>
+     */
+    #[Computed]
+    public function aiChains(): array
+    {
+        abort_unless(auth()->user()->is_admin, 403);
+
+        $chains = new AiModelChain;
+        $gemini = new GeminiClient;
+
+        $rowsByTitle = [
+            'Gemini — chat (Sage, conversations)' => $chains->status('gemini', $gemini->configuredChain(GeminiClient::PROFILE_CHAT)),
+            'Gemini — judge (grading the learner)' => $chains->status('gemini', $gemini->configuredChain(GeminiClient::PROFILE_JUDGE)),
+            'Groq — Whisper (speech to text)' => $chains->status('groq', (new GroqClient)->configuredChain()),
+        ];
+
+        return array_map(fn (array $rows) => [
+            'rows' => $rows,
+            'available' => count(array_filter($rows, fn (array $row) => $row['available'])),
+        ], $rowsByTitle);
     }
 
     /**
@@ -663,6 +695,57 @@ new class extends Component
                     </div>
                 @endforeach
             </div>
+        </div>
+
+        <div x-show="activeTab === 'ai-relay'" x-cloak class="space-y-4 card p-4">
+            <div>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">AI model chains</p>
+                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Best model first. A model that ran out of free quota, was retired or is failing is skipped until the time shown. Counts are for today.</p>
+            </div>
+
+            @foreach ($this->aiChains as $title => $chain)
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $title }}</p>
+                        @if ($chain['available'] === 0)
+                            <span class="rounded-full bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger-ink">Every model is down</span>
+                        @elseif ($chain['available'] === 1 && count($chain['rows']) > 1)
+                            <span class="rounded-full bg-warning-soft px-2 py-0.5 text-xs font-semibold text-warning-ink">Last model left</span>
+                        @endif
+                    </div>
+
+                    @forelse ($chain['rows'] as $row)
+                        <div class="rounded-lg border border-line p-3 dark:border-line-dark">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-sm font-semibold text-ink dark:text-ink-dark">
+                                    {{ $loop->iteration }}. {{ $row['model'] }}@if ($row['thinking_level']) <span class="font-normal text-ink-faint dark:text-ink-faint-dark">(thinking: {{ $row['thinking_level'] }})</span>@endif
+                                </p>
+                                @if ($row['available'])
+                                    <span class="inline-flex shrink-0 items-center rounded-full bg-success-soft px-2 py-0.5 text-xs font-semibold text-success-ink dark:bg-success-soft-dark dark:text-success-ink-dark">In rotation</span>
+                                @else
+                                    <span class="inline-flex shrink-0 items-center rounded-full bg-warning-soft px-2 py-0.5 text-xs font-semibold text-warning-ink">Skipped until {{ \Illuminate\Support\Carbon::createFromTimestamp($row['until'])->timezone(config('app.timezone'))->format('H:i') }}</span>
+                                @endif
+                            </div>
+                            <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+                                Today: {{ $row['today']['ok'] }} ok, {{ $row['today']['fail'] }} failed
+                                @if ($row['today']['last_fail_reason']) — last failure: {{ str_replace('_', ' ', $row['today']['last_fail_reason']) }} @endif
+                            </p>
+                            @unless ($row['available'])
+                                <p class="mt-1 text-xs text-warning-ink">
+                                    {{ match ($row['reason']) {
+                                        'daily_quota' => 'Daily free quota used up.',
+                                        'rate_limit' => 'Rate limited for a moment.',
+                                        'retired' => 'Google no longer serves this model — remove it from the list in .env.',
+                                        default => 'Failing (timeouts or server errors).',
+                                    } }}
+                                </p>
+                            @endunless
+                        </div>
+                    @empty
+                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">No models configured.</p>
+                    @endforelse
+                </div>
+            @endforeach
         </div>
     @endif
 </div>
