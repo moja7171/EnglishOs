@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AiModelChain;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Illuminate\Http\Client\RequestException;
@@ -34,14 +35,19 @@ class AiDiagnosticController extends Controller
             'relay url: '.($this->relayUrl() === '' ? '(EMPTY — calls go straight to Google)' : $this->relayUrl()),
             'relay secret set: '.(config('services.ai_proxy.secret') ? 'yes' : 'NO'),
             'gemini key set: '.(config('services.gemini.key') ? 'yes' : 'NO'),
-            'gemini model / fallback: '.config('services.gemini.model').' / '.config('services.gemini.fallback_model'),
+            'gemini chat chain: '.$this->chainNames((new GeminiClient)->configuredChain(GeminiClient::PROFILE_CHAT)),
+            'gemini judge chain: '.$this->chainNames((new GeminiClient)->configuredChain(GeminiClient::PROFILE_JUDGE)),
+            'groq whisper chain: '.$this->chainNames((new GroqClient)->configuredChain()),
             'php: '.PHP_VERSION.', curl: '.(function_exists('curl_version') ? curl_version()['version'] : 'missing'),
             '',
             '== 1. Relay reachable? (GET without auth; 401 "bad auth" = healthy) ==',
             ...$this->probeRelay(),
             '',
-            '== 2. Exact app path: GeminiClient::chat() — what Sage and Check run ==',
-            ...$this->probeGeminiClient(),
+            '== 2. Exact app path: GeminiClient::chat() — what Sage and Check run (first model of each chain; ?probe=all tries every model and spends one request on each) ==',
+            ...$this->probeGeminiClient($request->query('probe') === 'all'),
+            '',
+            '== 2b. Model chains: does each model still exist, is it in rotation, today\'s counts (no generation quota spent) ==',
+            ...$this->chainReport(),
             '',
             '== 2c. Relay POST body-size sweep (HTTP/1.1, real countTokens call; finds the size where requests start to hang) ==',
             ...$this->probeRelaySizeSweep(),
@@ -95,17 +101,26 @@ class AiDiagnosticController extends Controller
     }
 
     /** @return array<int, string> */
-    private function probeGeminiClient(): array
+    private function probeGeminiClient(bool $everyModel): array
     {
         $lines = [];
+        $models = [];
 
-        // One model at a time with no fallback, so the primary's own error
-        // isn't hidden behind the fallback's (chat() rethrows only the last).
-        foreach ([config('services.gemini.model'), config('services.gemini.fallback_model')] as $model) {
+        foreach ([GeminiClient::PROFILE_CHAT, GeminiClient::PROFILE_JUDGE] as $profile) {
+            $chain = (new GeminiClient)->configuredChain($profile);
+
+            foreach ($everyModel ? $chain : array_slice($chain, 0, 1) as $entry) {
+                $models[$entry['model']] = true;
+            }
+        }
+
+        // One model at a time and pinned (no chain walk, no shared memory),
+        // so each model's own error isn't hidden behind the next one's.
+        foreach (array_keys($models) as $model) {
             $lines[] = "model {$model}:";
 
             foreach ($this->timed(function () use ($model): string {
-                $reply = (new GeminiClient(null, (string) $model, ''))
+                $reply = (new GeminiClient(null, $model, ''))
                     ->chat([['role' => 'user', 'text' => 'Reply with exactly one word: pong']]);
 
                 return 'OK — replied: '.mb_substr($reply, 0, 80);
@@ -115,6 +130,74 @@ class AiDiagnosticController extends Controller
         }
 
         return $lines;
+    }
+
+    /**
+     * Per chain: each model's place in the order, whether the provider
+     * still serves it (a retired model is stale config), whether the app is
+     * currently skipping it and why, and today's success/failure counts.
+     *
+     * @return array<int, string>
+     */
+    private function chainReport(): array
+    {
+        $chains = new AiModelChain;
+        $gemini = new GeminiClient;
+        $groq = new GroqClient;
+        $lines = [];
+
+        $exists = [];
+        $groqListing = $groq->listedModels();
+
+        foreach ([GeminiClient::PROFILE_CHAT, GeminiClient::PROFILE_JUDGE] as $profile) {
+            $lines[] = "gemini {$profile} chain (best first):";
+
+            foreach ($chains->status('gemini', $gemini->configuredChain($profile)) as $position => $row) {
+                $exists[$row['model']] ??= $gemini->modelExists($row['model']);
+                $lines[] = $this->chainRow($position + 1, $row, $exists[$row['model']]);
+            }
+        }
+
+        $lines[] = 'groq whisper chain (best first)'.($groqListing === null ? ' — model listing failed, existence unknown:' : ':');
+
+        foreach ($chains->status('groq', $groq->configuredChain()) as $position => $row) {
+            $lines[] = $this->chainRow($position + 1, $row, $groqListing === null ? null : in_array($row['model'], $groqListing, true));
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param  array{model: string, thinking_level: ?string, available: bool, reason: ?string, since: ?int, until: ?int, today: array{ok: int, fail: int, last_ok_at: ?int, last_fail_at: ?int, last_fail_reason: ?string}}  $row
+     */
+    private function chainRow(int $position, array $row, ?bool $exists): string
+    {
+        $existence = match ($exists) {
+            true => 'exists',
+            false => 'GONE — retired, remove it from the list',
+            null => 'existence unknown',
+        };
+
+        $rotation = $row['available']
+            ? 'in rotation'
+            : "SKIPPED ({$row['reason']}) until ".date('H:i:s', (int) $row['until']);
+
+        $level = $row['thinking_level'] !== null ? ":{$row['thinking_level']}" : '';
+        $today = $row['today'];
+        $lastFailure = $today['last_fail_reason'] !== null ? ", last failure: {$today['last_fail_reason']}" : '';
+
+        return "  {$position}. {$row['model']}{$level} — {$existence}; {$rotation}; today ok {$today['ok']} / failed {$today['fail']}{$lastFailure}";
+    }
+
+    /**
+     * @param  list<array{model: string, thinking_level: ?string}>  $chain
+     */
+    private function chainNames(array $chain): string
+    {
+        return implode(' → ', array_map(
+            fn (array $entry) => $entry['model'].($entry['thinking_level'] !== null ? ":{$entry['thinking_level']}" : ''),
+            $chain,
+        ));
     }
 
     /** @return array<int, string> */

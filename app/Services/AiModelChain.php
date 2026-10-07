@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\User;
+use App\Notifications\AiChainDegraded;
 use Closure;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -93,10 +95,11 @@ class AiModelChain
      * @param  array{max_attempts: int, budget: int, attempt_timeout: int}  $limits
      * @param  bool  $tracked  False for pinned ad-hoc probes (diagnostics): they neither read nor write the shared memory.
      * @param  array<string, mixed>  $logContext  Extra fields for the failure log (never keys or request bodies).
+     * @param  string|null  $chainName  Human name for admin alerts, e.g. "Gemini chat"; defaults to the log label.
      *
      * @throws Throwable The last attempt's error once the chain is exhausted.
      */
-    public function walk(string $provider, string $logLabel, array $chain, Closure $attempt, array $limits, bool $tracked = true, array $logContext = []): mixed
+    public function walk(string $provider, string $logLabel, array $chain, Closure $attempt, array $limits, bool $tracked = true, array $logContext = [], ?string $chainName = null): mixed
     {
         $startedAt = microtime(true);
         $failures = [];
@@ -142,6 +145,7 @@ class AiModelChain
 
                 if ($tracked) {
                     $this->takeOutOfRotation($provider, $logLabel, $entry['model'], $verdict);
+                    $this->alertIfDegraded($provider, $chainName ?? $logLabel, $chain);
                 }
             }
         }
@@ -153,6 +157,44 @@ class AiModelChain
         $this->logFailure($logLabel, $failures, $lastError, $logContext);
 
         throw $lastError;
+    }
+
+    /**
+     * Pushes a bell + phone alert to the admins once a chain is down to its
+     * last model, and again if it loses that one too. Throttled per chain
+     * and level so an outage alerts once, not on every failing request, and
+     * never lets a notification problem touch the learner's request.
+     *
+     * @param  list<array{model: string}>  $chain
+     */
+    private function alertIfDegraded(string $provider, string $chainName, array $chain): void
+    {
+        $remaining = array_values(array_filter(
+            $chain,
+            fn (array $entry) => $this->unavailableState($provider, $entry['model']) === null,
+        ));
+
+        $everyModelDown = $remaining === [];
+
+        if (! $everyModelDown && (count($chain) < 2 || count($remaining) > 1)) {
+            return;
+        }
+
+        try {
+            $level = $everyModelDown ? 'none' : 'last';
+            $key = 'ai-chain-alert:'.md5($provider.$chainName.implode(',', array_column($chain, 'model'))).":{$level}";
+
+            if (! Cache::add($key, true, now()->addHours(6))) {
+                return;
+            }
+
+            $lastModel = $remaining[0]['model'] ?? $chain[array_key_last($chain)]['model'];
+
+            User::query()->where('is_admin', true)->get()
+                ->each(fn (User $admin) => $admin->notify(new AiChainDegraded($chainName, $lastModel, $everyModelDown)));
+        } catch (Throwable) {
+            // Alerting is best-effort; the failure itself is already logged.
+        }
     }
 
     /**
@@ -356,6 +398,31 @@ class AiModelChain
         }
 
         return $state;
+    }
+
+    /**
+     * One row per chain entry for the admin status view and diagnostics:
+     * whether the model is currently skipped (and why/until when), plus
+     * today's counters.
+     *
+     * @param  list<array{model: string, thinking_level: ?string}>  $chain
+     * @return list<array{model: string, thinking_level: ?string, available: bool, reason: ?string, since: ?int, until: ?int, today: array{ok: int, fail: int, last_ok_at: ?int, last_fail_at: ?int, last_fail_reason: ?string}}>
+     */
+    public function status(string $provider, array $chain): array
+    {
+        return array_map(function (array $entry) use ($provider): array {
+            $state = $this->unavailableState($provider, $entry['model']);
+
+            return [
+                'model' => $entry['model'],
+                'thinking_level' => $entry['thinking_level'] ?? null,
+                'available' => $state === null,
+                'reason' => $state['reason'] ?? null,
+                'since' => $state['since'] ?? null,
+                'until' => $state['until'] ?? null,
+                'today' => $this->todayStats($provider, $entry['model']),
+            ];
+        }, $chain);
     }
 
     public function recordSuccess(string $provider, string $model): void

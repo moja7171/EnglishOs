@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\AiModelChain;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,37 @@ class ProfileTest extends TestCase
         $this->assertSame('New Name', $me->name);
         $this->assertSame('C1', $me->cefr_level);
         $this->assertSame('8.0', $me->target_band);
+    }
+
+    public function test_an_admin_sees_each_ai_model_chain_with_the_skipped_and_last_model_states(): void
+    {
+        config([
+            'services.gemini.chat_models' => ['chat-a', 'chat-b'],
+            'services.gemini.judge_models' => ['judge-a'],
+            'services.groq.whisper_models' => ['whisper-large-v3-turbo'],
+        ]);
+        $chains = new AiModelChain;
+        $chains->markUnavailable('gemini', 'chat-a', AiModelChain::KIND_DAILY_QUOTA, 3600);
+        $chains->markUnavailable('gemini', 'judge-a', AiModelChain::KIND_RETIRED, 3600);
+        $chains->recordSuccess('gemini', 'chat-b');
+
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        Livewire::test('profile')
+            ->assertSee('Gemini — chat (Sage, conversations)')
+            ->assertSee('Skipped until')
+            ->assertSee('Daily free quota used up.')
+            ->assertSee('Last model left')
+            ->assertSee('Every model is down')
+            ->assertSee('Google no longer serves this model')
+            ->assertSee('Today: 1 ok, 0 failed');
+    }
+
+    public function test_a_regular_learner_never_sees_the_ai_model_chains(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('profile')->assertDontSee('AI model chains');
     }
 
     public function test_a_blank_name_is_rejected(): void

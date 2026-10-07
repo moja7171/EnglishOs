@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Throwable;
 
 /**
  * Thin wrapper around Gemini's generateContent REST API — the LLM behind
@@ -102,6 +103,7 @@ class GeminiClient
             ],
             tracked: $this->pinnedChain === null,
             logContext: ['profile' => $profile],
+            chainName: "Gemini {$profile}",
         );
     }
 
@@ -127,6 +129,31 @@ class GeminiClient
             (string) config('services.gemini.model', 'gemini-3.5-flash-lite'),
             (string) config('services.gemini.fallback_model', 'gemini-3.1-flash-lite'),
         ]);
+    }
+
+    /**
+     * Whether Google still serves this model: true/false for a definite
+     * answer (200 / 404 — retired models answer 404), null when the check
+     * itself failed. Costs no generation quota.
+     */
+    public function modelExists(string $model): ?bool
+    {
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}";
+
+        try {
+            $response = $this->withOutboundProxy(
+                Http::withHeaders(['x-goog-api-key' => $this->apiKey])->timeout(10),
+                $url,
+            )->get($this->outboundUrl($url));
+        } catch (Throwable) {
+            return null;
+        }
+
+        return match (true) {
+            $response->successful() => true,
+            $response->status() === 404 => false,
+            default => null,
+        };
     }
 
     /**

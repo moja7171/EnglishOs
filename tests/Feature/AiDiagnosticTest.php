@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Services\AiModelChain;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -53,6 +54,36 @@ class AiDiagnosticTest extends TestCase
         $response->assertSee('GroqClient::transcribe()', false);
         $response->assertDontSee('secret-relay-value', false);
         $response->assertDontSee('secret-gemini-key', false);
+    }
+
+    public function test_the_chain_report_flags_a_retired_model_and_a_model_in_the_penalty_box(): void
+    {
+        config([
+            'services.gemini.chat_models' => ['retired-model', 'tired-model'],
+            'services.gemini.judge_models' => ['tired-model'],
+            'services.groq.key' => 'secret-groq-key',
+            'services.groq.whisper_models' => ['whisper-large-v3-turbo'],
+        ]);
+        (new AiModelChain)->markUnavailable('gemini', 'tired-model', AiModelChain::KIND_DAILY_QUOTA, 3600);
+
+        Http::fake(function ($request) {
+            $target = $request->header('X-Relay-Url')[0] ?? '';
+
+            return match (true) {
+                str_ends_with($target, '/v1beta/models/retired-model') => Http::response(['error' => 'gone'], 404),
+                str_ends_with($target, '/v1beta/models/tired-model') => Http::response(['name' => 'models/tired-model']),
+                str_ends_with($target, '/openai/v1/models') => Http::response(['data' => [['id' => 'whisper-large-v3-turbo']]]),
+                default => Http::response('blocked', 403),
+            };
+        });
+
+        $response = $this->get('/_diag/ai?token=diag-token');
+
+        $response->assertSee('1. retired-model — GONE', false);
+        $response->assertSee('2. tired-model — exists; SKIPPED (daily_quota)', false);
+        $response->assertSee('1. whisper-large-v3-turbo — exists; in rotation', false);
+        $response->assertSee('gemini chat chain: retired-model → tired-model', false);
+        $response->assertDontSee('secret-groq-key', false);
     }
 
     public function test_the_transcription_probe_sends_a_real_wav_through_the_relay_and_reports_what_whisper_said(): void

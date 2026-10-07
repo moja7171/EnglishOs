@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Throwable;
 
 /**
  * Thin wrapper around Groq's OpenAI-compatible Whisper transcription API —
@@ -195,7 +196,33 @@ class GroqClient
             // The upload size is what failed on the Iranian host's network
             // path for big bodies, so it is part of every failure line.
             logContext: ['audio_bytes' => strlen($fileBody)],
+            chainName: 'Groq Whisper',
         );
+    }
+
+    /**
+     * The model ids Groq currently lists for this key, or null when the
+     * listing itself failed — lets diagnostics spot a retired Whisper model.
+     * Costs no transcription quota.
+     *
+     * @return list<string>|null
+     */
+    public function listedModels(): ?array
+    {
+        $url = 'https://api.groq.com/openai/v1/models';
+
+        try {
+            $response = $this->withOutboundProxy(Http::withToken($this->apiKey)->timeout(10), $url)
+                ->get($this->outboundUrl($url));
+        } catch (Throwable) {
+            return null;
+        }
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        return array_values(array_map('strval', array_filter((array) $response->json('data.*.id'))));
     }
 
     /**
