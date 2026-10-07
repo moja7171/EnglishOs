@@ -482,7 +482,7 @@ new class extends Component
 @endphp
 
 <div
-    class="space-y-6"
+    class="scroll-mt-20 space-y-6"
     data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : 'lesson' }}"
     data-lesson-sections="{{ count($lessonSectionsData) }}"
     data-initial-filled="{{ $initialFilled->toJson() }}"
@@ -496,6 +496,15 @@ new class extends Component
             this.phase = this.$el.dataset.initialPhase;
             this.lessonSections = Number(this.$el.dataset.lessonSections);
             this.filled = JSON.parse(this.$el.dataset.initialFilled);
+            // Moving to another lesson section, or into practice, swaps the
+            // content in place — without this the page keeps its old scroll
+            // offset and lands at the bottom of the new, shorter section.
+            this.$watch('lessonStep', () => this.scrollToTop());
+            this.$watch('phase', () => this.scrollToTop());
+        },
+        scrollToTop() {
+            const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            this.$nextTick(() => this.$root.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }));
         },
         get filledCount() { return this.filled.filter(Boolean).length },
         get progressMessage() {
@@ -507,9 +516,10 @@ new class extends Component
         },
     }"
 >
-    <x-hook :text="$grammar['hook'] ?? null" />
-
-    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $grammar['focus'] ?? 'Grammar' }}</p>
+    <div class="space-y-3">
+        <h3 class="font-display text-2xl leading-tight font-semibold text-ink dark:text-ink-dark">{{ $grammar['focus'] ?? 'Grammar' }}</h3>
+        <x-hook :text="$grammar['hook'] ?? null" />
+    </div>
 
     @if ($completed)
         <div class="space-y-4 card p-4">

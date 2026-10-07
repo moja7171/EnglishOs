@@ -567,8 +567,8 @@ new class extends Component
                         <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
 
                         <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                            <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Fix this sentence</p>
-                            <p class="mt-1.5 text-lg leading-snug font-semibold text-ink dark:text-ink-dark">&ldquo;{{ $card['wrong'] }}&rdquo;</p>
+                            <p class="text-xs font-medium tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Fix this sentence</p>
+                            <p class="mt-1.5 text-lg leading-snug font-normal text-ink dark:text-ink-dark">&ldquo;{{ $card['wrong'] }}&rdquo;</p>
                         </div>
 
                         <div class="grid gap-2.5">
@@ -592,18 +592,18 @@ new class extends Component
 
                         @if ($answered)
                             <div class="space-y-4">
-                                <p class="font-display text-lg font-bold {{ $gotItRight ? 'text-success dark:text-success-dark' : 'text-danger-ink' }}">
+                                <p class="font-display text-lg font-semibold {{ $gotItRight ? 'text-success dark:text-success-dark' : 'text-danger-ink' }}">
                                     {{ $gotItRight ? 'Yes — that\'s right!' : 'Not quite — the green one is correct.' }}
                                 </p>
 
                                 @if ($grammarReview['rules'])
                                     <div class="space-y-3 rounded-2xl border border-accent/30 bg-accent-soft p-4 dark:border-accent-dark/40 dark:bg-accent-soft-dark">
-                                        <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">
+                                        <p class="inline-flex items-center gap-1.5 text-xs font-medium tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">
                                             @svg('heroicon-o-light-bulb', 'h-4 w-4') Remember
                                         </p>
                                         @foreach ($grammarReview['rules'] as $rule)
                                             <div>
-                                                <p class="text-base leading-snug font-semibold text-ink dark:text-ink-dark">{!! $rule['text'] !!}</p>
+                                                <p class="text-base leading-snug font-normal text-ink dark:text-ink-dark">{!! $rule['text'] !!}</p>
                                                 @if ($rule['fa'])
                                                     <p dir="rtl" class="mt-1 text-start text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! $rule['fa'] !!}</p>
                                                 @endif
