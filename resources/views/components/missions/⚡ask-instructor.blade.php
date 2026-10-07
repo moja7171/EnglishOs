@@ -8,6 +8,7 @@ use App\Services\GroqClient;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -119,11 +120,27 @@ new class extends Component
         $recording = $this->voiceQuestion;
         $this->voiceQuestion = null;
 
+        $failure = null;
+
         try {
             $question = trim(app(GroqClient::class)->transcribe($recording->getRealPath()));
             $this->recordGroqCall();
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            $failure = $e::class.': '.mb_substr($e->getMessage(), 0, 300);
             $question = '';
+        }
+
+        // Either way the learner only sees Sage say it can't see their voice
+        // note, so the real cause (a thrown error, or Whisper answering with
+        // no text) is recorded here — GroqClient only logs failures that
+        // happen inside its own requests.
+        if ($question === '') {
+            Log::error('Sage voice question could not be transcribed.', [
+                'reason' => $failure ?? 'Whisper returned no text',
+                'bytes' => rescue(fn () => $recording->getSize(), null, false),
+                'mime' => rescue(fn () => $recording->getMimeType(), null, false),
+                'name' => $recording->getClientOriginalName(),
+            ]);
         }
 
         $path = $recording->store('instructor-messages/'.auth()->id(), 'local');
