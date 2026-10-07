@@ -52,6 +52,29 @@ return [
         // "-latest" alias either, which can resolve to the primary model
         // and share its quota.
         'fallback_model' => env('GEMINI_FALLBACK_MODEL', 'gemini-3.1-flash-lite'),
+
+        // Ordered free-tier model chains, best first (see App\Services\
+        // GeminiClient::chat() and App\Services\AiModelChain). Comma
+        // separated; an entry may carry a thinking level after a colon
+        // ("gemini-3.5-flash:minimal") for the "thinking" flash models, which
+        // would otherwise spend a capped reply's whole token budget on
+        // thinking. "chat" = Sage and conversation (high volume, cheap
+        // models first); "judge" = anything that grades the learner (quality
+        // first). Quota is counted per model, so keep the top of the two
+        // lists different: chat traffic must not drain the judge's allowance.
+        // Empty = use the single model + fallback_model pair above, which is
+        // what production did before chains existed.
+        'chat_models' => array_values(array_filter(array_map('trim', explode(',', (string) env('GEMINI_CHAT_MODELS', ''))))),
+        'judge_models' => array_values(array_filter(array_map('trim', explode(',', (string) env('GEMINI_JUDGE_MODELS', ''))))),
+
+        // So a learner is never left waiting on a model that is down: each
+        // attempt is cut off after attempt_timeout seconds (the relay caps a
+        // provider call at 30 s anyway), a request tries at most
+        // max_attempts models, and total_budget seconds is the ceiling
+        // across all of them.
+        'attempt_timeout' => (int) env('GEMINI_ATTEMPT_TIMEOUT', 10),
+        'max_attempts' => (int) env('GEMINI_MAX_ATTEMPTS', 3),
+        'total_budget' => (int) env('GEMINI_TOTAL_BUDGET', 20),
     ],
 
     // Speech-to-text for recorded Evidence audio — EOS-009 §11.
