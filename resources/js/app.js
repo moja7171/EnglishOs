@@ -849,6 +849,31 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
 };
 
 /**
+ * A page that is slow to arrive says so: if a wire:navigate has not landed
+ * after a short grace period the current page dims and stops taking taps (see
+ * html[data-navigating] in app.css), so a slow connection reads as "working"
+ * rather than "my tap did nothing". Fast navigations never get that far.
+ */
+(() => {
+    let timer = null;
+    let giveUp = null;
+
+    const clear = () => {
+        clearTimeout(timer);
+        clearTimeout(giveUp);
+        document.documentElement.removeAttribute('data-navigating');
+    };
+
+    document.addEventListener('livewire:navigate', () => {
+        clear();
+        timer = setTimeout(() => document.documentElement.setAttribute('data-navigating', ''), 200);
+        giveUp = setTimeout(clear, 10000);
+    });
+
+    document.addEventListener('livewire:navigated', clear);
+})();
+
+/**
  * Pages arrive with a short fade instead of a hard cut. wire:navigate swaps
  * the whole body, so each navigation (not the very first load) marks the new
  * body for a moment and the CSS in app.css does the rest. Opacity only — a

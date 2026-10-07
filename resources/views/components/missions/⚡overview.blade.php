@@ -217,7 +217,7 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
+<div class="stagger-children mx-auto max-w-2xl space-y-6 p-6">
     @php $program = $this->program; $today = $program['today']; @endphp
 
     <header class="border-b border-line pb-4 dark:border-line-dark">

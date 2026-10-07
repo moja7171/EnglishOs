@@ -392,7 +392,7 @@ new class extends Component
         @endif
 
         {{-- Mission overview, styled as a journey path --}}
-        <div class="relative pl-11">
+        <div class="stagger-children relative pl-11">
             <div class="absolute top-5 bottom-5 left-[18px] w-0.5 bg-line dark:bg-line-dark"></div>
 
             @foreach ($run->dayProgress() as $index => $day)
