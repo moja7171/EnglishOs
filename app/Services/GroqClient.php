@@ -151,6 +151,8 @@ class GroqClient
             return $this->attempt($this->whisperModel, $payload, $fileBody, $filename);
         } catch (Throwable $e) {
             if ($this->fallbackModel === '' || $this->fallbackModel === $this->whisperModel) {
+                $this->logFailure($e, $e, strlen($fileBody));
+
                 throw $e;
             }
 
@@ -160,8 +162,36 @@ class GroqClient
                 'error' => $e->getMessage(),
             ]);
 
-            return $this->attempt($this->fallbackModel, $payload, $fileBody, $filename);
+            try {
+                return $this->attempt($this->fallbackModel, $payload, $fileBody, $filename);
+            } catch (Throwable $fallbackError) {
+                $this->logFailure($e, $fallbackError, strlen($fileBody));
+
+                throw $fallbackError;
+            }
         }
+    }
+
+    /**
+     * Callers (the voice question in Sage, every Speaking step) catch this
+     * and show a generic "couldn't transcribe", and production runs at
+     * LOG_LEVEL=error, which drops the fallback warning above — so without
+     * this the real cause (relay down, 4xx/5xx, cURL timeout on a big
+     * upload) was recorded nowhere. Same idea as GeminiClient::logFailure().
+     * The upload size is included because big bodies were what failed on
+     * the Iranian host's network path.
+     */
+    private function logFailure(Throwable $primaryError, Throwable $finalError, int $audioBytes): void
+    {
+        Log::error('GroqClient: transcription failed on every model.', [
+            'primary_model' => $this->whisperModel,
+            'primary_error' => mb_substr($primaryError->getMessage(), 0, 500),
+            'fallback_model' => $this->fallbackModel,
+            'final_error_class' => $finalError::class,
+            'final_error' => mb_substr($finalError->getMessage(), 0, 500),
+            'audio_bytes' => $audioBytes,
+            'relay' => (string) config('services.ai_proxy.url'),
+        ]);
     }
 
     /**

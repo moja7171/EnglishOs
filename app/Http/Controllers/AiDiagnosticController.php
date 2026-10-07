@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -50,6 +51,12 @@ class AiDiagnosticController extends Controller
             '',
             '== 2e. Control: big POST bodies to the relay VPS itself, bypassing Cloudflare (any quick HTTP status = body got out) ==',
             ...$this->probeVpsBigBodies(),
+            '',
+            '== 2f. Relay upload sweep: big POSTs with NO auth (a healthy relay answers 401 "bad auth" fast; a timeout = this host drops uploads that big — voice recordings are tens of KB) ==',
+            ...$this->probeRelayUploadSweep(),
+            '',
+            '== 2g. Real transcription: GroqClient::transcribe() of a generated 2 s WAV — what a Sage voice question runs ==',
+            ...$this->probeGroqTranscription(),
             '',
             '== 3. Direct to Google, no relay (informational — expected to fail on a filtered host) ==',
             ...$this->probeDirect(),
@@ -142,6 +149,68 @@ class AiDiagnosticController extends Controller
         }
 
         return $lines;
+    }
+
+    /** @return array<int, string> */
+    private function probeRelayUploadSweep(): array
+    {
+        if ($this->relayUrl() === '') {
+            return ['skipped — no relay configured'];
+        }
+
+        $lines = [];
+
+        foreach ([8_000, 32_000, 96_000, 256_000] as $bytes) {
+            $lines[] = "body ~{$bytes} bytes, no auth:";
+
+            foreach ($this->timed(function () use ($bytes): string {
+                $response = Http::timeout(15)
+                    ->withBody(str_repeat('a', $bytes), 'application/octet-stream')
+                    ->post($this->relayUrl());
+
+                return 'HTTP '.$response->status().' — '.mb_substr(preg_replace('/\s+/', ' ', $response->body()), 0, 60);
+            }) as $line) {
+                $lines[] = '  '.$line;
+            }
+        }
+
+        return $lines;
+    }
+
+    /** @return array<int, string> */
+    private function probeGroqTranscription(): array
+    {
+        $path = tempnam(sys_get_temp_dir(), 'diag-wav-').'.wav';
+        file_put_contents($path, $this->sampleWav());
+        $lines = ['audio: '.filesize($path).' bytes'];
+
+        try {
+            foreach ($this->timed(function () use ($path): string {
+                $text = app(GroqClient::class)->transcribe($path);
+
+                return 'OK — Whisper returned: "'.trim($text).'" (a tone has no speech; any reply means the whole path works)';
+            }) as $line) {
+                $lines[] = $line;
+            }
+        } finally {
+            @unlink($path);
+        }
+
+        return $lines;
+    }
+
+    /** A 2 s, 16 kHz, mono 440 Hz tone as a WAV file's bytes. */
+    private function sampleWav(): string
+    {
+        $rate = 16_000;
+        $pcm = '';
+
+        for ($i = 0; $i < $rate * 2; $i++) {
+            $pcm .= pack('v', (int) (8000 * sin(2 * M_PI * 440 * $i / $rate)) & 0xFFFF);
+        }
+
+        return 'RIFF'.pack('V', 36 + strlen($pcm)).'WAVEfmt '.pack('VvvVVvv', 16, 1, 1, $rate, $rate * 2, 2, 16)
+            .'data'.pack('V', strlen($pcm)).$pcm;
     }
 
     /** @return array<int, string> */
