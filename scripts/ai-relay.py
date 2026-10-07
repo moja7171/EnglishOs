@@ -19,6 +19,12 @@ Destination is checked against an allowlist so a leaked secret can only
 ever be used to reach these specific providers, not as an open relay to
 anywhere.
 
+Optional: set TUNNEL_LOG to the log file of a localhost.run tunnel running
+next to this relay, and an authenticated `GET /_tunnel-url` returns that
+tunnel's newest https://<id>.lhr.life URL. A free tunnel's URL changes on its
+own, and production polls this to follow it (see App\\Console\\Commands\\
+AiRelaySyncLocalUrl).
+
 Run it: requires the `requests` package (pip install requests).
 
     RELAY_SECRET=<a-strong-random-value> python3 scripts/ai-relay.py 8899
@@ -32,6 +38,7 @@ and set on the server:
     AI_PROXY_SECRET=<the same RELAY_SECRET>
 """
 import os
+import re
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
@@ -50,6 +57,26 @@ ALLOWED_HOSTS = {
     "videos.pexels.com",
 }
 
+TUNNEL_LOG = os.environ.get("TUNNEL_LOG")
+TUNNEL_URL_RE = re.compile(r"https://[a-z0-9-]+\.lhr\.life")
+
+
+def latest_tunnel_url():
+    if not TUNNEL_LOG:
+        return None
+
+    try:
+        with open(TUNNEL_LOG, "rb") as f:
+            f.seek(0, os.SEEK_END)
+            f.seek(max(0, f.tell() - 200_000))
+            text = f.read().decode("latin1")
+    except OSError:
+        return None
+
+    matches = TUNNEL_URL_RE.findall(text)
+    return matches[-1] if matches else None
+
+
 HOP_BY_HOP = {
     "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
     "te", "trailers", "transfer-encoding", "upgrade", "host",
@@ -65,6 +92,14 @@ class Handler(BaseHTTPRequestHandler):
 
         if auth != RELAY_SECRET:
             self._respond(401, b"bad auth")
+            return
+
+        if self.command == "GET" and self.path == "/_tunnel-url":
+            url = latest_tunnel_url()
+            if url is None:
+                self._respond(404, b"no tunnel url")
+            else:
+                self._respond(200, url.encode(), {"Cache-Control": "no-store"})
             return
 
         parsed = urlparse(target)
