@@ -7,6 +7,7 @@ use App\Models\GrammarPoint;
 use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
+use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -543,5 +544,61 @@ class DailyReviewTest extends TestCase
         $fresh = Livewire::test('review.index');
         $this->assertFalse($fresh->instance()->hasSkippedEverything());
         $this->assertNotNull($fresh->instance()->currentItem());
+    }
+
+    public function test_a_grammar_point_with_lesson_content_is_reviewed_as_a_question(): void
+    {
+        $this->seed(MissionSeeder::class);
+        $learner = User::factory()->create();
+        $point = $this->makeDueGrammarPoint($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSee('Fix this sentence')
+            ->assertSee('She go to work at eight.')
+            ->assertSee('She goes to work at eight.')
+            ->assertDontSee('Remember')
+            ->assertDontSee('Show a quick reminder')
+            ->call('continueGrammar');
+
+        $this->assertSame(0, $point->fresh()->repetitions);
+    }
+
+    public function test_answering_a_grammar_question_correctly_shows_the_rules_and_grades_good(): void
+    {
+        $this->seed(MissionSeeder::class);
+        $learner = User::factory()->create();
+        $point = $this->makeDueGrammarPoint($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->call('pickOption', 1)
+            ->assertSee('Yes — that')
+            ->assertSee('Remember')
+            ->assertSeeHtml('<strong>he / she / it</strong>')
+            ->assertSee('I usually wake up at 7.')
+            ->call('continueGrammar')
+            ->assertSet('sessionGraded', 1)
+            ->assertSet('sessionRemembered', 1);
+
+        $this->assertSame(1, $point->fresh()->repetitions);
+    }
+
+    public function test_answering_a_grammar_question_wrongly_grades_again(): void
+    {
+        $this->seed(MissionSeeder::class);
+        $learner = User::factory()->create();
+        $point = $this->makeDueGrammarPoint($learner);
+        $point->update(['repetitions' => 3]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->call('pickOption', 0)
+            ->call('pickOption', 1) // the first tap is final
+            ->assertSee('Not quite')
+            ->call('continueGrammar')
+            ->assertSet('sessionRemembered', 0);
+
+        $this->assertSame(0, $point->fresh()->repetitions);
     }
 }

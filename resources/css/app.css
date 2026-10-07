@@ -339,8 +339,13 @@
         @apply cursor-default active:scale-100;
     }
 
-    .choice:not(:disabled):hover {
-        @apply border-accent/50 bg-accent-soft/40 dark:border-accent-dark/50 dark:bg-accent-soft-dark/40;
+    /* Hover only where a real pointer exists. On touch screens :hover sticks
+       to wherever the finger last landed, so the next question's answer
+       (rendered in the same spot) looked pre-selected. */
+    @media (hover: hover) {
+        .choice:not(:disabled):hover {
+            @apply border-accent/50 bg-accent-soft/40 dark:border-accent-dark/50 dark:bg-accent-soft-dark/40;
+        }
     }
 
     .choice[data-state='selected'] {

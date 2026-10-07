@@ -76,7 +76,7 @@ new class extends Component
         $savedSentences = collect($data['frequency_sentences'] ?? [])->keyBy('starter');
 
         foreach ($starters as $index => $starter) {
-            $this->frequencySentences[$index] = $savedSentences[$starter]['completion'] ?? '';
+            $this->frequencySentences[$index] = $this->continuation($starter, $savedSentences[$starter]['completion'] ?? '');
         }
 
         $this->quickCheckScore = $data['quick_check_score'] ?? null;
@@ -155,6 +155,8 @@ new class extends Component
 
     public function checkOne(int $index): void
     {
+        $this->stripTypedStarters();
+
         $starters = $this->starters();
         $starter = $starters[$index] ?? null;
 
@@ -171,6 +173,48 @@ new class extends Component
         }
 
         $this->runCheck($index, $starter, $sentence);
+    }
+
+    /**
+     * What the learner typed after the starter. The starter sits inside the
+     * answer box, so it is never required — but a learner who types the
+     * whole sentence anyway ("I often go…") must not end up with it twice.
+     */
+    private function continuation(string $starter, string $text): string
+    {
+        $text = trim($text);
+
+        if ($starter === '') {
+            return $text;
+        }
+
+        return trim((string) preg_replace('/^'.preg_quote($starter, '/').'(?:\s+|$)/iu', '', $text, 1));
+    }
+
+    /**
+     * The complete sentence ("I often" + "go to the gym.") — this, not the
+     * bare continuation, is what the AI judges and what is stored as the
+     * example, so a sentence is never flagged for "not starting with a
+     * capital letter" just because the starter wasn't sent along.
+     */
+    private function fullSentence(string $starter, string $continuation): string
+    {
+        $continuation = $this->continuation($starter, $continuation);
+
+        return $continuation === '' ? '' : trim("{$starter} {$continuation}");
+    }
+
+    /**
+     * Folds a typed-in starter back out of every box so the box always
+     * holds just the continuation.
+     */
+    private function stripTypedStarters(): void
+    {
+        foreach ($this->starters() as $index => $starter) {
+            if (isset($this->frequencySentences[$index])) {
+                $this->frequencySentences[$index] = $this->continuation($starter, (string) $this->frequencySentences[$index]);
+            }
+        }
     }
 
     /**
@@ -213,7 +257,7 @@ new class extends Component
                 judgment: $grammar['grammar_judgment'] ?? '',
                 majorCriteria: $grammar['grammar_major_criteria'] ?? '',
                 context: $this->sentenceContext($grammar, $starter),
-                text: $sentence,
+                text: $this->fullSentence($starter, $sentence),
                 extraGuidance: $this->run->aiToneGuidance(),
                 feedbackDepth: $this->run->mission->feedbackDepth(),
             );
@@ -237,6 +281,8 @@ new class extends Component
      */
     public function revealCorrection(int $index): void
     {
+        $this->stripTypedStarters();
+
         $grammar = $this->run->mission->stepContent('grammar_in_context');
         $starters = $this->starters();
         $starter = $starters[$index] ?? null;
@@ -249,11 +295,12 @@ new class extends Component
         $this->revealCorrectionFor(
             key: $index,
             context: $this->sentenceContext($grammar, $starter),
-            text: $sentence,
+            text: $this->fullSentence($starter, $sentence),
             errorBagKey: $index,
-            onCorrected: function (string $corrected) use ($index) {
-                $this->frequencySentences[$index] = $corrected;
-                $this->feedback[$index] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
+            onCorrected: function (string $corrected) use ($index, $starter) {
+                $continuation = $this->continuation($starter, $corrected);
+                $this->frequencySentences[$index] = $continuation;
+                $this->feedback[$index] = ['severity' => 'none', 'hint' => '', 'checkedText' => $continuation];
             },
         );
     }
@@ -286,6 +333,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->stripTypedStarters();
+
         $starters = $this->starters();
 
         $filledSentences = collect($this->frequencySentences)
@@ -391,16 +440,10 @@ new class extends Component
             return;
         }
 
-        // The starter (e.g. "I usually") is shown as a label next to the
-        // input, not enforced as an excluded prefix — a learner may type
-        // just the continuation OR the whole sentence starter-and-all.
-        // Only prepend the starter when the typed text doesn't already
-        // start with it, so the example reads naturally either way.
-        $starter = $firstFilledSentence['starter'] ?? '';
-        $text = trim($firstFilledSentence['text'] ?? '');
-        $exampleSentence = ($starter !== '' && ! str_starts_with(strtolower($text), strtolower($starter)))
-            ? trim("{$starter} {$text}")
-            : $text;
+        $exampleSentence = $this->fullSentence(
+            $firstFilledSentence['starter'] ?? '',
+            $firstFilledSentence['text'] ?? '',
+        );
         $ruleReminder = $content['lesson']['intro'] ?? $focus;
 
         $this->run->learner->syncGrammarPoint(
@@ -493,7 +536,7 @@ new class extends Component
     @unless ($readOnly)
         <div x-show="phase === 'lesson'" x-cloak class="space-y-4">
             @if (! empty($lesson['intro']))
-                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $lesson['intro'] }}</p>
+                <p class="text-base leading-relaxed text-ink-soft dark:text-ink-soft-dark">{{ $lesson['intro'] }}</p>
             @endif
 
             <div>
@@ -511,11 +554,11 @@ new class extends Component
             </div>
 
             @foreach ($lessonSectionsData as $sectionIndex => $section)
-                <div x-show="lessonStep === {{ $sectionIndex }}" x-cloak class="card-sunken p-4">
+                <div x-show="lessonStep === {{ $sectionIndex }}" x-cloak class="card-sunken p-5">
                     @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
 
                     @if ($loop->last && ! empty($lesson['bridge_note']))
-                        <p class="mt-3 text-xs text-ink-soft dark:text-ink-soft-dark italic">{{ $lesson['bridge_note'] }}</p>
+                        <p class="mt-6 flex items-start gap-2 text-sm leading-relaxed text-ink-soft italic dark:text-ink-soft-dark">@svg('heroicon-o-arrow-trending-up', 'mt-0.5 h-4 w-4 shrink-0 not-italic') {{ $lesson['bridge_note'] }}</p>
                     @endif
                 </div>
             @endforeach
@@ -561,8 +604,9 @@ new class extends Component
                 <span x-show="!showLessonAgain" class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-right', 'h-3 w-3') Show the lesson again</span>
                 <span x-show="showLessonAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the lesson</span>
             </button>
-            <div x-show="showLessonAgain" x-cloak class="mt-2 space-y-4 card-sunken p-4">
+            <div x-show="showLessonAgain" x-cloak class="mt-2 space-y-8 card-sunken p-5">
                 @foreach ($lessonSectionsData as $section)
+                    @if (! $loop->first)<hr class="border-line dark:border-line-dark">@endif
                     @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
                 @endforeach
             </div>
@@ -641,25 +685,37 @@ new class extends Component
                 @foreach ($this->starters() as $index => $starter)
                     @php $itemFeedback = $feedback[$index] ?? null; @endphp
                     <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <div class="flex items-center gap-2">
-                            <span class="shrink-0 text-sm text-ink-faint dark:text-ink-faint-dark">{{ $starter }}</span>
-                            <input
-                                type="text"
+                        {{-- The starter lives INSIDE the answer box (not as a label beside a
+                             tiny input) so the learner only types the continuation, on a
+                             full-width, growing field. The AI still receives starter +
+                             continuation as one sentence — see fullSentence(). --}}
+                        <div class="rounded-xl border-[1.5px] border-line bg-surface px-3.5 pt-2.5 pb-2 transition-colors focus-within:border-accent dark:border-line-dark dark:bg-surface-dark dark:focus-within:border-accent-dark">
+                            <p class="text-base font-bold text-ink dark:text-ink-dark">
+                                {{ $starter }} <span class="font-normal text-ink-faint dark:text-ink-faint-dark">&hellip;</span>
+                            </p>
+                            <textarea
+                                rows="2"
                                 wire:model="frequencySentences.{{ $index }}"
                                 x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed['freq{{ $index }}'] = true"
+                                x-on:keydown.enter.prevent
                                 @unless ($readOnly)
                                     x-draft="{ key: '{{ $draftPrefix }}frequencySentences.{{ $index }}', field: 'frequencySentences.{{ $index }}' }"
                                 @endunless
                                 @readonly($readOnly)
                                 wire:loading.attr="disabled"
                                 wire:target="checkOne,revealCorrection,declineReveal,save"
-                                class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                            >
-                            <x-filled-check show="filled[{{ $index }}]" />
-                            @unless ($readOnly)
-                                <x-check-button method="checkOne" :index="$index" key-prefix="freq" wire-target="checkOne,revealCorrection,declineReveal,save" />
-                            @endunless
+                                placeholder="finish the sentence…"
+                                aria-label="Finish the sentence: {{ $starter }}"
+                                class="mt-1 block min-h-14 w-full resize-none bg-transparent text-base leading-snug text-ink [field-sizing:content] placeholder:text-ink-faint focus:outline-none disabled:opacity-50 dark:text-ink-dark dark:placeholder:text-ink-faint-dark"
+                            ></textarea>
                         </div>
+
+                        @unless ($readOnly)
+                            <div class="mt-2 flex items-center justify-end gap-2">
+                                <x-filled-check show="filled[{{ $index }}]" />
+                                <x-check-button method="checkOne" :index="$index" key-prefix="freq" wire-target="checkOne,revealCorrection,declineReveal,save" />
+                            </div>
+                        @endunless
 
                         @unless ($readOnly)
                             <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />

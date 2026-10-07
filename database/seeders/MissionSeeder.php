@@ -288,24 +288,34 @@ class MissionSeeder extends Seeder
                                 // The lesson is fully data-driven (see grammar-in-context.blade.php)
                                 // so this same step can teach any grammar point a mission seeds it
                                 // with — a `sections` list of {heading, body, blocks[]}, each block
-                                // one of the component's generic shapes: pairs / examples / chips /
-                                // rule_examples. M01 below still renders byte-identically to the
-                                // pre-generalization hardcoded Blade version — only the *source* of
-                                // this content moved, not what it says.
+                                // one of the component's generic shapes: rule / formula / do_dont /
+                                // mistake_fix / pairs / examples / chips / rule_examples (see
+                                // partials/grammar-lesson-section.blade.php). One idea per section;
+                                // the optional `fa` on a `rule` block is a folded-away Persian line.
                                 'lesson' => [
-                                    'intro' => "We'll cover three things here: how the verb form changes for "
-                                        .'he / she / it, how to ask and answer with do / does, and where words '
-                                        .'like always, usually, and never go in a sentence.',
+                                    'intro' => 'Three small things: the verb with he / she / it, questions with do / does, '
+                                        .'and where words like always and never go.',
                                     'sections' => [
                                         [
-                                            'heading' => 'A · The verb changes with he / she / it',
-                                            'body' => 'With <strong>I / we / you / they</strong> the verb stays simple. '
-                                                .'With <strong>he / she / it</strong> it takes an <strong>-s</strong> '
-                                                .'(or an irregular form, like <em>have → has</em>).',
+                                            'heading' => 'A · He / she / it needs an -s',
+                                            'body' => 'With <strong>I / we / you / they</strong> nothing changes: <em>I wake up</em>.',
                                             'blocks' => [
                                                 [
-                                                    // Epic D: a short "spot the mistake" moment
-                                                    // ahead of the drier rule/pairs blocks below.
+                                                    'type' => 'rule',
+                                                    'text' => 'With <strong>he / she / it</strong>, add <strong>-s</strong> to the verb.',
+                                                    'fa' => 'برای he / she / it، به آخر فعل «s» اضافه می‌کنیم.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'The pattern',
+                                                    'parts' => [
+                                                        ['text' => 'She', 'caption' => 'he / she / it'],
+                                                        ['text' => 'wakes', 'caption' => 'verb + s'],
+                                                        ['text' => 'up early', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    // Epic D: a short "spot the mistake" moment.
                                                     'type' => 'mistake_fix',
                                                     'character' => 'Leo',
                                                     'wrong' => 'She wake up early every day.',
@@ -323,20 +333,38 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                         [
-                                            'heading' => 'B · Questions and negatives use do / does',
-                                            'body' => "Use <strong>do</strong>/<strong>don't</strong> with I/we/you/they, "
-                                                .'and <strong>does</strong>/<strong>doesn\'t</strong> with he/she/it — '
-                                                .'the main verb goes back to its simple form.',
+                                            'heading' => 'B · Questions and “no” use do / does',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Ask with <strong>do / does</strong>. Say “no” with <strong>don\'t / doesn\'t</strong>.',
+                                                    'fa' => 'برای سؤال از do / does و برای منفی از don\'t / doesn\'t استفاده می‌کنیم. بعد از آن‌ها، فعل بدون «s» می‌آید.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'A question',
+                                                    'parts' => [
+                                                        ['text' => 'Does', 'caption' => 'does + he / she / it'],
+                                                        ['text' => 'she', 'caption' => 'who'],
+                                                        ['text' => 'work', 'caption' => 'plain verb — no s!'],
+                                                        ['text' => 'on Saturdays?', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Does she works on Saturdays?', 'right' => 'Does she work on Saturdays?', 'highlight' => 'work', 'note' => 'After does, the verb has no -s.'],
+                                                        ['wrong' => 'He don\'t work on Sundays.', 'right' => 'He doesn\'t work on Sundays.', 'highlight' => 'doesn\'t', 'note' => 'he / she / it → doesn\'t.'],
+                                                    ],
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
                                                         [
+                                                            'label' => 'More examples',
                                                             'items' => [
                                                                 'Do you usually wake up early?',
-                                                                'Does she work on Saturdays?',
-                                                                "I don't usually wake up before seven.",
-                                                                "He doesn't work on Sundays.",
+                                                                'I don\'t usually wake up before seven.',
                                                             ],
                                                         ],
                                                     ],
@@ -344,26 +372,31 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                         [
-                                            'heading' => 'C · Where the frequency word goes',
+                                            'heading' => 'C · Where do always / usually go?',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Put the frequency word <strong>before</strong> the main verb.',
+                                                    'fa' => 'قید تکرار (مثل always) معمولاً قبل از فعل اصلی می‌آید؛ اما بعد از am / is / are.',
+                                                ],
                                                 [
                                                     'type' => 'chips',
                                                     'groups' => [
-                                                        ['words' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never']],
+                                                        ['label' => 'From 100% to 0%', 'words' => ['always', 'usually', 'often', 'sometimes', 'rarely', 'never']],
                                                     ],
                                                 ],
                                                 [
                                                     'type' => 'rule_examples',
                                                     'items' => [
                                                         ['rule' => 'One-word verb → the adverb goes before it', 'example' => 'I always wake up early.', 'highlight' => 'always'],
-                                                        ['rule' => 'With am/is/are → the adverb goes after it', 'example' => "I'm usually tired in the morning.", 'highlight' => 'usually'],
-                                                        ['rule' => 'Two-word verb → the adverb goes after the first word', 'example' => "I don't usually work at night.", 'highlight' => 'usually'],
+                                                        ['rule' => 'With am / is / are → the adverb goes after it', 'example' => 'I\'m usually tired in the morning.', 'highlight' => 'usually'],
+                                                        ['rule' => 'Two-word verb → the adverb goes after the first word', 'example' => 'I don\'t usually work at night.', 'highlight' => 'usually'],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, when you talk about your real daily routine out loud.",
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1, when you talk about your real daily routine out loud.',
                                 ],
                                 'frequency_starters' => [
                                     'I usually', 'I often', 'I sometimes', 'I rarely', "I don't usually", 'I never',
@@ -1088,43 +1121,52 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Every "she\'s living" you get right here is one less pause when you\'re talking about someone real.',
                                 'focus' => 'Present Simple vs Present Continuous',
                                 'lesson' => [
-                                    'intro' => "We'll cover three things: what each tense is for, how to ask and "
-                                        .'answer in each, and how to spot which one a sentence needs.',
+                                    'intro' => 'Three small things: what each tense is for, how to ask in each, and how to pick the right one.',
                                     'sections' => [
                                         [
-                                            'heading' => 'A · What each tense is for',
-                                            'body' => '<strong>Present Simple</strong> describes habits, routines, and '
-                                                .'general facts about a person — things that are usually true. '
-                                                .'<strong>Present Continuous</strong> describes something temporary, '
-                                                .'or happening around now, not necessarily this exact second.',
+                                            'heading' => 'A · Always true, or true right now?',
+                                            'body' => 'Ask yourself one question: is it <strong>always</strong> true, or true <strong>right now</strong>?',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Habit or fact → <strong>Present Simple</strong>.<br>Temporary or now → <strong>Present Continuous</strong>.',
+                                                    'fa' => 'عادت و واقعیت همیشگی → Present Simple. موقتی یا در حال انجام (همین روزها) → Present Continuous.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Present Simple — habits & facts',
+                                                    'parts' => [
+                                                        ['text' => 'She', 'caption' => 'who'],
+                                                        ['text' => 'lives', 'caption' => 'verb (+ s)'],
+                                                        ['text' => 'near me', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Present Continuous — temporary & now',
+                                                    'parts' => [
+                                                        ['text' => 'She', 'caption' => 'who'],
+                                                        ['text' => 'is living', 'caption' => 'am / is / are + verb-ing'],
+                                                        ['text' => 'with a friend', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
                                                 [
                                                     'type' => 'mistake_fix',
                                                     'character' => 'Nadia',
                                                     'wrong' => 'She lives in Spain at the moment, just for the summer.',
-                                                    'right' => "She's living in Spain at the moment, just for the summer.",
+                                                    'right' => 'She\'s living in Spain at the moment, just for the summer.',
                                                     'explanation' => 'A temporary situation right now needs Present Continuous, not Present Simple.',
-                                                ],
-                                                [
-                                                    'type' => 'examples',
-                                                    'groups' => [
-                                                        [
-                                                            'label' => 'Present Simple — habits & facts',
-                                                            'items' => ['My friend usually helps me.', 'She lives near me.', 'They get on well with each other.'],
-                                                        ],
-                                                        [
-                                                            'label' => 'Present Continuous — temporary & now',
-                                                            'items' => ["She's working a lot these days.", "He's living with his friends at the moment.", "We're getting to know each other."],
-                                                        ],
-                                                    ],
                                                 ],
                                             ],
                                         ],
                                         [
                                             'heading' => 'B · Asking and answering',
-                                            'body' => 'Present Simple questions/negatives use <strong>do/does</strong>; '
-                                                .'Present Continuous questions/negatives use <strong>am/is/are</strong>.',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Present Simple asks with <strong>do / does</strong>.<br>Present Continuous asks with <strong>am / is / are</strong>.',
+                                                    'fa' => 'سؤال در Present Simple با do / does ساخته می‌شود و در Present Continuous با am / is / are.',
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
@@ -1134,20 +1176,31 @@ class MissionSeeder extends Seeder
                                                         ],
                                                         [
                                                             'label' => 'Negatives',
-                                                            'items' => ["They don't see each other very often.", "She isn't living at home right now."],
+                                                            'items' => ['They don\'t see each other very often.', 'She isn\'t living at home right now.'],
                                                         ],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Does he working abroad?', 'right' => 'Is he working abroad?', 'highlight' => 'Is', 'note' => 'A verb with -ing needs am / is / are — not do / does.'],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                         [
-                                            'heading' => 'C · Spotting which tense a sentence needs',
+                                            'heading' => 'C · Which tense does the sentence need?',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Look for the <strong>time word</strong>. It tells you which tense to use.',
+                                                    'fa' => 'به قید زمان نگاه کن؛ مشخص می‌کند کدام زمان لازم است.',
+                                                ],
                                                 [
                                                     'type' => 'chips',
                                                     'groups' => [
-                                                        ['label' => 'Present Simple time expressions', 'words' => ['usually', 'always', 'every week', 'never']],
-                                                        ['label' => 'Present Continuous time expressions', 'words' => ['at the moment', 'these days', 'right now', 'currently']],
+                                                        ['label' => 'Present Simple time words', 'words' => ['usually', 'always', 'every week', 'never']],
+                                                        ['label' => 'Present Continuous time words', 'words' => ['at the moment', 'these days', 'right now', 'currently']],
                                                     ],
                                                 ],
                                                 [
@@ -1156,13 +1209,13 @@ class MissionSeeder extends Seeder
                                                         ['rule' => 'A general fact about a person → Present Simple', 'example' => 'My best friend lives in Manchester.', 'highlight' => 'lives'],
                                                         ['rule' => 'A temporary situation right now → Present Continuous', 'example' => 'My best friend is living in Manchester for a few months.', 'highlight' => 'is living'],
                                                         ['rule' => 'A habit → Present Simple', 'example' => 'She usually calls me on Sundays.', 'highlight' => 'calls'],
-                                                        ['rule' => 'Something happening around now, not necessarily this second → Present Continuous', 'example' => "She's calling me a lot more since the wedding.", 'highlight' => 'calling'],
+                                                        ['rule' => 'Something happening around now → Present Continuous', 'example' => 'She\'s calling me a lot more since the wedding.', 'highlight' => 'calling'],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, describing someone you're close to.",
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1, describing someone you\'re close to.',
                                 ],
                                 'frequency_starters' => [
                                     'My friend usually', 'These days, my friend is', 'He/She often', 'At the moment, he/she is',
@@ -1740,22 +1793,15 @@ class MissionSeeder extends Seeder
                                 'hook' => "Every \"I don't eat much...\" you get right here is one less pause when you're talking about your own diet.",
                                 'focus' => 'Countable and Uncountable Nouns',
                                 'lesson' => [
-                                    'intro' => "We'll cover three things: which food nouns are countable and which "
-                                        .'are uncountable, which quantifier words go with each, and how to talk '
-                                        .'about your own eating habits using them.',
+                                    'intro' => 'Three small things: can you count it, which word goes with which noun, and how to talk about your own food.',
                                     'sections' => [
                                         [
-                                            'heading' => 'A · Countable vs uncountable',
-                                            'body' => '<strong>Countable</strong> nouns can be counted one by one, and '
-                                                .'have a plural form. <strong>Uncountable</strong> nouns are treated '
-                                                .'as one whole amount — no plural, no "a/an" on their own.',
+                                            'heading' => 'A · Can you count it?',
                                             'blocks' => [
                                                 [
-                                                    'type' => 'mistake_fix',
-                                                    'character' => 'Priya',
-                                                    'wrong' => "I don't eat many rice.",
-                                                    'right' => "I don't eat much rice.",
-                                                    'explanation' => "Rice is uncountable, so it takes 'much', not 'many'.",
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>Countable</strong>: you can count it (1, 2, 3…).<br><strong>Uncountable</strong>: you can\'t — and it has no plural.',
+                                                    'fa' => 'قابل‌شمارش: می‌توانی بشماری و جمع دارد (apple → apples). غیرقابل‌شمارش: نمی‌شماری و جمع ندارد (rice, water).',
                                                 ],
                                                 [
                                                     'type' => 'examples',
@@ -1764,35 +1810,62 @@ class MissionSeeder extends Seeder
                                                         ['label' => 'Uncountable', 'items' => ['rice', 'water', 'bread', 'cheese']],
                                                     ],
                                                 ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Priya',
+                                                    'wrong' => 'I don\'t eat many rice.',
+                                                    'right' => 'I don\'t eat much rice.',
+                                                    'explanation' => 'Rice is uncountable, so it takes “much”, not “many”.',
+                                                ],
                                             ],
                                         ],
                                         [
-                                            'heading' => 'B · Quantifier words',
+                                            'heading' => 'B · much, many, a few, a little',
                                             'blocks' => [
                                                 [
-                                                    'type' => 'chips',
-                                                    'groups' => [
-                                                        ['words' => ['a / an', 'some', 'any', 'much', 'many', 'a lot of', 'a few', 'a little']],
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>many / a few</strong> + countable.<br><strong>much / a little</strong> + uncountable.',
+                                                    'fa' => 'many و a few با اسم قابل‌شمارش (جمع) می‌آیند؛ much و a little با اسم غیرقابل‌شمارش.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Countable',
+                                                    'parts' => [
+                                                        ['text' => 'many / a few', 'caption' => 'quantity'],
+                                                        ['text' => 'eggs', 'caption' => 'plural noun'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Uncountable',
+                                                    'parts' => [
+                                                        ['text' => 'much / a little', 'caption' => 'quantity'],
+                                                        ['text' => 'rice', 'caption' => 'no plural'],
                                                     ],
                                                 ],
                                                 [
                                                     'type' => 'rule_examples',
                                                     'items' => [
-                                                        ['rule' => 'many + plural countable noun', 'example' => "I don't eat many vegetables.", 'highlight' => 'many'],
-                                                        ['rule' => 'much + uncountable noun', 'example' => "I don't drink much coffee.", 'highlight' => 'much'],
+                                                        ['rule' => 'many + plural countable noun', 'example' => 'I don\'t eat many vegetables.', 'highlight' => 'many'],
+                                                        ['rule' => 'much + uncountable noun', 'example' => 'I don\'t drink much coffee.', 'highlight' => 'much'],
                                                         ['rule' => 'a few + plural countable noun', 'example' => 'I eat a few eggs every week.', 'highlight' => 'a few'],
                                                         ['rule' => 'a little + uncountable noun', 'example' => 'I add a little sugar to my coffee.', 'highlight' => 'a little'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Also useful', 'words' => ['a / an', 'some', 'any', 'a lot of']],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                         [
                                             'heading' => 'C · Make it personal',
-                                            'body' => 'These sentence starters from M04.pdf are exactly what you\'ll '
-                                                .'finish below — and reuse out loud soon, in AI Conversation #1.',
+                                            'body' => 'Next you\'ll finish sentences about what <strong>you</strong> eat and drink — and use them out loud soon, in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, talking about your own eating habits.",
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1, talking about your own eating habits.',
                                 ],
                                 // Real starters from M04.pdf page 04 "Make it personal".
                                 'frequency_starters' => [
@@ -2301,69 +2374,90 @@ class MissionSeeder extends Seeder
                                 'hook' => "Every \"I have to...\" you get right here is one less pause when you're talking about your own work.",
                                 'focus' => 'Modals of Obligation & Ability (Work & Study)',
                                 'lesson' => [
-                                    'intro' => "We'll cover three things: how to talk about what's required at "
-                                        .'work or study using have to/need to/must, how to say something is NOT '
-                                        .'required using don\'t have to, and how to talk about ability or '
-                                        .'permission using can/can\'t.',
+                                    'intro' => 'Three small things: required or optional, the plain verb after a modal, and can / can\'t.',
                                     'sections' => [
                                         [
-                                            'heading' => 'A · What each modal is for',
-                                            'body' => '<strong>Have to / need to / must</strong> describe something '
-                                                .'required — a rule, a duty, something you can\'t avoid. '
-                                                .'<strong>Don\'t have to</strong> means something is optional, not '
-                                                .'required. <strong>Can / can\'t</strong> describe ability or '
-                                                .'permission — what you are (or aren\'t) able or allowed to do.',
+                                            'heading' => 'A · Required, or not required?',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>have to / need to / must</strong> = required.<br><strong>don\'t have to</strong> = not required (it\'s your choice).',
+                                                    'fa' => 'have to / need to / must یعنی اجبار. don\'t have to یعنی اجباری نیست؛ انتخاب با خودت است.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Required', 'items' => ['I have to finish this report by Friday.', 'You need to attend the training.', 'We must follow the safety rules.']],
+                                                        ['label' => 'Not required', 'items' => ['I don\'t have to work on Saturdays.', 'You don\'t need to bring your own laptop.']],
+                                                    ],
+                                                ],
                                                 [
                                                     'type' => 'mistake_fix',
                                                     'character' => 'Tomás',
                                                     'wrong' => 'I have to finishing this report today.',
                                                     'right' => 'I have to finish this report today.',
-                                                    'explanation' => "After a modal or 'have to', the next verb stays in its bare form — never the -ing form.",
-                                                ],
-                                                [
-                                                    'type' => 'examples',
-                                                    'groups' => [
-                                                        ['label' => 'Obligation — have to / need to / must', 'items' => ['I have to finish this report by Friday.', 'You need to attend the training.', 'We must follow the safety rules.']],
-                                                        ['label' => 'No obligation — don\'t have to', 'items' => ["I don't have to work on Saturdays.", "You don't need to bring your own laptop."]],
-                                                        ['label' => 'Ability & permission — can / can\'t', 'items' => ['I can speak two languages.', 'You can leave early today.', "I can't work overtime this week."]],
-                                                    ],
+                                                    'explanation' => 'After a modal or “have to”, the next verb stays plain — never the -ing form.',
                                                 ],
                                             ],
                                         ],
                                         [
-                                            'heading' => 'B · Asking and answering',
-                                            'body' => 'After a modal, the next verb stays in its bare form — never '
-                                                .'"to work", never "working". Questions/negatives use '
-                                                .'<strong>do/does</strong> with have to/need to, or the modal itself '
-                                                .'directly with can.',
+                                            'heading' => 'B · After a modal: the plain verb',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After <strong>can</strong>, <strong>must</strong> or <strong>have to</strong>, use the plain verb — no -s, no -ing.',
+                                                    'fa' => 'بعد از can، must و have to، فعل ساده می‌آید: بدون «s» و بدون «ing».',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'The pattern',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'who'],
+                                                        ['text' => 'have to', 'caption' => 'modal'],
+                                                        ['text' => 'finish', 'caption' => 'plain verb'],
+                                                        ['text' => 'the report', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'She can to speak three languages.', 'right' => 'She can speak three languages.', 'highlight' => 'speak', 'note' => 'After can: no “to”.'],
+                                                        ['wrong' => 'Do you have to worked on weekends?', 'right' => 'Do you have to work on weekends?', 'highlight' => 'work', 'note' => 'After do … have to: the plain verb.'],
+                                                    ],
+                                                ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
                                                         ['label' => 'Questions', 'items' => ['Do you have to work weekends?', 'Can you help me with this?']],
-                                                        ['label' => 'Negatives', 'items' => ["I don't have to attend every meeting.", "I can't finish this today."]],
+                                                        ['label' => 'Negatives', 'items' => ['I don\'t have to attend every meeting.', 'I can\'t finish this today.']],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                         [
-                                            'heading' => 'C · Make it personal',
-                                            'body' => 'Finish each starter below with something true about your '
-                                                .'own work or studies — and reuse them out loud soon, in AI '
-                                                .'Conversation #1.',
+                                            'heading' => 'C · can / can\'t, then make it personal',
                                             'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>can</strong> = able or allowed.<br><strong>can\'t</strong> = not able or not allowed.',
+                                                    'fa' => 'can یعنی توانایی یا اجازه. can\'t یعنی ناتوانی یا ممنوعیت.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Ability & permission', 'items' => ['I can speak two languages.', 'You can leave early today.', 'I can\'t work overtime this week.']],
+                                                    ],
+                                                ],
                                                 [
                                                     'type' => 'chips',
                                                     'groups' => [
-                                                        ['label' => 'Obligation', 'words' => ['I have to', 'I need to', 'I must']],
-                                                        ['label' => 'No obligation / ability', 'words' => ["I don't have to", 'I can', "I can't"]],
+                                                        ['label' => 'Your starters — finish them about your own work or studies', 'words' => ['I have to', 'I need to', 'I must', 'I don\'t have to', 'I can', 'I can\'t']],
                                                     ],
                                                 ],
                                             ],
                                         ],
                                     ],
-                                    'bridge_note' => "You'll use this soon — in AI Conversation #1, talking about your own work or studies.",
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1, talking about your own work or studies.',
                                 ],
                                 'frequency_starters' => [
                                     'I have to', 'I need to', "I don't have to",

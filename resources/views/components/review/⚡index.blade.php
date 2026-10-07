@@ -41,6 +41,13 @@ new class extends Component
     public bool $revealed = false;
 
     /**
+     * The answer the learner tapped on a grammar point's "fix this
+     * sentence" question (index into its options), null until they do.
+     * Grading follows from it — see continueGrammar().
+     */
+    public ?int $pickedOption = null;
+
+    /**
      * How many items were graded in THIS page session, and how many of
      * those the learner remembered (quality 3+) — the progress counter's
      * "3 / 8" and the end-of-session summary. Plain component state: a
@@ -145,6 +152,21 @@ new class extends Component
     }
 
     /**
+     * The current grammar point's question and rules (see
+     * GrammarPoint::reviewContent()), or null when the current item isn't
+     * a grammar point.
+     *
+     * @return array{card: array{wrong: string, options: list<string>, correct: int}|null, rules: list<array{text: string, fa: string|null}>}|null
+     */
+    #[Computed]
+    public function grammarReview(): ?array
+    {
+        $item = $this->currentItem;
+
+        return $item && $item['type'] === 'grammar' ? $item['model']->reviewContent() : null;
+    }
+
+    /**
      * Moves the current item to the back of today's queue WITHOUT calling
      * review() on it — next_review_at and repetitions are left completely
      * untouched, so it comes back later in this same session exactly as
@@ -172,6 +194,39 @@ new class extends Component
     public function reveal(): void
     {
         $this->revealed = true;
+    }
+
+    /**
+     * A grammar point's question: tapping an answer locks it in and shows
+     * the rules; nothing is graded until continueGrammar(), so the learner
+     * has time to read why.
+     */
+    public function pickOption(int $option): void
+    {
+        $card = $this->grammarReview['card'] ?? null;
+
+        if (! $card || $this->pickedOption !== null || ! isset($card['options'][$option])) {
+            return;
+        }
+
+        $this->pickedOption = $option;
+        $this->revealed = true;
+    }
+
+    /**
+     * Right answer → "Good", wrong → "Again" — the same SM-2 qualities the
+     * self-graded cards use, but decided by what the learner actually
+     * answered rather than by how they say they feel.
+     */
+    public function continueGrammar(): void
+    {
+        $card = $this->grammarReview['card'] ?? null;
+
+        if (! $card || $this->pickedOption === null) {
+            return;
+        }
+
+        $this->gradeCurrent($this->currentItem['model'], $this->pickedOption === $card['correct'] ? 4 : 1);
     }
 
     /**
@@ -270,6 +325,8 @@ new class extends Component
         $this->recording = null;
         $this->recordedThisTurn = false;
         $this->revealed = false;
+        $this->pickedOption = null;
+        unset($this->grammarReview);
     }
 };
 ?>
@@ -365,6 +422,8 @@ new class extends Component
                 'error' => 'Grammar pattern',
                 default => 'Grammar point',
             };
+            $grammarReview = $this->grammarReview;
+            $hasQuestion = $type === 'grammar' && ! empty($grammarReview['card']);
             $icon = match ($type) {
                 'speaking' => 'heroicon-o-microphone',
                 'error' => 'heroicon-o-pencil',
@@ -411,6 +470,70 @@ new class extends Component
                         @else
                             <p class="text-sm text-success dark:text-success-dark">{{ $model->last_correction }}</p>
                         @endif
+                    @elseif ($hasQuestion)
+                        @php
+                            $card = $grammarReview['card'];
+                            $answered = $pickedOption !== null;
+                            $gotItRight = $answered && $pickedOption === $card['correct'];
+                        @endphp
+
+                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
+
+                        <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
+                            <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Fix this sentence</p>
+                            <p class="mt-1.5 text-lg leading-snug font-semibold text-ink dark:text-ink-dark">&ldquo;{{ $card['wrong'] }}&rdquo;</p>
+                        </div>
+
+                        <div class="grid gap-2.5">
+                            @foreach ($card['options'] as $i => $option)
+                                @php $state = ! $answered ? 'idle' : ($i === $card['correct'] ? 'correct' : ($pickedOption === $i ? 'wrong' : 'muted')); @endphp
+                                <button
+                                    type="button"
+                                    wire:key="grammar-option-{{ $model->id }}-{{ $i }}"
+                                    wire:click="pickOption({{ $i }})"
+                                    @disabled($answered)
+                                    data-state="{{ $state }}"
+                                    class="choice"
+                                >
+                                    <span class="choice-key">{{ chr(65 + $i) }}</span>
+                                    <span class="min-w-0 flex-1 leading-snug">{{ $option }}</span>
+                                    @if ($state === 'correct') <span class="shrink-0">@svg('heroicon-s-check-circle', 'h-5 w-5')</span> @endif
+                                    @if ($state === 'wrong') <span class="shrink-0">@svg('heroicon-s-x-circle', 'h-5 w-5')</span> @endif
+                                </button>
+                            @endforeach
+                        </div>
+
+                        @if ($answered)
+                            <div class="space-y-4">
+                                <p class="font-display text-lg font-bold {{ $gotItRight ? 'text-success dark:text-success-dark' : 'text-danger-ink' }}">
+                                    {{ $gotItRight ? 'Yes — that\'s right!' : 'Not quite — the green one is correct.' }}
+                                </p>
+
+                                @if ($grammarReview['rules'])
+                                    <div class="space-y-3 rounded-2xl border border-accent/30 bg-accent-soft p-4 dark:border-accent-dark/40 dark:bg-accent-soft-dark">
+                                        <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">
+                                            @svg('heroicon-o-light-bulb', 'h-4 w-4') Remember
+                                        </p>
+                                        @foreach ($grammarReview['rules'] as $rule)
+                                            <div>
+                                                <p class="text-base leading-snug font-semibold text-ink dark:text-ink-dark">{!! $rule['text'] !!}</p>
+                                                @if ($rule['fa'])
+                                                    <p dir="rtl" class="mt-1 text-start text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! $rule['fa'] !!}</p>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Your own sentence: <span class="text-ink italic dark:text-ink-dark">&ldquo;{{ $model->example_sentence }}&rdquo;</span></p>
+
+                                <button
+                                    type="button"
+                                    wire:click="continueGrammar"
+                                    class="w-full cursor-pointer rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                                >Continue</button>
+                            </div>
+                        @endif
                     @else
                         <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
                         <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Can you still write a sentence like this? <span class="text-ink-faint italic dark:text-ink-faint-dark">"{{ $model->example_sentence }}"</span></p>
@@ -425,7 +548,7 @@ new class extends Component
                         @endif
                     @endif
 
-                    @if ($type === 'speaking' ? $recordedThisTurn : $revealed)
+                    @if (! $hasQuestion && ($type === 'speaking' ? $recordedThisTurn : $revealed))
                         <div>
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
                                 @if ($type === 'speaking') How did that feel? @else Did you remember it? @endif
