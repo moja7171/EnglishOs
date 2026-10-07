@@ -482,7 +482,7 @@ new class extends Component
 @endphp
 
 <div
-    class="scroll-mt-20 space-y-6"
+    class="space-y-6"
     data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : 'lesson' }}"
     data-lesson-sections="{{ count($lessonSectionsData) }}"
     data-initial-filled="{{ $initialFilled->toJson() }}"
@@ -496,15 +496,9 @@ new class extends Component
             this.phase = this.$el.dataset.initialPhase;
             this.lessonSections = Number(this.$el.dataset.lessonSections);
             this.filled = JSON.parse(this.$el.dataset.initialFilled);
-            // Moving to another lesson section, or into practice, swaps the
-            // content in place — without this the page keeps its old scroll
-            // offset and lands at the bottom of the new, shorter section.
-            this.$watch('lessonStep', () => this.scrollToTop());
-            this.$watch('phase', () => this.scrollToTop());
-        },
-        scrollToTop() {
-            const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            this.$nextTick(() => this.$root.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }));
+            // Lesson sections scroll back to the top through the shared sub-step
+            // pager; moving into practice swaps the content in place the same way.
+            this.$watch('phase', () => this.$nextTick(() => this.$scrollToStepTop()));
         },
         get filledCount() { return this.filled.filter(Boolean).length },
         get progressMessage() {
@@ -517,7 +511,7 @@ new class extends Component
     }"
 >
     <div class="space-y-3">
-        <h3 class="font-display text-2xl leading-tight font-semibold text-ink dark:text-ink-dark">{{ $grammar['focus'] ?? 'Grammar' }}</h3>
+        <h3 class="font-display text-2xl leading-tight font-medium text-ink dark:text-ink-dark">{{ $grammar['focus'] ?? 'Grammar' }}</h3>
         <x-hook :text="$grammar['hook'] ?? null" />
     </div>
 
@@ -625,19 +619,19 @@ new class extends Component
         @if ($readOnly)
             @if ($quickCheckScore)
                 <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                    <p class="text-sm font-medium text-ink dark:text-ink-dark">Quick check</p>
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $quickCheckScore['correct'] }} of {{ $quickCheckScore['total'] }}.</p>
                 </div>
             @endif
             @if ($wordOrderScore)
                 <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Build the sentence</p>
+                    <p class="text-sm font-medium text-ink dark:text-ink-dark">Build the sentence</p>
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $wordOrderScore['correct'] }} of {{ $wordOrderScore['total'] }}.</p>
                 </div>
             @endif
         @else
             <div>
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
+                <p class="text-sm font-medium text-ink dark:text-ink-dark">Quick check</p>
                 <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
                 <div class="mt-2">
                     <x-quick-round :cards="$this->quickCheckCards()" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
@@ -646,7 +640,7 @@ new class extends Component
 
             @if ($this->wordOrderCards())
                 <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Build the sentence</p>
+                    <p class="text-sm font-medium text-ink dark:text-ink-dark">Build the sentence</p>
                     <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap the words in the right order — another warm-up, skip anytime.</p>
                     <div class="mt-2">
                         <x-word-order-round :cards="$this->wordOrderCards()" on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length })" />
@@ -656,7 +650,7 @@ new class extends Component
         @endif
 
         <div>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Make it personal</p>
+            <p class="text-sm font-medium text-ink dark:text-ink-dark">Make it personal</p>
             <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Finish at least 3 sentences about your own life. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
             @unless ($readOnly)
                 @php $vocabularyWords = $run->selectedVocabularyWords(); @endphp
@@ -700,7 +694,7 @@ new class extends Component
                              full-width, growing field. The AI still receives starter +
                              continuation as one sentence — see fullSentence(). --}}
                         <div class="rounded-xl border-[1.5px] border-line bg-surface px-3.5 pt-2.5 pb-2 transition-colors focus-within:border-accent dark:border-line-dark dark:bg-surface-dark dark:focus-within:border-accent-dark">
-                            <p class="text-base font-bold text-ink dark:text-ink-dark">
+                            <p class="text-base font-semibold text-ink dark:text-ink-dark">
                                 {{ $starter }} <span class="font-normal text-ink-faint dark:text-ink-faint-dark">&hellip;</span>
                             </p>
                             <textarea

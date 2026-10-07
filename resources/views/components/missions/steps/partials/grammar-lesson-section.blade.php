@@ -48,9 +48,9 @@
     @if ($heading !== '')
         <div class="flex items-center gap-3">
             @if ($badge)
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-white dark:bg-accent-dark dark:text-surface-sunken-dark">{{ $badge }}</span>
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-medium text-white dark:bg-accent-dark dark:text-surface-sunken-dark">{{ $badge }}</span>
             @endif
-            <h3 class="font-display text-lg leading-snug font-semibold text-ink dark:text-ink-dark">{{ $heading }}</h3>
+            <h3 class="font-display text-lg leading-snug font-medium text-ink dark:text-ink-dark">{{ $heading }}</h3>
         </div>
     @endif
 
@@ -77,7 +77,7 @@
                                 <button
                                     type="button"
                                     x-on:click="showFa = !showFa"
-                                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full border border-accent/30 px-3 py-1 text-xs font-medium text-accent-ink dark:border-accent-dark/40 dark:text-accent-ink-dark"
+                                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full border border-accent/30 px-3 py-1 text-xs font-normal text-accent-ink dark:border-accent-dark/40 dark:text-accent-ink-dark"
                                 >
                                     <span x-show="!showFa">فارسی</span>
                                     <span x-show="showFa" x-cloak>Hide</span>
@@ -100,7 +100,7 @@
                         @foreach ($block['parts'] ?? [] as $i => $part)
                             @php $tone = $formulaTones[$part['tone'] ?? $formulaCycle[$i % count($formulaCycle)]] ?? $formulaTones['neutral']; @endphp
                             <div class="flex flex-col items-center gap-1">
-                                <span class="rounded-xl px-3.5 py-2 text-lg font-medium {{ $tone }}">{{ $part['text'] }}</span>
+                                <span class="rounded-xl px-3.5 py-2 text-lg font-normal {{ $tone }}">{{ $part['text'] }}</span>
                                 @if (! empty($part['caption']))
                                     <span class="text-xs font-normal text-ink-faint dark:text-ink-faint-dark">{{ $part['caption'] }}</span>
                                 @endif
@@ -149,7 +149,7 @@
                         type="button"
                         x-show="!revealed"
                         x-on:click="revealed = true"
-                        class="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-warning-line bg-surface px-4 py-1.5 text-sm font-medium text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        class="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-warning-line bg-surface px-4 py-1.5 text-sm font-normal text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                     >@svg('heroicon-o-magnifying-glass', 'h-4 w-4') What's the mistake?</button>
 
                     <div x-show="revealed" x-cloak class="mt-3 space-y-1.5">
@@ -211,7 +211,7 @@
                         @if (! empty($group['label']))
                             <p class="text-xs font-medium tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $group['label'] }}</p>
                         @endif
-                        <div class="flex flex-wrap items-center gap-2 text-sm font-medium">
+                        <div class="flex flex-wrap items-center gap-2 text-sm font-normal">
                             @foreach ($group['words'] ?? [] as $word)
                                 <span class="rounded-full border border-line bg-surface px-3 py-1 text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark">{{ $word }}</span>
                                 @if (! $loop->last) <span class="text-ink-faint dark:text-ink-faint-dark">@svg('heroicon-o-chevron-right', 'inline h-3.5 w-3.5')</span> @endif
