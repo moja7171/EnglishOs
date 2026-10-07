@@ -84,6 +84,61 @@ document.addEventListener('alpine:init', () => {
     }));
 
     /**
+     * x-swipe-close="open = false" — lets a bottom sheet be pulled down to
+     * dismiss it. The sheet follows the finger, and past a short distance it
+     * closes; let go early and it springs back. Only on phone-width screens
+     * (where <x-menu-panel> is a sheet), and only when the sheet is scrolled
+     * to its top so it never fights its own scrolling. Moves `transform`, not
+     * `translate`, so it composes with the open/close transition's own.
+     */
+    Alpine.directive('swipe-close', (el, { expression }, { evaluate, cleanup }) => {
+        const phone = window.matchMedia('(max-width: 639px)');
+        let startY = null;
+        let pull = 0;
+
+        const start = (event) => {
+            if (!phone.matches || el.scrollTop > 0) return;
+
+            startY = event.touches[0].clientY;
+            pull = 0;
+            el.style.transition = 'none';
+        };
+
+        const move = (event) => {
+            if (startY === null) return;
+
+            pull = Math.max(0, event.touches[0].clientY - startY);
+            el.style.transform = `translateY(${pull}px)`;
+        };
+
+        const end = () => {
+            if (startY === null) return;
+
+            startY = null;
+            el.style.transition = '';
+
+            if (pull > 90) {
+                evaluate(expression);
+                setTimeout(() => (el.style.transform = ''), 300);
+            } else {
+                el.style.transform = '';
+            }
+        };
+
+        el.addEventListener('touchstart', start, { passive: true });
+        el.addEventListener('touchmove', move, { passive: true });
+        el.addEventListener('touchend', end);
+        el.addEventListener('touchcancel', end);
+
+        cleanup(() => {
+            el.removeEventListener('touchstart', start);
+            el.removeEventListener('touchmove', move);
+            el.removeEventListener('touchend', end);
+            el.removeEventListener('touchcancel', end);
+        });
+    });
+
+    /**
      * x-count-up="1234" — counts the number up from zero when it first
      * appears, so a streak or a total reads as something earned rather than
      * something printed. The server-rendered text is already the final
