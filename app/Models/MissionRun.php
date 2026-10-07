@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
 #[Fillable(['learner_id', 'mission_id', 'status', 'started_at', 'completed_at', 'listened_phases'])]
 class MissionRun extends Model
@@ -223,6 +225,35 @@ class MissionRun extends Model
             ->unique()
             ->values()
             ->all();
+    }
+
+    /**
+     * How many Final Talk (ai_conversation_2) rounds one attempt asks.
+     */
+    public const FINAL_TALK_ROUNDS_PER_ATTEMPT = 3;
+
+    /**
+     * The Final Talk rounds this run actually asks. A `round_pool` bigger
+     * than FINAL_TALK_ROUNDS_PER_ATTEMPT is shuffled and trimmed —
+     * deterministically per run (seeded by the run's own id), so
+     * re-rendering mid-attempt never reshuffles which prompts were already
+     * answered, but a different run/learner genuinely sees a different
+     * subset. A pool no bigger than that is returned exactly as seeded.
+     *
+     * @return list<string>
+     */
+    public function finalTalkRounds(): array
+    {
+        $content = $this->mission->stepContent('ai_conversation_2');
+        $pool = $content['round_pool'] ?? $content['rounds'] ?? [];
+
+        if (count($pool) <= self::FINAL_TALK_ROUNDS_PER_ATTEMPT) {
+            return $pool;
+        }
+
+        $randomizer = new Randomizer(new Mt19937($this->id));
+
+        return array_slice($randomizer->shuffleArray($pool), 0, self::FINAL_TALK_ROUNDS_PER_ATTEMPT);
     }
 
     /**

@@ -279,9 +279,10 @@ new class extends Component
 
     /**
      * Real questions this mission actually asked — Mission Brief's warm-up
-     * questions and the AI Conversation interview questions — offered as
-     * the starting set for Speaking Recall (see EOS-009 §8). Deduplicated
-     * in case a mission happens to reuse a question in both places.
+     * questions, the AI Conversation interview questions and the Final
+     * Talk rounds this run was given — offered as the starting set for
+     * Speaking Recall (see EOS-009 §8). Deduplicated in case a mission
+     * happens to reuse a question in more than one place.
      *
      * @return list<string>
      */
@@ -290,7 +291,7 @@ new class extends Component
         $warmUp = $this->run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
         $interview = $this->run->mission->stepContent('ai_conversation_1')['interview_questions'] ?? [];
 
-        return collect($warmUp)->merge($interview)->unique()->values()->all();
+        return collect($warmUp)->merge($interview)->merge($this->run->finalTalkRounds())->unique()->values()->all();
     }
 
     /**

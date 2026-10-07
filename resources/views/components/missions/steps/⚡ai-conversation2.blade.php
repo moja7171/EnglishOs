@@ -23,15 +23,6 @@ new class extends Component
 
     public bool $readOnly = false;
 
-    /**
-     * How many rounds one attempt actually asks — the seeded `round_pool`
-     * can hold more than this (mission structure redesign, Epic E: real
-     * variety across attempts instead of always the same fixed rounds in
-     * the same order). A pool no bigger than this is used exactly as
-     * seeded, unchanged — see getRoundsProperty().
-     */
-    public const ROUNDS_PER_ATTEMPT = 3;
-
     public int $roundIndex = 0;
 
     /** @var array<int, array{prompt: string, answer: string, followup: string}> */
@@ -98,27 +89,13 @@ new class extends Component
     }
 
     /**
-     * The rounds actually asked THIS attempt. A `round_pool` bigger than
-     * ROUNDS_PER_ATTEMPT is shuffled and trimmed — deterministically per
-     * run (seeded by the run's own id), so re-rendering mid-attempt never
-     * reshuffles which prompts were already answered, but a different
-     * run/learner genuinely sees a different subset. A pool no bigger
-     * than ROUNDS_PER_ATTEMPT is returned exactly as seeded, unchanged —
-     * every existing fixture/mission with 1-3 `rounds` keeps behaving
-     * exactly as before.
+     * The rounds actually asked THIS attempt — see
+     * MissionRun::finalTalkRounds(), shared with Mission Result's
+     * Speaking Recall checklist so both always agree on which they were.
      */
     public function getRoundsProperty(): array
     {
-        $content = $this->run->mission->stepContent('ai_conversation_2');
-        $pool = $content['round_pool'] ?? $content['rounds'] ?? [];
-
-        if (count($pool) <= self::ROUNDS_PER_ATTEMPT) {
-            return $pool;
-        }
-
-        $randomizer = new \Random\Randomizer(new \Random\Engine\Mt19937($this->run->id));
-
-        return array_slice($randomizer->shuffleArray($pool), 0, self::ROUNDS_PER_ATTEMPT);
+        return $this->run->finalTalkRounds();
     }
 
     public function getRequirementsProperty(): array

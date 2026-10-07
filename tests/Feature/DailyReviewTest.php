@@ -7,6 +7,8 @@ use App\Models\GrammarPoint;
 use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -35,6 +37,25 @@ class DailyReviewTest extends TestCase
             'prompt' => 'What time do you usually wake up?',
             'next_review_at' => now()->subMinute(),
         ]);
+    }
+
+    /**
+     * Stands in for the Whisper + judge calls a speaking recording
+     * triggers, so no test ever reaches a real AI. Null feedback means
+     * the transcription itself fails.
+     */
+    private function fakeSpeakingAi(?string $feedback = null): void
+    {
+        $this->mock(GroqClient::class, function ($mock) use ($feedback) {
+            $expectation = $mock->shouldReceive('transcribe');
+            $feedback === null
+                ? $expectation->andThrow(new \RuntimeException('Whisper is down.'))
+                : $expectation->andReturn('I wakes up at seven.');
+        });
+
+        if ($feedback !== null) {
+            $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn($feedback));
+        }
     }
 
     private function makeDueError(User $learner): ErrorPatternReview
@@ -249,7 +270,7 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->assertSee('Grammar pattern')
+            ->assertSee('Grammar')
             ->assertSee('1 / 1')
             ->assertDontSee('Again')
             ->call('reveal')
@@ -281,6 +302,52 @@ class DailyReviewTest extends TestCase
             ->assertSee('He walks fast.')
             ->call('gradeSelf', 5);
 
+        $this->assertSame(1, $error->fresh()->repetitions);
+    }
+
+    public function test_writing_the_correct_fix_for_an_error_pattern_says_spot_on_ignoring_case_and_the_full_stop(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueError($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->set('attempt', '  he WALKS fast ')
+            ->call('checkAttempt')
+            ->assertSet('revealed', true)
+            ->assertSee('Spot on!')
+            ->assertSee('He walks fast.');
+    }
+
+    public function test_a_wrong_attempt_at_an_error_pattern_shows_what_they_wrote_next_to_the_fix(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueError($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->set('attempt', 'He walking fast.')
+            ->call('checkAttempt')
+            ->assertDontSee('Spot on!')
+            ->assertSee('You wrote: He walking fast.')
+            ->assertSee('He walks fast.');
+    }
+
+    public function test_an_empty_attempt_does_not_reveal_the_fix_and_the_attempt_is_cleared_for_the_next_card(): void
+    {
+        $learner = User::factory()->create();
+        $error = $this->makeDueError($learner);
+        $this->actingAs($learner);
+
+        $test = Livewire::test('review.index')
+            ->set('attempt', '   ')
+            ->call('checkAttempt')
+            ->assertSet('revealed', false)
+            ->assertDontSee('He walks fast.');
+
+        $test->set('attempt', 'He walks fast.')->call('checkAttempt')->call('gradeSelf', 4);
+
+        $test->assertSet('attempt', '');
         $this->assertSame(1, $error->fresh()->repetitions);
     }
 
@@ -330,6 +397,7 @@ class DailyReviewTest extends TestCase
     public function test_recording_then_grading_a_speaking_prompt_advances_its_schedule(): void
     {
         Storage::fake('public');
+        $this->fakeSpeakingAi();
         $learner = User::factory()->create();
         $prompt = $this->makeDuePrompt($learner);
         $this->actingAs($learner);
@@ -342,6 +410,56 @@ class DailyReviewTest extends TestCase
 
         $this->assertSame(1, $prompt->fresh()->repetitions);
         $this->assertNotNull($prompt->fresh()->last_recording_url);
+    }
+
+    public function test_a_recorded_speaking_prompt_offers_only_again_and_good(): void
+    {
+        Storage::fake('public');
+        $this->fakeSpeakingAi();
+        $learner = User::factory()->create();
+        $this->makeDuePrompt($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
+            ->call('recorded')
+            ->assertSeeInOrder(['Again', 'Good'])
+            ->assertDontSee('Easy');
+    }
+
+    public function test_a_speaking_recording_gets_one_line_of_ai_feedback_that_goes_away_with_the_card(): void
+    {
+        Storage::fake('public');
+        $this->fakeSpeakingAi('Say "I wake up at seven" instead of "I wakes up at seven".');
+        $learner = User::factory()->create();
+        $this->makeDuePrompt($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertDontSee('instead of')
+            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
+            ->call('recorded')
+            ->assertSee('I wake up at seven', false)
+            ->call('gradeSelf', 4)
+            ->assertSet('feedback', null);
+    }
+
+    public function test_a_dead_ai_only_means_no_feedback_line_and_never_blocks_grading(): void
+    {
+        Storage::fake('public');
+        $this->fakeSpeakingAi();
+        $learner = User::factory()->create();
+        $prompt = $this->makeDuePrompt($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
+            ->call('recorded')
+            ->assertSet('feedback', null)
+            ->assertSee('How did that feel?')
+            ->call('gradeSelf', 4);
+
+        $this->assertSame(1, $prompt->fresh()->repetitions);
     }
 
     public function test_only_the_learners_own_items_are_shown(): void

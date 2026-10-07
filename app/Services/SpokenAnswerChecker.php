@@ -50,6 +50,28 @@ class SpokenAnswerChecker
     }
 
     /**
+     * One short, warm line of feedback on a spoken answer in Daily
+     * Review — never a grade and never gating anything. Names the single
+     * most useful correction when there is a clear one, otherwise
+     * praises something specific. Returns '' when the model had nothing
+     * usable to say, so a caller just shows no feedback.
+     */
+    public function quickFeedback(string $prompt, string $transcript, string $learnerDescription): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "Prompt: \"{$prompt}\"\nLearner's spoken answer (automatic transcript): \"{$transcript}\""]],
+            systemPrompt: 'You are a warm, encouraging English speaking coach helping '.$learnerDescription.'. '
+                .'Give feedback on this spoken answer in ONE short sentence of plain English (at most 20 words). '
+                .'If there is one clear grammar or word-choice mistake, give the corrected phrase, like: '
+                .'Say "I wake up at seven" instead of "I wakes up at seven". Otherwise, praise one specific thing '
+                .'they did well. The transcript is automatic speech-to-text, so ignore punctuation, capital '
+                .'letters and anything that looks like a mishearing. Never grade, never scold, never rewrite their '
+                .'whole answer. Reply with ONLY the sentence, no quotation marks around it, no markdown.',
+            profile: GeminiClient::PROFILE_JUDGE,
+        ));
+    }
+
+    /**
      * Judges a shadowing attempt — did the learner actually say something
      * close to the target line, out loud? Deliberately lenient (mission
      * structure redesign, Epic C): this is pronunciation/rhythm practice,

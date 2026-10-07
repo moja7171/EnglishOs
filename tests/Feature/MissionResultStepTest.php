@@ -1209,7 +1209,10 @@ class MissionResultStepTest extends TestCase
             ->assertDispatched('clear-draft', prefix: "eos-draft:{$run->id}:mission_result:");
     }
 
-    private function makeRunWithSpeakingPromptCandidates(): MissionRun
+    /**
+     * @param  list<array<string, mixed>>  $extraSteps  steps placed before Mission Result
+     */
+    private function makeRunWithSpeakingPromptCandidates(array $extraSteps = []): MissionRun
     {
         $learner = User::factory()->create();
         $mission = Mission::create([
@@ -1223,6 +1226,7 @@ class MissionResultStepTest extends TestCase
                     'steps' => [
                         ['key' => 'mission_brief', 'warm_up_questions' => ['What time do you usually wake up?', 'What do you do after work?']],
                         ['key' => 'ai_conversation_1', 'interview_questions' => ['How often do you exercise?']],
+                        ...$extraSteps,
                         [
                             'key' => 'mission_result',
                             'label' => 'Mission Result',
@@ -1252,6 +1256,22 @@ class MissionResultStepTest extends TestCase
             'What do you do after work?',
             'How often do you exercise?',
         ], $candidates);
+    }
+
+    public function test_speaking_prompt_candidates_include_the_final_talk_rounds_this_run_was_asked(): void
+    {
+        $pool = ['Round one?', 'Round two?', 'Round three?', 'Round four?', 'Round five?', 'Round six?'];
+        $run = $this->makeRunWithSpeakingPromptCandidates([['key' => 'ai_conversation_2', 'round_pool' => $pool]]);
+
+        $candidates = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->instance()
+            ->speakingPromptCandidates();
+
+        $asked = $run->finalTalkRounds();
+
+        $this->assertCount(3, $asked);
+        $this->assertSame(['What time do you usually wake up?', 'What do you do after work?', 'How often do you exercise?', ...$asked], $candidates);
+        $this->assertSame([], array_diff($asked, $pool));
     }
 
     public function test_the_speaking_recall_checklist_is_offered_after_a_result_and_never_blocks_finish(): void
