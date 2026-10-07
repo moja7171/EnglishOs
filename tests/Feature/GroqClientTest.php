@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\GroqClient;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -181,12 +182,6 @@ class GroqClientTest extends TestCase
         // attempt against the fallback model.
         Http::assertSentCount(2);
         Http::assertSent(fn ($request) => $this->bodyUsedModel((string) $request->body(), 'whisper-large-v3'));
-
-        Log::shouldHaveReceived('warning')
-            ->once()
-            ->withArgs(fn (string $message, array $context) => str_contains($message, 'fallback')
-                && $context['primary_model'] === 'whisper-large-v3-turbo'
-                && $context['fallback_model'] === 'whisper-large-v3');
     }
 
     public function test_both_primary_and_fallback_whisper_models_failing_still_throws(): void
@@ -217,7 +212,7 @@ class GroqClientTest extends TestCase
         Http::fake([
             'api.groq.com/*' => Http::sequence()
                 ->push(['error' => 'quota'], 429)
-                ->push(['error' => 'blocked'], 403),
+                ->push(['error' => 'blocked'], 503),
         ]);
 
         try {
@@ -229,8 +224,10 @@ class GroqClientTest extends TestCase
 
         Log::shouldHaveReceived('error')
             ->once()
-            ->withArgs(fn (string $message, array $context) => str_contains($context['primary_error'], '429')
-                && str_contains($context['final_error'], '403')
+            ->withArgs(fn (string $message, array $context) => $context['attempts'][0]['model'] === 'whisper-large-v3-turbo'
+                && $context['attempts'][0]['kind'] === 'rate_limit'
+                && $context['attempts'][1]['model'] === 'whisper-large-v3'
+                && $context['attempts'][1]['kind'] === 'transient'
                 && $context['audio_bytes'] === strlen('fake-audio-bytes')
                 && ! str_contains(json_encode($context), 'test-key'));
     }
@@ -247,7 +244,89 @@ class GroqClientTest extends TestCase
             // expected
         }
 
-        Log::shouldHaveReceived('error')->once()->withArgs(fn (string $message, array $context) => str_contains($context['final_error'], '503'));
+        Log::shouldHaveReceived('error')->once()->withArgs(fn (string $message, array $context) => $context['attempts'][0]['kind'] === 'transient'
+            && str_contains($context['attempts'][0]['error'], '503'));
+    }
+
+    private function groqChain(array $models): GroqClient
+    {
+        config(['services.groq.whisper_models' => $models]);
+
+        return new GroqClient('test-key');
+    }
+
+    private function sentToModel(string $model): int
+    {
+        return Http::recorded(fn ($request) => $this->bodyUsedModel((string) $request->body(), $model))->count();
+    }
+
+    public function test_a_daily_audio_limit_429_skips_that_model_until_its_retry_after_passes(): void
+    {
+        Http::fake([
+            'api.groq.com/*' => Http::sequence()
+                ->push(['error' => ['message' => 'Rate limit reached for model whisper-large-v3-turbo on seconds per day (ASD)', 'code' => 'rate_limit_exceeded']], 429, ['retry-after' => '7200'])
+                ->push(['text' => 'From the second model.', 'duration' => 1.0, 'segments' => []])
+                ->push(['text' => 'From the second model again.', 'duration' => 1.0, 'segments' => []])
+                ->push(['text' => 'Turbo is back.', 'duration' => 1.0, 'segments' => []]),
+        ]);
+        $client = $this->groqChain(['whisper-large-v3-turbo', 'whisper-large-v3']);
+
+        $this->assertSame('From the second model.', $client->transcribe($this->fakeAudioPath()));
+        $this->assertSame('From the second model again.', $client->transcribe($this->fakeAudioPath()));
+        $this->assertSame(1, $this->sentToModel('whisper-large-v3-turbo'), 'The exhausted model must not cost a failed upload on later requests.');
+
+        $this->travel(7201)->seconds();
+
+        $this->assertSame('Turbo is back.', $client->transcribe($this->fakeAudioPath()));
+    }
+
+    public function test_a_429_with_only_a_retry_hint_in_its_message_is_skipped_for_about_that_long(): void
+    {
+        Http::fake([
+            'api.groq.com/*' => Http::sequence()
+                ->push(['error' => ['message' => 'Rate limit reached. Please try again in 4m5.2s.']], 429)
+                ->push(['text' => 'From the second model.', 'duration' => 1.0, 'segments' => []])
+                ->push(['text' => 'From the second model again.', 'duration' => 1.0, 'segments' => []])
+                ->push(['text' => 'Turbo is back.', 'duration' => 1.0, 'segments' => []]),
+        ]);
+        $client = $this->groqChain(['whisper-large-v3-turbo', 'whisper-large-v3']);
+
+        $client->transcribe($this->fakeAudioPath());
+
+        $this->travel(240)->seconds();
+        $client->transcribe($this->fakeAudioPath());
+        $this->assertSame(1, $this->sentToModel('whisper-large-v3-turbo'));
+
+        $this->travel(10)->seconds();
+        $this->assertSame('Turbo is back.', $client->transcribe($this->fakeAudioPath()));
+    }
+
+    public function test_a_bad_request_400_is_thrown_without_trying_the_next_whisper_model(): void
+    {
+        Http::fake(['api.groq.com/*' => Http::response(['error' => ['message' => 'bad file']], 400)]);
+
+        try {
+            $this->groqChain(['whisper-large-v3-turbo', 'whisper-large-v3'])->transcribe($this->fakeAudioPath());
+            $this->fail('Expected a 400 to be thrown, not retried on another model.');
+        } catch (RequestException $e) {
+            $this->assertSame(400, $e->response->status());
+        }
+
+        Http::assertSentCount(1);
+    }
+
+    public function test_without_a_whisper_list_the_legacy_model_and_fallback_are_used(): void
+    {
+        config([
+            'services.groq.whisper_models' => [],
+            'services.groq.whisper_model' => 'whisper-large-v3-turbo',
+            'services.groq.fallback_model' => 'whisper-large-v3',
+        ]);
+
+        $this->assertSame(
+            ['whisper-large-v3-turbo', 'whisper-large-v3'],
+            array_column((new GroqClient('test-key'))->configuredChain(), 'model'),
+        );
     }
 
     public function test_a_successful_transcription_logs_no_error(): void

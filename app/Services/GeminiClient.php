@@ -4,9 +4,7 @@ namespace App\Services;
 
 use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
-use Throwable;
 
 /**
  * Thin wrapper around Gemini's generateContent REST API — the LLM behind
@@ -44,7 +42,7 @@ class GeminiClient
         $this->chain = new AiModelChain;
 
         $this->pinnedChain = ($model !== null || $fallbackModel !== null)
-            ? self::parseChain([
+            ? AiModelChain::parseChain([
                 $model ?? (string) config('services.gemini.model', 'gemini-3.5-flash-lite'),
                 $fallbackModel ?? (string) config('services.gemini.fallback_model', 'gemini-3.1-flash-lite'),
             ])
@@ -92,93 +90,19 @@ class GeminiClient
             $payload['generationConfig'] = ['maxOutputTokens' => $maxOutputTokens];
         }
 
-        $maxAttempts = max(1, (int) config('services.gemini.max_attempts', 3));
-        $budget = max(1, (int) config('services.gemini.total_budget', 20));
-        $attemptTimeout = max(1, (int) config('services.gemini.attempt_timeout', 10));
-        $startedAt = microtime(true);
-
-        $failures = [];
-        $lastError = null;
-
-        foreach ($this->candidates($profile) as $entry) {
-            if (count($failures) >= $maxAttempts) {
-                break;
-            }
-
-            $remaining = $budget - (microtime(true) - $startedAt);
-
-            if ($failures !== [] && $remaining < 2) {
-                break;
-            }
-
-            try {
-                $text = $this->attempt($entry, $payload, (int) max(2, min($attemptTimeout, ceil($remaining))));
-
-                if ($this->pinnedChain === null) {
-                    $this->chain->recordSuccess(self::PROVIDER, $entry['model']);
-                }
-
-                return $text;
-            } catch (Throwable $e) {
-                $lastError = $e;
-                $verdict = $this->chain->classify($e);
-                $failures[] = [
-                    'model' => $entry['model'],
-                    'kind' => $verdict['kind'],
-                    'error' => mb_substr($e->getMessage(), 0, 300),
-                ];
-
-                if ($this->pinnedChain === null) {
-                    $this->chain->recordFailure(self::PROVIDER, $entry['model'], $verdict['kind']);
-                }
-
-                if ($verdict['kind'] === AiModelChain::KIND_BAD_REQUEST) {
-                    $this->logFailure($profile, $failures, $e);
-
-                    throw $e;
-                }
-
-                $this->markUnavailable($entry['model'], $verdict);
-            }
-        }
-
-        if ($lastError === null) {
-            throw new RuntimeException("No Gemini model is configured for the \"{$profile}\" profile.");
-        }
-
-        $this->logFailure($profile, $failures, $lastError);
-
-        throw $lastError;
-    }
-
-    /**
-     * Parses "model" / "model:thinkingLevel" entries.
-     *
-     * @param  list<string>  $entries
-     * @return list<array{model: string, thinking_level: ?string}>
-     */
-    public static function parseChain(array $entries): array
-    {
-        $chain = [];
-
-        foreach ($entries as $entry) {
-            $entry = trim($entry);
-
-            if ($entry === '') {
-                continue;
-            }
-
-            [$model, $level] = array_pad(explode(':', $entry, 2), 2, null);
-            $model = trim((string) $model);
-
-            if ($model === '' || collect($chain)->contains('model', $model)) {
-                continue;
-            }
-
-            $chain[] = ['model' => $model, 'thinking_level' => $level !== null && trim($level) !== '' ? trim($level) : null];
-        }
-
-        return $chain;
+        return $this->chain->walk(
+            provider: self::PROVIDER,
+            logLabel: 'GeminiClient',
+            chain: $this->configuredChain($profile),
+            attempt: fn (array $entry, int $timeout) => $this->attempt($entry, $payload, $timeout),
+            limits: [
+                'max_attempts' => (int) config('services.gemini.max_attempts', 3),
+                'budget' => (int) config('services.gemini.total_budget', 20),
+                'attempt_timeout' => (int) config('services.gemini.attempt_timeout', 10),
+            ],
+            tracked: $this->pinnedChain === null,
+            logContext: ['profile' => $profile],
+        );
     }
 
     /**
@@ -193,88 +117,15 @@ class GeminiClient
             return $this->pinnedChain;
         }
 
-        $configured = self::parseChain((array) config("services.gemini.{$profile}_models", []));
+        $configured = AiModelChain::parseChain((array) config("services.gemini.{$profile}_models", []));
 
         if ($configured !== []) {
             return $configured;
         }
 
-        return self::parseChain([
+        return AiModelChain::parseChain([
             (string) config('services.gemini.model', 'gemini-3.5-flash-lite'),
             (string) config('services.gemini.fallback_model', 'gemini-3.1-flash-lite'),
-        ]);
-    }
-
-    /**
-     * The models this request may try, in order. Models marked unavailable
-     * are skipped; when every one is marked, the one that heals soonest is
-     * probed anyway so a stale mark can never turn a short blip into a
-     * longer outage.
-     *
-     * @return list<array{model: string, thinking_level: ?string}>
-     */
-    private function candidates(string $profile): array
-    {
-        $chain = $this->configuredChain($profile);
-
-        if ($this->pinnedChain !== null) {
-            return $chain;
-        }
-
-        $usable = array_values(array_filter(
-            $chain,
-            fn (array $entry) => $this->chain->unavailableState(self::PROVIDER, $entry['model']) === null,
-        ));
-
-        if ($usable !== [] || $chain === []) {
-            return $usable;
-        }
-
-        $healsAt = fn (array $entry): int => $this->chain->unavailableState(self::PROVIDER, $entry['model'])['until'] ?? 0;
-
-        usort($chain, fn (array $a, array $b) => $healsAt($a) <=> $healsAt($b));
-
-        return [$chain[0]];
-    }
-
-    /**
-     * @param  array{kind: string, seconds: int}  $verdict
-     */
-    private function markUnavailable(string $model, array $verdict): void
-    {
-        if ($this->pinnedChain !== null) {
-            return;
-        }
-
-        $isFreshMark = $this->chain->markUnavailable(self::PROVIDER, $model, $verdict['kind'], $verdict['seconds']);
-
-        if ($isFreshMark) {
-            // Production runs at LOG_LEVEL=error, which drops warnings — and
-            // a model leaving the rotation is exactly what must stay visible.
-            Log::error('GeminiClient: model taken out of rotation.', [
-                'model' => $model,
-                'reason' => $verdict['kind'],
-                'skipped_for_seconds' => $verdict['seconds'],
-            ]);
-        }
-    }
-
-    /**
-     * Callers catch these failures and show the learner a generic "couldn't
-     * reach the AI service" line, and production runs at LOG_LEVEL=error —
-     * so the real cause per model (relay down, 403/429/5xx, cURL timeout)
-     * is recorded here, once per request that exhausted its chain. Never
-     * logs request bodies or keys.
-     *
-     * @param  list<array{model: string, kind: string, error: string}>  $failures
-     */
-    private function logFailure(string $profile, array $failures, Throwable $finalError): void
-    {
-        Log::error('GeminiClient: request failed on every model.', [
-            'profile' => $profile,
-            'attempts' => $failures,
-            'final_error_class' => $finalError::class,
-            'relay' => (string) config('services.ai_proxy.url'),
         ]);
     }
 

@@ -85,6 +85,14 @@ return [
         // different, genuinely available Whisper variant on Groq (verified
         // against Groq's model docs 2026-09-04), not a guessed name.
         'fallback_model' => env('GROQ_FALLBACK_MODEL', 'whisper-large-v3'),
+
+        // Ordered Whisper chain, best first, comma separated — same idea and
+        // same timeouts as gemini.chat_models above. Empty = the single
+        // whisper_model + fallback_model pair.
+        'whisper_models' => array_values(array_filter(array_map('trim', explode(',', (string) env('GROQ_WHISPER_MODELS', ''))))),
+        'attempt_timeout' => (int) env('GROQ_ATTEMPT_TIMEOUT', 12),
+        'max_attempts' => (int) env('GROQ_MAX_ATTEMPTS', 3),
+        'total_budget' => (int) env('GROQ_TOTAL_BUDGET', 25),
     ],
 
     'pexels' => [
