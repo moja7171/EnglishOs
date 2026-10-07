@@ -100,6 +100,13 @@ return [
                 'vps' => env('AI_PROXY_URL_VPS') !== null && env('AI_PROXY_URL_VPS') !== '',
                 'local' => env('AI_PROXY_URL_LOCAL') !== null && env('AI_PROXY_URL_LOCAL') !== '',
             ],
+            // Both slots' raw values regardless of which one is live, for
+            // App\Console\Commands\AiRelaySyncLocalUrl: it asks the "vps"
+            // relay what the "local" tunnel's current URL is.
+            'slots' => [
+                'vps' => ['url' => env('AI_PROXY_URL_VPS'), 'secret' => env('AI_PROXY_SECRET_VPS')],
+                'local' => ['url' => env('AI_PROXY_URL_LOCAL')],
+            ],
         ];
     })(),
 

@@ -21,6 +21,11 @@ Schedule::call(fn () => Artisan::call('review:send-reminders'))
     ->everyMinute()
     ->withoutOverlapping();
 
+Schedule::call(fn () => Artisan::call('ai:relay-sync-local-url'))
+    ->name('ai:relay-sync-local-url')
+    ->everyMinute()
+    ->withoutOverlapping();
+
 /*
  * Proof the host's cron really fires every minute, for a host with no
  * terminal: /_diag/ai?only=scheduler shows when this last ran.

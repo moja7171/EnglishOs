@@ -39,5 +39,6 @@ class ScheduledTasksTest extends TestCase
         $this->assertContains('review:send-reminders', $names);
         $this->assertContains('notifications:prune-read', $names);
         $this->assertContains('scheduler:heartbeat', $names);
+        $this->assertContains('ai:relay-sync-local-url', $names);
     }
 }

@@ -24,6 +24,12 @@ use Illuminate\Console\Command;
  */
 class AiRelayUse extends Command
 {
+    /**
+     * The only tunnel URL shape --local-url accepts; shared with
+     * AiRelaySyncLocalUrl so both enforce the same allowlist.
+     */
+    public const TUNNEL_URL_PATTERN = '#^https://[a-z0-9-]+\.lhr\.life$#';
+
     protected $signature = 'ai:relay-use
         {target? : "vps" or "local" — omit to just show the current target}
         {--local-url= : Also set AI_PROXY_URL_LOCAL to this https://<id>.lhr.life tunnel URL}';
@@ -53,7 +59,7 @@ class AiRelayUse extends Command
         if ($localUrl !== null) {
             $localUrl = rtrim(trim((string) $localUrl), '/');
 
-            if (! preg_match('#^https://[a-z0-9-]+\.lhr\.life$#', $localUrl)) {
+            if (! preg_match(self::TUNNEL_URL_PATTERN, $localUrl)) {
                 $this->error('--local-url must look like https://<id>.lhr.life.');
 
                 return self::FAILURE;
