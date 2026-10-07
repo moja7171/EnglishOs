@@ -44,6 +44,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 import requests
+from urllib3.exceptions import HTTPError as Urllib3Error
 
 RELAY_SECRET = os.environ.get("RELAY_SECRET")
 if not RELAY_SECRET:
@@ -120,24 +121,34 @@ class Handler(BaseHTTPRequestHandler):
             if k.lower() not in HOP_BY_HOP and not k.lower().startswith("x-relay-")
         }
 
+        # Stay transparent about compression: the client's Accept-Encoding
+        # goes through as-is, and a client that sent none must not get
+        # compressed bytes just because `requests` adds its own default.
+        if not any(k.lower() == "accept-encoding" for k in fwd_headers):
+            fwd_headers["Accept-Encoding"] = "identity"
+
         try:
             resp = requests.request(
                 self.command, target, headers=fwd_headers, data=body,
-                timeout=30, allow_redirects=False,
+                timeout=30, allow_redirects=False, stream=True,
             )
-        except requests.RequestException as e:
+            # Raw, still-encoded bytes. Reading resp.content instead decodes
+            # only gzip/deflate: a client that advertises br/zstd (PHP's cURL
+            # does) got Groq's brotli bytes back with Content-Encoding
+            # stripped — unreadable garbage, which silently turned every
+            # Whisper transcription into "no text".
+            content = resp.raw.read(decode_content=False)
+        except (requests.RequestException, Urllib3Error) as e:
             self._respond(502, f"relay fetch failed: {e}".encode())
             return
 
-        # content-encoding excluded too: requests already transparently
-        # decompresses gzip/deflate into resp.content, but leaves the
-        # original header in place — forwarding both means the client
-        # tries to gunzip bytes that are already plain, corrupting them.
+        # Content-Encoding is kept because the body is still encoded;
+        # Content-Length is dropped because _respond() sets the right one.
         out_headers = {
             k: v for k, v in resp.headers.items()
-            if k.lower() not in HOP_BY_HOP and k.lower() != "content-encoding"
+            if k.lower() not in HOP_BY_HOP and k.lower() != "content-length"
         }
-        self._respond(resp.status_code, resp.content, out_headers)
+        self._respond(resp.status_code, content, out_headers)
 
     def _respond(self, status, body, headers=None):
         self.send_response(status)

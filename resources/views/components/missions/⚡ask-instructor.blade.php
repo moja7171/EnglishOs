@@ -130,10 +130,12 @@ new class extends Component
             $question = '';
         }
 
-        // Either way the learner only sees Sage say it can't see their voice
-        // note, so the real cause (a thrown error, or Whisper answering with
-        // no text) is recorded here — GroqClient only logs failures that
-        // happen inside its own requests.
+        // The real cause (a thrown error, or Whisper answering with no text)
+        // is recorded here — GroqClient only logs failures that happen
+        // inside its own requests. Nothing is sent to Sage: a stand-in line
+        // like "Couldn't transcribe this recording." used to go out as if
+        // the learner had typed it, and Sage would reply that it couldn't
+        // see their voice note. Tell the learner instead.
         if ($question === '') {
             Log::error('Sage voice question could not be transcribed.', [
                 'reason' => $failure ?? 'Whisper returned no text',
@@ -141,6 +143,10 @@ new class extends Component
                 'mime' => rescue(fn () => $recording->getMimeType(), null, false),
                 'name' => $recording->getClientOriginalName(),
             ]);
+
+            $this->error = "I couldn't turn that recording into text — please try again, or type your question.";
+
+            return;
         }
 
         $path = $recording->store('instructor-messages/'.auth()->id(), 'local');
@@ -148,7 +154,7 @@ new class extends Component
         $mime = $recording->getMimeType();
 
         $this->recordAndRespond(
-            $question !== '' ? $question : "Couldn't transcribe this recording.",
+            $question,
             InstructorMessage::TYPE_VOICE,
             $path,
             $name,
