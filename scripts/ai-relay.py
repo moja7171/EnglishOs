@@ -87,6 +87,14 @@ class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def _relay(self):
+        # Read the body before any early response (bad auth, disallowed host):
+        # this is HTTP/1.1 keep-alive, so an unread body would be parsed as
+        # the start of the NEXT request on the same connection and break it
+        # with a 501 — which a big unauthenticated health-check POST did to
+        # real requests queued behind it.
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length) if length else None
+
         auth = self.headers.get("X-Relay-Auth", "")
         target = self.headers.get("X-Relay-Url", "")
 
@@ -106,9 +114,6 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.scheme != "https" or parsed.hostname not in ALLOWED_HOSTS:
             self._respond(403, b"target not allowed")
             return
-
-        length = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(length) if length else None
 
         fwd_headers = {
             k: v for k, v in self.headers.items()
