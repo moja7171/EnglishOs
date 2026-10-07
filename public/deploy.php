@@ -57,6 +57,28 @@ function chmodRecursive(string $path, int $perm): void
     }
 }
 
+/**
+ * One value straight out of the .env file, or '' when absent. Needed because
+ * once config is cached (every deploy ends with config:cache) Laravel stops
+ * loading .env at all, so env() returns null for anything not baked into a
+ * config/*.php file — which would make a secret like ADMIN_PASSWORD
+ * silently ignored on every deploy but the first.
+ */
+function readEnvFileValue(string $envPath, string $key): string
+{
+    if (! is_file($envPath)) {
+        return '';
+    }
+
+    foreach (file($envPath) as $line) {
+        if (preg_match('/^'.preg_quote($key, '/').'=(.*)$/', trim($line), $m)) {
+            return trim($m[1], " \t\n\r\0\x0B\"'");
+        }
+    }
+
+    return '';
+}
+
 echo '=== '.date('Y-m-d H:i:s')." ===\n";
 
 $root = dirname(__DIR__);
@@ -98,45 +120,38 @@ echo "fixed {$nullAdminsFixed} row(s) with null is_admin\n\n";
 // itself — so deleting them here just left production with no image at
 // all. The corrected images are the ones this branch now carries.
 
-// Ensures the one admin account exists (and its password matches
-// ADMIN_PASSWORD) on every deploy — idempotent. The real password
-// lives only in .env (never committed — this repo is public on
-// GitHub), with a fixed fallback so this still works before that
-// variable is ever set. Deliberately BEFORE config:cache below — once
-// config is cached, raw env() calls for anything not baked into a
-// config/*.php file return null instead of reading .env directly.
+// Ensures the one admin account exists on every deploy — idempotent. Its
+// password comes ONLY from ADMIN_PASSWORD in .env (never committed — this
+// repo is public on GitHub). There is deliberately no fallback value: with
+// ADMIN_PASSWORD unset, an existing account keeps its current password and
+// a missing one is created with a random password nobody knows — set
+// ADMIN_PASSWORD and redeploy to choose one. Read with
+// readEnvFileValue() rather than env(): config is usually already cached
+// by an earlier deploy, and then env() would return null here.
 echo "--- ensure admin account ---\n";
-$password = env('ADMIN_PASSWORD', 'EnglishOsAdmin2026!');
-$admin = App\Models\User::updateOrCreate(
-    ['email' => 'admin@englishos.local'],
-    ['name' => 'Admin', 'email_verified_at' => now(), 'cefr_level' => 'B1', 'password' => $password]
-);
+$adminPassword = readEnvFileValue($envPath, 'ADMIN_PASSWORD');
+$admin = App\Models\User::firstOrNew(['email' => 'admin@englishos.local']);
+$admin->name = 'Admin';
+$admin->email_verified_at = now();
+$admin->cefr_level = 'B1';
+if ($adminPassword !== '') {
+    $admin->password = $adminPassword;
+} elseif (! $admin->exists) {
+    $admin->password = Illuminate\Support\Str::random(40);
+}
 $admin->is_admin = true;
 $admin->save();
-echo "admin@englishos.local ensured, password synced from ADMIN_PASSWORD.\n";
+echo $adminPassword !== ''
+    ? "admin@englishos.local ensured, password synced from ADMIN_PASSWORD.\n"
+    : "admin@englishos.local ensured, ADMIN_PASSWORD is not set so its password was left unchanged.\n";
 
-// TEMPORARY — the user still couldn't log in with the account above
-// despite this block running successfully. A second, freshly-created
-// account with its own known password rules out anything specific to
-// the FIRST account (stale browser-saved credentials, some quirk tied
-// to that one row) — if this one also fails to log in, the problem is
-// the login mechanism itself, not that account. Auth::attempt() run
-// directly here checks the credentials work at the auth layer,
-// independent of the actual login form/session/CSRF. Remove once
-// diagnosed.
-echo "--- create a second admin account + test Auth::attempt directly ---\n";
-$admin2 = App\Models\User::updateOrCreate(
-    ['email' => 'admin2@englishos.local'],
-    ['name' => 'Admin Two', 'email_verified_at' => now(), 'cefr_level' => 'B1', 'password' => 'EnglishOsAdmin2Fresh!']
-);
-$admin2->is_admin = true;
-$admin2->save();
-echo "admin2@englishos.local created/ensured — password: EnglishOsAdmin2Fresh!\n";
-foreach ([['admin@englishos.local', $password], ['admin2@englishos.local', 'EnglishOsAdmin2Fresh!']] as [$email, $pw]) {
-    $ok = Illuminate\Support\Facades\Auth::attempt(['email' => $email, 'password' => $pw]);
-    Illuminate\Support\Facades\Auth::logout();
-    echo "Auth::attempt($email, <password>) = ".($ok ? 'TRUE (credentials work)' : 'FALSE (credentials rejected)')."\n";
-}
+// A throwaway second admin (admin2@englishos.local) whose password was
+// committed to this public repo used to be created here while debugging a
+// login problem. Remove it wherever it still exists — deleting a user
+// cascades to everything of theirs. Idempotent: a no-op once it is gone.
+echo "--- remove the leftover debug admin account ---\n";
+$removedDebugAdmins = App\Models\User::where('email', 'admin2@englishos.local')->delete();
+echo "removed {$removedDebugAdmins} account(s) named admin2@englishos.local.\n";
 
 // TEMPORARY diagnostic for the AI relay — Sage fails with a generic
 // "Couldn't reach Sage" on the live site and ask-instructor.blade.php's
