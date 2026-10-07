@@ -374,7 +374,7 @@ new class extends Component
     <div
         x-show="open"
         x-cloak
-        x-transition.opacity.duration.150ms
+        x-transition.origin.bottom.right.scale.95.opacity.duration.150ms
         x-on:click.outside="open = false"
         class="fixed right-5 bottom-40 z-40 flex h-[28rem] max-h-[calc(100vh-8rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden card shadow-2xl sm:bottom-24"
     >

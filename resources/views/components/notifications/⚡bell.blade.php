@@ -125,7 +125,7 @@ new class extends Component
     <div
         x-show="open"
         x-cloak
-        x-transition.opacity.duration.150ms
+        x-transition.origin.top.right.scale.95.opacity.duration.150ms
         class="absolute right-0 z-20 mt-2 w-72 overflow-hidden rounded-xl border border-line bg-surface shadow-lg dark:border-line-dark dark:bg-surface-dark"
     >
         <div class="flex items-center justify-between border-b border-line px-3 py-2 dark:border-line-dark">

@@ -22,7 +22,7 @@
     <div
         x-show="menu"
         x-cloak
-        x-transition.opacity.duration.150ms
+        x-transition.origin.top.right.scale.95.opacity.duration.150ms
         role="menu"
         class="absolute right-0 z-20 mt-1 w-56 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark"
     >

@@ -39,7 +39,7 @@
     <div
         x-show="open"
         x-cloak
-        x-transition.opacity.duration.150ms
+        x-transition.origin.top.right.scale.95.opacity.duration.150ms
         role="menu"
         aria-label="Account menu"
         class="absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark"
