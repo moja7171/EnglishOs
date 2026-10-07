@@ -320,28 +320,26 @@ class AskInstructorTest extends TestCase
     }
 
     /**
-     * The recording is still kept as a real message even when
-     * transcription fails — a silent "try again" would lose the
-     * recording the learner just made; instead it's saved with a
-     * fallback body so the audio itself is never lost.
+     * When transcription fails nothing goes to Sage (it used to receive a
+     * stand-in "Couldn't transcribe this recording." as if the learner had
+     * typed it, and answer that it couldn't see their voice note): the
+     * learner is told to retry or type instead.
      */
-    public function test_a_failed_voice_transcription_still_sends_the_recording_with_a_fallback_body(): void
+    public function test_a_failed_voice_transcription_tells_the_learner_and_sends_nothing_to_sage(): void
     {
         Storage::fake('local');
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('down')));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Could you type that instead?'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
             ->call('sendVoiceQuestion')
-            ->assertSet('question', '')
-            ->assertSet('voiceQuestion', null);
+            ->assertSet('voiceQuestion', null)
+            ->assertSee("couldn't turn that recording into text");
 
-        $message = InstructorMessage::where('type', InstructorMessage::TYPE_VOICE)->firstOrFail();
-        $this->assertSame("Couldn't transcribe this recording.", $message->body);
-        Storage::disk('local')->assertExists($message->attachment_path);
+        $this->assertSame(0, InstructorMessage::count());
     }
 
     public function test_a_failed_voice_transcription_logs_the_real_cause_with_the_recording_details(): void
@@ -351,7 +349,7 @@ class AskInstructorTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('relay down')));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Could you type that instead?'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
@@ -371,7 +369,7 @@ class AskInstructorTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('   '));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Could you type that instead?'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('voiceQuestion', UploadedFile::fake()->create('question.webm', 100, 'audio/webm'))
