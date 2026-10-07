@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\GeminiClient;
 use App\Services\SentenceChecker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class SentenceCheckerTest extends TestCase
@@ -30,6 +31,31 @@ class SentenceCheckerTest extends TestCase
 
         $this->assertSame('minor', $result['severity']);
         $this->assertSame('Try "I commute to work."', $result['hint']);
+    }
+
+    public function test_grading_a_sentence_walks_the_judge_chain_not_the_chat_chain(): void
+    {
+        config([
+            'services.gemini.key' => 'test-key',
+            'services.gemini.chat_models' => ['chat-model'],
+            'services.gemini.judge_models' => ['judge-model'],
+        ]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models/judge-model:generateContent' => Http::response([
+                'candidates' => [['content' => ['parts' => [['text' => '{"severity": "none", "hint": ""}']]]]],
+            ]),
+        ]);
+
+        $result = app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I commute to work.',
+        );
+
+        $this->assertSame('none', $result['severity']);
+        Http::assertSentCount(1);
     }
 
     public function test_it_sends_the_learners_text_and_context_to_gemini(): void

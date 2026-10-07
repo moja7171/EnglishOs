@@ -36,7 +36,8 @@ class SpokenAnswerChecker
                 .'asked — be lenient, a short or imperfect but genuine attempt is always "none". If "major", the '
                 .'hint must be one short, warm, encouraging sentence (never harsh or scolding) nudging them '
                 .'toward the topic — never write their exact answer for them.'
-                .$extraGuidance
+                .$extraGuidance,
+            profile: GeminiClient::PROFILE_JUDGE,
         );
 
         $data = json_decode(trim($raw), true);
@@ -72,7 +73,8 @@ class SpokenAnswerChecker
                 .'empty, silent/inaudible, or clearly a different sentence entirely (not just a few mismatched '
                 .'words) — be very lenient, a close or partial attempt is always "none". If "major", the hint '
                 .'must be one short, warm, encouraging sentence (never harsh) asking them to try that line again '
-                .'— never write the line for them.'
+                .'— never write the line for them.',
+            profile: GeminiClient::PROFILE_JUDGE,
         );
 
         $data = json_decode(trim($raw), true);
@@ -107,7 +109,8 @@ class SpokenAnswerChecker
                 .'gibberish, or not actually a question at all (e.g. a statement) — be lenient, a short or '
                 .'imperfect but genuine question attempt is always "none". If "major", the hint must be one '
                 .'short, warm, encouraging sentence nudging them to ask something about the topic — never write '
-                .'a question for them.'
+                .'a question for them.',
+            profile: GeminiClient::PROFILE_JUDGE,
         );
 
         $data = json_decode(trim($raw), true);

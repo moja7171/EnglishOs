@@ -124,7 +124,8 @@ new class extends Component
                     .'form", "why": "Persian explanation of the rule", '
                     .'"category": "short-slug", '
                     .'"drills": [{"sentence": "...___...", "answer": "..."}, {"sentence": "...___...", "answer": "..."}]}. '
-                    .'If the learner made no real mistakes, reply with an empty JSON array: []'
+                    .'If the learner made no real mistakes, reply with an empty JSON array: []',
+                profile: GeminiClient::PROFILE_JUDGE,
             );
             $this->recordGeminiCall();
 
@@ -189,6 +190,17 @@ new class extends Component
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
 
+    /**
+     * Offered next to the retry button when the AI review could not be
+     * produced (every judge model failed — GeminiClient has already logged
+     * why): the learner must never be stuck here, so they can move on. The
+     * step is saved with no fixes, like "no mistakes found".
+     */
+    public function skipForNow(): void
+    {
+        $this->finishWithoutErrors();
+    }
+
     private function finishWithoutErrors(): void
     {
         Evidence::create([
@@ -222,6 +234,14 @@ new class extends Component
             >
                 <span wire:loading.remove wire:target="generate">Try again</span>
                 <span wire:loading wire:target="generate">Trying again…</span>
+            </button>
+            <button
+                wire:click="skipForNow"
+                wire:loading.attr="disabled"
+                wire:target="skipForNow"
+                class="mt-2 ml-2 inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark disabled:cursor-not-allowed disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark"
+            >
+                Skip this step for now
             </button>
         </div>
     @elseif (! $generated)

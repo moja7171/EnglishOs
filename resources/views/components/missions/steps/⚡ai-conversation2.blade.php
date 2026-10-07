@@ -70,6 +70,9 @@ new class extends Component
 
     public ?string $error = null;
 
+    /** Shown when the AI could not check an answer: the learner still moves on, unevaluated. */
+    public ?string $notice = null;
+
     /** @var array<int, string> keyed by round — set when the last spoken attempt was off-topic/empty. Final Challenge uses key "final". */
     public array $offTopicHint = [];
 
@@ -153,6 +156,7 @@ new class extends Component
     public function submitRoundAnswer(): void
     {
         $this->error = null;
+        $this->notice = null;
         $this->processing = true;
         $roundIndex = $this->roundIndex;
 
@@ -163,32 +167,47 @@ new class extends Component
             $this->recordGroqCall();
             $this->audioFile = null;
 
-            $check = app(SpokenAnswerChecker::class)->checkRelevance(
-                $this->currentRoundPrompt,
-                $answer,
-                $this->run->learner->levelDescription(),
-                $this->run->aiToneGuidance(),
-            );
-            $this->recordGeminiCall();
+            // Once every judge model has failed (GeminiClient has already
+            // logged why), the answer is accepted unevaluated — the learner
+            // must never be stuck on a round because the AI is down.
+            $check = null;
 
-            $this->trackCheckAttempt($roundIndex, $check['severity']);
+            try {
+                $check = app(SpokenAnswerChecker::class)->checkRelevance(
+                    $this->currentRoundPrompt,
+                    $answer,
+                    $this->run->learner->levelDescription(),
+                    $this->run->aiToneGuidance(),
+                );
+                $this->recordGeminiCall();
+            } catch (\Throwable) {
+                $this->notice = "Your answer was saved, but we couldn't check it just now — keep going.";
+            }
 
-            if ($check['severity'] === 'major') {
-                $this->offTopicHint[$roundIndex] = $check['hint'];
+            if ($check !== null) {
+                $this->trackCheckAttempt($roundIndex, $check['severity']);
 
-                return;
+                if ($check['severity'] === 'major') {
+                    $this->offTopicHint[$roundIndex] = $check['hint'];
+
+                    return;
+                }
             }
 
             unset($this->offTopicHint[$roundIndex], $this->exampleAnswer[$roundIndex]);
 
-            $followup = trim(app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => "Prompt: \"{$this->currentRoundPrompt}\"\nLearner's spoken response: \"{$answer}\""]],
-                systemPrompt: 'You are a friendly English conversation partner. Given the prompt and the '
-                    .'learner\'s transcribed spoken response, reply with exactly ONE short, natural reaction or '
-                    .'follow-up question (max 15 words) that shows you listened — no preamble, no quotation marks.'
-                    .$this->run->aiToneGuidance()
-            ));
-            $this->recordGeminiCall();
+            try {
+                $followup = trim(app(GeminiClient::class)->chat(
+                    [['role' => 'user', 'text' => "Prompt: \"{$this->currentRoundPrompt}\"\nLearner's spoken response: \"{$answer}\""]],
+                    systemPrompt: 'You are a friendly English conversation partner. Given the prompt and the '
+                        .'learner\'s transcribed spoken response, reply with exactly ONE short, natural reaction or '
+                        .'follow-up question (max 15 words) that shows you listened — no preamble, no quotation marks.'
+                        .$this->run->aiToneGuidance()
+                ));
+                $this->recordGeminiCall();
+            } catch (\Throwable) {
+                $followup = '';
+            }
 
             $this->turns[] = ['prompt' => $this->currentRoundPrompt, 'answer' => $answer, 'followup' => $followup];
             $this->roundIndex++;
@@ -208,6 +227,7 @@ new class extends Component
     public function submitLearnerQuestion(): void
     {
         $this->error = null;
+        $this->notice = null;
         $this->processing = true;
 
         $this->validate(['audioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480']]);
@@ -217,33 +237,47 @@ new class extends Component
             $this->recordGroqCall();
             $this->audioFile = null;
 
-            $check = app(SpokenAnswerChecker::class)->checkGenuineQuestion(
-                $this->roleReversalTopic,
-                $question,
-                $this->run->learner->levelDescription(),
-            );
-            $this->recordGeminiCall();
+            // Same rule as submitRoundAnswer(): with every judge model
+            // down, the question is accepted unevaluated.
+            $check = null;
 
-            $this->trackCheckAttempt('role_reversal', $check['severity']);
+            try {
+                $check = app(SpokenAnswerChecker::class)->checkGenuineQuestion(
+                    $this->roleReversalTopic,
+                    $question,
+                    $this->run->learner->levelDescription(),
+                );
+                $this->recordGeminiCall();
+            } catch (\Throwable) {
+                $this->notice = "Your answer was saved, but we couldn't check it just now — keep going.";
+            }
 
-            if ($check['severity'] === 'major') {
-                $this->offTopicHint['role_reversal'] = $check['hint'];
+            if ($check !== null) {
+                $this->trackCheckAttempt('role_reversal', $check['severity']);
 
-                return;
+                if ($check['severity'] === 'major') {
+                    $this->offTopicHint['role_reversal'] = $check['hint'];
+
+                    return;
+                }
             }
 
             unset($this->offTopicHint['role_reversal'], $this->exampleAnswer['role_reversal']);
             $this->learnerQuestion = $question;
 
-            $this->aiAnswerToLearner = trim(app(GeminiClient::class)->chat(
-                [['role' => 'user', 'text' => "The learner just asked you: \"{$question}\""]],
-                systemPrompt: 'You are a friendly English conversation partner having a real back-and-forth '
-                    .'with '.$this->run->learner->levelDescription().'. They just asked YOU a genuine question '
-                    .'about '.$this->roleReversalTopic.'. Answer it naturally and warmly, like a real person '
-                    .'would — 1 to 3 short sentences, no preamble.'
-                    .$this->run->aiToneGuidance()
-            ));
-            $this->recordGeminiCall();
+            try {
+                $this->aiAnswerToLearner = trim(app(GeminiClient::class)->chat(
+                    [['role' => 'user', 'text' => "The learner just asked you: \"{$question}\""]],
+                    systemPrompt: 'You are a friendly English conversation partner having a real back-and-forth '
+                        .'with '.$this->run->learner->levelDescription().'. They just asked YOU a genuine question '
+                        .'about '.$this->roleReversalTopic.'. Answer it naturally and warmly, like a real person '
+                        .'would — 1 to 3 short sentences, no preamble.'
+                        .$this->run->aiToneGuidance()
+                ));
+                $this->recordGeminiCall();
+            } catch (\Throwable) {
+                $this->aiAnswerToLearner = "That's a great question — I'm having trouble answering right now, but well done for asking it!";
+            }
 
             $this->roleReversalDone = true;
         } catch (\Throwable $e) {
@@ -356,7 +390,8 @@ new class extends Component
                     ." against a requirements checklist.{$vocabularyContext}{$bbcContext} For each of these "
                     ."requirements: [{$requirementList}], decide if the transcript satisfies it. Reply with ONLY "
                     .'valid JSON, no markdown fences: {"requirements": {"<requirement label exactly as given>": '
-                    .'true or false, ...}, "note": "one short encouraging sentence about their overall performance"}'
+                    .'true or false, ...}, "note": "one short encouraging sentence about their overall performance"}',
+                profile: GeminiClient::PROFILE_JUDGE,
             );
             $this->recordGeminiCall();
 
@@ -661,6 +696,9 @@ new class extends Component
     @error('audioFile')
         <p class="text-sm text-danger-ink">{{ $message }}</p>
     @enderror
+    @if ($notice)
+        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
+    @endif
     @if ($error)
         <p class="text-sm text-danger-ink">{{ $error }}</p>
     @endif

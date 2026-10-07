@@ -44,7 +44,7 @@ class AiFeedbackCard
      */
     public function generate(array $messages, string $systemPrompt, array $requiredKeys, ?Closure $onCallSucceeded = null): array
     {
-        $raw = $this->gemini->chat($messages, systemPrompt: $systemPrompt);
+        $raw = $this->gemini->chat($messages, systemPrompt: $systemPrompt, profile: GeminiClient::PROFILE_JUDGE);
 
         if ($onCallSucceeded) {
             $onCallSucceeded();
