@@ -209,4 +209,55 @@ class GroqClientTest extends TestCase
         // 1 attempt against each model — no infinite loop, no third model.
         Http::assertSentCount(2);
     }
+
+    public function test_exhausting_every_whisper_model_logs_the_real_cause_and_upload_size_at_error_level(): void
+    {
+        Log::spy();
+
+        Http::fake([
+            'api.groq.com/*' => Http::sequence()
+                ->push(['error' => 'quota'], 429)
+                ->push(['error' => 'blocked'], 403),
+        ]);
+
+        try {
+            (new GroqClient('test-key', 'whisper-large-v3-turbo', 'whisper-large-v3'))
+                ->transcribe($this->fakeAudioPath());
+        } catch (\Throwable) {
+            // expected
+        }
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(fn (string $message, array $context) => str_contains($context['primary_error'], '429')
+                && str_contains($context['final_error'], '403')
+                && $context['audio_bytes'] === strlen('fake-audio-bytes')
+                && ! str_contains(json_encode($context), 'test-key'));
+    }
+
+    public function test_a_single_model_failing_with_no_distinct_fallback_still_logs_the_cause(): void
+    {
+        Log::spy();
+
+        Http::fake(['api.groq.com/*' => Http::response(['error' => 'down'], 503)]);
+
+        try {
+            (new GroqClient('test-key', 'whisper-large-v3-turbo', ''))->transcribe($this->fakeAudioPath());
+        } catch (\Throwable) {
+            // expected
+        }
+
+        Log::shouldHaveReceived('error')->once()->withArgs(fn (string $message, array $context) => str_contains($context['final_error'], '503'));
+    }
+
+    public function test_a_successful_transcription_logs_no_error(): void
+    {
+        Log::spy();
+
+        $this->fakeVerboseResponse([['text' => 'Hello there.', 'avg_logprob' => -0.1]]);
+
+        (new GroqClient('test-key'))->transcribe($this->fakeAudioPath());
+
+        Log::shouldNotHaveReceived('error');
+    }
 }

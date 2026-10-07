@@ -48,8 +48,40 @@ class AiDiagnosticTest extends TestCase
         $response->assertSee('body-size sweep', false);
         $response->assertSee('Control: big POST bodies', false);
         $response->assertSee('relay VPS itself', false);
+        $response->assertSee('Relay upload sweep', false);
+        $response->assertSee('body ~256000 bytes, no auth', false);
+        $response->assertSee('GroqClient::transcribe()', false);
         $response->assertDontSee('secret-relay-value', false);
         $response->assertDontSee('secret-gemini-key', false);
+    }
+
+    public function test_the_transcription_probe_sends_a_real_wav_through_the_relay_and_reports_what_whisper_said(): void
+    {
+        config(['services.groq.key' => 'secret-groq-key']);
+        Http::fake([
+            'relay.test/*' => Http::response(['text' => ' hello tone'], 200),
+            '*' => Http::response('blocked', 403),
+        ]);
+
+        $this->get('/_diag/ai?token=diag-token')
+            ->assertOk()
+            ->assertSee('Whisper returned: "hello tone"', false)
+            ->assertDontSee('secret-groq-key', false);
+
+        Http::assertSent(fn ($request) => $request->hasHeader('X-Relay-Url', 'https://api.groq.com/openai/v1/audio/transcriptions')
+            && str_contains($request->body(), 'RIFF')
+            && str_contains($request->body(), 'WAVEfmt '));
+    }
+
+    public function test_the_upload_sweep_posts_big_bodies_to_the_relay_without_its_secret(): void
+    {
+        Http::fake(['relay.test/*' => Http::response('bad auth', 401), '*' => Http::response('x', 403)]);
+
+        $this->get('/_diag/ai?token=diag-token')->assertOk();
+
+        Http::assertSent(fn ($request) => $request->url() === 'https://relay.test/'
+            && strlen($request->body()) === 256_000
+            && ! $request->hasHeader('X-Relay-Auth'));
     }
 
     public function test_clear_log_only_empties_the_log_when_asked(): void
