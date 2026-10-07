@@ -479,8 +479,21 @@ new class extends Component
             </p>
         </div>
 
+        {{-- The checklist is the "you are here" cue while it is on screen; once
+             it has scrolled away the slim bar takes over (see <x-missions.step-bar>). --}}
+        <div x-data="missionStepBar" x-on:scroll.window.passive="queue()" x-on:resize.window="queue()">
+        <x-missions.step-bar
+            :day-number="$this->activeDayIndex + 1"
+            :day-label="$this->activeDay['label'] ?? ''"
+            :step-label="$mission->stepLabel($this->activeStepKey)"
+            :icon="$this->stepIcon($this->activeStepKey)"
+            :states="collect($daySteps)->map(fn ($key) => $key === $this->activeStepKey
+                ? 'active'
+                : ($key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true) ? 'done' : 'ahead'))->all()"
+        />
+
         {{-- Vertical checklist, scoped to this day only --}}
-        <nav class="space-y-1">
+        <nav x-ref="anchor" class="space-y-1">
             @foreach ($daySteps as $key)
                 @php
                     $done = $key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true);
@@ -515,6 +528,7 @@ new class extends Component
                 </a>
             @endforeach
         </nav>
+        </div>
 
         @if ($this->isPreviewing)
             <div class="rounded-2xl border border-dashed border-accent bg-accent-soft p-4 text-sm dark:border-accent-dark dark:bg-accent-soft-dark" role="status">
@@ -551,7 +565,7 @@ new class extends Component
             </div>
         @endif
 
-        <div class="card p-5">
+        <div class="card p-5" data-step-card>
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
                     Step {{ $position }} of {{ count($daySteps) }}

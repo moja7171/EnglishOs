@@ -444,6 +444,25 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertDontSee('Mission Result');
     }
 
+    public function test_a_step_page_carries_the_slim_position_bar_and_the_overview_does_not(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        MissionRun::findOrStart($learner, $mission);
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
+            ->assertSeeHtml('x-data="missionStepBar"')
+            ->assertSeeHtml('aria-label="Back to the top of Get Ready"')
+            ->assertSee('1/3');
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertDontSeeHtml('x-data="missionStepBar"');
+    }
+
     public function test_the_hero_panel_shows_an_ambient_video_when_the_mission_has_a_query(): void
     {
         $learner = User::factory()->create();

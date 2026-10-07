@@ -22,6 +22,68 @@ document.addEventListener('alpine:init', () => {
     });
 
     /**
+     * The slim "you are here" bar for a mission step (<x-missions.step-bar>).
+     * Hidden while the day's step list is on screen; once the learner has
+     * scrolled past it the bar slides in at the top of the screen, so which
+     * day, step and screen they are on never scrolls out of reach. Its
+     * progress line fills as they read down through the step card.
+     *
+     * Expects x-ref="anchor" on the step list and data-step-card on the card
+     * whose content is being read. Scrolling is batched into one update per
+     * frame, and the card is watched too since a step grows and shrinks as
+     * its sections change without any scrolling.
+     */
+    Alpine.data('missionStepBar', () => ({
+        visible: false,
+        progress: 0,
+        frame: null,
+        observer: null,
+
+        init() {
+            const card = document.querySelector('[data-step-card]');
+
+            if (card && 'ResizeObserver' in window) {
+                this.observer = new ResizeObserver(() => this.queue());
+                this.observer.observe(card);
+            }
+
+            this.update();
+        },
+
+        destroy() {
+            this.observer?.disconnect();
+            cancelAnimationFrame(this.frame);
+        },
+
+        queue() {
+            if (this.frame) return;
+
+            this.frame = requestAnimationFrame(() => {
+                this.frame = null;
+                this.update();
+            });
+        },
+
+        update() {
+            const anchor = this.$refs.anchor;
+            const card = document.querySelector('[data-step-card]');
+
+            this.visible = !!anchor && anchor.getBoundingClientRect().bottom < 0;
+
+            if (!card) return;
+
+            const { top, height } = card.getBoundingClientRect();
+            this.progress = height > 0 ? Math.min(1, Math.max(0, (window.innerHeight - top) / height)) : 0;
+        },
+
+        toTop() {
+            const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+        },
+    }));
+
+    /**
      * Recovers in-progress typed answers after a browser refresh — nothing
      * in the app auto-saves to the server until Continue is pressed, so a
      * refresh used to silently wipe whatever the learner had typed. Scoped
