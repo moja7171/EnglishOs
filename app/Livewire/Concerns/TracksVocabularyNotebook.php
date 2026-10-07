@@ -79,6 +79,22 @@ trait TracksVocabularyNotebook
     }
 
     /**
+     * How many words are still ticked but not yet in My Words — what a
+     * Continue press would silently leave behind. Zero once "Add to My
+     * Words" has been pressed, or when the learner unticked everything.
+     */
+    public function uncommittedWordCount(): int
+    {
+        if ($this->trackedWords) {
+            return 0;
+        }
+
+        return collect($this->wordsToTrack)
+            ->filter(fn (bool $checked, int $index) => $checked && ! ($this->alreadyTracked[$index] ?? false))
+            ->count();
+    }
+
+    /**
      * firstOrCreate per checked word, same as before — re-adding an
      * already-tracked word (from this mission or a past one) never resets
      * its review progress. A new word's first review is tomorrow: the

@@ -8,6 +8,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
+use Database\Seeders\MissionSeeder;
 use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\RequestException;
@@ -377,7 +378,7 @@ class GrammarInContextStepTest extends TestCase
         // never show the lesson again at all.
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run, 'readOnly' => true])
             ->assertSee('Show the lesson again')
-            ->assertSee('A · The verb changes with he / she / it')
+            ->assertSee('The verb changes with he / she / it')
             ->assertSee('She wakes up early.');
     }
 
@@ -536,7 +537,7 @@ class GrammarInContextStepTest extends TestCase
         $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
 
         $component->call('revealCorrection', 0)
-            ->assertSet('frequencySentences.0', 'I usually wake up at seven.')
+            ->assertSet('frequencySentences.0', 'wake up at seven.')
             ->assertSet('feedback.0.severity', 'none')
             ->assertSet('offerReveal.0', null)
             ->assertSet('checkAttempts.0', null);
@@ -601,7 +602,7 @@ class GrammarInContextStepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run, 'readOnly' => true])
-            ->assertSet('frequencySentences.0', 'I usually wake up at 7.')
+            ->assertSet('frequencySentences.0', 'wake up at 7.')
             ->assertSet('quickCheckScore', ['correct' => 2, 'total' => 2])
             ->assertSee('You scored 2 of 2.');
     }
@@ -725,9 +726,9 @@ class GrammarInContextStepTest extends TestCase
         $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run]);
 
         $component
-            ->assertSee('A · What each tense is for')
-            ->assertSee('B · Time words')
-            ->assertSee('C · Choosing the right one')
+            ->assertSee('What each tense is for')
+            ->assertSee('Time words')
+            ->assertSee('Choosing the right one')
             ->assertSeeHtml('Use <strong>Past Simple</strong> for a finished time.')
             ->assertSee('Past Simple') // group label
             ->assertSee('Present Perfect') // group label
@@ -801,6 +802,113 @@ class GrammarInContextStepTest extends TestCase
         $component->call('checkOne', 0)->assertSet('offerReveal.0', true);
 
         $component->call('revealCorrection', 0)
-            ->assertSet('frequencySentences.0', 'I have visited Paris three times.');
+            ->assertSet('frequencySentences.0', 'visited Paris three times.');
+    }
+
+    public function test_the_ai_judges_the_starter_plus_the_continuation_as_one_sentence(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages) => str_contains($messages[0]['text'], 'Learner wrote: "I often go to the gym on Fridays."'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.1', 'go to the gym on Fridays.')
+            ->call('checkOne', 1)
+            ->assertSet('feedback.1.severity', 'none');
+    }
+
+    public function test_a_starter_typed_out_by_the_learner_is_not_doubled(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages) => str_contains($messages[0]['text'], 'Learner wrote: "I often go to the gym."'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.1', 'i often go to the gym.')
+            ->call('checkOne', 1)
+            ->assertSet('frequencySentences.1', 'go to the gym.');
+    }
+
+    public function test_the_saved_example_for_review_is_the_full_sentence(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->set('frequencySentences.0', 'wake up at 7.')
+            ->set('frequencySentences.1', 'go to the gym.')
+            ->set('frequencySentences.2', 'read before bed.')
+            ->call('save');
+
+        $this->assertSame('I usually wake up at 7.', GrammarPoint::first()->example_sentence);
+    }
+
+    public function test_rule_formula_and_do_dont_blocks_render(): void
+    {
+        $run = $this->makeRun();
+        $content = $run->mission->phases;
+        $content[0]['steps'][0]['lesson']['sections'][0]['blocks'] = [
+            ['type' => 'rule', 'text' => 'Add <strong>-s</strong> for he / she / it.', 'fa' => 'به فعل s اضافه کن.'],
+            ['type' => 'formula', 'label' => 'The pattern', 'parts' => [
+                ['text' => 'She', 'caption' => 'who'],
+                ['text' => 'wakes', 'caption' => 'verb + s'],
+            ]],
+            ['type' => 'do_dont', 'items' => [
+                ['wrong' => 'She wake up.', 'right' => 'She wakes up.', 'highlight' => 'wakes', 'note' => 'Do not forget the -s.'],
+            ]],
+        ];
+        $run->mission->update(['phases' => $content]);
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run->fresh()])
+            ->assertSeeHtml('Add <strong>-s</strong> for he / she / it.')
+            ->assertSee('به فعل s اضافه کن.')
+            ->assertSee('The pattern')
+            ->assertSee('verb + s')
+            ->assertSee('She wake up.')
+            ->assertSeeHtml('<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">wakes</strong>')
+            ->assertSee('Do not forget the -s.');
+    }
+
+    public function test_every_seeded_grammar_lesson_follows_the_one_idea_per_section_shape(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $knownBlocks = ['rule', 'formula', 'do_dont', 'mistake_fix', 'pairs', 'examples', 'chips', 'rule_examples'];
+        $checked = 0;
+
+        foreach (Mission::all() as $mission) {
+            $grammar = $mission->stepContent('grammar_in_context');
+
+            if (! $grammar) {
+                continue;
+            }
+
+            foreach ($grammar['lesson']['sections'] as $section) {
+                $types = collect($section['blocks'] ?? [])->pluck('type');
+
+                $this->assertEmpty($types->diff($knownBlocks), "{$mission->code}: unknown block type.");
+
+                if ($types->isNotEmpty()) {
+                    $this->assertSame('rule', $types->first(), "{$mission->code}: \"{$section['heading']}\" should open with its one-line rule.");
+                }
+            }
+
+            $checked++;
+        }
+
+        $this->assertGreaterThanOrEqual(4, $checked);
     }
 }
