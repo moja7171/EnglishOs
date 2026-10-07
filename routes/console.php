@@ -25,6 +25,10 @@ Schedule::call(fn () => Artisan::call('ai:relay-sync-local-url'))
     ->name('ai:relay-sync-local-url')
     ->everyMinute()
     ->withoutOverlapping();
+Schedule::call(fn () => Artisan::call('ai:relay-failover'))
+    ->name('ai:relay-failover')
+    ->everyMinute()
+    ->withoutOverlapping();
 
 /*
  * Proof the host's cron really fires every minute, for a host with no
