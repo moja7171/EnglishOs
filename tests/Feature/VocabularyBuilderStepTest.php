@@ -72,7 +72,7 @@ class VocabularyBuilderStepTest extends TestCase
         return [$learner, $mission, MissionRun::findOrStart($learner, $mission)];
     }
 
-    private function testComponent($run, bool $readOnly = false)
+    private function stepComponent($run, bool $readOnly = false)
     {
         return Livewire::test('missions.steps.vocabulary-builder', [
             'run' => $run,
@@ -85,7 +85,7 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $html = $this->testComponent($run)->html();
+        $html = $this->stepComponent($run)->html();
 
         foreach (self::DAY1_WORDS as $word) {
             $this->assertStringContainsString($word, $html);
@@ -100,7 +100,7 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $component = $this->testComponent($run);
+        $component = $this->stepComponent($run);
 
         // words() is derived entirely from seeded content, not a Livewire
         // property a learner can change — there is no "selectedWords" any
@@ -143,7 +143,7 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $component = $this->testComponent($run);
+        $component = $this->stepComponent($run);
         $cards = $component->instance()->meaningCheckCards();
         $meanings = collect($this->day1Step()['words'])->pluck('meaning', 'phrase');
 
@@ -281,7 +281,7 @@ class VocabularyBuilderStepTest extends TestCase
             ]),
         ]);
 
-        $html = $this->testComponent($run, readOnly: true)->html();
+        $html = $this->stepComponent($run, readOnly: true)->html();
 
         $this->assertStringContainsString('data-initial-phase="practice"', $html);
         $this->assertStringContainsString('follow my', $html); // story text present as reference
@@ -292,7 +292,7 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->set('examples.1', 'I have a morning routine.')
             ->call('save')
@@ -309,13 +309,14 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
             ->set('examples.3', 'I commute by bus.')
             ->call('save')
             ->assertSet('completed', true)
+            ->call('addWordsToNotebook')
             ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
@@ -337,7 +338,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
@@ -371,7 +372,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        $this->testComponent($run->fresh())
+        $this->stepComponent($run->fresh())
             ->set('examples.0', 'I usually wake up around 7.')
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
@@ -396,7 +397,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
@@ -414,7 +415,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
@@ -425,6 +426,74 @@ class VocabularyBuilderStepTest extends TestCase
 
         $this->assertSame(3, VocabularyWord::where('learner_id', $learner->id)->count());
         $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $learner->id, 'word' => 'wake up']);
+    }
+
+    private function completedComponent($run)
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        return $this->stepComponent($run)
+            ->set('examples.0', 'I usually wake up around 7.')
+            ->set('examples.1', 'I have a morning routine.')
+            ->set('examples.2', 'I get up straight away.')
+            ->set('examples.3', 'I commute by bus.')
+            ->call('save');
+    }
+
+    public function test_continue_with_ticked_words_not_yet_added_asks_before_leaving(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->completedComponent($run)
+            ->call('proceed')
+            ->assertSet('confirmingSkip', true)
+            ->assertNoRedirect()
+            ->assertSee('4 words are ticked but not in My Words yet');
+
+        $this->assertSame(0, VocabularyWord::where('learner_id', $learner->id)->count());
+    }
+
+    public function test_add_and_continue_enrolls_the_ticked_words_then_leaves(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->completedComponent($run)
+            ->set('wordsToTrack.0', false)
+            ->call('proceed')
+            ->call('addAndProceed')
+            ->assertRedirect(route('missions.show', $run->mission));
+
+        $this->assertSame(3, VocabularyWord::where('learner_id', $learner->id)->count());
+    }
+
+    public function test_continue_without_adding_leaves_the_notebook_untouched(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->completedComponent($run)
+            ->call('proceed')
+            ->call('proceedWithoutAdding')
+            ->assertRedirect(route('missions.show', $run->mission));
+
+        $this->assertSame(0, VocabularyWord::where('learner_id', $learner->id)->count());
+    }
+
+    public function test_continue_leaves_straight_away_when_nothing_is_left_to_add(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        // Unticking every word is an explicit "no" — no confirmation needed.
+        $component = $this->completedComponent($run);
+
+        foreach (range(0, 3) as $index) {
+            $component->set("wordsToTrack.{$index}", false);
+        }
+
+        $component->call('proceed')
+            ->assertSet('confirmingSkip', false)
+            ->assertRedirect(route('missions.show', $run->mission));
     }
 
     public function test_continue_checks_every_unchecked_filled_sentence_and_blocks_on_a_major_issue(): void
@@ -442,7 +511,7 @@ class VocabularyBuilderStepTest extends TestCase
                 ->ordered();
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I have a morning routine.')
             ->set('examples.1', 'travel to work') // routine's own example is copied-definition-like; commute below is major
             ->set('examples.2', 'I get up straight away.')
@@ -462,7 +531,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
             ->assertSet('feedback.wake up.severity', 'none')
@@ -479,7 +548,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('service unavailable'));
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
             ->assertSet('checkErrors.wake up', fn ($error) => str_contains($error, 'service unavailable'))
@@ -496,7 +565,7 @@ class VocabularyBuilderStepTest extends TestCase
             );
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
             ->assertSet('checkErrors.wake up', "Couldn't reach the AI service — please try again.")
@@ -519,7 +588,7 @@ class VocabularyBuilderStepTest extends TestCase
             ]),
         ]);
 
-        $this->testComponent($run, readOnly: true)
+        $this->stepComponent($run, readOnly: true)
             ->assertSet('examples.0', '') // wake up — not filled
             ->assertSet('examples.3', 'I commute by bus.'); // commute is index 3
     }
@@ -528,7 +597,7 @@ class VocabularyBuilderStepTest extends TestCase
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->call('startPractice')
             ->assertSeeHtml("eos-draft:{$run->id}:vocabulary_builder_1:examples.0");
     }
@@ -541,7 +610,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
         });
 
-        $this->testComponent($run)
+        $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
@@ -558,7 +627,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try again.']));
         });
 
-        $component = $this->testComponent($run);
+        $component = $this->stepComponent($run);
         $component->set('examples.0', 'attempt one');
         $component->call('checkOne', 0);
         $component->call('checkOne', 0);
@@ -575,7 +644,7 @@ class VocabularyBuilderStepTest extends TestCase
             $mock->shouldReceive('chat')->once()->andReturn('I usually wake up early.');
         });
 
-        $component = $this->testComponent($run);
+        $component = $this->stepComponent($run);
         $component->set('examples.0', 'wake up bad sentence');
         $component->call('checkOne', 0);
         $component->call('checkOne', 0);
@@ -598,7 +667,7 @@ class VocabularyBuilderStepTest extends TestCase
             ]));
         });
 
-        $this->testComponent($run)->set('examples.3', 'to travel to work')->call('checkOne', 3);
+        $this->stepComponent($run)->set('examples.3', 'to travel to work')->call('checkOne', 3);
 
         $this->assertSame(1, $run->fresh()->struggle_signal_count);
     }

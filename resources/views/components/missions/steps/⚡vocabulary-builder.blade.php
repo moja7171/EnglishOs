@@ -60,6 +60,13 @@ new class extends Component
      */
     public bool $completed = false;
 
+    /**
+     * True after Continue was pressed with ticked words not yet in My
+     * Words — swaps the Continue row for an "add them / leave them out"
+     * choice.
+     */
+    public bool $confirmingSkip = false;
+
     public function mount(): void
     {
         $this->examples = array_fill(0, count($this->words()), '');
@@ -365,7 +372,34 @@ new class extends Component
         $this->initWordsToTrack();
     }
 
+    /**
+     * Continue never silently drops ticked words: if some are still not in
+     * My Words it asks first (see confirmingSkip), and only a second,
+     * explicit choice — add them, or leave them out — moves on.
+     */
     public function proceed(): void
+    {
+        if ($this->uncommittedWordCount() > 0) {
+            $this->confirmingSkip = true;
+
+            return;
+        }
+
+        $this->leaveStep();
+    }
+
+    public function addAndProceed(): void
+    {
+        $this->addWordsToNotebook();
+        $this->leaveStep();
+    }
+
+    public function proceedWithoutAdding(): void
+    {
+        $this->leaveStep();
+    }
+
+    private function leaveStep(): void
     {
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
@@ -466,16 +500,44 @@ new class extends Component
                 </button>
             @endif
 
-            <button
-                wire:click="proceed"
-                wire:loading.attr="disabled"
-                wire:target="proceed"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-            >
-                <span wire:loading.remove wire:target="proceed">Continue</span>
-                <span wire:loading wire:target="proceed">Please wait…</span>
-            </button>
+            @php $showSkipConfirm = $confirmingSkip && $this->uncommittedWordCount() > 0; @endphp
+
+            @unless ($showSkipConfirm)
+                <button
+                    wire:click="proceed"
+                    wire:loading.attr="disabled"
+                    wire:target="proceed"
+                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <span wire:loading.remove wire:target="proceed">Continue</span>
+                    <span wire:loading wire:target="proceed">Please wait…</span>
+                </button>
+            @endunless
         </div>
+
+        @if ($showSkipConfirm)
+            <div class="space-y-3 rounded-xl border border-warning-line bg-warning-soft p-3">
+                <p class="text-sm text-ink dark:text-ink-dark">
+                    {{ $this->uncommittedWordCount() === 1 ? '1 word is' : $this->uncommittedWordCount().' words are' }} ticked but not in My Words yet — without adding, you won't review {{ $this->uncommittedWordCount() === 1 ? 'it' : 'them' }} tomorrow.
+                </p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        wire:click="addAndProceed"
+                        wire:loading.attr="disabled"
+                        wire:target="addAndProceed,proceedWithoutAdding"
+                        class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >Add and continue</button>
+                    <button
+                        type="button"
+                        wire:click="proceedWithoutAdding"
+                        wire:loading.attr="disabled"
+                        wire:target="addAndProceed,proceedWithoutAdding"
+                        class="cursor-pointer text-sm font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
+                    >Continue without adding</button>
+                </div>
+            </div>
+        @endif
     </div>
 @else
 <div
