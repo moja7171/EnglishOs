@@ -9,11 +9,11 @@ use App\Models\User;
  * practice (App\Services\PiPrompts::dayTask()) the learner is pointed at.
  *
  * It is meant as the last 10 minutes of a learner's day, but a program day
- * is progress-based, not calendar-based (see ProgramPlanner): the moment the
- * last step of a day is recorded, "today" moves on to the next day — and
- * finishing Day 4 closes the whole mission. So the practice of the day just
+ * is progress-based, not calendar-based (see ProgramPlanner). Finishing a
+ * mid-mission day keeps Today on that day until the date turns, but
+ * finishing Day 4 closes the whole mission, so the practice of the day just
  * finished would never be shown at the very moment it is meant for. This
- * class fixes that: a day the learner finished earlier today, and hasn't
+ * class covers that: a day the learner finished earlier today, and hasn't
  * ticked "I practiced" for yet, stays the target until they tick (or the
  * calendar day ends). Only that one day carries over — nothing piles up
  * into a backlog.

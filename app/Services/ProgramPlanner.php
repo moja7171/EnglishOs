@@ -45,7 +45,7 @@ class ProgramPlanner
      * @return array{
      *   programDay: int, totalDays: int, calendarDay: int, daysDelta: int,
      *   missionNumber: int, totalMissions: int, started: bool,
-     *   today: array{kind: string, mission: ?Mission, run: ?MissionRun, dayNumber: ?int, dayLabel: ?string, steps: list<array{key: string, label: string, minutes: int, done: bool, current: bool}>, estimatedMinutes: int, nextMission: ?Mission, nextMissionCode: ?string, speaking: ?array{title: string, focus: ?string, questions: list<string>, prompt: string}}
+     *   today: array{kind: string, mission: ?Mission, run: ?MissionRun, dayNumber: ?int, dayLabel: ?string, steps: list<array{key: string, label: string, minutes: int, done: bool, current: bool}>, estimatedMinutes: int, dayCompletedToday: bool, upNext: ?array{dayNumber: int, label: string, minutes: int, stepKey: string}, nextMission: ?Mission, nextMissionCode: ?string, speaking: ?array{title: string, focus: ?string, questions: list<string>, prompt: string}}
      * }
      */
     public function plan(User $learner): array
@@ -90,7 +90,7 @@ class ProgramPlanner
         $base = [
             'mission' => null, 'run' => null, 'dayNumber' => null, 'dayLabel' => null,
             'steps' => [], 'estimatedMinutes' => 0, 'nextMission' => null, 'nextMissionCode' => null,
-            'checkpointAvailable' => false,
+            'checkpointAvailable' => false, 'dayCompletedToday' => false, 'upNext' => null,
         ];
 
         // An open run (in progress, or sent back for more evidence) always
@@ -154,6 +154,14 @@ class ProgramPlanner
             ->exists();
     }
 
+    /**
+     * The day Today shows for an open run. Normally the first day with
+     * steps left — but a day the learner finished earlier today stays on
+     * screen (all ticked, with the next day offered as an optional "keep
+     * going") until they record Evidence on the next day or the date turns.
+     * Otherwise the box would skip to tomorrow's work the moment today's
+     * last step lands. Never a gate: the next day is one tap away.
+     */
     private function missionDay(MissionRun $run): array
     {
         $days = $run->dayProgress();
@@ -163,6 +171,26 @@ class ProgramPlanner
         // for more evidence from Mission Result): point at the last day.
         if ($index === false) {
             $index = max(0, count($days) - 1);
+        }
+
+        $upNext = null;
+        $previous = $days[$index - 1] ?? null;
+
+        if ($days[$index]['current'] ?? false) {
+            $finishedToday = $previous !== null
+                && $previous['done']
+                && $previous['completedAt']?->isToday()
+                && $days[$index]['startedAt'] === null;
+
+            if ($finishedToday) {
+                $upNext = [
+                    'dayNumber' => $index + 1,
+                    'label' => $days[$index]['label'],
+                    'minutes' => $days[$index]['estimatedMinutes'],
+                    'stepKey' => $days[$index]['stepKeys'][0] ?? $run->currentStepKey(),
+                ];
+                $index--;
+            }
         }
 
         $day = $days[$index] ?? null;
@@ -182,7 +210,8 @@ class ProgramPlanner
                 'current' => $key === $currentKey,
             ])->all(),
             'estimatedMinutes' => $day['estimatedMinutes'] ?? 0,
+            'dayCompletedToday' => $upNext !== null,
+            'upNext' => $upNext,
         ];
     }
-
 }

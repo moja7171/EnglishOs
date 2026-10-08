@@ -334,12 +334,27 @@ new class extends Component
                     </li>
                 @endforeach
             </ul>
-            @php $currentStep = collect($today['steps'])->firstWhere('current', true); @endphp
-            <a
-                href="{{ route('missions.show', [$today['mission'], $currentStep['key'] ?? null]) }}"
-                wire:navigate
-                class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-            >{{ $currentStep ? 'Continue' : 'Open mission' }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+            @if ($today['dayCompletedToday'])
+                {{-- Finished earlier today: stay on this day (the date flips
+                     the box to the next one tomorrow) and make carrying on
+                     an offer, not the main button. --}}
+                @php $upNext = $today['upNext']; @endphp
+                <div class="mt-3 flex items-center gap-2 rounded-xl bg-success-soft px-3 py-2.5 text-sm font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
+                    @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0') Day {{ $today['dayNumber'] }} done — nice work.
+                </div>
+                <a
+                    href="{{ route('missions.show', [$today['mission'], $upNext['stepKey']]) }}"
+                    wire:navigate
+                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                >Keep going — Day {{ $upNext['dayNumber'] }} · ~{{ \App\Models\Mission::formatDuration($upNext['minutes']) }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+            @else
+                @php $currentStep = collect($today['steps'])->firstWhere('current', true); @endphp
+                <a
+                    href="{{ route('missions.show', [$today['mission'], $currentStep['key'] ?? null]) }}"
+                    wire:navigate
+                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                >{{ $currentStep ? 'Continue' : 'Open mission' }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+            @endif
             @if ($piPractice = $this->piPractice)
                 <x-pi-today :practice="$piPractice" />
             @endif

@@ -36,7 +36,8 @@ class ListeningPageTest extends TestCase
     }
 
     /**
-     * A learner whose first day of M01 is done, so today is M01 · Day 2.
+     * A learner who finished the first day of M01 yesterday, so today is
+     * M01 · Day 2.
      */
     private function learnerOnDay2(): User
     {
@@ -44,7 +45,8 @@ class ListeningPageTest extends TestCase
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         foreach (['mission_brief', 'vocabulary_builder'] as $phase) {
-            Evidence::create(['mission_run_id' => $run->id, 'phase' => $phase, 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+            $evidence = Evidence::create(['mission_run_id' => $run->id, 'phase' => $phase, 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+            $evidence->forceFill(['created_at' => now()->subDay()])->save();
         }
 
         return $learner;

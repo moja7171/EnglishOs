@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Models\PlacementTest;
 use App\Models\User;
 use App\Services\ProgramPlanner;
+use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -36,9 +37,19 @@ class ProgramPlannerTest extends TestCase
         ]);
     }
 
-    private function record(MissionRun $run, string $phase): void
+    private function record(MissionRun $run, string $phase, ?CarbonInterface $at = null): void
     {
-        Evidence::create(['mission_run_id' => $run->id, 'phase' => $phase, 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+        $evidence = Evidence::create(['mission_run_id' => $run->id, 'phase' => $phase, 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'x']);
+
+        if ($at) {
+            $evidence->forceFill(['created_at' => $at])->save();
+        }
+    }
+
+    private function finishDayOne(MissionRun $run, ?CarbonInterface $at = null): void
+    {
+        $this->record($run, 'mission_brief', $at);
+        $this->record($run, 'vocabulary_builder', $at);
     }
 
     public function test_a_brand_new_learner_is_on_day_1_about_to_start_m01(): void
@@ -73,8 +84,7 @@ class ProgramPlannerTest extends TestCase
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
-        $this->record($run, 'mission_brief');
-        $this->record($run, 'vocabulary_builder');
+        $this->finishDayOne($run, now()->subDay());
 
         $today = app(ProgramPlanner::class)->plan($learner)['today'];
 
@@ -181,8 +191,7 @@ class ProgramPlannerTest extends TestCase
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
-        $this->record($run, 'mission_brief');
-        $this->record($run, 'vocabulary_builder');
+        $this->finishDayOne($run, now()->subDay());
         $learner->forceFill(['program_started_at' => now()->subDays(9)])->save();
 
         $plan = app(ProgramPlanner::class)->plan($learner->fresh());
@@ -203,6 +212,80 @@ class ProgramPlannerTest extends TestCase
             ->assertSee('Day 1 of 96')
             ->assertSee('Today · Day 1 of My Daily Life')
             ->assertSee('Vocabulary Builder');
+    }
+
+    public function test_a_day_finished_today_stays_as_todays_day_with_the_next_one_offered(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run);
+
+        $plan = app(ProgramPlanner::class)->plan($learner);
+        $today = $plan['today'];
+
+        $this->assertSame(1, $today['dayNumber']);
+        $this->assertSame(1, $plan['programDay']);
+        $this->assertSame('Foundation', $today['dayLabel']);
+        $this->assertTrue($today['dayCompletedToday']);
+        $this->assertSame([true, true], array_column($today['steps'], 'done'));
+        $this->assertSame(
+            ['dayNumber' => 2, 'label' => 'Build', 'minutes' => 22, 'stepKey' => 'grammar_in_context'],
+            $today['upNext'],
+        );
+    }
+
+    public function test_a_day_finished_yesterday_has_moved_on_to_the_next_day(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run, now()->subDay());
+
+        $today = app(ProgramPlanner::class)->plan($learner)['today'];
+
+        $this->assertSame(2, $today['dayNumber']);
+        $this->assertFalse($today['dayCompletedToday']);
+        $this->assertNull($today['upNext']);
+    }
+
+    public function test_starting_the_next_day_after_finishing_one_today_moves_today_to_it(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run);
+        $this->record($run, 'grammar_in_context');
+
+        $plan = app(ProgramPlanner::class)->plan($learner);
+
+        $this->assertSame(2, $plan['today']['dayNumber']);
+        $this->assertSame(2, $plan['programDay']);
+        $this->assertFalse($plan['today']['dayCompletedToday']);
+    }
+
+    public function test_the_missions_page_celebrates_a_day_finished_today_and_offers_the_next(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Today · Day 1 of My Daily Life')
+            ->assertSee('Day 1 done')
+            ->assertSee('Keep going — Day 2')
+            ->assertDontSee('Continue');
+    }
+
+    public function test_the_missions_page_goes_back_to_continue_once_the_day_is_not_finished_today(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run, now()->subDay());
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Today · Day 2 of My Daily Life')
+            ->assertSee('Continue')
+            ->assertDontSee('Keep going');
     }
 
     public function test_the_missions_page_offers_a_checkpoint_after_a_checkpoint_mission(): void
