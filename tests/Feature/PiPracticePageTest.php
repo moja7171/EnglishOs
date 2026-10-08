@@ -56,8 +56,8 @@ class PiPracticePageTest extends TestCase
     }
 
     /**
-     * A learner whose first day of M01 was finished today, so today is
-     * M01 · Day 2 by the planner's reckoning.
+     * A learner whose first day of M01 was finished today (the planner keeps
+     * Today on that day until tomorrow) — or yesterday, so today is Day 2.
      */
     private function learnerWhoFinishedDay1(bool $yesterday = false): User
     {
@@ -127,13 +127,13 @@ class PiPracticePageTest extends TestCase
             ->assertDontSee('Back to today');
     }
 
-    public function test_once_the_learner_has_practiced_the_target_moves_on_to_their_current_day(): void
+    public function test_once_the_learner_has_practiced_the_target_stays_on_the_day_todays_box_shows(): void
     {
         $learner = $this->learnerWhoFinishedDay1();
         PiPracticeLog::factory()->for($learner, 'learner')->create(['practiced_on' => now()->toDateString()]);
         $this->actingAs($learner);
 
-        $this->get(route('pi.practice'))->assertSee('M01 · My Daily Life · Day 2 of 4');
+        $this->get(route('pi.practice'))->assertSee('M01 · My Daily Life · Day 1 of 4');
     }
 
     public function test_a_day_finished_before_today_does_not_carry_over(): void
