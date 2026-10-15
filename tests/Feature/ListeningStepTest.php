@@ -99,8 +99,8 @@ class ListeningStepTest extends TestCase
         $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
 
         $this->assertStringContainsString('http://localhost/storage/missions/m01/mornings.mp3', $html);
-        $this->assertStringContainsString('skip(-10)', $html);
-        $this->assertStringContainsString('skip(10)', $html);
+        $this->assertStringContainsString('skip(-5)', $html);
+        $this->assertStringContainsString('skip(5)', $html);
         $this->assertStringContainsString('togglePlay()', $html);
         $this->assertStringContainsString('type="range"', $html);
         $this->assertStringContainsString('download', $html);
