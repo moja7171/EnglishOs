@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\WritesPersianNumbers;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
@@ -14,6 +15,8 @@ use NotificationChannels\WebPush\WebPushMessage;
  */
 class ReviewReminder extends Notification
 {
+    use WritesPersianNumbers;
+
     public function __construct(private readonly int $dueCount) {}
 
     /**
@@ -26,9 +29,11 @@ class ReviewReminder extends Notification
 
     public function toWebPush(object $notifiable, Notification $notification): WebPushMessage
     {
+        $count = $this->persianNumber($this->dueCount);
+
         $body = $this->dueCount === 1
-            ? '1 thing is ready to review — it only takes a minute.'
-            : "{$this->dueCount} things are ready to review — it only takes a few minutes.";
+            ? 'یک مورد منتظر مرور شماست؛ فقط یک دقیقه وقت می‌گیرد.'
+            : "{$count} مورد منتظر مرور شماست؛ فقط چند دقیقه وقت می‌گیرد.";
 
         return (new WebPushMessage)
             ->title(config('app.name', 'English OS'))
