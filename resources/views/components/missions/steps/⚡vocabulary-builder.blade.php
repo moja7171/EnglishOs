@@ -6,6 +6,7 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\AiFailure;
 use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
@@ -276,7 +277,7 @@ new class extends Component
             // API message) — never show that to the learner.
             $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
         } catch (Throwable $e) {
-            $this->checkErrors[$word] = "Couldn't check this one: {$e->getMessage()}";
+            $this->checkErrors[$word] = AiFailure::message($e, "Couldn't check this one");
         }
     }
 

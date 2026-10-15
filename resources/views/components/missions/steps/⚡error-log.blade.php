@@ -5,6 +5,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\AiFailure;
 use App\Services\GeminiClient;
 use Livewire\Component;
 
@@ -141,7 +142,7 @@ new class extends Component
             $this->newExamples = array_fill(0, count($data), '');
             $this->generated = true;
         } catch (Throwable $e) {
-            $this->error = "Couldn't get the error log from the AI Instructor: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Couldn't get the error log from the AI Instructor");
         }
     }
 

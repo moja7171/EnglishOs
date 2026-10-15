@@ -5,6 +5,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\AiFailure;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -271,7 +272,7 @@ new class extends Component
             // API message) — never show that to the learner.
             $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
         } catch (Throwable $e) {
-            $this->checkErrors[$index] = "Couldn't check this one: {$e->getMessage()}";
+            $this->checkErrors[$index] = AiFailure::message($e, "Couldn't check this one");
         }
     }
 

@@ -551,7 +551,8 @@ class VocabularyBuilderStepTest extends TestCase
         $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
-            ->assertSet('checkErrors.wake up', fn ($error) => str_contains($error, 'service unavailable'))
+            ->assertSet('checkErrors.wake up', "Couldn't check this one — please try again in a moment.")
+            ->assertDontSee('service unavailable')
             ->assertSet('examples.0', 'I usually wake up around 7.');
     }
 

@@ -384,7 +384,8 @@ class AiConversation1StepTest extends TestCase
             ->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
             ->call('submitAnswer')
             ->assertSet('round', 0)
-            ->assertSet('error', fn ($error) => str_contains($error, 'service unavailable'));
+            ->assertSet('error', 'Something went wrong talking to the AI Instructor — please try again in a moment.')
+            ->assertDontSee('service unavailable');
 
         $this->assertDatabaseCount('evidences', 0);
     }

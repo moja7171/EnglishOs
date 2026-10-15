@@ -6,6 +6,7 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\AIFeedback;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\AiFailure;
 use App\Services\AiFeedbackCard;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
@@ -330,7 +331,7 @@ new class extends Component
                 $this->finishInterview();
             }
         } catch (Throwable $e) {
-            $this->error = "Something went wrong talking to the AI Instructor: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
         } finally {
             $this->processing = false;
         }
@@ -346,7 +347,7 @@ new class extends Component
             $this->recordGeminiCall();
             $this->clearCheckAttempt($round);
         } catch (\Throwable $e) {
-            $this->error = "Couldn't get an example: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Couldn't get an example");
         }
     }
 
