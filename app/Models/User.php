@@ -38,7 +38,7 @@ class User extends Authenticatable
     protected $attributes = [
         'celebrated_streak_milestone' => 0,
         'is_admin' => false,
-        'review_reminder_time' => '19:00',
+        'review_reminder_enabled' => true,
     ];
 
     /**
@@ -55,6 +55,7 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'program_started_at' => 'datetime',
             'pi_onboarded_at' => 'datetime',
+            'review_reminder_enabled' => 'boolean',
             'last_review_reminder_on' => 'date',
             'last_study_reminder_1_on' => 'date',
             'last_study_reminder_2_on' => 'date',
@@ -694,23 +695,52 @@ class User extends Authenticatable
      */
     public function activeDates(): Collection
     {
+        $timezone = $this->reminderTimezone();
+
+        $evidenceDays = Evidence::query()
+            ->join('mission_runs', 'mission_runs.id', '=', 'evidences.mission_run_id')
+            ->where('mission_runs.learner_id', $this->id)
+            ->pluck('evidences.created_at')
+            ->map(fn ($createdAt) => Carbon::parse($createdAt, 'UTC')->setTimezone($timezone)->toDateString());
+
         $listenedDays = ListeningLog::query()
             ->where('learner_id', $this->id)
-            ->selectRaw('DATE(listening_logs.listened_on) as day');
+            ->pluck('listened_on')
+            ->map(fn ($day) => Carbon::parse($day)->toDateString());
 
         $practicedDays = PiPracticeLog::query()
             ->where('learner_id', $this->id)
-            ->selectRaw('DATE(pi_practice_logs.practiced_on) as day');
+            ->pluck('practiced_on')
+            ->map(fn ($day) => Carbon::parse($day)->toDateString());
 
-        return Evidence::query()
-            ->join('mission_runs', 'mission_runs.id', '=', 'evidences.mission_run_id')
-            ->where('mission_runs.learner_id', $this->id)
-            ->selectRaw('DATE(evidences.created_at) as day')
-            ->union($listenedDays)
-            ->union($practicedDays)
-            ->orderByDesc('day')
-            ->pluck('day')
-            ->map(fn ($day) => Carbon::parse($day));
+        return $evidenceDays
+            ->concat($listenedDays)
+            ->concat($practicedDays)
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->map(fn (string $day) => Carbon::parse($day));
+    }
+
+    /**
+     * The learner's current calendar day in their own timezone, as a
+     * midnight Carbon to compare with activeDates() — those dates are
+     * local days too, so "today", "yesterday" and "two days ago" mean the
+     * same thing to the streak as they do to the learner (a session at
+     * 01:00 in Tehran is still that Tehran day, not the day before in UTC).
+     */
+    public function localToday(): Carbon
+    {
+        return Carbon::parse(now($this->reminderTimezone())->toDateString());
+    }
+
+    /**
+     * Whether the learner already did something that counts toward the
+     * streak on their own current day.
+     */
+    public function wasActiveToday(): bool
+    {
+        return $this->activeDates()->first()?->equalTo($this->localToday()) ?? false;
     }
 
     /**
@@ -725,7 +755,7 @@ class User extends Authenticatable
     {
         $dates = $this->activeDates();
 
-        if ($dates->isEmpty() || abs($dates->first()->diffInDays(now()->startOfDay())) > 2) {
+        if ($dates->isEmpty() || abs($dates->first()->diffInDays($this->localToday())) > 2) {
             return 0;
         }
 
@@ -748,9 +778,7 @@ class User extends Authenticatable
             return 0;
         }
 
-        $twoDaysAgo = now($this->reminderTimezone())->subDays(2)->toDateString();
-
-        return $dates->first()->toDateString() === $twoDaysAgo
+        return $dates->first()->equalTo($this->localToday()->subDays(2))
             ? $this->streakChains($dates)[0]
             : 0;
     }
@@ -815,17 +843,18 @@ class User extends Authenticatable
     public function activityCalendar(int $weeks = 12): array
     {
         $active = $this->activeDates()->map(fn (Carbon $date) => $date->toDateString())->flip();
-        $start = now()->startOfWeek(Carbon::SUNDAY)->subWeeks($weeks - 1);
+        $today = $this->localToday();
+        $start = $today->copy()->startOfWeek(Carbon::SUNDAY)->subWeeks($weeks - 1);
 
         return collect(range(0, $weeks * 7 - 1))
-            ->map(function (int $offset) use ($start, $active) {
+            ->map(function (int $offset) use ($start, $active, $today) {
                 $date = $start->copy()->addDays($offset);
 
                 return [
                     'date' => $date->toDateString(),
                     'label' => $date->format('M j, Y'),
                     'active' => $active->has($date->toDateString()),
-                    'future' => $date->isFuture(),
+                    'future' => $date->gt($today),
                 ];
             })
             ->all();
@@ -842,6 +871,7 @@ class User extends Authenticatable
     public function activityForMonth(int $year, int $month): array
     {
         $active = $this->activeDates()->map(fn (Carbon $date) => $date->toDateString())->flip();
+        $today = $this->localToday();
         $firstOfMonth = Carbon::create($year, $month, 1)->startOfDay();
         $gridStart = $firstOfMonth->copy()->startOfWeek(Carbon::SUNDAY);
         $gridEnd = $firstOfMonth->copy()->endOfMonth()->endOfWeek(Carbon::SATURDAY);
@@ -854,9 +884,9 @@ class User extends Authenticatable
                 'date' => $cursor->toDateString(),
                 'day' => $cursor->day,
                 'active' => $active->has($cursor->toDateString()),
-                'future' => $cursor->isFuture(),
+                'future' => $cursor->gt($today),
                 'inMonth' => $cursor->month === $month,
-                'isToday' => $cursor->isToday(),
+                'isToday' => $cursor->equalTo($today),
             ];
             $cursor = $cursor->copy()->addDay();
         }
@@ -871,7 +901,7 @@ class User extends Authenticatable
      */
     public function activeDaysThisWeek(): int
     {
-        $startOfWeek = now()->startOfWeek(Carbon::SUNDAY);
+        $startOfWeek = $this->localToday()->startOfWeek(Carbon::SUNDAY);
 
         return $this->activeDates()->filter(fn (Carbon $date) => $date->gte($startOfWeek))->count();
     }
@@ -888,7 +918,7 @@ class User extends Authenticatable
     {
         $dates = $this->activeDates();
 
-        if ($dates->count() < 2 || ! $dates->first()->isToday()) {
+        if ($dates->count() < 2 || ! $dates->first()->equalTo($this->localToday())) {
             return false;
         }
 
@@ -1750,7 +1780,7 @@ class User extends Authenticatable
     public function mutualFriendsActiveTodayCount(): int
     {
         return $this->mutualFriends()
-            ->filter(fn (User $friend) => $friend->activeDates()->first()?->isToday())
+            ->filter(fn (User $friend) => $friend->wasActiveToday())
             ->count();
     }
 

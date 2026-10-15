@@ -8,24 +8,30 @@ use App\Notifications\ReviewReminder;
 use Illuminate\Console\Command;
 
 /**
- * Sends each learner their daily review reminder at the time they chose, in
- * their own timezone, to the minute. Scheduled every minute in
- * routes/console.php.
+ * Sends each learner one evening nudge — at a fixed hour in their own
+ * timezone — if they still haven't reviewed today and have reviews waiting.
+ * Scheduled every minute in routes/console.php.
  */
 class SendReviewReminders extends Command
 {
     use SendsScheduledPush;
 
+    /** Local "HH:MM" the reminder goes out — after the 20:00 streak warning, late enough that a learner who was going to review today has had the chance. */
+    public const REMINDER_TIME = '20:30';
+
+    /** How long after REMINDER_TIME it may still go out; shorter than the default so it never lands near bedtime. */
+    private const GRACE_MINUTES_AFTER_REMINDER_TIME = 60;
+
     protected $signature = 'review:send-reminders';
 
-    protected $description = 'Send the daily review reminder to learners whose chosen time has come';
+    protected $description = 'Send the evening review reminder to learners who have not reviewed today';
 
     public function handle(): int
     {
         $sent = 0;
 
         User::query()
-            ->whereNotNull('review_reminder_time')
+            ->where('review_reminder_enabled', true)
             ->whereHas('pushSubscriptions')
             ->lazyById()
             ->each(function (User $user) use (&$sent): void {
@@ -41,9 +47,16 @@ class SendReviewReminders extends Command
 
     private function remind(User $user): bool
     {
-        $day = $this->dueWindowDay($user, $user->review_reminder_time, $user->last_review_reminder_on);
+        $day = $this->dueWindowDay($user, self::REMINDER_TIME, $user->last_review_reminder_on, self::GRACE_MINUTES_AFTER_REMINDER_TIME);
 
         if ($day === null) {
+            return false;
+        }
+
+        // One evening alert at most: the streak warning (sent earlier the same
+        // evening) is the more important of the two, and a learner who acted
+        // on it doesn't need a second nudge half an hour later.
+        if ($user->last_streak_warning_on?->toDateString() === $day) {
             return false;
         }
 

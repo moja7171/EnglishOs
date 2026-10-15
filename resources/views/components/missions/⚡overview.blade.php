@@ -160,7 +160,7 @@ new class extends Component
     {
         $user = auth()->user();
 
-        return $user->currentStreak() > 0 && ! ($user->activeDates()->first()?->isToday() ?? false);
+        return $user->currentStreak() > 0 && ! $user->wasActiveToday();
     }
 
     #[Computed]

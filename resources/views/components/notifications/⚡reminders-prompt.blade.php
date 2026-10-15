@@ -17,6 +17,10 @@ new class extends Component
     {
         $this->variant = $variant;
         $this->hasStudyTimes = auth()->user()->hasStudyReminderTimes();
+
+        // Scheduled alerts run with no browser, so they read the zone saved
+        // here — kept fresh every time the learner opens the app.
+        auth()->user()->rememberTimezone();
     }
 
     /**

@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Evidence;
 use App\Models\ListeningLog;
+use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\User;
 use App\Notifications\StreakWarning;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,6 +37,30 @@ class StreakWarningTest extends TestCase
         }
 
         return $user;
+    }
+
+    /**
+     * Records one Evidence row at an exact UTC moment, so a test can place it
+     * just after the learner's local midnight (when the UTC date is still the
+     * day before).
+     */
+    private function recordEvidenceAt(User $user, string $utcMoment): void
+    {
+        $mission = Mission::query()->firstOrCreate(['code' => 'M01'], [
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'label' => 'Day 1', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+
+        $evidence = Evidence::create([
+            'mission_run_id' => MissionRun::findOrStart($user, $mission)->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_SCORE,
+            'content_ref' => '3',
+        ]);
+
+        $evidence->forceFill(['created_at' => Carbon::parse($utcMoment, 'UTC')])->saveQuietly();
     }
 
     private function expectWarnings(int $times): MockInterface
@@ -87,6 +114,28 @@ class StreakWarningTest extends TestCase
         $this->learner(['2026-09-30']);
         $this->learner([]);
         $this->expectWarnings(0);
+
+        $this->runCommand();
+    }
+
+    public function test_activity_just_after_local_midnight_yesterday_counts_as_yesterday(): void
+    {
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        // 01:00 on 2 October in Tehran is still 1 October by the UTC clock.
+        $user = $this->learner([]);
+        $this->recordEvidenceAt($user, '2026-10-01 21:30:00');
+        $this->expectWarnings(0);
+
+        $this->runCommand();
+    }
+
+    public function test_activity_just_after_local_midnight_two_days_ago_still_counts_as_two_days_ago(): void
+    {
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        // 01:00 on 1 October in Tehran is still 30 September by the UTC clock.
+        $user = $this->learner([]);
+        $this->recordEvidenceAt($user, '2026-09-30 21:30:00');
+        $this->expectWarnings(1);
 
         $this->runCommand();
     }

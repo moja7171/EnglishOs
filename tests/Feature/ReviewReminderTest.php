@@ -19,8 +19,8 @@ class ReviewReminderTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** 19:05 in Tehran (UTC+3:30, no DST) — five minutes past the default 19:00. */
-    private const TEHRAN_EVENING = '2026-10-03 15:35:00';
+    /** 20:35 in Tehran (UTC+3:30, no DST) — five minutes past the fixed 20:30. */
+    private const TEHRAN_EVENING = '2026-10-03 17:05:00';
 
     private function learner(array $attributes = [], bool $withDueWord = true, bool $withPhone = true): User
     {
@@ -60,7 +60,7 @@ class ReviewReminderTest extends TestCase
         $this->artisan('review:send-reminders')->assertSuccessful();
     }
 
-    public function test_the_reminder_goes_out_at_the_chosen_time_and_is_marked_sent(): void
+    public function test_the_reminder_goes_out_in_the_evening_and_is_marked_sent(): void
     {
         Carbon::setTestNow(self::TEHRAN_EVENING);
         $user = $this->learner();
@@ -82,9 +82,9 @@ class ReviewReminderTest extends TestCase
         $this->runCommand();
     }
 
-    public function test_nothing_is_sent_before_the_chosen_time(): void
+    public function test_nothing_is_sent_before_the_reminder_time(): void
     {
-        Carbon::setTestNow('2026-10-03 15:25:00');
+        Carbon::setTestNow('2026-10-03 16:55:00');
         $this->learner();
         $this->expectReminders(0);
 
@@ -93,7 +93,7 @@ class ReviewReminderTest extends TestCase
 
     public function test_a_missed_window_is_not_sent_hours_late(): void
     {
-        Carbon::setTestNow('2026-10-03 19:35:00');
+        Carbon::setTestNow('2026-10-03 18:05:00');
         $this->learner();
         $this->expectReminders(0);
 
@@ -111,7 +111,7 @@ class ReviewReminderTest extends TestCase
 
     public function test_a_learner_in_another_timezone_is_reached_at_their_local_time(): void
     {
-        Carbon::setTestNow('2026-10-03 23:05:00');
+        Carbon::setTestNow('2026-10-04 00:35:00');
         $this->learner(['timezone' => 'America/New_York']);
         $this->expectReminders(1);
 
@@ -121,7 +121,7 @@ class ReviewReminderTest extends TestCase
     public function test_nothing_is_sent_when_the_learner_turned_reminders_off(): void
     {
         Carbon::setTestNow(self::TEHRAN_EVENING);
-        $this->learner(['review_reminder_time' => null]);
+        $this->learner(['review_reminder_enabled' => false]);
         $this->expectReminders(0);
 
         $this->runCommand();
@@ -150,27 +150,6 @@ class ReviewReminderTest extends TestCase
         Carbon::setTestNow(self::TEHRAN_EVENING);
         $user = $this->learner();
         $this->dueWord($user, ['word' => 'already', 'last_reviewed_at' => now()->subHour(), 'next_review_at' => now()->addDay()]);
-        $this->expectReminders(0);
-
-        $this->runCommand();
-    }
-
-    public function test_a_window_opened_before_midnight_is_still_honoured_after_it(): void
-    {
-        // 00:10 in Tehran; the chosen 23:30 was 40 minutes ago, on the day before.
-        Carbon::setTestNow('2026-10-03 20:40:00');
-        $user = $this->learner(['review_reminder_time' => '23:30']);
-        $this->expectReminders(1);
-
-        $this->runCommand();
-
-        $this->assertSame('2026-10-03', $user->fresh()->last_review_reminder_on->toDateString());
-    }
-
-    public function test_the_same_late_window_is_not_sent_twice(): void
-    {
-        Carbon::setTestNow('2026-10-03 20:40:00');
-        $this->learner(['review_reminder_time' => '23:30', 'last_review_reminder_on' => '2026-10-03']);
         $this->expectReminders(0);
 
         $this->runCommand();
@@ -232,74 +211,67 @@ class ReviewReminderTest extends TestCase
 
     public function test_the_reminder_is_honoured_to_the_exact_minute(): void
     {
-        Carbon::setTestNow('2026-10-03 15:36:00');
-        $user = $this->learner(['review_reminder_time' => '19:07']);
+        Carbon::setTestNow('2026-10-03 16:59:00');
+        $user = $this->learner();
         $this->expectReminders(1);
 
         $this->runCommand();
 
         $this->assertNull($user->fresh()->last_review_reminder_on);
 
-        Carbon::setTestNow('2026-10-03 15:37:00');
+        Carbon::setTestNow('2026-10-03 17:00:00');
         $this->runCommand();
 
         $this->assertNotNull($user->fresh()->last_review_reminder_on);
     }
 
-    public function test_the_picker_shows_the_saved_time(): void
+    public function test_nothing_is_sent_when_the_streak_warning_already_went_out_tonight(): void
     {
-        $this->actingAs(User::factory()->create(['review_reminder_time' => '07:45']));
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        $user = $this->learner(['last_streak_warning_on' => '2026-10-03']);
+        $this->expectReminders(0);
 
-        Livewire::test('notifications.review-reminder')
-            ->assertSet('enabled', true)
-            ->assertSet('hour', '07')
-            ->assertSet('minute', '45');
+        $this->runCommand();
+
+        $this->assertNull($user->fresh()->last_review_reminder_on);
     }
 
-    public function test_a_learner_can_set_any_hour_and_minute_on_a_24_hour_clock(): void
+    public function test_yesterdays_streak_warning_does_not_hold_back_tonights_reminder(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        $this->learner(['last_streak_warning_on' => '2026-10-02']);
+        $this->expectReminders(1);
 
-        Livewire::test('notifications.review-reminder')
-            ->set('hour', '23')
-            ->set('minute', '59')
-            ->assertHasNoErrors();
+        $this->runCommand();
+    }
 
-        $this->assertSame('23:59', $user->fresh()->review_reminder_time);
+    public function test_the_switch_shows_the_saved_choice(): void
+    {
+        $this->actingAs(User::factory()->create(['review_reminder_enabled' => false]));
+
+        Livewire::test('notifications.review-reminder')->assertSet('enabled', false);
     }
 
     public function test_a_learner_can_turn_the_reminder_off_and_on_again(): void
     {
-        $user = User::factory()->create(['review_reminder_time' => '08:30']);
-        $this->actingAs($user);
-
-        $component = Livewire::test('notifications.review-reminder')->set('enabled', false);
-        $this->assertNull($user->fresh()->review_reminder_time);
-
-        $component->set('enabled', true);
-        $this->assertSame('08:30', $user->fresh()->review_reminder_time);
-    }
-
-    public function test_a_time_that_does_not_exist_is_rejected(): void
-    {
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        Livewire::test('notifications.review-reminder')->set('hour', '24')->assertHasErrors('hour');
-        Livewire::test('notifications.review-reminder')->set('minute', '60')->assertHasErrors('minute');
+        $component = Livewire::test('notifications.review-reminder')->assertSet('enabled', true)->set('enabled', false);
+        $this->assertFalse($user->fresh()->review_reminder_enabled);
 
-        $this->assertSame('19:00', $user->fresh()->review_reminder_time);
+        $component->set('enabled', true);
+        $this->assertTrue($user->fresh()->review_reminder_enabled);
     }
 
-    public function test_saving_a_time_remembers_the_browsers_timezone(): void
+    public function test_switching_it_remembers_the_browsers_timezone(): void
     {
         $user = User::factory()->create(['timezone' => null]);
         $this->actingAs($user);
 
         Livewire::withCookie('eos_tz', 'Europe/London')
             ->test('notifications.review-reminder')
-            ->set('hour', '20');
+            ->set('enabled', false);
 
         $this->assertSame('Europe/London', $user->fresh()->timezone);
     }

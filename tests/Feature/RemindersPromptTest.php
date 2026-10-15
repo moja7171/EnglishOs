@@ -27,6 +27,17 @@ class RemindersPromptTest extends TestCase
             ->assertSeeLivewire('notifications.reminders-prompt');
     }
 
+    public function test_opening_the_app_remembers_the_browsers_timezone(): void
+    {
+        $this->withPushKeys();
+        $user = User::factory()->create(['timezone' => null]);
+        $this->actingAs($user);
+
+        Livewire::withCookie('eos_tz', 'Europe/London')->test('notifications.reminders-prompt');
+
+        $this->assertSame('Europe/London', $user->fresh()->timezone);
+    }
+
     public function test_it_invites_in_persian_and_names_the_three_alerts(): void
     {
         $this->withPushKeys();

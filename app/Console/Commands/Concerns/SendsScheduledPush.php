@@ -28,9 +28,9 @@ trait SendsScheduledPush
      * alert is due now: today's occurrence, or yesterday's while today's
      * hasn't come yet — so a window that opened just before midnight is
      * still honoured after it. Null when it was already sent for that date
-     * or the window has closed.
+     * or the window has closed ($graceMinutes after $time).
      */
-    protected function dueWindowDay(User $user, string $time, ?CarbonInterface $lastSentOn): ?string
+    protected function dueWindowDay(User $user, string $time, ?CarbonInterface $lastSentOn, int $graceMinutes = self::GRACE_MINUTES): ?string
     {
         $localNow = now($user->reminderTimezone());
         $chosenTime = $localNow->copy()->setTimeFromTimeString($time);
@@ -45,7 +45,7 @@ trait SendsScheduledPush
             return null;
         }
 
-        if ($chosenTime->diffInMinutes($localNow) > self::GRACE_MINUTES) {
+        if ($chosenTime->diffInMinutes($localNow) > $graceMinutes) {
             return null;
         }
 
