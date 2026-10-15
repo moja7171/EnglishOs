@@ -1149,19 +1149,39 @@ document.addEventListener('alpine:init', () => {
         saving: false,
         addFailed: false,
         chosen: 0,
+        showOthers: false,
         pausedMedia: [],
         ticket: 0,
 
-        /** Every meaning of the entry as one flat list, in the order shown. */
+        /**
+         * Every meaning of the entry as one flat list, in the order shown.
+         * A dictionary sense often runs on after a semicolon with a second
+         * and third way of saying the same thing — the sheet keeps the first.
+         */
         get senses() {
             return (this.entry?.meanings ?? []).flatMap((group) => (
-                group.definitions.map((sense) => ({ pos: group.pos, ...sense }))
+                group.definitions.map((sense) => ({
+                    pos: group.pos,
+                    example: sense.example,
+                    definition: this.firstClause(sense.definition),
+                }))
             ));
         },
 
-        /** "noun · verb" — the roles the word can play, in the dictionary's order. */
-        get partsOfSpeech() {
-            return [...new Set((this.entry?.meanings ?? []).map((group) => group.pos))].join(' · ');
+        /** The meaning on show: the first one, or the one picked from the other meanings. */
+        get current() {
+            return this.senses[this.chosen] ?? null;
+        },
+
+        /** The dictionary's example for that meaning, else the sentence the word was tapped in. */
+        get example() {
+            return this.current?.example || this.sentence;
+        },
+
+        firstClause(text) {
+            const head = text.split(/;\s/)[0].trim();
+
+            return head.length >= 12 ? head : text;
         },
 
         async show({ word, sentence, range }) {
@@ -1174,6 +1194,7 @@ document.addEventListener('alpine:init', () => {
             this.failed = false;
             this.addFailed = false;
             this.chosen = 0;
+            this.showOthers = false;
             this.loading = true;
             this.isOpen = true;
 
