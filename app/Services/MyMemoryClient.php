@@ -3,7 +3,11 @@
 namespace App\Services;
 
 use App\Services\Concerns\UsesOutboundProxy;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
+use Throwable;
 
 /**
  * Thin wrapper around MyMemory's free translation memory, used for the
@@ -20,11 +24,11 @@ class MyMemoryClient
     private const BASE_URL = 'https://api.mymemory.translated.net/get';
 
     /**
-     * The best Persian translation of $word, or null when MyMemory had
-     * nothing usable (including the quota-used-up warning it returns in
-     * place of a translation). A connection failure or a 5xx throws.
+     * Asks MyMemory for $word on the given request (a plain one, or one
+     * made by Http::pool()) and returns what that sends back, to be read
+     * by parse().
      */
-    public function translateToPersian(string $word): ?string
+    public function fetch(PendingRequest $request, string $word): mixed
     {
         $url = self::BASE_URL.'?'.http_build_query(array_filter([
             'q' => $word,
@@ -32,10 +36,27 @@ class MyMemoryClient
             'de' => config('services.mymemory.email'),
         ]));
 
-        $body = $this->withOutboundProxy(Http::connectTimeout(3)->timeout(6), $url)
-            ->get($this->outboundUrl($url))
-            ->throw()
-            ->json();
+        return $this->withOutboundProxy($request->connectTimeout(3)->timeout(6), $url)
+            ->get($this->outboundUrl($url));
+    }
+
+    /**
+     * The best Persian translation of $word, or null when MyMemory had
+     * nothing usable (including the quota-used-up warning it returns in
+     * place of a translation). A connection failure or a 5xx throws.
+     */
+    public function translateToPersian(string $word): ?string
+    {
+        return $this->parse($this->fetch(Http::withOptions([]), $word), $word);
+    }
+
+    public function parse(mixed $response, string $word): ?string
+    {
+        if (! $response instanceof Response) {
+            throw $response instanceof Throwable ? $response : new RuntimeException('No response from the service.');
+        }
+
+        $body = $response->throw()->json();
 
         if (! is_array($body) || (int) ($body['responseStatus'] ?? 0) !== 200 || ($body['quotaFinished'] ?? false)) {
             return null;
@@ -44,7 +65,13 @@ class MyMemoryClient
         $best = collect($body['matches'] ?? [])
             ->filter(fn (array $match) => $this->isPersian((string) ($match['translation'] ?? ''))
                 && $this->sameWord((string) ($match['segment'] ?? ''), $word))
-            ->sortByDesc(fn (array $match) => [(float) ($match['match'] ?? 0), (int) ($match['usage-count'] ?? 0)])
+            ->sortByDesc(fn (array $match) => [
+                // The word itself beats the same word with a full stop
+                // ("sleep." was translated as the command "بخواب").
+                mb_strtolower(trim((string) ($match['segment'] ?? ''))) === mb_strtolower($word),
+                (float) ($match['match'] ?? 0),
+                (int) ($match['usage-count'] ?? 0),
+            ])
             ->first();
 
         $translation = $best['translation'] ?? $this->headlineTranslation($body);

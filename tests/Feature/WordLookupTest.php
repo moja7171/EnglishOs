@@ -13,6 +13,24 @@ class WordLookupTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Gemini is the dictionary's second opinion; tests that want it say so.
+        config(['services.gemini.key' => '']);
+    }
+
+    private function fakeGeminiAnswer(array $answer): void
+    {
+        config(['services.gemini.key' => 'test-key', 'services.gemini.chat_models' => ['model-a']]);
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models/model-a:generateContent' => Http::response([
+                'candidates' => [['content' => ['parts' => [['text' => json_encode($answer)]]]]],
+            ]),
+        ]);
+    }
+
     /**
      * @return array<string, array{string, ?string}>
      */
@@ -41,9 +59,8 @@ class WordLookupTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            'api.dictionaryapi.dev/api/v2/entries/en/sleep' => Http::response([[
-                'phonetic' => '/sliːp/',
-                'meanings' => [['partOfSpeech' => 'verb', 'definitions' => [['definition' => 'To rest.']]]],
+            'en.wiktionary.org/api/rest_v1/page/definition/sleep' => Http::response(['en' => [
+                ['partOfSpeech' => 'Verb', 'definitions' => [['definition' => 'To rest.']]],
             ]]),
             'api.mymemory.translated.net/get*' => Http::response([
                 'responseData' => ['translatedText' => 'sleep', 'match' => 1],
@@ -60,7 +77,7 @@ class WordLookupTest extends TestCase
         $entry = app(WordLookup::class)->lookup('Sleep');
 
         $this->assertSame('sleep', $entry->word);
-        $this->assertSame('/sliːp/', $entry->phonetic);
+        $this->assertSame('verb', $entry->meanings[0]['pos']);
         $this->assertSame('To rest.', $entry->meanings[0]['definitions'][0]['definition']);
         $this->assertSame('خواب', $entry->translation_fa);
         $this->assertDatabaseHas('dictionary_entries', ['word' => 'sleep', 'translation_fa' => 'خواب']);
@@ -92,7 +109,7 @@ class WordLookupTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            'api.dictionaryapi.dev/*' => Http::response(['title' => 'No Definitions Found'], 404),
+            'en.wiktionary.org/*' => Http::response(['status' => 404, 'type' => 'Internal error'], 404),
             'api.mymemory.translated.net/get*' => Http::response([
                 'responseStatus' => 200,
                 'matches' => [['segment' => 'overslept', 'translation' => 'بیش از حد خوابید', 'match' => 0.9]],
@@ -110,7 +127,7 @@ class WordLookupTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            'api.dictionaryapi.dev/*' => Http::response('Bad gateway', 502),
+            'en.wiktionary.org/*' => Http::response('Bad gateway', 502),
             'api.mymemory.translated.net/*' => Http::failedConnection(),
         ]);
 
@@ -118,11 +135,37 @@ class WordLookupTest extends TestCase
         $this->assertDatabaseCount('dictionary_entries', 0);
     }
 
+    public function test_a_404_from_a_relay_is_not_cached_as_an_unknown_word(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response('target not allowed', 404),
+            'api.mymemory.translated.net/get*' => Http::response([
+                'responseStatus' => 200,
+                'matches' => [['segment' => 'sleep', 'translation' => 'خواب', 'match' => 0.99]],
+            ]),
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('sleep');
+
+        $this->assertFalse($entry->exists);
+        $this->assertDatabaseCount('dictionary_entries', 0);
+    }
+
+    public function test_it_asks_both_services_once_for_a_new_word(): void
+    {
+        $this->fakeBothServices();
+
+        app(WordLookup::class)->lookup('sleep');
+
+        Http::assertSentCount(2);
+    }
+
     public function test_an_unreachable_dictionary_is_not_cached_as_an_unknown_word(): void
     {
         Http::preventStrayRequests();
         Http::fake([
-            'api.dictionaryapi.dev/*' => Http::response('Bad gateway', 502),
+            'en.wiktionary.org/*' => Http::response('Bad gateway', 502),
             'api.mymemory.translated.net/get*' => Http::response([
                 'responseStatus' => 200,
                 'matches' => [['segment' => 'sleep', 'translation' => 'خواب', 'match' => 0.99]],
@@ -139,7 +182,7 @@ class WordLookupTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            'api.dictionaryapi.dev/*' => Http::response([['meanings' => [['partOfSpeech' => 'verb', 'definitions' => [['definition' => 'To rest.']]]]]]),
+            'en.wiktionary.org/*' => Http::response(['en' => [['partOfSpeech' => 'Verb', 'definitions' => [['definition' => 'To rest.']]]]]),
             'api.mymemory.translated.net/*' => Http::response('Unavailable', 503),
         ]);
 
@@ -172,5 +215,62 @@ class WordLookupTest extends TestCase
         Http::assertSentCount(2);
         $this->assertSame('خواب', $entry->translation_fa);
         $this->assertDatabaseHas('dictionary_entries', ['word' => 'sleep', 'translation_fa' => 'خواب']);
+    }
+
+    public function test_gemini_gives_the_meanings_when_the_dictionary_cannot_be_reached(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response('Bad gateway', 502),
+            'api.mymemory.translated.net/get*' => Http::response([
+                'responseStatus' => 200,
+                'matches' => [['segment' => 'sleep', 'translation' => 'خواب', 'match' => 0.99]],
+            ]),
+        ]);
+        $this->fakeGeminiAnswer([
+            'meanings' => [['pos' => 'verb', 'definition' => 'to rest with your eyes closed', 'example' => 'I sleep well.']],
+            'translation_fa' => 'خوابیدن',
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('sleep');
+
+        $this->assertTrue($entry->exists);
+        $this->assertSame('verb', $entry->meanings[0]['pos']);
+        $this->assertSame('I sleep well.', $entry->meanings[0]['definitions'][0]['example']);
+        $this->assertSame('خواب', $entry->translation_fa);
+        $this->assertDatabaseHas('dictionary_entries', ['word' => 'sleep']);
+    }
+
+    public function test_gemini_explains_a_form_the_dictionary_does_not_list_and_supplies_the_persian_too(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response(['status' => 404, 'type' => 'Internal error'], 404),
+            'api.mymemory.translated.net/get*' => Http::response(['responseStatus' => 200, 'matches' => []]),
+        ]);
+        $this->fakeGeminiAnswer([
+            'meanings' => [['pos' => 'verb', 'definition' => 'past tense of oversleep: to sleep longer than you meant to', 'example' => 'I overslept.']],
+            'translation_fa' => 'بیش از حد خوابید',
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('overslept');
+
+        $this->assertTrue($entry->isKnownToDictionary());
+        $this->assertSame('بیش از حد خوابید', $entry->translation_fa);
+    }
+
+    public function test_a_word_neither_the_dictionary_nor_gemini_knows_is_kept_as_unknown(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response(['status' => 404, 'type' => 'Internal error'], 404),
+            'api.mymemory.translated.net/get*' => Http::response(['responseStatus' => 200, 'matches' => []]),
+        ]);
+        $this->fakeGeminiAnswer(['meanings' => [], 'translation_fa' => null]);
+
+        $entry = app(WordLookup::class)->lookup('qzxv');
+
+        $this->assertTrue($entry->exists);
+        $this->assertFalse($entry->isKnownToDictionary());
     }
 }

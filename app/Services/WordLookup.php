@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use App\Models\DictionaryEntry;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
  * What the tap-a-word sheet shows for one word: the English meanings
- * (DictionaryApiClient) and the Persian translation (MyMemoryClient),
+ * (WiktionaryClient) and the Persian translation (MyMemoryClient),
  * asked from the outside once per word for every learner and kept in
  * dictionary_entries after that.
  *
@@ -28,8 +30,9 @@ class WordLookup
     private const TRANSLATION_RETRY_SECONDS = 600;
 
     public function __construct(
-        private readonly DictionaryApiClient $dictionary,
+        private readonly WiktionaryClient $dictionary,
         private readonly MyMemoryClient $translator,
+        private readonly GeminiWordDefiner $gemini,
     ) {}
 
     /**
@@ -80,19 +83,43 @@ class WordLookup
         return $entry;
     }
 
+    /**
+     * Asks both services at the same time, so a first tap on a word costs
+     * the slower of the two answers, not their sum.
+     */
     private function fetchNew(string $key): ?DictionaryEntry
     {
+        $responses = Http::pool(fn (Pool $pool) => [
+            $this->dictionary->fetch($pool->as('dictionary'), $key),
+            $this->translator->fetch($pool->as('translation'), $key),
+        ]);
+
         $dictionaryAnswered = true;
         $definition = null;
+        $translation = null;
 
         try {
-            $definition = $this->dictionary->define($key);
+            $definition = $this->dictionary->parse($responses['dictionary']);
         } catch (Throwable $exception) {
             $dictionaryAnswered = false;
             Log::warning("Dictionary lookup failed for \"{$key}\": {$exception->getMessage()}");
         }
 
-        $translation = $this->translate($key);
+        try {
+            $translation = $this->translator->parse($responses['translation'], $key);
+        } catch (Throwable $exception) {
+            Log::warning("Persian translation failed for \"{$key}\": {$exception->getMessage()}");
+        }
+
+        // The dictionary is down, or it does not list this form: ask Gemini
+        // for the meanings (and a Persian word if MyMemory had none).
+        $second = $definition === null ? $this->askGemini($key) : null;
+
+        if ($second !== null) {
+            $definition = ['phonetic' => null, 'audio_url' => null, 'meanings' => $second['meanings']];
+            $translation ??= $second['translation_fa'];
+            $dictionaryAnswered = true;
+        }
 
         if (! $dictionaryAnswered && $translation === null) {
             return null;
@@ -109,6 +136,22 @@ class WordLookup
         return $dictionaryAnswered
             ? DictionaryEntry::create($attributes)
             : new DictionaryEntry($attributes);
+    }
+
+    /**
+     * @return array{meanings: list<array{pos: string, definitions: list<array{definition: string, example: ?string}>}>, translation_fa: ?string}|null
+     */
+    private function askGemini(string $key): ?array
+    {
+        try {
+            $answer = $this->gemini->define($key);
+        } catch (Throwable $exception) {
+            Log::warning("Gemini word lookup failed for \"{$key}\": {$exception->getMessage()}");
+
+            return null;
+        }
+
+        return $answer['meanings'] === [] ? null : $answer;
     }
 
     private function translate(string $key): ?string

@@ -47,6 +47,7 @@
                 <div class="min-w-0">
                     <p class="font-display text-2xl font-extrabold break-words text-ink dark:text-ink-dark" x-text="word"></p>
                     <p x-show="entry?.phonetic" x-text="entry?.phonetic" class="mt-0.5 text-sm text-ink-faint dark:text-ink-faint-dark"></p>
+                    <p x-show="partsOfSpeech" x-text="partsOfSpeech" class="mt-1 text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark"></p>
                 </div>
 
                 <div class="flex shrink-0 items-center gap-1">
@@ -95,12 +96,22 @@
                         class="font-fa rounded-xl bg-accent-soft px-4 py-3 text-xl font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark"
                     ></p>
 
-                    <p x-show="senses.length === 0 && ! entry.translation_fa" class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                        No entry for this word. It may be a spelling, a name, or a form the dictionary does not list.
+                    <div x-show="entry.english_status === 'unavailable'" class="space-y-2 rounded-xl bg-warning-soft p-3 text-sm text-warning-ink" role="status">
+                        <p>The English meaning could not be loaded right now.</p>
+                        <button
+                            type="button"
+                            x-on:click="show({ word, sentence })"
+                            class="cursor-pointer rounded-full border border-warning-line px-3 py-1 text-xs font-semibold transition-colors hover:bg-white/60"
+                        >Try again</button>
+                    </div>
+                    <p x-show="entry.english_status === 'unknown'" class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                        The dictionary has no entry for this exact form. If it is a plural or a past form, tap the base word instead.
                     </p>
-                    <p x-show="senses.length === 0 && entry.translation_fa" class="text-sm text-ink-faint dark:text-ink-faint-dark">
-                        There is no English entry for this exact form.
-                    </p>
+
+                    <div x-show="sentence" class="rounded-xl border border-dashed border-line px-3 py-2 dark:border-line-dark">
+                        <p class="text-[11px] font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">In your text</p>
+                        <p class="mt-0.5 text-sm text-ink dark:text-ink-dark" x-text="sentence"></p>
+                    </div>
 
                     <div x-show="senses.length > 0" class="space-y-2">
                         <p x-show="senses.length > 1" class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Tap the meaning that fits</p>

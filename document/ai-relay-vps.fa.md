@@ -11,7 +11,7 @@
 پروتکل رله (توضیح کامل در docstring فایل `scripts/ai-relay.py`):
 
 - هر درخواست باید هدر `X-Relay-Auth` (رمز رله) و `X-Relay-Url` (آدرس واقعی مقصد، فقط https) داشته باشد.
-- فقط این مقصدها مجازند: `generativelanguage.googleapis.com`، `api.groq.com`، `api.pexels.com`، `images.pexels.com`، `videos.pexels.com`. بقیه 403 می‌گیرند. (`ALLOWED_HOSTS` در `ai-relay.py`.)
+- فقط این مقصدها مجازند: `generativelanguage.googleapis.com`، `api.groq.com`، `api.pexels.com`، `images.pexels.com`، `videos.pexels.com`، و برای دیکشنری ضربه‌ای `en.wiktionary.org` و `api.mymemory.translated.net`. بقیه 403 می‌گیرند. (`ALLOWED_HOSTS` در `ai-relay.py`.)
 - رمز غلط یا نبودن آن: 401 با بدنه‌ی `bad auth`.
 - رله به مقصد حداکثر ۳۰ ثانیه فرصت می‌دهد (`timeout=30` در `ai-relay.py`)؛ جواب طولانی‌تر 502 می‌شود.
 - کلیدهای API خود اپ داخل همان هدرهای ارسالی می‌روند و رله ذخیره‌شان نمی‌کند.

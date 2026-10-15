@@ -103,7 +103,7 @@ return [
     ],
 
     // The tap-a-word dictionary sheet (App\Services\WordLookup): English
-    // definitions come from the free dictionaryapi.dev (no key), Persian
+    // definitions come from Wiktionary's free API (no key), Persian
     // from MyMemory. Both go through the same relay as the AI providers
     // when one is configured — see ai_proxy below.
     'mymemory' => [

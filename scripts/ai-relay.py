@@ -56,6 +56,9 @@ ALLOWED_HOSTS = {
     "api.pexels.com",
     "images.pexels.com",
     "videos.pexels.com",
+    # The tap-a-word dictionary: English meanings, and Persian translation.
+    "en.wiktionary.org",
+    "api.mymemory.translated.net",
 }
 
 TUNNEL_LOG = os.environ.get("TUNNEL_LOG")

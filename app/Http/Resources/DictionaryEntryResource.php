@@ -23,6 +23,15 @@ class DictionaryEntryResource extends JsonResource
             'phonetic' => $this->phonetic,
             'audio_url' => $this->audio_url,
             'meanings' => $this->meanings,
+            // 'ok' = English meanings found; 'unknown' = the dictionary was
+            // asked and does not list this exact form; 'unavailable' = it
+            // could not be asked (the entry is not saved), so the sheet
+            // offers a retry instead of claiming the word does not exist.
+            'english_status' => match (true) {
+                ! $this->exists => 'unavailable',
+                $this->isKnownToDictionary() => 'ok',
+                default => 'unknown',
+            },
             'translation_fa' => $this->translation_fa,
         ];
     }
