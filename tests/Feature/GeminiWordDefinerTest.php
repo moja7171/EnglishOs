@@ -64,4 +64,33 @@ class GeminiWordDefinerTest extends TestCase
 
         app(GeminiWordDefiner::class)->define('sleep');
     }
+
+    public function test_it_returns_the_persian_meanings_for_each_part_of_speech(): void
+    {
+        $this->fakeGemini(json_encode(['persian' => [
+            ['pos' => 'Verb', 'words' => 'خوابیدن، استراحت کردن'],
+            ['pos' => 'noun', 'words' => 'خواب'],
+            ['pos' => 'noun', 'words' => 'sleep only, no Persian'],
+        ]]));
+
+        $result = app(GeminiWordDefiner::class)->persianMeanings('sleep', [
+            ['pos' => 'verb', 'definitions' => [['definition' => 'to rest', 'example' => null]]],
+            ['pos' => 'noun', 'definitions' => [['definition' => 'a state of rest', 'example' => null]]],
+        ]);
+
+        $this->assertSame([
+            ['pos' => 'verb', 'words' => 'خوابیدن، استراحت کردن'],
+            ['pos' => 'noun', 'words' => 'خواب'],
+        ], $result);
+        Http::assertSent(fn ($request) => str_contains($request['contents'][0]['parts'][0]['text'], 'verb: to rest'));
+    }
+
+    public function test_the_persian_meanings_throw_when_the_answer_is_not_the_agreed_json(): void
+    {
+        $this->fakeGemini('Here you go: خواب');
+
+        $this->expectException(RuntimeException::class);
+
+        app(GeminiWordDefiner::class)->persianMeanings('sleep', []);
+    }
 }

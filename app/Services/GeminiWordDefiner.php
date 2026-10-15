@@ -44,6 +44,54 @@ class GeminiWordDefiner
         ];
     }
 
+    /**
+     * The Persian equivalents of $word for each part of speech it can be,
+     * in natural Persian a learner would recognise — the "different
+     * meanings" the sheet shows in place of MyMemory's single, often poor
+     * word. The English senses are given so Gemini translates the senses
+     * the sheet actually lists instead of guessing at the word.
+     *
+     * @param  list<array{pos: string, definitions: list<array{definition: string, example: ?string}>}>  $meanings
+     * @return list<array{pos: string, words: string}>
+     *
+     * @throws RuntimeException when Gemini cannot be reached or answers with something that is not the agreed JSON
+     */
+    public function persianMeanings(string $word, array $meanings): array
+    {
+        $senses = collect($meanings)
+            ->map(fn (array $group) => $group['pos'].': '.collect($group['definitions'])->pluck('definition')->implode(' / '))
+            ->implode("\n");
+
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "Word: {$word}\n".($senses !== '' ? "English senses:\n{$senses}" : '')]],
+            systemPrompt: 'You translate English dictionary words into natural Persian for Persian-speaking English learners. '
+                .'The user sends one English word and, usually, its English senses grouped by part of speech. Reply with ONLY '
+                .'valid JSON, no markdown fences, shaped exactly like: {"persian": [{"pos": "verb", "words": "..."}]}. '
+                .'Give one entry per part of speech listed (at most '.self::MAX_MEANINGS.'), most common first. "words" is '
+                .'one to three common Persian equivalents of the word in that part of speech, in Persian script, separated '
+                .'by "، " — the everyday words an educated speaker would use, not transliterations and not explanations. '
+                .'If the word is an inflected form (a plural, a past tense, an -ing form), translate the form as written. '
+                .'If the text is not an English word, reply {"persian": []}.',
+        );
+
+        $data = json_decode($this->withoutCodeFence($raw), true);
+
+        if (! is_array($data) || ! is_array($data['persian'] ?? null)) {
+            throw new RuntimeException('Unexpected Persian-meanings format from Gemini.');
+        }
+
+        return collect($data['persian'])
+            ->filter(fn ($item) => is_array($item) && filled($item['pos'] ?? null) && filled($item['words'] ?? null)
+                && preg_match('/\p{Arabic}/u', (string) $item['words']) === 1)
+            ->take(self::MAX_MEANINGS)
+            ->map(fn (array $item) => [
+                'pos' => mb_strtolower(trim((string) $item['pos'])),
+                'words' => mb_substr(trim((string) $item['words']), 0, 120),
+            ])
+            ->values()
+            ->all();
+    }
+
     private function systemPrompt(): string
     {
         return 'You are a learner\'s dictionary for English learners at A2-B1 level whose first language is Persian. '

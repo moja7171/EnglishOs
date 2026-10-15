@@ -1150,6 +1150,7 @@ document.addEventListener('alpine:init', () => {
         addFailed: false,
         chosen: 0,
         showOthers: false,
+        improving: false,
         pausedMedia: [],
         ticket: 0,
 
@@ -1176,6 +1177,30 @@ document.addEventListener('alpine:init', () => {
         /** The dictionary's example for that meaning, else the sentence the word was tapped in. */
         get example() {
             return this.current?.example || this.sentence;
+        },
+
+        /** The Persian lines to show: one per part of speech once Gemini has answered, else the quick translation. */
+        get persianLines() {
+            if (this.entry?.persian_senses?.length) {
+                return this.entry.persian_senses.map((line) => ({
+                    label: this.entry.persian_senses.length > 1 ? (this.persianPos[line.pos] ?? '') : '',
+                    words: line.words,
+                }));
+            }
+
+            return this.entry?.translation_fa ? [{ label: '', words: this.entry.translation_fa }] : [];
+        },
+
+        persianPos: {
+            noun: 'اسم',
+            verb: 'فعل',
+            adjective: 'صفت',
+            adverb: 'قید',
+            pronoun: 'ضمیر',
+            preposition: 'حرف اضافه',
+            conjunction: 'حرف ربط',
+            interjection: 'شبه‌جمله',
+            determiner: 'حرف تعریف',
         },
 
         firstClause(text) {
@@ -1217,10 +1242,38 @@ document.addEventListener('alpine:init', () => {
                 this.entry = json.data;
                 this.saved = json.saved;
                 this.word = json.data.word;
+
+                if (json.data.english_status !== 'unavailable' && ! json.data.persian_senses) {
+                    this.improvePersian(ticket);
+                }
             } catch (error) {
                 if (ticket === this.ticket) this.failed = true;
             } finally {
                 if (ticket === this.ticket) this.loading = false;
+            }
+        },
+
+        /**
+         * The second step of a tap: the quick answer is already on screen, so
+         * ask for the better Persian meanings (one line per part of speech)
+         * and swap them in. If they never come, the quick translation stays.
+         */
+        async improvePersian(ticket) {
+            this.improving = true;
+
+            try {
+                const response = await fetch(`${urls.persian}?word=${encodeURIComponent(this.word)}`, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                });
+
+                if (! response.ok || ticket !== this.ticket) return;
+
+                this.entry = (await response.json()).data;
+            } catch (error) {
+                // Keep the quick translation.
+            } finally {
+                if (ticket === this.ticket) this.improving = false;
             }
         },
 

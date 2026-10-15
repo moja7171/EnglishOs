@@ -87,6 +87,41 @@ class WordLookup
      * Asks both services at the same time, so a first tap on a word costs
      * the slower of the two answers, not their sum.
      */
+    /**
+     * Replaces the quick Persian answer with Gemini's meanings per part of
+     * speech (see GeminiWordDefiner::persianMeanings()). Asked after the
+     * first answer has been shown, so the tap itself stays fast, and kept
+     * for every learner like the rest of the entry. Returns the entry
+     * unchanged when it already has them or Gemini cannot be asked — a
+     * failure is not retried for a few minutes, so a quota that ran out is
+     * not hammered by every tap.
+     */
+    public function improvePersian(DictionaryEntry $entry): DictionaryEntry
+    {
+        if (! $entry->exists || $entry->persian_senses !== null) {
+            return $entry;
+        }
+
+        if (! Cache::add("dictionary-entry-persian-retry:{$entry->word}", true, self::TRANSLATION_RETRY_SECONDS)) {
+            return $entry;
+        }
+
+        try {
+            $senses = $this->gemini->persianMeanings($entry->word, $entry->meanings);
+        } catch (Throwable $exception) {
+            Log::warning("Persian meanings failed for \"{$entry->word}\": {$exception->getMessage()}");
+
+            return $entry;
+        }
+
+        if ($senses !== []) {
+            $entry->update(['persian_senses' => $senses, 'translation_fa' => $senses[0]['words']]);
+            Cache::forget("dictionary-entry-persian-retry:{$entry->word}");
+        }
+
+        return $entry;
+    }
+
     private function fetchNew(string $key): ?DictionaryEntry
     {
         $responses = Http::pool(fn (Pool $pool) => [

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AiDiagnosticController;
 use App\Http\Controllers\AiRelayUseController;
 use App\Http\Controllers\DictionaryLookupController;
+use App\Http\Controllers\DictionaryPersianController;
 use App\Http\Controllers\ListeningAudioController;
 use App\Http\Controllers\ServiceHealthController;
 use App\Http\Controllers\VocabularyWordController;
@@ -114,6 +115,10 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/dictionary', DictionaryLookupController::class)
         ->middleware('throttle:60,1')
         ->name('dictionary.lookup');
+
+    Route::get('/dictionary/persian', DictionaryPersianController::class)
+        ->middleware('throttle:30,1')
+        ->name('dictionary.persian');
 
     Route::post('/vocabulary', [VocabularyWordController::class, 'store'])
         ->middleware('throttle:30,1')

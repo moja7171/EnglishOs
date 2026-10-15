@@ -273,4 +273,59 @@ class WordLookupTest extends TestCase
         $this->assertTrue($entry->exists);
         $this->assertFalse($entry->isKnownToDictionary());
     }
+
+    public function test_gemini_persian_meanings_replace_the_quick_translation_and_are_kept(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'sleep', 'translation_fa' => 'بخواب']);
+        Http::preventStrayRequests();
+        $this->fakeGeminiAnswer(['persian' => [['pos' => 'verb', 'words' => 'خوابیدن'], ['pos' => 'noun', 'words' => 'خواب']]]);
+
+        $improved = app(WordLookup::class)->improvePersian($entry);
+
+        $this->assertSame([['pos' => 'verb', 'words' => 'خوابیدن'], ['pos' => 'noun', 'words' => 'خواب']], $improved->persian_senses);
+        $this->assertSame('خوابیدن', $improved->translation_fa);
+        $this->assertDatabaseHas('dictionary_entries', ['word' => 'sleep', 'translation_fa' => 'خوابیدن']);
+    }
+
+    public function test_an_entry_that_already_has_persian_meanings_does_not_ask_gemini_again(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'sleep', 'persian_senses' => [['pos' => 'verb', 'words' => 'خوابیدن']]]);
+        Http::preventStrayRequests();
+        Http::fake();
+
+        app(WordLookup::class)->improvePersian($entry);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_a_failed_gemini_answer_keeps_the_quick_translation_and_is_not_retried_straight_away(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'sleep', 'translation_fa' => 'خواب']);
+        Http::preventStrayRequests();
+        config(['services.gemini.key' => 'test-key', 'services.gemini.chat_models' => ['model-a']]);
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response('Unavailable', 503),
+        ]);
+        $lookup = app(WordLookup::class);
+
+        $lookup->improvePersian($entry);
+        $afterFirst = Http::recorded()->count();
+        $lookup->improvePersian($entry);
+
+        $this->assertGreaterThan(0, $afterFirst);
+        $this->assertCount($afterFirst, Http::recorded());
+        $this->assertNull($entry->fresh()->persian_senses);
+        $this->assertSame('خواب', $entry->fresh()->translation_fa);
+    }
+
+    public function test_a_transient_entry_is_not_improved(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake();
+
+        $entry = app(WordLookup::class)->improvePersian(new DictionaryEntry(['word' => 'sleep', 'meanings' => []]));
+
+        $this->assertNull($entry->persian_senses);
+        Http::assertNothingSent();
+    }
 }

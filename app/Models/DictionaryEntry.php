@@ -11,8 +11,9 @@ use Illuminate\Database\Eloquent\Model;
  * word, kept once for every learner (see App\Services\WordLookup).
  *
  * @property list<array{pos: string, definitions: list<array{definition: string, example: ?string}>}> $meanings
+ * @property list<array{pos: string, words: string}>|null $persian_senses
  */
-#[Fillable(['word', 'phonetic', 'audio_url', 'meanings', 'translation_fa'])]
+#[Fillable(['word', 'phonetic', 'audio_url', 'meanings', 'translation_fa', 'persian_senses'])]
 class DictionaryEntry extends Model
 {
     use HasFactory;
@@ -21,6 +22,7 @@ class DictionaryEntry extends Model
     {
         return [
             'meanings' => 'array',
+            'persian_senses' => 'array',
         ];
     }
 
