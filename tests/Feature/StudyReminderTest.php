@@ -212,4 +212,24 @@ class StudyReminderTest extends TestCase
 
         $this->assertSame('2026-10-03', $user->fresh()->last_study_reminder_1_on->toDateString());
     }
+
+    public function test_moving_a_time_ahead_after_enabling_it_still_fires_today(): void
+    {
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        $user = User::factory()->create(['timezone' => 'Asia/Tehran']);
+        $user->updatePushSubscription('https://push.example.test/send/'.$user->id, 'key', 'token', 'aes128gcm');
+        $this->actingAs($user);
+
+        // Switching on starts at 12:00, already past at 20:05, so it is parked until tomorrow...
+        $component = Livewire::test('notifications.study-reminders')->set('times.0.enabled', true);
+        $this->assertNotNull($user->fresh()->last_study_reminder_1_on);
+
+        // ...but picking 20:06, still ahead today, must make today's alert go out.
+        $component->set('times.0.hour', '20')->set('times.0.minute', '06');
+        $this->assertNull($user->fresh()->last_study_reminder_1_on);
+
+        $this->expectAlerts(1);
+        Carbon::setTestNow('2026-10-03 16:36:00');
+        $this->runCommand();
+    }
 }
