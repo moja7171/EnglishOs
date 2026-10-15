@@ -67,7 +67,7 @@ class SendStudyReminders extends Command
             $user->forceFill(["last_study_reminder_{$slot}_on" => $day])->save();
             $firedTimes[] = $time;
 
-            $this->sendPush($user, new StudyReminder(Carbon::parse($day)->dayOfYear + $slot), 'Study reminder');
+            $this->sendPush($user, new StudyReminder($time, Carbon::parse($day)->dayOfYear + $slot), 'Study reminder');
             $sent++;
         }
 

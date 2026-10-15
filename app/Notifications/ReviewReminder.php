@@ -32,11 +32,11 @@ class ReviewReminder extends Notification
         $count = $this->persianNumber($this->dueCount);
 
         $body = $this->dueCount === 1
-            ? 'یک مورد منتظر مرور شماست؛ فقط یک دقیقه وقت می‌گیرد.'
-            : "{$count} مورد منتظر مرور شماست؛ فقط چند دقیقه وقت می‌گیرد.";
+            ? 'یک مورد منتظر مرور است؛ یک دقیقه کافی است.'
+            : "{$count} مورد منتظر مرور است؛ چند دقیقه بیشتر نمی‌شود.";
 
         return (new WebPushMessage)
-            ->title(config('app.name', 'English OS'))
+            ->title('مرور کلمات')
             ->body($body)
             ->icon('/icon-192.png')
             ->badge('/badge-96.png')

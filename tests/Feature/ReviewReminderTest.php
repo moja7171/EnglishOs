@@ -227,6 +227,7 @@ class ReviewReminderTest extends TestCase
         $this->assertStringContainsString('۵ مورد', $payload['body']);
         $this->assertSame(['url' => route('review.index')], $payload['data']);
         $this->assertSame('review-reminder', $payload['tag']);
+        $this->assertSame('مرور کلمات', $payload['title']);
     }
 
     public function test_the_reminder_is_honoured_to_the_exact_minute(): void
