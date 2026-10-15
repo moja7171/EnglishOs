@@ -426,6 +426,52 @@ class Mission extends Model
     }
 
     /**
+     * Every vocabulary entry authored anywhere in this mission (each day's
+     * New Words step), in step order. Quick checks and word banks draw
+     * their wrong answers from here so a distractor is never just another
+     * card's right answer from the same page.
+     *
+     * @return list<array{phrase: string, meaning?: string}>
+     */
+    public function vocabularyEntries(): array
+    {
+        return collect($this->stepKeys())
+            ->flatMap(fn (string $key) => $this->stepContent($key)['words'] ?? [])
+            ->filter(fn ($word) => is_array($word) && isset($word['phrase']))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The authored Persian meaning of one of this mission's vocabulary
+     * phrases, for a step (like Listening) whose own word list carries
+     * only English meanings.
+     */
+    public function persianMeaningFor(string $phrase): ?string
+    {
+        $entry = collect($this->vocabularyEntries())
+            ->first(fn (array $word) => mb_strtolower($word['phrase']) === mb_strtolower($phrase));
+
+        return filled($entry['meaning_fa'] ?? null) ? $entry['meaning_fa'] : null;
+    }
+
+    /**
+     * Every authored Persian meaning across all missions, keyed by the
+     * lowercased phrase — lets My Words show Persian for a word saved
+     * before the meaning was stored on the word itself.
+     *
+     * @return array<string, string>
+     */
+    public static function persianMeanings(): array
+    {
+        return static::all()
+            ->flatMap(fn (self $mission) => $mission->vocabularyEntries())
+            ->filter(fn (array $word) => filled($word['meaning_fa'] ?? null))
+            ->mapWithKeys(fn (array $word) => [mb_strtolower($word['phrase']) => $word['meaning_fa']])
+            ->all();
+    }
+
+    /**
      * A step's questions/prompts, flattened into one ordered list of plain
      * strings — regardless of which conversation-shaped step authored them
      * (AI Conversation #1's flat `interview_questions`, or AI Conversation
@@ -497,6 +543,22 @@ class Mission extends Model
     public function totalDurationMinutes(): int
     {
         return collect($this->stepKeys())->sum(fn ($key) => $this->stepDuration($key));
+    }
+
+    /**
+     * "Day 2 · Build" for a named day, plain "Day 2" when the day's label
+     * is empty or only repeats its own number (the seeded labels are
+     * literally "Day 1", "Day 2"…) so a heading never reads "Day 1 · Day 1".
+     */
+    public static function dayHeading(int $number, ?string $label): string
+    {
+        $label = trim((string) $label);
+
+        if ($label === '' || preg_match('/^day\s*\d+$/i', $label)) {
+            return "Day {$number}";
+        }
+
+        return "Day {$number} · {$label}";
     }
 
     /**

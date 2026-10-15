@@ -14,6 +14,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -87,6 +88,11 @@ class ServiceHealthController extends Controller
                 ? $this->ok('Cron heartbeat', $detail.' — firing every minute')
                 : $this->fail('Cron heartbeat', $detail.' — stale', 'cron stopped or runs less often than every minute');
         }
+
+        // The schedule lives in routes/console.php, which a web request never
+        // loads; asking for the console commands loads it, so the list below
+        // is the real schedule rather than an empty one.
+        Artisan::all();
 
         $events = app(Schedule::class)->events();
         $names = array_map(fn (Event $event): string => $event->description ?? $event->command ?? '?', $events);

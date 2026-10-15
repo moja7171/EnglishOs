@@ -5,6 +5,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\AiFailure;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\SpokenAnswerChecker;
@@ -189,7 +190,7 @@ new class extends Component
             $this->turns[] = ['prompt' => $this->currentRoundPrompt, 'answer' => $answer, 'followup' => $followup];
             $this->roundIndex++;
         } catch (\Throwable $e) {
-            $this->error = "Something went wrong talking to the AI Instructor: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
         } finally {
             $this->processing = false;
         }
@@ -258,7 +259,7 @@ new class extends Component
 
             $this->roleReversalDone = true;
         } catch (\Throwable $e) {
-            $this->error = "Something went wrong talking to the AI Instructor: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
         } finally {
             $this->processing = false;
         }
@@ -293,7 +294,7 @@ new class extends Component
             $this->recordGeminiCall();
             $this->clearCheckAttempt($key);
         } catch (\Throwable $e) {
-            $this->error = "Couldn't get an example: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Couldn't get an example");
         }
     }
 
@@ -382,7 +383,7 @@ new class extends Component
             $this->checklistNote = $data['note'];
             $this->checklistRawResponse = $raw;
         } catch (\Throwable $e) {
-            $this->error = "Something went wrong talking to the AI Instructor: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
         } finally {
             $this->processing = false;
         }

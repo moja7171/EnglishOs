@@ -31,6 +31,9 @@
                 @endif
             </p>
             <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $word['meaning'] }}</p>
+            @if (! empty($word['meaning_fa']))
+                <p dir="rtl" class="font-fa mt-1 text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">{{ $word['meaning_fa'] }}</p>
+            @endif
             @if (! empty($word['example']))
                 <p class="mt-1 text-sm text-ink-soft italic dark:text-ink-soft-dark">"{{ $word['example'] }}"</p>
             @endif

@@ -30,6 +30,9 @@ new class extends Component
     use TracksCheckAttempts;
     use TracksVocabularyNotebook;
 
+    /** Extra words added to the gap-fill word bank beyond the real answers. */
+    private const GAP_FILL_DECOYS = 2;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -59,7 +62,9 @@ new class extends Component
      * The word bank order for the gap-fill sub-step — shuffled once in
      * mount() (not re-shuffled on every render, or the options would jump
      * around under the learner's cursor) so every gap's <select> lists
-     * the same target phrases in the same order.
+     * the same words in the same order: the target phrases plus a couple
+     * of decoys (see gapFillDecoys()), so the bank is not simply the
+     * answers and the gaps cannot be filled by crossing words off.
      *
      * @var array<int, string>
      */
@@ -67,7 +72,12 @@ new class extends Component
 
     public function mount(): void
     {
-        $this->gapFillBankOrder = collect($this->targetPhrases())->pluck('phrase')->shuffle()->values()->all();
+        $this->gapFillBankOrder = collect($this->targetPhrases())
+            ->pluck('phrase')
+            ->merge($this->gapFillDecoys())
+            ->shuffle()
+            ->values()
+            ->all();
 
         if (! $this->readOnly) {
             return;
@@ -116,6 +126,29 @@ new class extends Component
     private function targetPhrases(): array
     {
         return $this->run->mission->stepContent('listening')['target_phrases'] ?? [];
+    }
+
+    /**
+     * Other words from this mission's vocabulary to pad the word bank with.
+     * A phrase that actually occurs in the recording is never used: it
+     * could be a perfectly good answer to a gap that the exercise would
+     * then mark wrong.
+     *
+     * @return list<string>
+     */
+    private function gapFillDecoys(): array
+    {
+        $targets = collect($this->targetPhrases())->pluck('phrase');
+        $spoken = mb_strtolower(collect($this->listeningSegments())->pluck('text')->implode(' '));
+
+        return collect($this->run->mission->vocabularyEntries())
+            ->pluck('phrase')
+            ->unique()
+            ->reject(fn (string $phrase) => $targets->contains($phrase) || str_contains($spoken, mb_strtolower($phrase)))
+            ->shuffle()
+            ->take(self::GAP_FILL_DECOYS)
+            ->values()
+            ->all();
     }
 
     /**

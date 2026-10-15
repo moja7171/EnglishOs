@@ -33,7 +33,7 @@
                         {{ $index + 1 }}
                     @endif
                 </div>
-                <p class="text-xs font-semibold text-ink dark:text-ink-dark">Day {{ $index + 1 }} · {{ $day['label'] }}</p>
+                <p class="text-xs font-semibold text-ink dark:text-ink-dark">{{ \App\Models\Mission::dayHeading($index + 1, $day['label']) }}</p>
                 @if ($day['done'] && $day['completedAt'])
                     <p class="text-[11px] text-success dark:text-success-dark">Completed {{ $day['completedAt']->format('M j') }}</p>
                 @elseif ($day['current'])

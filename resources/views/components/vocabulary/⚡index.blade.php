@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Mission;
 use App\Models\VocabularyWord;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -25,6 +26,18 @@ new class extends Component
     public function allWords()
     {
         return auth()->user()->vocabularyWords()->orderBy('word')->get();
+    }
+
+    /**
+     * Authored Persian meanings by lowercased phrase — the fallback for a
+     * word saved before its own meaning_fa was stored.
+     *
+     * @return array<string, string>
+     */
+    #[Computed]
+    public function courseMeaningsFa(): array
+    {
+        return Mission::persianMeanings();
     }
 
     /**
@@ -96,15 +109,42 @@ new class extends Component
 
             <div x-show="showAll" x-cloak x-transition.opacity.duration.150ms class="mt-2 space-y-1.5">
                 @foreach ($this->allWords as $item)
-                    <div class="flex items-center justify-between gap-3 rounded-xl border border-line px-3.5 py-2 dark:border-line-dark">
-                        <x-speak-word :word="$item->word" class="text-sm font-semibold text-ink dark:text-ink-dark" />
-                        <span class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                            @if ($item->isDue())
-                                Due now
-                            @else
-                                Next review {{ $item->next_review_at->diffForHumans() }}
+                    @php $meaningFa = $item->meaning_fa ?: ($this->courseMeaningsFa[mb_strtolower($item->word)] ?? null); @endphp
+                    <div x-data="{ open: false }" class="rounded-xl border border-line dark:border-line-dark" wire:key="word-{{ $item->id }}">
+                        <div class="flex items-center justify-between gap-3 px-3.5 py-2">
+                            <x-speak-word :word="$item->word" class="text-sm font-semibold text-ink dark:text-ink-dark" />
+                            <button
+                                type="button"
+                                x-on:click="open = !open"
+                                x-bind:aria-expanded="open"
+                                class="inline-flex cursor-pointer items-center gap-1 text-xs text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark"
+                            >
+                                <span>
+                                    @if ($item->isDue())
+                                        Due now
+                                    @else
+                                        Next review {{ $item->next_review_at->diffForHumans() }}
+                                    @endif
+                                </span>
+                                <span class="transition-transform" :class="open ? 'rotate-180' : ''">@svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')</span>
+                                <span class="sr-only">Show meaning</span>
+                            </button>
+                        </div>
+
+                        <div x-show="open" x-cloak class="space-y-1.5 border-t border-line px-3.5 py-2.5 dark:border-line-dark">
+                            @if (filled($item->meaning))
+                                <p class="text-sm text-ink dark:text-ink-dark">{{ $item->meaning }}</p>
                             @endif
-                        </span>
+                            @if (filled($meaningFa))
+                                <p dir="rtl" class="font-fa text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">{{ $meaningFa }}</p>
+                            @endif
+                            @if (filled($item->example))
+                                <p class="text-sm text-ink-soft italic dark:text-ink-soft-dark">"{{ $item->example }}"</p>
+                            @endif
+                            @if (blank($item->meaning) && blank($meaningFa) && blank($item->example))
+                                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">No meaning saved for this word yet.</p>
+                            @endif
+                        </div>
                     </div>
                 @endforeach
             </div>

@@ -3,6 +3,7 @@
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\InstructorMessage;
 use App\Models\MissionRun;
+use App\Services\AiFailure;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Illuminate\Http\Client\ConnectionException;
@@ -235,7 +236,7 @@ new class extends Component
         } catch (ConnectionException|RequestException) {
             $this->error = "Couldn't reach Sage — please try again.";
         } catch (Throwable $e) {
-            $this->error = "Couldn't get an answer: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Couldn't get an answer");
         } finally {
             $this->loading = false;
         }

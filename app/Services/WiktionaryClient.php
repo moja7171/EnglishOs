@@ -103,9 +103,15 @@ class WiktionaryClient
         return $meanings === [] ? null : ['phonetic' => null, 'audio_url' => null, 'meanings' => $meanings];
     }
 
-    /** Wiktionary sends its definitions as HTML with links and labels. */
+    /**
+     * Wiktionary sends its definitions as HTML with links and labels, and
+     * some carry a <style> block (e.g. ".mw-parser-output .defdate{…}") —
+     * strip_tags() drops the tags but keeps the CSS text between them, so
+     * those blocks go first.
+     */
     private function plain(string $html): string
     {
+        $html = preg_replace('#<(style|script)\b[^>]*>.*?</\1>#is', '', $html) ?? $html;
         $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
         return trim(preg_replace('/\s+/u', ' ', $text) ?? '');

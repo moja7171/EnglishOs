@@ -12,6 +12,7 @@ use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
+use RuntimeException;
 use Tests\TestCase;
 
 /**
@@ -220,6 +221,26 @@ class DailyListenStepTest extends TestCase
 
         $this->assertSame(0, $component->instance()->shadowedCount());
         $component->assertSee('Try that line again.');
+    }
+
+    public function test_an_unreachable_ai_does_not_block_a_shadowed_line_and_hides_its_error(): void
+    {
+        $run = $this->makeRun();
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->twice()->andThrow(new RuntimeException('GROQ_API_KEY is not set.')));
+
+        $component = Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->call('markListened')
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 0)
+            ->set('shadowRecordings.1', UploadedFile::fake()->create('shadow-1.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 1)
+            ->assertSee('your recording is saved and it counts')
+            ->assertDontSee('GROQ_API_KEY')
+            ->call('save')
+            ->assertRedirect(route('missions.show', $run->mission));
+
+        $this->assertSame(2, $component->instance()->shadowedCount());
+        $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
     }
 
     public function test_each_day_has_its_own_distinct_shadow_lines(): void

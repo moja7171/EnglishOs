@@ -361,19 +361,6 @@
     animation-delay: 0.16s;
 }
 
-/* Arriving on a page through wire:navigate (see the livewire:navigated hook
-   in app.js). The bottom nav is left out so it stays put while its pill
-   slides; everything else eases in. Opacity only, by design — see the hook. */
-@keyframes page-enter {
-    from {
-        opacity: 0;
-    }
-}
-
-body[data-page-enter] > :not(nav, script, style) {
-    animation: page-enter 0.2s ease-out backwards;
-}
-
 /* A navigation that is taking its time (see the livewire:navigate hook in
    app.js): the page being left dims and ignores taps until the next one
    lands. The bottom nav stays lit so the tab just tapped still looks tapped. */
@@ -401,7 +388,6 @@ html[data-navigating] body > :not(nav, script, style) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body[data-page-enter] > :not(nav, script, style),
     .stagger-children > *,
     .animate-tab-pop,
     .animate-trophy-pop,

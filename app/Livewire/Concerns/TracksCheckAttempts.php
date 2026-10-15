@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Concerns;
 
+use App\Services\AiFailure;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -125,7 +126,7 @@ trait TracksCheckAttempts
         } catch (ConnectionException|RequestException) {
             $this->checkErrors[$errorBagKey] = "Couldn't reach the AI service — please try again.";
         } catch (\Throwable $e) {
-            $this->checkErrors[$errorBagKey] = "Couldn't check this one: {$e->getMessage()}";
+            $this->checkErrors[$errorBagKey] = AiFailure::message($e, "Couldn't check this one");
         }
     }
 }

@@ -50,6 +50,27 @@ class WiktionaryClientTest extends TestCase
         ], $result['meanings']);
     }
 
+    public function test_it_drops_style_blocks_instead_of_leaking_their_css_into_the_text(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response(['en' => [
+                [
+                    'partOfSpeech' => 'Verb',
+                    'definitions' => [[
+                        'definition' => 'To sleep for longer than intended. <style data-mw-deduplicate="TemplateStyles:r1">.mw-parser-output .defdate{font-size:smaller}</style>',
+                        'examples' => ['I <b>overslept</b>.<script>alert(1)</script>'],
+                    ]],
+                ],
+            ]]),
+        ]);
+
+        $definition = (new WiktionaryClient)->define('oversleep')['meanings'][0]['definitions'][0];
+
+        $this->assertSame('To sleep for longer than intended.', $definition['definition']);
+        $this->assertSame('I overslept.', $definition['example']);
+    }
+
     public function test_it_shortens_a_very_long_definition(): void
     {
         Http::preventStrayRequests();

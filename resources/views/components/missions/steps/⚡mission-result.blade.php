@@ -11,6 +11,7 @@ use App\Models\Reflection;
 use App\Models\SelfAssessment;
 use App\Models\SpeakingPrompt;
 use App\Notifications\StreakMilestoneReached;
+use App\Services\AiFailure;
 use App\Services\GeminiClient;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -391,7 +392,7 @@ new class extends Component
             }
             $this->speakingPromptsToTrack = array_fill(0, count($this->speakingPromptCandidates()), true);
         } catch (Throwable $e) {
-            $this->error = "Couldn't get your result from the AI Instructor: {$e->getMessage()}";
+            $this->error = AiFailure::message($e, "Couldn't get your result from the AI Instructor");
         } finally {
             $this->loading = false;
         }

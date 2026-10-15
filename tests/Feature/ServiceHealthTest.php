@@ -114,4 +114,17 @@ class ServiceHealthTest extends TestCase
         $this->get("/_diag/health?token=diag-token&send_test={$user->email}")
             ->assertSee('no subscribed device', false);
     }
+
+    public function test_the_alert_tasks_are_seen_as_registered_in_a_web_request(): void
+    {
+        Cache::forever('scheduler:last-run', now()->getTimestamp());
+
+        $report = $this->get('/_diag/health?token=diag-token')->assertOk()->getContent();
+
+        foreach (['review:send-reminders', 'study:send-reminders', 'streak:send-warnings'] as $task) {
+            $this->assertStringContainsString("[ OK ] Scheduled task: {$task}", $report);
+        }
+
+        $this->assertStringNotContainsString('NOT registered', $report);
+    }
 }

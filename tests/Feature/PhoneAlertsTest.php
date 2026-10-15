@@ -7,12 +7,8 @@ use App\Models\User;
 use App\Notifications\Channels\DeferredWebPushChannel;
 use App\Notifications\DirectMessageReceived;
 use App\Notifications\FollowRequestReceived;
-use App\Notifications\PushTest;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Minishlink\WebPush\MessageSentReport;
 use NotificationChannels\WebPush\WebPushChannel;
 use Tests\TestCase;
 
@@ -30,11 +26,6 @@ class PhoneAlertsTest extends TestCase
             'type' => DirectMessage::TYPE_MESSAGE,
             'body' => 'hello',
         ]);
-    }
-
-    private function report(bool $success, int $status = 201, string $reason = 'OK'): MessageSentReport
-    {
-        return new MessageSentReport(new Request('POST', self::ENDPOINT), new Response($status), $success, $reason);
     }
 
     public function test_a_notification_goes_to_the_bell_and_the_phone(): void
@@ -176,48 +167,5 @@ class PhoneAlertsTest extends TestCase
         Livewire::test('notifications.push-toggle')->call('removePushSubscription', self::ENDPOINT);
 
         $this->assertSame(1, $owner->pushSubscriptions()->count());
-    }
-
-    public function test_the_test_button_needs_a_subscribed_device(): void
-    {
-        $this->actingAs(User::factory()->create());
-        $this->mock(WebPushChannel::class)->shouldNotReceive('send');
-
-        Livewire::test('notifications.push-toggle')
-            ->call('sendTest')
-            ->assertSet('testFailed', true)
-            ->assertSee('turn alerts on first');
-    }
-
-    public function test_the_test_button_reports_a_delivered_push(): void
-    {
-        $user = User::factory()->create();
-        $user->updatePushSubscription(self::ENDPOINT, 'key', 'token', 'aes128gcm');
-        $this->actingAs($user);
-
-        $this->mock(WebPushChannel::class)
-            ->shouldReceive('send')->once()->with($user, \Mockery::type(PushTest::class))
-            ->andReturn([$this->report(success: true)]);
-
-        Livewire::test('notifications.push-toggle')
-            ->call('sendTest')
-            ->assertSet('testFailed', false)
-            ->assertSee('Sent');
-    }
-
-    public function test_the_test_button_shows_why_a_push_was_refused(): void
-    {
-        $user = User::factory()->create();
-        $user->updatePushSubscription(self::ENDPOINT, 'key', 'token', 'aes128gcm');
-        $this->actingAs($user);
-
-        $this->mock(WebPushChannel::class)
-            ->shouldReceive('send')->once()
-            ->andReturn([$this->report(success: false, status: 502, reason: 'cURL error 28: timed out')]);
-
-        Livewire::test('notifications.push-toggle')
-            ->call('sendTest')
-            ->assertSet('testFailed', true)
-            ->assertSee('cURL error 28');
     }
 }

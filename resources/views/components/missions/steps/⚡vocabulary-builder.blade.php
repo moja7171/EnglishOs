@@ -6,6 +6,7 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\AiFailure;
 use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
@@ -143,23 +144,43 @@ new class extends Component
 
     /**
      * A warm-up <x-quick-round> between the story and practice — one card
-     * per word, distractor meanings pulled from the OTHER words in this
-     * same day so they're always plausible-sounding.
+     * per word. Distractor meanings come from the mission's OTHER days'
+     * words first: a distractor taken from this page's own words is the
+     * right answer to another card, so the learner could finish the round
+     * by elimination alone. Today's other words only top up when the
+     * mission has too few others.
      *
      * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
      */
     public function meaningCheckCards(): array
     {
         $words = collect($this->words());
+        $todaysPhrases = $words->pluck('phrase');
+
+        $fromOtherDays = collect($this->run->mission->vocabularyEntries())
+            ->reject(fn (array $other) => $todaysPhrases->contains($other['phrase']))
+            ->pluck('meaning')
+            ->filter()
+            ->unique()
+            ->values();
 
         return $words
-            ->map(function (array $entry) use ($words) {
-                $distractors = $words
-                    ->where('phrase', '!=', $entry['phrase'])
-                    ->pluck('meaning')
-                    ->filter()
+            ->map(function (array $entry) use ($words, $fromOtherDays) {
+                $distractors = $fromOtherDays
+                    ->reject(fn (string $meaning) => $meaning === $entry['meaning'])
                     ->shuffle()
                     ->take(2);
+
+                if ($distractors->count() < 2) {
+                    $distractors = $distractors->concat(
+                        $words
+                            ->where('phrase', '!=', $entry['phrase'])
+                            ->pluck('meaning')
+                            ->filter()
+                            ->shuffle()
+                            ->take(2 - $distractors->count())
+                    );
+                }
 
                 $options = collect([$entry['meaning'], ...$distractors])->shuffle()->values();
 
@@ -276,7 +297,7 @@ new class extends Component
             // API message) — never show that to the learner.
             $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
         } catch (Throwable $e) {
-            $this->checkErrors[$word] = "Couldn't check this one: {$e->getMessage()}";
+            $this->checkErrors[$word] = AiFailure::message($e, "Couldn't check this one");
         }
     }
 
@@ -413,6 +434,7 @@ new class extends Component
             ->map(fn (array $entry, int $index) => [
                 'word' => $entry['phrase'],
                 'meaning' => $entry['meaning'],
+                'meaning_fa' => $entry['meaning_fa'] ?? null,
                 'pos' => $entry['pos'] ?? null,
                 'example' => $entry['example'] ?? null,
                 'user_sentence' => trim((string) ($this->examples[$index] ?? '')) ?: null,

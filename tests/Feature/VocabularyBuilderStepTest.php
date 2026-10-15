@@ -158,6 +158,39 @@ class VocabularyBuilderStepTest extends TestCase
         $component->assertSee('Quick check before you write');
     }
 
+    public function test_meaning_check_wrong_answers_come_from_other_days_so_they_cannot_be_ruled_out_by_elimination(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                ['phase' => 'foundation', 'steps' => [$this->day1Step()]],
+                ['phase' => 'build', 'steps' => [[
+                    'key' => 'vocabulary_builder_2',
+                    'words' => [
+                        ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain'],
+                        ['phrase' => 'snack', 'meaning' => 'a small amount of food between meals'],
+                    ],
+                ]]],
+            ],
+        ]);
+        $this->actingAs($learner);
+
+        $cards = Livewire::test('missions.steps.vocabulary-builder', ['run' => MissionRun::findOrStart($learner, $mission), 'stepKey' => 'vocabulary_builder_1'])
+            ->instance()->meaningCheckCards();
+        $todaysMeanings = collect($this->day1Step()['words'])->pluck('meaning');
+
+        foreach ($cards as $card) {
+            $wrongOptions = collect($card['options'])->reject(fn ($option, $index) => $index === $card['correct']);
+
+            $this->assertCount(2, $wrongOptions);
+            $this->assertEmpty($wrongOptions->intersect($todaysMeanings)->all());
+        }
+    }
+
     public function test_a_seeded_difficulty_tag_is_threaded_through_to_the_meaning_check_cards(): void
     {
         $learner = User::factory()->create();
@@ -328,6 +361,34 @@ class VocabularyBuilderStepTest extends TestCase
         $this->assertCount(4, $content['examples']);
 
         $this->assertSame('listening', $run->fresh()->currentStepKey());
+    }
+
+    public function test_a_words_persian_meaning_shows_on_its_card_and_is_kept_in_my_words(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [[
+                'key' => 'vocabulary_builder_1',
+                'story' => 'I **wake up** early.',
+                'words' => [['phrase' => 'wake up', 'meaning' => 'to stop sleeping', 'meaning_fa' => 'بیدار شدن']],
+            ]]]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
+
+        $this->stepComponent($run)
+            ->assertSee('بیدار شدن')
+            ->set('examples.0', 'I usually wake up around 7.')
+            ->call('save')
+            ->call('addWordsToNotebook');
+
+        $this->assertDatabaseHas('vocabulary_words', ['learner_id' => $learner->id, 'word' => 'wake up', 'meaning_fa' => 'بیدار شدن']);
     }
 
     public function test_saving_enrolls_every_word_into_the_vocabulary_notebook(): void
@@ -551,7 +612,8 @@ class VocabularyBuilderStepTest extends TestCase
         $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
-            ->assertSet('checkErrors.wake up', fn ($error) => str_contains($error, 'service unavailable'))
+            ->assertSet('checkErrors.wake up', "Couldn't check this one — please try again in a moment.")
+            ->assertDontSee('service unavailable')
             ->assertSet('examples.0', 'I usually wake up around 7.');
     }
 

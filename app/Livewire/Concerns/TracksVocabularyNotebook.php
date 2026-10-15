@@ -34,11 +34,11 @@ trait TracksVocabularyNotebook
     /**
      * The word list to offer, in the shape the checkbox UI and
      * addWordsToNotebook() both need — e.g. Vocabulary Builder's own
-     * words() + their meanings, or Listening's target_phrases. pos,
-     * example and user_sentence are optional: they only feed the review
+     * words() + their meanings, or Listening's target_phrases. meaning_fa,
+     * pos, example and user_sentence are optional: they only feed the review
      * card, so a step that has none of them just leaves them out.
      *
-     * @return list<array{word: string, meaning: string, pos?: ?string, example?: ?string, user_sentence?: ?string}>
+     * @return list<array{word: string, meaning: string, meaning_fa?: ?string, pos?: ?string, example?: ?string, user_sentence?: ?string}>
      */
     abstract protected function notebookCandidates(): array;
 
@@ -112,6 +112,9 @@ trait TracksVocabularyNotebook
                 [
                     'source_mission_run_id' => $this->run->id,
                     'meaning' => $candidate['meaning'],
+                    'meaning_fa' => filled($candidate['meaning_fa'] ?? null)
+                        ? $candidate['meaning_fa']
+                        : $this->run->mission->persianMeaningFor($candidate['word']),
                     'pos' => filled($candidate['pos'] ?? null) ? $candidate['pos'] : null,
                     'example' => filled($candidate['example'] ?? null) ? $candidate['example'] : null,
                     'user_sentence' => filled($candidate['user_sentence'] ?? null) ? $candidate['user_sentence'] : null,

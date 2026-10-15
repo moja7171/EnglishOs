@@ -79,11 +79,11 @@ class MissionSeeder extends Seeder
                                     .'**oversleep** by accident and I\'m late! I never **skip breakfast**, even '
                                     .'when I\'m in a hurry.',
                                 'words' => [
-                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'pos' => 'noun phrase', 'synonym' => 'opposite: a night owl', 'example' => 'My sister is a real morning person.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up', 'pos' => 'phrasal verb', 'synonym' => 'rise', 'example' => 'He gets up at six every morning.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'pos' => 'phrasal verb', 'example' => 'We always sleep in on Sundays.', 'difficulty' => 'hard'],
-                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'pos' => 'verb', 'example' => 'I overslept and missed the bus.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'pos' => 'verb phrase', 'example' => "Don't skip breakfast before an exam.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'morning person', 'meaning' => 'someone who has a lot of energy at the start of the day', 'meaning_fa' => 'آدم صبح‌ها (کسی که صبح پرانرژی است)', 'pos' => 'noun phrase', 'synonym' => 'opposite: a night owl', 'example' => 'My sister is a real morning person.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed after waking up', 'meaning_fa' => 'از خواب بلند شدن، از تخت بیرون آمدن', 'pos' => 'phrasal verb', 'synonym' => 'rise', 'example' => 'He gets up at six every morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'sleep in', 'meaning' => 'to stay in bed and sleep later than usual', 'meaning_fa' => 'دیرتر از معمول خوابیدن (صبح تا دیروقت در رخت‌خواب ماندن)', 'pos' => 'phrasal verb', 'example' => 'We always sleep in on Sundays.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should, by accident', 'meaning_fa' => 'ناخواسته بیشتر از حد خوابیدن (خواب ماندن)', 'pos' => 'verb', 'example' => 'I overslept and missed the bus.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'meaning_fa' => 'صبحانه نخوردن', 'pos' => 'verb phrase', 'example' => "Don't skip breakfast before an exam.", 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -249,12 +249,12 @@ class MissionSeeder extends Seeder
                                     .'a **takeaway** instead of cooking. On Saturdays we **do the shopping** '
                                     .'together.',
                                 'words' => [
-                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'pos' => 'noun', 'example' => 'I had a bowl of cereal for breakfast.', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
-                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'pos' => 'verb phrase', 'synonym' => 'shower (verb)', 'example' => 'I have a shower every morning before work.', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy'],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'pos' => 'verb phrase', 'synonym' => 'brush my teeth', 'example' => 'Remember to clean your teeth before bed.', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I had a snack around four o\'clock.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'pos' => 'noun', 'synonym' => 'takeout', 'example' => 'We ordered a takeaway on Friday night.', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
-                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'pos' => 'verb phrase', 'synonym' => 'go shopping', 'example' => 'I do the shopping every Saturday morning.', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'meaning_fa' => 'غلات صبحانه (کورن‌فلکس و مانند آن)', 'pos' => 'noun', 'example' => 'I had a bowl of cereal for breakfast.', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
+                                    ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'meaning_fa' => 'دوش گرفتن', 'pos' => 'verb phrase', 'synonym' => 'shower (verb)', 'example' => 'I have a shower every morning before work.', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy'],
+                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'meaning_fa' => 'مسواک زدن', 'pos' => 'verb phrase', 'synonym' => 'brush my teeth', 'example' => 'Remember to clean your teeth before bed.', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'meaning_fa' => 'میان‌وعده', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I had a snack around four o\'clock.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'meaning_fa' => 'غذای بیرون‌بر', 'pos' => 'noun', 'synonym' => 'takeout', 'example' => 'We ordered a takeaway on Friday night.', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
+                                    ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'meaning_fa' => 'خرید کردن (خرید خانه)', 'pos' => 'verb phrase', 'synonym' => 'go shopping', 'example' => 'I do the shopping every Saturday morning.', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -263,7 +263,7 @@ class MissionSeeder extends Seeder
                                 // Was 2, then 3 for the recall prompt (+1); now 8 — the audio-ended
                                 // gate genuinely requires the full 6:44 (ffprobe-verified) BBC
                                 // episode to play through, which 3 never accounted for.
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 10,
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 // Purely decorative — a different image than Day 1's own for
                                 // visual variety across the 4 listens of the same episode.
@@ -563,12 +563,12 @@ class MissionSeeder extends Seeder
                                     .'I like to **go out** with friends. We often **eat out** at a new '
                                     .'restaurant, and I always **chat** with my best friend on the phone.',
                                 'words' => [
-                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'pos' => 'noun', 'synonym' => 'chores', 'example' => 'We share the housework equally.', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
-                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'pos' => 'verb phrase', 'synonym' => 'doing the laundry', 'example' => 'I hate doing the washing on weekends.', 'image_query' => 'loading clothes into washing machine', 'difficulty' => 'medium'],
-                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'pos' => 'phrasal verb', 'synonym' => 'opposite: go out', 'example' => 'I stayed in and watched a film last night.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'pos' => 'phrasal verb', 'synonym' => 'opposite: stay in', 'example' => 'We usually go out on Friday nights.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out about once a month.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'pos' => 'verb', 'synonym' => 'talk', 'example' => 'We chatted for an hour on the phone.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'housework', 'meaning' => 'the work of keeping a home clean and tidy', 'meaning_fa' => 'کارهای خانه', 'pos' => 'noun', 'synonym' => 'chores', 'example' => 'We share the housework equally.', 'image_query' => 'cleaning house vacuum', 'difficulty' => 'easy'],
+                                    ['phrase' => 'doing the washing', 'meaning' => 'washing dirty clothes', 'meaning_fa' => 'لباس شستن', 'pos' => 'verb phrase', 'synonym' => 'doing the laundry', 'example' => 'I hate doing the washing on weekends.', 'image_query' => 'loading clothes into washing machine', 'difficulty' => 'medium'],
+                                    ['phrase' => 'stay in', 'meaning' => 'to spend your evening at home instead of going out', 'meaning_fa' => 'در خانه ماندن (بیرون نرفتن)', 'pos' => 'phrasal verb', 'synonym' => 'opposite: go out', 'example' => 'I stayed in and watched a film last night.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'go out', 'meaning' => 'to leave home to do something for fun', 'meaning_fa' => 'بیرون رفتن (برای تفریح)', 'pos' => 'phrasal verb', 'synonym' => 'opposite: stay in', 'example' => 'We usually go out on Friday nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'meaning_fa' => 'بیرون غذا خوردن (در رستوران)', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out about once a month.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'chat', 'meaning' => 'to have an informal, friendly conversation', 'meaning_fa' => 'گپ زدن', 'pos' => 'verb', 'synonym' => 'talk', 'example' => 'We chatted for an hour on the phone.', 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -576,7 +576,7 @@ class MissionSeeder extends Seeder
                                 'label' => 'Listen Again',
                                 // Was 2, then 3 for the recall prompt (+1); now 8 — same real 6:44
                                 // (ffprobe-verified) audio-ended gate as daily_listen_2.
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 10,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'alarm clock wake up bed',
                                 'shadow_lines' => [
@@ -972,11 +972,11 @@ class MissionSeeder extends Seeder
                                     .'month we **got back in touch** — and now we **stay friends** again, as if '
                                     .'nothing changed.',
                                 'words' => [
-                                    ['phrase' => 'meet up', 'meaning' => 'to meet someone, usually a friend, for a planned time together', 'pos' => 'phrasal verb', 'synonym' => 'get together', 'example' => 'We meet up for coffee every Saturday.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'stay in touch', 'meaning' => 'to keep contact with someone by speaking or writing to them regularly', 'pos' => 'verb phrase', 'synonym' => 'keep in touch', 'example' => 'We stay in touch through a group chat.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'lose touch', 'meaning' => 'to stop seeing or speaking to someone, so you no longer have contact', 'pos' => 'verb phrase', 'synonym' => 'opposite: stay in touch', 'example' => 'I lost touch with my school friends after I moved.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'get back in touch', 'meaning' => 'to start speaking to or seeing someone again after a long time', 'pos' => 'verb phrase', 'synonym' => 'reconnect', 'example' => 'She got back in touch with an old friend last week.', 'difficulty' => 'hard'],
-                                    ['phrase' => 'stay friends', 'meaning' => 'to continue to be friends for a long time', 'pos' => 'verb phrase', 'example' => 'We stayed friends even after we left school.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'meet up', 'meaning' => 'to meet someone, usually a friend, for a planned time together', 'meaning_fa' => 'همدیگر را دیدن (قرار ملاقات گذاشتن)', 'pos' => 'phrasal verb', 'synonym' => 'get together', 'example' => 'We meet up for coffee every Saturday.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'stay in touch', 'meaning' => 'to keep contact with someone by speaking or writing to them regularly', 'meaning_fa' => 'در تماس ماندن', 'pos' => 'verb phrase', 'synonym' => 'keep in touch', 'example' => 'We stay in touch through a group chat.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'lose touch', 'meaning' => 'to stop seeing or speaking to someone, so you no longer have contact', 'meaning_fa' => 'ارتباط را از دست دادن', 'pos' => 'verb phrase', 'synonym' => 'opposite: stay in touch', 'example' => 'I lost touch with my school friends after I moved.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get back in touch', 'meaning' => 'to start speaking to or seeing someone again after a long time', 'meaning_fa' => 'دوباره تماس گرفتن (بعد از مدتی)', 'pos' => 'verb phrase', 'synonym' => 'reconnect', 'example' => 'She got back in touch with an old friend last week.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'stay friends', 'meaning' => 'to continue to be friends for a long time', 'meaning_fa' => 'دوست ماندن', 'pos' => 'verb phrase', 'example' => 'We stayed friends even after we left school.', 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -1096,18 +1096,18 @@ class MissionSeeder extends Seeder
                                     .'now our **friendship** is really strong. We still **get on well with** each '
                                     .'other, and I often meet up with a **mate** from work too.',
                                 'words' => [
-                                    ['phrase' => 'best friend', 'meaning' => 'the friend you are closest to and trust the most', 'pos' => 'noun phrase', 'synonym' => 'closest friend', 'example' => "She's been my best friend since school.", 'difficulty' => 'easy'],
-                                    ['phrase' => 'old friend', 'meaning' => 'a friend you have known for a long time (not necessarily an elderly friend)', 'pos' => 'noun phrase', 'example' => 'I ran into an old friend at the station.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'get to know each other', 'meaning' => 'to gradually become familiar with a person', 'pos' => 'verb phrase', 'example' => 'It took us months to get to know each other well.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'friendship', 'meaning' => 'the relationship between friends', 'pos' => 'noun', 'example' => 'Our friendship has lasted over ten years.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly, easy relationship with someone', 'pos' => 'verb phrase', 'synonym' => 'get along with', 'example' => 'I get on well with most of my colleagues.', 'difficulty' => 'hard'],
-                                    ['phrase' => 'mate', 'meaning' => '(British informal) a friend', 'pos' => 'noun (British informal)', 'synonym' => 'friend', 'example' => "I'm meeting a mate for coffee later.", 'image_query' => 'two friends high five outdoors', 'difficulty' => 'medium'],
+                                    ['phrase' => 'best friend', 'meaning' => 'the friend you are closest to and trust the most', 'meaning_fa' => 'بهترین دوست', 'pos' => 'noun phrase', 'synonym' => 'closest friend', 'example' => "She's been my best friend since school.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'old friend', 'meaning' => 'a friend you have known for a long time (not necessarily an elderly friend)', 'meaning_fa' => 'دوست قدیمی', 'pos' => 'noun phrase', 'example' => 'I ran into an old friend at the station.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get to know each other', 'meaning' => 'to gradually become familiar with a person', 'meaning_fa' => 'کم‌کم با هم آشنا شدن', 'pos' => 'verb phrase', 'example' => 'It took us months to get to know each other well.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'friendship', 'meaning' => 'the relationship between friends', 'meaning_fa' => 'دوستی', 'pos' => 'noun', 'example' => 'Our friendship has lasted over ten years.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly, easy relationship with someone', 'meaning_fa' => 'با کسی خوب کنار آمدن', 'pos' => 'verb phrase', 'synonym' => 'get along with', 'example' => 'I get on well with most of my colleagues.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'mate', 'meaning' => '(British informal) a friend', 'meaning_fa' => 'رفیق (غیررسمی، انگلیسی بریتانیایی)', 'pos' => 'noun (British informal)', 'synonym' => 'friend', 'example' => "I'm meeting a mate for coffee later.", 'image_query' => 'two friends high five outdoors', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Listen Again',
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 9,
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 'image_query' => 'two friends chatting park bench',
                                 'shadow_lines' => [
@@ -1329,17 +1329,17 @@ class MissionSeeder extends Seeder
                                     .'and other **relatives** often. My sister\'s **current** boyfriend is '
                                     .'really funny — much better than her **ex-partner**!',
                                 'words' => [
-                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and enjoys meeting/talking to people', 'pos' => 'adjective', 'synonym' => 'sociable', 'example' => 'My brother is very outgoing and makes friends easily.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'close family', 'meaning' => 'your nearest family members (parents, siblings, etc.)', 'pos' => 'noun phrase', 'synonym' => 'immediate family', 'example' => 'My close family all live in the same city.', 'image_query' => 'family dinner table together', 'difficulty' => 'easy'],
-                                    ['phrase' => 'relatives', 'meaning' => 'members of your family', 'pos' => 'noun', 'synonym' => 'family members', 'example' => 'We invited all our relatives to the wedding.', 'image_query' => 'extended family reunion', 'difficulty' => 'easy'],
-                                    ['phrase' => 'current', 'meaning' => 'happening or existing now (as opposed to before)', 'pos' => 'adjective', 'synonym' => 'present', 'example' => 'My current job is more stressful than my last one.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'ex-partner', 'meaning' => "a person's former boyfriend/girlfriend/husband/wife", 'pos' => 'noun', 'synonym' => 'former partner', 'example' => 'I still see my ex-partner at family events sometimes.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and enjoys meeting/talking to people', 'meaning_fa' => 'برونگرا، اهل معاشرت', 'pos' => 'adjective', 'synonym' => 'sociable', 'example' => 'My brother is very outgoing and makes friends easily.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'close family', 'meaning' => 'your nearest family members (parents, siblings, etc.)', 'meaning_fa' => 'خانواده‌ی نزدیک', 'pos' => 'noun phrase', 'synonym' => 'immediate family', 'example' => 'My close family all live in the same city.', 'image_query' => 'family dinner table together', 'difficulty' => 'easy'],
+                                    ['phrase' => 'relatives', 'meaning' => 'members of your family', 'meaning_fa' => 'فامیل، اقوام', 'pos' => 'noun', 'synonym' => 'family members', 'example' => 'We invited all our relatives to the wedding.', 'image_query' => 'extended family reunion', 'difficulty' => 'easy'],
+                                    ['phrase' => 'current', 'meaning' => 'happening or existing now (as opposed to before)', 'meaning_fa' => 'کنونی، فعلی', 'pos' => 'adjective', 'synonym' => 'present', 'example' => 'My current job is more stressful than my last one.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'ex-partner', 'meaning' => "a person's former boyfriend/girlfriend/husband/wife", 'meaning_fa' => 'شریک سابق (همسر یا دوست‌دختر/پسر سابق)', 'pos' => 'noun', 'synonym' => 'former partner', 'example' => 'I still see my ex-partner at family events sometimes.', 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Listen Again',
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 9,
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'friends walking together talking',
                                 'shadow_lines' => [
@@ -1616,11 +1616,11 @@ class MissionSeeder extends Seeder
                                     .'a real **craving** for something sweet, so I try to reach for a healthier '
                                     .'**snack** instead of **processed food**.',
                                 'words' => [
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'pos' => 'verb phrase', 'example' => "She often skips breakfast when she's late for work.", 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out most Friday nights.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'pos' => 'noun', 'example' => 'I had a craving for chocolate all afternoon.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I grabbed a snack before the meeting.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food if you can.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'meaning_fa' => 'صبحانه نخوردن', 'pos' => 'verb phrase', 'example' => "She often skips breakfast when she's late for work.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'meaning_fa' => 'بیرون غذا خوردن (در رستوران)', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out most Friday nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'meaning_fa' => 'هوس (خوردن چیزی)', 'pos' => 'noun', 'example' => 'I had a craving for chocolate all afternoon.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'meaning_fa' => 'میان‌وعده', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I grabbed a snack before the meeting.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
+                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'meaning_fa' => 'غذای فرآوری‌شده', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food if you can.', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
@@ -1757,18 +1757,18 @@ class MissionSeeder extends Seeder
                                     .'**frozen** ones save time too. Whatever fresh **ingredient** I buy too '
                                     .'much of usually ends up as **leftovers** the next day.',
                                 'words' => [
-                                    ['phrase' => 'home-cooked', 'meaning' => 'made at home, not bought ready-made or from a restaurant', 'pos' => 'adjective', 'example' => "There's nothing better than a home-cooked meal.", 'image_query' => 'home cooked dinner family table', 'difficulty' => 'easy'],
-                                    ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'pos' => 'noun phrase', 'example' => 'Eating a balanced diet keeps me healthy.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'pos' => 'adjective', 'synonym' => 'opposite: frozen', 'example' => 'I always buy fresh fruit at the market.', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
-                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'pos' => 'adjective', 'synonym' => 'opposite: fresh', 'example' => 'We keep frozen vegetables for busy nights.', 'image_query' => 'frozen food in freezer drawer', 'difficulty' => 'easy'],
-                                    ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'pos' => 'noun', 'example' => 'Garlic is the main ingredient in this sauce.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'pos' => 'noun', 'example' => 'I had the leftovers for lunch the next day.', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
+                                    ['phrase' => 'home-cooked', 'meaning' => 'made at home, not bought ready-made or from a restaurant', 'meaning_fa' => 'خانگی (پخته‌شده در خانه)', 'pos' => 'adjective', 'example' => "There's nothing better than a home-cooked meal.", 'image_query' => 'home cooked dinner family table', 'difficulty' => 'easy'],
+                                    ['phrase' => 'balanced diet', 'meaning' => 'a healthy mix of different kinds of food', 'meaning_fa' => 'رژیم غذایی متعادل', 'pos' => 'noun phrase', 'example' => 'Eating a balanced diet keeps me healthy.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'fresh', 'meaning' => 'recently made or picked, not from a can or freezer', 'meaning_fa' => 'تازه', 'pos' => 'adjective', 'synonym' => 'opposite: frozen', 'example' => 'I always buy fresh fruit at the market.', 'image_query' => 'fresh vegetables market', 'difficulty' => 'easy'],
+                                    ['phrase' => 'frozen', 'meaning' => 'kept cold to preserve it, not fresh', 'meaning_fa' => 'منجمد، یخ‌زده', 'pos' => 'adjective', 'synonym' => 'opposite: fresh', 'example' => 'We keep frozen vegetables for busy nights.', 'image_query' => 'frozen food in freezer drawer', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ingredient', 'meaning' => 'one of the foods used to make a dish', 'meaning_fa' => 'ماده‌ی اولیه (مواد یک غذا)', 'pos' => 'noun', 'example' => 'Garlic is the main ingredient in this sauce.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'leftovers', 'meaning' => 'food that was not eaten at a meal, saved for later', 'meaning_fa' => 'غذای باقی‌مانده', 'pos' => 'noun', 'example' => 'I had the leftovers for lunch the next day.', 'image_query' => 'leftovers food container fridge', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Listen Again',
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 7,
                                 'hook' => 'Same podcast, one more time — familiar is exactly the point.',
                                 'image_query' => 'healthy breakfast bowl oatmeal',
                                 'shadow_lines' => [
@@ -1966,18 +1966,18 @@ class MissionSeeder extends Seeder
                                     .'touch "**unhealthy food**" again — I\'m just trying to **cut down on** '
                                     .'**junk food**, one small change at a time.',
                                 'words' => [
-                                    ['phrase' => 'sweet tooth', 'meaning' => 'a strong liking for sweet food', 'pos' => 'noun phrase (idiom)', 'example' => 'My dad has a real sweet tooth.', 'difficulty' => 'hard'],
-                                    ['phrase' => 'spicy', 'meaning' => 'having a strong, hot taste, like chilli', 'pos' => 'adjective', 'synonym' => 'opposite: mild', 'example' => 'This curry is a bit too spicy for me.', 'image_query' => 'spicy food chilli', 'difficulty' => 'easy'],
-                                    ['phrase' => 'healthy food', 'meaning' => 'food that is good for your body', 'pos' => 'noun phrase', 'synonym' => 'opposite: junk food', 'example' => 'She only keeps healthy food in the house.', 'image_query' => 'healthy food bowl vegetables', 'difficulty' => 'easy'],
-                                    ['phrase' => 'unhealthy food', 'meaning' => 'food that is bad for your body if eaten often', 'pos' => 'noun phrase', 'example' => 'Too much unhealthy food makes me feel tired.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'cut down on', 'meaning' => 'to reduce how much of something you eat or do', 'pos' => 'phrasal verb', 'synonym' => 'reduce', 'example' => "I'm trying to cut down on sugar.", 'difficulty' => 'hard'],
-                                    ['phrase' => 'junk food', 'meaning' => 'cheap food that is quick to eat but bad for your health', 'pos' => 'noun phrase', 'synonym' => 'opposite: healthy food', 'example' => "It's easy to eat junk food when you're busy.", 'image_query' => 'junk food fast food', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sweet tooth', 'meaning' => 'a strong liking for sweet food', 'meaning_fa' => 'علاقه‌ی زیاد به شیرینی', 'pos' => 'noun phrase (idiom)', 'example' => 'My dad has a real sweet tooth.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'spicy', 'meaning' => 'having a strong, hot taste, like chilli', 'meaning_fa' => 'تند، ادویه‌دار', 'pos' => 'adjective', 'synonym' => 'opposite: mild', 'example' => 'This curry is a bit too spicy for me.', 'image_query' => 'spicy food chilli', 'difficulty' => 'easy'],
+                                    ['phrase' => 'healthy food', 'meaning' => 'food that is good for your body', 'meaning_fa' => 'غذای سالم', 'pos' => 'noun phrase', 'synonym' => 'opposite: junk food', 'example' => 'She only keeps healthy food in the house.', 'image_query' => 'healthy food bowl vegetables', 'difficulty' => 'easy'],
+                                    ['phrase' => 'unhealthy food', 'meaning' => 'food that is bad for your body if eaten often', 'meaning_fa' => 'غذای ناسالم', 'pos' => 'noun phrase', 'example' => 'Too much unhealthy food makes me feel tired.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cut down on', 'meaning' => 'to reduce how much of something you eat or do', 'meaning_fa' => 'کم کردن (مصرف یا انجام چیزی)', 'pos' => 'phrasal verb', 'synonym' => 'reduce', 'example' => "I'm trying to cut down on sugar.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'junk food', 'meaning' => 'cheap food that is quick to eat but bad for your health', 'meaning_fa' => 'فست‌فود، غذای ناسالم آماده', 'pos' => 'noun phrase', 'synonym' => 'opposite: healthy food', 'example' => "It's easy to eat junk food when you're busy.", 'image_query' => 'junk food fast food', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Listen Again',
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 7,
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'fresh food kitchen preparation',
                                 'shadow_lines' => [
@@ -2225,9 +2225,9 @@ class MissionSeeder extends Seeder
                                     .'member of the **team**. Part of my job is learning to **deal with** '
                                     .'difficult situations calmly.',
                                 'words' => [
-                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'pos' => 'noun', 'example' => 'She found a new job last month.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'pos' => 'noun', 'synonym' => 'group', 'example' => 'Our team meets every Monday morning.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'pos' => 'phrasal verb', 'synonym' => 'handle', 'example' => 'I have to deal with a difficult client today.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'meaning_fa' => 'شغل، کار', 'pos' => 'noun', 'example' => 'She found a new job last month.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'meaning_fa' => 'تیم، گروه', 'pos' => 'noun', 'synonym' => 'group', 'example' => 'Our team meets every Monday morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'meaning_fa' => 'از پس کاری برآمدن، رسیدگی کردن به', 'pos' => 'phrasal verb', 'synonym' => 'handle', 'example' => 'I have to deal with a difficult client today.', 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -2350,17 +2350,17 @@ class MissionSeeder extends Seeder
                                     .'**full-time** — I don\'t think I\'d enjoy **part-time** work. My '
                                     .'**workplace** is small, so I know all my **colleagues** well.',
                                 'words' => [
-                                    ['phrase' => 'career', 'meaning' => 'the jobs someone has over a long period, usually in one field', 'pos' => 'noun', 'example' => 'He has had a long career in teaching.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'pos' => 'adjective', 'synonym' => 'opposite: part-time', 'example' => 'She works full-time at a hospital.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'pos' => 'adjective', 'synonym' => 'opposite: full-time', 'example' => 'I have a part-time job at weekends.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'pos' => 'noun', 'example' => 'Our workplace is very friendly.', 'image_query' => 'colleagues working in open office', 'difficulty' => 'easy'],
-                                    ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'pos' => 'noun', 'synonym' => 'co-worker', 'example' => 'I had lunch with a colleague today.', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
+                                    ['phrase' => 'career', 'meaning' => 'the jobs someone has over a long period, usually in one field', 'meaning_fa' => 'مسیر شغلی، حرفه', 'pos' => 'noun', 'example' => 'He has had a long career in teaching.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'full-time', 'meaning' => 'working the standard number of hours in a week', 'meaning_fa' => 'تمام‌وقت', 'pos' => 'adjective', 'synonym' => 'opposite: part-time', 'example' => 'She works full-time at a hospital.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'part-time', 'meaning' => 'working fewer than the standard number of hours', 'meaning_fa' => 'پاره‌وقت', 'pos' => 'adjective', 'synonym' => 'opposite: full-time', 'example' => 'I have a part-time job at weekends.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'workplace', 'meaning' => 'the place where someone works', 'meaning_fa' => 'محل کار', 'pos' => 'noun', 'example' => 'Our workplace is very friendly.', 'image_query' => 'colleagues working in open office', 'difficulty' => 'easy'],
+                                    ['phrase' => 'colleague', 'meaning' => 'a person you work with', 'meaning_fa' => 'همکار', 'pos' => 'noun', 'synonym' => 'co-worker', 'example' => 'I had lunch with a colleague today.', 'image_query' => 'colleagues working together office', 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
                                 'key' => 'daily_listen_2',
                                 'label' => 'Listen Again',
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 9,
                                 'hook' => 'Same podcast, one more time — familiar is exactly the point.',
                                 'image_query' => 'people working office study',
                                 'shadow_lines' => [
@@ -2575,17 +2575,17 @@ class MissionSeeder extends Seeder
                                     .'standard, though I sometimes do **overtime**. The **salary** isn\'t amazing, '
                                     .'but it\'s fair.',
                                 'words' => [
-                                    ['phrase' => 'responsibility', 'meaning' => 'a duty or task that is part of your job', 'pos' => 'noun', 'example' => 'Training new staff is my responsibility.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'in charge of', 'meaning' => 'responsible for managing something', 'pos' => 'adjective phrase', 'synonym' => 'responsible for', 'example' => "She's in charge of the whole department.", 'difficulty' => 'hard'],
-                                    ['phrase' => 'working hours', 'meaning' => 'the times of day someone is at work', 'pos' => 'noun phrase', 'example' => 'My working hours are nine to five.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'overtime', 'meaning' => 'extra hours worked beyond the usual schedule', 'pos' => 'noun', 'example' => 'I did two hours of overtime yesterday.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'salary', 'meaning' => 'the fixed amount of money someone is paid for their job', 'pos' => 'noun', 'example' => 'The salary for this job is quite good.', 'image_query' => 'salary paycheck money', 'difficulty' => 'medium'],
+                                    ['phrase' => 'responsibility', 'meaning' => 'a duty or task that is part of your job', 'meaning_fa' => 'مسئولیت', 'pos' => 'noun', 'example' => 'Training new staff is my responsibility.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'in charge of', 'meaning' => 'responsible for managing something', 'meaning_fa' => 'مسئول (چیزی)', 'pos' => 'adjective phrase', 'synonym' => 'responsible for', 'example' => "She's in charge of the whole department.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'working hours', 'meaning' => 'the times of day someone is at work', 'meaning_fa' => 'ساعت کاری', 'pos' => 'noun phrase', 'example' => 'My working hours are nine to five.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'overtime', 'meaning' => 'extra hours worked beyond the usual schedule', 'meaning_fa' => 'اضافه‌کاری', 'pos' => 'noun', 'example' => 'I did two hours of overtime yesterday.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'salary', 'meaning' => 'the fixed amount of money someone is paid for their job', 'meaning_fa' => 'حقوق (ماهانه)', 'pos' => 'noun', 'example' => 'The salary for this job is quite good.', 'image_query' => 'salary paycheck money', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'daily_listen_3',
                                 'label' => 'Listen Again',
-                                'duration_minutes' => 8,
+                                'duration_minutes' => 9,
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'colleagues office coffee break',
                                 'shadow_lines' => [

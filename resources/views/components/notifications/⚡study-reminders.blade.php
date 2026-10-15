@@ -33,8 +33,9 @@ new class extends Component
 
     /**
      * Saves on every change — there is no Save button, the pickers are the
-     * setting. A slot switched on after its time has already passed today
-     * starts tomorrow, instead of buzzing at once for a time that is gone.
+     * setting. A slot whose time has already passed today starts tomorrow,
+     * instead of buzzing at once for a time that is gone; moving it to a
+     * time still ahead today clears that, so today's alert still goes out.
      */
     public function updated(string $name): void
     {
@@ -48,7 +49,6 @@ new class extends Component
         $user = auth()->user();
         $user->rememberTimezone();
 
-        $localNow = now($user->reminderTimezone());
         $changed = (int) (explode('.', $name)[1] ?? -1);
         $attributes = [];
 
@@ -56,11 +56,9 @@ new class extends Component
             $number = $index + 1;
             $time = $slot['enabled'] ? "{$slot['hour']}:{$slot['minute']}" : null;
 
-            $attributes["study_reminder_time_{$number}"] = $time;
-
-            if ($time !== null && $index === $changed && $localNow->copy()->setTimeFromTimeString($time)->lessThanOrEqualTo($localNow)) {
-                $attributes["last_study_reminder_{$number}_on"] = $localNow->toDateString();
-            }
+            $attributes += $index === $changed
+                ? $user->studyReminderAttributes($number, $time)
+                : ["study_reminder_time_{$number}" => $time];
         }
 
         $user->forceFill($attributes)->save();
