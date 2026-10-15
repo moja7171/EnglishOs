@@ -1558,8 +1558,8 @@ class MissionSeeder extends Seeder
 
     /**
      * Seeds M04 with its real content from document/M04/ (M04.pdf, the
-     * "Eat Clean Without Stress" B1 podcast, and the BBC Ideas video
-     * "Five Ways to Eat More Healthily"), matching M04.pdf's own 3-day/
+     * "Eat Clean Without Stress" B1 podcast, and the Smashing English
+     * "What I Eat in a Day" vlog), matching M04.pdf's own 3-day/
      * 10-page compact workbook plan (it names 10 pages — this seeds
      * exactly those 10, plus video_shadowing as an 11th, added once its
      * source video arrived — not M01/M02's fuller line-up otherwise).
@@ -2182,8 +2182,8 @@ class MissionSeeder extends Seeder
 
     /**
      * Seeds M03 with its real content from document/M03/ (M03.pdf, the
-     * "How to Talk About Your Work" B1 podcast, and the BBC Ideas video
-     * "6 Tips to Improve Your Work-Life Balance"). Matches M02's full
+     * "How to Talk About Your Work" B1 podcast, and the Easy English
+     * "Jobs and Work" street interviews). Matches M02's full
      * 4-phase/~18-step template exactly, per the standing rule that every
      * mission does — NOT M03.pdf's own compact 3-day plan, which only
      * outlines 10 of these (the rest — daily_listen_2/3, ai_conversation_1,
