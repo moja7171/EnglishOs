@@ -31,11 +31,11 @@ class StreakWarning extends Notification
         $days = $this->persianNumber($this->streakDays);
 
         $body = $this->streakDays === 1
-            ? 'زنجیرهٔ یادگیری شما در خطر است! امروز یک مرحله کار کنید یا تیک «گوش دادم» را بزنید تا از دست نرود.'
-            : "زنجیرهٔ {$days} روزهٔ شما در خطر است! امروز یک مرحله کار کنید یا تیک «گوش دادم» را بزنید تا از دست نرود.";
+            ? 'زنجیرهٔ یادگیری‌تان در خطر است؛ امروز یک مرحله کار کنید.'
+            : "زنجیرهٔ {$days} روزه‌تان در خطر است؛ امروز یک مرحله کار کنید.";
 
         return (new WebPushMessage)
-            ->title(config('app.name', 'English OS'))
+            ->title('حفظ زنجیره')
             ->body($body)
             ->icon('/icon-192.png')
             ->badge('/badge-96.png')

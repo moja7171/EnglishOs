@@ -119,5 +119,6 @@ class StreakWarningTest extends TestCase
         $this->assertStringContainsString('۱۲ روزه', $payload['body']);
         $this->assertSame(['url' => route('home')], $payload['data']);
         $this->assertSame('streak-warning', $payload['tag']);
+        $this->assertSame('حفظ زنجیره', $payload['title']);
     }
 }

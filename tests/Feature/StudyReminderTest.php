@@ -140,12 +140,25 @@ class StudyReminderTest extends TestCase
         $user = User::factory()->create();
 
         foreach (range(0, count(StudyReminder::MESSAGES) - 1) as $index) {
-            $notification = new StudyReminder($index);
+            $notification = new StudyReminder('12:00', $index);
             $payload = $notification->toWebPush($user, $notification)->toArray();
 
+            $this->assertSame('یادآور مطالعه', $payload['title']);
             $this->assertMatchesRegularExpression('/\p{Arabic}/u', $payload['body']);
             $this->assertSame(['url' => route('home')], $payload['data']);
         }
+    }
+
+    public function test_the_alert_tells_the_learner_the_time_is_the_one_they_set(): void
+    {
+        $user = User::factory()->create();
+        $notification = new StudyReminder('20:30', 0);
+
+        $body = $notification->toWebPush($user, $notification)->toArray()['body'];
+
+        $this->assertStringContainsString('۲۰:۳۰', $body);
+        $this->assertStringContainsString('خودتان گذاشتید', $body);
+        $this->assertStringNotContainsString('{time}', $body);
     }
 
     public function test_the_picker_starts_with_both_slots_off(): void
