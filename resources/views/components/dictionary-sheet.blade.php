@@ -9,12 +9,14 @@
     Lives in the layout, outside every Livewire component on purpose: a
     lookup is a plain fetch to route('dictionary.lookup'), so it never
     re-renders the step being read, and the sheet survives a step changing
-    underneath it. Sits above the listening text's full-screen layer (z-50).
+    underneath it. Sits above the full-screen layers of the audio and video
+    players (z-50), and Esc closes only the sheet, not the full screen behind
+    it (the listener is registered in the capture phase and stops the key).
 --}}
 <div
     x-data="dictionarySheet({ lookup: @js(route('dictionary.lookup')), store: @js(route('vocabulary.store')) })"
     x-on:eos-lookup.window="show($event.detail)"
-    x-on:keydown.escape.window="isOpen && close()"
+    x-on:keydown.escape.window.capture="if (isOpen) { $event.stopPropagation(); close() }"
 >
     <div
         x-show="isOpen"
