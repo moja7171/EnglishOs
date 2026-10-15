@@ -12,11 +12,14 @@
     underneath it. Sits above the full-screen layers of the audio and video
     players (z-50), and Esc closes only the sheet, not the full screen behind
     it (the listener is registered in the capture phase and stops the key).
+    The phone's Back button likewise closes the sheet before the full screen
+    behind it (see Alpine directive 'back-close').
 --}}
 <div
     x-data="dictionarySheet({ lookup: @js(route('dictionary.lookup')), persian: @js(route('dictionary.persian')), store: @js(route('vocabulary.store')) })"
     x-on:eos-lookup.window="show($event.detail)"
     x-on:keydown.escape.window.capture="if (isOpen) { $event.stopPropagation(); close() }"
+    x-back-close="{ open: isOpen, close: () => close() }"
 >
     <div
         x-show="isOpen"
