@@ -78,6 +78,7 @@ return array(
     'App\\Notifications\\StreakWarning' => $baseDir . '/app/Notifications/StreakWarning.php',
     'App\\Notifications\\StudyReminder' => $baseDir . '/app/Notifications/StudyReminder.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
+    'App\\Services\\AiFailure' => $baseDir . '/app/Services/AiFailure.php',
     'App\\Services\\AiFeedbackCard' => $baseDir . '/app/Services/AiFeedbackCard.php',
     'App\\Services\\AiModelChain' => $baseDir . '/app/Services/AiModelChain.php',
     'App\\Services\\Concerns\\UsesOutboundProxy' => $baseDir . '/app/Services/Concerns/UsesOutboundProxy.php',

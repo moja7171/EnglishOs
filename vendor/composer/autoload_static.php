@@ -620,6 +620,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Notifications\\StreakWarning' => __DIR__ . '/../..' . '/app/Notifications/StreakWarning.php',
         'App\\Notifications\\StudyReminder' => __DIR__ . '/../..' . '/app/Notifications/StudyReminder.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
+        'App\\Services\\AiFailure' => __DIR__ . '/../..' . '/app/Services/AiFailure.php',
         'App\\Services\\AiFeedbackCard' => __DIR__ . '/../..' . '/app/Services/AiFeedbackCard.php',
         'App\\Services\\AiModelChain' => __DIR__ . '/../..' . '/app/Services/AiModelChain.php',
         'App\\Services\\Concerns\\UsesOutboundProxy' => __DIR__ . '/../..' . '/app/Services/Concerns/UsesOutboundProxy.php',
