@@ -91,7 +91,7 @@ class ServiceHealthController extends Controller
         $events = app(Schedule::class)->events();
         $names = array_map(fn (Event $event): string => $event->description ?? $event->command ?? '?', $events);
 
-        foreach (['review:send-reminders', 'notifications:prune-read', 'scheduler:heartbeat'] as $expected) {
+        foreach (['review:send-reminders', 'study:send-reminders', 'streak:send-warnings', 'notifications:prune-read', 'scheduler:heartbeat'] as $expected) {
             $lines[] = in_array($expected, $names, true)
                 ? $this->ok('Scheduled task', $expected)
                 : $this->fail('Scheduled task', $expected.' is NOT registered (old code deployed?)', "scheduled task {$expected} is missing");
@@ -254,7 +254,7 @@ class ServiceHealthController extends Controller
 
         $matches = array_values(array_filter(
             explode("\n", $tail),
-            fn (string $line): bool => str_contains($line, 'Review reminder push was not accepted'),
+            fn (string $line): bool => str_contains($line, 'push was not accepted'),
         ));
 
         if ($matches === []) {

@@ -607,7 +607,11 @@ new class extends Component
 
     {{-- Reminders --}}
     <div x-show="activeTab === 'reminders'" x-cloak>
-        <livewire:notifications.review-reminder />
+        <div class="space-y-3">
+            <livewire:notifications.study-reminders />
+            <livewire:notifications.review-reminder />
+            <p class="px-1 text-xs text-ink-faint dark:text-ink-faint-dark">Streak warning: if your streak is about to break, you get one phone alert at 20:00 your time. It needs no setup.</p>
+        </div>
     </div>
 
     {{-- Password --}}

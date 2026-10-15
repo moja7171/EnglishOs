@@ -56,6 +56,9 @@ class User extends Authenticatable
             'program_started_at' => 'datetime',
             'pi_onboarded_at' => 'datetime',
             'last_review_reminder_on' => 'date',
+            'last_study_reminder_1_on' => 'date',
+            'last_study_reminder_2_on' => 'date',
+            'last_streak_warning_on' => 'date',
         ];
     }
 
@@ -727,6 +730,29 @@ class User extends Authenticatable
         }
 
         return $this->streakChains($dates)[0];
+    }
+
+    /**
+     * The length of a streak that breaks unless the learner is active today,
+     * or 0 when nothing is at risk: the last active day (in the learner's own
+     * timezone) is exactly two days ago, so being active yesterday or today
+     * would already have kept it, and one more skipped day ends it. The
+     * single-day grace in currentStreak() is why yesterday alone is not yet
+     * a risk.
+     */
+    public function streakAtRiskLength(): int
+    {
+        $dates = $this->activeDates();
+
+        if ($dates->isEmpty()) {
+            return 0;
+        }
+
+        $twoDaysAgo = now($this->reminderTimezone())->subDays(2)->toDateString();
+
+        return $dates->first()->toDateString() === $twoDaysAgo
+            ? $this->streakChains($dates)[0]
+            : 0;
     }
 
     /**
