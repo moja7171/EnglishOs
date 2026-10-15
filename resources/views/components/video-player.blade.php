@@ -59,6 +59,7 @@
     <div
         :class="mode === 'focus' ? 'fixed inset-0 z-50 flex flex-col overflow-hidden bg-ground p-3 sm:p-6 landscape:flex-row landscape:gap-4 dark:bg-ground-dark' : ''"
         x-on:keydown.escape.window="closeExpanded()"
+        x-back-close="{ open: mode !== 'inline', close: () => closeExpanded() }"
         x-data="{
             playing: false,
             currentTime: 0,

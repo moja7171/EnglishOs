@@ -361,13 +361,40 @@
     animation-delay: 0.16s;
 }
 
-/* A navigation that is taking its time (see the livewire:navigate hook in
-   app.js): the page being left dims and ignores taps until the next one
-   lands. The bottom nav stays lit so the tab just tapped still looks tapped. */
-html[data-navigating] body > :not(nav, script, style) {
-    opacity: 0.55;
+/* The link or card that was just tapped while its page is still on the way
+   (see the aria-busy hook in app.js): it keeps the pressed look and takes no
+   second tap. Button- and card-shaped links also get a small spinner in their
+   end corner; plain text links just hold the dim. Nothing else on the page
+   changes, so the learner sees which tap is being worked on. */
+a[aria-busy='true'] {
+    opacity: 0.7;
     pointer-events: none;
-    transition: opacity 0.2s ease-out;
+    cursor: progress;
+}
+
+a[aria-busy='true']:is(.block, .flex, .inline-flex, .grid, [class*='rounded']):not(.absolute, .fixed, .sticky) {
+    position: relative;
+}
+
+a[aria-busy='true']:is(.block, .flex, .inline-flex, .grid, [class*='rounded'])::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 0.625rem;
+    width: 1rem;
+    height: 1rem;
+    margin-top: -0.5rem;
+    border: 2px solid currentColor;
+    border-inline-start-color: transparent;
+    border-radius: 9999px;
+    opacity: 0.6;
+    animation: busy-spin 0.7s linear infinite;
+}
+
+@keyframes busy-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* The bottom-nav tab you just landed on gives its icon a small hop. */

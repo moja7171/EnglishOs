@@ -56,6 +56,7 @@
         class="card p-4"
         :class="focus ? 'fixed inset-0 z-50 flex flex-col overflow-hidden rounded-none border-0 bg-ground sm:p-6 dark:bg-ground-dark' : ''"
         x-on:keydown.escape.window="focus = false"
+        x-back-close="{ open: focus, close: () => focus = false }"
         x-data="{
             focus: false,
             focusOnPlay: false,

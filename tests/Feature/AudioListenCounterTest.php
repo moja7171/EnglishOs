@@ -285,6 +285,15 @@ class AudioListenCounterTest extends TestCase
         );
     }
 
+    public function test_both_players_let_the_back_button_close_full_screen(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        foreach (['audio-player', 'video-player'] as $component) {
+            $this->assertStringContainsString('x-back-close=', $this->renderPlayer($component, []));
+        }
+    }
+
     public function test_the_listening_recap_reports_how_many_times_the_episode_was_heard(): void
     {
         $learner = User::factory()->create();
