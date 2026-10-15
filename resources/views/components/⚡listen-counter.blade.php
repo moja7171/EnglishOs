@@ -1,16 +1,27 @@
 <?php
 
+use App\Models\AudioListen;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
- * The "Listens N" chip beside an in-app player. The player's tracker
- * (eosListenTracker in resources/js/app.js) dispatches `listen-completed`
- * once at least 90% of the recording has genuinely played through; this
- * component stores that listen and re-renders the number. Every instance on
- * the page receives the event, so each ignores one meant for another
- * mission or source.
+ * The "Listens N" badge for one recording, video or daily pick: dots
+ * toward the AudioListen::TARGET listens the program is built around, the
+ * count, when the last one was, and (on tap) the day-by-day split and the
+ * latest listens with their times.
+ *
+ * Beside an in-app player the player's tracker (eosListenTracker in
+ * resources/js/app.js) dispatches `listen-completed` once at least 90% of
+ * the recording has genuinely played through; this component stores that
+ * listen and re-renders. Every instance on the page receives the event, so
+ * each ignores one meant for another mission, source or pick.
+ *
+ * A pick that plays outside the app (selfReportable) can't be heard by the
+ * player, so it ignores that event and offers the learner's own "I
+ * listened to this one" button instead — stored as a self-reported listen
+ * and drawn with hollow dots, so it is never mistaken for a verified one.
  */
 new class extends Component
 {
@@ -20,47 +31,166 @@ new class extends Component
     #[Locked]
     public string $source;
 
-    public int $count = 0;
+    #[Locked]
+    public ?int $dayNumber = null;
 
-    public function mount(): void
+    #[Locked]
+    public ?string $pickKey = null;
+
+    #[Locked]
+    public bool $selfReportable = false;
+
+    /**
+     * @return array{total: int, today: int, last: ?Illuminate\Support\Carbon, byDay: array<int, int>, recent: Illuminate\Support\Collection<int, AudioListen>}
+     */
+    #[Computed]
+    public function summary(): array
     {
-        $this->count = auth()->user()?->audioListenCount($this->missionCode, $this->source) ?? 0;
+        return auth()->user()->audioListenSummary($this->missionCode, $this->source, $this->pickKey);
     }
 
     #[On('listen-completed')]
-    public function record(string $missionCode, string $source, float $duration = 0): void
+    public function record(string $missionCode, string $source, float $duration = 0, ?string $pickKey = null): void
     {
-        if ($missionCode !== $this->missionCode || $source !== $this->source) {
+        if ($this->selfReportable || $missionCode !== $this->missionCode || $source !== $this->source || $pickKey !== $this->pickKey) {
             return;
         }
 
+        $minimumGapSeconds = AudioListen::MIN_GAP_FRACTION * min(max($duration, 5), 7200);
+
+        $this->store(selfReported: false, minimumGapSeconds: $minimumGapSeconds);
+    }
+
+    public function reportListen(): void
+    {
+        if (! $this->selfReportable) {
+            return;
+        }
+
+        if ($this->store(selfReported: true, minimumGapSeconds: AudioListen::SELF_REPORT_GAP_SECONDS)) {
+            $this->dispatch('listen-self-reported');
+        }
+    }
+
+    /**
+     * A real listen takes about as long as the recording itself, so a
+     * second one arriving sooner than the minimum gap is a duplicate or a
+     * faked call, not another listen.
+     */
+    private function store(bool $selfReported, float $minimumGapSeconds): bool
+    {
         $user = auth()->user();
-        $minimumGapSeconds = 0.85 * min(max($duration, 5), 7200);
 
         $latest = $user->audioListens()
-            ->where('mission_code', $missionCode)
-            ->where('source', $source)
+            ->where('mission_code', $this->missionCode)
+            ->where('source', $this->source)
+            ->where('pick_key', $this->pickKey)
             ->latest()
+            ->latest('id')
             ->first();
 
-        // A real listen takes about as long as the recording itself, so a
-        // second one arriving sooner than that is a duplicate or a faked
-        // call, not another listen.
         if ($latest && $latest->created_at->diffInSeconds(now(), true) < $minimumGapSeconds) {
-            return;
+            return false;
         }
 
-        $user->audioListens()->create(['mission_code' => $missionCode, 'source' => $source]);
+        $user->audioListens()->create([
+            'mission_code' => $this->missionCode,
+            'source' => $this->source,
+            'day_number' => $this->dayNumber,
+            'pick_key' => $this->pickKey,
+            'self_reported' => $selfReported,
+        ]);
 
-        $this->count = $user->audioListenCount($missionCode, $source);
+        unset($this->summary);
+
+        return true;
     }
 };
 ?>
 
-<span
-    class="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-semibold text-ink-soft tabular-nums dark:bg-surface-sunken-dark dark:text-ink-soft-dark"
-    title="Counts each time you hear at least 90% of it, from the start."
->
-    @svg('heroicon-o-speaker-wave', 'h-3.5 w-3.5')
-    Listens: <span data-testid="listen-count">{{ $count }}</span>
-</span>
+@php
+    $summary = $this->summary;
+    $target = \App\Models\AudioListen::TARGET;
+    $reached = $summary['total'] >= $target;
+@endphp
+
+<div x-data="{ open: false }" class="flex flex-col items-start gap-2">
+    <div class="flex flex-wrap items-center gap-2">
+        <button
+            type="button"
+            x-on:click="open = ! open"
+            x-bind:aria-expanded="open"
+            class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-semibold text-ink-soft tabular-nums dark:bg-surface-sunken-dark dark:text-ink-soft-dark"
+            aria-label="Listens, with history"
+        >
+            @svg('heroicon-o-speaker-wave', 'h-3.5 w-3.5')
+            <span class="inline-flex items-center gap-1" aria-hidden="true">
+                @for ($dot = 1; $dot <= $target; $dot++)
+                    <span @class([
+                        'h-2 w-2 rounded-full',
+                        'bg-accent dark:bg-accent-dark' => $dot <= $summary['total'] && ! $selfReportable,
+                        'border border-accent bg-accent-soft dark:border-accent-dark dark:bg-accent-soft-dark' => $dot <= $summary['total'] && $selfReportable,
+                        'bg-line dark:bg-line-dark' => $dot > $summary['total'],
+                    ])></span>
+                @endfor
+            </span>
+            <span>
+                Listens: <span data-testid="listen-count">{{ $summary['total'] }}</span>
+                @unless ($reached)
+                    <span class="font-normal text-ink-faint dark:text-ink-faint-dark">of {{ $target }}</span>
+                @endunless
+            </span>
+            @if ($reached)
+                @svg('heroicon-s-check', 'h-3.5 w-3.5 text-success dark:text-success-dark')
+            @endif
+            @if ($selfReportable)
+                <span class="font-normal text-ink-faint dark:text-ink-faint-dark">· self-reported</span>
+            @endif
+        </button>
+
+        @if ($selfReportable)
+            <button
+                type="button"
+                wire:click="reportListen"
+                wire:loading.attr="disabled"
+                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
+            >I listened to this one @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
+        @endif
+    </div>
+
+    @if ($summary['total'] > 0)
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark" data-testid="listen-recency">
+            Today {{ $summary['today'] }}× · Last {{ $summary['last']->diffForHumans() }}
+        </p>
+    @endif
+
+    <div x-show="open" x-cloak class="w-full max-w-xs space-y-2 rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+        @if (count($summary['byDay']) > 0 && $pickKey === null)
+            <p data-testid="listen-by-day">
+                <span class="font-semibold text-ink dark:text-ink-dark">By day:</span>
+                @foreach ($summary['byDay'] as $day => $times)
+                    Day {{ $day }} ×{{ $times }}{{ $loop->last ? '' : ' ·' }}
+                @endforeach
+            </p>
+        @endif
+
+        @forelse ($summary['recent'] as $listen)
+            <p class="flex justify-between gap-2" wire:key="listen-{{ $listen->id }}">
+                <span>{{ $listen->created_at->format('D j M, H:i') }}</span>
+                <span class="text-ink-faint dark:text-ink-faint-dark">
+                    {{ $listen->day_number ? "Day {$listen->day_number}" : '' }}{{ $listen->self_reported ? ' · self-reported' : '' }}
+                </span>
+            </p>
+        @empty
+            <p>No listens yet.</p>
+        @endforelse
+
+        <p class="border-t border-line pt-2 text-ink-faint dark:border-line-dark dark:text-ink-faint-dark">
+            @if ($selfReportable)
+                This one plays outside the app, so we can't hear it — it counts when you tell us.
+            @else
+                Counts each time you hear at least 90% of it, from the start. Skipping ahead doesn't count.
+            @endif
+        </p>
+    </div>
+</div>

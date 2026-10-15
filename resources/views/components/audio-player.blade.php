@@ -28,10 +28,13 @@
         played, never skipped to — see eosListenTracker). Unlike $listen it
         keeps no count and needs no mission step, so any page can react to
         "the learner really listened", e.g. ticking an "I listened" box.
-    @param array{mission_code: string, source: string}|null $listen When
+    @param array{mission_code: string, source: string, day_number?: int, pick_key?: string, chip?: bool}|null $listen When
         given, the player counts real listens of this recording (at least
         90% played through, never skipped to — see eosListenTracker),
-        shows a "Listens: N" chip, and dispatches 'audio-listened' each
+        shows how far the current listen has got, shows the "Listens: N"
+        badge (unless `chip` is false — a page that draws its own badge
+        for the same recording, see listening/⚡index.blade.php),
+        files each listen under `day_number` and `pick_key`, and dispatches 'audio-listened' each
         time one completes — and also when the audio plays out to its
         natural end with at least 60% genuinely heard, so a callback that
         gates a Continue button doesn't lock out someone whose pauses and
@@ -61,6 +64,8 @@
             duration: 0,
             dragging: false,
             speed: 1,
+            passProgress: 0,
+            passSkipped: false,
             segments: {{ Illuminate\Support\Js::from($segments) }},
             shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
             shadowSeen: [],
@@ -132,10 +137,14 @@
                         Livewire.dispatchTo('listen-counter', 'listen-completed', {
                             missionCode: {{ Illuminate\Support\Js::from($listen['mission_code']) }},
                             source: {{ Illuminate\Support\Js::from($listen['source']) }},
+                            pickKey: {{ Illuminate\Support\Js::from($listen['pick_key'] ?? null) }},
                             duration: duration,
                         });
                         this.$dispatch('audio-listened');
-                    }, 0.9, () => this.$dispatch('audio-listened'));
+                    }, 0.9, () => this.$dispatch('audio-listened'), 0.6, (fraction, skipped) => {
+                        this.passProgress = fraction;
+                        this.passSkipped = skipped;
+                    });
                 @endif
 
                 @if ($onListened)
@@ -215,12 +224,29 @@
         </audio>
 
         @if ($listen)
-            <div class="mb-3 flex justify-end">
-                <livewire:listen-counter
-                    :mission-code="$listen['mission_code']"
-                    :source="$listen['source']"
-                    :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
-                />
+            <div class="mb-3 flex items-start justify-between gap-3">
+                {{-- How far the current listen has got — makes it obvious
+                     why a listen did (or didn't) get counted. --}}
+                <div x-show="passProgress > 0" x-cloak class="min-w-0 flex-1 space-y-1" data-testid="listen-progress">
+                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
+                        This listen: <span class="font-semibold tabular-nums" x-text="Math.round(passProgress * 100) + '%'"></span> heard
+                        <span x-show="passSkipped" x-cloak class="text-ink-faint dark:text-ink-faint-dark">· skipped parts don't count</span>
+                    </p>
+                    <div class="h-1 overflow-hidden rounded-full bg-line dark:bg-line-dark">
+                        <div class="h-full rounded-full bg-accent transition-all dark:bg-accent-dark" :style="'width: ' + Math.round(passProgress * 100) + '%'"></div>
+                    </div>
+                </div>
+                @if (($listen['chip'] ?? true) !== false)
+                    <div class="ml-auto">
+                        <livewire:listen-counter
+                            :mission-code="$listen['mission_code']"
+                            :source="$listen['source']"
+                            :day-number="$listen['day_number'] ?? null"
+                            :pick-key="$listen['pick_key'] ?? null"
+                            :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source'].'-'.($listen['pick_key'] ?? '')"
+                        />
+                    </div>
+                @endif
             </div>
         @endif
 

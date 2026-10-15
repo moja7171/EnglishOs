@@ -1,10 +1,12 @@
 <?php
 
+use App\Models\AudioListen;
 use App\Models\Mission;
 use App\Services\ListeningPicks;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
@@ -50,8 +52,10 @@ new class extends Component
     /**
      * The learner's "I listened" tick — counts today toward the streak
      * (see User::activeDates()), filed under the day on screen. The day
-     * is re-checked here, not trusted from mount().
+     * is re-checked here, not trusted from mount(). Also what a pick's
+     * self-reported "I listened to this one" (listen-counter) counts as.
      */
+    #[On('listen-self-reported')]
     public function markListened(): void
     {
         if (app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) > $this->currentIndex) {
@@ -293,6 +297,21 @@ new class extends Component
                     @endif
                 </div>
 
+                @php
+                    $pickKey = AudioListen::pickKey($day, $level);
+                @endphp
+
+                {{-- Every pick keeps its own count: heard here for an in-app
+                     pick, told by the learner for one that plays elsewhere. --}}
+                <livewire:listen-counter
+                    :mission-code="$missionCode"
+                    :source="AudioListen::SOURCE_LISTENING_PICK"
+                    :day-number="$day"
+                    :pick-key="$pickKey"
+                    :self-reportable="! $pick['local']"
+                    :key="'pick-counter-'.$missionCode.'-'.$pickKey"
+                />
+
                 <div x-data="{ open: false, loaded: false }" class="space-y-3">
                     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-0.5">
                         @if ($pick['local'])
@@ -328,6 +347,7 @@ new class extends Component
                                     <x-audio-player
                                         :url="$pick['local']['audioUrl']"
                                         :segments="$this->localSegments[$level] ?? []"
+                                        :listen="['mission_code' => $missionCode, 'source' => AudioListen::SOURCE_LISTENING_PICK, 'day_number' => $day, 'pick_key' => $pickKey, 'chip' => false]"
                                         onListened="$wire.markListened()"
                                     />
                                 </div>

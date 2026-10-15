@@ -24,7 +24,11 @@
     </span>
     @if ($listening['listenedToday'])
         <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
-            @svg('heroicon-s-check', 'h-3 w-3') Listened today
+            @svg('heroicon-s-check', 'h-3 w-3')
+            Listened today
+            @if ($listening['listensToday'] > 0)
+                · {{ $listening['listensToday'] }}×
+            @endif
         </span>
     @endif
     @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')

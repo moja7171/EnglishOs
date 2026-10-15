@@ -35,7 +35,7 @@
         cards only exist on its shadowing sub-step) pass an expression
         tied to that state so the pause-and-prompt never fires on a
         sub-step where "find this line below" wouldn't be true yet.
-    @param array{mission_code: string, source: string}|null $listen Counts
+    @param array{mission_code: string, source: string, day_number?: int}|null $listen Counts
         real watches (at least 90% played through, never skipped to) and
         shows a "Listens: N" chip — see <x-audio-player>. null = no counting.
 --}}
@@ -67,6 +67,8 @@
             controlsVisible: true,
             hideTimer: null,
             expanded: false,
+            passProgress: 0,
+            passSkipped: false,
             segments: {{ Illuminate\Support\Js::from($segments) }},
             shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
             // Freely switchable, any number of times, never a one-time
@@ -115,8 +117,12 @@
                         Livewire.dispatchTo('listen-counter', 'listen-completed', {
                             missionCode: {{ Illuminate\Support\Js::from($listen['mission_code']) }},
                             source: {{ Illuminate\Support\Js::from($listen['source']) }},
+                            pickKey: {{ Illuminate\Support\Js::from($listen['pick_key'] ?? null) }},
                             duration: duration,
                         });
+                    }, 0.9, null, 0.6, (fraction, skipped) => {
+                        this.passProgress = fraction;
+                        this.passSkipped = skipped;
                     });
                 @endif
 
@@ -217,12 +223,25 @@
         }"
     >
     @if ($listen)
-        <div x-show="!expanded" class="mb-2 flex justify-end">
-            <livewire:listen-counter
-                :mission-code="$listen['mission_code']"
-                :source="$listen['source']"
-                :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
-            />
+        <div x-show="!expanded" class="mb-2 flex items-start justify-between gap-3">
+            <div x-show="passProgress > 0" x-cloak class="min-w-0 flex-1 space-y-1" data-testid="listen-progress">
+                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
+                    This watch: <span class="font-semibold tabular-nums" x-text="Math.round(passProgress * 100) + '%'"></span> seen
+                    <span x-show="passSkipped" x-cloak class="text-ink-faint dark:text-ink-faint-dark">· skipped parts don't count</span>
+                </p>
+                <div class="h-1 overflow-hidden rounded-full bg-line dark:bg-line-dark">
+                    <div class="h-full rounded-full bg-accent transition-all dark:bg-accent-dark" :style="'width: ' + Math.round(passProgress * 100) + '%'"></div>
+                </div>
+            </div>
+            <div class="ml-auto">
+                <livewire:listen-counter
+                    :mission-code="$listen['mission_code']"
+                    :source="$listen['source']"
+                    :day-number="$listen['day_number'] ?? null"
+                    :pick-key="$listen['pick_key'] ?? null"
+                    :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
+                />
+            </div>
         </div>
     @endif
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AudioListen;
 use App\Models\Evidence;
 use App\Models\GrammarPoint;
 use App\Models\ListeningLog;
@@ -302,6 +303,17 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Routines')
             ->assertDontSee('Describing Your Day: Mornings')
             ->assertDontSeeHtml('target="_blank"');
+    }
+
+    public function test_the_today_box_row_says_how_many_listens_were_logged_today(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission());
+        ListeningLog::factory()->for($learner, 'learner')->create();
+        AudioListen::factory()->count(2)->create(['learner_id' => $learner->id]);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')->assertSee('Listened today')->assertSee('2×');
     }
 
     public function test_the_today_box_makes_clear_listening_is_not_one_of_the_steps(): void
