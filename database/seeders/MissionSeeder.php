@@ -915,7 +915,7 @@ class MissionSeeder extends Seeder
 
     /**
      * Seeds M02 with its real content from document/M02/ (M02.pdf, BBC
-     * Learning English "6 Minute English: Making Male Friends"), matching
+     * Learning English "Real Easy English: Talking about old friends"), matching
      * the phase/step map in EOS-009 §7. Split into its own method (unlike
      * M01's inline run()) purely for readability given its size — no
      * behavioral difference.
@@ -928,7 +928,7 @@ class MissionSeeder extends Seeder
      */
     private function seedM02(): void
     {
-        $audioUrl = $this->publishMissionAsset('M02', '6_minute_english_making_male_friends.mp3');
+        $audioUrl = $this->publishMissionAsset('M02', 'BBC Learning English - Real Easy English Talking about old friends.mp3');
         $shadowingVideoUrl = $this->publishMissionAsset('M02', 'Easy English - Friends Best Qualities.mp4');
         $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'Easy English - Friends Best Qualities.en.vtt');
 
@@ -966,108 +966,114 @@ class MissionSeeder extends Seeder
                                 // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
                                 // for the full rationale. Day 1 = the real Listening episode's own
                                 // 5 target_phrases, so every learner meets them here first.
-                                'story' => 'Sometimes **times are tough**, but good friends help you **get '
-                                    .'through** it. Sadly, a couple of my old school friends and I have '
-                                    .'**drifted away** since we stopped living nearby. Before I met my best '
-                                    .'friend, I was almost a **Billy No-Mates**! Having lots of friends is a '
-                                    .'bit of a **double-edged sword** — I love it, but I\'m always busy.',
+                                'story' => 'My best friends from school and I **meet up** every few months. We '
+                                    .'live in different cities now, so it is hard to **stay in touch**, but we '
+                                    .'have a group chat. I **lost touch** with one friend for years, then last '
+                                    .'month we **got back in touch** — and now we **stay friends** again, as if '
+                                    .'nothing changed.',
                                 'words' => [
-                                    ['phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness, or financial difficulty in life', 'pos' => 'idiom', 'synonym' => 'times are hard', 'example' => 'We helped each other when times were tough.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'get through', 'meaning' => 'to manage to live through a difficult period of time', 'pos' => 'phrasal verb', 'synonym' => 'cope with', 'example' => 'She got through a difficult year at university.', 'difficulty' => 'hard'],
-                                    ['phrase' => 'drift away', 'meaning' => 'to gradually grow apart from someone until the relationship ends', 'pos' => 'phrasal verb', 'synonym' => 'grow apart', 'example' => 'We drifted away after I moved to another city.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'Billy No-Mates', 'meaning' => '(slang) a person with no friends', 'pos' => 'slang noun phrase', 'example' => "Don't worry, you won't be a Billy No-Mates at the party.", 'difficulty' => 'hard'],
-                                    ['phrase' => 'double-edged sword', 'meaning' => 'something with both good and bad consequences', 'pos' => 'idiom', 'example' => 'Working from home is a double-edged sword.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'meet up', 'meaning' => 'to meet someone, usually a friend, for a planned time together', 'pos' => 'phrasal verb', 'synonym' => 'get together', 'example' => 'We meet up for coffee every Saturday.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'stay in touch', 'meaning' => 'to keep contact with someone by speaking or writing to them regularly', 'pos' => 'verb phrase', 'synonym' => 'keep in touch', 'example' => 'We stay in touch through a group chat.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'lose touch', 'meaning' => 'to stop seeing or speaking to someone, so you no longer have contact', 'pos' => 'verb phrase', 'synonym' => 'opposite: stay in touch', 'example' => 'I lost touch with my school friends after I moved.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get back in touch', 'meaning' => 'to start speaking to or seeing someone again after a long time', 'pos' => 'verb phrase', 'synonym' => 'reconnect', 'example' => 'She got back in touch with an old friend last week.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'stay friends', 'meaning' => 'to continue to be friends for a long time', 'pos' => 'verb phrase', 'example' => 'We stayed friends even after we left school.', 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'duration_minutes' => 22,
-                                'hook' => 'Neil and Beth are asking why British men have fewer close friends than women — do you agree?',
-                                'source' => 'BBC Learning English — 6 Minute English: Making Male Friends (2023)',
+                                'hook' => 'Phil and Becca are talking about friends they have known for years — how many of your old friends are you still in touch with?',
+                                'source' => 'BBC Learning English — Real Easy English: Talking about old friends (2026)',
                                 'image_query' => 'two friends talking coffee shop',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M02', 'listening_segments'),
                                 // The same chunks split at every change of speaker and tagged with who is
                                 // talking, so the panel reads as a chat — see missions:align-listening-speakers.
                                 'listening_turns' => $this->shadowTimestampsFor('M02', 'listening_turns'),
-                                'transcript_ref' => 'document/M02/6_minute_english_making_male_friends.pdf',
-                                // Full real transcript (BBC Learning English, "6 Minute English:
-                                // Making Male Friends", 2023 — the PDF's own disclaimer notes it's
-                                // "not a word-for-word transcript", i.e. this already IS the BBC's
-                                // own published paraphrase) — shown in-app only after the learner
-                                // has genuinely listened twice (see ⚡listening.blade.php), so it's
-                                // a check, not a shortcut. ffprobe-verified real audio: 374.4s (6:14).
+                                'transcript_ref' => 'https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260605',
+                                // Full real transcript (BBC Learning English, "Real Easy English:
+                                // Talking about old friends", 2026, taken from the episode's own page) —
+                                // shown in-app only after the learner has genuinely listened twice (see
+                                // ⚡listening.blade.php), so it's a check, not a shortcut. ffprobe-verified
+                                // real audio: 351.9s (5:52).
                                 'transcript' => [
-                                    ['speaker' => 'Neil', 'text' => "Hello. This is 6 Minute English from BBC Learning English. I'm Neil."],
-                                    ['speaker' => 'Beth', 'text' => "And I'm Beth. There's a famous English saying, 'a friend in need is a friend indeed', and it's true - everyone needs friends to share life's ups and downs. Do you have many friends, Neil?"],
-                                    ['speaker' => 'Neil', 'text' => 'Yes, I have some close friends, but maybe not as many as I\'d like.'],
-                                    ['speaker' => 'Beth', 'text' => "That's interesting because often it's women who have many friends while men find it harder to maintain strong friendships, especially as they get older. In fact, according to one recent survey, only 27% of British men say they have at least six close friends."],
-                                    ['speaker' => 'Neil', 'text' => "So, is it true that men find it difficult to make friends? We'll be hearing from Max Dickins, author of a new book on male friendships called 'Billy No-Mates', and, as usual, we'll be learning some useful new vocabulary as well."],
-                                    ['speaker' => 'Beth', 'text' => "But first I have a question for you. We know that close friends are important, not just for having fun but for good mental health as well. So according to research by Oxford University's Institute of Cognitive Anthropology, how many close friends do we need for our mental wellbeing? Is it: a) five? b) ten? or, c) twenty?"],
-                                    ['speaker' => 'Neil', 'text' => "I'll say we need at least five close friends."],
-                                    ['speaker' => 'Beth', 'text' => "OK, Neil. I'll reveal the answer at the end of the programme. Now, however many friends you have, it's a stereotype that women are better than men at making and keeping close friends. Here's Claudia Hammond outlining the problem for BBC Radio 4 programme, All in the Mind:"],
-                                    ['speaker' => 'Claudia Hammond', 'text' => "Now, when times are tough, friends are often the people who get us through, who are there to listen, to reassure, maybe to advise us, if that's what we want. So why do we sometimes find it hard to make friends, or that the friends we used to have seemed to have somehow drifted away? Now, there is an idea that women are much better at maintaining their friendships, and that men are more likely to hang out with whoever is around rather than to nurture those relationships, and we were wondering whether this was really true or is that just a stereotype?"],
-                                    ['speaker' => 'Neil', 'text' => 'Claudia uses the phrase, times are tough, to describe a situation of trouble, unhappiness or financial difficulty. Friends help us get through these difficult periods of life. The phrasal verb, get through, has several meanings, but here it means manage to live through an unpleasant period of time.'],
-                                    ['speaker' => 'Beth', 'text' => "The problem may be that your friends have drifted away – gradually moved further and further away until your connection with them has broken. And it seems that's especially true for men."],
-                                    ['speaker' => 'Neil', 'text' => "That's right. When author Max Dickins was getting married, he realised he didn't have any close male friends he could ask to be his 'best man', the person who helps the groom at a wedding. This led him to write the book 'Billy No-Mates', looking at why he didn't have any close male friends. Here's Claudia Hammond again talking with Max for BBC Radio 4 programme, All in the Mind:"],
-                                    ['speaker' => 'Claudia Hammond', 'text' => "Max, it's interesting that you kind of went public on this, if you like… Your book is even called 'Billy No-Mates', the very thing that, you know, a lot of us would dread being. It can't have been easy to decide to say this publicly…"],
-                                    ['speaker' => 'Max Dickins', 'text' => "No, it's a real double-edged sword being the face of a book called 'Billy No-Mates', I've gotta say… but I think… so loneliness doesn't look like me. I'm in my early to mid-30s, I'm pretty outgoing, I'm quick to buy my round, it shouldn't look like me, but increasingly it does. So loneliness isn't just the elderly anymore, it's younger people…"],
-                                    ['speaker' => 'Beth', 'text' => "Max called his book Billy No-Mates, slang for a person with no friends. It's a memorable book title, but Max says being the public face of a book called 'Billy No-Mates' is a double-edged sword - something with unfavourable as well as favourable consequences."],
-                                    ['speaker' => 'Neil', 'text' => "In fact, Max doesn't look like someone with no friends: he's young, generous, and outgoing – an adjective describing someone who's friendly and enjoys meeting people. But increasingly, loneliness is affecting younger men, thanks partly to social media which can make it seem as though everyone is having a great time with their mates, except you!"],
-                                    ['speaker' => 'Beth', 'text' => "Max thinks the answer is getting out and meeting people in 'third spaces', places like sports clubs or reading groups which are separate from either home or work."],
-                                    ['speaker' => 'Neil', 'text' => "All of which helps get closer to the magical number of friends needed for good mental health. I think it's time you revealed the answer to your question, Beth."],
-                                    ['speaker' => 'Beth', 'text' => "Yes, I asked how many close friends we need for our mental wellbeing. You said it was five, which was… the correct answer! According to Oxford University's Professor Robin Dunbar, we need a core circle of five close friends, plus a wider support network of about ten, making a total number of fifteen friends for good mental health. OK, let's recap the vocabulary from the programme, starting with the phrase times are tough, which describes periods of trouble or difficulty in life."],
-                                    ['speaker' => 'Neil', 'text' => 'If you get through something, you manage to live through a difficult situation.'],
-                                    ['speaker' => 'Beth', 'text' => 'To drift away means to gradually move further apart from someone until your relationship with them eventually ends.'],
-                                    ['speaker' => 'Neil', 'text' => 'Billy No-Mates is slang for someone who has no friends.'],
-                                    ['speaker' => 'Beth', 'text' => 'A double-edged sword describes something with unfavourable as well as favourable consequences.'],
-                                    ['speaker' => 'Neil', 'text' => 'And finally, the adjective outgoing describes someone who is very friendly and enjoys talking to people. Once again, our six minutes are up. Goodbye for now!'],
-                                    ['speaker' => 'Beth', 'text' => 'Bye!'],
+                                    ['speaker' => 'Becca', 'text' => "Hello and welcome to Real Easy English from BBC Learning English. This is the podcast where we have real conversations in easy English to help you with your learning. I'm Becca."],
+                                    ['speaker' => 'Phil', 'text' => "And I'm Phil. And you can watch a video version of this podcast on our website. It's got subtitles to help you learn. That's bbclearningenglish.com."],
+                                    ['speaker' => 'Becca', 'text' => 'How are you today, Phil?'],
+                                    ['speaker' => 'Phil', 'text' => "I'm good. I'm really good. What about you? Have you got any plans for this week coming up?"],
+                                    ['speaker' => 'Becca', 'text' => "Yes. I'm really excited for the weekend because I'm going to meet up with some of my old school friends. I've known them since I was in year eight."],
+                                    ['speaker' => 'Phil', 'text' => "Well, Becca, today we're talking about old friends. And when we say old friends, we mean friends that we've had a long time, particularly since we were children."],
+                                    ['speaker' => 'Becca', 'text' => 'So, Phil, do you have many old friends?'],
+                                    ['speaker' => 'Phil', 'text' => "Yeah, I do have some, but I probably don't see them as much as I should."],
+                                    ['speaker' => 'Becca', 'text' => 'Hmm. Why is that?'],
+                                    ['speaker' => 'Phil', 'text' => "As you get older, you move away. You have families. You... And I'm just not very good at staying in touch with people, so I don't often see people that are very old friends. What about you? Do you have many old friends that you see often?"],
+                                    ['speaker' => 'Becca', 'text' => "Yeah, I do, I do. I mean, luckily for myself, we don't live very far away, so it is easier to stay in touch. And by staying in touch, we mean, kind of, keeping that contact. So, I do have a couple of friendship groups. We have group chats where we, kind of, you know, keep in touch with each other there and we plan meetings. Although we find that when we plan to meet each other, we will then plan to meet each other the next time, months in advance – months before we meet – because, yeah, it is difficult when you are older and you get busy."],
+                                    ['speaker' => 'Phil', 'text' => 'How often do you see your old friends? It sounds like you stay in touch quite a lot.'],
+                                    ['speaker' => 'Becca', 'text' => 'Yeah, we do. We stay in touch a lot over, like I said, group chats, social media, and we try to meet at least once every month, once every couple of months, you know, if we really try. So yeah, it is easier for us to meet up. So, when was the last time that you saw one of your old friends?'],
+                                    ['speaker' => 'Phil', 'text' => "It was probably sometime last year, I think. But yeah, I probably only... Only a couple of times a year, I think, I'd see old friends."],
+                                    ['speaker' => 'Becca', 'text' => 'And have you lost touch with any of your old friends? So, to lose touch is to lose that contact that you have with them.'],
+                                    ['speaker' => 'Phil', 'text' => "Yes, I think I have. You don't notice it when it happens, do you, really? Because it's not like you have an argument or you decide, I'm not talking to that person anymore. You just... I don't know. You just don't see them for a long time. If I saw those people again, then I might get back in touch with them. But yeah, there's people that... There're definitely people that I used to know that I haven't seen for a long time. So yeah, I've definitely lost touch with some people."],
+                                    ['speaker' => 'Becca', 'text' => "So, do you think your friendship groups have, kind of, changed as you've grown older then? If you've lost touch with some old friends, you have newer friends now."],
+                                    ['speaker' => 'Phil', 'text' => "What has changed a lot is I have a lot more friends who are families, who have children the same age that we have. Because suddenly when you have children, you have so much in common with people in the same situation, and your children do. And if your children get on very well together, you're going to spend a lot of time together."],
+                                    ['speaker' => 'Becca', 'text' => "I see. So, that's where we're quite different, because a lot of my friends don't have families. And, you know, I don't either. So, it's quite easy for us to stay friends and to stay in touch with each other. OK. Let's recap some of the vocabulary we learned in this episode, starting with old friend. And that's a friend that you've known for a very long time."],
+                                    ['speaker' => 'Phil', 'text' => 'So, we had this idea of being in touch with someone – with a friend. And if you are in touch with someone, it means that you see them often. You speak to them often. So, if you keep in touch with someone, it means you continue to do those things even after a long time.'],
+                                    ['speaker' => 'Becca', 'text' => "If you lose touch with someone, that means that you don't see or speak to them anymore. However, you can get back in touch with someone – that is to start seeing them or speaking to them again."],
+                                    ['speaker' => 'Phil', 'text' => 'And if you stay friends with someone, it means that you continue to be friends with someone for a long period of time.'],
+                                    ['speaker' => 'Becca', 'text' => "For example, it's easy for me to stay friends with some of my old friends because we live very close to each other."],
+                                    ['speaker' => 'Phil', 'text' => "That's it for this episode of Real Easy English. Try the worksheet on our website, bbclearningenglish.com, to practise and to help you have your own easy English conversations."],
+                                    ['speaker' => 'Becca', 'text' => "And we'll be back next week with another real conversation in easy English. But for now, it's goodbye."],
+                                    ['speaker' => 'Phil', 'text' => 'Bye!'],
                                 ],
-                                // The exact 5 expressions, with the meanings Neil & Beth themselves
-                                // gave in the podcast's own end-of-episode recap (page 5).
-                                // gap_before/gap_after are real, single-blank sentences lifted straight
-                                // from the transcript — the Second listening gap-fill exercise above.
+                                // The vocabulary Phil and Becca themselves explain in the episode's recap
+                                // (stay in touch, lose touch, get back in touch, stay friends), plus "meet up"
+                                // from the opening chat. gap_before/gap_after are real, single-blank
+                                // sentences lifted straight from the transcript — the gap-fill sub-step.
+                                // "old friend" is deliberately left to Day 2's vocabulary builder.
                                 'target_phrases' => [
                                     [
-                                        'phrase' => 'times are tough', 'meaning' => 'periods of trouble, unhappiness or financial difficulty in life',
-                                        'gap_before' => 'Now, when ',
-                                        'gap_after' => ", friends are often the people who get us through, who are there to listen, to reassure, maybe to advise us, if that's what we want.",
+                                        'phrase' => 'meet up', 'meaning' => 'to meet someone, usually a friend, for a planned time together',
+                                        'gap_before' => "I'm really excited for the weekend because I'm going to ",
+                                        'gap_after' => ' with some of my old school friends.',
                                     ],
                                     [
-                                        'phrase' => 'get through', 'meaning' => 'manage to live through a difficult situation',
-                                        'gap_before' => 'If you ', 'gap_after' => ' something, you manage to live through a difficult situation.',
+                                        'phrase' => 'stay in touch', 'meaning' => 'to keep contact with someone by speaking or writing to them regularly',
+                                        'gap_before' => "Luckily for myself, we don't live very far away, so it is easier to ",
+                                        'gap_after' => '.',
                                     ],
                                     [
-                                        'phrase' => 'drift away', 'meaning' => 'gradually move further and further apart from someone until your relationship with them is broken',
-                                        'gap_before' => 'To ', 'gap_after' => ' means to gradually move further apart from someone until your relationship with them eventually ends.',
+                                        'phrase' => 'lose touch', 'meaning' => 'to stop seeing or speaking to someone, so you no longer have contact',
+                                        'gap_before' => 'So, to ',
+                                        'gap_after' => ' is to lose that contact that you have with them.',
                                     ],
                                     [
-                                        'phrase' => 'Billy No-Mates', 'meaning' => 'slang for someone who has no friends',
-                                        'gap_before' => '', 'gap_after' => ' is slang for someone who has no friends.',
+                                        'phrase' => 'get back in touch', 'meaning' => 'to start speaking to or seeing someone again after a long time',
+                                        'gap_before' => 'If I saw those people again, then I might ',
+                                        'gap_after' => ' with them.',
                                     ],
                                     [
-                                        'phrase' => 'double-edged sword', 'meaning' => 'something with unfavourable as well as favourable consequences',
-                                        'gap_before' => 'A ', 'gap_after' => ' describes something with unfavourable as well as favourable consequences.',
-                                    ],
-                                    [
-                                        'phrase' => 'outgoing', 'meaning' => 'very friendly; enjoys meeting and talking to people',
-                                        'gap_before' => 'And finally, the adjective ',
-                                        'gap_after' => ' describes someone who is very friendly and enjoys talking to people.',
+                                        'phrase' => 'stay friends', 'meaning' => 'to continue to be friends for a long time',
+                                        'gap_before' => "For example, it's easy for me to ",
+                                        'gap_after' => ' with some of my old friends because we live very close to each other.',
                                     ],
                                 ],
-                                'topic_summary' => 'Neil and Beth discuss why British men often have fewer close friends '
-                                    .'than women, especially as they get older — a survey found only 27% of British '
-                                    .'men have at least six close friends. They hear from Claudia Hammond on why '
-                                    .'friendships can drift apart, and from author Max Dickins about his book '
-                                    ."'Billy No-Mates', on male loneliness. The episode ends with Professor Robin "
-                                    .'Dunbar\'s research on the ideal number of friends for good mental health: 5 '
-                                    .'close friends plus a wider network of 10, for a total of 15.',
+                                'topic_summary' => 'Phil and Becca talk about old friends — friends you have known for a '
+                                    .'long time, often since childhood. Becca is excited to meet up with her old '
+                                    .'school friends at the weekend. Phil says he does not see his old friends '
+                                    .'often because people move away, have families and he is not good at staying in '
+                                    .'touch; Becca stays in touch through group chats and social media. They talk '
+                                    .'about losing touch with people, how having children changes your friendship '
+                                    .'groups, and explain the phrases stay in touch, lose touch, get back in touch '
+                                    .'and stay friends.',
                                 'comprehension_check' => [
-                                    ['statement' => 'The programme says women generally find it easier than men to keep close friendships.', 'correct' => true],
-                                    ['statement' => 'Max Dickins wrote his book because he had too many close friends to choose just one as his best man.', 'correct' => false],
-                                    ['statement' => 'According to Professor Robin Dunbar, the ideal total number of friends for good mental health is fifteen.', 'correct' => true],
+                                    ['statement' => 'Phil and Becca are talking about old friends.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Phil says he sees his old friends very often.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Phil has more friends with children now than he used to.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'How does Becca mostly stay in touch with her old friends?',
+                                    'options' => ['By phone calls', 'Through group chats and social media', 'By writing letters'],
+                                    'correct' => 1,
                                 ],
                                 // No shadow_lines here — Day 1 Listening is comprehension-only
                                 // (synced text + gap-fill); shadowing is Listen Again's job
@@ -1105,8 +1111,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 'image_query' => 'two friends chatting park bench',
                                 'shadow_lines' => [
-                                    "**That's** **interesting** because **often** it's **women** who **have** **many** **friends**.",
-                                    '**Max** **thinks** the **answer** is **getting out** and **meeting** **people**.',
+                                    'As you **get older**, you **move away**. You have **families**.',
+                                    "You **don't notice it** when it **happens**, do you, **really**?",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_2'),
                             ],
@@ -1337,8 +1343,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'friends walking together talking',
                                 'shadow_lines' => [
-                                    '**All** of **which** **helps** **get closer** to the **magical number**.',
-                                    '**Once again**, our **six minutes** are **up**.',
+                                    'That means that you **don\'t see** or **speak** to them **anymore**.',
+                                    "It's **easy** for me to **stay friends** with some of my **old friends**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_3'),
                             ],
@@ -1369,7 +1375,7 @@ class MissionSeeder extends Seeder
                                 // Written fresh for this app (see EOS-009 §14) — deliberately
                                 // reuses several Vocabulary Builder pool words/phrases (close,
                                 // best friends, gets on well with, outgoing, old friend,
-                                // friendship, drifted away, getting to know, close family,
+                                // friendship, lose touch, getting to know, close family,
                                 // relatives, times are tough, get through) so whichever words a
                                 // learner picked there, they meet again here in a fresh context.
                                 'passage' => 'Sara has three very close school friends, and they\'ve stayed best '
@@ -1379,8 +1385,8 @@ class MissionSeeder extends Seeder
                                     .'of them, even though they\'re very different people — one is quiet and '
                                     .'careful, and another is much more outgoing and always wants to organise '
                                     .'something new. Sara also has an old friend, Mina, who she met at her first '
-                                    ."job. They don't talk every week anymore, but Sara doesn't think their "
-                                    .'friendship has drifted away — she thinks a good friendship can survive a '
+                                    ."job. They don't talk every week anymore, but Sara is sure they will never "
+                                    .'lose touch — she thinks a good friendship can survive a '
                                     .'few quiet months. At the moment, Sara is actually getting to know a new '
                                     .'colleague, Priya, who just joined her team. They\'re having lunch together '
                                     .'most days this week, and Sara already thinks Priya could become a good '
@@ -1395,12 +1401,12 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'outgoing', 'type' => 'reused'],
                                     ['phrase' => 'old friend', 'type' => 'reused'],
                                     ['phrase' => 'friendship', 'type' => 'reused'],
-                                    ['phrase' => 'drifted away', 'type' => 'reused'],
+                                    ['phrase' => 'lose touch', 'type' => 'reused'],
                                     ['phrase' => 'getting to know', 'type' => 'reused'],
                                     ['phrase' => 'close family', 'type' => 'reused'],
                                     ['phrase' => 'relatives', 'type' => 'reused'],
-                                    ['phrase' => 'times are tough', 'type' => 'reused'],
-                                    ['phrase' => 'get through', 'type' => 'reused'],
+                                    ['phrase' => 'times are tough', 'type' => 'new', 'definition' => 'a period of trouble, unhappiness or financial difficulty in life', 'pos' => 'idiom', 'example' => 'When times are tough, good friends really matter.'],
+                                    ['phrase' => 'get through', 'type' => 'new', 'definition' => 'to manage to live through a difficult period of time', 'pos' => 'phrasal verb', 'example' => 'My friends helped me get through a hard year.'],
                                     ['phrase' => 'colleague', 'type' => 'new', 'definition' => 'a person you work with', 'pos' => 'noun', 'example' => 'My colleague helped me finish the report.'],
                                     ['phrase' => 'organise', 'type' => 'new', 'definition' => 'to plan and arrange an event or activity', 'pos' => 'verb', 'example' => 'She loves to organise weekend trips for her friends.'],
                                     ['phrase' => 'survive', 'type' => 'new', 'definition' => 'to continue existing despite a difficult situation', 'pos' => 'verb', 'example' => 'Their friendship survived even after she moved abroad.'],
@@ -1638,32 +1644,17 @@ class MissionSeeder extends Seeder
                                 // (see ⚡listening.blade.php), same gate as M01/M02.
                                 'transcript' => [
                                     ['speaker' => 'Jessica', 'text' => "Hi everyone. Welcome back to the five minute English practice. I'm Jessica and I'm really happy you decided to spend some time with us today. Today we're talking about a topic that comes up a lot when people start caring more about their health, their energy, and the way they feel every day. And that topic is eating clean. Some people feel very excited when they hear this phrase because they think it means a fresh start and better habits, while other people feel stressed right away because they imagine strict rules, boring food, and a lifestyle that feels hard to maintain. So today, instead of giving advice or telling you what you should or shouldn't eat, we're simply going to talk honestly about food habits, mistakes, and what eating clean actually looks like in real life, not in a perfect online world. I'm not doing this episode alone. I'm here with Lisa, who has tried eating clean in a very realistic way while working, feeling tired, craving snacks, and still wanting to enjoy food. Hi, Lisa. How are you today?"],
-                                    ['speaker' => 'Lisa', 'text' => "Hi, Jessica. Hi, everyone. I'm doing really well, thank you. And I love this topic because eating clean didn't just change what I eat. It really changed how I think about food and how I listen to my body."],
-                                    ['speaker' => 'Jessica', 'text' => "I really like that you said that because eating clean is not just about meals. It's also about awareness and daily choices. Let's go back to the beginning for a moment. Lisa, when you first heard the phrase eat clean, what did you imagine?"],
-                                    ['speaker' => 'Lisa', 'text' => 'To be honest, I imagined a very boring life. I thought eating clean meant eating plain food with no flavor, no sugar, no fun, and no comfort. And I honestly thought I would feel hungry, tired, and unhappy all the time if I tried to eat that way.'],
-                                    ['speaker' => 'Jessica', 'text' => 'That image is very common, and I had the exact same thought. I believed eating clean meant giving up food that makes life enjoyable.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Yes. And because of that, I avoided it for a long time. Even though deep down I knew my eating habits were not making me feel very good.'],
-                                    ['speaker' => 'Jessica', 'text' => 'So what made you finally decide to try eating clean?'],
-                                    ['speaker' => 'Lisa', 'text' => "I started noticing that after most meals I felt heavy, sleepy, and unfocused, especially in the afternoon. And I realized that even though I was eating enough, my body didn't feel satisfied or energized."],
-                                    ['speaker' => 'Jessica', 'text' => 'That moment is very important because many people start eating clean not because they want to change how they look but because they want to change how they feel.'],
-                                    ['speaker' => 'Lisa', 'text' => "Exactly. I didn't want a perfect diet. I just wanted to feel better during the day."],
+                                    ['speaker' => 'Lisa', 'text' => "Hi, Jessica. Hi, everyone. I'm doing really well, thank you."],
                                     ['speaker' => 'Jessica', 'text' => 'So now after some time, how would you describe eating clean in your own words?'],
                                     ['speaker' => 'Lisa', 'text' => 'For me, eating clean means choosing simple food that feels natural, cooking more meals at home, and eating things that make me feel good after I finish eating instead of feeling uncomfortable or tired.'],
                                     ['speaker' => 'Jessica', 'text' => "I love that description because it feels very realistic and very kind. For me, eating clean means I try to slow down and think about what my body actually needs instead of eating something just because it's fast or easy."],
                                     ['speaker' => 'Lisa', 'text' => 'Yes. And that mindset already changes a lot.'],
                                     ['speaker' => 'Jessica', 'text' => 'Let\'s talk about breakfast because the way we start the day often affects everything else. What does a typical clean breakfast look like for you?'],
                                     ['speaker' => 'Lisa', 'text' => 'Most mornings I eat oatmeal and I like to take my time preparing it, adding fruit, nuts, maybe a little honey or peanut butter because it feels warm, filling and comforting, especially on busy mornings.'],
-                                    ['speaker' => 'Jessica', 'text' => 'I really like oatmeal for the same reason. It feels gentle on the body, but it also gives enough energy to start the day without feeling heavy.'],
                                     ['speaker' => 'Lisa', 'text' => 'On other days, I choose eggs, usually scrambled eggs with avocado or eggs with toast because it keeps me full and focused for a long time.'],
                                     ['speaker' => 'Jessica', 'text' => "Yes, eggs made a big difference for me. Before, I often skipped breakfast or just had coffee and I didn't realize how much that affected my mood and energy later in the day."],
                                     ['speaker' => 'Lisa', 'text' => "That's such an important point. When you eat real breakfast, your whole day feels more balanced."],
                                     ['speaker' => 'Lisa', 'text' => 'Exactly. I feel more calm and less rushed when I start the day with proper food.'],
-                                    ['speaker' => 'Jessica', 'text' => "Now, let's move to lunch because lunch is often eaten in a hurry. What do you usually eat for lunch when you try to eat clean?"],
-                                    ['speaker' => 'Lisa', 'text' => 'I try to keep lunch very simple and satisfying, usually with grilled chicken or fish, a lot of vegetables and something warm and comforting like roasted potatoes or a big salad with olive oil.'],
-                                    ['speaker' => 'Jessica', 'text' => "That sounds very similar to what I eat. I often prepare chicken or fish in advance and then add vegetables and potatoes because it's easy, filling, and doesn't make me feel sleepy afterward."],
-                                    ['speaker' => 'Lisa', 'text' => 'Yes, that sleepy feeling after lunch disappeared when I stopped eating heavy and processed food.'],
-                                    ['speaker' => 'Jessica', 'text' => "That's something many people notice. Clean food doesn't make you feel slow."],
-                                    ['speaker' => 'Lisa', 'text' => "Exactly. And I also learned that clean food doesn't need to be fancy. It just needs to be simple and cooked with care."],
                                     ['speaker' => 'Jessica', 'text' => 'Now, let\'s talk about snacks because snacks are where many people feel they fail. Lisa, do you snack during the day?'],
                                     ['speaker' => 'Lisa', 'text' => 'Yes, I do. Especially in the afternoon when my energy drops and I start craving something sweet or crunchy.'],
                                     ['speaker' => 'Jessica', 'text' => 'That time of day is very dangerous.'],
@@ -1672,12 +1663,7 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Lisa', 'text' => 'Exactly. So now I still snack, but I choose things that actually help my body, like a fruit with peanut butter, yogurt, nuts, or boiled eggs.'],
                                     ['speaker' => 'Jessica', 'text' => "That's exactly what I do, too. I don't try to be perfect. I just try to make better choices most of the time."],
                                     ['speaker' => 'Lisa', 'text' => 'And that made eating clean feel much more realistic.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Let\'s talk about dinner because many people think dinner should be very small or boring when eating clean. What do you think?'],
-                                    ['speaker' => 'Lisa', 'text' => "I don't agree with that at all. Dinner is the time when I want to relax, slow down, and enjoy my food. So, I still eat a proper meal."],
-                                    ['speaker' => 'Jessica', 'text' => 'Same here. I often eat baked fish with vegetables or chicken with roasted potatoes and salad because it feels complete and satisfying.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Yes. And sometimes I eat pasta, but I keep it simple with olive oil, garlic, vegetables, and maybe some cheese instead of heavy sauce.'],
-                                    ['speaker' => 'Jessica', 'text' => "That's such a good example. Eating clean doesn't mean cutting food out. It means choosing a simpler version."],
-                                    ['speaker' => 'Jessica', 'text' => "Exactly. Now, let's talk about processed food. How do you see it?"],
+                                    ['speaker' => 'Jessica', 'text' => "Now, let's talk about processed food. How do you see it?"],
                                     ['speaker' => 'Lisa', 'text' => "Now processed food is something I still eat sometimes but it's no longer part of my daily routine and I feel the difference very clearly."],
                                     ['speaker' => 'Jessica', 'text' => 'That difference is huge. It becomes a choice not a habit.'],
                                     ['speaker' => 'Lisa', 'text' => "Yes. And when it's a choice you don't feel guilty."],
@@ -1735,14 +1721,14 @@ class MissionSeeder extends Seeder
                                         'gap_after' => ', but I choose things that actually help my body',
                                     ],
                                 ],
-                                'topic_summary' => 'Jessica and Lisa talk honestly about "eating clean" — what Lisa imagined '
-                                    .'before trying it, what a real (not perfect) clean breakfast/lunch/dinner looks '
-                                    .'like for her, how she still snacks but chooses better options, why she doesn\'t '
-                                    .'stress about eating out, and her advice to start small and be patient rather '
-                                    .'than trying to be perfect.',
+                                'topic_summary' => 'Jessica and Lisa talk honestly about "eating clean" — what Lisa '
+                                    .'eats for breakfast, how she still snacks but chooses better options, how '
+                                    .'processed food has become a choice rather than a habit, why she doesn\'t '
+                                    .'stress about eating out, what changed once she started, and her advice to '
+                                    .'start small and be patient rather than trying to be perfect.',
                                 'comprehension_check' => [
                                     ['statement' => 'Jessica and Lisa talk about eating clean.', 'correct' => true, 'difficulty' => 'easy'],
-                                    ['statement' => 'Lisa thinks dinner should be small and boring when eating clean.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Lisa says she never eats processed food any more.', 'correct' => false, 'difficulty' => 'medium'],
                                     ['statement' => 'Lisa still eats snacks, but chooses healthier ones.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 'detail_question' => [
@@ -2264,7 +2250,6 @@ class MissionSeeder extends Seeder
                                 // listened twice (see ⚡listening.blade.php), same gate as
                                 // every other mission.
                                 'transcript' => [
-                                    ['speaker' => 'Narrator', 'text' => "Hi there and welcome to the Five Minute English Podcast. The place where you learn real English for real life in just 5 minutes a day. Here we keep things simple, practical, and easy to follow. You'll hear clear English, useful conversations, and everyday vocabulary that you can actually use."],
                                     ['speaker' => 'Narrator', 'text' => "Today's episode is called Talking About Your Job. We'll listen to Lisa and her old university friend Emily who meet again at a cafe after a long time. They talk about their current jobs, what they do every day, and how they feel about work."],
                                     ['speaker' => 'Lisa', 'text' => "Wow, it's so good to see you. I didn't expect to run into you here."],
                                     ['speaker' => 'Emily', 'text' => 'What a surprise. I was just grabbing a coffee before heading back to the office. How have you been?'],
