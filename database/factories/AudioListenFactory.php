@@ -22,4 +22,21 @@ class AudioListenFactory extends Factory
             'source' => AudioListen::SOURCE_LISTENING,
         ];
     }
+
+    /**
+     * A listen of one of a day's three picks on /listening.
+     */
+    public function pick(int $dayNumber = 1, int $level = 0): static
+    {
+        return $this->state([
+            'source' => AudioListen::SOURCE_LISTENING_PICK,
+            'day_number' => $dayNumber,
+            'pick_key' => AudioListen::pickKey($dayNumber, $level),
+        ]);
+    }
+
+    public function selfReported(): static
+    {
+        return $this->state(['self_reported' => true]);
+    }
 }

@@ -246,5 +246,15 @@ trait DailyListenStep
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-'.$this->phaseKey(), $query);
     }
 
+    /**
+     * Which of the mission's four days this Listen Again is (2, 3 or 4),
+     * read off the step key ("daily_listen_2") — what a listen of the
+     * shared episode is filed under.
+     */
+    public function dayNumber(): int
+    {
+        return (int) substr($this->phaseKey(), -1);
+    }
+
     abstract protected function phaseKey(): string;
 }

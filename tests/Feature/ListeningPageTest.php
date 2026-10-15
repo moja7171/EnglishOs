@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AudioListen;
 use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
@@ -199,7 +200,31 @@ class ListeningPageTest extends TestCase
 
         $this->get(route('listening.show'))
             ->assertSee('Listened today')
-            ->assertDontSee('I listened');
+            ->assertDontSeeHtml('wire:click="markListened"');
+    }
+
+    public function test_each_of_the_three_picks_shows_its_own_listen_count(): void
+    {
+        $learner = User::factory()->create();
+        AudioListen::factory()->pick(1, 1)->count(2)->create(['learner_id' => $learner->id]);
+        $this->actingAs($learner);
+
+        $html = $this->get(route('listening.show'))->getContent();
+
+        $this->assertSame(3, substr_count($html, 'data-testid="listen-count"'));
+        $this->assertSame(1, substr_count($html, 'data-testid="listen-count">2<'));
+    }
+
+    public function test_telling_us_you_listened_to_a_pick_also_ticks_the_day(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('listening.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->dispatch('listen-self-reported')
+            ->assertSee('Listened today');
+
+        $this->assertTrue($learner->hasListenedToday());
     }
 
     public function test_the_day_on_screen_cannot_be_rewritten_from_the_browser(): void

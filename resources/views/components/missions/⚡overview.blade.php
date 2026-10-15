@@ -33,7 +33,7 @@ new class extends Component
      * where the picks themselves and the "I listened" tick live; the box
      * only reflects whether today's tick has been made.
      *
-     * @return array{missionCode: string, dayNumber: int, listenedToday: bool}|null
+     * @return array{missionCode: string, dayNumber: int, listenedToday: bool, listensToday: int}|null
      */
     #[Computed]
     public function listening(): ?array
@@ -48,6 +48,7 @@ new class extends Component
 
         return $day + [
             'listenedToday' => auth()->user()->hasListenedToday(),
+            'listensToday' => auth()->user()->listensToday(),
         ];
     }
 

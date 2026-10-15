@@ -317,14 +317,56 @@ class User extends Authenticatable
     /**
      * How many full listens this learner has completed of one mission's
      * recording or video — the number shown beside the player and in the
-     * step's recap.
+     * step's recap. A daily pick on /listening is told apart by its
+     * $pickKey (see AudioListen::pickKey()).
      */
-    public function audioListenCount(string $missionCode, string $source): int
+    public function audioListenCount(string $missionCode, string $source, ?string $pickKey = null): int
+    {
+        return $this->audioListensFor($missionCode, $source, $pickKey)->count();
+    }
+
+    /**
+     * Everything the listen badge shows about one recording or pick: the
+     * total, how many were today, when the last one was, the split by
+     * mission day and the latest few with their times.
+     *
+     * @return array{total: int, today: int, last: ?Carbon, byDay: array<int, int>, recent: Collection<int, AudioListen>}
+     */
+    public function audioListenSummary(string $missionCode, string $source, ?string $pickKey = null): array
+    {
+        $listens = $this->audioListensFor($missionCode, $source, $pickKey)->latest()->latest('id')->get();
+
+        return [
+            'total' => $listens->count(),
+            'today' => $listens->filter(fn (AudioListen $listen) => $listen->created_at->isToday())->count(),
+            'last' => $listens->first()?->created_at,
+            'byDay' => $listens->whereNotNull('day_number')->countBy('day_number')->sortKeys()->all(),
+            'recent' => $listens->take(8)->values(),
+        ];
+    }
+
+    /**
+     * How many listens of the listening recordings (a mission's own
+     * episode and the daily picks, heard or self-reported) the learner
+     * logged today — the number on the Today box's listening row.
+     */
+    public function listensToday(): int
+    {
+        return $this->audioListens()
+            ->whereIn('source', [AudioListen::SOURCE_LISTENING, AudioListen::SOURCE_LISTENING_PICK])
+            ->where('created_at', '>=', today())
+            ->count();
+    }
+
+    /**
+     * @return HasMany<AudioListen, $this>
+     */
+    private function audioListensFor(string $missionCode, string $source, ?string $pickKey): HasMany
     {
         return $this->audioListens()
             ->where('mission_code', $missionCode)
             ->where('source', $source)
-            ->count();
+            ->where('pick_key', $pickKey);
     }
 
     /**
