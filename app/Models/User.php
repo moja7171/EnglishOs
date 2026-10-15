@@ -1574,6 +1574,30 @@ class User extends Authenticatable
     }
 
     /**
+     * The users-table values for study-time slot 1 or 2 set to $time (null =
+     * off). A time that has already passed today is parked as "sent today"
+     * so it starts tomorrow instead of buzzing at once for a moment that is
+     * gone; a time still ahead clears that, so today's alert goes out.
+     *
+     * @return array<string, string|null>
+     */
+    public function studyReminderAttributes(int $slot, ?string $time): array
+    {
+        $localNow = now($this->reminderTimezone());
+        $passed = $time !== null && $localNow->copy()->setTimeFromTimeString($time)->lessThanOrEqualTo($localNow);
+
+        return [
+            "study_reminder_time_{$slot}" => $time,
+            "last_study_reminder_{$slot}_on" => $passed ? $localNow->toDateString() : null,
+        ];
+    }
+
+    public function hasStudyReminderTimes(): bool
+    {
+        return $this->study_reminder_time_1 !== null || $this->study_reminder_time_2 !== null;
+    }
+
+    /**
      * Saves the browser's current zone so a scheduled reminder (which runs
      * with no browser at all) lands at the learner's own local time.
      */

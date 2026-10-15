@@ -49,7 +49,6 @@ new class extends Component
         $user = auth()->user();
         $user->rememberTimezone();
 
-        $localNow = now($user->reminderTimezone());
         $changed = (int) (explode('.', $name)[1] ?? -1);
         $attributes = [];
 
@@ -57,13 +56,9 @@ new class extends Component
             $number = $index + 1;
             $time = $slot['enabled'] ? "{$slot['hour']}:{$slot['minute']}" : null;
 
-            $attributes["study_reminder_time_{$number}"] = $time;
-
-            if ($index === $changed) {
-                $attributes["last_study_reminder_{$number}_on"] = $time !== null && $localNow->copy()->setTimeFromTimeString($time)->lessThanOrEqualTo($localNow)
-                    ? $localNow->toDateString()
-                    : null;
-            }
+            $attributes += $index === $changed
+                ? $user->studyReminderAttributes($number, $time)
+                : ["study_reminder_time_{$number}" => $time];
         }
 
         $user->forceFill($attributes)->save();
