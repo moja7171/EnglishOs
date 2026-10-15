@@ -23,7 +23,7 @@ class MyMemoryClientTest extends TestCase
                 'matches' => [
                     ['segment' => 'sleep', 'translation' => 'sleep', 'match' => 1, 'usage-count' => 2],
                     ['segment' => 'sleep.', 'translation' => 'بخواب.', 'match' => 0.99, 'usage-count' => 12],
-                    ['segment' => 'sleep', 'translation' => 'خواب', 'match' => 0.99, 'usage-count' => 20],
+                    ['segment' => 'sleep', 'translation' => 'خواب', 'match' => 0.99, 'usage-count' => 2],
                     ['segment' => 'sleeping bag', 'translation' => 'کیسه خواب', 'match' => 0.98, 'usage-count' => 40],
                 ],
             ]),

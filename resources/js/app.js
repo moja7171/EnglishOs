@@ -1134,6 +1134,11 @@ document.addEventListener('alpine:init', () => {
             ));
         },
 
+        /** "noun · verb" — the roles the word can play, in the dictionary's order. */
+        get partsOfSpeech() {
+            return [...new Set((this.entry?.meanings ?? []).map((group) => group.pos))].join(' · ');
+        },
+
         async show({ word, sentence, range }) {
             const ticket = ++this.ticket;
 

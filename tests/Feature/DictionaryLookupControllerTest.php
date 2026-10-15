@@ -13,6 +13,13 @@ class DictionaryLookupControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.gemini.key' => '']);
+    }
+
     public function test_a_guest_is_sent_to_the_login_page(): void
     {
         $this->get(route('dictionary.lookup', ['word' => 'sleep']))
@@ -31,6 +38,25 @@ class DictionaryLookupControllerTest extends TestCase
             ->assertJsonPath('data.translation_fa', 'خواب')
             ->assertJsonPath('data.meanings.0.pos', 'noun')
             ->assertJsonPath('saved', false);
+    }
+
+    public function test_it_tells_the_sheet_whether_the_english_meaning_was_found_unknown_or_unavailable(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'sleep']);
+        DictionaryEntry::factory()->unknownToDictionary()->create(['word' => 'overslept']);
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response('Bad gateway', 502),
+            'api.mymemory.translated.net/get*' => Http::response([
+                'responseStatus' => 200,
+                'matches' => [['segment' => 'wake', 'translation' => 'بیدار شدن', 'match' => 0.99]],
+            ]),
+        ]);
+        $this->actingAs(User::factory()->create());
+
+        $this->getJson(route('dictionary.lookup', ['word' => 'sleep']))->assertJsonPath('data.english_status', 'ok');
+        $this->getJson(route('dictionary.lookup', ['word' => 'overslept']))->assertJsonPath('data.english_status', 'unknown');
+        $this->getJson(route('dictionary.lookup', ['word' => 'wake']))->assertJsonPath('data.english_status', 'unavailable');
     }
 
     public function test_it_says_when_the_word_is_already_in_my_words(): void
@@ -69,7 +95,7 @@ class DictionaryLookupControllerTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            'api.dictionaryapi.dev/*' => Http::failedConnection(),
+            'en.wiktionary.org/*' => Http::failedConnection(),
             'api.mymemory.translated.net/*' => Http::failedConnection(),
         ]);
 
