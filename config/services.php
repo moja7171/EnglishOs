@@ -102,6 +102,16 @@ return [
         'key' => env('PEXELS_API_KEY'),
     ],
 
+    // The tap-a-word dictionary sheet (App\Services\WordLookup): English
+    // definitions come from the free dictionaryapi.dev (no key), Persian
+    // from MyMemory. Both go through the same relay as the AI providers
+    // when one is configured — see ai_proxy below.
+    'mymemory' => [
+        // Optional: an email sent as MyMemory's `de` parameter raises the
+        // anonymous daily cap (about 5,000 characters) roughly tenfold.
+        'email' => env('MYMEMORY_EMAIL'),
+    ],
+
     // Routes GeminiClient/GroqClient/PexelsClient's outbound calls through
     // a small HTTP relay instead of connecting directly — for when the app
     // runs somewhere that can't reach these providers itself (e.g.

@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AiDiagnosticController;
 use App\Http\Controllers\AiRelayUseController;
+use App\Http\Controllers\DictionaryLookupController;
 use App\Http\Controllers\ListeningAudioController;
 use App\Http\Controllers\ServiceHealthController;
+use App\Http\Controllers\VocabularyWordController;
 use App\Models\DirectMessage;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
@@ -106,6 +108,16 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/vocabulary', function () {
         return view('vocabulary');
     })->name('vocabulary.index');
+
+    // The tap-a-word sheet (<x-dictionary-sheet>): look a word up, and add
+    // it to My Words. Plain JSON so neither re-renders the text being read.
+    Route::get('/dictionary', DictionaryLookupController::class)
+        ->middleware('throttle:60,1')
+        ->name('dictionary.lookup');
+
+    Route::post('/vocabulary', [VocabularyWordController::class, 'store'])
+        ->middleware('throttle:30,1')
+        ->name('vocabulary.store');
 
     Route::get('/speaking', function () {
         return view('speaking');

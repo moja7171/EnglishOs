@@ -303,7 +303,7 @@ new class extends Component
                             @foreach ($shadowLines as $index => $line)
                                 <div class="card-sunken p-4">
                                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
-                                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+                                    <p x-lookup class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
 
                                     @if ($readOnly)
                                         @if ($url = $savedShadowUrls[$index] ?? null)

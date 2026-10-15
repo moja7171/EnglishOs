@@ -14,6 +14,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'English OS') }}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -115,6 +116,10 @@
     @if ($showNav)
         <x-bottom-nav />
     @endif
+
+    @auth
+        <x-dictionary-sheet />
+    @endauth
 
     {{-- Custom install prompt: Chrome/Edge on Android removed their own
          automatic "Add to Home screen" banner years ago — a site now has to

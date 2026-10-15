@@ -649,3 +649,10 @@ select,
         font-size: 16px;
     }
 }
+
+/* The word the dictionary sheet is showing, picked out in the text behind
+   it (CSS Custom Highlight API — no markup is added, so Livewire's
+   morphing never fights it; a browser without the API just skips it). */
+::highlight(eos-lookup) {
+    background-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}

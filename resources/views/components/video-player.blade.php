@@ -369,7 +369,7 @@
         {{-- Synced text panel, same idea as <x-audio-player>'s — visible
              alongside the video whenever it's NOT fullscreen (fullscreen
              uses the real <track> captions above instead). --}}
-        <div class="mt-3 max-h-40 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm">
+        <div x-lookup class="mt-3 max-h-40 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm">
             @foreach ($segments as $index => $segment)
                 <p
                     x-ref="segment-{{ $index }}"
@@ -395,7 +395,7 @@
             @foreach ($shadowLines as $index => $line)
                 <div x-show="activeShadowIndex === {{ $index }}" x-cloak>
                     <div class="mt-1 flex items-start justify-between gap-2">
-                        <p class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+                        <p x-lookup class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
 
                         <button
                             type="button"

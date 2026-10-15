@@ -377,6 +377,7 @@
                 }
             @endphp
             <div
+                x-lookup
                 class="space-y-3 overflow-y-auto card-sunken p-3"
                 :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-lg leading-relaxed sm:text-xl' : 'mt-4 max-h-72 text-sm'"
             >
@@ -406,6 +407,7 @@
                  display below (if any); this is just "what's being said,
                  right now", the same idea as karaoke captions. --}}
             <div
+                x-lookup
                 class="space-y-1.5 overflow-y-auto card-sunken p-3"
                 :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : 'mt-4 max-h-56 text-sm'"
             >
@@ -435,7 +437,7 @@
                 @foreach ($shadowLines as $index => $line)
                     <div x-show="activeShadowIndex === {{ $index }}" x-cloak>
                         <div class="mt-1 flex items-start justify-between gap-2">
-                            <p class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+                            <p x-lookup class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
 
                             <button
                                 type="button"

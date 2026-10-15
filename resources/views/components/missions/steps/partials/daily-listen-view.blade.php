@@ -70,7 +70,7 @@
         @foreach ($shadowLines as $index => $line)
             @php $shadowKey = "shadow_{$index}"; $shadowFeedback = $feedback[$shadowKey] ?? null; @endphp
             <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                <p class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
+                <p x-lookup class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
 
                 @if ($readOnly)
                     @if ($url = $savedShadowUrls[$index] ?? null)

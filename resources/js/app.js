@@ -999,3 +999,237 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
         attributeOldValue: true,
     });
 })();
+
+/**
+ * The tap-a-word dictionary. x-lookup (below) turns a tap on a word inside
+ * an element into an `eos-lookup` event; <x-dictionary-sheet> in the layout
+ * listens for it and shows the meaning. Both are plain DOM — nothing here
+ * touches Livewire, so looking a word up never re-renders the step being read.
+ */
+window.eosLookup = {
+    /**
+     * The word under a tap, with the sentence around it and the range it
+     * covers — or null when the tap landed on whitespace, a number, the
+     * margin of a line or anything outside `root`. Looks inside one text
+     * node, which is where a transcript line or a passage keeps its words.
+     */
+    wordAt(x, y, root) {
+        let node;
+        let offset;
+
+        if (document.caretPositionFromPoint) {
+            const position = document.caretPositionFromPoint(x, y);
+            node = position?.offsetNode;
+            offset = position?.offset;
+        } else if (document.caretRangeFromPoint) {
+            const range = document.caretRangeFromPoint(x, y);
+            node = range?.startContainer;
+            offset = range?.startOffset;
+        }
+
+        if (!node || node.nodeType !== Node.TEXT_NODE || !root.contains(node)) return null;
+
+        const text = node.textContent;
+        const isWordChar = (char) => /[A-Za-z'’-]/.test(char);
+        let start = offset;
+        let end = offset;
+
+        while (start > 0 && isWordChar(text[start - 1])) start--;
+        while (end < text.length && isWordChar(text[end])) end++;
+
+        const word = text.slice(start, end).replace(/^['’-]+|['’-]+$/g, '');
+
+        if (!/[A-Za-z]/.test(word)) return null;
+
+        const range = document.createRange();
+        range.setStart(node, start);
+        range.setEnd(node, end);
+
+        // The caret lookup snaps to the nearest character, so a tap in the
+        // empty space after a line would still "find" its last word.
+        const landedOnWord = Array.from(range.getClientRects()).some((rect) => (
+            x >= rect.left - 2 && x <= rect.right + 2 && y >= rect.top - 2 && y <= rect.bottom + 2
+        ));
+
+        if (!landedOnWord) return null;
+
+        return { word, sentence: this.sentenceAround(node, start), range };
+    },
+
+    /** The sentence of the nearest block that holds the word at `start` in `node`. */
+    sentenceAround(node, start) {
+        const block = node.parentElement.closest('p, li, blockquote, h1, h2, h3, h4') || node.parentElement;
+        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+        let before = 0;
+        let current;
+
+        while ((current = walker.nextNode()) && current !== node) before += current.textContent.length;
+
+        const full = block.textContent;
+        const index = before + start;
+        const head = full.slice(0, index).match(/[\s\S]*[.!?…]["”’')\]]*\s+/);
+        const from = head ? head[0].length : 0;
+        const tail = /[.!?…]["”’')\]]*(?=\s|$)/.exec(full.slice(index));
+        const to = tail ? index + tail.index + tail[0].length : full.length;
+
+        return full.slice(from, to).replace(/\s+/g, ' ').trim().slice(0, 300);
+    },
+
+    open(detail) {
+        window.dispatchEvent(new CustomEvent('eos-lookup', { detail }));
+    },
+};
+
+document.addEventListener('alpine:init', () => {
+    /**
+     * x-lookup — a tap on a word inside this element opens the dictionary.
+     * Listens in the capture phase and stops the tap there, so a transcript
+     * line that seeks the audio on tap does NOT also seek when its word is
+     * tapped; a tap beside a word (or on a button or link) is left alone and
+     * does whatever it did before. Dragging to select text is not a tap.
+     */
+    Alpine.directive('lookup', (el, _directive, { cleanup }) => {
+        const onTap = (event) => {
+            if (event.button > 0 || event.target.closest('button, a, input, textarea, select, [data-no-lookup]')) return;
+
+            const selection = window.getSelection();
+            if (selection && !selection.isCollapsed) return;
+
+            const hit = window.eosLookup.wordAt(event.clientX, event.clientY, el);
+            if (!hit) return;
+
+            event.stopPropagation();
+            window.eosLookup.open(hit);
+        };
+
+        el.addEventListener('click', onTap, true);
+        cleanup(() => el.removeEventListener('click', onTap, true));
+    });
+
+    /**
+     * The state of <x-dictionary-sheet>: fetches the word, lets the learner
+     * pick which meaning to keep, and saves it to My Words. A tapped word
+     * pauses whatever audio or video is playing and resumes it on close.
+     * Late answers for a word the learner has already moved on from are
+     * dropped (`ticket`).
+     */
+    Alpine.data('dictionarySheet', (urls) => ({
+        isOpen: false,
+        loading: false,
+        failed: false,
+        word: '',
+        sentence: '',
+        entry: null,
+        saved: false,
+        saving: false,
+        addFailed: false,
+        chosen: 0,
+        pausedMedia: [],
+        ticket: 0,
+
+        /** Every meaning of the entry as one flat list, in the order shown. */
+        get senses() {
+            return (this.entry?.meanings ?? []).flatMap((group) => (
+                group.definitions.map((sense) => ({ pos: group.pos, ...sense }))
+            ));
+        },
+
+        async show({ word, sentence, range }) {
+            const ticket = ++this.ticket;
+
+            this.word = word;
+            this.sentence = sentence ?? '';
+            this.entry = null;
+            this.saved = false;
+            this.failed = false;
+            this.addFailed = false;
+            this.chosen = 0;
+            this.loading = true;
+            this.isOpen = true;
+
+            this.pauseMedia();
+            if (range && window.CSS?.highlights && window.Highlight) {
+                CSS.highlights.set('eos-lookup', new Highlight(range));
+            }
+
+            try {
+                const response = await fetch(`${urls.lookup}?word=${encodeURIComponent(word)}`, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                });
+
+                if (!response.ok) throw new Error(`lookup ${response.status}`);
+
+                const json = await response.json();
+                if (ticket !== this.ticket) return;
+
+                this.entry = json.data;
+                this.saved = json.saved;
+                this.word = json.data.word;
+            } catch (error) {
+                if (ticket === this.ticket) this.failed = true;
+            } finally {
+                if (ticket === this.ticket) this.loading = false;
+            }
+        },
+
+        close() {
+            this.isOpen = false;
+            this.ticket++;
+            window.CSS?.highlights?.delete('eos-lookup');
+            this.pausedMedia.forEach((media) => media.play().catch(() => {}));
+            this.pausedMedia = [];
+        },
+
+        pauseMedia() {
+            if (this.pausedMedia.length) return;
+
+            this.pausedMedia = Array.from(document.querySelectorAll('audio, video')).filter((media) => !media.paused);
+            this.pausedMedia.forEach((media) => media.pause());
+        },
+
+        speak() {
+            if (this.entry?.audio_url) {
+                new Audio(this.entry.audio_url).play().catch(() => window.eosVoice?.speak(this.word));
+            } else {
+                window.eosVoice?.speak(this.word);
+            }
+        },
+
+        async add() {
+            if (this.saving || this.saved) return;
+
+            const sense = this.senses[this.chosen];
+
+            this.saving = true;
+            this.addFailed = false;
+
+            try {
+                const response = await fetch(urls.store, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content ?? '',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        word: this.word,
+                        meaning: sense?.definition ?? null,
+                        pos: sense?.pos ?? null,
+                        example: this.sentence || sense?.example || null,
+                    }),
+                });
+
+                if (!response.ok) throw new Error(`store ${response.status}`);
+
+                this.saved = true;
+            } catch (error) {
+                this.addFailed = true;
+            } finally {
+                this.saving = false;
+            }
+        },
+    }));
+});
