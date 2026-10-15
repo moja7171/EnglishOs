@@ -828,7 +828,7 @@ window.eosConfetti = {
  *
  * A listen counts once at least `threshold` (90%) of the recording's seconds
  * have genuinely played — measured by distinct whole seconds, so replaying a
- * line or rewinding 10 seconds never counts the same second twice, and
+ * line or rewinding 5 seconds never counts the same second twice, and
  * jumping the seek bar forward (to the very end, say) credits nothing: only
  * continuous playback marks seconds. Pausing and resuming is fine, and
  * speed doesn't matter because it counts seconds of the recording, not of

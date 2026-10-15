@@ -1,7 +1,7 @@
 {{--
     Minimal voice-note player for inside a chat bubble — a play button, a
     slim seek line, and a duration readout in one row. The full
-    <x-audio-player> (speed control, ±10s skip, download) belongs on
+    <x-audio-player> (speed control, ±5s skip, download) belongs on
     mission/lesson audio where scrubbing matters; a chat bubble just needs
     "tap to play", the way WhatsApp/Telegram voice messages read.
 
