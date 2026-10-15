@@ -1007,21 +1007,21 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
  * The link that was just tapped says so. A wire:navigate lands only after the
  * next page has been fetched, so the tapped link/card is marked aria-busy the
  * moment the navigation starts (see a[aria-busy] in app.css): it holds its
- * pressed look and shows a small spinner, so the tap visibly "took" even when
- * the page is slow. Nothing else on the page changes. The thin bar at the top
- * is Livewire's own (config/livewire.php). A modified click (new tab) or a
- * navigation that never lands is cleaned up so the link is never left busy.
+ * pressed look, so the tap visibly "took" even when the page is slow. Nothing
+ * else on the page changes. The thin bar at the top is Livewire's own (config/livewire.php). The mark is cleared just before the
+ * swap (livewire:navigating) because Livewire snapshots the page being left
+ * right after that event for the Back button: a still-busy link in the
+ * snapshot would come back dead. A navigation that never lands is cleaned up
+ * after 10 seconds.
  */
 (() => {
     let tapped = null;
     let tappedAt = 0;
-    let busy = null;
     let giveUp = null;
 
     const clear = () => {
         clearTimeout(giveUp);
-        busy?.removeAttribute('aria-busy');
-        busy = null;
+        document.querySelectorAll('a[aria-busy]').forEach((link) => link.removeAttribute('aria-busy'));
     };
 
     document.addEventListener(
@@ -1040,11 +1040,11 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
 
         if (!tapped || Date.now() - tappedAt > 1000) return;
 
-        busy = tapped;
-        busy.setAttribute('aria-busy', 'true');
+        tapped.setAttribute('aria-busy', 'true');
         giveUp = setTimeout(clear, 10000);
     });
 
+    document.addEventListener('livewire:navigating', clear);
     document.addEventListener('livewire:navigated', clear);
     window.addEventListener('pageshow', clear);
 })();
