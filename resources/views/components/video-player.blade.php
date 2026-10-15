@@ -13,10 +13,12 @@
 
     @param string $url Video source (mp4).
     @param string|null $captionsUrl WebVTT captions track, if any. The CC
-        toggle only renders when this is given — this is what a fullscreen
-        viewer sees as real native subtitles; the $segments panel below is
-        the same text for when they're NOT fullscreen (browsers don't
-        overlay <track> captions outside fullscreen the same way here).
+        toggle only renders when this is given — it shows real subtitles
+        over the picture; the $segments panel below is the same text as a
+        scrolling, tap-to-seek list. "Expanded" (the arrows button, or f)
+        restyles this whole component full screen with the video on top and
+        that panel beneath it, so both stay visible together — the <video>
+        itself never moves, so playback carries on uninterrupted.
     @param string|null $poster Poster frame shown before first play.
     @param string $title Accessible label for the video element.
     @param string|null $onEnded Raw Alpine statement(s) run on playback end
@@ -51,7 +53,10 @@
 ])
 
 @if (! empty($url))
-    <div x-data="{
+    <div
+        :class="expanded ? 'fixed inset-0 z-50 flex flex-col overflow-hidden bg-ground p-3 sm:p-6 landscape:flex-row landscape:gap-4 dark:bg-ground-dark' : ''"
+        x-on:keydown.escape.window="expanded = false"
+        x-data="{
             playing: false,
             currentTime: 0,
             duration: 0,
@@ -61,7 +66,7 @@
             captionsOn: {{ $captionsUrl ? 'true' : 'false' }},
             controlsVisible: true,
             hideTimer: null,
-            fullscreen: false,
+            expanded: false,
             segments: {{ Illuminate\Support\Js::from($segments) }},
             shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
             // Freely switchable, any number of times, never a one-time
@@ -119,17 +124,26 @@
                     this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
                 }
 
-                document.addEventListener('fullscreenchange', () => {
-                    this.fullscreen = document.fullscreenElement === video;
-                });
-                // iOS's non-standard fullscreen path fires its own events
-                // instead of the standard fullscreenchange above.
-                video.addEventListener('webkitbeginfullscreen', () => this.fullscreen = true);
-                video.addEventListener('webkitendfullscreen', () => this.fullscreen = false);
-
+                // Scrolls only the text panel, never the page — an element's
+                // scrollIntoView also scrolls every scrollable ancestor,
+                // which pushed the video itself off screen on each new line.
                 this.$watch('activeSegmentIndex', (index) => {
-                    this.$nextTick(() => this.$refs['segment-' + index]?.scrollIntoView({block: 'center'}));
+                    this.$nextTick(() => this.centerSegment(index));
                 });
+
+                this.$watch('expanded', (open) => {
+                    document.documentElement.classList.toggle('overflow-hidden', open);
+                    this.$nextTick(() => this.centerSegment(this.activeSegmentIndex));
+                });
+            },
+            destroy() {
+                if (this.expanded) document.documentElement.classList.remove('overflow-hidden');
+            },
+            centerSegment(index) {
+                const panel = this.$refs.segmentsPanel;
+                const segment = this.$refs['segment-' + index];
+                if (! panel || ! segment) return;
+                panel.scrollTo({top: segment.offsetTop - (panel.clientHeight - segment.clientHeight) / 2, behavior: 'smooth'});
             },
             get activeSegmentIndex() {
                 for (let i = this.segments.length - 1; i >= 0; i--) {
@@ -162,36 +176,7 @@
                 this.captionsOn = ! this.captionsOn;
                 if (this.$refs.track) this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
             },
-            toggleFullscreen() {
-                // Fullscreens the <video> element itself, not this wrapper
-                // — tried fullscreening the wrapper first (to keep the
-                // custom overlay visible), but Android Chrome has a real,
-                // separate reliability problem there: a <video> inside an
-                // arbitrary fullscreened element sometimes never
-                // composites its hardware decode surface at all, showing
-                // solid black regardless of any CSS on the wrapper (this
-                // was tried — overflow-hidden wasn't actually the cause).
-                // Fullscreening the <video> directly is the standard,
-                // hardware-optimized path every browser gets right; the
-                // real cost is losing the custom overlay for the OS's own
-                // native video controls during fullscreen (see the
-                // :controls binding below) — reliability over polish.
-                const video = this.$refs.video;
-
-                if (document.fullscreenElement === video || document.webkitFullscreenElement === video) {
-                    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
-                    return;
-                }
-
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitEnterFullscreen) {
-                    // iOS Safari: the only fullscreen path it has at all.
-                    video.webkitEnterFullscreen();
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
-                }
-            },
+            toggleExpanded() { this.expanded = ! this.expanded },
             skip(seconds) {
                 const video = this.$refs.video;
                 const max = video.duration || this.duration || Infinity;
@@ -226,12 +211,13 @@
                 if (key === 'ArrowRight') { e.preventDefault(); this.skip(5); this.showControls(); return; }
                 if (key === 'ArrowLeft') { e.preventDefault(); this.skip(-5); this.showControls(); return; }
                 if (key === 'm') { this.toggleMute(); return; }
-                if (key === 'f') { this.toggleFullscreen(); return; }
+                if (key === 'f') { this.toggleExpanded(); return; }
                 if (key === 'c' && {{ $captionsUrl ? 'true' : 'false' }}) { this.toggleCaptions(); return; }
             },
-        }">
+        }"
+    >
     @if ($listen)
-        <div class="mb-2 flex justify-end">
+        <div x-show="!expanded" class="mb-2 flex justify-end">
             <livewire:listen-counter
                 :mission-code="$listen['mission_code']"
                 :source="$listen['source']"
@@ -245,6 +231,7 @@
         x-on:keydown="onKeydown($event)"
         x-on:mousemove="showControls()"
         x-on:mouseleave="if (playing) controlsVisible = false"
+        :class="expanded ? 'shrink-0 landscape:w-3/5 landscape:self-start' : ''"
         class="group relative aspect-video w-full overflow-hidden rounded-2xl bg-black outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark"
     >
         <video
@@ -256,8 +243,7 @@
             preload="metadata"
             playsinline
             crossorigin="anonymous"
-            :controls="fullscreen"
-            x-on:click="if (!fullscreen) togglePlay()"
+            x-on:click="togglePlay()"
         >
             <source src="{{ $url }}" type="video/mp4">
             @if ($captionsUrl)
@@ -270,7 +256,7 @@
              bottom-bar button to be found first. --}}
         <button
             type="button"
-            x-show="!playing && !fullscreen"
+            x-show="!playing"
             x-on:click="togglePlay()"
             class="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity"
         >
@@ -283,7 +269,7 @@
              so it never lingers as a translucent strip over black bars on
              a differently-shaped video. --}}
         <div
-            x-show="(controlsVisible || !playing) && !fullscreen"
+            x-show="controlsVisible || !playing"
             x-transition.opacity.duration.200ms
             class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-8 pb-2"
         >
@@ -345,13 +331,30 @@
                     x-text="speed + 'x'"
                 ></button>
 
-                <button type="button" x-on:click="toggleFullscreen()" class="cursor-pointer" title="Fullscreen (f)">
-                    @svg('heroicon-o-arrows-pointing-out', 'h-4.5 w-4.5')
+                <button type="button" x-on:click="toggleExpanded()" class="cursor-pointer" :title="expanded ? 'Exit full screen (f)' : 'Full screen with text (f)'">
+                    <span x-show="!expanded">@svg('heroicon-o-arrows-pointing-out', 'h-4.5 w-4.5')</span>
+                    <span x-show="expanded" x-cloak>@svg('heroicon-o-arrows-pointing-in', 'h-4.5 w-4.5')</span>
                 </button>
             </div>
         </div>
+
+        <button
+            type="button"
+            x-show="expanded"
+            x-cloak
+            x-on:click="expanded = false"
+            title="Close full screen (Esc)"
+            class="absolute top-2 right-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+        >
+            <span class="sr-only">Close full screen</span>
+            @svg('heroicon-o-x-mark', 'h-5 w-5')
+        </button>
     </div>
 
+    {{-- Everything under the video. Normally just part of the page; expanded,
+         it becomes the scrolling area beside/below the video so the text
+         panel and the shadow prompt stay on screen together with it. --}}
+    <div :class="expanded ? 'flex min-h-0 flex-1 flex-col overflow-y-auto' : ''">
     @if (count($shadowLines))
         <label class="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-line p-3 dark:border-line-dark">
             <span>
@@ -366,10 +369,14 @@
     @endif
 
     @if (count($segments))
-        {{-- Synced text panel, same idea as <x-audio-player>'s — visible
-             alongside the video whenever it's NOT fullscreen (fullscreen
-             uses the real <track> captions above instead). --}}
-        <div x-lookup class="mt-3 max-h-40 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm">
+        {{-- Synced text panel, same idea as <x-audio-player>'s — always
+             shown with the video, inline and expanded alike. --}}
+        <div
+            x-lookup
+            x-ref="segmentsPanel"
+            :class="expanded ? 'min-h-32 flex-1' : 'max-h-40'"
+            class="relative mt-3 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm"
+        >
             @foreach ($segments as $index => $segment)
                 <p
                     x-ref="segment-{{ $index }}"
@@ -418,5 +425,6 @@
             </button>
         </div>
     @endif
+    </div>
     </div>
 @endif
