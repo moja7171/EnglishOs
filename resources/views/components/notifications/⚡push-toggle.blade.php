@@ -217,6 +217,7 @@ new class extends Component
                     <a
                         href="{{ route('profile', ['tab' => 'reminders']) }}"
                         wire:navigate
+                        x-on:click="open = false"
                         class="font-semibold text-accent-ink transition-colors hover:underline dark:text-accent-ink-dark"
                     >تنظیم ساعت‌ها</a>
                     <button
