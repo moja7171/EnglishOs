@@ -560,13 +560,12 @@ html[data-navigating] body > :not(nav, script, style) {
 }
 
 /* Touch feel. The app is used on phones, where there is no hover — a press
-   is the only feedback a finger gets, so every pressable thing gives a little
-   under it and eases back on release. Written once, here, rather than as
+   is the only feedback a finger gets, so every pressable thing dims a little
+   while it is held and eases back on release. Light, not movement: nothing
+   shrinks or lurches under the thumb. Written once, here, rather than as
    active: utilities on every button and link; an element that wants something
    different (the .choice answers, an explicit active:scale-*) keeps it because
-   utilities outrank this base layer. Buttons and inline pills sink a touch,
-   full-width rows only half as much, and a plain block link just dims — a big
-   card shrinking under the thumb reads as the page lurching. */
+   utilities outrank this base layer. */
 html {
     -webkit-tap-highlight-color: transparent;
 }
@@ -582,31 +581,13 @@ select,
 }
 
 @layer base {
-    :where(button:not(:disabled), summary, [role='button']):active {
-        scale: 0.97;
-    }
-
-    :where(button:not(:disabled).w-full, button:not(:disabled).flex):active {
-        scale: 0.985;
-    }
-
-    :where(a[href].inline-flex, a[href].inline-block):active {
-        scale: 0.97;
-    }
-
-    :where(a[href].block, a[href].flex):active {
-        opacity: 0.85;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        :where(button, summary, [role='button'], a[href]):active {
-            scale: 1;
-        }
+    :where(button:not(:disabled), summary, [role='button'], a[href]):active {
+        opacity: 0.7;
     }
 }
 
 /* The way back from a press. Utilities such as transition-colors replace the
-   transition list outright (it has no scale in it), so without this the
+   transition list outright (it has no opacity in it), so without this the
    element would snap back the instant the finger lifts. Deliberately
    unlayered so it applies to those too; it keeps every property they
    animated and adds the press. Elements that choose a transition of their own
@@ -619,23 +600,7 @@ select,
     ) {
     transition-property:
         color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity,
-        box-shadow, scale, translate;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    :where(button, summary, a[href], [role='button']) {
-        transition-property: color, background-color, border-color, opacity;
-    }
-}
-
-/* A soft halo while a primary (accent-filled) button is held, so the main
-   action answers a press with a little light as well as a squeeze. */
-:where(button, a[href]):where(.bg-accent):not(:disabled):active {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 22%, transparent);
-}
-
-:where(.dark) :where(button, a[href]):where(.dark\:bg-accent-dark):not(:disabled):active {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-dark) 28%, transparent);
+        box-shadow;
 }
 
 /* iOS Safari zooms the page whenever a focused field is under 16px, and most

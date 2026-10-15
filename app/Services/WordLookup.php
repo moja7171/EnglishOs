@@ -11,9 +11,10 @@ use Throwable;
 
 /**
  * What the tap-a-word sheet shows for one word: the English meanings
- * (WiktionaryClient) and the Persian translation (MyMemoryClient),
- * asked from the outside once per word for every learner and kept in
- * dictionary_entries after that.
+ * (WiktionaryClient) and the Persian ones — from the offline dictionary
+ * (PersianGlossary) when it has the word, else MyMemoryClient and later
+ * Gemini. Outside services are asked once per word for every learner and
+ * the answer is kept in dictionary_entries.
  *
  * Fails soft in both directions: a source that cannot be reached leaves
  * its half of the entry empty rather than failing the lookup, and a gap
@@ -33,6 +34,7 @@ class WordLookup
         private readonly WiktionaryClient $dictionary,
         private readonly MyMemoryClient $translator,
         private readonly GeminiWordDefiner $gemini,
+        private readonly PersianGlossary $glossary,
     ) {}
 
     /**
@@ -84,15 +86,67 @@ class WordLookup
     }
 
     /**
-     * Asks both services at the same time, so a first tap on a word costs
-     * the slower of the two answers, not their sum.
+     * Replaces the quick Persian answer with the meanings per part of
+     * speech: from the offline dictionary when it has the word (now that
+     * the English meanings can point at the base form of "overslept"), else
+     * Gemini's (see GeminiWordDefiner::persianMeanings()). Asked after the
+     * first answer has been shown, so the tap itself stays fast, and kept
+     * for every learner like the rest of the entry. Returns the entry
+     * unchanged when it already has them or Gemini cannot be asked — a
+     * failure is not retried for a few minutes, so a quota that ran out is
+     * not hammered by every tap.
+     */
+    public function improvePersian(DictionaryEntry $entry): DictionaryEntry
+    {
+        if (! $entry->exists || $entry->persian_senses !== null) {
+            return $entry;
+        }
+
+        if (! Cache::add("dictionary-entry-persian-retry:{$entry->word}", true, self::TRANSLATION_RETRY_SECONDS)) {
+            return $entry;
+        }
+
+        $source = 'wiktionary';
+        $senses = $this->glossary->senses($entry->word, $entry->meanings);
+
+        if ($senses === []) {
+            $source = 'gemini';
+
+            try {
+                $senses = $this->gemini->persianMeanings($entry->word, $entry->meanings);
+            } catch (Throwable $exception) {
+                Log::warning("Persian meanings failed for \"{$entry->word}\": {$exception->getMessage()}");
+
+                return $entry;
+            }
+        }
+
+        if ($senses !== []) {
+            $entry->update(['persian_senses' => $senses, 'persian_source' => $source, 'translation_fa' => $senses[0]['words']]);
+            Cache::forget("dictionary-entry-persian-retry:{$entry->word}");
+        }
+
+        return $entry;
+    }
+
+    /**
+     * Asks Wiktionary and, unless the offline dictionary already has the
+     * Persian, MyMemory at the same time — a first tap on a word costs the
+     * slower answer, not their sum.
      */
     private function fetchNew(string $key): ?DictionaryEntry
     {
-        $responses = Http::pool(fn (Pool $pool) => [
-            $this->dictionary->fetch($pool->as('dictionary'), $key),
-            $this->translator->fetch($pool->as('translation'), $key),
-        ]);
+        $early = $this->glossary->senses($key);
+
+        $responses = Http::pool(function (Pool $pool) use ($key, $early) {
+            $requests = [$this->dictionary->fetch($pool->as('dictionary'), $key)];
+
+            if ($early === []) {
+                $requests[] = $this->translator->fetch($pool->as('translation'), $key);
+            }
+
+            return $requests;
+        });
 
         $dictionaryAnswered = true;
         $definition = null;
@@ -105,14 +159,16 @@ class WordLookup
             Log::warning("Dictionary lookup failed for \"{$key}\": {$exception->getMessage()}");
         }
 
-        try {
-            $translation = $this->translator->parse($responses['translation'], $key);
-        } catch (Throwable $exception) {
-            Log::warning("Persian translation failed for \"{$key}\": {$exception->getMessage()}");
+        if (isset($responses['translation'])) {
+            try {
+                $translation = $this->translator->parse($responses['translation'], $key);
+            } catch (Throwable $exception) {
+                Log::warning("Persian translation failed for \"{$key}\": {$exception->getMessage()}");
+            }
         }
 
         // The dictionary is down, or it does not list this form: ask Gemini
-        // for the meanings (and a Persian word if MyMemory had none).
+        // for the meanings (and a Persian word if nothing else had one).
         $second = $definition === null ? $this->askGemini($key) : null;
 
         if ($second !== null) {
@@ -121,7 +177,12 @@ class WordLookup
             $dictionaryAnswered = true;
         }
 
-        if (! $dictionaryAnswered && $translation === null) {
+        // Asked again now that the English meanings are known: they put the
+        // parts of speech in their order, and a form such as "overslept" is
+        // only found once they say it is the past tense of "oversleep".
+        $senses = $this->glossary->senses($key, $definition['meanings'] ?? []);
+
+        if (! $dictionaryAnswered && $translation === null && $senses === []) {
             return null;
         }
 
@@ -130,7 +191,9 @@ class WordLookup
             'phonetic' => $definition['phonetic'] ?? null,
             'audio_url' => $definition['audio_url'] ?? null,
             'meanings' => $definition['meanings'] ?? [],
-            'translation_fa' => $translation,
+            'translation_fa' => $senses !== [] ? $senses[0]['words'] : $translation,
+            'persian_senses' => $senses ?: null,
+            'persian_source' => $senses !== [] ? 'wiktionary' : ($translation !== null ? 'mymemory' : null),
         ];
 
         return $dictionaryAnswered

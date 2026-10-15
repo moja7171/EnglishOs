@@ -28,7 +28,8 @@ class DictionarySheetTest extends TestCase
             ->assertSee(addcslashes(route('vocabulary.store'), '/'), false)
             ->assertSee('name="csrf-token"', false)
             ->assertSee('keydown.escape.window.capture', false)
-            ->assertSee('Other meanings (', false);
+            ->assertSee('Other meanings (', false)
+            ->assertSee(addcslashes(route('dictionary.persian'), '/'), false);
     }
 
     public function test_a_signed_out_visitor_does_not_get_the_sheet(): void

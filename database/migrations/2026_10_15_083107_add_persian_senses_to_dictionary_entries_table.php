@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('dictionary_entries', function (Blueprint $table) {
+            // [{pos, words}] — the Persian equivalents of the word for each
+            // part of speech it can be, from the offline dictionary or, failing
+            // that, written by Gemini after the quick first answer. Null until then (or if Gemini could not be
+            // asked); translation_fa stays as the fallback.
+            $table->json('persian_senses')->nullable()->after('translation_fa');
+            // Where those Persian words came from — 'wiktionary' (the offline
+            // dictionary, which must be credited), 'gemini' or 'mymemory'.
+            $table->string('persian_source', 20)->nullable()->after('persian_senses');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('dictionary_entries', function (Blueprint $table) {
+            $table->dropColumn(['persian_senses', 'persian_source']);
+        });
+    }
+};

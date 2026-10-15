@@ -103,4 +103,45 @@ class DictionaryLookupControllerTest extends TestCase
             ->getJson(route('dictionary.lookup', ['word' => 'sleep']))
             ->assertStatus(503);
     }
+
+    public function test_a_guest_cannot_ask_for_better_persian_meanings(): void
+    {
+        $this->get(route('dictionary.persian', ['word' => 'sleep']))
+            ->assertRedirect(route('login'));
+    }
+
+    public function test_it_returns_the_better_persian_meanings_of_a_word_already_looked_up(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'sleep']);
+        config(['services.gemini.key' => 'test-key', 'services.gemini.chat_models' => ['model-a']]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models/model-a:generateContent' => Http::response([
+                'candidates' => [['content' => ['parts' => [['text' => json_encode(['persian' => [['pos' => 'noun', 'words' => 'خواب']]])]]]]],
+            ]),
+        ]);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson(route('dictionary.persian', ['word' => 'Sleep']))
+            ->assertOk()
+            ->assertJsonPath('data.persian_senses.0.words', 'خواب');
+    }
+
+    public function test_it_refuses_a_word_that_was_never_looked_up(): void
+    {
+        Http::preventStrayRequests();
+
+        $this->actingAs(User::factory()->create())
+            ->getJson(route('dictionary.persian', ['word' => 'sleep']))
+            ->assertNotFound();
+    }
+
+    public function test_it_returns_503_when_gemini_cannot_give_better_meanings(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'sleep']);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson(route('dictionary.persian', ['word' => 'sleep']))
+            ->assertStatus(503);
+    }
 }

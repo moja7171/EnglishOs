@@ -14,7 +14,7 @@
     it (the listener is registered in the capture phase and stops the key).
 --}}
 <div
-    x-data="dictionarySheet({ lookup: @js(route('dictionary.lookup')), store: @js(route('vocabulary.store')) })"
+    x-data="dictionarySheet({ lookup: @js(route('dictionary.lookup')), persian: @js(route('dictionary.persian')), store: @js(route('vocabulary.store')) })"
     x-on:eos-lookup.window="show($event.detail)"
     x-on:keydown.escape.window.capture="if (isOpen) { $event.stopPropagation(); close() }"
 >
@@ -87,12 +87,21 @@
 
             <template x-if="entry">
                 <div class="space-y-4">
-                    <p
-                        x-show="entry.translation_fa"
-                        x-text="entry.translation_fa"
+                    <div
+                        x-show="persianLines.length"
                         dir="rtl"
-                        class="font-fa rounded-xl bg-accent-soft px-4 py-3 text-xl font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark"
-                    ></p>
+                        class="font-fa space-y-1 rounded-xl bg-accent-soft px-4 py-3 text-accent-ink transition-opacity dark:bg-accent-soft-dark dark:text-accent-ink-dark"
+                        x-bind:class="improving ? 'opacity-70' : ''"
+                    >
+                        <template x-for="(line, index) in persianLines" :key="index">
+                            <p class="text-xl font-semibold">
+                                <span x-show="line.label" class="ml-1.5 text-xs font-medium opacity-70" x-text="line.label + ':'"></span>
+                                <span x-text="line.words"></span>
+                            </p>
+                        </template>
+                    </div>
+
+                    <p x-show="entry.persian_source === 'wiktionary'" class="-mt-2 text-[11px] text-ink-faint dark:text-ink-faint-dark">Persian: Wiktionary (CC BY-SA)</p>
 
                     <div x-show="current" class="space-y-1.5">
                         <span class="inline-block rounded-full bg-surface-sunken px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-ink-soft uppercase dark:bg-surface-sunken-dark dark:text-ink-soft-dark" x-text="current?.pos"></span>

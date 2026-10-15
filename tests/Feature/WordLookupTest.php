@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\DictionaryEntry;
+use App\Models\PersianGloss;
 use App\Services\WordLookup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -272,5 +273,133 @@ class WordLookupTest extends TestCase
 
         $this->assertTrue($entry->exists);
         $this->assertFalse($entry->isKnownToDictionary());
+    }
+
+    public function test_gemini_persian_meanings_replace_the_quick_translation_and_are_kept(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'sleep', 'translation_fa' => 'بخواب']);
+        Http::preventStrayRequests();
+        $this->fakeGeminiAnswer(['persian' => [['pos' => 'verb', 'words' => 'خوابیدن'], ['pos' => 'noun', 'words' => 'خواب']]]);
+
+        $improved = app(WordLookup::class)->improvePersian($entry);
+
+        $this->assertSame([['pos' => 'verb', 'words' => 'خوابیدن'], ['pos' => 'noun', 'words' => 'خواب']], $improved->persian_senses);
+        $this->assertSame('خوابیدن', $improved->translation_fa);
+        $this->assertDatabaseHas('dictionary_entries', ['word' => 'sleep', 'translation_fa' => 'خوابیدن']);
+    }
+
+    public function test_an_entry_that_already_has_persian_meanings_does_not_ask_gemini_again(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'sleep', 'persian_senses' => [['pos' => 'verb', 'words' => 'خوابیدن']]]);
+        Http::preventStrayRequests();
+        Http::fake();
+
+        app(WordLookup::class)->improvePersian($entry);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_a_failed_gemini_answer_keeps_the_quick_translation_and_is_not_retried_straight_away(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'sleep', 'translation_fa' => 'خواب']);
+        Http::preventStrayRequests();
+        config(['services.gemini.key' => 'test-key', 'services.gemini.chat_models' => ['model-a']]);
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response('Unavailable', 503),
+        ]);
+        $lookup = app(WordLookup::class);
+
+        $lookup->improvePersian($entry);
+        $afterFirst = Http::recorded()->count();
+        $lookup->improvePersian($entry);
+
+        $this->assertGreaterThan(0, $afterFirst);
+        $this->assertCount($afterFirst, Http::recorded());
+        $this->assertNull($entry->fresh()->persian_senses);
+        $this->assertSame('خواب', $entry->fresh()->translation_fa);
+    }
+
+    public function test_a_transient_entry_is_not_improved(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake();
+
+        $entry = app(WordLookup::class)->improvePersian(new DictionaryEntry(['word' => 'sleep', 'meanings' => []]));
+
+        $this->assertNull($entry->persian_senses);
+        Http::assertNothingSent();
+    }
+
+    public function test_a_word_in_the_offline_dictionary_is_not_sent_to_the_translation_service(): void
+    {
+        PersianGloss::factory()->create(['word' => 'sleep', 'pos' => 'noun', 'words' => ['خواب']]);
+        PersianGloss::factory()->create(['word' => 'sleep', 'pos' => 'verb', 'words' => ['خوابیدن']]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/api/rest_v1/page/definition/sleep' => Http::response(['en' => [
+                ['partOfSpeech' => 'Verb', 'definitions' => [['definition' => 'To rest.']]],
+                ['partOfSpeech' => 'Noun', 'definitions' => [['definition' => 'A rest.']]],
+            ]]),
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('sleep');
+
+        Http::assertSentCount(1);
+        $this->assertSame([['pos' => 'verb', 'words' => 'خوابیدن'], ['pos' => 'noun', 'words' => 'خواب']], $entry->persian_senses);
+        $this->assertSame('wiktionary', $entry->persian_source);
+        $this->assertSame('خوابیدن', $entry->translation_fa);
+    }
+
+    public function test_a_past_tense_gets_the_persian_of_its_base_word_from_the_english_definition(): void
+    {
+        PersianGloss::factory()->create(['word' => 'oversleep', 'pos' => 'verb', 'words' => ['دیر بیدار شدن']]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response(['en' => [
+                ['partOfSpeech' => 'Verb', 'definitions' => [['definition' => 'simple past and past participle of oversleep']]],
+            ]]),
+            'api.mymemory.translated.net/get*' => Http::response(['responseStatus' => 200, 'matches' => []]),
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('overslept');
+
+        $this->assertSame('دیر بیدار شدن', $entry->persian_senses[0]['words']);
+        $this->assertSame('wiktionary', $entry->persian_source);
+    }
+
+    public function test_a_word_the_offline_dictionary_lacks_keeps_the_translation_services_answer(): void
+    {
+        $this->fakeBothServices();
+
+        $entry = app(WordLookup::class)->lookup('sleep');
+
+        $this->assertNull($entry->persian_senses);
+        $this->assertSame('mymemory', $entry->persian_source);
+        $this->assertSame('خواب', $entry->translation_fa);
+    }
+
+    public function test_the_offline_dictionary_is_tried_before_gemini_for_better_persian_meanings(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'sleep', 'translation_fa' => 'بخواب']);
+        PersianGloss::factory()->create(['word' => 'sleep', 'pos' => 'noun', 'words' => ['خواب']]);
+        Http::preventStrayRequests();
+        Http::fake();
+
+        $improved = app(WordLookup::class)->improvePersian($entry);
+
+        Http::assertNothingSent();
+        $this->assertSame('wiktionary', $improved->persian_source);
+        $this->assertSame([['pos' => 'noun', 'words' => 'خواب']], $improved->persian_senses);
+    }
+
+    public function test_gemini_meanings_are_marked_as_coming_from_gemini(): void
+    {
+        $entry = DictionaryEntry::factory()->create(['word' => 'commute']);
+        Http::preventStrayRequests();
+        $this->fakeGeminiAnswer(['persian' => [['pos' => 'verb', 'words' => 'رفت‌وآمد کردن']]]);
+
+        $improved = app(WordLookup::class)->improvePersian($entry);
+
+        $this->assertSame('gemini', $improved->persian_source);
     }
 }
