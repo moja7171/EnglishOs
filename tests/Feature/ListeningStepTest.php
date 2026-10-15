@@ -115,6 +115,55 @@ class ListeningStepTest extends TestCase
             ->assertSee('morning person');
     }
 
+    public function test_the_word_bank_adds_decoys_that_are_not_in_the_recording(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                [
+                    'phase' => 'foundation',
+                    'steps' => [
+                        [
+                            'key' => 'listening',
+                            'listening_segments' => [['text' => 'We usually stay in on Fridays.', 'start' => 0.0, 'end' => 3.0]],
+                            'target_phrases' => [
+                                ['phrase' => 'sleep in', 'meaning' => 'to stay in bed', 'gap_before' => 'I ', 'gap_after' => '.'],
+                                ['phrase' => 'morning person', 'meaning' => 'full of energy early', 'gap_before' => "I'm a ", 'gap_after' => '.'],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'phase' => 'build',
+                    'steps' => [[
+                        'key' => 'vocabulary_builder_2',
+                        'words' => [
+                            ['phrase' => 'cereal', 'meaning' => 'a breakfast food'],
+                            ['phrase' => 'snack', 'meaning' => 'food between meals'],
+                            ['phrase' => 'takeaway', 'meaning' => 'food bought to eat at home'],
+                            // Said in the recording, so it could be a correct fill.
+                            ['phrase' => 'stay in', 'meaning' => 'to remain at home'],
+                        ],
+                    ]],
+                ],
+            ],
+        ]);
+        $this->actingAs($learner);
+
+        $bank = Livewire::test('missions.steps.listening', ['run' => MissionRun::findOrStart($learner, $mission)])
+            ->instance()->gapFillBankOrder;
+
+        $this->assertCount(4, $bank);
+        $this->assertContains('sleep in', $bank);
+        $this->assertContains('morning person', $bank);
+        $this->assertNotContains('stay in', $bank);
+        $this->assertCount(2, array_intersect($bank, ['cereal', 'snack', 'takeaway']));
+    }
+
     public function test_gap_fill_gives_feedback_and_only_a_correct_selection_counts(): void
     {
         $run = $this->makeRun();

@@ -42,7 +42,7 @@
     >
         @svg($icon, 'h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')
         <span class="min-w-0 flex-1">
-            <span class="block truncate text-[10px] leading-tight font-bold tracking-widest text-ink-faint uppercase dark:text-ink-faint-dark">Day {{ $dayNumber }} · {{ $dayLabel }}</span>
+            <span class="block truncate text-[10px] leading-tight font-bold tracking-widest text-ink-faint uppercase dark:text-ink-faint-dark">{{ \App\Models\Mission::dayHeading($dayNumber, $dayLabel) }}</span>
             <span class="block truncate text-sm leading-tight font-semibold text-ink dark:text-ink-dark">{{ $stepLabel }}</span>
         </span>
         <span class="shrink-0 text-xs font-semibold text-ink-faint tabular-nums dark:text-ink-faint-dark">{{ $position }}/{{ count($states) }}</span>

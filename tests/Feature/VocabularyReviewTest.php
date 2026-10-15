@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Mission;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,6 +40,41 @@ class VocabularyReviewTest extends TestCase
 
         Livewire::test('vocabulary.index')
             ->assertSee('all caught up');
+    }
+
+    public function test_the_all_words_list_shows_each_words_meaning_persian_and_example(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, [
+            'next_review_at' => now()->addWeek(),
+            'meaning_fa' => 'رفت‌وآمد روزانه',
+            'example' => 'I commute by train.',
+        ]);
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')
+            ->assertSee('to travel to work')
+            ->assertSee('رفت‌وآمد روزانه')
+            ->assertSee('I commute by train.');
+    }
+
+    public function test_a_word_saved_without_persian_gets_the_courses_authored_meaning(): void
+    {
+        Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [[
+                'key' => 'vocabulary_builder_1',
+                'words' => [['phrase' => 'Get Up', 'meaning' => 'to get out of bed', 'meaning_fa' => 'از خواب بلند شدن']],
+            ]]]],
+        ]);
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['word' => 'get up', 'meaning' => 'to get out of bed', 'next_review_at' => now()->addWeek()]);
+        $this->actingAs($learner);
+
+        Livewire::test('vocabulary.index')->assertSee('از خواب بلند شدن');
     }
 
     public function test_a_due_word_shows_the_front_of_a_recall_card(): void

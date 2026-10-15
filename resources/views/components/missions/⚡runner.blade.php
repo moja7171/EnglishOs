@@ -435,7 +435,7 @@ new class extends Component
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                                Day {{ $index + 1 }} · {{ $day['label'] }}
+                                {{ \App\Models\Mission::dayHeading($index + 1, $day['label']) }}
                             </p>
                             @if ($day['current'])
                                 <span class="animate-badge-pop rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
@@ -475,7 +475,7 @@ new class extends Component
                 All Days
             </a>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                Day {{ $this->activeDayIndex + 1 }} · {{ $this->activeDay['label'] ?? '' }}
+                {{ \App\Models\Mission::dayHeading($this->activeDayIndex + 1, $this->activeDay['label'] ?? '') }}
             </p>
         </div>
 
@@ -550,7 +550,7 @@ new class extends Component
                     </a>
                 @elseif ($this->currentPosition)
                     <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
-                        You are on Day {{ $this->currentPosition['dayNumber'] }} · {{ $this->currentPosition['dayLabel'] }}, at
+                        You are on {{ \App\Models\Mission::dayHeading($this->currentPosition['dayNumber'], $this->currentPosition['dayLabel']) }}, at
                         <span class="font-semibold">{{ $this->currentPosition['stepLabel'] }}</span>.
                     </p>
                     <a
