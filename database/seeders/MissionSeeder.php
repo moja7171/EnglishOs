@@ -22,8 +22,8 @@ class MissionSeeder extends Seeder
     public function run(): void
     {
         $audioUrl = $this->publishMissionAsset('M01', 'BBC Learning English - Real Easy English Talking about mornings.mp3');
-        $shadowingVideoUrl = $this->publishMissionAsset('M01', "Rachel's English - My Morning Routine.mp4");
-        $shadowingCaptionsUrl = $this->publishMissionAsset('M01', "Rachel's English - My Morning Routine.en.vtt");
+        $shadowingVideoUrl = $this->publishMissionAsset('M01', 'Bob the Canadian - Daily Routine.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M01', 'Bob the Canadian - Daily Routine.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M01'],
@@ -484,20 +484,17 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'video_shadowing',
                                 'label' => 'Video Shadowing',
-                                // Was 10 for a 2-minute video watched twice + shadowing;
-                                // now 16 — this video runs ~10 minutes, so even a first watch
-                                // plus a partial no-captions re-watch (the UI copy already
-                                // says "watch PART of it again") plus shadowing takes longer.
-                                'duration_minutes' => 16,
-                                'hook' => 'Real people, real English, real speed — watch how an English speaker actually talks about her morning, then try to sound just like her.',
-                                'source' => "Rachel's English — \"My Morning Routine\"",
+                                // ~7.5-minute video watched once with captions, part of it
+                                // again without, plus shadowing.
+                                'duration_minutes' => 14,
+                                'hook' => 'A real teacher walks you through his whole morning at natural speed — watch it, then make your own voice do the same.',
+                                'source' => 'Bob the Canadian — "Learn How To Talk About Your Daily Routine in English by Watching Me Act Out Mine"',
                                 // Self-hosted via <x-video-player> — the user sourced this
                                 // copy of the video themselves (see EOS-009 §8, video-hosting
-                                // note); captions_url is a real, timed WebVTT transcribed from
-                                // this exact file's own audio (Groq Whisper), not the raw
-                                // YouTube auto-captions that came with it (those had no
-                                // punctuation and overlapping cue timings — fine for YouTube's
-                                // own rolling-caption renderer, not for a plain <track>).
+                                // note). captions_url is the creator's own human-made English
+                                // captions (not YouTube's auto-captions, which have no
+                                // punctuation and overlapping cue timings), converted from
+                                // .srt to WebVTT with the sound-effect cues removed.
                                 'video_url' => $shadowingVideoUrl,
                                 'captions_url' => $shadowingCaptionsUrl,
                                 // Real caption cues (text + start/end seconds), reused directly
@@ -508,28 +505,27 @@ class MissionSeeder extends Seeder
                                 // §14: content stays original, no licensing/piracy risk), same
                                 // principle as the vocabulary story never copying Cambridge
                                 // textbook text.
-                                'topic_summary' => 'An English-speaking mother shows her family\'s '
-                                    .'morning routine on camera: getting her kids breakfast (one '
-                                    .'child doesn\'t feel like having cereal, so she makes an egg '
-                                    .'instead), getting everyone together to eat, and getting the '
-                                    .'kids dressed and their teeth brushed before school — while '
-                                    .'explaining some of the real English she naturally uses along '
-                                    .'the way.',
+                                'topic_summary' => 'A Canadian teacher takes you through his weekday on camera, '
+                                    .'from his alarm clock to the end of the school day: pressing snooze, '
+                                    .'getting up, making the bed, cooking eggs and toast, getting dressed, '
+                                    .'packing a lunch, driving ten minutes to work and teaching his classes — '
+                                    .'and he stops along the way to explain the everyday English he uses '
+                                    .'for each part of his routine.',
                                 'comprehension_check' => [
-                                    ['statement' => 'The video shows someone\'s morning routine.', 'correct' => true],
-                                    ['statement' => 'Everyone in the family wants exactly the same breakfast.', 'correct' => false],
-                                    ['statement' => 'The speaker also explains some real English vocabulary and pronunciation.', 'correct' => true],
+                                    ['statement' => 'Bob presses the snooze button on his alarm clock before he gets up.', 'correct' => true],
+                                    ['statement' => 'Bob buys his lunch every day.', 'correct' => false],
+                                    ['statement' => 'It takes Bob about ten minutes to drive to work.', 'correct' => true],
                                 ],
-                                // Real vocabulary the video itself teaches, in Claude's own
-                                // words — "snack" and "skip" deliberately echo the exact same
-                                // meanings already used in Vocabulary Builder/Listening's own
-                                // pools (see EOS-009 §8 content-authoring convention).
+                                // Real phrases the video itself teaches, in Claude's own
+                                // words — "wake up" vs "get up" is the video's own explicit
+                                // contrast, and "get dressed" / "pack a lunch" are routine
+                                // phrases the Day 3 "typical day" task reuses.
                                 'target_phrases' => [
-                                    ['phrase' => 'feel like (something)', 'meaning' => 'to want something at that particular moment'],
-                                    ['phrase' => 'get together', 'meaning' => 'to meet up and spend time with someone'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals'],
-                                    ['phrase' => 'skip (something)', 'meaning' => 'to not do a usual part of your routine'],
-                                    ['phrase' => 'chaotic', 'meaning' => 'in a state of complete confusion and disorder'],
+                                    ['phrase' => 'wake up', 'meaning' => 'to stop sleeping and become awake'],
+                                    ['phrase' => 'get up', 'meaning' => 'to get out of bed'],
+                                    ['phrase' => 'get dressed', 'meaning' => 'to put your clothes on'],
+                                    ['phrase' => 'grab (something)', 'meaning' => 'to pick something up quickly'],
+                                    ['phrase' => 'pack a lunch', 'meaning' => 'to put your lunch in a bag to take with you'],
                                 ],
                                 // Real verbatim lines from the video's own captions (unlike
                                 // topic_summary above, which stays Claude's own words) — shadowing
@@ -539,9 +535,9 @@ class MissionSeeder extends Seeder
                                 // naturally-stressed content words, same convention as
                                 // Listening's shadow_lines — rendered by <x-stress-marked-line>.
                                 'shadow_lines' => [
-                                    "I don't **feel like** having **cereal**.",
-                                    'What **time** are you guys **getting together**?',
-                                    'We **all** **need** a **good snack** every **once in a while**.',
+                                    'The **very first** **thing** I **do** **every day** is I **wake up**.',
+                                    'I **usually** **wanna** **sleep** just a **little** bit **more**.',
+                                    'So I **usually** **make** a **sandwich** and I **grab** a **banana**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'video_shadowing'),
                             ],
@@ -933,8 +929,8 @@ class MissionSeeder extends Seeder
     private function seedM02(): void
     {
         $audioUrl = $this->publishMissionAsset('M02', '6_minute_english_making_male_friends.mp3');
-        $shadowingVideoUrl = $this->publishMissionAsset('M02', 'The Surprising Benefits of Exercising with Friends - BBC Ideas.mp4');
-        $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'The Surprising Benefits of Exercising with Friends - BBC Ideas.en.vtt');
+        $shadowingVideoUrl = $this->publishMissionAsset('M02', 'Easy English - Friends Best Qualities.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M02', 'Easy English - Friends Best Qualities.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M02'],
@@ -1262,43 +1258,52 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
-                                // Replaced 2026-09-10 — the previous video (a simple animated
-                                // family-tree cartoon) didn't match this mission's real content
-                                // quality bar (real speakers, documentary style, same as M01's
-                                // Rachel's English and M03/M04's BBC Ideas videos), and it was
-                                // about family while this mission's Listening is about
-                                // friendship — two different subtopics under one broad "People &
-                                // Relationships" theme. This BBC Ideas film is squarely about
-                                // friendship/social connection, closing that gap too.
+                                // Real people, unscripted: Easy English's street interviews with
+                                // pairs of friends and family (about 6 minutes cut from the
+                                // original 11-minute video — the host intro and the channel's
+                                // membership ad removed, the burned-in captions blurred out so
+                                // the step's own caption toggle works). Squarely about describing
+                                // the people you know, which is this mission's theme.
                                 'key' => 'video_shadowing',
                                 'label' => 'Video Shadowing',
-                                'duration_minutes' => 12,
-                                'hook' => 'Real people, real English — watch, then make your own voice do the same.',
-                                'source' => 'BBC Ideas: "The Surprising Benefits of Exercising with Friends"',
+                                'duration_minutes' => 14,
+                                'hook' => 'Real friends, real English — hear how people describe the people they know, then make your own voice do the same.',
+                                'source' => 'Easy English — "Asking FRIENDS in BRIGHTON How They Met"',
                                 'video_url' => $shadowingVideoUrl,
+                                // Cleaned from the video's own burned-in captions (YouTube's
+                                // auto-captions for it were unusable): punctuated and
+                                // re-timed per sentence.
                                 'captions_url' => $shadowingCaptionsUrl,
                                 'video_segments' => $this->shadowTimestampsFor('M02', 'video_shadowing_segments'),
-                                'topic_summary' => 'A BBC Ideas documentary explains why exercising with friends is '
-                                    .'better than exercising alone: feeling socially supported makes people less '
-                                    .'fatigued and more energised (shown in a real experiment with teenage rowers), '
-                                    .'and exercising together releases endorphins that build "social bonding" — '
-                                    .'feelings of closeness that last long after the exercise ends. It also notes '
-                                    .'that lacking social connection can be as harmful to health as smoking, and '
-                                    .'gives tips (exercise groups, clubs, walking with a friend) for anyone who '
-                                    .'doesn\'t have people nearby to exercise with.',
+                                'topic_summary' => 'On a seafront in Brighton, a street interviewer asks pairs of '
+                                    .'friends, colleagues and family members how they first met and what they '
+                                    .'like most about each other. They talk about meeting at work, at school '
+                                    .'or through a hobby, and describe each other as reliable, trustworthy, '
+                                    .'a good listener, kind, caring, non-judgmental and always there for them.',
                                 'comprehension_check' => [
-                                    ['statement' => 'Exercising with friends can make you feel less tired.', 'correct' => true],
-                                    ['statement' => 'The video says exercising alone is always better than exercising with others.', 'correct' => false],
-                                    ['statement' => 'The video says lacking social connection can be as harmful as smoking.', 'correct' => true],
+                                    ['statement' => 'All the people in the video met their friends at work.', 'correct' => false],
+                                    ['statement' => 'One person says her friend is a very good listener.', 'correct' => true],
+                                    ['statement' => 'Honesty is mentioned as an important part of a good friendship.', 'correct' => true],
                                 ],
+                                // Real words the speakers use to describe each other — useful
+                                // for Day 2's grammar and Day 3's "describe a friend" writing.
                                 'target_phrases' => [
-                                    ['phrase' => 'social bonding', 'meaning' => 'the feeling of closeness and connection that forms between people'],
-                                    ['phrase' => 'feel closer and more connected', 'meaning' => 'to feel more emotionally close to someone'],
+                                    ['phrase' => 'reliable', 'meaning' => 'someone you can always depend on'],
+                                    ['phrase' => 'trustworthy', 'meaning' => 'someone you can trust completely'],
+                                    ['phrase' => 'a good listener', 'meaning' => 'someone who pays attention when you talk'],
+                                    ['phrase' => 'non-judgmental', 'meaning' => 'not criticising people for what they say or do'],
+                                    ['phrase' => 'always there for you', 'meaning' => 'ready to help whenever you need them'],
                                 ],
+                                // Real verbatim lines from the video's own captions — shadowing
+                                // means mimicking the exact audio just heard, and the auto-pause
+                                // timestamp cache (missions:cache-shadow-timestamps) only lands
+                                // correctly on words the speaker actually says. Bold marks
+                                // naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
                                 'shadow_lines' => [
-                                    "I **feel** like it's just so **nice** to have the **support** of your **friends** and your **team-mates**.",
-                                    'The **more** we **exercise** with our **friends**, the **closer** we **feel** to them.',
-                                    '**Lacking** **social** **connection** can be as **dangerous** for our **health** as **smoking** **cigarettes**.',
+                                    "I would **say** you're **very** **trustworthy** and **reliable**.",
+                                    "I **think** you're a **very** **good** **listener**.",
+                                    'I would **say** that you are **very**, **very** **kind** and **caring**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'video_shadowing'),
                             ],
@@ -1562,8 +1567,8 @@ class MissionSeeder extends Seeder
     private function seedM04(): void
     {
         $audioUrl = $this->publishMissionAsset('M04', 'Eat Clean Without Stress - Simple Habits for Everyday Life.mp3');
-        $shadowingVideoUrl = $this->publishMissionAsset('M04', 'Five Ways to Eat More Healthily - BBC Ideas.mp4');
-        $shadowingCaptionsUrl = $this->publishMissionAsset('M04', 'Five Ways to Eat More Healthily - BBC Ideas.en.vtt');
+        $shadowingVideoUrl = $this->publishMissionAsset('M04', 'Smashing English - What I Eat in a Day.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M04', 'Smashing English - What I Eat in a Day.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M04'],
@@ -1908,34 +1913,53 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
+                                // A real vlog, one speaker, natural speed: Smashing English's
+                                // "What I Eat in a Day" (about 6 minutes cut from the original
+                                // 13-minute video — breakfast and lunch; the creator's burned-in
+                                // captions at the top of the frame blurred out so the step's own
+                                // caption toggle works, her pink vocabulary cards left in).
                                 'key' => 'video_shadowing',
                                 'label' => 'Video Shadowing',
-                                'duration_minutes' => 12,
-                                'hook' => 'Real advice, real English — watch, then make your own voice do the same.',
-                                'source' => 'BBC Ideas: "Five Ways to Eat More Healthily"',
+                                'duration_minutes' => 14,
+                                'hook' => 'A real person films everything she eats in a day — hear everyday food English at natural speed, then make your own voice do the same.',
+                                'source' => 'Smashing English — "Learn English Vlog - What I Eat In a Day (Real Daily English)"',
                                 'video_url' => $shadowingVideoUrl,
+                                // The video's own auto-captions, punctuated and corrected
+                                // against the creator's burned-in captions, re-timed per
+                                // sentence.
                                 'captions_url' => $shadowingCaptionsUrl,
                                 'video_segments' => $this->shadowTimestampsFor('M04', 'video_shadowing_segments'),
-                                'topic_summary' => 'A BBC Ideas video giving 5 evidence-based tips for healthy '
-                                    .'eating: eat a treat after a meal rather than on its own, to control glucose '
-                                    .'spikes; not all calories behave the same way in the body (natural foods take '
-                                    .'more energy to digest); a diverse gut microbiome matters for health; most UK '
-                                    .'calories come from ultra-processed food, which isn\'t clearly labelled; and '
-                                    .'while personalised nutrition is on the rise, general advice — choosing foods '
-                                    .'close to their natural state — still applies to everyone.',
+                                'topic_summary' => 'An English teacher vlogs what she eats in a day and explains the '
+                                    .'food English she uses along the way. She makes Greek yogurt with almond '
+                                    .'butter, apple and blueberries for breakfast (and spills it at the start), '
+                                    .'then a turkey and cranberry bagel for lunch, and talks about why she likes '
+                                    .'the same breakfast every day, why yogurt keeps her full, and how she '
+                                    .'treats herself even when she tries to eat healthily.',
                                 'comprehension_check' => [
-                                    ['statement' => 'The video says eating a treat after a meal is better than eating it on its own.', 'correct' => true],
-                                    ['statement' => 'The video says all calories affect the body in exactly the same way.', 'correct' => false],
-                                    ['statement' => 'In the UK, more than half of the calories people eat come from ultra-processed foods.', 'correct' => true],
+                                    ['statement' => 'She eats the same breakfast almost every day.', 'correct' => true],
+                                    ['statement' => 'She says Greek yogurt is not filling.', 'correct' => false],
+                                    ['statement' => 'On weekdays she usually has a salad for lunch.', 'correct' => true],
                                 ],
+                                // Real food words she explains on screen — "filling" and
+                                // "creature of habit" are her own vocabulary cards; "keeps me
+                                // full" is the natural way to say what "filling" means.
                                 'target_phrases' => [
-                                    ['phrase' => 'glucose spikes', 'meaning' => 'sharp rises (and falls) in blood sugar level'],
-                                    ['phrase' => 'ultra-processed foods', 'meaning' => 'food that has been heavily changed by manufacturing, often with unfamiliar ingredients'],
+                                    ['phrase' => 'filling', 'meaning' => '(of food) making you feel full and satisfied'],
+                                    ['phrase' => 'creature of habit', 'meaning' => 'someone who likes to do things the same way every day'],
+                                    ['phrase' => 'keep (someone) full', 'meaning' => 'to stop you feeling hungry for a long time'],
+                                    ['phrase' => 'treat yourself', 'meaning' => 'to give yourself something nice, like a chocolate bar'],
+                                    ['phrase' => 'a chunk of (something)', 'meaning' => 'a piece of food of no exact size'],
                                 ],
+                                // Real verbatim lines from the video's own captions — shadowing
+                                // means mimicking the exact audio just heard, and the auto-pause
+                                // timestamp cache (missions:cache-shadow-timestamps) only lands
+                                // correctly on words the speaker actually says. Bold marks
+                                // naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
                                 'shadow_lines' => [
-                                    "It's much **better** to **eat** it **after** a **meal** than on its **own**.",
-                                    '**Aim** for **foods** which are **close** to their **natural** **state**.',
-                                    'And **remember**, you **are** what you **eat**.',
+                                    'I **really** **like** having **very** **similar** **food** **most** **days**.',
+                                    "It's **very** **filling**. It **keeps** me **full** for a **long** **time**.",
+                                    '**Little** **things** like **this** **bring** me so **much** **joy**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'video_shadowing'),
                             ],
@@ -2170,8 +2194,8 @@ class MissionSeeder extends Seeder
     private function seedM03(): void
     {
         $audioUrl = $this->publishMissionAsset('M03', 'How to Talk About Your Work - English Listening and Speaking Practice.mp3');
-        $shadowingVideoUrl = $this->publishMissionAsset('M03', '6 Tips to Improve Your Work-Life Balance - BBC Ideas.mp4');
-        $shadowingCaptionsUrl = $this->publishMissionAsset('M03', '6 Tips to Improve Your Work-Life Balance - BBC Ideas.en.vtt');
+        $shadowingVideoUrl = $this->publishMissionAsset('M03', 'Easy English - Jobs and Work.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M03', 'Easy English - Jobs and Work.en.vtt');
 
         Mission::updateOrCreate(
             ['code' => 'M03'],
@@ -2500,34 +2524,52 @@ class MissionSeeder extends Seeder
                                 ],
                             ],
                             [
+                                // Real people, unscripted: Easy English's street interviews in
+                                // Brighton about work (about 6 minutes cut from the original
+                                // 11-minute video — the host intro and the channel's membership
+                                // ad removed, the burned-in captions blurred out so the step's
+                                // own caption toggle works).
                                 'key' => 'video_shadowing',
                                 'label' => 'Video Shadowing',
-                                'duration_minutes' => 12,
-                                'hook' => 'Real advice, real English — watch, then make your own voice do the same.',
-                                'source' => 'BBC Ideas: "6 Tips to Improve Your Work-Life Balance" (Bruce Daisley)',
+                                'duration_minutes' => 14,
+                                'hook' => 'Real people, real jobs — hear how they talk about their work, then make your own voice do the same.',
+                                'source' => 'Easy English — "English Conversations about JOBS and WORK"',
                                 'video_url' => $shadowingVideoUrl,
+                                // Cleaned from the video's own burned-in captions (YouTube's
+                                // auto-captions for it were unreliable): punctuated and
+                                // re-timed per sentence.
                                 'captions_url' => $shadowingCaptionsUrl,
                                 'video_segments' => $this->shadowTimestampsFor('M03', 'video_shadowing_segments'),
-                                'topic_summary' => 'Bruce Daisley, a workplace-culture writer, gives 6 tips to reduce '
-                                    .'work stress and improve work-life balance: turn off email notification badges; '
-                                    .'take a real lunch break instead of eating at your desk; try a "monk mode '
-                                    .'morning" — a quiet, uninterrupted block of focused work; increase casual '
-                                    .'workplace chat (even moving the coffee machine helps) because it boosts '
-                                    .'creativity; take a "digital Sabbath" away from work emails at the weekend; '
-                                    .'and stop glorifying overwork — around 40 hours a week is enough.',
+                                'topic_summary' => 'On the streets of Brighton, an interviewer asks people what they '
+                                    .'do for work: a music teacher, a postie, an airport coordinator, a '
+                                    .'caterer, a healthcare assistant and a tattoo artist. Then they explain '
+                                    .'how they got into their jobs — a childhood dream, a career change, a '
+                                    .'part-time job that became permanent — and what they like and dislike '
+                                    .'about them.',
                                 'comprehension_check' => [
-                                    ['statement' => 'The video says turning off your email notification badge can help reduce stress.', 'correct' => true],
-                                    ['statement' => 'The video says eating lunch at your desk is a good habit.', 'correct' => false],
-                                    ['statement' => 'The video says working very long hours is the best way to succeed.', 'correct' => false],
+                                    ['statement' => 'One person says she works part-time, four days a week.', 'correct' => true],
+                                    ['statement' => 'The tattoo artist says he only started drawing as an adult.', 'correct' => false],
+                                    ['statement' => 'The caterer says it is a good job while she is a student, but not forever.', 'correct' => true],
                                 ],
+                                // Real phrases the speakers use to talk about their work —
+                                // reused by Day 3's "my work / study life" task.
                                 'target_phrases' => [
-                                    ['phrase' => 'monk mode morning', 'meaning' => 'a quiet block of time with no interruptions, used for focused work'],
-                                    ['phrase' => 'digital Sabbath', 'meaning' => 'a period of time (often a day) spent away from work emails and devices'],
+                                    ['phrase' => 'used to (do something)', 'meaning' => 'did something in the past that you do not do now'],
+                                    ['phrase' => 'work part-time', 'meaning' => 'to work only some days or hours each week'],
+                                    ['phrase' => 'fall into (a line of work)', 'meaning' => 'to start a job without planning it'],
+                                    ['phrase' => 'career change', 'meaning' => 'moving to a completely different type of job'],
+                                    ['phrase' => 'long hours', 'meaning' => 'working for many hours in a day'],
                                 ],
+                                // Real verbatim lines from the video's own captions — shadowing
+                                // means mimicking the exact audio just heard, and the auto-pause
+                                // timestamp cache (missions:cache-shadow-timestamps) only lands
+                                // correctly on words the speaker actually says. Bold marks
+                                // naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
                                 'shadow_lines' => [
-                                    'The **very** **easiest** thing you can **do** to **reduce** your **stress** **levels** is take the **number** off your **email** app.',
-                                    'You need to **give** yourself **permission** to have a **digital** **Sabbath**.',
-                                    'Maybe **forty** hours of **work** a **week** is the **right** **amount**.',
+                                    'I **used** to be a **teacher**, but I **retired** in **July**.',
+                                    'So, I **work** **part-time**, **doing** that **four** **days** a **week**.',
+                                    'I **really** **like** to **work** with **people**, but also **help** **people**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'video_shadowing'),
                             ],
