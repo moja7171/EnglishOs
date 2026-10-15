@@ -114,6 +114,10 @@
                 <p class="text-lg leading-snug font-semibold text-ink dark:text-ink-dark">{{ $word->meaning }}</p>
             @endif
 
+            @if (filled($word->meaning_fa))
+                <p dir="rtl" class="font-fa text-lg font-semibold text-accent-ink dark:text-accent-ink-dark">{{ $word->meaning_fa }}</p>
+            @endif
+
             @if (filled($word->example))
                 <div>
                     <p class="text-[11px] font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Example</p>

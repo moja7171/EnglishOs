@@ -11,7 +11,7 @@
     @param list<array{type: string, value: string}> $segments
     @param list<array{phrase: string, meaning: string, pos?: string, example?: string}> $words
 --}}
-<p class="text-sm leading-loose text-ink dark:text-ink-dark">
+<p x-lookup class="text-sm leading-loose text-ink dark:text-ink-dark">
     @foreach ($segments as $segment)
         @if ($segment['type'] === 'text')
             {{ $segment['value'] }}

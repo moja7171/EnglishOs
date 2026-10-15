@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\HtmlString;
 
-#[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'meaning_fa', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class VocabularyWord extends Model
 {
     use HasFactory;

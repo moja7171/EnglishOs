@@ -482,7 +482,8 @@ new class extends Component
                 @endif
                 <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
-                    <p class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
+                    <p x-lookup class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
+                    <p class="mt-1 text-[11px] text-ink-faint dark:text-ink-faint-dark">Tap any word to see its meaning.</p>
                     @if (! empty($reading['highlighted_phrases'] ?? []))
                         <p class="mt-2 flex items-center gap-3 text-[11px] text-ink-faint dark:text-ink-faint-dark">
                             <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-success/60 dark:bg-success-dark/60"></span> words you already know</span>
