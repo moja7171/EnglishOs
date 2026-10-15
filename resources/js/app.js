@@ -141,76 +141,93 @@ document.addEventListener('alpine:init', () => {
     /**
      * x-back-close="{ open: isOpen, close: () => close() }" — makes the phone's
      * back button close an in-page overlay instead of leaving the page. The
-     * players' "full screen" is only restyled elements, so the browser has no
-     * history entry for it and Back would go to the previous mission step.
-     * While `open` is true one placeholder entry sits on top of the history;
-     * Back pops it and runs `close` (if the overlay is still open afterwards,
-     * e.g. a video full screen opened from the text view, it re-arms for the
-     * next Back). Closing any other way (✕, Esc) removes the entry again.
+     * players' "full screen" and the dictionary sheet are only restyled
+     * elements, so the browser has no history entry for them and Back would go
+     * to the previous mission step.
+     * Each open overlay keeps one placeholder entry on top of the history.
+     * Back pops the newest one and runs only that overlay's `close`, so a
+     * dictionary opened over a full screen closes first, then the full screen
+     * (an overlay still open afterwards, e.g. a video full screen opened from
+     * the text view, re-arms for the next Back). Closing any other way (✕,
+     * Esc) removes the overlay's entry again.
      *
      * The page's own entry holds a wire:navigate snapshot, and Livewire swaps
      * the whole page (and the player with it) for that copy whenever a
      * popstate lands on an entry carrying one. Its listener is registered
      * before ours and cannot be pre-empted, so instead the page's entry is
-     * parked with a plain marker state while the overlay is open and its real
-     * state is put back once the placeholder is gone.
+     * parked with a plain marker state while any overlay is open and its real
+     * state is put back once the last placeholder is gone.
      */
-    Alpine.directive('back-close', (el, { expression }, { evaluate, effect, cleanup }) => {
+    const backClose = (() => {
         const placeholder = 'eosBackClose';
         const parked = 'eosBackCloseParked';
-        let armed = false;
-        let swallowNext = false;
+        const open = [];
         let pageState = null;
+        let ownPops = 0;
 
         const restorePageState = () => {
-            if (history.state?.[parked]) history.replaceState(pageState, '');
+            if (open.length === 0 && history.state?.[parked]) history.replaceState(pageState, '');
         };
 
-        const sync = () => {
-            const { open } = evaluate(expression);
+        const releaseEntry = () => {
+            if (!history.state?.[placeholder]) return;
 
-            if (open && !armed) {
-                armed = true;
-                pageState = history.state;
-                history.replaceState({ [parked]: true }, '');
-                history.pushState({ [placeholder]: true }, '');
-            } else if (!open && armed) {
-                armed = false;
+            ownPops++;
+            history.back();
+        };
 
-                if (history.state?.[placeholder]) {
-                    swallowNext = true;
-                    history.back();
+        const sync = (overlay) => {
+            const isOpen = overlay.isOpen();
+            const index = open.indexOf(overlay);
+
+            if (isOpen && index === -1) {
+                if (!history.state?.[parked] && !history.state?.[placeholder]) {
+                    pageState = history.state;
+                    history.replaceState({ [parked]: true }, '');
                 }
+
+                open.push(overlay);
+                history.pushState({ [placeholder]: true }, '');
+            } else if (!isOpen && index !== -1) {
+                open.splice(index, 1);
+                releaseEntry();
             }
         };
 
-        const onPopState = () => {
-            if (swallowNext) {
-                swallowNext = false;
-                restorePageState();
+        window.addEventListener('popstate', () => {
+            if (ownPops > 0) {
+                ownPops--;
+            } else if (open.length > 0) {
+                const overlay = open.pop();
 
-                return;
+                overlay.close();
+                sync(overlay);
             }
 
-            if (!armed) return;
-
-            armed = false;
             restorePageState();
-            evaluate(expression).close();
-            sync();
+        });
+
+        return {
+            sync,
+            forget(overlay) {
+                const index = open.indexOf(overlay);
+
+                if (index === -1) return;
+
+                open.splice(index, 1);
+                releaseEntry();
+            },
+        };
+    })();
+
+    Alpine.directive('back-close', (el, { expression }, { evaluate, effect, cleanup }) => {
+        const overlay = {
+            isOpen: () => evaluate(expression).open,
+            close: () => evaluate(expression).close(),
         };
 
-        window.addEventListener('popstate', onPopState);
-        effect(sync);
-
-        cleanup(() => {
-            window.removeEventListener('popstate', onPopState);
-
-            if (armed && history.state?.[placeholder]) {
-                window.addEventListener('popstate', restorePageState, { once: true });
-                history.back();
-            }
-        });
+        effect(() => backClose.sync(overlay));
+        cleanup(() => backClose.forget(overlay));
     });
 
     /**
