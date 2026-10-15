@@ -177,9 +177,9 @@ class ServiceHealthController extends Controller
         try {
             $subscriptions = DB::table(config('webpush.table_name'))->count();
             $devicesUsers = DB::table(config('webpush.table_name'))->distinct()->count('subscribable_id');
-            $reminderOn = User::query()->whereNotNull('review_reminder_time')->count();
-            $reminderReachable = User::query()->whereNotNull('review_reminder_time')->whereHas('pushSubscriptions')->count();
-            $noZone = User::query()->whereNotNull('review_reminder_time')->whereHas('pushSubscriptions')->whereNull('timezone')->count();
+            $reminderOn = User::query()->where('review_reminder_enabled', true)->count();
+            $reminderReachable = User::query()->where('review_reminder_enabled', true)->whereHas('pushSubscriptions')->count();
+            $noZone = User::query()->where('review_reminder_enabled', true)->whereHas('pushSubscriptions')->whereNull('timezone')->count();
             $sentRecently = User::query()->where('last_review_reminder_on', '>=', now()->subDay()->toDateString())->count();
         } catch (Throwable $e) {
             $lines[] = $this->fail('Database', Str::limit($e->getMessage(), 160), 'could not read the push/reminder tables');
