@@ -189,6 +189,33 @@ class AudioListenCounterTest extends TestCase
             ->assertDontSee('of '.AudioListen::TARGET);
     }
 
+    public function test_a_daily_pick_is_done_after_two_listens(): void
+    {
+        $learner = User::factory()->create();
+        AudioListen::factory()->pick(2, 0)->create(['learner_id' => $learner->id]);
+
+        $this->counter($learner, source: AudioListen::SOURCE_LISTENING_PICK, extra: $this->pickProps('2-0'))
+            ->assertSee('of '.AudioListen::SHORT_TARGET);
+
+        AudioListen::factory()->pick(2, 0)->create(['learner_id' => $learner->id]);
+
+        $this->counter($learner, source: AudioListen::SOURCE_LISTENING_PICK, extra: $this->pickProps('2-0'))
+            ->assertSeeHtml('data-testid="listen-count">'.AudioListen::SHORT_TARGET.'<')
+            ->assertDontSee('of '.AudioListen::SHORT_TARGET);
+    }
+
+    public function test_a_shadowing_video_is_done_after_two_watches(): void
+    {
+        $learner = User::factory()->create();
+        AudioListen::factory()->create(['learner_id' => $learner->id, 'source' => AudioListen::SOURCE_VIDEO_SHADOWING]);
+
+        $this->counter($learner, source: AudioListen::SOURCE_VIDEO_SHADOWING)->assertSee('of '.AudioListen::SHORT_TARGET);
+
+        AudioListen::factory()->create(['learner_id' => $learner->id, 'source' => AudioListen::SOURCE_VIDEO_SHADOWING]);
+
+        $this->counter($learner, source: AudioListen::SOURCE_VIDEO_SHADOWING)->assertDontSee('of '.AudioListen::SHORT_TARGET);
+    }
+
     public function test_the_summary_splits_listens_by_day_and_tells_when_the_last_one_was(): void
     {
         $learner = User::factory()->create();

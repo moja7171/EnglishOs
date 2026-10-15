@@ -8,9 +8,10 @@ use Livewire\Component;
 
 /**
  * The "Listens N" badge for one recording, video or daily pick: dots
- * toward the AudioListen::TARGET listens the program is built around, the
- * count, when the last one was, and (on tap) the day-by-day split and the
- * latest listens with their times.
+ * toward the listens the program asks for (AudioListen::targetFor(): 4 for a
+ * mission episode, 2 for a daily pick or a video), the count, when the last one was,
+ * and (on tap) the day-by-day split and the latest listens with their
+ * times.
  *
  * Beside an in-app player the player's tracker (eosListenTracker in
  * resources/js/app.js) dispatches `listen-completed` once at least 90% of
@@ -110,7 +111,7 @@ new class extends Component
 
 @php
     $summary = $this->summary;
-    $target = \App\Models\AudioListen::TARGET;
+    $target = \App\Models\AudioListen::targetFor($source);
     $reached = $summary['total'] >= $target;
 @endphp
 

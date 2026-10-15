@@ -37,6 +37,13 @@ class AudioListen extends Model
     public const TARGET = 4;
 
     /**
+     * The target for one of the three daily picks on /listening and for a
+     * Video Shadowing video: neither comes back on all four days of a
+     * mission, so two listens of it is plenty.
+     */
+    public const SHORT_TARGET = 2;
+
+    /**
      * The fraction of a recording's own length that must pass before the
      * next listen of it can count. A real listen needs 90% of the audio
      * played, which at the fastest speed (1.25x) is about 72% of its
@@ -57,6 +64,14 @@ class AudioListen extends Model
     protected function casts(): array
     {
         return ['self_reported' => 'boolean'];
+    }
+
+    /**
+     * How many listens of a recording from this source count as done.
+     */
+    public static function targetFor(string $source): int
+    {
+        return in_array($source, [self::SOURCE_LISTENING_PICK, self::SOURCE_VIDEO_SHADOWING], true) ? self::SHORT_TARGET : self::TARGET;
     }
 
     /**
