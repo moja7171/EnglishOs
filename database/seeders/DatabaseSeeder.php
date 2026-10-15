@@ -28,5 +28,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(MissionSeeder::class);
+        $this->call(PersianGlossSeeder::class);
     }
 }

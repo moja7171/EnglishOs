@@ -34,6 +34,7 @@ class DictionaryEntryResource extends JsonResource
             },
             'translation_fa' => $this->translation_fa,
             'persian_senses' => $this->persian_senses,
+            'persian_source' => $this->persian_source,
         ];
     }
 }

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property list<array{pos: string, definitions: list<array{definition: string, example: ?string}>}> $meanings
  * @property list<array{pos: string, words: string}>|null $persian_senses
  */
-#[Fillable(['word', 'phonetic', 'audio_url', 'meanings', 'translation_fa', 'persian_senses'])]
+#[Fillable(['word', 'phonetic', 'audio_url', 'meanings', 'translation_fa', 'persian_senses', 'persian_source'])]
 class DictionaryEntry extends Model
 {
     use HasFactory;

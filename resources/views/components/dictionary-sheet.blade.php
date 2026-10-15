@@ -101,6 +101,8 @@
                         </template>
                     </div>
 
+                    <p x-show="entry.persian_source === 'wiktionary'" class="-mt-2 text-[11px] text-ink-faint dark:text-ink-faint-dark">Persian: Wiktionary (CC BY-SA)</p>
+
                     <div x-show="current" class="space-y-1.5">
                         <span class="inline-block rounded-full bg-surface-sunken px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-ink-soft uppercase dark:bg-surface-sunken-dark dark:text-ink-soft-dark" x-text="current?.pos"></span>
                         <p class="text-base text-ink dark:text-ink-dark" x-text="current?.definition"></p>
