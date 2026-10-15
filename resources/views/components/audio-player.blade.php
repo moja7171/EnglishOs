@@ -302,12 +302,12 @@
             <div class="flex items-center gap-3">
                 <button
                     type="button"
-                    x-on:click="skip(-10)"
-                    title="Back 10 seconds"
+                    x-on:click="skip(-5)"
+                    title="Back 5 seconds"
                     class="inline-flex shrink-0 cursor-pointer flex-col items-center gap-0.5 text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
                 >
                     @svg('heroicon-o-backward', 'h-5 w-5')
-                    <span class="text-[10px] leading-none font-semibold">10s</span>
+                    <span class="text-[10px] leading-none font-semibold">5s</span>
                 </button>
 
                 <button
@@ -322,12 +322,12 @@
 
                 <button
                     type="button"
-                    x-on:click="skip(10)"
-                    title="Forward 10 seconds"
+                    x-on:click="skip(5)"
+                    title="Forward 5 seconds"
                     class="inline-flex shrink-0 cursor-pointer flex-col items-center gap-0.5 text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
                 >
                     @svg('heroicon-o-forward', 'h-5 w-5')
-                    <span class="text-[10px] leading-none font-semibold">10s</span>
+                    <span class="text-[10px] leading-none font-semibold">5s</span>
                 </button>
             </div>
 
