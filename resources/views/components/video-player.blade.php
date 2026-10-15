@@ -15,10 +15,13 @@
     @param string|null $captionsUrl WebVTT captions track, if any. The CC
         toggle only renders when this is given — it shows real subtitles
         over the picture; the $segments panel below is the same text as a
-        scrolling, tap-to-seek list. "Expanded" (the arrows button, or f)
-        restyles this whole component full screen with the video on top and
-        that panel beneath it, so both stay visible together — the <video>
-        itself never moves, so playback carries on uninterrupted.
+        scrolling, tap-to-seek list. Three layouts, all just this same
+        markup restyled (the <video> never moves, so playback carries on
+        uninterrupted): "inline" on the page; "focus", entered automatically
+        when playback starts and a text panel exists — the whole component
+        full screen, the video in the top third and the text filling the
+        rest; and "video", the arrows button (or f) — the video alone full
+        screen, with the CC toggle still in its control bar.
     @param string|null $poster Poster frame shown before first play.
     @param string $title Accessible label for the video element.
     @param string|null $onEnded Raw Alpine statement(s) run on playback end
@@ -54,8 +57,8 @@
 
 @if (! empty($url))
     <div
-        :class="expanded ? 'fixed inset-0 z-50 flex flex-col overflow-hidden bg-ground p-3 sm:p-6 landscape:flex-row landscape:gap-4 dark:bg-ground-dark' : ''"
-        x-on:keydown.escape.window="expanded = false"
+        :class="mode === 'focus' ? 'fixed inset-0 z-50 flex flex-col overflow-hidden bg-ground p-3 sm:p-6 landscape:flex-row landscape:gap-4 dark:bg-ground-dark' : ''"
+        x-on:keydown.escape.window="closeExpanded()"
         x-data="{
             playing: false,
             currentTime: 0,
@@ -66,7 +69,9 @@
             captionsOn: {{ $captionsUrl ? 'true' : 'false' }},
             controlsVisible: true,
             hideTimer: null,
-            expanded: false,
+            mode: 'inline',
+            returnMode: 'inline',
+            hasSegments: {{ count($segments) ? 'true' : 'false' }},
             passProgress: 0,
             passSkipped: false,
             segments: {{ Illuminate\Support\Js::from($segments) }},
@@ -107,7 +112,11 @@
                         }
                     }
                 });
-                video.addEventListener('play', () => { this.playing = true; this.scheduleHide() });
+                video.addEventListener('play', () => {
+                    this.playing = true;
+                    this.scheduleHide();
+                    if (this.mode === 'inline' && this.hasSegments) this.mode = 'focus';
+                });
                 video.addEventListener('pause', () => { this.playing = false; this.showControls() });
                 video.addEventListener('ended', () => { this.playing = false; this.showControls(); {{ $onEnded }} });
                 if (video.readyState >= 1) this.duration = video.duration;
@@ -137,13 +146,13 @@
                     this.$nextTick(() => this.centerSegment(index));
                 });
 
-                this.$watch('expanded', (open) => {
-                    document.documentElement.classList.toggle('overflow-hidden', open);
+                this.$watch('mode', (mode) => {
+                    document.documentElement.classList.toggle('overflow-hidden', mode !== 'inline');
                     this.$nextTick(() => this.centerSegment(this.activeSegmentIndex));
                 });
             },
             destroy() {
-                if (this.expanded) document.documentElement.classList.remove('overflow-hidden');
+                if (this.mode !== 'inline') document.documentElement.classList.remove('overflow-hidden');
             },
             centerSegment(index) {
                 const panel = this.$refs.segmentsPanel;
@@ -182,7 +191,18 @@
                 this.captionsOn = ! this.captionsOn;
                 if (this.$refs.track) this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
             },
-            toggleExpanded() { this.expanded = ! this.expanded },
+            toggleVideoFullscreen() {
+                if (this.mode === 'video') {
+                    this.mode = this.returnMode;
+                    return;
+                }
+                this.returnMode = this.mode;
+                this.mode = 'video';
+            },
+            closeExpanded() {
+                if (this.mode === 'video') this.mode = this.returnMode;
+                else this.mode = 'inline';
+            },
             skip(seconds) {
                 const video = this.$refs.video;
                 const max = video.duration || this.duration || Infinity;
@@ -217,13 +237,13 @@
                 if (key === 'ArrowRight') { e.preventDefault(); this.skip(5); this.showControls(); return; }
                 if (key === 'ArrowLeft') { e.preventDefault(); this.skip(-5); this.showControls(); return; }
                 if (key === 'm') { this.toggleMute(); return; }
-                if (key === 'f') { this.toggleExpanded(); return; }
+                if (key === 'f') { this.toggleVideoFullscreen(); return; }
                 if (key === 'c' && {{ $captionsUrl ? 'true' : 'false' }}) { this.toggleCaptions(); return; }
             },
         }"
     >
     @if ($listen)
-        <div x-show="!expanded" class="mb-2 flex items-start justify-between gap-3">
+        <div x-show="mode === 'inline'" class="mb-2 flex items-start justify-between gap-3">
             <div x-show="passProgress > 0" x-cloak class="min-w-0 flex-1 space-y-1" data-testid="listen-progress">
                 <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
                     This watch: <span class="font-semibold tabular-nums" x-text="Math.round(passProgress * 100) + '%'"></span> seen
@@ -250,7 +270,10 @@
         x-on:keydown="onKeydown($event)"
         x-on:mousemove="showControls()"
         x-on:mouseleave="if (playing) controlsVisible = false"
-        :class="expanded ? 'shrink-0 landscape:w-3/5 landscape:self-start' : ''"
+        :class="{
+            'fixed! inset-0 z-50 aspect-auto! rounded-none!': mode === 'video',
+            'h-[33dvh] shrink-0 aspect-auto! landscape:h-auto landscape:w-1/2 landscape:self-stretch': mode === 'focus',
+        }"
         class="group relative aspect-video w-full overflow-hidden rounded-2xl bg-black outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark"
     >
         <video
@@ -350,18 +373,18 @@
                     x-text="speed + 'x'"
                 ></button>
 
-                <button type="button" x-on:click="toggleExpanded()" class="cursor-pointer" :title="expanded ? 'Exit full screen (f)' : 'Full screen with text (f)'">
-                    <span x-show="!expanded">@svg('heroicon-o-arrows-pointing-out', 'h-4.5 w-4.5')</span>
-                    <span x-show="expanded" x-cloak>@svg('heroicon-o-arrows-pointing-in', 'h-4.5 w-4.5')</span>
+                <button type="button" x-on:click="toggleVideoFullscreen()" class="cursor-pointer" :title="mode === 'video' ? 'Exit full screen (f)' : 'Video full screen (f)'">
+                    <span x-show="mode !== 'video'">@svg('heroicon-o-arrows-pointing-out', 'h-4.5 w-4.5')</span>
+                    <span x-show="mode === 'video'" x-cloak>@svg('heroicon-o-arrows-pointing-in', 'h-4.5 w-4.5')</span>
                 </button>
             </div>
         </div>
 
         <button
             type="button"
-            x-show="expanded"
+            x-show="mode !== 'inline'"
             x-cloak
-            x-on:click="expanded = false"
+            x-on:click="closeExpanded()"
             title="Close full screen (Esc)"
             class="absolute top-2 right-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
         >
@@ -370,10 +393,11 @@
         </button>
     </div>
 
-    {{-- Everything under the video. Normally just part of the page; expanded,
-         it becomes the scrolling area beside/below the video so the text
-         panel and the shadow prompt stay on screen together with it. --}}
-    <div :class="expanded ? 'flex min-h-0 flex-1 flex-col overflow-y-auto' : ''">
+    {{-- Everything under the video. Normally just part of the page; in focus
+         it becomes the area filling the rest of the screen beside/below the
+         video, so the text panel and the shadow prompt stay on screen with
+         it. --}}
+    <div :class="mode === 'focus' ? 'flex min-h-0 flex-1 flex-col overflow-y-auto' : ''">
     @if (count($shadowLines))
         <label class="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-line p-3 dark:border-line-dark">
             <span>
@@ -389,12 +413,12 @@
 
     @if (count($segments))
         {{-- Synced text panel, same idea as <x-audio-player>'s — always
-             shown with the video, inline and expanded alike. --}}
+             shown with the video, inline and in focus alike. --}}
         <div
             x-lookup
             x-ref="segmentsPanel"
-            :class="expanded ? 'min-h-32 flex-1' : 'max-h-40'"
-            class="relative mt-3 space-y-1.5 overflow-y-auto card-sunken p-3 text-sm"
+            :class="mode === 'focus' ? 'min-h-32 flex-1 text-base' : 'max-h-40 text-sm'"
+            class="relative mt-3 space-y-1.5 overflow-y-auto card-sunken p-3"
         >
             @foreach ($segments as $index => $segment)
                 <p
@@ -433,7 +457,10 @@
                 </div>
             @endforeach
 
-            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Repeat it out loud, then record it below.</p>
+            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">
+                <span x-show="mode === 'inline'">Repeat it out loud, then record it below.</span>
+                <span x-show="mode !== 'inline'" x-cloak>Repeat it out loud, then close full screen (✕) to record it.</span>
+            </p>
 
             <button
                 type="button"
