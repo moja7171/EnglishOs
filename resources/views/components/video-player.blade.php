@@ -285,7 +285,6 @@
             @if ($poster) poster="{{ $poster }}" @endif
             preload="metadata"
             playsinline
-            crossorigin="anonymous"
             x-on:click="togglePlay()"
         >
             <source src="{{ $url }}" type="video/mp4">

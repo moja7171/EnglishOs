@@ -18,7 +18,8 @@ namespace App\Services;
  * A pick can also exist inside the app (`local`): its audio and its synced,
  * speaker-labelled text live in document/{code}/picks/ (see
  * listening:build-picks), listed in that folder's index.json by day and
- * level. Such a pick plays on the /listening page itself, with the text
+ * level. With a download host configured (MediaHost) the audio is served
+ * from there instead and only the text and index stay in document/. Such a pick plays on the /listening page itself, with the text
  * advancing as it plays, like the missions' own listenings.
  *
  * @phpstan-type Pick array{src: string, title: string, by: ?string, url: string, min: ?int, tx: ?string, txUrl: ?string, apple: bool, grammar: bool, local: ?array{slug: string, audioUrl: string}}
@@ -55,7 +56,10 @@ class ListeningPicks
     /**
      * @param  string|null  $documentPath  Where the missions' source files live (document/); a test points it at a temporary folder.
      */
-    public function __construct(private readonly ?string $documentPath = null) {}
+    public function __construct(
+        private readonly ?string $documentPath = null,
+        private readonly MediaHost $mediaHost = new MediaHost,
+    ) {}
 
     /**
      * The three picks for one program day, easiest first — or null for a
@@ -100,9 +104,9 @@ class ListeningPicks
      */
     public function segmentsFor(string $missionCode, string $slug): array
     {
-        $path = $this->slugIsListed($missionCode, $slug) ? "{$this->picksFolder($missionCode)}/{$slug}.turns.json" : null;
+        $path = $this->turnsPath($missionCode, $slug);
 
-        if ($path === null || ! is_file($path)) {
+        if ($path === null) {
             return [];
         }
 
@@ -149,11 +153,32 @@ class ListeningPicks
     {
         $slug = $this->localIndex($missionCode)[$dayNumber - 1][$level]['slug'] ?? null;
 
-        if ($slug === null || $this->audioPath($missionCode, $slug) === null) {
+        if ($slug === null) {
+            return null;
+        }
+
+        $hostedUrl = $this->mediaHost->pickAudioUrl($missionCode, $slug);
+
+        if ($hostedUrl !== null) {
+            return $this->turnsPath($missionCode, $slug) === null ? null : ['slug' => $slug, 'audioUrl' => $hostedUrl];
+        }
+
+        if ($this->audioPath($missionCode, $slug) === null) {
             return null;
         }
 
         return ['slug' => $slug, 'audioUrl' => route('listening.audio', [$missionCode, $slug])];
+    }
+
+    /**
+     * The synced-text file of a listed pick, or null if it isn't listed or
+     * the file isn't there.
+     */
+    private function turnsPath(string $missionCode, string $slug): ?string
+    {
+        $path = $this->slugIsListed($missionCode, $slug) ? "{$this->picksFolder($missionCode)}/{$slug}.turns.json" : null;
+
+        return $path !== null && is_file($path) ? $path : null;
     }
 
     private function slugIsListed(string $missionCode, string $slug): bool

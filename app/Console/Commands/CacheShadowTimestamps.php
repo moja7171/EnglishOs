@@ -152,7 +152,7 @@ class CacheShadowTimestamps extends Command
             return null;
         }
 
-        $localPath = $this->resolveLocalPath($audioUrl);
+        $localPath = $this->resolveLocalPath($mission, $audioUrl);
 
         if (! $localPath) {
             $this->warn("{$mission->code}: Listening audio file not found — skipping its transcript and daily_listen_N lines.");
@@ -180,7 +180,7 @@ class CacheShadowTimestamps extends Command
             return null;
         }
 
-        $localPath = $this->resolveLocalPath($captionsUrl);
+        $localPath = $this->resolveLocalPath($mission, $captionsUrl);
 
         if (! $localPath) {
             $this->warn("{$mission->code}: video_shadowing captions file not found — skipping.");
@@ -194,10 +194,22 @@ class CacheShadowTimestamps extends Command
         return $cues;
     }
 
-    private function resolveLocalPath(string $publicUrl): ?string
+    /**
+     * The local file behind a mission asset's URL: the published copy in
+     * storage, or — for audio/video served from the download host — the
+     * original in document/{code}/, which is where this offline command
+     * runs.
+     */
+    private function resolveLocalPath(Mission $mission, string $publicUrl): ?string
     {
-        $localPath = Storage::disk('public')->path(Str::after($publicUrl, '/storage/'));
+        $storagePath = Storage::disk('public')->path(Str::after($publicUrl, '/storage/'));
 
-        return is_file($localPath) ? $localPath : null;
+        if (is_file($storagePath)) {
+            return $storagePath;
+        }
+
+        $documentPath = base_path("document/{$mission->code}/".rawurldecode(basename($publicUrl)));
+
+        return is_file($documentPath) ? $documentPath : null;
     }
 }

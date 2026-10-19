@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Mission;
+use App\Services\MediaHost;
 use App\Services\PexelsClient;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
@@ -2778,9 +2779,20 @@ class MissionSeeder extends Seeder
      * kept out of the public disk's git history) into the public storage
      * disk, and returns its public URL. Future missions reuse this by
      * dropping their own document/M0X/ folder — see EOS-009 §7.
+     *
+     * Audio and video are the exception once a download host is configured
+     * (MEDIA_BASE_URL): they are uploaded there by hand, so nothing is
+     * copied and the host's URL is returned — the file doesn't even have to
+     * exist under document/ on this machine.
      */
     private function publishMissionAsset(string $missionCode, string $filename): string
     {
+        $hostedUrl = app(MediaHost::class)->missionFileUrl($missionCode, $filename);
+
+        if ($hostedUrl !== null) {
+            return $hostedUrl;
+        }
+
         $source = base_path("document/{$missionCode}/{$filename}");
         $relative = 'missions/'.strtolower($missionCode).'/'.$filename;
 
