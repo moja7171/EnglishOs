@@ -127,7 +127,7 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Georgie', 'text' => 'Today we are talking about our morning routines. That is what we usually do in the mornings before work.'],
                                     ['speaker' => 'Neil', 'text' => "OK, let's get started."],
                                     ['speaker' => 'Georgie', 'text' => 'So, Neil, do you like to get up early or do you prefer to sleep in?'],
-                                    ['speaker' => 'Neil', 'text' => "It depends if I have had enough sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about you?"],
+                                    ['speaker' => 'Neil', 'text' => "It depends if I've had enough sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about you?"],
                                     ['speaker' => 'Georgie', 'text' => "Well, I like the mornings sometimes because I feel like it's quieter. Not many people are up. I also feel like my brain works better in the mornings, so that helps. But I do like sleeping in sometimes, especially at the weekends."],
                                     ['speaker' => 'Neil', 'text' => "So, Georgie, you said that your brain works best in the morning. Does that mean that you're a morning person?"],
                                     ['speaker' => 'Georgie', 'text' => "Yes, I think it does. I'm a morning person. That means someone that has a lot of energy at the start of the day."],
@@ -176,7 +176,7 @@ class MissionSeeder extends Seeder
                                 'target_phrases' => [
                                     [
                                         'phrase' => 'get up', 'meaning' => 'to stand up and leave your bed',
-                                        'gap_before' => "It depends if I have had enough sleep. If I've had enough sleep, I can ",
+                                        'gap_before' => "It depends if I've had enough sleep. If I've had enough sleep, I can ",
                                         'gap_after' => ' early.',
                                     ],
                                     [
@@ -275,8 +275,8 @@ class MissionSeeder extends Seeder
                                 // pause points (see missions:cache-shadow-timestamps) — [] until
                                 // that command has been run for this mission.
                                 'shadow_lines' => [
-                                    "I'm **very well**, **thank you**. How are **you**?",
-                                    'That **actually** **happened** this **week**.',
+                                    'I **always** have **breakfast** before I **leave** the **house**.',
+                                    'I **usually** **wake up** **before** my **alarm**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_2'),
                             ],
@@ -584,8 +584,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'alarm clock wake up bed',
                                 'shadow_lines' => [
-                                    '**Otherwise** I\'m **very grumpy**.',
-                                    '**Especially** in the **United Kingdom** because the **weather** can be **different** **every day**.',
+                                    "**Sometimes** I **skip** **breakfast**, because when I **wake up**, I'm **not hungry**.",
+                                    'I **never** **wake up** before my **alarm**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_3'),
                             ],
@@ -1017,10 +1017,10 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Becca', 'text' => 'Yeah, we do. We stay in touch a lot over, like I said, group chats, social media, and we try to meet at least once every month, once every couple of months, you know, if we really try. So yeah, it is easier for us to meet up. So, when was the last time that you saw one of your old friends?'],
                                     ['speaker' => 'Phil', 'text' => "It was probably sometime last year, I think. But yeah, I probably only... Only a couple of times a year, I think, I'd see old friends."],
                                     ['speaker' => 'Becca', 'text' => 'And have you lost touch with any of your old friends? So, to lose touch is to lose that contact that you have with them.'],
-                                    ['speaker' => 'Phil', 'text' => "Yes, I think I have. You don't notice it when it happens, do you, really? Because it's not like you have an argument or you decide, I'm not talking to that person anymore. You just... I don't know. You just don't see them for a long time. If I saw those people again, then I might get back in touch with them. But yeah, there's people that... There're definitely people that I used to know that I haven't seen for a long time. So yeah, I've definitely lost touch with some people."],
+                                    ['speaker' => 'Phil', 'text' => "Yes, I think I have. You don't notice it when it happens, do you, really? Because it's not like you have an argument or you say, I'm not talking to that person anymore. You just... I don't know. You just don't see them for a long time. If I saw those people again, then I might get back in touch with them. But yeah, there's people that... there's definitely people that I used to know that I haven't seen for a long time. So yeah, I've definitely lost touch with some people."],
                                     ['speaker' => 'Becca', 'text' => "So, do you think your friendship groups have, kind of, changed as you've grown older then? If you've lost touch with some old friends, you have newer friends now."],
                                     ['speaker' => 'Phil', 'text' => "What has changed a lot is I have a lot more friends who are families, who have children the same age that we have. Because suddenly when you have children, you have so much in common with people in the same situation, and your children do. And if your children get on very well together, you're going to spend a lot of time together."],
-                                    ['speaker' => 'Becca', 'text' => "I see. So, that's where we're quite different, because a lot of my friends don't have families. And, you know, I don't either. So, it's quite easy for us to stay friends and to stay in touch with each other. OK. Let's recap some of the vocabulary we learned in this episode, starting with old friend. And that's a friend that you've known for a very long time."],
+                                    ['speaker' => 'Becca', 'text' => "I see. So, that's why we're quite different, because a lot of my friends don't have families. And, you know, I don't either. So, it's quite easy for us to stay friends and to stay in touch with each other. OK. Let's recap some of the vocabulary we learned in this episode, starting with old friend. And that's a friend that you've known for a very long time."],
                                     ['speaker' => 'Phil', 'text' => 'So, we had this idea of being in touch with someone – with a friend. And if you are in touch with someone, it means that you see them often. You speak to them often. So, if you keep in touch with someone, it means you continue to do those things even after a long time.'],
                                     ['speaker' => 'Becca', 'text' => "If you lose touch with someone, that means that you don't see or speak to them anymore. However, you can get back in touch with someone – that is to start seeing them or speaking to them again."],
                                     ['speaker' => 'Phil', 'text' => 'And if you stay friends with someone, it means that you continue to be friends with someone for a long period of time.'],
@@ -1042,7 +1042,7 @@ class MissionSeeder extends Seeder
                                     ],
                                     [
                                         'phrase' => 'stay in touch', 'meaning' => 'to keep contact with someone by speaking or writing to them regularly',
-                                        'gap_before' => "Luckily for myself, we don't live very far away, so it is easier to ",
+                                        'gap_before' => "I mean, luckily for myself, we don't live very far away, so it is easier to ",
                                         'gap_after' => '.',
                                     ],
                                     [
@@ -1115,8 +1115,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 'image_query' => 'two friends chatting park bench',
                                 'shadow_lines' => [
-                                    'As you **get older**, you **move away**. You have **families**.',
-                                    "You **don't notice it** when it **happens**, do you, **really**?",
+                                    "Today we're **talking** about **old** **friends**.",
+                                    "I **don't** **often** **see** people that are **very** **old** **friends**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_2'),
                             ],
@@ -1350,8 +1350,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'friends walking together talking',
                                 'shadow_lines' => [
-                                    'That means that you **don\'t see** or **speak** to them **anymore**.',
-                                    "It's **easy** for me to **stay friends** with some of my **old friends**.",
+                                    "It's **not** like you **have** an **argument** or you **say**, I'm **not talking** to that **person** **anymore**.",
+                                    "A **lot** of my **friends** **don't** **have** **families**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_3'),
                             ],
@@ -1571,7 +1571,7 @@ class MissionSeeder extends Seeder
 
     /**
      * Seeds M04 with its real content from document/M04/ (M04.pdf, the
-     * "Eat Clean Without Stress" B1 podcast, and the Smashing English
+     * Oxford Online English "Talk About Food and Cooking" lesson, and the Smashing English
      * "What I Eat in a Day" vlog), matching M04.pdf's own 3-day/
      * 10-page compact workbook plan (it names 10 pages — this seeds
      * exactly those 10, plus video_shadowing as an 11th, added once its
@@ -1579,7 +1579,7 @@ class MissionSeeder extends Seeder
      */
     private function seedM04(): void
     {
-        $audioUrl = $this->publishMissionAsset('M04', 'Eat Clean Without Stress - Simple Habits for Everyday Life.mp3');
+        $audioUrl = $this->publishMissionAsset('M04', 'Oxford Online English - Talk About Food and Cooking.mp3');
         $shadowingVideoUrl = $this->publishMissionAsset('M04', 'Smashing English - What I Eat in a Day.mp4');
         $shadowingCaptionsUrl = $this->publishMissionAsset('M04', 'Smashing English - What I Eat in a Day.en.vtt');
 
@@ -1614,138 +1614,129 @@ class MissionSeeder extends Seeder
                                 'key' => 'vocabulary_builder_1',
                                 'label' => 'New Words',
                                 'duration_minutes' => 9,
-                                'hook' => 'Next time someone asks about your diet, will these words be ready — or will you just say "I eat normal food"?',
-                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
-                                // for the full rationale. Day 1 = the real Listening episode's own
-                                // 5 target_phrases, so every learner meets them here first.
-                                'story' => 'I try not to **skip breakfast**, even on busy mornings. Once or twice '
-                                    .'a week we **eat out** instead of cooking. In the afternoon I sometimes get '
-                                    .'a real **craving** for something sweet, so I try to reach for a healthier '
-                                    .'**snack** instead of **processed food**.',
+                                'hook' => 'Five small words that let you say what you really think about a meal.',
+                                // Day 1 = the Listening lesson's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'I like **a bit of** everything, but my favourite **cuisine** is Persian. '
+                                    .'My mum\'s best **dish** is ghormeh sabzi — it\'s never **bland**! On weekdays '
+                                    .'I take a **packed lunch** to work, usually some rice and a little salad.',
                                 'words' => [
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'meaning_fa' => 'صبحانه نخوردن', 'pos' => 'verb phrase', 'example' => "She often skips breakfast when she's late for work.", 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'meaning_fa' => 'بیرون غذا خوردن (در رستوران)', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out most Friday nights.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'meaning_fa' => 'هوس (خوردن چیزی)', 'pos' => 'noun', 'example' => 'I had a craving for chocolate all afternoon.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'meaning_fa' => 'میان‌وعده', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I grabbed a snack before the meeting.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'meaning_fa' => 'غذای فرآوری‌شده', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food if you can.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'a bit of', 'meaning' => 'a small amount of something (with uncountable nouns, or "a bit of everything")', 'meaning_fa' => 'کمی، یک مقدار کم', 'pos' => 'quantifier', 'synonym' => 'a little', 'example' => 'Can I have a bit of milk in my tea?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cuisine', 'meaning' => 'the style of cooking of a country or a region', 'meaning_fa' => 'آشپزی (سبک آشپزی یک کشور یا منطقه)', 'pos' => 'noun', 'synonym' => 'cooking, food', 'example' => 'I love Italian cuisine.', 'image_query' => 'italian food table pasta', 'difficulty' => 'medium'],
+                                    ['phrase' => 'dish', 'meaning' => 'one kind of food, cooked or prepared in a special way', 'meaning_fa' => 'غذا (یک نوع غذای پخته‌شده)', 'pos' => 'noun', 'synonym' => "not the same as 'meal'", 'example' => 'Ghormeh sabzi is a famous Iranian dish.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'bland', 'meaning' => 'with very little or no flavour', 'meaning_fa' => 'بی‌مزه، کم‌طعم', 'pos' => 'adjective', 'synonym' => 'opposite: tasty, spicy', 'example' => 'The soup was a bit bland, so I added some salt.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'packed lunch', 'meaning' => 'food you take from home to eat at work or school', 'meaning_fa' => 'ناهار همراه (غذایی که از خانه می‌بری)', 'pos' => 'noun phrase', 'example' => 'I take a packed lunch to work every day.', 'image_query' => 'packed lunch box', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'duration_minutes' => 18,
-                                'hook' => 'Jessica and Lisa are talking honestly about eating clean, mistakes included — how much can you catch?',
-                                'source' => 'B1 Podcast — "Eat Clean Without Stress: Simple Habits for Everyday Life"',
-                                'image_query' => 'healthy breakfast oatmeal fruit',
+                                'hook' => 'Oli and Marie talk about the food they love — and one meal that went badly wrong. Listen for "a lot of", "a bit of" and "much".',
+                                'source' => 'Oxford Online English — "Talk About Food and Cooking in English"',
+                                'image_query' => 'home cooking kitchen',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M04', 'listening_segments'),
-                                // The same chunks split at every change of speaker and tagged with who is
-                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers.
                                 'listening_turns' => $this->shadowTimestampsFor('M04', 'listening_turns'),
-                                'transcript_ref' => 'document/M04/Eat Clean Without Stress - Simple Habits for Everyday Life.transcript.pdf',
-                                // Full real transcript, reconstructed from the podcast's own
-                                // auto-captions (no built-in speaker diarization, so a few
-                                // mid-paragraph turn boundaries are a best-effort judgment call,
-                                // not verified against the raw audio word-for-word) — shown
-                                // in-app only after the learner has genuinely listened twice
-                                // (see ⚡listening.blade.php), same gate as M01/M02.
+                                // The lesson's own human captions for the four parts kept in the cut
+                                // (0:01-0:16, 0:52-2:58, 3:47-4:57, 7:46-10:28 of the original; the
+                                // website plug and the moussaka recipe dropped), checked against a
+                                // Whisper pass of the cut audio. Dialogue speakers as the lesson's
+                                // own page labels them; the explanations by voice.
                                 'transcript' => [
-                                    ['speaker' => 'Jessica', 'text' => "Hi everyone. Welcome back to the five minute English practice. I'm Jessica and I'm really happy you decided to spend some time with us today. Today we're talking about a topic that comes up a lot when people start caring more about their health, their energy, and the way they feel every day. And that topic is eating clean. Some people feel very excited when they hear this phrase because they think it means a fresh start and better habits, while other people feel stressed right away because they imagine strict rules, boring food, and a lifestyle that feels hard to maintain. So today, instead of giving advice or telling you what you should or shouldn't eat, we're simply going to talk honestly about food habits, mistakes, and what eating clean actually looks like in real life, not in a perfect online world. I'm not doing this episode alone. I'm here with Lisa, who has tried eating clean in a very realistic way while working, feeling tired, craving snacks, and still wanting to enjoy food. Hi, Lisa. How are you today?"],
-                                    ['speaker' => 'Lisa', 'text' => "Hi, Jessica. Hi, everyone. I'm doing really well, thank you."],
-                                    ['speaker' => 'Jessica', 'text' => 'So now after some time, how would you describe eating clean in your own words?'],
-                                    ['speaker' => 'Lisa', 'text' => 'For me, eating clean means choosing simple food that feels natural, cooking more meals at home, and eating things that make me feel good after I finish eating instead of feeling uncomfortable or tired.'],
-                                    ['speaker' => 'Jessica', 'text' => "I love that description because it feels very realistic and very kind. For me, eating clean means I try to slow down and think about what my body actually needs instead of eating something just because it's fast or easy."],
-                                    ['speaker' => 'Lisa', 'text' => 'Yes. And that mindset already changes a lot.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Let\'s talk about breakfast because the way we start the day often affects everything else. What does a typical clean breakfast look like for you?'],
-                                    ['speaker' => 'Lisa', 'text' => 'Most mornings I eat oatmeal and I like to take my time preparing it, adding fruit, nuts, maybe a little honey or peanut butter because it feels warm, filling and comforting, especially on busy mornings.'],
-                                    ['speaker' => 'Lisa', 'text' => 'On other days, I choose eggs, usually scrambled eggs with avocado or eggs with toast because it keeps me full and focused for a long time.'],
-                                    ['speaker' => 'Jessica', 'text' => "Yes, eggs made a big difference for me. Before, I often skipped breakfast or just had coffee and I didn't realize how much that affected my mood and energy later in the day."],
-                                    ['speaker' => 'Lisa', 'text' => "That's such an important point. When you eat real breakfast, your whole day feels more balanced."],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. I feel more calm and less rushed when I start the day with proper food.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Now, let\'s talk about snacks because snacks are where many people feel they fail. Lisa, do you snack during the day?'],
-                                    ['speaker' => 'Lisa', 'text' => 'Yes, I do. Especially in the afternoon when my energy drops and I start craving something sweet or crunchy.'],
-                                    ['speaker' => 'Jessica', 'text' => 'That time of day is very dangerous.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Very dangerous. In the past, I ate cookies or chips without thinking. When I started eating clean, I tried to stop snacking completely, but that only made me feel frustrated.'],
-                                    ['speaker' => 'Jessica', 'text' => 'That never works for long.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. So now I still snack, but I choose things that actually help my body, like a fruit with peanut butter, yogurt, nuts, or boiled eggs.'],
-                                    ['speaker' => 'Jessica', 'text' => "That's exactly what I do, too. I don't try to be perfect. I just try to make better choices most of the time."],
-                                    ['speaker' => 'Lisa', 'text' => 'And that made eating clean feel much more realistic.'],
-                                    ['speaker' => 'Jessica', 'text' => "Now, let's talk about processed food. How do you see it?"],
-                                    ['speaker' => 'Lisa', 'text' => "Now processed food is something I still eat sometimes but it's no longer part of my daily routine and I feel the difference very clearly."],
-                                    ['speaker' => 'Jessica', 'text' => 'That difference is huge. It becomes a choice not a habit.'],
-                                    ['speaker' => 'Lisa', 'text' => "Yes. And when it's a choice you don't feel guilty."],
-                                    ['speaker' => 'Jessica', 'text' => "Let's talk about eating out because food is social. How do you handle eating clean when you eat out?"],
-                                    ['speaker' => 'Lisa', 'text' => "I stop stressing about it when I eat out. I choose something simple if I can and if I can't I enjoy the meal and move on."],
-                                    ['speaker' => 'Jessica', 'text' => 'No guilt, no punishment the next day.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. Guilt only makes things worse.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Do you prepare food in advance?'],
-                                    ['speaker' => 'Lisa', 'text' => "Yes, but only basics. I prepare protein, vegetables, and potatoes. So, I don't need to think too much during the week."],
-                                    ['speaker' => 'Jessica', 'text' => 'That already saves a lot of time and energy and it makes eating clean much easier. After eating this way for some time, what changes did you notice?'],
-                                    ['speaker' => 'Lisa', 'text' => 'I had more energy, better digestion, clearer skin, and I felt more connected to my body and my needs.'],
-                                    ['speaker' => 'Jessica', 'text' => "That's beautiful."],
-                                    ['speaker' => 'Lisa', 'text' => 'And mentally, I felt proud because I was taking care of myself.'],
-                                    ['speaker' => 'Jessica', 'text' => 'That feeling matters more than numbers on a scale.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Absolutely.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Before we end, what advice would you give to someone who wants to start eating clean?'],
-                                    ['speaker' => 'Lisa', 'text' => "Start small, be patient, and don't try to be perfect. Focus on how food makes you feel, not just what it looks like."],
-                                    ['speaker' => 'Jessica', 'text' => "That's perfect advice. Thank you so much, Lisa, for this honest and calm conversation. And thank you to everyone listening. Remember, eating clean is about simple food, balance, and listening to your body. Take care and I'll see you next time."],
+                                    ['speaker' => 'Oli', 'text' => "Hi, I'm Oli. Welcome to Oxford Online English! In this lesson, you can learn how to talk about food. You'll see how to talk about different cuisines, talk about food you like – or dislike – and talk about cooking and eating habits."],
+                                    ['speaker' => 'Marie', 'text' => 'What kind of food do you like?'],
+                                    ['speaker' => 'Oli', 'text' => "I like a bit of everything, really. I grew up in the UK, and you can get food from all over the world there. My mum's cooking is a combination of different cuisines: a bit of French, a bit of Italian, a bit of Indian, and so on."],
+                                    ['speaker' => 'Marie', 'text' => "What's British cuisine like? I know about fish and chips, but there must be more…"],
+                                    ['speaker' => 'Oli', 'text' => "There is, but not that much. There are a few famous dishes like shepherd's pie or Sunday roast, but most people eat a mix of things. What about you? What food do you like?"],
+                                    ['speaker' => 'Marie', 'text' => "I'm half Spanish, so when I was young we ate a lot of Mediterranean food at home. Now, I live in Berlin, and it's a pretty cosmopolitan place, so you can get all kinds of food, like the UK, I suppose."],
+                                    ['speaker' => 'Oli', 'text' => "I've never really had much Spanish food. Is it similar to Italian?"],
+                                    ['speaker' => 'Marie', 'text' => "In some ways, yes. They both use a lot of fresh ingredients, and there's a lot of seafood, salads, and so on. Pasta isn't so common in Spanish cooking, though."],
+                                    ['speaker' => 'Oli', 'text' => "What are some typical Spanish dishes? I'd be interested to try some."],
+                                    ['speaker' => 'Marie', 'text' => "I guess paella is quite well-known. My personal favourite is a dish called albondigas, which is meatballs in a tomato sauce. It's simple, but so tasty."],
+                                    ['speaker' => 'Oli', 'text' => 'Sounds good!'],
+                                    ['speaker' => 'Marie', 'text' => "Here's a question: do you know the difference between the words 'cuisine', 'dish' and 'meal'? 'Cuisine' means the kind of food you find in a specific country or culture. For example, you have Chinese cuisine, French cuisine, local cuisine, and so on. 'Cuisine' means something like 'cooking style'. You can use the word 'food' or 'cooking' in the same way. So, you can say 'Chinese cuisine', 'Chinese cooking' or 'Chinese food'. The meaning is very close."],
+                                    ['speaker' => 'Oli', 'text' => "A 'dish' means something which is cooked or prepared. Usually, a dish is made from different kinds of food. A 'meal' is food eaten at a specific time. Most people eat three meals a day: breakfast, lunch and dinner. We often hear English learners make mistakes with these three words, so be careful with them!"],
+                                    ['speaker' => 'Marie', 'text' => "Next, let's look at how to talk about food you like – or don't!"],
+                                    ['speaker' => 'Oli', 'text' => 'So, what do you think?'],
+                                    ['speaker' => 'Marie', 'text' => 'Oh no! This is terrible!'],
+                                    ['speaker' => 'Oli', 'text' => 'Really?'],
+                                    ['speaker' => 'Marie', 'text' => "First, you haven't cooked the meat long enough. It's tough and really chewy. You need to keep cooking it until it's tender."],
+                                    ['speaker' => 'Oli', 'text' => 'I cooked it for two hours, just like you said!'],
+                                    ['speaker' => 'Marie', 'text' => "Yes, but you also have to check that it's done! Also, these vegetables are awful. They're mushy because you've overcooked them. They should be fresh and crunchy."],
+                                    ['speaker' => 'Oli', 'text' => 'Right… What about the sauce?'],
+                                    ['speaker' => 'Marie', 'text' => "It's not bad, but it's a little bland. A dish like this should be rich, spicy and a little sour. While you're cooking, don't forget to taste it, and add more spices, or more vinegar, or whatever it needs. Hmm… OK…"],
+                                    ['speaker' => 'Oli', 'text' => "I'm a little scared to show you my dessert, now."],
+                                    ['speaker' => 'Marie', 'text' => 'Ahh, wow! This is amazing!'],
+                                    ['speaker' => 'Oli', 'text' => 'Oh? You mean it?'],
+                                    ['speaker' => 'Marie', 'text' => "Yes! It's a perfect tart. It's crumbly, but not dry, which is a difficult balance to get right. The fruit gives it a nice, tangy flavour. Very tasty!"],
+                                    ['speaker' => 'Oli', 'text' => "Thank you! Next, let's see how you can talk about cooking habits."],
+                                    ['speaker' => 'Marie', 'text' => 'Do you cook much?'],
+                                    ['speaker' => 'Oli', 'text' => "Sometimes. I cook maybe twice a week, but I'm too busy to do more than that."],
+                                    ['speaker' => 'Marie', 'text' => 'What do you do the rest of the time?'],
+                                    ['speaker' => 'Oli', 'text' => "For lunch, I eat in the canteen at work. In the evening, I generally get something from the supermarket, or get a takeaway. I don't like it, because I know it's more expensive and less healthy than cooking for myself, but I just don't have the time. What about you?"],
+                                    ['speaker' => 'Marie', 'text' => "I make most of my meals. I don't cook every day, though. I normally do a lot of cooking on Sunday, and then I have food for the week. I take a packed lunch to work, and then eat leftovers in the evening."],
+                                    ['speaker' => 'Oli', 'text' => "That's a good system! I wish I could be so organised…"],
+                                    ['speaker' => 'Marie', 'text' => "It helps that I have a market very close to my house. They have great fresh produce, fish, meat… everything you need. That means I don't need to spend much time shopping. Plus, I prefer eating home-cooked, fresh food. If I don't have food with me, I end up eating greasy fast food, and then I feel bloated and gross."],
+                                    ['speaker' => 'Oli', 'text' => "Yeah, I'm the same way… Maybe I'll start cooking more."],
+                                    ['speaker' => 'Marie', 'text' => "Think about the first question you heard in the dialogue: 'Do you cook much?' How would you answer this? You could say something like: 'I cook every day.' 'I don't cook much – maybe once or twice a week.' 'I don't cook. I've never learned how!' If you don't cook, what can you do for food? You heard some phrases in the dialogue. Do you remember?"],
+                                    ['speaker' => 'Oli', 'text' => "Look at some sentences that you heard. Imagine you're an English teacher, and you want to explain the meanings of the words in red."],
+                                    ['speaker' => 'Marie', 'text' => 'How would you do it?'],
+                                    ['speaker' => 'Oli', 'text' => "A canteen is a bit like a restaurant, but it's run by a company for its staff, or by a university for its students. Canteens are usually cheap, or the food might even be free."],
+                                    ['speaker' => 'Marie', 'text' => 'A takeaway means you buy or order the food from a restaurant, and then eat it somewhere else, usually at home.'],
+                                    ['speaker' => 'Oli', 'text' => 'A packed lunch means you take food from home and eat it at work or school.'],
+                                    ['speaker' => 'Marie', 'text' => "If you cook more than you can eat, the extra food is called 'leftovers'. You can eat the leftovers on another day. What about you? Do you cook much? If not, what do you do for food?"],
                                 ],
-                                // Chosen to overlap with vocabulary_builder's own story_words
-                                // (skip breakfast, eat out, craving, processed food, snack) —
-                                // all 5 appear as real substrings in this transcript (the last 3
-                                // exactly, the first 2 as natural tense/gerund variants), so this
-                                // mission reaches full vocab/listening overlap where M03 could
-                                // only get 3/5 (its vocab list wasn't drawn from its own
-                                // transcript). "start small, be patient" and "listening to your
-                                // body" — the previous non-overlapping picks — stay in this
-                                // step's shadow_lines below, so they're not lost, just no longer
-                                // the gap-fill targets. See feedback_content_authoring_conventions
-                                // rule 5 (memory).
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
                                 'target_phrases' => [
                                     [
-                                        'phrase' => 'skipped breakfast', 'meaning' => 'did not eat breakfast, when usually would',
-                                        'gap_before' => 'Yes, eggs made a big difference for me. Before, I often ',
-                                        'gap_after' => ' or just had coffee',
+                                        'phrase' => 'a bit of', 'meaning' => 'a small amount of',
+                                        'gap_before' => 'I like ',
+                                        'gap_after' => ' everything, really.',
                                     ],
                                     [
-                                        'phrase' => 'eating out', 'meaning' => 'eating a meal at a restaurant instead of at home',
-                                        'gap_before' => "Let's talk about ",
-                                        'gap_after' => ' because food is social.',
+                                        'phrase' => 'cuisine', 'meaning' => 'style of cooking of a country',
+                                        'gap_before' => "What's British ",
+                                        'gap_after' => ' like?',
                                     ],
                                     [
-                                        'phrase' => 'craving', 'meaning' => 'having a strong desire to eat something',
-                                        'gap_before' => 'Especially in the afternoon when my energy drops and I start ',
-                                        'gap_after' => ' something sweet or crunchy.',
+                                        'phrase' => 'dish', 'meaning' => 'one kind of cooked food',
+                                        'gap_before' => 'My personal favourite is a ',
+                                        'gap_after' => ' called albondigas, which is meatballs in a tomato sauce.',
                                     ],
                                     [
-                                        'phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before being sold',
-                                        'gap_before' => 'Now ',
-                                        'gap_after' => " is something I still eat sometimes but it's no longer part of my daily routine",
+                                        'phrase' => 'bland', 'meaning' => 'with little or no flavour',
+                                        'gap_before' => "It's not bad, but it's a little ",
+                                        'gap_after' => '.',
                                     ],
                                     [
-                                        'phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals',
-                                        'gap_before' => 'Exactly. So now I still ',
-                                        'gap_after' => ', but I choose things that actually help my body',
+                                        'phrase' => 'packed lunch', 'meaning' => 'food you take from home to eat at work',
+                                        'gap_before' => 'I take a ',
+                                        'gap_after' => ' to work, and then eat leftovers in the evening.',
                                     ],
                                 ],
-                                'topic_summary' => 'Jessica and Lisa talk honestly about "eating clean" — what Lisa '
-                                    .'eats for breakfast, how she still snacks but chooses better options, how '
-                                    .'processed food has become a choice rather than a habit, why she doesn\'t '
-                                    .'stress about eating out, what changed once she started, and her advice to '
-                                    .'start small and be patient rather than trying to be perfect.',
+                                'topic_summary' => 'Oli and Marie, two English teachers, talk about food: the cuisines they '
+                                    .'grew up with (British and Spanish) and their favourite dishes; the difference between '
+                                    .'"cuisine", "dish" and "meal"; a short scene where Marie tastes a meal Oli cooked '
+                                    .'(tough meat, mushy vegetables, a bland sauce, but a perfect tart); and their cooking '
+                                    .'habits — Oli cooks about twice a week and eats in the canteen or gets a takeaway, while '
+                                    .'Marie cooks a lot on Sunday, takes a packed lunch and eats leftovers. Then they explain '
+                                    .'canteen, takeaway, packed lunch and leftovers.',
                                 'comprehension_check' => [
-                                    ['statement' => 'Jessica and Lisa talk about eating clean.', 'correct' => true, 'difficulty' => 'easy'],
-                                    ['statement' => 'Lisa says she never eats processed food any more.', 'correct' => false, 'difficulty' => 'medium'],
-                                    ['statement' => 'Lisa still eats snacks, but chooses healthier ones.', 'correct' => true, 'difficulty' => 'hard'],
+                                    ['statement' => 'Oli and Marie talk about food, cooking and eating habits.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Marie says the meat Oli cooked was soft and tender.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Marie does a lot of cooking on Sunday, so she has food for the week.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 'detail_question' => [
-                                    'question' => 'What does Lisa snack on now, instead of cookies or chips?',
-                                    'options' => ['Cake and ice cream', 'Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Nothing — she stopped snacking completely'],
+                                    'question' => 'What does Oli usually eat for lunch?',
+                                    'options' => ['A packed lunch from home', 'Food from the canteen at work', 'A takeaway pizza'],
                                     'correct' => 1,
                                 ],
-                                // No shadow_lines here — Day 1 Listening is comprehension-only
-                                // (synced text + gap-fill); shadowing is Listen Again's job
-                                // (daily_listen_2/3, see DailyListenStep).
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
                             ],
                         ],
                     ],
@@ -1776,11 +1767,11 @@ class MissionSeeder extends Seeder
                                 'key' => 'daily_listen_2',
                                 'label' => 'Listen Again',
                                 'duration_minutes' => 7,
-                                'hook' => 'Same podcast, one more time — familiar is exactly the point.',
+                                'hook' => 'Same lesson, one more time — copy how Oli and Marie say "a lot of" and "much".',
                                 'image_query' => 'healthy breakfast bowl oatmeal',
                                 'shadow_lines' => [
-                                    '**That** **difference** is **huge**. It **becomes** a **choice** not a **habit**.',
-                                    '**No guilt**, **no punishment** the **next day**.',
+                                    'When I was **young** we ate **a lot of** **Mediterranean** food at **home**.',
+                                    "I've **never** **really** had **much** **Spanish** food.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'daily_listen_2'),
                             ],
@@ -1988,11 +1979,11 @@ class MissionSeeder extends Seeder
                                 'key' => 'daily_listen_3',
                                 'label' => 'Listen Again',
                                 'duration_minutes' => 7,
-                                'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
+                                'hook' => 'Last listen — notice the little words before the nouns: a bit of, a little, much.',
                                 'image_query' => 'fresh food kitchen preparation',
                                 'shadow_lines' => [
-                                    '**That** **already** **saves** a **lot** of **time** and **energy**.',
-                                    '**That** **feeling** **matters** **more** than **numbers** on a **scale**.',
+                                    "It's **not bad**, but it's **a little** **bland**.",
+                                    "That **means** I **don't** need to spend **much** **time** **shopping**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'daily_listen_3'),
                             ],
@@ -2023,9 +2014,9 @@ class MissionSeeder extends Seeder
                                 'passage_title' => 'Meet Marco',
                                 'image_query' => 'young man portrait smiling kitchen',
                                 // Written fresh for this app (see EOS-009 §14) — reuses several
-                                // Vocabulary Builder pool words/phrases (skips breakfast,
-                                // home-cooked, fresh, sweet tooth, cut down on, processed
-                                // food, junk food) so whichever words a learner picked there,
+                                // Vocabulary Builder pool words/phrases (skips breakfast from
+                                // M01, home-cooked, fresh, sweet tooth, cut down on, junk
+                                // food) so whichever words a learner picked there,
                                 // they meet again here in a fresh context, third person
                                 // instead of first.
                                 'passage' => 'Marco works long hours as a nurse in Rome, so his eating habits change '
@@ -2046,7 +2037,7 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'fresh', 'type' => 'reused'],
                                     ['phrase' => 'sweet tooth', 'type' => 'reused'],
                                     ['phrase' => 'cut down on', 'type' => 'reused'],
-                                    ['phrase' => 'processed food', 'type' => 'reused'],
+                                    ['phrase' => 'processed food', 'type' => 'new', 'definition' => 'food that has been changed a lot in a factory before it is sold', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food.'],
                                     ['phrase' => 'junk food', 'type' => 'reused'],
                                     ['phrase' => 'vending machine', 'type' => 'new', 'definition' => 'a machine that sells snacks or drinks when you put money in', 'pos' => 'noun phrase', 'example' => 'I bought a bottle of water from the vending machine.'],
                                     ['phrase' => 'sluggish', 'type' => 'new', 'definition' => 'slow-moving and lacking energy', 'pos' => 'adjective', 'example' => 'I always feel sluggish after eating too much.'],
@@ -2178,7 +2169,7 @@ class MissionSeeder extends Seeder
 
     /**
      * Seeds M03 with its real content from document/M03/ (M03.pdf, the
-     * "How to Talk About Your Work" B1 podcast, and the Easy English
+     * Oxford Online English "Talking About Your Job" lesson, and the Easy English
      * "Jobs and Work" street interviews). Matches M02's full
      * 4-phase/~18-step template exactly, per the standing rule that every
      * mission does — NOT M03.pdf's own compact 3-day plan, which only
@@ -2189,7 +2180,7 @@ class MissionSeeder extends Seeder
      */
     private function seedM03(): void
     {
-        $audioUrl = $this->publishMissionAsset('M03', 'How to Talk About Your Work - English Listening and Speaking Practice.mp3');
+        $audioUrl = $this->publishMissionAsset('M03', 'Oxford Online English - Talking About Your Job.mp3');
         $shadowingVideoUrl = $this->publishMissionAsset('M03', 'Easy English - Jobs and Work.mp4');
         $shadowingCaptionsUrl = $this->publishMissionAsset('M03', 'Easy English - Jobs and Work.en.vtt');
 
@@ -2223,126 +2214,96 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'vocabulary_builder_1',
                                 'label' => 'New Words',
-                                'duration_minutes' => 7,
-                                'hook' => 'Next time someone asks about your job or studies, will these words be ready — or will you just say "it\'s complicated"?',
-                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
-                                // for the full rationale. Day 1 = the real Listening episode's own
-                                // target_phrases that actually overlap with this mission's vocab
-                                // pool — only 3 of the episode's 5 do ("deadline" and "work life
-                                // balance" were never part of the story_words pool; a prior content
-                                // audit found 3/5 was the real ceiling here, not a gap to fix now).
-                                'story' => "I've had a few different **jobs**, and I always try to be a good "
-                                    .'member of the **team**. Part of my job is learning to **deal with** '
-                                    .'difficult situations calmly.',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases that turn "I\'m a nurse" into a real answer about your work.',
+                                // Day 1 = the Listening lesson's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'My aunt is **self-employed** — she **runs her own business**, a small '
+                                    .'bakery. It\'s **challenging** work, but she loves it. Last year my cousin was '
+                                    .'**between jobs**, so he helped her and **looked after** the shop on Saturdays.',
                                 'words' => [
-                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'meaning_fa' => 'شغل، کار', 'pos' => 'noun', 'example' => 'She found a new job last month.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'meaning_fa' => 'تیم، گروه', 'pos' => 'noun', 'synonym' => 'group', 'example' => 'Our team meets every Monday morning.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'meaning_fa' => 'از پس کاری برآمدن، رسیدگی کردن به', 'pos' => 'phrasal verb', 'synonym' => 'handle', 'example' => 'I have to deal with a difficult client today.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'run your own business', 'meaning' => 'to own a company and be the person in charge of it', 'meaning_fa' => 'کسب‌وکار خود را داشتن و اداره کردن', 'pos' => 'verb phrase', 'example' => 'She runs her own business from home.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'self-employed', 'meaning' => 'working for yourself, not for a company or a boss', 'meaning_fa' => 'خویش‌فرما، دارای کار آزاد', 'pos' => 'adjective', 'synonym' => 'freelance', 'example' => "My dad is self-employed — he's a plumber.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'between jobs', 'meaning' => 'not working right now, after leaving one job and before finding the next', 'meaning_fa' => 'بین دو کار، (فعلاً) بی‌کار', 'pos' => 'phrase', 'synonym' => 'a polite way to say: unemployed', 'example' => "I'm between jobs at the moment, so I have more free time.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'look after', 'meaning' => 'to take care of someone or something', 'meaning_fa' => 'مراقبت کردن از، رسیدگی کردن به', 'pos' => 'phrasal verb', 'synonym' => 'take care of', 'example' => 'Nurses have to look after a lot of patients.', 'image_query' => 'nurse caring for patient hospital', 'difficulty' => 'easy'],
+                                    ['phrase' => 'challenging', 'meaning' => 'difficult, but in an interesting way that makes you think and learn', 'meaning_fa' => 'چالش‌برانگیز (سخت ولی جذاب)', 'pos' => 'adjective', 'synonym' => 'opposite: easy, boring', 'example' => 'Teaching is challenging, but I love it.', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'duration_minutes' => 18,
-                                'hook' => 'Lisa and Emily, old university friends, run into each other and catch up about work — how much can you catch?',
-                                'source' => 'B1 Podcast — "How to Talk About Your Work: English Listening and Speaking Practice"',
-                                'image_query' => 'two friends talking cafe',
+                                'hook' => 'Mike shows how people really describe their work — listen for what comes after "I have to".',
+                                'source' => 'Oxford Online English — "Talking About Your Job in English"',
+                                'image_query' => 'pharmacist working pharmacy',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M03', 'listening_segments'),
-                                // The same chunks split at every change of speaker and tagged with who is
-                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker here.
                                 'listening_turns' => $this->shadowTimestampsFor('M03', 'listening_turns'),
-                                'transcript_ref' => 'document/M03/How to Talk About Your Work - English Listening and Speaking Practice.transcript.pdf',
-                                // Full real transcript, reconstructed from the podcast's own
-                                // captions — narration bookends the dialogue (intro, vocabulary
-                                // recap, outro), Lisa/Emily have the actual conversation in the
-                                // middle. Shown in-app only after the learner has genuinely
-                                // listened twice (see ⚡listening.blade.php), same gate as
-                                // every other mission.
+                                // The lesson's own human captions for the five parts kept in the cut
+                                // (0:02-1:54, 3:08-4:09, 4:23-5:49, 8:14-9:53, 10:13-10:24 of the
+                                // original; parts 2 and 4 dropped), checked against a Whisper pass of
+                                // the cut audio. On-screen blanks are written as "…".
                                 'transcript' => [
-                                    ['speaker' => 'Narrator', 'text' => "Today's episode is called Talking About Your Job. We'll listen to Lisa and her old university friend Emily who meet again at a cafe after a long time. They talk about their current jobs, what they do every day, and how they feel about work."],
-                                    ['speaker' => 'Lisa', 'text' => "Wow, it's so good to see you. I didn't expect to run into you here."],
-                                    ['speaker' => 'Emily', 'text' => 'What a surprise. I was just grabbing a coffee before heading back to the office. How have you been?'],
-                                    ['speaker' => 'Lisa', 'text' => 'Pretty good, thanks. Just busy with work. You know how it is. Are you still in marketing?'],
-                                    ['speaker' => 'Emily', 'text' => "Yes, I am. I've been working as a marketing assistant at a tech company for almost 2 years now."],
-                                    ['speaker' => 'Lisa', 'text' => 'Nice. What exactly do you do there?'],
-                                    ['speaker' => 'Emily', 'text' => 'Well, I help manage our social media accounts, write content for the website, and support the team during product launches. Sometimes I even work on creating short videos for our campaigns.'],
-                                    ['speaker' => 'Lisa', 'text' => 'That sounds creative. Do you like it?'],
-                                    ['speaker' => 'Emily', 'text' => "Most of the time, yes. The team is great and I get to learn new things every day, but it can get stressful, especially when we're close to a deadline or launching a new product."],
-                                    ['speaker' => 'Lisa', 'text' => 'I totally get that. I work in customer service for an online clothing store. I deal with customer emails and help people track their orders or solve delivery problems.'],
-                                    ['speaker' => 'Emily', 'text' => 'Wow, that must be intense. Do you do that in the office?'],
-                                    ['speaker' => 'Lisa', 'text' => "Not always. It's a hybrid role, so I work from home 3 days a week and go to the office twice a week. I actually like the flexibility. It saves time and helps with work life balance."],
-                                    ['speaker' => 'Emily', 'text' => "I wish I had that. I work from the office most days, although we're allowed to work remotely once a week. If I had to go in every day, I'd probably spend half my time stuck in traffic."],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. Sometimes I listen to podcasts on the way. Actually, this one called Five Minute English is great.'],
-                                    ['speaker' => 'Emily', 'text' => "No way. I've heard of it, too. Maybe we should start one about our work lives."],
-                                    ['speaker' => 'Narrator', 'text' => "Great job listening. Now, let's take a moment to go over some useful words and expressions from the conversation."],
-                                    ['speaker' => 'Narrator', 'text' => 'One, marketing assistant. This is someone who works with the marketing team. They help with different tasks like writing, posting on social media, or helping with events and promotions.'],
-                                    ['speaker' => 'Narrator', 'text' => "Two, product launch. When a company is ready to show and sell a new product to the public, that's called a product launch. It's often a big event or campaign."],
-                                    ['speaker' => 'Narrator', 'text' => 'Three, hybrid role. This kind of job lets you work in two places, partly from home and partly at the office. It gives people more flexibility during the week.'],
-                                    ['speaker' => 'Narrator', 'text' => "Four, work life balance. This means having a healthy mix between your work and your personal time. When you have good work life balance, you're not too stressed and still have time to relax or be with your family and friends."],
-                                    ['speaker' => 'Narrator', 'text' => 'Five, deadline. A deadline is the latest time or date when something must be done. When people say they have a deadline, it means they need to finish their work by that time.'],
-                                    ['speaker' => 'Narrator', 'text' => "Six, customer service. This is a type of job where you help people who have questions or problems with a product or service. It's about making sure customers are happy and supported."],
-                                    ['speaker' => 'Narrator', 'text' => "Seven, content. Content is anything you create and share online, like writing, photos, or videos. It's often used for websites, blogs, or social media."],
-                                    ['speaker' => 'Narrator', 'text' => 'Eight, campaign. A campaign is a set of planned actions to promote or advertise something. It often includes emails, social media posts, videos, and more.'],
-                                    ['speaker' => 'Narrator', 'text' => "Nine, intense. When something is intense, it feels strong or difficult. A job or day can be intense if there's a lot to do or if it's stressful or fast-paced."],
-                                    ['speaker' => 'Narrator', 'text' => "That's it for today's episode of the Five Minute English Podcast. Want more daily English practice? Subscribe for more beginner lessons every week. See you next time. And remember, practice a little every day."],
+                                    ['speaker' => 'Mike', 'text' => "Hi, I'm Mike and welcome to Oxford Online English! In this lesson, you can learn how to talk about your job in English. Where do you work? What do you have to do in your job? What kind of company do you work for? In this class, you can learn how to answer questions like this in clear, detailed English. Ready? Let's start!"],
+                                    ['speaker' => 'Mike', 'text' => 'Part one: introducing your job. "I\'m a…", "I work in…", "I work for…". How would you complete these sentences? You could say something like: "I\'m a writer. I work in online education. I work for a publishing company." \'I work in\' is used with a field, meaning a type of work. So, you can say things like: "I work in finance." "I work in digital marketing." You can also use \'work in\' with a place or a department of a company. For example: "I work in the HR department of a financial firm."'],
+                                    ['speaker' => 'Mike', 'text' => '"I work in a school, teaching modern languages." Confused? You can see that if you use \'work in\' to talk about the type of work you do, you don\'t use an article like \'a\' or \'the\'. If you use an article \'a\' or \'the\' after \'work in\', it means you\'re talking about the place or department where you work. \'I work for\' is used with a company. So, you could say: "I\'m a salesman. I work for a mobile phone company." "I work for a law firm based in Frankfurt."'],
+                                    ['speaker' => 'Mike', 'text' => 'Or even: "I run my own business, so I work for myself." What if you don\'t work for a company? Here are some things you could say: "I\'m a freelancer." Meaning: I work independently, for different people and companies. "I\'m self-employed." Meaning: I work for myself, either freelance or I have my own business. "I\'m a business owner." If you don\'t work, and people ask you what you do, what can you say? Here are some useful phrases: "I\'m between jobs at the moment." Meaning: I\'ve left one job, and haven\'t found another yet.'],
+                                    ['speaker' => 'Mike', 'text' => 'This sounds nicer than saying, "I\'m unemployed." "I\'m taking some time out to travel, spend time with my kids, write a book, recover from an illness, etc." Meaning: I\'m not working at the moment because I want to focus on something else. "I\'m retired."'],
+                                    ['speaker' => 'Mike', 'text' => 'Part three: how to describe your job in more detail. So what do you actually do all day? Let\'s see how you can describe your job in more detail. Look at these sentences: "I have to…", "I\'m responsible for…", "Most of my time is spent…". Let\'s do some examples together. We\'ll start with a simple example. "I\'m a nurse. I have to look after patients, give them medicine and make sure they\'re comfortable. I\'m responsible for about 20 to 30 patients.'],
+                                    ['speaker' => 'Mike', 'text' => 'Most of my time is spent talking to patients and checking that everything is okay." Next, let\'s do a more detailed example. "I have to design websites to the client\'s specifications. I\'m responsible for the whole design process, so I have to take the client\'s ideas and turn them into a finished product. Most of my time is spent experimenting with different designs and ideas and seeing what looks good, because attention to detail is important in this kind of work." Can you say something like this about your job and what you do?'],
+                                    ['speaker' => 'Mike', 'text' => 'Try to add details if you can.'],
+                                    ['speaker' => 'Mike', 'text' => 'Part five: how to make a longer answer. At this point, you should be able to introduce your work, say where you work, give details about what you do and say how you feel about your work. Let\'s make some longer sample answers together. First one: "I\'m a pharmacist. I started my own small pharmacy, so I\'m also a business owner. I have to work as a pharmacist, of course, giving advice to patients and making sure they have the right medicine.'],
+                                    ['speaker' => 'Mike', 'text' => 'However, I\'m also responsible for the pharmacy, so I have to manage my staff, do the accounts, and so on. It\'s stimulating work because I have to do many different things every day, so I never get bored." Clear? Could you make an answer like this? Let\'s do one more: "I\'m a writer. I work in online education. I work for a big publishing company, which produces different educational materials that are used all around the world. I have to write lesson plans and materials for teachers to use in the classroom.'],
+                                    ['speaker' => 'Mike', 'text' => 'I spend most of my time thinking about how I can make different things fit together into a lesson. It\'s very challenging work and it can be exhausting, but it\'s also very creative and satisfying, because I know people all around the world are using lessons which I wrote." That\'s the end of the lesson. I hope you learned some new ways to talk about your job and what you do. Thanks very much for watching. See you next time!'],
                                 ],
-                                // Chosen to overlap with vocabulary_builder's own story_words
-                                // (job, team, deal with) wherever the real transcript actually
-                                // allows it — only 3 of these 5 vocab words appear naturally in
-                                // this specific podcast's dialogue, the other vocab words
-                                // (career, full-time, part-time, workplace, colleague,
-                                // responsibility, in charge of, working hours, overtime, salary)
-                                // never come up in this particular conversation, so the
-                                // remaining 2 slots stay non-overlapping (deadline, work life
-                                // balance) rather than force a phrase the transcript never says.
-                                // See feedback_content_authoring_conventions (memory).
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (run my own business as Mike says it).
                                 'target_phrases' => [
                                     [
-                                        'phrase' => 'jobs', 'meaning' => 'the work someone does regularly to earn money',
-                                        'gap_before' => 'They talk about their current ',
-                                        'gap_after' => ', what they do every day, and how they feel about work.',
+                                        'phrase' => 'run my own business', 'meaning' => 'own and manage a company yourself',
+                                        'gap_before' => 'Or even: "I ',
+                                        'gap_after' => ', so I work for myself."',
                                     ],
                                     [
-                                        'phrase' => 'team', 'meaning' => 'a group of people working together on the same goal',
-                                        'gap_before' => 'write content for the website, and support the ',
-                                        'gap_after' => ' during product launches.',
+                                        'phrase' => 'self-employed', 'meaning' => 'working for yourself, not for a company',
+                                        'gap_before' => '"I\'m ',
+                                        'gap_after' => '." Meaning: I work for myself, either freelance or I have my own business.',
                                     ],
                                     [
-                                        'phrase' => 'deal with', 'meaning' => 'to handle a task or problem',
-                                        'gap_before' => 'for an online clothing store. I ',
-                                        'gap_after' => ' customer emails and help people track their orders or solve delivery problems.',
+                                        'phrase' => 'between jobs', 'meaning' => 'not working now, between one job and the next',
+                                        'gap_before' => 'Here are some useful phrases: "I\'m ',
+                                        'gap_after' => ' at the moment."',
                                     ],
                                     [
-                                        'phrase' => 'deadline', 'meaning' => 'the latest time or date when something must be done',
-                                        'gap_before' => "it can get stressful, especially when we're close to a ",
-                                        'gap_after' => ' or launching a new product.',
+                                        'phrase' => 'look after', 'meaning' => 'take care of',
+                                        'gap_before' => '"I\'m a nurse. I have to ',
+                                        'gap_after' => " patients, give them medicine and make sure they're comfortable.",
                                     ],
                                     [
-                                        'phrase' => 'work life balance', 'meaning' => 'a healthy mix between your work and your personal time',
-                                        'gap_before' => 'It saves time and helps with ',
-                                        'gap_after' => '.',
+                                        'phrase' => 'challenging', 'meaning' => 'difficult in an interesting way',
+                                        'gap_before' => "It's very ",
+                                        'gap_after' => ' work and it can be exhausting, but it\'s also very creative and satisfying, because I know people all around the world are using lessons which I wrote."',
                                     ],
                                 ],
-                                'topic_summary' => 'Lisa and Emily, old university friends, meet by chance at a cafe and '
-                                    .'catch up about their jobs — Emily works as a marketing assistant at a tech '
-                                    .'company (social media, content, product launches), while Lisa works in '
-                                    .'customer service for an online clothing store with a hybrid schedule (home '
-                                    .'3 days, office 2). They talk about stress, deadlines, work-life balance, and '
-                                    .'commuting, and both listen to the same podcast on the way to work.',
+                                'topic_summary' => 'Mike, an English teacher, shows how to talk about your job: "I work in" '
+                                    .'(a field or a department) versus "I work for" (a company); what to say if you are a '
+                                    .'freelancer, self-employed, between jobs or retired; how to describe your duties with '
+                                    .'"I have to…", "I\'m responsible for…" and "Most of my time is spent…" (a nurse and a '
+                                    .'web designer); and two longer model answers from a pharmacist and a writer.',
                                 'comprehension_check' => [
-                                    ['statement' => 'Emily works as a marketing assistant.', 'correct' => true, 'difficulty' => 'easy'],
-                                    ['statement' => 'Lisa works in the office every day.', 'correct' => false, 'difficulty' => 'medium'],
-                                    ['statement' => 'Both Lisa and Emily listen to the Five Minute English podcast.', 'correct' => true, 'difficulty' => 'hard'],
+                                    ['statement' => 'The lesson is about how to talk about your job.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Mike says "I\'m unemployed" sounds nicer than "I\'m between jobs".', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'The pharmacist never gets bored because there are many different things to do every day.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 'detail_question' => [
-                                    'question' => 'How many days a week does Lisa work from home?',
-                                    'options' => ['5 days', '3 days', '0 days'],
+                                    'question' => 'In the nurse example, how many patients is the nurse responsible for?',
+                                    'options' => ['About 5', 'About 20 to 30', 'About 100'],
                                     'correct' => 1,
                                 ],
-                                // No shadow_lines here — Day 1 Listening is comprehension-only
-                                // (synced text + gap-fill); shadowing is Listen Again's job
-                                // (daily_listen_2/3, see DailyListenStep).
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
                             ],
                         ],
                     ],
@@ -2371,11 +2332,11 @@ class MissionSeeder extends Seeder
                                 'key' => 'daily_listen_2',
                                 'label' => 'Listen Again',
                                 'duration_minutes' => 9,
-                                'hook' => 'Same podcast, one more time — familiar is exactly the point.',
+                                'hook' => 'Same lesson, one more time — copy how Mike says "have to": it sounds like "hafta".',
                                 'image_query' => 'people working office study',
                                 'shadow_lines' => [
-                                    '**I** **deal with** **customer** **emails** and **help people** **track** their **orders**.',
-                                    '**Sometimes** I **listen** to **podcasts** on the **way**.',
+                                    "I **have to** **look after** patients, give them **medicine** and make sure they're **comfortable**.",
+                                    'I **run** my **own** **business**, so I **work** for **myself**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'daily_listen_2'),
                             ],
@@ -2602,8 +2563,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'colleagues office coffee break',
                                 'shadow_lines' => [
-                                    '**Maybe** we **should** **start** **one** about our **work lives**.',
-                                    "**When** you **have** **good** **work life balance**, you're **not too stressed**.",
+                                    "I'm **also** **responsible** for the pharmacy, so I **have to** **manage** my **staff**.",
+                                    "It's **very** **challenging** work and it **can** be **exhausting**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'daily_listen_3'),
                             ],
@@ -2634,8 +2595,8 @@ class MissionSeeder extends Seeder
                                 'passage_title' => 'Meet Sara',
                                 'image_query' => 'young woman student portrait smiling',
                                 // Written fresh for this app (see EOS-009 §14) — reuses several
-                                // Vocabulary Builder pool words/phrases (team, responsibility,
-                                // deal with, part-time, working hours, in charge of) so
+                                // Vocabulary Builder pool words/phrases (responsibility,
+                                // part-time, working hours, in charge of) so
                                 // whichever words a learner picked there, they meet again here
                                 // in a fresh context, third person instead of first.
                                 'passage' => 'Sara is a second-year student at a university in Leeds. Her days '
@@ -2651,9 +2612,8 @@ class MissionSeeder extends Seeder
                                     .'at the end of her shift, which she says has taught her more about '
                                     .'responsibility than any lecture has.',
                                 'highlighted_phrases' => [
-                                    ['phrase' => 'team', 'type' => 'reused'],
                                     ['phrase' => 'responsibilities', 'type' => 'reused'],
-                                    ['phrase' => 'deal with', 'type' => 'reused'],
+                                    ['phrase' => 'deal with', 'type' => 'new', 'definition' => 'to handle a task or a problem', 'pos' => 'phrasal verb', 'example' => 'I have to deal with a lot of emails every morning.'],
                                     ['phrase' => 'part-time', 'type' => 'reused'],
                                     ['phrase' => 'working hours', 'type' => 'reused'],
                                     ['phrase' => 'in charge of', 'type' => 'reused'],
