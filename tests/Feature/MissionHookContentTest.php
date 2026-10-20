@@ -169,6 +169,33 @@ class MissionHookContentTest extends TestCase
         );
     }
 
+    public function test_every_m06_step_has_a_non_empty_hook(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $mission = Mission::where('code', 'M06')->firstOrFail();
+
+        foreach ($mission->stepKeys() as $key) {
+            $hook = $mission->stepContent($key)['hook'] ?? null;
+
+            $this->assertNotEmpty($hook, "Step \"{$key}\" is missing a hook.");
+        }
+    }
+
+    /**
+     * M06 teaches the Past Simple, so its picture story comes back: the
+     * same 17 steps as M01, story_sequence right after the grammar lesson.
+     */
+    public function test_m06_step_order_matches_m01s_plan_with_the_picture_story(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $this->assertSame(
+            Mission::where('code', 'M01')->firstOrFail()->stepKeys(),
+            Mission::where('code', 'M06')->firstOrFail()->stepKeys(),
+        );
+    }
+
     /**
      * Epic D: `word_order`'s `words` bank is authored already scrambled
      * (never reshuffled at render time — see <x-word-order-round>), so a
@@ -180,7 +207,7 @@ class MissionHookContentTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (['M01', 'M02', 'M03', 'M04', 'M05'] as $code) {
+        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06'] as $code) {
             $mission = Mission::where('code', $code)->firstOrFail();
             $cards = $mission->stepContent('grammar_in_context')['word_order'] ?? [];
 
@@ -210,7 +237,7 @@ class MissionHookContentTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (['M01', 'M02', 'M03', 'M04', 'M05'] as $code) {
+        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06'] as $code) {
             $mission = Mission::where('code', $code)->firstOrFail();
             $content = $mission->stepContent('ai_conversation_2');
 

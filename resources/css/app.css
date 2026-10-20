@@ -171,6 +171,23 @@
     --mood-texture-size: 28px 28px;
 }
 
+/* M06 "Learning English" — a chalkboard green (a classroom board, a
+   school notebook cover), paired with faint hollow rings like a page of
+   handwritten o's — rings, not filled dots, so it never reads as the
+   speckle of daily-life/nourish, and no lines, unlike focus/connection. */
+[data-mood='learn'] {
+    --color-accent: #2f8f5b;
+    --color-accent-dark: #5cc78a;
+    --color-accent-soft: #dcf1e4;
+    --color-accent-soft-dark: #173d27;
+    --color-accent-ink: #1f6340;
+    --color-accent-ink-dark: #a6e8bf;
+    --color-dawn: #79c99a;
+    --color-dusk: #24704a;
+    --mood-texture: radial-gradient(circle at 50% 50%, transparent 2.5px, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 2.5px 3.5px, transparent 3.5px);
+    --mood-texture-size: 26px 26px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

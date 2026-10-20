@@ -60,6 +60,8 @@ def discover(p):
     html = fetch(p['url'])
     out = {'mp3': None, 'pdf': None, 'mp4': None, 'page': p['url']}
     if p['src'] in ('lee', 'sme'):
+        # Older episode pages (no year in the address) still link their files over plain http.
+        html = html.replace('http://downloads.bbc.co.uk/', 'https://downloads.bbc.co.uk/')
         mp3s = re.findall(r'(https://downloads\.bbc\.co\.uk/[^"\s<>]+?\.mp3)', html)
         pdfs = re.findall(r'(https://downloads\.bbc\.co\.uk/[^"\s<>]+?\.pdf)', html)
         out['mp3'] = next(iter(mp3s), None)

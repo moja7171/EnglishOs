@@ -2786,6 +2786,7 @@ class MissionSeeder extends Seeder
         );
 
         $this->seedM05();
+        $this->seedM06();
     }
 
     /**
@@ -2799,7 +2800,9 @@ class MissionSeeder extends Seeder
      * you started, and one model answer) and Pensando Inglés' "My Favorite
      * Hobbies" vlog (about 6 minutes cut from 23: guitar, learning
      * languages, reading and martial arts, sponsor segment removed, the
-     * creator's burned-in captions blurred out).
+     * creator's burned-in captions blurred out). Vocabulary days 2-3 follow
+     * Vocabulary in Use units 41B (Leisure activities) and 68 (Likes,
+     * dislikes, attitudes and preferences), rewritten in our own sentences.
      */
     private function seedM05(): void
     {
@@ -2939,18 +2942,18 @@ class MissionSeeder extends Seeder
                                 'key' => 'vocabulary_builder_2',
                                 'label' => 'New Words',
                                 'duration_minutes' => 10,
-                                'hook' => 'The words for starting a hobby, loving it — or quietly giving it up.',
-                                'story' => 'Last spring my neighbour **took up** **gardening**, and now she is really '
-                                    .'**keen on** growing her own tomatoes. My dad prefers **DIY** — he built our '
-                                    .'bookshelves himself. I tried stamp **collecting** when I was a kid, but I '
-                                    .'**gave** it **up** after a few months.',
+                                'hook' => 'The words for what people really do at the weekend — and how much of it they do.',
+                                // Vocabulary in Use unit 41B (Leisure activities), our own sentences.
+                                'story' => 'Every summer my family **goes camping** by a lake. My brother **does a bit of** '
+                                    .'**rock climbing**, and my mum **works out** at the gym twice a week — she says it '
+                                    .'**keeps** her **fit**. I just swim **for fun**.',
                                 'words' => [
-                                    ['phrase' => 'take up', 'meaning' => 'to start doing a new hobby or activity', 'meaning_fa' => 'شروع کردن (یک سرگرمی تازه)', 'pos' => 'phrasal verb', 'example' => 'I took up running during the summer holidays.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'gardening', 'meaning' => 'growing flowers and vegetables as a hobby', 'meaning_fa' => 'باغبانی', 'pos' => 'noun', 'example' => 'Gardening helps my mum relax after work.', 'image_query' => 'gardening planting flowers', 'difficulty' => 'easy'],
-                                    ['phrase' => 'keen on', 'meaning' => 'very interested in something, liking it a lot', 'meaning_fa' => 'علاقه‌مند به، مشتاقِ', 'pos' => 'adjective phrase', 'synonym' => 'into', 'example' => "He's really keen on taking photos of birds.", 'difficulty' => 'hard'],
-                                    ['phrase' => 'DIY', 'meaning' => 'making or repairing things at home yourself ("do it yourself")', 'meaning_fa' => 'کارهای «خودت انجامش بده» (تعمیر و ساخت در خانه)', 'pos' => 'noun', 'example' => 'We painted the kitchen ourselves — I love DIY.', 'image_query' => 'diy woodworking tools home', 'difficulty' => 'medium'],
-                                    ['phrase' => 'collecting', 'meaning' => 'getting many things of one kind as a hobby (stamps, coins…)', 'meaning_fa' => 'جمع‌آوری کردن (کلکسیون)', 'pos' => 'noun', 'example' => 'Coin collecting is a quiet, cheap hobby.', 'image_query' => 'stamp collection album', 'difficulty' => 'easy'],
-                                    ['phrase' => 'give up', 'meaning' => 'to stop doing something you did regularly', 'meaning_fa' => 'کنار گذاشتن، ترک کردن', 'pos' => 'phrasal verb', 'synonym' => 'quit', 'example' => 'She gave up the piano when she started university.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'go camping', 'meaning' => 'to sleep in a tent for a holiday or a weekend', 'meaning_fa' => 'به کمپینگ رفتن، چادر زدن', 'pos' => 'verb phrase', 'example' => 'We often go camping in the mountains in summer.', 'image_query' => 'tent camping lake', 'difficulty' => 'easy'],
+                                    ['phrase' => 'rock climbing', 'meaning' => 'climbing up rocks or a climbing wall as a sport', 'meaning_fa' => 'صخره‌نوردی', 'pos' => 'noun', 'example' => "Rock climbing looks scary, but it's great fun.", 'image_query' => 'rock climbing outdoor', 'difficulty' => 'medium'],
+                                    ['phrase' => 'do a bit of', 'meaning' => 'to do some of an activity, but not a lot', 'meaning_fa' => 'کمی (کاری را) انجام دادن', 'pos' => 'phrase (+ noun or -ing)', 'synonym' => 'opposite: do a lot of', 'example' => 'I did a bit of sailing on holiday.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'work out', 'meaning' => 'to do exercise to make your body stronger', 'meaning_fa' => 'ورزش کردن (معمولاً در باشگاه)', 'pos' => 'phrasal verb', 'example' => 'She works out in the gym three times a week.', 'image_query' => 'woman working out gym', 'difficulty' => 'easy'],
+                                    ['phrase' => 'keep (someone) fit', 'meaning' => 'to help your body stay healthy and strong', 'meaning_fa' => '(کسی را) سرحال و تندرست نگه داشتن', 'pos' => 'verb phrase', 'example' => 'Jogging keeps my dad fit.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'for fun', 'meaning' => 'because you enjoy it, not for work or money', 'meaning_fa' => 'برای سرگرمی، برای تفریح', 'pos' => 'phrase', 'synonym' => 'for pleasure', 'example' => "I don't play to win — I just play for fun.", 'difficulty' => 'easy'],
                                 ],
                             ],
                             [
@@ -3194,18 +3197,19 @@ class MissionSeeder extends Seeder
                                 'key' => 'vocabulary_builder_3',
                                 'label' => 'New Words',
                                 'duration_minutes' => 10,
-                                'hook' => 'Last set — the words that make your hobby sound like part of your life.',
-                                'story' => 'In my **spare time** I am really **into** photography. Last month I '
-                                    .'**joined** a photography **club** that meets every Saturday. I am not very '
-                                    .'**good at** it yet, but it is my favourite **pastime** — it helps me '
-                                    .'**unwind** after a long week.',
+                                'hook' => 'Last set — ways to say how much you like something, beyond just "I like".',
+                                // Vocabulary in Use unit 68 (Likes, dislikes, attitudes and
+                                // preferences), our own sentences.
+                                'story' => "I'm really **into** board games, and I **quite like** chess too. I **don't mind** "
+                                    ."losing, but I **can't stand** waiting for slow players! My best friend and I **have a "
+                                    ."lot in common**, but she's **not** very **keen on** games.",
                                 'words' => [
-                                    ['phrase' => 'spare time', 'meaning' => 'time when you are not working or studying', 'meaning_fa' => 'وقت آزاد، اوقات فراغت', 'pos' => 'noun phrase', 'synonym' => 'free time', 'example' => 'What do you do in your spare time?', 'difficulty' => 'easy'],
-                                    ['phrase' => 'into', 'meaning' => '(informal) very interested in something', 'meaning_fa' => 'علاقه‌مند به (محاوره‌ای)', 'pos' => 'preposition (be into)', 'synonym' => 'keen on', 'example' => "I'm really into old films at the moment.", 'difficulty' => 'medium'],
-                                    ['phrase' => 'join a club', 'meaning' => 'to become a member of a group that meets to do an activity', 'meaning_fa' => 'عضو یک باشگاه یا گروه شدن', 'pos' => 'verb phrase', 'example' => 'I joined a book club to meet new people.', 'image_query' => 'book club meeting people', 'difficulty' => 'easy'],
-                                    ['phrase' => 'good at', 'meaning' => 'able to do something well', 'meaning_fa' => 'در کاری خوب بودن، مهارت داشتن', 'pos' => 'adjective phrase', 'synonym' => 'opposite: bad at', 'example' => "She's good at drawing people's faces.", 'difficulty' => 'easy'],
-                                    ['phrase' => 'pastime', 'meaning' => 'something you do for fun in your free time', 'meaning_fa' => 'سرگرمی، مشغولیت اوقات فراغت', 'pos' => 'noun', 'synonym' => 'hobby', 'example' => 'Fishing is a popular pastime in my town.', 'image_query' => 'man fishing lake', 'difficulty' => 'medium'],
-                                    ['phrase' => 'unwind', 'meaning' => 'to relax after work or after something stressful', 'meaning_fa' => 'آرام گرفتن، از فشار کار رها شدن', 'pos' => 'verb', 'synonym' => 'relax', 'example' => 'Reading in bed helps me unwind.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'into', 'meaning' => '(informal) liking something very much', 'meaning_fa' => 'خیلی علاقه‌مند به (محاوره‌ای)', 'pos' => 'preposition (be into)', 'example' => "I'm really into dance music at the moment.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'quite like', 'meaning' => 'to like something a little, but not very much', 'meaning_fa' => 'تا حدی دوست داشتن', 'pos' => 'verb phrase', 'example' => 'I quite like jazz, but I prefer rock.', 'difficulty' => 'easy'],
+                                    ['phrase' => "don't mind", 'meaning' => "to be OK with something; it doesn't bother you", 'meaning_fa' => 'برایم فرقی نمی‌کند، مشکلی ندارم با', 'pos' => 'verb phrase (+ -ing)', 'example' => "I don't mind getting up early.", 'difficulty' => 'medium'],
+                                    ['phrase' => "can't stand", 'meaning' => '(informal) to dislike something very much', 'meaning_fa' => 'اصلاً تحمل نکردن، بیزار بودن از', 'pos' => 'verb phrase (+ -ing)', 'synonym' => 'hate', 'example' => "I can't stand waiting in queues.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'keen on', 'meaning' => 'liking something or interested in it (often "not very keen on")', 'meaning_fa' => 'علاقه‌مند به (بیشتر به شکل منفی: not very keen on)', 'pos' => 'adjective phrase', 'synonym' => 'into', 'example' => "I'm not very keen on folk music.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'have a lot in common', 'meaning' => 'to have many of the same interests', 'meaning_fa' => 'وجه مشترک زیادی داشتن', 'pos' => 'verb phrase', 'synonym' => 'opposite: have nothing in common', 'example' => 'My sister and I have a lot in common — we both love films.', 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -3243,45 +3247,52 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 12,
                                 'hook' => 'Meet Sara — a busy nurse who found a hobby in the strangest place. Can you follow her story?',
                                 'passage_title' => 'Meet Sara',
-                                'image_query' => 'young woman pottery wheel',
-                                // Written fresh for this app (EOS-009 §14) — reuses several
-                                // Vocabulary Builder words (took up, keen on, spare time, gave up,
-                                // get the chance, joined, unwind, got her into) in a fresh
-                                // context, third person instead of first, and is full of the
-                                // mission's -ing / to patterns.
-                                'passage' => 'Sara is a nurse in Shiraz, and for years she had almost no spare time. '
-                                    .'When she did get the chance to relax, she usually just watched TV — she was '
-                                    .'tired of doing nothing, but too tired to try anything new. Last year a friend '
-                                    .'from work got her into pottery. At first Sara wasn\'t keen on it: her bowls kept '
-                                    .'falling apart, and she nearly gave up after two lessons. But she decided to '
-                                    .'join a small evening class, and now she goes once or twice a week. She says '
-                                    .'making something with her hands is the best way to unwind after a long shift, '
-                                    .'and she is proud of being a complete beginner who keeps getting better. Next '
-                                    .'year she hopes to sell a few of her cups at a local market, and she is already '
-                                    .'looking forward to choosing the colours.',
+                                'image_query' => 'woman indoor climbing wall',
+                                // Written fresh for this app (EOS-009 §14) — reuses the
+                                // Vocabulary Builder words (got the chance, for fun, work out,
+                                // can't stand, got her into, rock climbing, keen on, once or
+                                // twice, don't mind, a lot in common, keeps her fit, go camping,
+                                // do a bit of) in a fresh context, third person instead of
+                                // first, and is full of the mission's -ing / to patterns.
+                                'passage' => 'Sara is a nurse in Shiraz, and for years she almost never got the chance to '
+                                    .'do anything for fun. She tried to work out at a gym near the hospital, but she '
+                                    .'couldn\'t stand running on a machine and looking at a wall. Last year a friend from '
+                                    .'work got her into rock climbing. At first Sara wasn\'t keen on it: her arms hurt, and '
+                                    .'she nearly gave up after two lessons. But she decided to join a small evening group, '
+                                    .'and now she goes once or twice a week. She doesn\'t mind falling, because there is '
+                                    .'always a rope, and she enjoys being with people who have a lot in common with her. '
+                                    .'She says climbing keeps her fit and helps her forget a long shift. This summer she '
+                                    .'hopes to go camping in the mountains and do a bit of climbing outdoors, and she is '
+                                    .'already looking forward to choosing her first real climbing shoes.',
                                 'highlighted_phrases' => [
-                                    ['phrase' => 'spare time', 'type' => 'reused'],
-                                    ['phrase' => 'get the chance', 'type' => 'reused'],
+                                    ['phrase' => 'got the chance', 'type' => 'reused'],
+                                    ['phrase' => 'for fun', 'type' => 'reused'],
+                                    ['phrase' => 'work out', 'type' => 'reused'],
+                                    ['phrase' => 'couldn\'t stand', 'type' => 'reused'],
                                     ['phrase' => 'got her into', 'type' => 'reused'],
+                                    ['phrase' => 'rock climbing', 'type' => 'reused'],
                                     ['phrase' => 'keen on', 'type' => 'reused'],
-                                    ['phrase' => 'gave up', 'type' => 'reused'],
                                     ['phrase' => 'once or twice', 'type' => 'reused'],
-                                    ['phrase' => 'unwind', 'type' => 'reused'],
-                                    ['phrase' => 'pottery', 'type' => 'new', 'definition' => 'making pots, bowls and cups from clay', 'pos' => 'noun', 'example' => 'She sells her pottery at the weekend market.'],
+                                    ['phrase' => 'doesn\'t mind', 'type' => 'reused'],
+                                    ['phrase' => 'a lot in common', 'type' => 'reused'],
+                                    ['phrase' => 'keeps her fit', 'type' => 'reused'],
+                                    ['phrase' => 'go camping', 'type' => 'reused'],
+                                    ['phrase' => 'do a bit of', 'type' => 'reused'],
+                                    ['phrase' => 'shift', 'type' => 'new', 'definition' => 'the hours someone works, for example in a hospital', 'pos' => 'noun', 'example' => 'She works the night shift this week.'],
                                     ['phrase' => 'looking forward to', 'type' => 'new', 'definition' => 'feeling happy about something that is going to happen (followed by -ing)', 'pos' => 'phrase', 'example' => "I'm looking forward to seeing my friends this weekend."],
                                 ],
-                                'topic_summary' => 'A short profile of Sara, a nurse who had almost no free time until a '
-                                    .'friend got her into pottery. She nearly gave up at first, but joined an evening '
-                                    .'class, now goes once or twice a week, uses it to unwind, and hopes to sell some '
-                                    .'of her cups next year.',
+                                'topic_summary' => 'A short profile of Sara, a nurse who hated the gym until a friend got '
+                                    .'her into rock climbing. She nearly gave up at first, but joined an evening group, now '
+                                    .'climbs once or twice a week to keep fit, and hopes to go camping and climb outdoors '
+                                    .'this summer.',
                                 'comprehension_check' => [
                                     ['statement' => 'Sara works as a nurse.', 'correct' => true, 'difficulty' => 'easy'],
-                                    ['statement' => 'Sara loved pottery from the very first lesson.', 'correct' => false, 'difficulty' => 'medium'],
-                                    ['statement' => 'Sara hopes to sell some of her cups next year.', 'correct' => true, 'difficulty' => 'hard'],
+                                    ['statement' => 'Sara loved rock climbing from the very first lesson.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Sara hopes to go camping this summer.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 'questions' => [
-                                    'How did Sara get into pottery?',
-                                    'Why does Sara say pottery is good for her after work?',
+                                    'How did Sara get into rock climbing?',
+                                    'Why does Sara like climbing more than the gym?',
                                 ],
                             ],
                             [
@@ -3365,6 +3376,662 @@ class MissionSeeder extends Seeder
                                     'How you got into it',
                                     'One reason',
                                     'One hobby you want to try',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M06 "Learning English" — the roadmap's Past Simple, and the
+     * first checkpoint mission (ProgramPlanner::CHECKPOINT_MISSIONS; the
+     * voice checkpoint itself is offered by the planner after the run, so
+     * nothing here changes for it). M01's 17-step layout: story_sequence
+     * is back, right after Grammar in Context, because a finished story is
+     * exactly what Past Simple narrates. Vocabulary days 2-3 follow
+     * Vocabulary in Use unit 33 (Studying English and taking exams), the
+     * lesson follows Grammar in Use unit 5, both rewritten in our own words.
+     * Media the user picked: Speak English With Vanessa's "My Language
+     * Success Story" (cut from 7:43 to about 6 minutes: intro, website
+     * plugs and the closing recap out) and POC English's "How I Went From
+     * Zero English to C2" (the first 6:40 of an 18-minute talk, cut to
+     * about 6 minutes, burned-in captions blurred out).
+     */
+    private function seedM06(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M06', 'Speak English With Vanessa - My Language Success Story.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M06', 'POC English - Zero English to C2.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M06', 'POC English - Zero English to C2.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M06'],
+            [
+                'title' => 'Learning English',
+                'module' => 'Learning',
+                'outcome' => 'I can tell the story of how I learned English — when I started, what I did, what didn\'t work and what finally helped.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Someone asks "How did you learn your English?" — could you tell them the real story?',
+                                'image_query' => 'open notebook studying language',
+                                'ambient_video_query' => 'student writing notes in notebook',
+                                'warm_up_questions' => [
+                                    'When did you start learning English?',
+                                    'Where did you learn it — at school, in a class, or on your own?',
+                                    'What did you find difficult at first?',
+                                    'What helped you most?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Vanessa uses to tell her own language story — you\'ll need them for yours.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'My first English class at university was boring, so I **quit** after a month — it '
+                                    .'just wasn\'t **a good fit** for me. Then I found a teacher, and we met **one-on-one** '
+                                    .'every Monday. She **opened my eyes**: English could be fun! Slowly I **gained confidence**.',
+                                'words' => [
+                                    ['phrase' => 'quit', 'meaning' => 'to stop doing something, for example a class or a job', 'meaning_fa' => 'ول کردن، کنار گذاشتن (کلاس یا کار)', 'pos' => 'verb (quit – quit – quit)', 'example' => 'He quit his job and went back to university.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'a good fit', 'meaning' => 'right or suitable for someone', 'meaning_fa' => 'مناسب (کسی)، جور با (کسی)', 'pos' => 'noun phrase', 'example' => "That course wasn't a good fit for me — it was too slow.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'one-on-one', 'meaning' => 'with only two people, for example one teacher and one student', 'meaning_fa' => 'دونفره، خصوصی (یک معلم و یک شاگرد)', 'pos' => 'adjective / adverb', 'example' => 'I take one-on-one lessons with a teacher online.', 'image_query' => 'tutor teaching one student', 'difficulty' => 'easy'],
+                                    ['phrase' => 'gain confidence', 'meaning' => 'to start to feel sure about yourself and what you can do', 'meaning_fa' => 'اعتماد به نفس پیدا کردن', 'pos' => 'verb phrase', 'example' => 'She gained confidence after her first presentation.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'open (someone\'s) eyes', 'meaning' => 'to make someone see or understand something new', 'meaning_fa' => 'چشم کسی را باز کردن، دید تازه دادن', 'pos' => 'idiom', 'example' => 'Living abroad opened my eyes to other cultures.', 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Vanessa quit two language classes before French finally clicked — listen for what she did differently.',
+                                'source' => 'Speak English With Vanessa — "My Language Success Story"',
+                                'image_query' => 'eiffel tower paris street',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M06', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker here.
+                                'listening_turns' => $this->shadowTimestampsFor('M06', 'listening_turns'),
+                                // The four parts kept in the cut (0:27-2:49, 2:52-4:18,
+                                // 4:25-6:16 and 6:49-7:09 of the original), written from
+                                // YouTube's captions and checked against a Whisper pass
+                                // of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Vanessa', 'text' => 'As I mentioned in my Spanish video, I decided to quit my Spanish class because I felt like it was boring. It wasn\'t interesting. It wasn\'t what I wanted to do. And I thought that maybe there was a problem with Spanish and my brain. Maybe there was a problem with the language and me. In reality, that\'s not the case. There was nothing wrong with Spanish, but there was a huge problem with the method that I was learning Spanish.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So, I decided to change to French instead. I took a French class that was very basic. But after this basic level, I decided to go on to a more advanced class. And in this advanced class, the other students didn\'t really care about learning French. I think they were only there because it was a requirement, but for me it wasn\'t a requirement. I was just interested in learning French, trying another language. So, this class wasn\'t a really good fit for me and I decided to quit again.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And this is the best thing that I could have done because I asked the professor, "Can I meet with you in your office once, twice, maybe three times a week just to speak one-on-one? I\'m really interested in trying to speak, but the classroom isn\'t really helping me with that." She said, "Yes." I was very lucky. And I met with her two or three times a week for several months until I graduated.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'This helped in so many different ways. First of all, she helped answer all my questions. She also helped to give me more expressions that I needed to use in my conversation. And the most important thing, I feel like, is she helped me gain confidence. I wasn\'t scared to try to speak even if I had no idea what to say. I just tried to say something and she was so patient. So I learned a lot in that situation.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'But after I finished my studies, then I had to do something different. I decided to go to a local meetup group. You can see these kind of meetup groups in your city. But I went to a French meetup in my city. And every Wednesday evening, there were a group of people who spoke French. Most of them also spoke English because we were in the US, but the goal was to speak only French together.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And these people opened my eyes because it wasn\'t one-on-one anymore. It was a group of people all speaking together. I didn\'t really understand very much and I mostly listened. I tried to speak, but I mostly listened in that situation. But it helped me to realize that this is a real language. This is a thing that isn\'t just in the classroom, that isn\'t just with my professor, but this is something that I can use with a lot of people. And it showed me that I need some motivation to be able to get to that level.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So, I decided to change my path. I decided to move to France and live with a French family as their au pair. Au pair is like a nanny or a babysitter who lives with the family. So, I moved to Paris and lived with the French family. Of course, this was really useful to me to speak French with the family, but I think there were two other things that were really useful while I was living in Paris that I could have done other places, too.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'The first one is that I spoke French with my friends who were not native French speakers. A lot of my friends were other au pairs from Austria, Germany, Sweden, a lot of other places. And none of us were native French speakers, but we spoke French together anyway. And I think in these conversations, it really helped me because I felt confident expressing myself. I knew that they wouldn\'t feel frustrated if I didn\'t know exactly what to say, because they understood. They were in the same situation. But we learned from each other. This was so beneficial. Non-native French speakers speaking together was wonderful.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'The second thing that helped me was when I went to my daily French class. This was required for my visa, so I had to go to a French class every morning. When I went to that French class, I had a great time. I\'ve never had a good language class before, but this teacher showed me that it was possible. And in my own life, I tried to imitate him and imitate his style and his care, because each class passed so quickly. We learned a lot. He shared so much fun information with us and he cared about each student.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So this was something that was really positive for me: having someone who was entertaining, interesting, and also attentive to each student. This helped me to learn French a lot. So, speaking with my friends, speaking with the meetup group, speaking with my professor, speaking with the teacher in Paris, these were all so useful.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And I want to ask you a question now. Tell me, what is your English learning history? Your English learning background: when did you start to learn English? What did you do to reach today? What did you do throughout your life to learn English? Maybe you had a similar experience to me.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (opened my eyes as the form
+                                // Vanessa actually says).
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'quit', 'meaning' => 'stop going to (a class)',
+                                        'gap_before' => 'As I mentioned in my Spanish video, I decided to ',
+                                        'gap_after' => ' my Spanish class because I felt like it was boring.',
+                                    ],
+                                    [
+                                        'phrase' => 'good fit', 'meaning' => 'right or suitable for someone',
+                                        'gap_before' => 'So, this class wasn\'t a really ',
+                                        'gap_after' => ' for me and I decided to quit again.',
+                                    ],
+                                    [
+                                        'phrase' => 'one-on-one', 'meaning' => 'just two people, teacher and student',
+                                        'gap_before' => 'maybe three times a week just to speak ',
+                                        'gap_after' => '?',
+                                    ],
+                                    [
+                                        'phrase' => 'gain confidence', 'meaning' => 'start to feel sure of yourself',
+                                        'gap_before' => 'And the most important thing, I feel like, is she helped me ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'opened my eyes', 'meaning' => 'made me see something new',
+                                        'gap_before' => 'And these people ',
+                                        'gap_after' => ' because it wasn\'t one-on-one anymore.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Vanessa, an American English teacher, tells how she learned French. '
+                                    .'She quit a boring Spanish class, then quit a French class too. What worked was '
+                                    .'meeting her professor one-on-one, going to a French meetup where she mostly '
+                                    .'listened, and finally moving to Paris as an au pair, where she spoke French with '
+                                    .'other learners and had a great teacher. She ends by asking how you learned English.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Vanessa quit her Spanish class because she found it boring.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'At the French meetup, Vanessa did most of the talking.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'In Paris, speaking with friends who were not native speakers helped Vanessa feel confident.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'How often did Vanessa meet her professor?',
+                                    'options' => ['Once a month', 'Two or three times a week', 'Every morning'],
+                                    'correct' => 1,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'The words teachers use about your English — fluent, accurate, and the rest.',
+                                // Vocabulary in Use unit 33A ("How are they getting on?"), our own sentences.
+                                'story' => 'At school my English wasn\'t **fluent**, and I had a strong **accent**. I didn\'t '
+                                    .'always speak **accurately**, but I could **make myself understood**. Then I watched a lot '
+                                    .'of films, **picked up** new phrases, and **made** real **progress** in one year.',
+                                'words' => [
+                                    ['phrase' => 'fluent', 'meaning' => 'able to speak a language naturally, without stopping', 'meaning_fa' => 'روان (در صحبت کردن)', 'pos' => 'adjective', 'example' => "She's fluent in English and Turkish.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'accent', 'meaning' => 'the way someone pronounces words', 'meaning_fa' => 'لهجه', 'pos' => 'noun', 'example' => 'He has a strong Scottish accent.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'accurately', 'meaning' => 'correctly, without mistakes', 'meaning_fa' => 'دقیق، بدون غلط', 'pos' => 'adverb', 'synonym' => 'correctly', 'example' => 'Try to write accurately, not just fast.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'make yourself understood', 'meaning' => 'to say things in a way people can understand', 'meaning_fa' => 'منظور خود را رساندن', 'pos' => 'verb phrase', 'example' => 'My Spanish is basic, but I can make myself understood.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'pick up', 'meaning' => 'to learn something easily, without really studying it', 'meaning_fa' => 'خودبه‌خود یاد گرفتن (زبان، کلمه)', 'pos' => 'phrasal verb', 'example' => 'Children pick up languages very quickly.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'make progress', 'meaning' => 'to get better at something', 'meaning_fa' => 'پیشرفت کردن', 'pos' => 'verb phrase', 'example' => 'I made a lot of progress last year.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same story, one more time — this time copy how Vanessa says "decided", "felt" and "took".',
+                                'image_query' => 'bored student classroom desk',
+                                'shadow_lines' => [
+                                    'I **decided** to **quit** my **Spanish** **class** because I **felt** like it was **boring**.',
+                                    'I **took** a **French** **class** that was **very** **basic**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M06', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'Your English story already happened — so every verb in it needs its past form.',
+                                'focus' => 'Past Simple',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use unit 5: -ed verbs, irregular verbs,
+                                // did / didn't + base verb, then was / were.
+                                'lesson' => [
+                                    'intro' => 'Four small things: -ed verbs, verbs with their own past form, didn\'t and did, and was / were.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · Most verbs add -ed',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'For something that happened and finished, most verbs add <strong>-ed</strong>: <strong>work → worked, start → started</strong>.<br>Watch the spelling: <strong>study → studied, stop → stopped, live → lived</strong>.',
+                                                    'fa' => 'برای کاری که در گذشته انجام شد و تمام شد، بیشتر فعل‌ها ed می‌گیرند (start → started). به املا دقت کن: study → studied، stop → stopped، live → lived.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Past Simple',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'subject'],
+                                                        ['text' => 'started', 'caption' => 'verb + -ed'],
+                                                        ['text' => 'English', 'caption' => 'the rest'],
+                                                        ['text' => 'when I was eight', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'I studied English at a language school.',
+                                                            'We watched English cartoons every Friday.',
+                                                            'She stopped going to class after a month.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => '-ed sounds like /t/', 'words' => ['worked', 'watched', 'stopped', 'practised']],
+                                                        ['label' => '-ed sounds like /d/', 'words' => ['lived', 'played', 'listened', 'tried']],
+                                                        ['label' => '-ed sounds like /ɪd/', 'words' => ['started', 'wanted', 'decided', 'needed']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · Some verbs have their own past',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Many common verbs don\'t take -ed. They have their own past form — learn them in pairs: <strong>go → went, have → had, take → took</strong>.',
+                                                    'fa' => 'خیلی از فعل‌های پرکاربرد ed نمی‌گیرند و شکل گذشته‌ی خودشان را دارند (فعل بی‌قاعده). این‌ها را جفتی حفظ کن: go → went، have → had، take → took.',
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Leo',
+                                                    'wrong' => 'I goed to a language school for four years.',
+                                                    'right' => 'I went to a language school for four years.',
+                                                    'explanation' => 'Go has its own past form: went.',
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'go', 'right' => 'went'],
+                                                        ['left' => 'have', 'right' => 'had'],
+                                                        ['left' => 'take', 'right' => 'took'],
+                                                        ['left' => 'speak', 'right' => 'spoke'],
+                                                        ['left' => 'teach', 'right' => 'taught'],
+                                                        ['left' => 'feel', 'right' => 'felt'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'I took a French class at university.',
+                                                            'Our teacher spoke very fast.',
+                                                            'We had English twice a week.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · didn\'t and Did …? + base verb',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'In negatives and questions, <strong>did / didn\'t</strong> carries the past — the main verb goes back to its base form: <strong>I didn\'t go</strong>, <strong>Did you study?</strong>',
+                                                    'fa' => 'در جمله‌ی منفی و سؤالی، did یا didn\'t نشانه‌ی گذشته است و فعل اصلی به شکل ساده برمی‌گردد: I didn\'t go (نه went)، Did you study? (نه studied).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Question',
+                                                    'parts' => [
+                                                        ['text' => 'Did', 'caption' => 'did', 'tone' => 'accent'],
+                                                        ['text' => 'you', 'caption' => 'subject'],
+                                                        ['text' => 'study', 'caption' => 'base verb'],
+                                                        ['text' => 'English at school?', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => "I didn't went to class.", 'right' => "I didn't go to class.", 'highlight' => 'go'],
+                                                        ['wrong' => 'Did you studied English?', 'right' => 'Did you study English?', 'highlight' => 'study'],
+                                                        ['wrong' => 'What did you at school?', 'right' => 'What did you do at school?', 'highlight' => 'do'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · was / were',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'The past of <strong>am / is / are</strong> is <strong>was / were</strong>, with no did: <strong>I was nervous</strong>, <strong>I wasn\'t ready</strong>, <strong>Were you tired?</strong>',
+                                                    'fa' => 'گذشته‌ی am/is/are می‌شود was/were و برای منفی و سؤالی did نمی‌خواهد: I wasn\'t ready، Were you tired?',
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => "I didn't be nervous.", 'right' => "I wasn't nervous.", 'highlight' => "wasn't"],
+                                                        ['wrong' => 'Did the classes be big?', 'right' => 'Were the classes big?', 'highlight' => 'Were'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Finished-time words', 'words' => ['yesterday', 'last year', 'two years ago', 'when I was ten', 'in 2019']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> English story — then tell a picture story in the past, and soon say it out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'I started learning English when', 'My first English teacher', 'At school we',
+                                    "At first I didn't", 'Last year I', 'The first time I spoke English with a real person,',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about how they learned English, using the past '
+                                    .'simple correctly: -ed or the right irregular past form for finished events, did / '
+                                    .'didn\'t + base verb in negatives and questions, and was / were for the past of be.',
+                                'grammar_major_criteria' => 'a wrong past form ("goed", "teached"), a past form after '
+                                    .'didn\'t / did ("didn\'t went", "did you studied"), a present verb for a finished past '
+                                    .'event, "didn\'t be" instead of "wasn\'t", the sentence does not actually continue the '
+                                    .'given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues in the past simple (verb + -ed, an irregular past form, '
+                                    .'didn\'t + base verb, or was / were) for the starter already given',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I goed to a language school for two years.',
+                                        'options' => ['I goed to a language school for two years.', 'I went to a language school for two years.', 'I gone to a language school for two years.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => "I didn't understood the teacher.",
+                                        'options' => ["I didn't understood the teacher.", "I didn't understand the teacher.", 'I not understood the teacher.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'Did you studied English at school?',
+                                        'options' => ['Did you study English at school?', 'Did you studied English at school?', 'You did study English at school?'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => "I didn't be nervous in the exam.",
+                                        'options' => ["I didn't be nervous in the exam.", "I weren't nervous in the exam.", "I wasn't nervous in the exam."],
+                                        'correct' => 2,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['English', 'started', 'I', 'when', 'eight.', 'I', 'was'], 'answer' => 'I started English when I was eight.'],
+                                    ['words' => ['the', 'understand', 'teacher.', "didn't", 'I'], 'answer' => "I didn't understand the teacher."],
+                                    ['words' => ['study', 'you', 'English', 'Did', 'school?', 'at'], 'answer' => 'Did you study English at school?'],
+                                ],
+                            ],
+                            [
+                                'key' => 'story_sequence',
+                                'label' => 'Picture Story',
+                                // Back for M06 (see M01's note): a finished story is what
+                                // Past Simple narrates, so the pictures come right after the
+                                // lesson as fresh applied practice for the tense.
+                                'duration_minutes' => 10,
+                                'hook' => 'You just learned the past simple. Now tell how Mina finally learned English, one picture at a time.',
+                                // Captions are ground truth for the AI feedback prompt only —
+                                // never rendered to the learner (see the step's own docblock).
+                                // Each query was checked against its real first Pexels result
+                                // (square), so the picture matches its caption.
+                                'sequence_images' => [
+                                    ['image_query' => 'tired student studying books', 'caption' => 'She was tired of her grammar books', 'alt_description' => 'A young woman lying on the floor among open books'],
+                                    ['image_query' => 'woman with headphones', 'caption' => 'She listened to English songs and podcasts every day', 'alt_description' => 'A smiling woman wearing white headphones'],
+                                    ['image_query' => 'women talking coffee shop', 'caption' => 'She practised speaking with a conversation partner at a café', 'alt_description' => 'Two women talking at a café table'],
+                                    ['image_query' => 'woman graduation diploma', 'caption' => 'She passed her exam and got her certificate', 'alt_description' => 'A smiling graduate holding up a certificate'],
+                                ],
+                                // Vocabulary in Use unit 92 (Time and sequence), D and E.
+                                'sequencing_words' => ['First', 'Then', 'After a while', 'In the end'],
+                                'narration_tense' => 'Past Simple',
+                                'narration_kind' => 'a story that already happened',
+                                'narration_example' => 'First, she was tired of her books...',
+                                'narration_not' => 'present tense',
+                            ],
+                            [
+                                // A real talk, one speaker, natural speed: POC English's "How
+                                // I Went From Zero English to C2 (My Real Story)" — the first
+                                // 6:40 of the original 18 minutes, cut to about 6 (a few asides
+                                // and repeats left out), the creator's burned-in captions
+                                // blurred out so the step's own caption toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Maddy skipped English class for four years to play video games — then one summer changed everything. Hear his story, then tell it with him.',
+                                'source' => 'POC English — "How I Went From Zero English to C2 (My Real Story)"',
+                                'video_url' => $shadowingVideoUrl,
+                                // The video's own auto-captions, checked against the creator's
+                                // burned-in captions, re-timed per sentence on Whisper's
+                                // word timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M06', 'video_shadowing_segments'),
+                                'topic_summary' => 'Maddy, the teacher behind POC English, tells how he learned English, '
+                                    .'his third language. When he was eight, his parents sent him to a language school, '
+                                    .'but for four years he skipped most classes to play games across the street. One '
+                                    .'summer he stopped going and started watching Nicolas Cage films and listening to '
+                                    .'Eminem — just for fun. He wrote down a whole film line by line and copied the songs. '
+                                    .'When he went back to school, he was the best student in his class.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Maddy started learning English when he was eight.', 'correct' => true],
+                                    ['statement' => 'Maddy went to almost every class at the language school.', 'correct' => false],
+                                    ['statement' => 'After that summer, Maddy was the best student in his class.', 'correct' => true],
+                                ],
+                                // Real phrases Maddy uses on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'back then', 'meaning' => 'at that time in the past'],
+                                    ['phrase' => 'sign up', 'meaning' => 'to put your name on a list to join a class or course'],
+                                    ['phrase' => 'turning point', 'meaning' => 'the moment when things start to change'],
+                                    ['phrase' => 'role model', 'meaning' => 'a person you admire and want to be like'],
+                                    ['phrase' => 'pay attention', 'meaning' => 'to listen or watch carefully'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words the
+                                // speaker actually says. Chosen for this mission's grammar: a
+                                // Did-question, did not / didn't + base verb, irregular went,
+                                // regular started, and was. Bold marks naturally-stressed
+                                // content words (rendered by <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    '**Did** you **know** that this **creature** is called a **fish** in **English**?',
+                                    'I **did** **not** **know** the **alphabet** of **English**.',
+                                    'For **four** **years**, I **went** to a **language** **school** following **traditional** **books**.',
+                                    'That was **when** I **didn\'t** **learn** **English**.',
+                                    'And I **started** **watching** Nicolas **Cage** **movies** and **listening** to **Eminem\'s** **songs**.',
+                                    'This **time**, I was the **best** **student** in that **class**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M06', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for exams, the part of every English story nobody forgets.',
+                                // Vocabulary in Use unit 33B (Examinations), our own sentences.
+                                'story' => 'Last June I **took** the Cambridge **exam**. I **revised for** it every evening '
+                                    .'for two months and **did my best**. I was sure I would **fail** — but I **passed**, and I '
+                                    .'even **got a good grade**!',
+                                'words' => [
+                                    ['phrase' => 'take an exam', 'meaning' => 'to do an exam (not "make an exam")', 'meaning_fa' => 'امتحان دادن', 'pos' => 'verb phrase', 'synonym' => 'do an exam', 'example' => 'I took my driving exam last week.', 'image_query' => 'students taking exam hall', 'difficulty' => 'easy'],
+                                    ['phrase' => 'pass', 'meaning' => 'to be successful in an exam', 'meaning_fa' => 'قبول شدن (در امتحان)', 'pos' => 'verb', 'synonym' => 'opposite: fail', 'example' => 'She passed her English exam with no problems.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'fail', 'meaning' => 'not to be successful in an exam', 'meaning_fa' => 'رد شدن، مردود شدن', 'pos' => 'verb', 'example' => 'He failed the test, but he can take it again in June.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'revise for', 'meaning' => 'to study again to get ready for an exam (British English)', 'meaning_fa' => 'برای امتحان مرور کردن', 'pos' => 'verb phrase', 'synonym' => 'study for', 'example' => 'I revised for the exam every evening.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'do your best', 'meaning' => 'to try as hard as you can', 'meaning_fa' => 'نهایت تلاشت را کردن', 'pos' => 'verb phrase', 'synonym' => 'try your best', 'example' => "Don't worry about the result — just do your best.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'get a good grade', 'meaning' => 'to get a high mark in an exam', 'meaning_fa' => 'نمره‌ی خوب گرفتن', 'pos' => 'verb phrase', 'synonym' => 'get a good mark', 'example' => 'He got a good grade in his final exam.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same story, one more time — now listen for "didn\'t", "moved" and "lived".',
+                                'image_query' => 'paris apartment window view',
+                                'shadow_lines' => [
+                                    "I **didn't** **really** **understand** very **much** and I **mostly** **listened**.",
+                                    'So, I **moved** to **Paris** and **lived** with the **French** **family**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M06', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about how you learned English — when '
+                                    .'you started, one thing that didn\'t work and one thing that helped — using the new '
+                                    .'vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'When did you start learning English?',
+                                    'Where did you learn it — at school, in a class, or on your own?',
+                                    'What was your first English teacher like?',
+                                    "What didn't work for you? Did you ever quit a class?",
+                                    'What really helped you make progress?',
+                                    'When did you first speak English with a real person? How did it go?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Reza — he quit English at sixteen. What made him try again?',
+                                'passage_title' => 'Reza\'s second try',
+                                'image_query' => 'young man studying laptop headphones',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // and is told almost entirely in the past simple.
+                                'passage' => 'Reza started learning English at school in Tabriz when he was twelve, but he '
+                                    .'didn\'t enjoy it. The classes were big, the teacher only talked about grammar, and the '
+                                    .'course just wasn\'t a good fit for him. At sixteen he quit. Two years later, a cousin '
+                                    .'from Canada visited the family, and that week opened his eyes: Reza understood almost '
+                                    .'nothing, and he felt embarrassed. So he decided to try again in a different way. He '
+                                    .'found a teacher online and met her one-on-one twice a week. He watched cartoons with '
+                                    .'English subtitles and picked up a lot of everyday words. Slowly he gained confidence. '
+                                    .'He still had a strong accent, but he made a lot of progress in one year. Last spring he '
+                                    .'took the IELTS exam. He revised for it every evening and did his best — and he passed. '
+                                    .'He isn\'t fluent yet, but now he isn\'t afraid to speak.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'a good fit', 'type' => 'reused'],
+                                    ['phrase' => 'quit', 'type' => 'reused'],
+                                    ['phrase' => 'opened his eyes', 'type' => 'reused'],
+                                    ['phrase' => 'one-on-one', 'type' => 'reused'],
+                                    ['phrase' => 'picked up', 'type' => 'reused'],
+                                    ['phrase' => 'gained confidence', 'type' => 'reused'],
+                                    ['phrase' => 'accent', 'type' => 'reused'],
+                                    ['phrase' => 'made a lot of progress', 'type' => 'reused'],
+                                    ['phrase' => 'revised for', 'type' => 'reused'],
+                                    ['phrase' => 'did his best', 'type' => 'reused'],
+                                    ['phrase' => 'passed', 'type' => 'reused'],
+                                    ['phrase' => 'fluent', 'type' => 'reused'],
+                                    ['phrase' => 'embarrassed', 'type' => 'new', 'definition' => 'feeling silly or uncomfortable in front of other people', 'pos' => 'adjective', 'example' => 'I was embarrassed when I forgot my teacher\'s name.'],
+                                    ['phrase' => 'subtitles', 'type' => 'new', 'definition' => 'the words of a film written at the bottom of the screen', 'pos' => 'noun (plural)', 'example' => 'I watch series with English subtitles.'],
+                                ],
+                                'topic_summary' => 'A short story about Reza, who did not enjoy English at school and quit at '
+                                    .'sixteen. A visit from his cousin showed him how little he understood, so he tried '
+                                    .'again: one-on-one lessons online, cartoons with subtitles, and lots of practice. He '
+                                    .'made a lot of progress and passed the IELTS exam last spring.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Reza enjoyed his English classes at school.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'Reza\'s cousin\'s visit made him want to try English again.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'Reza thinks he is fluent now.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'Why did Reza quit English at sixteen?',
+                                    'What did Reza do differently the second time?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Writing your English story often shows you how far you have already come.',
+                                'title' => 'My English story',
+                                'prompts' => [
+                                    ['label' => 'When and where you started', 'image_query' => 'children classroom school desks'],
+                                    ['label' => 'Your first teacher or class', 'image_query' => 'teacher writing on blackboard'],
+                                    ['label' => "Something that didn't work", 'image_query' => 'tired student books desk'],
+                                    ['label' => 'What really helped you', 'image_query' => 'woman watching movie headphones'],
+                                    ['label' => 'A moment you felt proud', 'image_query' => 'happy student certificate'],
+                                    ['label' => 'What you want to do next', 'image_query' => 'person studying laptop notebook'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['verb + -ed', 'went / took / had', "didn't + verb", 'was / were', '… ago', 'when I was…', 'First / Then / In the end'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Forget your own story for a minute — what is happening in this English class?',
+                                'image_query' => 'students learning language classroom',
+                                'guiding_questions' => [
+                                    'What is the teacher holding up, and why?',
+                                    'How does the woman on the right feel? How do you know?',
+                                    'What can you see on the table?',
+                                    'Which flags can you see? What do they tell you about this class?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): a teacher in a blue
+                                // shirt at the centre holding up a picture card, a smiling
+                                // woman on the right, two girls with their backs to the camera
+                                // on the left, books and papers on the table, and small US and
+                                // UK flags in the bottom right. Changing the query or
+                                // orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 54, 'y' => 40, 'question_index' => 0],
+                                    ['x' => 85, 'y' => 28, 'question_index' => 1],
+                                    ['x' => 50, 'y' => 72, 'question_index' => 2],
+                                    ['x' => 77, 'y' => 82, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Tell the story of how you learned English, from the very beginning.',
+                                    'Talk about an English class or teacher you remember well.',
+                                    'Describe a time you used English in real life. What happened?',
+                                    'Talk about something you tried that didn\'t help your English.',
+                                    'Describe an exam you took. How did you prepare, and how did it go?',
+                                    'What was the hardest part of English for you at first, and what did you do about it?',
+                                ],
+                                'role_reversal_topic' => 'how people learned English',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about how you learned English.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'Regular past verbs (-ed)',
+                                    'Irregular past verbs (went, took, had…)',
+                                    "didn't + verb",
+                                    'was / were',
+                                    'When you started',
+                                    'One thing that helped you',
                                 ],
                             ],
                             [
