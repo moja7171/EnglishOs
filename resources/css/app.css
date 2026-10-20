@@ -206,6 +206,24 @@
     --mood-texture-size: auto;
 }
 
+/* M08 "Friends" — an open sky blue (a day out with friends, a summer
+   afternoon in the park), paired with pairs of overlapping rings, two
+   friends side by side, so it never reads as learn's single small rings,
+   the dotted textures, or the line-based grids and lattices. */
+[data-mood='mates'] {
+    --color-accent: #2b87c8;
+    --color-accent-dark: #5aaee6;
+    --color-accent-soft: #dcecf8;
+    --color-accent-soft-dark: #173a55;
+    --color-accent-ink: #1b5f91;
+    --color-accent-ink-dark: #a9d6f5;
+    --color-dawn: #7cc0ec;
+    --color-dusk: #2a6496;
+    --mood-texture: radial-gradient(circle at 40% 50%, transparent 4.5px, color-mix(in srgb, var(--color-accent) calc(12% * var(--mood-boost)), transparent) 4.5px 5.5px, transparent 5.5px),
+        radial-gradient(circle at 60% 50%, transparent 4.5px, color-mix(in srgb, var(--color-accent) calc(12% * var(--mood-boost)), transparent) 4.5px 5.5px, transparent 5.5px);
+    --mood-texture-size: 34px 34px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

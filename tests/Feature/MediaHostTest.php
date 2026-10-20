@@ -53,7 +53,7 @@ class MediaHostTest extends TestCase
         $this->assertSame(self::HOST.'/m01/Bob%20the%20Canadian%20-%20Daily%20Routine.mp4', $m01->stepContent('video_shadowing')['video_url']);
         $this->assertStringContainsString('/storage/missions/m01/', $m01->stepContent('video_shadowing')['captions_url']);
 
-        foreach (['M02', 'M03', 'M04', 'M05', 'M06', 'M07'] as $code) {
+        foreach (['M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08'] as $code) {
             $mission = Mission::where('code', $code)->firstOrFail();
 
             $this->assertStringStartsWith(self::HOST.'/'.strtolower($code).'/', $mission->stepContent('listening')['audio_url']);

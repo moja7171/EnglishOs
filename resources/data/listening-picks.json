@@ -155,24 +155,24 @@
   ],
   "M08" : [
     [
-      {"src":"sme","title":"Fighting loneliness with soup","url":"https://podcasts.apple.com/us/podcast/fighting-loneliness-with-soup/id262026947?i=1000644645860","min":7,"apple":true},
+      {"src":"lee","title":"Talking about communication","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250124","min":6,"tx":"page"},
       {"src":"voa","title":"Besties, Buds, BFFs ... Friends!","url":"https://learningenglish.voanews.com/a/2977108.html","tx":"page"},
-      {"src":"teded","title":"How friendship alters your brain","url":"https://ed.ted.com/lessons/how-friendship-affects-your-brain-shannon-odell","min":6}
+      {"src":"sme","title":"Fighting loneliness with soup","url":"https://podcasts.apple.com/us/podcast/fighting-loneliness-with-soup/id262026947?i=1000644645860","min":7,"apple":true}
     ],
     [
-      {"src":"sme","title":"Would you like a robot companion?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250918","min":7,"tx":"page"},
+      {"src":"lee","title":"Talking about secrets","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250815","min":6,"tx":"page"},
       {"src":"voa","title":"Everyday Grammar: Comparatives and Superlatives","url":"https://learningenglish.voanews.com/a/everyday-grammar-comparatives-superlatives/2989386.html","tx":"page","grammar":true},
-      {"src":"teded","title":"How certain friendships persist — and others fade","url":"https://ed.ted.com/lessons/how-some-friendships-last-and-others-dont-iseult-gillespie","min":7}
+      {"src":"sme","title":"Would you like a robot companion?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250918","min":7,"tx":"page"}
     ],
     [
-      {"src":"sme","title":"Are you lonely in a crowd?","url":"https://podcasts.apple.com/us/podcast/are-you-lonely-in-a-crowd/id262026947?i=1000605536269","min":6,"apple":true},
+      {"src":"lee","title":"Talking about housemates","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250905","min":6,"tx":"page"},
       {"src":"voa","title":"Sharing Our Loneliness May Help Us Feel Less Lonely","url":"https://learningenglish.voanews.com/amp/sharing-our-loneliness-may-help-us-feel-less-lonely/6563851.html","tx":"page"},
-      {"src":"teded","title":"Have you ever created an imaginary friend? Watch this","url":"https://ed.ted.com/lessons/is-it-normal-to-have-imaginary-friends","min":8}
+      {"src":"sme","title":"Are you lonely in a crowd?","url":"https://podcasts.apple.com/us/podcast/are-you-lonely-in-a-crowd/id262026947?i=1000605536269","min":6,"apple":true}
     ],
     [
-      {"src":"sme","title":"How do you say sorry?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250703","min":7,"tx":"page"},
+      {"src":"lee","title":"Talking about laughing","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/251219","min":6,"tx":"page"},
       {"src":"voa","title":"Friendship Idioms","url":"https://learningenglish.voanews.com/a/friendship-idioms/5666309.html","tx":"page"},
-      {"src":"teded","title":"The best way to make amends (according to science)","url":"https://ed.ted.com/lessons/the-best-way-to-apologize-according-to-science","min":8}
+      {"src":"sme","title":"How do you say sorry?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250703","min":7,"tx":"page"}
     ]
   ],
   "M09" : [

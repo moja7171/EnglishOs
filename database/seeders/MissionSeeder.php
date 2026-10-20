@@ -2788,6 +2788,7 @@ class MissionSeeder extends Seeder
         $this->seedM05();
         $this->seedM06();
         $this->seedM07();
+        $this->seedM08();
     }
 
     /**
@@ -4778,6 +4779,705 @@ class MissionSeeder extends Seeder
                                     'when / while',
                                     'Where you grew up',
                                     'One family moment you remember',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M08 "Friends" — the roadmap's Comparatives & Superlatives.
+     * M05's 16-step layout (no story_sequence: comparing is not a story
+     * told in order, so the comparisons are practised in Picture
+     * Description and the two AI conversations instead). The lesson follows
+     * Grammar in Use units 105-108 in order: -er / more, much / a bit +
+     * comparative, as … as, then the -est / the most. Vocabulary days 2-3
+     * follow Vocabulary in Use unit 11 (Describing character: A-B, then C
+     * "Describing a friend"), all rewritten in our own words — unit 13B was
+     * already taught in M02. Media the user picked, both from My English
+     * Coach Dave: Dave and his best friend Elliot on how they met, stayed
+     * close and whether making friends gets harder (cut from 46 to about 6
+     * minutes) and Dave's dad Ian with his friend of nearly 60 years, Tony,
+     * playing "Who is the most…?" (cut from 46 to about 6 minutes, the
+     * burned-in captions blurred out, and the top definition boxes blurred
+     * while they are on screen).
+     */
+    private function seedM08(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M08', 'My English Coach Dave - Friendship with Elliot.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M08', 'My English Coach Dave - Best Friends for 60 Years.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M08', 'My English Coach Dave - Best Friends for 60 Years.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M08'],
+            [
+                'title' => 'Friends',
+                'module' => 'Friends',
+                'outcome' => 'I can describe my friends and compare us — who is funnier, who is more patient, who is the most reliable — and say how a friendship has changed.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Who is your oldest friend — and which of you is funnier? Could you explain why in English?',
+                                'image_query' => 'friends group laughing outdoors',
+                                'ambient_video_query' => 'friends walking together park',
+                                'warm_up_questions' => [
+                                    'Who is your best friend?',
+                                    'How did you meet?',
+                                    'What is your friend like?',
+                                    'Who is funnier — you or your best friend?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Dave and Elliot use about their friendship — you\'ll need them to talk about yours.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'Sam and I met at school, and now we\'re **lifelong friends**. When he moved to Canada, '
+                                    .'we **stayed close**, because we both **put the effort in** and called every week. I '
+                                    .'**drifted apart** from my other school friends. Sam has become more **introverted**, '
+                                    .'but with me he still talks for hours.',
+                                'words' => [
+                                    ['phrase' => 'stay close', 'meaning' => 'to stay good friends, even when life changes or you live far apart', 'meaning_fa' => 'صمیمی ماندن، رابطه‌ی نزدیک را حفظ کردن', 'pos' => 'verb phrase', 'example' => 'My cousin and I stayed close after she moved to Mashhad.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'drift apart', 'meaning' => 'to slowly become less close, without a fight, until you are not really friends', 'meaning_fa' => 'کم‌کم از هم دور شدن (بدون دعوا)', 'pos' => 'phrasal verb', 'example' => 'We drifted apart after university because we were both so busy.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'put the effort in', 'meaning' => 'to give time and energy to something so that it works', 'meaning_fa' => 'وقت و انرژی گذاشتن، تلاش کردن', 'pos' => 'verb phrase (informal)', 'example' => 'A friendship lasts when both people put the effort in.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'a lifelong friend', 'meaning' => 'a friend you have for all of your life, or for most of it', 'meaning_fa' => 'دوست همیشگی، دوستِ یک عمر', 'pos' => 'noun phrase', 'example' => 'My grandmother met her lifelong friend at primary school.', 'image_query' => 'two old women friends laughing', 'difficulty' => 'easy'],
+                                    ['phrase' => 'introverted', 'meaning' => 'quiet, and happier alone or with a few people than in a big group (opposite: an extrovert)', 'meaning_fa' => 'درون‌گرا', 'pos' => 'adjective', 'example' => "I'm quite introverted — I prefer one friend to a big party.", 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Dave and Elliot have been best friends since they were eight. How did they stay close when Dave lived in Korea — and is it harder to make friends as an adult?',
+                                'source' => 'My English Coach Dave — "Can You Follow This Real British English Conversation?"',
+                                'image_query' => 'two friends talking park bench',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M08', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. Two speakers: Dave
+                                // asks, his best friend Elliot answers.
+                                'listening_turns' => $this->shadowTimestampsFor('M08', 'listening_turns'),
+                                // The five parts kept in the cut (2:40-3:59, 5:43-6:57,
+                                // 7:36-8:43, 18:28-18:43 and 20:47-22:48 of the original),
+                                // written from the video's captions and checked against a
+                                // Whisper pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Dave', 'text' => 'So the next section is about friendship, and like I said, we have known each other for quite a long time, since Year 4. That\'s age eight to nine in the UK. Um, it\'s a long time.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Yeah. Nearly 30 years.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah, yeah. So my question is, do you remember the first time we actually spoke in Year 4?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Um, I don\'t. But you weren\'t my best friend then.'],
+                                    ['speaker' => 'Dave', 'text' => 'No. So, no, I do remember. That\'s really upsetting, because I do remember the first time.'],
+                                    ['speaker' => 'Elliot', 'text' => 'What was it?'],
+                                    ['speaker' => 'Dave', 'text' => 'I remember being in the playground, and it was… I\'m not going to use last names, but it was you, Dan, Katie and Ramsay, and you were playing Batman. And you all chose characters, and I didn\'t have a character. And I remember, I think it was either you or Dan or someone said, "Oh, you can just be Penguin." And I was so upset. But at the same time, I thought to myself, "Well, at least I\'m playing with someone in the playground," you know. But that\'s my first memory of you.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Okay. Well, I have memories of that time. I\'m sorry. You\'re better than Penguin.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, thank you. Thank you.'],
+                                    ['speaker' => 'Dave', 'text' => 'Why do you think we stayed close even when I moved abroad? And I\'m not talking about when I moved to France, \'cause I moved to France when I was 18, but in 2012, I moved to South Korea to teach English. So, why do you think we stayed close?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Um, well, first of all, when you did move away, that was devastating. My best friend was leaving me to go halfway around the world. But I think we stayed close because we stayed in touch, you know. We would video call fairly regularly, and every time you came back to the UK, which was only once a year, I would absolutely take every opportunity within the time that you were here to see you.'],
+                                    ['speaker' => 'Dave', 'text' => 'I felt very privileged.'],
+                                    ['speaker' => 'Elliot', 'text' => 'But I think, moreover, the reason we stayed close is because of our connection, you know. I think it\'s quite rare that, certainly, you know, adults stay as close and connected when you live halfway across the world for a prolonged period of time. I think that\'s quite rare.'],
+                                    ['speaker' => 'Dave', 'text' => 'Okay, next question is, were you ever surprised that we didn\'t drift apart? \'Cause I\'m sure, you know, I\'ve drifted apart with some friends, and I\'m sure you have, too.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Well, that\'s what, you know, going back to what I just said, I think it\'s rare that people don\'t.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah.'],
+                                    ['speaker' => 'Elliot', 'text' => 'You know, I have friends that I was very close with in school that I\'m not friends with anymore. And that\'s not for any personal reasons. It\'s just, you know, you grow up, you move apart.'],
+                                    ['speaker' => 'Dave', 'text' => 'Right. It\'s strange. They say, um, you need seven years of friendship with someone, and then that\'s a lifelong friend.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Wow. I don\'t know if that\'s true. I don\'t know if that\'s true. But what I would say is, sometimes I look back and think, and kind of can\'t believe that we have stayed as close as we are, because we could have so easily not. You know, it would have been no problem at all to just not contact you when you lived in Korea, especially because of the time difference.'],
+                                    ['speaker' => 'Dave', 'text' => 'I think we both put the effort in. I think that\'s what\'s important.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Can I just say, Dave is on a hill. We\'re the same height, but he looks…'],
+                                    ['speaker' => 'Dave', 'text' => 'I\'ll stand here. Look, I am a bit taller than you.'],
+                                    ['speaker' => 'Elliot', 'text' => 'No, you\'re not.'],
+                                    ['speaker' => 'Dave', 'text' => 'I am. Look.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Yeah, yeah. Now look. Look, I\'ll stand where Dave was. Now I look taller than you are.'],
+                                    ['speaker' => 'Dave', 'text' => 'Um, do you feel like it\'s harder or easier to make new friends now as an adult?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Harder.'],
+                                    ['speaker' => 'Dave', 'text' => 'Even for you? \'Cause Elliot\'s quite, um, an extrovert, I would say. You\'re quite talkative and good with people.'],
+                                    ['speaker' => 'Elliot', 'text' => 'No. I think I\'ve become more introverted in later life.'],
+                                    ['speaker' => 'Dave', 'text' => 'Interesting.'],
+                                    ['speaker' => 'Elliot', 'text' => 'You know, definitely… I think that… well, I don\'t know. I\'ve heard that the older men get, the harder they find it to make friends. I mean, by the age of 30, I would say, certainly 40 — not that we are nearly 40 — but you\'ve kind of made all the friends. You\'ve been through all these sort of transformative periods in your life. You\'ve been to school, you might have gone to higher education, university, for example. You\'ve been through your first, second, third job. You\'ve made friends and hopefully maintained friendships throughout all of that. It gets to a point where maybe it gets a bit weird to keep making new friends. That\'s how I feel. I\'m quite self-conscious about that sort of thing.'],
+                                    ['speaker' => 'Dave', 'text' => 'What, about making new friends?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Well, I wouldn\'t want anyone thinking, "Why is this weirdo talking to me? Oh, why is he, like, walking around? Will you be friends with me?"'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah, I don\'t say that.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Um, that is weird. But yeah, I definitely think it\'s harder, also because when you\'re an adult, you are in situations where you meet new people less frequently, less regularly, you know.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah.'],
+                                    ['speaker' => 'Elliot', 'text' => 'And you have to choose who you spend time with. Less free time. So when I went to university, as an example, I was suddenly around hundreds of new people, you know, on my course, who I lived with in the flat. Um, you know, that doesn\'t happen anymore.'],
+                                    ['speaker' => 'Dave', 'text' => 'Right.'],
+                                    ['speaker' => 'Elliot', 'text' => 'I have my own house, and I go and I see the same work colleagues every day. You meet less people. Um, sorry, you meet new people less often.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (stayed close and drift apart
+                                // as the forms Dave and Elliot actually say).
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'stayed close', 'meaning' => 'stayed good friends',
+                                        'gap_before' => 'But I think we ',
+                                        'gap_after' => ' because we stayed in touch, you know.',
+                                    ],
+                                    [
+                                        'phrase' => 'drift apart', 'meaning' => 'slowly become less close',
+                                        'gap_before' => 'Okay, next question is, were you ever surprised that we didn\'t ',
+                                        'gap_after' => '?',
+                                    ],
+                                    [
+                                        'phrase' => 'a lifelong friend', 'meaning' => 'a friend for all of your life',
+                                        'gap_before' => 'you need seven years of friendship with someone, and then that\'s ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'put the effort in', 'meaning' => 'gave time and energy to it',
+                                        'gap_before' => 'I think we both ',
+                                        'gap_after' => '. I think that\'s what\'s important.',
+                                    ],
+                                    [
+                                        'phrase' => 'introverted', 'meaning' => 'quiet, happier with fewer people',
+                                        'gap_before' => 'I think I\'ve become more ',
+                                        'gap_after' => ' in later life.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Dave and his best friend Elliot have known each other since Year 4, when '
+                                    .'they were eight or nine. Dave remembers the first time they played together — he had '
+                                    .'to be Penguin in a game of Batman. When Dave moved to South Korea in 2012, they stayed '
+                                    .'close: they video called, and Elliot saw him every time he came home. Many school '
+                                    .'friends drift apart, but they both put the effort in. They argue about who is taller, '
+                                    .'and then Elliot explains why making new friends is harder as an adult.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Dave and Elliot first met at school when they were about eight or nine.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Elliot thinks it is easier to make new friends as an adult.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'When Dave lived in Korea, Elliot tried to see him every time he came back to the UK.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What game were the children playing the first time Dave remembers Elliot?',
+                                    'options' => ['Football', 'Batman', 'Hide and seek'],
+                                    'correct' => 1,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for what someone is like — soon you\'ll say who is more patient, and who is the most generous.',
+                                // Vocabulary in Use unit 11A-B ("What are you like?", "Opposites"),
+                                // our own sentences.
+                                'story' => 'My friend Nima is very **confident** — he talks to everyone — but his brother is '
+                                    .'quite **shy**. Nima is **hard-working** and **generous**: he always pays for the coffee! '
+                                    .'He\'s also very **honest**, but he isn\'t very **patient** in traffic.',
+                                'words' => [
+                                    ['phrase' => 'confident', 'meaning' => 'sure about yourself and what you can do (opposite: shy)', 'meaning_fa' => 'با اعتمادبه‌نفس', 'pos' => 'adjective', 'example' => "She's confident enough to speak in front of the whole class.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'shy', 'meaning' => 'nervous about meeting or talking to new people', 'meaning_fa' => 'خجالتی', 'pos' => 'adjective', 'example' => 'My son is shy at first, but then he never stops talking.', 'image_query' => 'shy child hiding behind mother', 'difficulty' => 'easy'],
+                                    ['phrase' => 'hard-working', 'meaning' => 'putting a lot of time and effort into your work (opposite: lazy)', 'meaning_fa' => 'سخت‌کوش، پرتلاش', 'pos' => 'adjective', 'example' => 'Ali is the most hard-working person in our office.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'patient', 'meaning' => 'able to stay calm and not get angry when you have to wait (opposite: impatient)', 'meaning_fa' => 'صبور', 'pos' => 'adjective', 'example' => 'My dad is very patient — he taught me to drive.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'generous', 'meaning' => 'happy to give people money, time or help (opposite: mean)', 'meaning_fa' => 'دست‌ودل‌باز، سخاوتمند', 'pos' => 'adjective', 'example' => 'My aunt is so generous — she always brings presents.', 'image_query' => 'friend giving gift', 'difficulty' => 'medium'],
+                                    ['phrase' => 'honest', 'meaning' => 'always telling the truth (opposite: dishonest)', 'meaning_fa' => 'صادق، روراست', 'pos' => 'adjective', 'example' => 'Be honest — do you like my new haircut?', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — this time copy how Elliot compares: "better than" and "as close as".',
+                                'image_query' => 'school playground children playing',
+                                'shadow_lines' => [
+                                    'You\'re **better** than **Penguin**.',
+                                    'We have **stayed** as **close** as we **are**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M08', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'Friends get described by comparison: "he\'s funnier than me", "she\'s the most patient person I know".',
+                                'focus' => 'Comparatives & Superlatives',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 105-108: -er / more + than,
+                                // much / a bit + comparative, as … as, then the -est /
+                                // the most.
+                                'lesson' => [
+                                    'intro' => 'Four ways to compare people: -er / more, much / a bit, as … as, and the -est / the most.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · -er or more … than',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Short adjectives take <strong>-er</strong>, longer ones take <strong>more</strong>, then <strong>than</strong>: <strong>Dave is taller than Elliot. Tony is more serious than Ian.</strong>',
+                                                    'fa' => 'برای مقایسه‌ی دو نفر: صفت کوتاه + er و صفت بلند more + صفت، و بعد than. صفت دوهجایی که به y ختم می‌شود: funny → funnier. بی‌قاعده‌ها: good → better، bad → worse، far → further.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Comparative',
+                                                    'parts' => [
+                                                        ['text' => 'My brother', 'caption' => 'subject'],
+                                                        ['text' => 'is', 'caption' => 'verb'],
+                                                        ['text' => 'funnier', 'caption' => '-er / more + adjective', 'tone' => 'accent'],
+                                                        ['text' => 'than me', 'caption' => 'than + person'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'She is more tall than me.', 'right' => 'She is taller than me.', 'highlight' => 'taller'],
+                                                        ['wrong' => 'He is more gooder at maths.', 'right' => 'He is better at maths.', 'highlight' => 'better'],
+                                                        ['wrong' => 'Tony is more serious that Ian.', 'right' => 'Tony is more serious than Ian.', 'highlight' => 'than'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => '-er: short words', 'words' => ['taller', 'older', 'kinder', 'nicer', 'bigger']],
+                                                        ['label' => '-y → -ier', 'words' => ['funnier', 'easier', 'happier', 'lazier']],
+                                                        ['label' => 'more: longer words', 'words' => ['more patient', 'more generous', 'more confident', 'more serious']],
+                                                        ['label' => 'irregular', 'words' => ['good → better', 'bad → worse', 'far → further']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · much / a bit + comparative',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Say how big the difference is: <strong>much / a lot / far</strong> (big) or <strong>a bit / a little / slightly</strong> (small) before the comparative: <strong>Ian\'s much more adventurous.</strong>',
+                                                    'fa' => 'برای اینکه بگویی فرق زیاد است یا کم، much / a lot / far (خیلی) یا a bit / a little / slightly (کمی) را قبل از صفت مقایسه‌ای بگذار. very قبل از صفت مقایسه‌ای نمی‌آید: much taller، نه very taller.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'How much?',
+                                                    'parts' => [
+                                                        ['text' => 'I am', 'caption' => 'subject + verb'],
+                                                        ['text' => 'a bit', 'caption' => 'a bit / much', 'tone' => 'accent'],
+                                                        ['text' => 'taller', 'caption' => 'comparative'],
+                                                        ['text' => 'than you', 'caption' => 'than + person'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'My sister is very older than me.', 'right' => 'My sister is much older than me.', 'highlight' => 'much'],
+                                                        ['wrong' => 'This game is a bit more easier.', 'right' => 'This game is a bit easier.', 'highlight' => 'a bit easier'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'I am a bit taller than you.',
+                                                            'Ian\'s much more solitary than Tony.',
+                                                            'Making friends is a lot harder for adults.',
+                                                        ]],
+                                                        ['label' => 'Two more patterns', 'items' => [
+                                                            'It\'s getting harder and harder to meet new people.',
+                                                            'The older you get, the harder it is to make friends.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · as … as and not as … as',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>as + adjective + as</strong> = the same. <strong>not as … as</strong> = less: <strong>I\'m not as resourceful as Ian.</strong>',
+                                                    'fa' => 'as + صفت + as یعنی «به همان اندازه». not as … as یعنی «به اندازه‌ی … نیست». در گفتار روزمره بعد از than و as ضمیر مفعولی می‌آید: than me، as him (یا than I am).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'not as … as',
+                                                    'parts' => [
+                                                        ['text' => 'Tony', 'caption' => 'subject'],
+                                                        ['text' => 'isn\'t as', 'caption' => 'not as', 'tone' => 'accent'],
+                                                        ['text' => 'resourceful', 'caption' => 'adjective'],
+                                                        ['text' => 'as Ian', 'caption' => 'as + person'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Reza',
+                                                    'wrong' => 'My brother is as tall like me.',
+                                                    'right' => 'My brother is as tall as me.',
+                                                    'explanation' => 'After as + adjective, say as again — not like and not than.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'We\'re the same height — he\'s as tall as me.',
+                                                            'My new friends aren\'t as close as my school friends.',
+                                                            'He\'ll be the same as he was last time.',
+                                                            'She\'s older than me. = She\'s older than I am.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · the -est and the most',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'To compare one person with the whole group, use <strong>the + -est</strong> or <strong>the most</strong>: <strong>Who is the funniest? Who is the most stubborn?</strong>',
+                                                    'fa' => 'برای مقایسه‌ی یک نفر با کل گروه: the + صفت + est (صفت کوتاه) یا the most + صفت (صفت بلند). good → the best و bad → the worst. برای مکان و گروه in می‌آید (the tallest in my class) و برای تجربه ever + Present Perfect (the nicest thing anybody\'s ever said).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Superlative',
+                                                    'parts' => [
+                                                        ['text' => 'Ian', 'caption' => 'subject'],
+                                                        ['text' => 'is', 'caption' => 'verb'],
+                                                        ['text' => 'the most', 'caption' => 'the -est / the most', 'tone' => 'accent'],
+                                                        ['text' => 'adventurous', 'caption' => 'adjective'],
+                                                        ['text' => 'in our group', 'caption' => 'in + group / place'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'He is most funny person in my class.', 'right' => 'He is the funniest person in my class.', 'highlight' => 'the funniest'],
+                                                        ['wrong' => 'She is the tallest of my family.', 'right' => 'She is the tallest in my family.', 'highlight' => 'in'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'Who was the most mischievous when you were younger?',
+                                                            'It\'s the nicest thing anybody\'s ever said about me.',
+                                                            'I\'m probably the most boring person you\'ve ever met.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences comparing <strong>your</strong> friends — then watch two friends of 60 years play "Who is the most…?", and soon say it out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in Video Shadowing next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'My best friend is more', 'I\'m a bit', 'I\'m not as',
+                                    'The funniest person I know is', 'The most generous friend I have', 'Making new friends as an adult is much',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence comparing people they know, using a correct '
+                                    .'comparative (-er / more + than, with much / a bit / a lot before it when the difference '
+                                    .'is big or small), as … as / not as … as for the same or less, or a correct superlative '
+                                    .'(the -est / the most, often with in + group or ever + present perfect).',
+                                'grammar_major_criteria' => 'a double comparative ("more taller", "more better"), more + a '
+                                    .'short adjective ("more tall"), -er on a long adjective ("patienter"), "that" or "then" '
+                                    .'instead of than, very before a comparative ("very older"), as … like or as … than instead '
+                                    .'of as … as, a superlative without the ("most funny person"), the wrong irregular form '
+                                    .'("gooder", "the baddest"), the sentence does not actually continue the given starter, or '
+                                    .'it is not a genuine personal statement',
+                                'grammar_context' => 'continues with a comparative + than, much / a bit + comparative, as … '
+                                    .'as / not as … as, or the -est / the most, as the starter already given needs',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'My brother is more tall than me.',
+                                        'options' => ['My brother is taller than me.', 'My brother is more tall than me.', 'My brother is tallest than me.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'Sara is the most funny person in our group.',
+                                        'options' => ['Sara is the most funny person in our group.', 'Sara is funnier person in our group.', 'Sara is the funniest person in our group.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'I\'m not as patient than my sister.',
+                                        'options' => ['I\'m not as patient than my sister.', 'I\'m not as patient as my sister.', 'I\'m not patient as my sister.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'Making friends is very harder for adults.',
+                                        'options' => ['Making friends is very harder for adults.', 'Making friends is much harder for adults.', 'Making friends is more harder for adults.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['than', 'is', 'My', 'me.', 'friend', 'funnier', 'best'], 'answer' => 'My best friend is funnier than me.'],
+                                    ['words' => ['as', 'not', 'I\'m', 'him.', 'as', 'confident'], 'answer' => 'I\'m not as confident as him.'],
+                                    ['words' => ['person', 'Who', 'the', 'is', 'patient', 'most', 'you', 'know?'], 'answer' => 'Who is the most patient person you know?'],
+                                ],
+                            ],
+                            [
+                                // A real talk between three real people, natural speed: My
+                                // English Coach Dave's "Best Friends for 60 Years" — the
+                                // "Who is the most…?" game and the question before it, cut to
+                                // about 6 minutes, the creator's burned-in captions blurred
+                                // out (and his top word boxes while they show) so the step's
+                                // own caption toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Dave\'s dad Ian and his friend Tony have been friends for nearly 60 years. Who was the most mischievous? Who is the most stubborn? Watch them point — then say it with them.',
+                                'source' => 'My English Coach Dave — "Best Friends for 60 Years – Can You Understand Their English?"',
+                                'video_url' => $shadowingVideoUrl,
+                                // The creator's own English captions, re-timed per sentence on
+                                // Whisper's word timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M08', 'video_shadowing_segments'),
+                                'topic_summary' => 'Dave sits down with his dad, Ian, and Ian\'s best friend Tony — friends '
+                                    .'for nearly 60 years. First Ian says what he admires about Tony: he is reliable, loyal and '
+                                    .'consistent. Then Dave plays a game: he asks "Who is the most…?", counts three, two, one, '
+                                    .'and they point. Who was the most mischievous? Who was the better student? Who is the '
+                                    .'funniest, the most adventurous, the most stubborn — and who would survive the longest on '
+                                    .'a desert island? After each point, they explain why.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Ian says Tony is reliable, loyal and consistent.', 'correct' => true],
+                                    ['statement' => 'They both agree that Tony is the most adventurous.', 'correct' => false],
+                                    ['statement' => 'Tony thinks Ian would survive longer on a desert island.', 'correct' => true],
+                                ],
+                                // Real phrases Ian, Tony and Dave use on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'balance out', 'meaning' => 'to be different in a way that makes a good mix together'],
+                                    ['phrase' => 'risk-averse', 'meaning' => 'not wanting to take risks'],
+                                    ['phrase' => 'put yourself forward', 'meaning' => 'to offer to do something, without being asked'],
+                                    ['phrase' => 'dig your heels in', 'meaning' => 'to refuse to change your mind'],
+                                    ['phrase' => 'resourceful', 'meaning' => 'good at finding ways to solve problems'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words the
+                                // speakers actually say. Chosen for this mission's grammar: two
+                                // superlatives with ever, a comparative question and answer,
+                                // not as … as, and much more twice. Bold marks naturally-stressed
+                                // content words (rendered by <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'It\'s the **nicest** thing **anybody\'s** ever **said** about me.',
+                                    'I\'m **probably** the most **boring** person you\'ve ever **met**.',
+                                    'Who was the **better** **student**?',
+                                    'So **Tony** was the more **academic** person.',
+                                    'I don\'t think I\'m as **resourceful** as **Ian** is.',
+                                    '**Ian\'s** much more **solitary**, but much more **self-sufficient**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M08', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words you need to describe a friend you really trust.',
+                                // Vocabulary in Use unit 11C ("Describing a friend") plus sense
+                                // of humour from 11A, our own sentences.
+                                'story' => 'My best friend Mina is very **sensible** — she never does anything **silly**, so I '
+                                    .'can always **trust** her. She\'s also **creative** and a really **talented** painter. '
+                                    .'And she has a great **sense of humour**: she makes everyone laugh.',
+                                'words' => [
+                                    ['phrase' => 'sensible', 'meaning' => 'practical, and making good decisions (not doing stupid things)', 'meaning_fa' => 'عاقل، منطقی', 'pos' => 'adjective', 'example' => "It's sensible to save some money every month.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'silly', 'meaning' => 'not sensible; a bit stupid, often in a funny way', 'meaning_fa' => 'بچگانه، بی‌فکر، مسخره', 'pos' => 'adjective', 'example' => 'We were silly kids — we once painted the cat blue.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'trust', 'meaning' => 'to be sure that someone is honest and will not hurt you', 'meaning_fa' => 'اعتماد کردن (به کسی)', 'pos' => 'verb', 'example' => 'I trust my sister with all my secrets.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'creative', 'meaning' => 'good at thinking of new ideas and using your imagination', 'meaning_fa' => 'خلاق', 'pos' => 'adjective', 'example' => 'Reza is the most creative person in our team.', 'image_query' => 'artist painting canvas', 'difficulty' => 'easy'],
+                                    ['phrase' => 'talented', 'meaning' => 'having a natural ability to do something well', 'meaning_fa' => 'بااستعداد', 'pos' => 'adjective', 'example' => 'She is a talented singer — much better than me!', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sense of humour', 'meaning' => 'the ability to laugh and to see when something is funny', 'meaning_fa' => 'شوخ‌طبعی', 'pos' => 'noun phrase', 'example' => 'My best friend has a great sense of humour.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now listen for "more introverted" and "less often".',
+                                'image_query' => 'friends meeting in cafe',
+                                'shadow_lines' => [
+                                    'I think I\'ve become **more** **introverted** in **later** **life**.',
+                                    'You **meet** new **people** less **often**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M08', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your best friend — how you met, '
+                                    .'what they are like, and three ways you are different (who is taller, funnier, more '
+                                    .'patient?) — using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Who is your oldest friend? How did you meet?',
+                                    'What is your best friend like? Is he or she more confident than you?',
+                                    'Who is the funniest person in your group of friends?',
+                                    'Have you ever drifted apart from a good friend? What happened?',
+                                    'Is it harder or easier to make friends now than when you were at school?',
+                                    'What do you think makes a friendship last?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Arash and Kian — two friends who are different in almost every way. So why are they still so close?',
+                                'passage_title' => 'Two very different friends',
+                                'image_query' => 'two young men friends laughing',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // and compares the two friends all the way through.
+                                'passage' => 'Arash and Kian have been friends since primary school. They are lifelong friends '
+                                    .'now, but they are very different. Arash is taller and much more confident: he can talk to '
+                                    .'anyone at a party. Kian is shy and quieter, but he is the most hard-working person in '
+                                    .'their class and far more patient than Arash. Arash has a great sense of humour, but he '
+                                    .'can be a bit silly. Kian is more sensible, so when Arash has a problem, Kian is the first '
+                                    .'person he calls — he knows he can trust him. People say opposites attract, and these two '
+                                    .'are the proof. Three years ago, Kian moved to Germany for work, and many people thought '
+                                    .'the two friends would drift apart. They didn\'t. They both put the effort in: they talk '
+                                    .'every Sunday, and because Arash isn\'t as busy as Kian, he usually flies to Berlin. '
+                                    .'"Kian isn\'t as funny as me," Arash says, "but he\'s the most honest and generous friend '
+                                    .'I have."',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'lifelong friends', 'type' => 'reused'],
+                                    ['phrase' => 'confident', 'type' => 'reused'],
+                                    ['phrase' => 'shy', 'type' => 'reused'],
+                                    ['phrase' => 'hard-working', 'type' => 'reused'],
+                                    ['phrase' => 'patient', 'type' => 'reused'],
+                                    ['phrase' => 'sense of humour', 'type' => 'reused'],
+                                    ['phrase' => 'silly', 'type' => 'reused'],
+                                    ['phrase' => 'sensible', 'type' => 'reused'],
+                                    ['phrase' => 'trust', 'type' => 'reused'],
+                                    ['phrase' => 'drift apart', 'type' => 'reused'],
+                                    ['phrase' => 'put the effort in', 'type' => 'reused'],
+                                    ['phrase' => 'honest', 'type' => 'reused'],
+                                    ['phrase' => 'generous', 'type' => 'reused'],
+                                    ['phrase' => 'opposites attract', 'type' => 'new', 'definition' => 'people who are very different often like each other', 'pos' => 'saying', 'example' => 'She loves parties and he loves books — opposites attract!'],
+                                    ['phrase' => 'proof', 'type' => 'new', 'definition' => 'something that shows that a thing is true', 'pos' => 'noun', 'example' => 'This photo is proof that we were friends at school.'],
+                                ],
+                                'topic_summary' => 'A short text about Arash and Kian, friends since primary school. Arash is '
+                                    .'taller, more confident and funnier; Kian is shyer, more sensible and more patient. When '
+                                    .'Kian moved to Germany, they did not drift apart, because they both put the effort in.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Arash is taller than Kian.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Kian is more confident than Arash.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'After Kian moved to Germany, the two friends stopped talking.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'In what ways is Kian different from Arash?',
+                                    'How do the two friends stay close now that Kian lives in Germany?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Writing down why a friend matters is a small gift — you could even send it to them.',
+                                'title' => 'My best friend and me',
+                                'prompts' => [
+                                    ['label' => 'How and when you met', 'image_query' => 'two kids school friends'],
+                                    ['label' => 'What your friend is like', 'image_query' => 'smiling young woman portrait'],
+                                    ['label' => 'Three ways you are different', 'image_query' => 'two friends different styles'],
+                                    ['label' => 'Something you have in common', 'image_query' => 'friends playing football together'],
+                                    ['label' => 'The best thing about your friend', 'image_query' => 'friends hugging'],
+                                    ['label' => 'How you stay close', 'image_query' => 'video call friends laptop'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['-er / more … than', 'much / a bit + comparative', 'as … as', 'not as … as', 'the -est / the most', 'stay close', 'put the effort in'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Four friends, one street, four very different styles. Who is the tallest — and who looks the happiest?',
+                                'image_query' => 'four friends walking street',
+                                'guiding_questions' => [
+                                    'Who is the tallest of the four friends? Who is the shortest?',
+                                    'Who looks the most energetic? What is he doing?',
+                                    'Compare the two friends in the middle. Who looks happier? Whose clothes are darker?',
+                                    'Whose shoes are the most colourful? Which shoes do you like best?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): four young men on a
+                                // street, arms round each other — on the left one in a white
+                                // hoodie kicking up a leg, then one in black with red-striped
+                                // trousers laughing, one in a grey hoodie and ripped teal jeans,
+                                // and on the right the tallest, in a black tracksuit, beanie and
+                                // yellow boots. Changing the query or orientation invalidates
+                                // these coordinates.
+                                'hotspots' => [
+                                    ['x' => 72, 'y' => 14, 'question_index' => 0],
+                                    ['x' => 27, 'y' => 55, 'question_index' => 1],
+                                    ['x' => 50, 'y' => 30, 'question_index' => 2],
+                                    ['x' => 70, 'y' => 91, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Describe your best friend. How are you similar, and how are you different?',
+                                    'Who is the funniest, the kindest and the most reliable person you know? Why?',
+                                    'Compare your school friends with the friends you have now.',
+                                    'Is it harder to make friends as an adult than as a child? Why?',
+                                    'Tell me about a friend you drifted apart from. What happened?',
+                                    'What makes a friendship last for 60 years?',
+                                ],
+                                'role_reversal_topic' => 'friends and friendship',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your closest friends and how they are different from you.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    '-er / more … than',
+                                    'much / a bit + comparative',
+                                    'as … as / not as … as',
+                                    'the -est / the most',
+                                    'How you met your best friend',
+                                    'Who is the most … in your group',
                                 ],
                             ],
                             [
