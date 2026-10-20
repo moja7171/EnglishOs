@@ -538,7 +538,10 @@ class MissionSeeder extends Seeder
                                 'shadow_lines' => [
                                     'The **very first** **thing** I **do** **every day** is I **wake up**.',
                                     'I **usually** **wanna** **sleep** just a **little** bit **more**.',
+                                    'I **usually** **take** a **shower** **every day** before I **go** to **work**.',
                                     'So I **usually** **make** a **sandwich** and I **grab** a **banana**.',
+                                    '**Every day** at about **7:30** **Monday** through **Friday**, I **go** to **work**.',
+                                    'It **takes** me **only** 10 **minutes** to **drive** from my **house** to the **school** that I **work** at.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'video_shadowing'),
                             ],
@@ -1308,8 +1311,11 @@ class MissionSeeder extends Seeder
                                 // naturally-stressed content words (rendered by
                                 // <x-stress-marked-line>).
                                 'shadow_lines' => [
+                                    'We **met** at a **clinic** that we were both **working** at in **Brighton**.',
                                     "I would **say** you're **very** **trustworthy** and **reliable**.",
                                     "I **think** you're a **very** **good** **listener**.",
+                                    "She's **full** of **life**, she's **non-judgmental** and she's **always** on **time**.",
+                                    "I think she's like a **very** **loyal** **friend** and she's **always** **there**, if you **message** her or **need** her.",
                                     'I would **say** that you are **very**, **very** **kind** and **caring**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'video_shadowing'),
@@ -1944,9 +1950,12 @@ class MissionSeeder extends Seeder
                                 // naturally-stressed content words (rendered by
                                 // <x-stress-marked-line>).
                                 'shadow_lines' => [
+                                    "So, I'm actually a bit of a **creature** of **habit**.",
                                     'I **really** **like** having **very** **similar** **food** **most** **days**.',
+                                    'So, what I **normally** do for **breakfast** is I **normally** get a **bowl**.',
                                     "It's **very** **filling**. It **keeps** me **full** for a **long** **time**.",
-                                    '**Little** **things** like **this** **bring** me so **much** **joy**.',
+                                    'I **cut** the **apple** into **smaller** **pieces**, or I **cut** the apple into **chunks**.',
+                                    'And then to **finish** it **off**, I just **top** it with some **blueberries**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'video_shadowing'),
                             ],
@@ -2553,9 +2562,12 @@ class MissionSeeder extends Seeder
                                 // naturally-stressed content words (rendered by
                                 // <x-stress-marked-line>).
                                 'shadow_lines' => [
+                                    "**Currently**, I'm a **music** **teacher** in **Barcelona**.",
                                     'I **used** to be a **teacher**, but I **retired** in **July**.',
                                     'So, I **work** **part-time**, **doing** that **four** **days** a **week**.',
+                                    "I've **always** **wanted** to be a **tattoo** **artist**, really, since I was a **kid**.",
                                     'I **really** **like** to **work** with **people**, but also **help** **people**.',
+                                    'I work like, quite **long** **hours** and stuff.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'video_shadowing'),
                             ],

@@ -24,14 +24,6 @@ new class extends Component
      */
     public bool $completed = false;
 
-    /**
-     * Self-reported — a YouTube embed has no reliable native "ended"
-     * event the way Listening's <audio> element does (see its real
-     * listenCount, driven by the "ended" event), so this is an honest
-     * checkbox instead of a fabricated automatic watch-count.
-     */
-    public bool $watchedWithCaptions = false;
-
     /** @var array<int, ?UploadedFile> keyed by shadow_lines index */
     public array $shadowRecordings = [];
 
@@ -45,17 +37,16 @@ new class extends Component
      * shape (see EOS-009 §7 v3.16 note). Dropping the AI-checked writing
      * entirely and requiring more real shadowing instead keeps the two
      * steps genuinely different in form, not just in source material.
+     * Each mission seeds a pool of lines to choose from (6), so the learner
+     * records the ones they like — at least this many.
      */
-    private const REQUIRED_SHADOWED_LINES = 2;
+    private const REQUIRED_SHADOWED_LINES = 3;
 
     public function mount(): void
     {
         if (! $this->readOnly) {
             return;
         }
-
-        $data = json_decode($this->run->latestEvidence('video_shadowing')?->content_ref ?? '{}', true);
-        $this->watchedWithCaptions = $data['watched_with_captions'] ?? false;
 
         foreach ($this->run->evidence()->where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
             $decoded = json_decode($audio->content_ref, true);
@@ -102,12 +93,6 @@ new class extends Component
 
     public function save(): void
     {
-        if (! $this->watchedWithCaptions) {
-            $this->addError('watched', 'Watch the video with captions on before continuing.');
-
-            return;
-        }
-
         if ($this->shadowedCount() < self::REQUIRED_SHADOWED_LINES) {
             $this->addError('shadowRecordings', 'Shadow at least '.self::REQUIRED_SHADOWED_LINES.' lines before continuing.');
 
@@ -121,7 +106,6 @@ new class extends Component
             'phase' => 'video_shadowing',
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                'watched_with_captions' => $this->watchedWithCaptions,
                 'shadowed_line_indices' => collect($this->shadowRecordings)->filter()->keys()->values(),
             ]),
         ]);
@@ -174,9 +158,10 @@ new class extends Component
     $targetPhrases = $video['target_phrases'] ?? [];
     $listenCount = $run->learner->audioListenCount($run->mission->code, \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING);
     // Two focused sub-steps instead of one long scroll (EOS-009 §8's
-    // UI/UX review) — watch/setup first, the actual shadowing (a full
-    // voice-recorder per line) second, so the recorders never bury the
-    // watch checkboxes and quick check below the fold.
+    // UI/UX review) — the first watch (just understand it) and the quick
+    // check, then the second watch where the video pauses at each line
+    // and the learner shadows it. Shadowing is never offered on the first
+    // watch and is not a setting: the player only pauses on part 2.
     $totalSubsteps = 2;
     $draftPrefix = $this->draftPrefix();
 @endphp
@@ -198,7 +183,7 @@ new class extends Component
         <div class="mt-2">
             <x-video-player
                 :url="$video['video_url'] ?? ''"
-                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING]"
+                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING, 'manual_report' => true]"
                 :captions-url="$video['captions_url'] ?? null"
                 :title="$video['source'] ?? 'Video'"
                 :segments="$video['video_segments'] ?? []"
@@ -244,24 +229,12 @@ new class extends Component
         </div>
 
         <div wire:loading.class="pointer-events-none" wire:target="save">
-            {{-- Sub-step: watch checkbox, quick check, expressions to notice —
-                 in that order (Epic F): confirm the prerequisite watch
-                 first, then a light check on it, then extra vocabulary. --}}
+            {{-- Sub-step 1, the first watch: just understand the video —
+                 a light check on it, then extra vocabulary. Nothing here
+                 is required, and the player does not pause for shadowing. --}}
             <div x-show="activeSubstep === 0" x-cloak class="space-y-6">
                 @unless ($readOnly)
-                    <div>
-                        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink-soft dark:text-ink-soft-dark">
-                            <input
-                                type="checkbox"
-                                wire:model.live="watchedWithCaptions"
-                                class="h-4 w-4 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                            >
-                            I watched with captions on
-                        </label>
-                        @error('watched')
-                            <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">First watch: just follow the story, with captions if you like. Next you'll watch it again and repeat the lines out loud.</p>
 
                     <div>
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
@@ -287,14 +260,19 @@ new class extends Component
                 @endif
             </div>
 
-            {{-- Sub-step: the actual shadowing — one full recorder per line --}}
+            {{-- Sub-step 2, the second watch: the video restarts and pauses
+                 at each line (see <x-video-player>'s shadow-active); one
+                 full recorder per line below. --}}
             <div x-show="activeSubstep === 1" x-cloak>
                 @if (count($shadowLines))
                     <div>
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
                         @unless ($readOnly)
+                            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
+                                Watch again from the start — it pauses at each line. Repeat it out loud, then record it below.
+                            </p>
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                                Shadow at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines below.
+                                Record at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines — pick the ones you like.
                             </p>
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
                         @endunless
@@ -325,11 +303,11 @@ new class extends Component
                     </div>
                 @endif
 
-                {{-- Always on screen, disabled until done. The checkbox
-                     uses wire:model.live (instant server knowledge) and
-                     shadowedCount() only advances once an upload genuinely
-                     completes, so readiness is known server-side and goes
-                     into ready-when as a literal. --}}
+                {{-- Always on screen, disabled until done. shadowedCount()
+                     only advances once an upload genuinely completes, so
+                     readiness is known server-side and goes into
+                     ready-when as a literal. Having watched is never a
+                     requirement — the recordings are the evidence. --}}
                 @unless ($readOnly)
                     @php
                         $shadowedEnough = $this->shadowedCount() >= $this->requiredShadowedLines();
@@ -339,8 +317,8 @@ new class extends Component
                             on-click="$wire.save()"
                             wire-target="save"
                             loading-label="Saving…"
-                            ready-when="{{ $watchedWithCaptions && $shadowedEnough ? 'true' : 'false' }}"
-                            hint="{{ ! $watchedWithCaptions ? 'Watch the video to continue' : 'Record '.$this->requiredShadowedLines().' shadowed '.Str::plural('line', $this->requiredShadowedLines()).' to continue' }}"
+                            ready-when="{{ $shadowedEnough ? 'true' : 'false' }}"
+                            hint="Record {{ $this->requiredShadowedLines() }} shadowed {{ Str::plural('line', $this->requiredShadowedLines()) }} to continue"
                         />
                     </div>
                 @endunless

@@ -23,6 +23,12 @@ use Livewire\Component;
  * player, so it ignores that event and offers the learner's own "I
  * listened to this one" button instead — stored as a self-reported listen
  * and drawn with hollow dots, so it is never mistaken for a verified one.
+ *
+ * A mission player (allowManualReport) offers the same button next to its
+ * verified count: a player that won't play, a weak connection or a
+ * recording heard elsewhere must never block the learner, so they can say
+ * they listened. Nothing in the program waits on this count — it only
+ * feeds the badge and the learner's own history.
  */
 new class extends Component
 {
@@ -41,8 +47,11 @@ new class extends Component
     #[Locked]
     public bool $selfReportable = false;
 
+    #[Locked]
+    public bool $allowManualReport = false;
+
     /**
-     * @return array{total: int, today: int, last: ?Illuminate\Support\Carbon, byDay: array<int, int>, recent: Illuminate\Support\Collection<int, AudioListen>}
+     * @return array{total: int, selfReported: int, today: int, last: ?Illuminate\Support\Carbon, byDay: array<int, int>, recent: Illuminate\Support\Collection<int, AudioListen>}
      */
     #[Computed]
     public function summary(): array
@@ -64,7 +73,7 @@ new class extends Component
 
     public function reportListen(): void
     {
-        if (! $this->selfReportable) {
+        if (! $this->selfReportable && ! $this->allowManualReport) {
             return;
         }
 
@@ -113,6 +122,8 @@ new class extends Component
     $summary = $this->summary;
     $target = \App\Models\AudioListen::targetFor($source);
     $reached = $summary['total'] >= $target;
+    $canReport = $selfReportable || $allowManualReport;
+    $isVideo = $source === \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING;
 @endphp
 
 <div x-data="{ open: false }" class="flex flex-col items-start gap-2">
@@ -129,8 +140,8 @@ new class extends Component
                 @for ($dot = 1; $dot <= $target; $dot++)
                     <span @class([
                         'h-2 w-2 rounded-full',
-                        'bg-accent dark:bg-accent-dark' => $dot <= $summary['total'] && ! $selfReportable,
-                        'border border-accent bg-accent-soft dark:border-accent-dark dark:bg-accent-soft-dark' => $dot <= $summary['total'] && $selfReportable,
+                        'bg-accent dark:bg-accent-dark' => $dot <= $summary['total'] - $summary['selfReported'],
+                        'border border-accent bg-accent-soft dark:border-accent-dark dark:bg-accent-soft-dark' => $dot > $summary['total'] - $summary['selfReported'] && $dot <= $summary['total'],
                         'bg-line dark:bg-line-dark' => $dot > $summary['total'],
                     ])></span>
                 @endfor
@@ -144,18 +155,18 @@ new class extends Component
             @if ($reached)
                 @svg('heroicon-s-check', 'h-3.5 w-3.5 text-success dark:text-success-dark')
             @endif
-            @if ($selfReportable)
-                <span class="font-normal text-ink-faint dark:text-ink-faint-dark">· self-reported</span>
+            @if ($summary['selfReported'] > 0)
+                <span class="font-normal text-ink-faint dark:text-ink-faint-dark">· {{ $selfReportable ? 'self-reported' : $summary['selfReported'].' self-reported' }}</span>
             @endif
         </button>
 
-        @if ($selfReportable)
+        @if ($canReport)
             <button
                 type="button"
                 wire:click="reportListen"
                 wire:loading.attr="disabled"
                 class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-            >I listened to this one @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
+            >{{ $selfReportable ? 'I listened to this one' : ($isVideo ? 'I watched this' : 'I listened to this') }} @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
         @endif
     </div>
 
@@ -191,6 +202,9 @@ new class extends Component
                 This one plays outside the app, so we can't hear it — it counts when you tell us.
             @else
                 Counts each time you hear at least 90% of it, from the start. Skipping ahead doesn't count.
+                @if ($allowManualReport)
+                    Heard it another way, or the player won't play? Tell us and it counts too (hollow dot) — nothing is locked either way.
+                @endif
             @endif
         </p>
     </div>

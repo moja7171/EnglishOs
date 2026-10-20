@@ -7,6 +7,7 @@ use App\Services\GroqClient;
 use App\Services\ShadowLineTimestampMatcher;
 use App\Services\WebVttParser;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -19,20 +20,31 @@ use Illuminate\Support\Str;
  *   php artisan missions:cache-shadow-timestamps [code]
  *   php artisan db:seed --class=MissionSeeder
  *
- * daily_listen_N (see DailyListenStep) reuses Day 1's Listening audio,
- * which has no pre-existing timing, so those lines are matched against
- * a fresh Groq Whisper transcription (needs real network access — set
+ * Every line is matched against WORD-level Whisper timing, so its pause
+ * lands exactly where its last word ends. Segment or caption-cue timing
+ * isn't precise enough for that: a single segment or cue often holds
+ * several sentences, and a line inside it could only be placed by
+ * guessing from its character offset — which is what made pauses land
+ * on the sentence before or after. daily_listen_N lines are matched
+ * against Day 1's Listening audio; video_shadowing lines against the
+ * video's own audio track (extracted with ffmpeg), falling back to the
+ * captions' cue timing when ffmpeg isn't installed.
+ *
+ * Whisper is called only for what isn't cached yet: the word timelines
+ * (`listening_words`, `video_shadowing_words`) and Day 1's synced-text
+ * segments are kept in the cache file and reused, so re-running after a
+ * shadow_lines edit needs no network and never shifts the segments that
+ * missions:align-listening-speakers built `listening_turns` from. Keys
+ * this command doesn't own are left as they are. Pass --fresh to
+ * transcribe again anyway (needs real network access — set
  * AI_PROXY_URL/AI_PROXY_SECRET first if this environment can't reach
- * api.groq.com directly). video_shadowing already has real, timed
- * WebVTT captions (captions_url) for its own separate video, so those
- * lines are matched against the parsed .vtt instead — no Whisper call,
- * no network needed for that half.
+ * api.groq.com directly).
  */
 class CacheShadowTimestamps extends Command
 {
-    protected $signature = 'missions:cache-shadow-timestamps {code?}';
+    protected $signature = 'missions:cache-shadow-timestamps {code?} {--fresh : Transcribe again instead of reusing cached Whisper output}';
 
-    protected $description = 'Cache real start/end timestamps for every mission\'s shadow_lines (Whisper for daily_listen_N, real captions for video_shadowing)';
+    protected $description = 'Cache real start/end timestamps for every mission\'s shadow_lines (word-level Whisper timing for daily_listen_N and video_shadowing)';
 
     public function handle(GroqClient $groq, ShadowLineTimestampMatcher $matcher): int
     {
@@ -59,24 +71,10 @@ class CacheShadowTimestamps extends Command
      */
     private function processMission(Mission $mission, GroqClient $groq, ShadowLineTimestampMatcher $matcher): bool
     {
-        $result = [];
+        $path = base_path("document/{$mission->code}/shadow_timestamps.json");
+        $cache = is_file($path) ? (json_decode(file_get_contents($path), true) ?: []) : [];
         $unmatched = false;
-
-        $listeningSegments = $this->listeningSegments($mission, $groq);
-
-        // Day 1 Listening's synced-text display reads Whisper's own
-        // segments directly (real text, real timing, zero ambiguity) —
-        // NOT an attempt to align them to the hand-authored, speaker-
-        // labelled transcript. That was tried and dropped: this
-        // transcript groups several sentences per speaker turn (BBC's
-        // own "6 Minute English" style, confirmed on real M02/M03
-        // audio), and a handful of those long, multi-sentence lines
-        // never matched cleanly — a real transcript alignment feature is
-        // more than this needs when the raw segments already give a
-        // perfectly synced, if speaker-label-free, reading experience.
-        if ($listeningSegments !== null) {
-            $result['listening_segments'] = $listeningSegments;
-        }
+        $changed = false;
 
         foreach ($mission->phases ?? [] as $phase) {
             foreach ($phase['steps'] ?? [] as $step) {
@@ -88,18 +86,22 @@ class CacheShadowTimestamps extends Command
                 }
 
                 if ($key === 'video_shadowing') {
-                    $timeline = $this->videoShadowingCues($mission, $step);
-                    $source = 'real captions';
-
                     // Same "reuse the real timed text directly, no
                     // alignment needed" approach as listening_segments —
                     // drives Video Shadowing's own synced text panel.
-                    if ($timeline !== null) {
-                        $result['video_shadowing_segments'] = $timeline;
+                    $cues = $this->videoShadowingCues($mission, $step);
+
+                    if ($cues !== null) {
+                        $cache['video_shadowing_segments'] = $cues;
                     }
+
+                    $words = $this->videoWords($mission, $step, $groq, $cache);
+                    $timeline = $words !== null ? self::trimSilenceFromWords($words) : $cues;
+                    $source = isset($cache['video_shadowing_words']) ? 'Whisper words' : 'captions';
                 } elseif (str_starts_with($key, 'daily_listen_')) {
-                    $timeline = $listeningSegments;
-                    $source = 'Whisper';
+                    $words = $this->listeningWords($mission, $groq, $cache);
+                    $timeline = $words !== null ? self::trimSilenceFromWords($words) : null;
+                    $source = 'Whisper words';
                 } else {
                     continue;
                 }
@@ -122,49 +124,129 @@ class CacheShadowTimestamps extends Command
                     }
                 }
 
-                $result[$key] = $timestamps;
+                $cache[$key] = $timestamps;
+                $changed = true;
             }
         }
 
-        if ($result === []) {
+        if (! $changed) {
             $this->warn("{$mission->code}: no shadow_lines found anywhere — skipping.");
 
             return false;
         }
 
-        $path = base_path("document/{$mission->code}/shadow_timestamps.json");
-        file_put_contents($path, json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        file_put_contents($path, json_encode($cache, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         $this->info("{$mission->code}: wrote {$path}".($unmatched ? ' (with unmatched lines — fix before relying on it)' : ''));
 
         return $unmatched;
     }
 
     /**
+     * Whisper hands the silence before a word to that word: after a pause,
+     * the next word "starts" where the previous one ended (confirmed on
+     * real M01 video audio: "The" ran 40.76s-44.84s, a 4-second word). A
+     * line starting on such a word would be replayed from inside the
+     * sentence before it, so any word longer than it could plausibly take
+     * to say has its start moved up to that plausible length before its
+     * end. Its end is kept — that's where the speaking really stops.
+     *
+     * @param  list<array{text: string, start: float, end: float}>  $words
+     * @return list<array{text: string, start: float, end: float}>
+     */
+    public static function trimSilenceFromWords(array $words): array
+    {
+        return array_map(function (array $word): array {
+            $plausibleSeconds = 0.25 + 0.08 * mb_strlen($word['text']);
+
+            if ($plausibleSeconds < $word['end'] - $word['start']) {
+                $word['start'] = round($word['end'] - $plausibleSeconds, 2);
+            }
+
+            return $word;
+        }, $words);
+    }
+
+    /**
+     * Word-level timing of Day 1's Listening audio, plus its segments for
+     * the synced text panel when they aren't cached yet. Day 1 Listening's
+     * synced-text display reads Whisper's own segments directly (real
+     * text, real timing, zero ambiguity) — NOT an attempt to align them to
+     * the hand-authored, speaker-labelled transcript; see
+     * missions:align-listening-speakers for the speaker-tagged version.
+     *
+     * @param  array<string, mixed>  $cache
      * @return list<array{text: string, start: float, end: float}>|null
      */
-    private function listeningSegments(Mission $mission, GroqClient $groq): ?array
+    private function listeningWords(Mission $mission, GroqClient $groq, array &$cache): ?array
     {
-        $audioUrl = $mission->stepContent('listening')['audio_url'] ?? null;
-
-        if (! $audioUrl) {
-            $this->warn("{$mission->code}: no Listening audio_url — skipping its transcript and daily_listen_N lines.");
-
-            return null;
+        if (! $this->option('fresh') && isset($cache['listening_words'], $cache['listening_segments'])) {
+            return $cache['listening_words'];
         }
 
-        $localPath = $this->resolveLocalPath($mission, $audioUrl);
+        $audioUrl = $mission->stepContent('listening')['audio_url'] ?? null;
+        $localPath = $audioUrl ? $this->resolveLocalPath($mission, $audioUrl) : null;
 
         if (! $localPath) {
-            $this->warn("{$mission->code}: Listening audio file not found — skipping its transcript and daily_listen_N lines.");
+            $this->warn("{$mission->code}: Listening audio file not found — skipping its daily_listen_N lines.");
 
             return null;
         }
 
-        $this->info("{$mission->code}: transcribing ".basename($localPath).' via Whisper...');
-        $segments = $groq->transcribeSegmentsWithTimestamps($localPath);
-        $this->info("{$mission->code}: got ".count($segments).' segments.');
+        if ($this->option('fresh') || ! isset($cache['listening_segments'])) {
+            $this->info("{$mission->code}: transcribing ".basename($localPath).' into segments via Whisper...');
+            $cache['listening_segments'] = $groq->transcribeSegmentsWithTimestamps($localPath);
+        }
 
-        return $segments;
+        $this->info("{$mission->code}: transcribing ".basename($localPath).' into words via Whisper...');
+        $cache['listening_words'] = $groq->transcribeWordsWithTimestamps($localPath);
+        $this->info("{$mission->code}: got ".count($cache['listening_words']).' words.');
+
+        return $cache['listening_words'];
+    }
+
+    /**
+     * Word-level timing of the shadowing video's own audio track, or null
+     * (the caller then falls back to the captions' cue timing) when the
+     * video file or ffmpeg isn't available.
+     *
+     * @param  array<string, mixed>  $cache
+     * @return list<array{text: string, start: float, end: float}>|null
+     */
+    private function videoWords(Mission $mission, array $step, GroqClient $groq, array &$cache): ?array
+    {
+        if (! $this->option('fresh') && isset($cache['video_shadowing_words'])) {
+            return $cache['video_shadowing_words'];
+        }
+
+        $videoPath = ($step['video_url'] ?? null) ? $this->resolveLocalPath($mission, $step['video_url']) : null;
+
+        if (! $videoPath) {
+            $this->warn("{$mission->code}: video_shadowing video file not found — using caption cue timing.");
+
+            return null;
+        }
+
+        // A small mono track keeps the upload well under Whisper's file
+        // size limit; the video itself is far too big to send.
+        $audioPath = storage_path('app/private/'.Str::uuid().'.mp3');
+        $result = Process::timeout(300)->run(['ffmpeg', '-y', '-loglevel', 'error', '-i', $videoPath, '-vn', '-ac', '1', '-ar', '16000', '-b:a', '32k', $audioPath]);
+
+        if ($result->failed() || ! is_file($audioPath)) {
+            $this->warn("{$mission->code}: couldn't extract the video's audio with ffmpeg — using caption cue timing.");
+
+            return null;
+        }
+
+        try {
+            $this->info("{$mission->code}: transcribing the video's audio into words via Whisper...");
+            $cache['video_shadowing_words'] = $groq->transcribeWordsWithTimestamps($audioPath);
+        } finally {
+            @unlink($audioPath);
+        }
+
+        $this->info("{$mission->code}: got ".count($cache['video_shadowing_words']).' words.');
+
+        return $cache['video_shadowing_words'];
     }
 
     /**
@@ -175,7 +257,7 @@ class CacheShadowTimestamps extends Command
         $captionsUrl = $step['captions_url'] ?? null;
 
         if (! $captionsUrl) {
-            $this->warn("{$mission->code}: video_shadowing has no captions_url — skipping.");
+            $this->warn("{$mission->code}: video_shadowing has no captions_url — skipping its text panel.");
 
             return null;
         }
@@ -183,7 +265,7 @@ class CacheShadowTimestamps extends Command
         $localPath = $this->resolveLocalPath($mission, $captionsUrl);
 
         if (! $localPath) {
-            $this->warn("{$mission->code}: video_shadowing captions file not found — skipping.");
+            $this->warn("{$mission->code}: video_shadowing captions file not found — skipping its text panel.");
 
             return null;
         }

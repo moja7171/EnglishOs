@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
 use Random\Engine\Mt19937;
 use Random\Randomizer;
 
-#[Fillable(['learner_id', 'mission_id', 'status', 'started_at', 'completed_at', 'listened_phases'])]
+#[Fillable(['learner_id', 'mission_id', 'status', 'started_at', 'completed_at'])]
 class MissionRun extends Model
 {
     use HasFactory;
@@ -38,22 +38,7 @@ class MissionRun extends Model
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'struggle_signal_count' => 'integer',
-            'listened_phases' => 'array',
         ];
-    }
-
-    public function hasListenedIn(string $phase): bool
-    {
-        return in_array($phase, $this->listened_phases ?? [], true);
-    }
-
-    public function markListenedIn(string $phase): void
-    {
-        if ($this->hasListenedIn($phase)) {
-            return;
-        }
-
-        $this->update(['listened_phases' => [...($this->listened_phases ?? []), $phase]]);
     }
 
     /**

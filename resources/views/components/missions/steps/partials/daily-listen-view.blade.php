@@ -21,7 +21,6 @@
 
     @param \App\Models\MissionRun $run
     @param bool $readOnly
-    @param bool $listened
 --}}
 @php
     $listening = $run->mission->stepContent('listening');
@@ -29,15 +28,7 @@
     $shadowTimestamps = $this->shadowTimestamps();
 @endphp
 
-<div
-    class="space-y-6"
-    data-listened="{{ $listened ? '1' : '' }}"
-    x-data="{
-        hasListened: false,
-        init() { this.hasListened = this.$el.dataset.listened === '1' },
-    }"
-    x-on:audio-listened="hasListened = true; $wire.markListened()"
->
+<div class="space-y-6">
     @if ($imageUrl = $this->heroImageUrl())
         <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
     @endif
@@ -53,7 +44,7 @@
         <div class="mt-2">
             <x-audio-player
                 :url="$listening['audio_url'] ?? null"
-                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => $this->dayNumber()]"
+                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => $this->dayNumber(), 'manual_report' => true]"
                 :segments="$this->listeningSegments()"
                 :shadow-lines="$readOnly ? [] : $shadowLines"
                 :shadow-timestamps="$readOnly ? [] : $shadowTimestamps"
@@ -62,9 +53,10 @@
     </div>
 
     {{-- Shadowing — small (this day's own 2 lines), mandatory, leniently
-         AI-graded (see DailyListenStep::checkShadowLine()). Only appears
-         once the learner has actually heard the episode once today. --}}
-    <div x-show="hasListened || {{ $readOnly ? 'true' : 'false' }}" @unless($readOnly) x-cloak @endunless class="space-y-3">
+         AI-graded (see DailyListenStep::checkShadowLine()). Never gated
+         on having played the audio — the recordings themselves are the
+         evidence, and a player that won't play must not trap anyone. --}}
+    <div class="space-y-3">
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Shadow these lines</p>
 
         @foreach ($shadowLines as $index => $line)
@@ -113,14 +105,12 @@
     </div>
 
     @unless ($readOnly)
-        <p x-show="!hasListened" class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen at least once to continue.</p>
-
         @php $shadowedEnough = $this->shadowedCount() >= count($shadowLines); @endphp
-        <x-sticky-bar ready-when="hasListened && {{ $shadowedEnough ? 'true' : 'false' }}" hint="Listen once, then shadow every line">
+        <x-sticky-bar ready-when="{{ $shadowedEnough ? 'true' : 'false' }}" hint="Shadow every line to continue">
             <button
                 type="button"
                 wire:click="save"
-                x-bind:disabled="! hasListened || {{ $shadowedEnough ? 'false' : 'true' }}"
+                @disabled(! $shadowedEnough)
                 wire:loading.attr="disabled"
                 wire:target="save"
                 class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"

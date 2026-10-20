@@ -13,8 +13,9 @@
         before, with no panel at all.
     @param list<string> $shadowLines Shadowing targets (may carry **bold**
         stress markers), parallel to $shadowTimestamps by index. Given
-        together with it, playback auto-pauses the moment it reaches each
-        line's own real start time and shows a "now you say it" prompt
+        together with it, playback auto-pauses the moment each line has
+        been heard through to its own real end (word-level Whisper timing,
+        see missions:cache-shadow-timestamps) and shows a "now you say it" prompt
         with a replay-this-line button. Deliberately NOT a hard gate —
         recording itself lives in the caller's own persistent, always-
         reachable list below the player (see daily-listen-view.blade.php)
@@ -72,6 +73,8 @@
             shadowSeen: [],
             activeShadowIndex: null,
             replayEndTime: null,
+            lastShadowCheck: null,
+            shadowFrame: null,
             init() {
                 const audio = this.$refs.audio;
                 const seek = this.$refs.seek;
@@ -105,26 +108,12 @@
                     // what caused seeking to snap back to 0.
                     if (! this.dragging) seek.value = audio.currentTime;
 
-                    if (this.replayEndTime !== null && audio.currentTime >= this.replayEndTime) {
-                        audio.pause();
-                        this.replayEndTime = null;
-                    }
-
-                    if (this.activeShadowIndex === null) {
-                        for (let i = 0; i < this.shadowTimestamps.length; i++) {
-                            const point = this.shadowTimestamps[i];
-                            if (! point || this.shadowSeen.includes(i)) continue;
-                            if (audio.currentTime >= point.start && audio.currentTime < point.end) {
-                                audio.pause();
-                                this.activeShadowIndex = i;
-                                this.shadowSeen.push(i);
-                                break;
-                            }
-                        }
-                    }
+                    this.checkShadowPoints(audio);
                 });
+                audio.addEventListener('seeking', () => this.lastShadowCheck = null);
                 audio.addEventListener('play', () => {
                     this.playing = true;
+                    this.watchShadowPoints(audio);
                     if (this.focusOnPlay && this.segments.length) this.focus = true;
                 });
                 audio.addEventListener('pause', () => this.playing = false);
@@ -207,6 +196,49 @@
                 }
                 return -1;
             },
+            // Pauses right as a line has been heard through to its own
+            // real end (so the learner repeats what they just heard) —
+            // checked on every animation frame while playing, not just on
+            // 'timeupdate', which only fires about every 250ms and let the
+            // pause land a word or two into the next sentence. Only a
+            // genuine play-through counts: a seek across a line's end
+            // (lastShadowCheck reset on 'seeking') never fires its pause.
+            checkShadowPoints(media) {
+                const now = media.currentTime;
+                const previous = this.lastShadowCheck;
+                this.lastShadowCheck = now;
+
+                if (this.replayEndTime !== null) {
+                    if (now >= this.replayEndTime) {
+                        media.pause();
+                        this.replayEndTime = null;
+                    }
+                    return;
+                }
+
+                if (previous === null || this.activeShadowIndex !== null || ! (true)) return;
+
+                for (let i = 0; i < this.shadowTimestamps.length; i++) {
+                    const point = this.shadowTimestamps[i];
+                    if (! point || this.shadowSeen.includes(i)) continue;
+                    if (previous < point.end && now >= point.end && now - point.end < 1) {
+                        media.pause();
+                        this.activeShadowIndex = i;
+                        this.shadowSeen.push(i);
+                        break;
+                    }
+                }
+            },
+            watchShadowPoints(media) {
+                if (! this.shadowTimestamps.length || this.shadowFrame) return;
+                const tick = () => {
+                    this.shadowFrame = null;
+                    if (media.paused || media.ended) return;
+                    this.checkShadowPoints(media);
+                    this.shadowFrame = requestAnimationFrame(tick);
+                };
+                this.shadowFrame = requestAnimationFrame(tick);
+            },
             replayShadowLine(index) {
                 const point = this.shadowTimestamps[index];
                 if (! point) return;
@@ -244,6 +276,7 @@
                             :source="$listen['source']"
                             :day-number="$listen['day_number'] ?? null"
                             :pick-key="$listen['pick_key'] ?? null"
+                            :allow-manual-report="$listen['manual_report'] ?? false"
                             :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source'].'-'.($listen['pick_key'] ?? '')"
                         />
                     </div>
