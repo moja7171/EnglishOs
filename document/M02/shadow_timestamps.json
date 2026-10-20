@@ -403,12 +403,12 @@
     ],
     "daily_listen_2": [
         {
-            "start": 69.23,
-            "end": 74.67
+            "start": 49.95,
+            "end": 52.91
         },
         {
-            "start": 179.26,
-            "end": 183.02
+            "start": 80.12,
+            "end": 84.45
         }
     ],
     "video_shadowing_segments": [
@@ -1016,12 +1016,12 @@
     ],
     "daily_listen_3": [
         {
-            "start": 296.09,
-            "end": 299.91
+            "start": 183.5,
+            "end": 189.24
         },
         {
-            "start": 317.03,
-            "end": 320.79
+            "start": 247.83,
+            "end": 251.04
         }
     ],
     "listening_turns": [
@@ -1201,7 +1201,7 @@
         },
         {
             "speaker": "Becca",
-            "text": "months in advance – months before we meet – because, yeah,",
+            "text": "months in advance months before we meet because, yeah,",
             "start": 122.89,
             "end": 126.69
         },
@@ -1417,7 +1417,7 @@
         },
         {
             "speaker": "Phil",
-            "text": "So, we had this idea of being in touch with someone – with a friend.",
+            "text": "So, we had this idea of being in touch with someone with a friend.",
             "start": 278.06,
             "end": 281.95
         },
@@ -1447,7 +1447,7 @@
         },
         {
             "speaker": "Becca",
-            "text": "However, you can get back in touch with someone – that is to start seeing them or speaking to them again.",
+            "text": "However, you can get back in touch with someone that is to start seeing them or speaking to them again.",
             "start": 300.24,
             "end": 307.01
         },

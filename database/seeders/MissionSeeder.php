@@ -127,7 +127,7 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Georgie', 'text' => 'Today we are talking about our morning routines. That is what we usually do in the mornings before work.'],
                                     ['speaker' => 'Neil', 'text' => "OK, let's get started."],
                                     ['speaker' => 'Georgie', 'text' => 'So, Neil, do you like to get up early or do you prefer to sleep in?'],
-                                    ['speaker' => 'Neil', 'text' => "It depends if I have had enough sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about you?"],
+                                    ['speaker' => 'Neil', 'text' => "It depends if I've had enough sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about you?"],
                                     ['speaker' => 'Georgie', 'text' => "Well, I like the mornings sometimes because I feel like it's quieter. Not many people are up. I also feel like my brain works better in the mornings, so that helps. But I do like sleeping in sometimes, especially at the weekends."],
                                     ['speaker' => 'Neil', 'text' => "So, Georgie, you said that your brain works best in the morning. Does that mean that you're a morning person?"],
                                     ['speaker' => 'Georgie', 'text' => "Yes, I think it does. I'm a morning person. That means someone that has a lot of energy at the start of the day."],
@@ -176,7 +176,7 @@ class MissionSeeder extends Seeder
                                 'target_phrases' => [
                                     [
                                         'phrase' => 'get up', 'meaning' => 'to stand up and leave your bed',
-                                        'gap_before' => "It depends if I have had enough sleep. If I've had enough sleep, I can ",
+                                        'gap_before' => "It depends if I've had enough sleep. If I've had enough sleep, I can ",
                                         'gap_after' => ' early.',
                                     ],
                                     [
@@ -275,8 +275,8 @@ class MissionSeeder extends Seeder
                                 // pause points (see missions:cache-shadow-timestamps) — [] until
                                 // that command has been run for this mission.
                                 'shadow_lines' => [
-                                    "I'm **very well**, **thank you**. How are **you**?",
-                                    'That **actually** **happened** this **week**.',
+                                    'I **always** have **breakfast** before I **leave** the **house**.',
+                                    'I **usually** **wake up** **before** my **alarm**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_2'),
                             ],
@@ -584,8 +584,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'alarm clock wake up bed',
                                 'shadow_lines' => [
-                                    '**Otherwise** I\'m **very grumpy**.',
-                                    '**Especially** in the **United Kingdom** because the **weather** can be **different** **every day**.',
+                                    "**Sometimes** I **skip** **breakfast**, because when I **wake up**, I'm **not hungry**.",
+                                    'I **never** **wake up** before my **alarm**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M01', 'daily_listen_3'),
                             ],
@@ -1017,10 +1017,10 @@ class MissionSeeder extends Seeder
                                     ['speaker' => 'Becca', 'text' => 'Yeah, we do. We stay in touch a lot over, like I said, group chats, social media, and we try to meet at least once every month, once every couple of months, you know, if we really try. So yeah, it is easier for us to meet up. So, when was the last time that you saw one of your old friends?'],
                                     ['speaker' => 'Phil', 'text' => "It was probably sometime last year, I think. But yeah, I probably only... Only a couple of times a year, I think, I'd see old friends."],
                                     ['speaker' => 'Becca', 'text' => 'And have you lost touch with any of your old friends? So, to lose touch is to lose that contact that you have with them.'],
-                                    ['speaker' => 'Phil', 'text' => "Yes, I think I have. You don't notice it when it happens, do you, really? Because it's not like you have an argument or you decide, I'm not talking to that person anymore. You just... I don't know. You just don't see them for a long time. If I saw those people again, then I might get back in touch with them. But yeah, there's people that... There're definitely people that I used to know that I haven't seen for a long time. So yeah, I've definitely lost touch with some people."],
+                                    ['speaker' => 'Phil', 'text' => "Yes, I think I have. You don't notice it when it happens, do you, really? Because it's not like you have an argument or you say, I'm not talking to that person anymore. You just... I don't know. You just don't see them for a long time. If I saw those people again, then I might get back in touch with them. But yeah, there's people that... there's definitely people that I used to know that I haven't seen for a long time. So yeah, I've definitely lost touch with some people."],
                                     ['speaker' => 'Becca', 'text' => "So, do you think your friendship groups have, kind of, changed as you've grown older then? If you've lost touch with some old friends, you have newer friends now."],
                                     ['speaker' => 'Phil', 'text' => "What has changed a lot is I have a lot more friends who are families, who have children the same age that we have. Because suddenly when you have children, you have so much in common with people in the same situation, and your children do. And if your children get on very well together, you're going to spend a lot of time together."],
-                                    ['speaker' => 'Becca', 'text' => "I see. So, that's where we're quite different, because a lot of my friends don't have families. And, you know, I don't either. So, it's quite easy for us to stay friends and to stay in touch with each other. OK. Let's recap some of the vocabulary we learned in this episode, starting with old friend. And that's a friend that you've known for a very long time."],
+                                    ['speaker' => 'Becca', 'text' => "I see. So, that's why we're quite different, because a lot of my friends don't have families. And, you know, I don't either. So, it's quite easy for us to stay friends and to stay in touch with each other. OK. Let's recap some of the vocabulary we learned in this episode, starting with old friend. And that's a friend that you've known for a very long time."],
                                     ['speaker' => 'Phil', 'text' => 'So, we had this idea of being in touch with someone – with a friend. And if you are in touch with someone, it means that you see them often. You speak to them often. So, if you keep in touch with someone, it means you continue to do those things even after a long time.'],
                                     ['speaker' => 'Becca', 'text' => "If you lose touch with someone, that means that you don't see or speak to them anymore. However, you can get back in touch with someone – that is to start seeing them or speaking to them again."],
                                     ['speaker' => 'Phil', 'text' => 'And if you stay friends with someone, it means that you continue to be friends with someone for a long period of time.'],
@@ -1042,7 +1042,7 @@ class MissionSeeder extends Seeder
                                     ],
                                     [
                                         'phrase' => 'stay in touch', 'meaning' => 'to keep contact with someone by speaking or writing to them regularly',
-                                        'gap_before' => "Luckily for myself, we don't live very far away, so it is easier to ",
+                                        'gap_before' => "I mean, luckily for myself, we don't live very far away, so it is easier to ",
                                         'gap_after' => '.',
                                     ],
                                     [
@@ -1115,8 +1115,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Let your ear warm up to English again — the same real episode, start to finish.',
                                 'image_query' => 'two friends chatting park bench',
                                 'shadow_lines' => [
-                                    'As you **get older**, you **move away**. You have **families**.',
-                                    "You **don't notice it** when it **happens**, do you, **really**?",
+                                    "Today we're **talking** about **old** **friends**.",
+                                    "I **don't** **often** **see** people that are **very** **old** **friends**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_2'),
                             ],
@@ -1350,8 +1350,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Same audio, one more time — familiar is exactly the point.',
                                 'image_query' => 'friends walking together talking',
                                 'shadow_lines' => [
-                                    'That means that you **don\'t see** or **speak** to them **anymore**.',
-                                    "It's **easy** for me to **stay friends** with some of my **old friends**.",
+                                    "It's **not** like you **have** an **argument** or you **say**, I'm **not talking** to that **person** **anymore**.",
+                                    "A **lot** of my **friends** **don't** **have** **families**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M02', 'daily_listen_3'),
                             ],
@@ -1571,7 +1571,7 @@ class MissionSeeder extends Seeder
 
     /**
      * Seeds M04 with its real content from document/M04/ (M04.pdf, the
-     * "Eat Clean Without Stress" B1 podcast, and the Smashing English
+     * Oxford Online English "Talk About Food and Cooking" lesson, and the Smashing English
      * "What I Eat in a Day" vlog), matching M04.pdf's own 3-day/
      * 10-page compact workbook plan (it names 10 pages — this seeds
      * exactly those 10, plus video_shadowing as an 11th, added once its
@@ -1579,7 +1579,7 @@ class MissionSeeder extends Seeder
      */
     private function seedM04(): void
     {
-        $audioUrl = $this->publishMissionAsset('M04', 'Eat Clean Without Stress - Simple Habits for Everyday Life.mp3');
+        $audioUrl = $this->publishMissionAsset('M04', 'Oxford Online English - Talk About Food and Cooking.mp3');
         $shadowingVideoUrl = $this->publishMissionAsset('M04', 'Smashing English - What I Eat in a Day.mp4');
         $shadowingCaptionsUrl = $this->publishMissionAsset('M04', 'Smashing English - What I Eat in a Day.en.vtt');
 
@@ -1614,138 +1614,129 @@ class MissionSeeder extends Seeder
                                 'key' => 'vocabulary_builder_1',
                                 'label' => 'New Words',
                                 'duration_minutes' => 9,
-                                'hook' => 'Next time someone asks about your diet, will these words be ready — or will you just say "I eat normal food"?',
-                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
-                                // for the full rationale. Day 1 = the real Listening episode's own
-                                // 5 target_phrases, so every learner meets them here first.
-                                'story' => 'I try not to **skip breakfast**, even on busy mornings. Once or twice '
-                                    .'a week we **eat out** instead of cooking. In the afternoon I sometimes get '
-                                    .'a real **craving** for something sweet, so I try to reach for a healthier '
-                                    .'**snack** instead of **processed food**.',
+                                'hook' => 'Five small words that let you say what you really think about a meal.',
+                                // Day 1 = the Listening lesson's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'I like **a bit of** everything, but my favourite **cuisine** is Persian. '
+                                    .'My mum\'s best **dish** is ghormeh sabzi — it\'s never **bland**! On weekdays '
+                                    .'I take a **packed lunch** to work, usually some rice and a little salad.',
                                 'words' => [
-                                    ['phrase' => 'skip breakfast', 'meaning' => 'to not eat breakfast, when you usually do', 'meaning_fa' => 'صبحانه نخوردن', 'pos' => 'verb phrase', 'example' => "She often skips breakfast when she's late for work.", 'difficulty' => 'easy'],
-                                    ['phrase' => 'eat out', 'meaning' => 'to have a meal at a restaurant instead of at home', 'meaning_fa' => 'بیرون غذا خوردن (در رستوران)', 'pos' => 'phrasal verb', 'synonym' => 'dine out', 'example' => 'We eat out most Friday nights.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'craving', 'meaning' => 'a strong desire to eat a particular food', 'meaning_fa' => 'هوس (خوردن چیزی)', 'pos' => 'noun', 'example' => 'I had a craving for chocolate all afternoon.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'meaning_fa' => 'میان‌وعده', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I grabbed a snack before the meeting.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
-                                    ['phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before selling', 'meaning_fa' => 'غذای فرآوری‌شده', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food if you can.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'a bit of', 'meaning' => 'a small amount of something (with uncountable nouns, or "a bit of everything")', 'meaning_fa' => 'کمی، یک مقدار کم', 'pos' => 'quantifier', 'synonym' => 'a little', 'example' => 'Can I have a bit of milk in my tea?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cuisine', 'meaning' => 'the style of cooking of a country or a region', 'meaning_fa' => 'آشپزی (سبک آشپزی یک کشور یا منطقه)', 'pos' => 'noun', 'synonym' => 'cooking, food', 'example' => 'I love Italian cuisine.', 'image_query' => 'italian food table pasta', 'difficulty' => 'medium'],
+                                    ['phrase' => 'dish', 'meaning' => 'one kind of food, cooked or prepared in a special way', 'meaning_fa' => 'غذا (یک نوع غذای پخته‌شده)', 'pos' => 'noun', 'synonym' => "not the same as 'meal'", 'example' => 'Ghormeh sabzi is a famous Iranian dish.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'bland', 'meaning' => 'with very little or no flavour', 'meaning_fa' => 'بی‌مزه، کم‌طعم', 'pos' => 'adjective', 'synonym' => 'opposite: tasty, spicy', 'example' => 'The soup was a bit bland, so I added some salt.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'packed lunch', 'meaning' => 'food you take from home to eat at work or school', 'meaning_fa' => 'ناهار همراه (غذایی که از خانه می‌بری)', 'pos' => 'noun phrase', 'example' => 'I take a packed lunch to work every day.', 'image_query' => 'packed lunch box', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'duration_minutes' => 18,
-                                'hook' => 'Jessica and Lisa are talking honestly about eating clean, mistakes included — how much can you catch?',
-                                'source' => 'B1 Podcast — "Eat Clean Without Stress: Simple Habits for Everyday Life"',
-                                'image_query' => 'healthy breakfast oatmeal fruit',
+                                'hook' => 'Oli and Marie talk about the food they love — and one meal that went badly wrong. Listen for "a lot of", "a bit of" and "much".',
+                                'source' => 'Oxford Online English — "Talk About Food and Cooking in English"',
+                                'image_query' => 'home cooking kitchen',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M04', 'listening_segments'),
-                                // The same chunks split at every change of speaker and tagged with who is
-                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers.
                                 'listening_turns' => $this->shadowTimestampsFor('M04', 'listening_turns'),
-                                'transcript_ref' => 'document/M04/Eat Clean Without Stress - Simple Habits for Everyday Life.transcript.pdf',
-                                // Full real transcript, reconstructed from the podcast's own
-                                // auto-captions (no built-in speaker diarization, so a few
-                                // mid-paragraph turn boundaries are a best-effort judgment call,
-                                // not verified against the raw audio word-for-word) — shown
-                                // in-app only after the learner has genuinely listened twice
-                                // (see ⚡listening.blade.php), same gate as M01/M02.
+                                // The lesson's own human captions for the four parts kept in the cut
+                                // (0:01-0:16, 0:52-2:58, 3:47-4:57, 7:46-10:28 of the original; the
+                                // website plug and the moussaka recipe dropped), checked against a
+                                // Whisper pass of the cut audio. Dialogue speakers as the lesson's
+                                // own page labels them; the explanations by voice.
                                 'transcript' => [
-                                    ['speaker' => 'Jessica', 'text' => "Hi everyone. Welcome back to the five minute English practice. I'm Jessica and I'm really happy you decided to spend some time with us today. Today we're talking about a topic that comes up a lot when people start caring more about their health, their energy, and the way they feel every day. And that topic is eating clean. Some people feel very excited when they hear this phrase because they think it means a fresh start and better habits, while other people feel stressed right away because they imagine strict rules, boring food, and a lifestyle that feels hard to maintain. So today, instead of giving advice or telling you what you should or shouldn't eat, we're simply going to talk honestly about food habits, mistakes, and what eating clean actually looks like in real life, not in a perfect online world. I'm not doing this episode alone. I'm here with Lisa, who has tried eating clean in a very realistic way while working, feeling tired, craving snacks, and still wanting to enjoy food. Hi, Lisa. How are you today?"],
-                                    ['speaker' => 'Lisa', 'text' => "Hi, Jessica. Hi, everyone. I'm doing really well, thank you."],
-                                    ['speaker' => 'Jessica', 'text' => 'So now after some time, how would you describe eating clean in your own words?'],
-                                    ['speaker' => 'Lisa', 'text' => 'For me, eating clean means choosing simple food that feels natural, cooking more meals at home, and eating things that make me feel good after I finish eating instead of feeling uncomfortable or tired.'],
-                                    ['speaker' => 'Jessica', 'text' => "I love that description because it feels very realistic and very kind. For me, eating clean means I try to slow down and think about what my body actually needs instead of eating something just because it's fast or easy."],
-                                    ['speaker' => 'Lisa', 'text' => 'Yes. And that mindset already changes a lot.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Let\'s talk about breakfast because the way we start the day often affects everything else. What does a typical clean breakfast look like for you?'],
-                                    ['speaker' => 'Lisa', 'text' => 'Most mornings I eat oatmeal and I like to take my time preparing it, adding fruit, nuts, maybe a little honey or peanut butter because it feels warm, filling and comforting, especially on busy mornings.'],
-                                    ['speaker' => 'Lisa', 'text' => 'On other days, I choose eggs, usually scrambled eggs with avocado or eggs with toast because it keeps me full and focused for a long time.'],
-                                    ['speaker' => 'Jessica', 'text' => "Yes, eggs made a big difference for me. Before, I often skipped breakfast or just had coffee and I didn't realize how much that affected my mood and energy later in the day."],
-                                    ['speaker' => 'Lisa', 'text' => "That's such an important point. When you eat real breakfast, your whole day feels more balanced."],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. I feel more calm and less rushed when I start the day with proper food.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Now, let\'s talk about snacks because snacks are where many people feel they fail. Lisa, do you snack during the day?'],
-                                    ['speaker' => 'Lisa', 'text' => 'Yes, I do. Especially in the afternoon when my energy drops and I start craving something sweet or crunchy.'],
-                                    ['speaker' => 'Jessica', 'text' => 'That time of day is very dangerous.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Very dangerous. In the past, I ate cookies or chips without thinking. When I started eating clean, I tried to stop snacking completely, but that only made me feel frustrated.'],
-                                    ['speaker' => 'Jessica', 'text' => 'That never works for long.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. So now I still snack, but I choose things that actually help my body, like a fruit with peanut butter, yogurt, nuts, or boiled eggs.'],
-                                    ['speaker' => 'Jessica', 'text' => "That's exactly what I do, too. I don't try to be perfect. I just try to make better choices most of the time."],
-                                    ['speaker' => 'Lisa', 'text' => 'And that made eating clean feel much more realistic.'],
-                                    ['speaker' => 'Jessica', 'text' => "Now, let's talk about processed food. How do you see it?"],
-                                    ['speaker' => 'Lisa', 'text' => "Now processed food is something I still eat sometimes but it's no longer part of my daily routine and I feel the difference very clearly."],
-                                    ['speaker' => 'Jessica', 'text' => 'That difference is huge. It becomes a choice not a habit.'],
-                                    ['speaker' => 'Lisa', 'text' => "Yes. And when it's a choice you don't feel guilty."],
-                                    ['speaker' => 'Jessica', 'text' => "Let's talk about eating out because food is social. How do you handle eating clean when you eat out?"],
-                                    ['speaker' => 'Lisa', 'text' => "I stop stressing about it when I eat out. I choose something simple if I can and if I can't I enjoy the meal and move on."],
-                                    ['speaker' => 'Jessica', 'text' => 'No guilt, no punishment the next day.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. Guilt only makes things worse.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Do you prepare food in advance?'],
-                                    ['speaker' => 'Lisa', 'text' => "Yes, but only basics. I prepare protein, vegetables, and potatoes. So, I don't need to think too much during the week."],
-                                    ['speaker' => 'Jessica', 'text' => 'That already saves a lot of time and energy and it makes eating clean much easier. After eating this way for some time, what changes did you notice?'],
-                                    ['speaker' => 'Lisa', 'text' => 'I had more energy, better digestion, clearer skin, and I felt more connected to my body and my needs.'],
-                                    ['speaker' => 'Jessica', 'text' => "That's beautiful."],
-                                    ['speaker' => 'Lisa', 'text' => 'And mentally, I felt proud because I was taking care of myself.'],
-                                    ['speaker' => 'Jessica', 'text' => 'That feeling matters more than numbers on a scale.'],
-                                    ['speaker' => 'Lisa', 'text' => 'Absolutely.'],
-                                    ['speaker' => 'Jessica', 'text' => 'Before we end, what advice would you give to someone who wants to start eating clean?'],
-                                    ['speaker' => 'Lisa', 'text' => "Start small, be patient, and don't try to be perfect. Focus on how food makes you feel, not just what it looks like."],
-                                    ['speaker' => 'Jessica', 'text' => "That's perfect advice. Thank you so much, Lisa, for this honest and calm conversation. And thank you to everyone listening. Remember, eating clean is about simple food, balance, and listening to your body. Take care and I'll see you next time."],
+                                    ['speaker' => 'Oli', 'text' => "Hi, I'm Oli. Welcome to Oxford Online English! In this lesson, you can learn how to talk about food. You'll see how to talk about different cuisines, talk about food you like – or dislike – and talk about cooking and eating habits."],
+                                    ['speaker' => 'Marie', 'text' => 'What kind of food do you like?'],
+                                    ['speaker' => 'Oli', 'text' => "I like a bit of everything, really. I grew up in the UK, and you can get food from all over the world there. My mum's cooking is a combination of different cuisines: a bit of French, a bit of Italian, a bit of Indian, and so on."],
+                                    ['speaker' => 'Marie', 'text' => "What's British cuisine like? I know about fish and chips, but there must be more…"],
+                                    ['speaker' => 'Oli', 'text' => "There is, but not that much. There are a few famous dishes like shepherd's pie or Sunday roast, but most people eat a mix of things. What about you? What food do you like?"],
+                                    ['speaker' => 'Marie', 'text' => "I'm half Spanish, so when I was young we ate a lot of Mediterranean food at home. Now, I live in Berlin, and it's a pretty cosmopolitan place, so you can get all kinds of food, like the UK, I suppose."],
+                                    ['speaker' => 'Oli', 'text' => "I've never really had much Spanish food. Is it similar to Italian?"],
+                                    ['speaker' => 'Marie', 'text' => "In some ways, yes. They both use a lot of fresh ingredients, and there's a lot of seafood, salads, and so on. Pasta isn't so common in Spanish cooking, though."],
+                                    ['speaker' => 'Oli', 'text' => "What are some typical Spanish dishes? I'd be interested to try some."],
+                                    ['speaker' => 'Marie', 'text' => "I guess paella is quite well-known. My personal favourite is a dish called albondigas, which is meatballs in a tomato sauce. It's simple, but so tasty."],
+                                    ['speaker' => 'Oli', 'text' => 'Sounds good!'],
+                                    ['speaker' => 'Marie', 'text' => "Here's a question: do you know the difference between the words 'cuisine', 'dish' and 'meal'? 'Cuisine' means the kind of food you find in a specific country or culture. For example, you have Chinese cuisine, French cuisine, local cuisine, and so on. 'Cuisine' means something like 'cooking style'. You can use the word 'food' or 'cooking' in the same way. So, you can say 'Chinese cuisine', 'Chinese cooking' or 'Chinese food'. The meaning is very close."],
+                                    ['speaker' => 'Oli', 'text' => "A 'dish' means something which is cooked or prepared. Usually, a dish is made from different kinds of food. A 'meal' is food eaten at a specific time. Most people eat three meals a day: breakfast, lunch and dinner. We often hear English learners make mistakes with these three words, so be careful with them!"],
+                                    ['speaker' => 'Marie', 'text' => "Next, let's look at how to talk about food you like – or don't!"],
+                                    ['speaker' => 'Oli', 'text' => 'So, what do you think?'],
+                                    ['speaker' => 'Marie', 'text' => 'Oh no! This is terrible!'],
+                                    ['speaker' => 'Oli', 'text' => 'Really?'],
+                                    ['speaker' => 'Marie', 'text' => "First, you haven't cooked the meat long enough. It's tough and really chewy. You need to keep cooking it until it's tender."],
+                                    ['speaker' => 'Oli', 'text' => 'I cooked it for two hours, just like you said!'],
+                                    ['speaker' => 'Marie', 'text' => "Yes, but you also have to check that it's done! Also, these vegetables are awful. They're mushy because you've overcooked them. They should be fresh and crunchy."],
+                                    ['speaker' => 'Oli', 'text' => 'Right… What about the sauce?'],
+                                    ['speaker' => 'Marie', 'text' => "It's not bad, but it's a little bland. A dish like this should be rich, spicy and a little sour. While you're cooking, don't forget to taste it, and add more spices, or more vinegar, or whatever it needs. Hmm… OK…"],
+                                    ['speaker' => 'Oli', 'text' => "I'm a little scared to show you my dessert, now."],
+                                    ['speaker' => 'Marie', 'text' => 'Ahh, wow! This is amazing!'],
+                                    ['speaker' => 'Oli', 'text' => 'Oh? You mean it?'],
+                                    ['speaker' => 'Marie', 'text' => "Yes! It's a perfect tart. It's crumbly, but not dry, which is a difficult balance to get right. The fruit gives it a nice, tangy flavour. Very tasty!"],
+                                    ['speaker' => 'Oli', 'text' => "Thank you! Next, let's see how you can talk about cooking habits."],
+                                    ['speaker' => 'Marie', 'text' => 'Do you cook much?'],
+                                    ['speaker' => 'Oli', 'text' => "Sometimes. I cook maybe twice a week, but I'm too busy to do more than that."],
+                                    ['speaker' => 'Marie', 'text' => 'What do you do the rest of the time?'],
+                                    ['speaker' => 'Oli', 'text' => "For lunch, I eat in the canteen at work. In the evening, I generally get something from the supermarket, or get a takeaway. I don't like it, because I know it's more expensive and less healthy than cooking for myself, but I just don't have the time. What about you?"],
+                                    ['speaker' => 'Marie', 'text' => "I make most of my meals. I don't cook every day, though. I normally do a lot of cooking on Sunday, and then I have food for the week. I take a packed lunch to work, and then eat leftovers in the evening."],
+                                    ['speaker' => 'Oli', 'text' => "That's a good system! I wish I could be so organised…"],
+                                    ['speaker' => 'Marie', 'text' => "It helps that I have a market very close to my house. They have great fresh produce, fish, meat… everything you need. That means I don't need to spend much time shopping. Plus, I prefer eating home-cooked, fresh food. If I don't have food with me, I end up eating greasy fast food, and then I feel bloated and gross."],
+                                    ['speaker' => 'Oli', 'text' => "Yeah, I'm the same way… Maybe I'll start cooking more."],
+                                    ['speaker' => 'Marie', 'text' => "Think about the first question you heard in the dialogue: 'Do you cook much?' How would you answer this? You could say something like: 'I cook every day.' 'I don't cook much – maybe once or twice a week.' 'I don't cook. I've never learned how!' If you don't cook, what can you do for food? You heard some phrases in the dialogue. Do you remember?"],
+                                    ['speaker' => 'Oli', 'text' => "Look at some sentences that you heard. Imagine you're an English teacher, and you want to explain the meanings of the words in red."],
+                                    ['speaker' => 'Marie', 'text' => 'How would you do it?'],
+                                    ['speaker' => 'Oli', 'text' => "A canteen is a bit like a restaurant, but it's run by a company for its staff, or by a university for its students. Canteens are usually cheap, or the food might even be free."],
+                                    ['speaker' => 'Marie', 'text' => 'A takeaway means you buy or order the food from a restaurant, and then eat it somewhere else, usually at home.'],
+                                    ['speaker' => 'Oli', 'text' => 'A packed lunch means you take food from home and eat it at work or school.'],
+                                    ['speaker' => 'Marie', 'text' => "If you cook more than you can eat, the extra food is called 'leftovers'. You can eat the leftovers on another day. What about you? Do you cook much? If not, what do you do for food?"],
                                 ],
-                                // Chosen to overlap with vocabulary_builder's own story_words
-                                // (skip breakfast, eat out, craving, processed food, snack) —
-                                // all 5 appear as real substrings in this transcript (the last 3
-                                // exactly, the first 2 as natural tense/gerund variants), so this
-                                // mission reaches full vocab/listening overlap where M03 could
-                                // only get 3/5 (its vocab list wasn't drawn from its own
-                                // transcript). "start small, be patient" and "listening to your
-                                // body" — the previous non-overlapping picks — stay in this
-                                // step's shadow_lines below, so they're not lost, just no longer
-                                // the gap-fill targets. See feedback_content_authoring_conventions
-                                // rule 5 (memory).
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
                                 'target_phrases' => [
                                     [
-                                        'phrase' => 'skipped breakfast', 'meaning' => 'did not eat breakfast, when usually would',
-                                        'gap_before' => 'Yes, eggs made a big difference for me. Before, I often ',
-                                        'gap_after' => ' or just had coffee',
+                                        'phrase' => 'a bit of', 'meaning' => 'a small amount of',
+                                        'gap_before' => 'I like ',
+                                        'gap_after' => ' everything, really.',
                                     ],
                                     [
-                                        'phrase' => 'eating out', 'meaning' => 'eating a meal at a restaurant instead of at home',
-                                        'gap_before' => "Let's talk about ",
-                                        'gap_after' => ' because food is social.',
+                                        'phrase' => 'cuisine', 'meaning' => 'style of cooking of a country',
+                                        'gap_before' => "What's British ",
+                                        'gap_after' => ' like?',
                                     ],
                                     [
-                                        'phrase' => 'craving', 'meaning' => 'having a strong desire to eat something',
-                                        'gap_before' => 'Especially in the afternoon when my energy drops and I start ',
-                                        'gap_after' => ' something sweet or crunchy.',
+                                        'phrase' => 'dish', 'meaning' => 'one kind of cooked food',
+                                        'gap_before' => 'My personal favourite is a ',
+                                        'gap_after' => ' called albondigas, which is meatballs in a tomato sauce.',
                                     ],
                                     [
-                                        'phrase' => 'processed food', 'meaning' => 'food that has been changed a lot from its natural state before being sold',
-                                        'gap_before' => 'Now ',
-                                        'gap_after' => " is something I still eat sometimes but it's no longer part of my daily routine",
+                                        'phrase' => 'bland', 'meaning' => 'with little or no flavour',
+                                        'gap_before' => "It's not bad, but it's a little ",
+                                        'gap_after' => '.',
                                     ],
                                     [
-                                        'phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals',
-                                        'gap_before' => 'Exactly. So now I still ',
-                                        'gap_after' => ', but I choose things that actually help my body',
+                                        'phrase' => 'packed lunch', 'meaning' => 'food you take from home to eat at work',
+                                        'gap_before' => 'I take a ',
+                                        'gap_after' => ' to work, and then eat leftovers in the evening.',
                                     ],
                                 ],
-                                'topic_summary' => 'Jessica and Lisa talk honestly about "eating clean" — what Lisa '
-                                    .'eats for breakfast, how she still snacks but chooses better options, how '
-                                    .'processed food has become a choice rather than a habit, why she doesn\'t '
-                                    .'stress about eating out, what changed once she started, and her advice to '
-                                    .'start small and be patient rather than trying to be perfect.',
+                                'topic_summary' => 'Oli and Marie, two English teachers, talk about food: the cuisines they '
+                                    .'grew up with (British and Spanish) and their favourite dishes; the difference between '
+                                    .'"cuisine", "dish" and "meal"; a short scene where Marie tastes a meal Oli cooked '
+                                    .'(tough meat, mushy vegetables, a bland sauce, but a perfect tart); and their cooking '
+                                    .'habits — Oli cooks about twice a week and eats in the canteen or gets a takeaway, while '
+                                    .'Marie cooks a lot on Sunday, takes a packed lunch and eats leftovers. Then they explain '
+                                    .'canteen, takeaway, packed lunch and leftovers.',
                                 'comprehension_check' => [
-                                    ['statement' => 'Jessica and Lisa talk about eating clean.', 'correct' => true, 'difficulty' => 'easy'],
-                                    ['statement' => 'Lisa says she never eats processed food any more.', 'correct' => false, 'difficulty' => 'medium'],
-                                    ['statement' => 'Lisa still eats snacks, but chooses healthier ones.', 'correct' => true, 'difficulty' => 'hard'],
+                                    ['statement' => 'Oli and Marie talk about food, cooking and eating habits.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Marie says the meat Oli cooked was soft and tender.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Marie does a lot of cooking on Sunday, so she has food for the week.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 'detail_question' => [
-                                    'question' => 'What does Lisa snack on now, instead of cookies or chips?',
-                                    'options' => ['Cake and ice cream', 'Fruit with peanut butter, yogurt, nuts, or boiled eggs', 'Nothing — she stopped snacking completely'],
+                                    'question' => 'What does Oli usually eat for lunch?',
+                                    'options' => ['A packed lunch from home', 'Food from the canteen at work', 'A takeaway pizza'],
                                     'correct' => 1,
                                 ],
-                                // No shadow_lines here — Day 1 Listening is comprehension-only
-                                // (synced text + gap-fill); shadowing is Listen Again's job
-                                // (daily_listen_2/3, see DailyListenStep).
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
                             ],
                         ],
                     ],
@@ -1776,11 +1767,11 @@ class MissionSeeder extends Seeder
                                 'key' => 'daily_listen_2',
                                 'label' => 'Listen Again',
                                 'duration_minutes' => 7,
-                                'hook' => 'Same podcast, one more time — familiar is exactly the point.',
+                                'hook' => 'Same lesson, one more time — copy how Oli and Marie say "a lot of" and "much".',
                                 'image_query' => 'healthy breakfast bowl oatmeal',
                                 'shadow_lines' => [
-                                    '**That** **difference** is **huge**. It **becomes** a **choice** not a **habit**.',
-                                    '**No guilt**, **no punishment** the **next day**.',
+                                    'When I was **young** we ate **a lot of** **Mediterranean** food at **home**.',
+                                    "I've **never** **really** had **much** **Spanish** food.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'daily_listen_2'),
                             ],
@@ -1988,11 +1979,11 @@ class MissionSeeder extends Seeder
                                 'key' => 'daily_listen_3',
                                 'label' => 'Listen Again',
                                 'duration_minutes' => 7,
-                                'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
+                                'hook' => 'Last listen — notice the little words before the nouns: a bit of, a little, much.',
                                 'image_query' => 'fresh food kitchen preparation',
                                 'shadow_lines' => [
-                                    '**That** **already** **saves** a **lot** of **time** and **energy**.',
-                                    '**That** **feeling** **matters** **more** than **numbers** on a **scale**.',
+                                    "It's **not bad**, but it's **a little** **bland**.",
+                                    "That **means** I **don't** need to spend **much** **time** **shopping**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M04', 'daily_listen_3'),
                             ],
@@ -2023,9 +2014,9 @@ class MissionSeeder extends Seeder
                                 'passage_title' => 'Meet Marco',
                                 'image_query' => 'young man portrait smiling kitchen',
                                 // Written fresh for this app (see EOS-009 §14) — reuses several
-                                // Vocabulary Builder pool words/phrases (skips breakfast,
-                                // home-cooked, fresh, sweet tooth, cut down on, processed
-                                // food, junk food) so whichever words a learner picked there,
+                                // Vocabulary Builder pool words/phrases (skips breakfast from
+                                // M01, home-cooked, fresh, sweet tooth, cut down on, junk
+                                // food) so whichever words a learner picked there,
                                 // they meet again here in a fresh context, third person
                                 // instead of first.
                                 'passage' => 'Marco works long hours as a nurse in Rome, so his eating habits change '
@@ -2046,7 +2037,7 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'fresh', 'type' => 'reused'],
                                     ['phrase' => 'sweet tooth', 'type' => 'reused'],
                                     ['phrase' => 'cut down on', 'type' => 'reused'],
-                                    ['phrase' => 'processed food', 'type' => 'reused'],
+                                    ['phrase' => 'processed food', 'type' => 'new', 'definition' => 'food that has been changed a lot in a factory before it is sold', 'pos' => 'noun phrase', 'example' => 'Try to eat less processed food.'],
                                     ['phrase' => 'junk food', 'type' => 'reused'],
                                     ['phrase' => 'vending machine', 'type' => 'new', 'definition' => 'a machine that sells snacks or drinks when you put money in', 'pos' => 'noun phrase', 'example' => 'I bought a bottle of water from the vending machine.'],
                                     ['phrase' => 'sluggish', 'type' => 'new', 'definition' => 'slow-moving and lacking energy', 'pos' => 'adjective', 'example' => 'I always feel sluggish after eating too much.'],
@@ -2178,7 +2169,7 @@ class MissionSeeder extends Seeder
 
     /**
      * Seeds M03 with its real content from document/M03/ (M03.pdf, the
-     * "How to Talk About Your Work" B1 podcast, and the Easy English
+     * Oxford Online English "Talking About Your Job" lesson, and the Easy English
      * "Jobs and Work" street interviews). Matches M02's full
      * 4-phase/~18-step template exactly, per the standing rule that every
      * mission does — NOT M03.pdf's own compact 3-day plan, which only
@@ -2189,7 +2180,7 @@ class MissionSeeder extends Seeder
      */
     private function seedM03(): void
     {
-        $audioUrl = $this->publishMissionAsset('M03', 'How to Talk About Your Work - English Listening and Speaking Practice.mp3');
+        $audioUrl = $this->publishMissionAsset('M03', 'Oxford Online English - Talking About Your Job.mp3');
         $shadowingVideoUrl = $this->publishMissionAsset('M03', 'Easy English - Jobs and Work.mp4');
         $shadowingCaptionsUrl = $this->publishMissionAsset('M03', 'Easy English - Jobs and Work.en.vtt');
 
@@ -2223,126 +2214,96 @@ class MissionSeeder extends Seeder
                             [
                                 'key' => 'vocabulary_builder_1',
                                 'label' => 'New Words',
-                                'duration_minutes' => 7,
-                                'hook' => 'Next time someone asks about your job or studies, will these words be ready — or will you just say "it\'s complicated"?',
-                                // Mission structure redesign, Epic B — see M01's vocabulary_builder_1
-                                // for the full rationale. Day 1 = the real Listening episode's own
-                                // target_phrases that actually overlap with this mission's vocab
-                                // pool — only 3 of the episode's 5 do ("deadline" and "work life
-                                // balance" were never part of the story_words pool; a prior content
-                                // audit found 3/5 was the real ceiling here, not a gap to fix now).
-                                'story' => "I've had a few different **jobs**, and I always try to be a good "
-                                    .'member of the **team**. Part of my job is learning to **deal with** '
-                                    .'difficult situations calmly.',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases that turn "I\'m a nurse" into a real answer about your work.',
+                                // Day 1 = the Listening lesson's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'My aunt is **self-employed** — she **runs her own business**, a small '
+                                    .'bakery. It\'s **challenging** work, but she loves it. Last year my cousin was '
+                                    .'**between jobs**, so he helped her and **looked after** the shop on Saturdays.',
                                 'words' => [
-                                    ['phrase' => 'job', 'meaning' => 'the work someone does regularly to earn money', 'meaning_fa' => 'شغل، کار', 'pos' => 'noun', 'example' => 'She found a new job last month.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'team', 'meaning' => 'a group of people working together on the same goal', 'meaning_fa' => 'تیم، گروه', 'pos' => 'noun', 'synonym' => 'group', 'example' => 'Our team meets every Monday morning.', 'difficulty' => 'easy'],
-                                    ['phrase' => 'deal with', 'meaning' => 'to handle a task or problem', 'meaning_fa' => 'از پس کاری برآمدن، رسیدگی کردن به', 'pos' => 'phrasal verb', 'synonym' => 'handle', 'example' => 'I have to deal with a difficult client today.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'run your own business', 'meaning' => 'to own a company and be the person in charge of it', 'meaning_fa' => 'کسب‌وکار خود را داشتن و اداره کردن', 'pos' => 'verb phrase', 'example' => 'She runs her own business from home.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'self-employed', 'meaning' => 'working for yourself, not for a company or a boss', 'meaning_fa' => 'خویش‌فرما، دارای کار آزاد', 'pos' => 'adjective', 'synonym' => 'freelance', 'example' => "My dad is self-employed — he's a plumber.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'between jobs', 'meaning' => 'not working right now, after leaving one job and before finding the next', 'meaning_fa' => 'بین دو کار، (فعلاً) بی‌کار', 'pos' => 'phrase', 'synonym' => 'a polite way to say: unemployed', 'example' => "I'm between jobs at the moment, so I have more free time.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'look after', 'meaning' => 'to take care of someone or something', 'meaning_fa' => 'مراقبت کردن از، رسیدگی کردن به', 'pos' => 'phrasal verb', 'synonym' => 'take care of', 'example' => 'Nurses have to look after a lot of patients.', 'image_query' => 'nurse caring for patient hospital', 'difficulty' => 'easy'],
+                                    ['phrase' => 'challenging', 'meaning' => 'difficult, but in an interesting way that makes you think and learn', 'meaning_fa' => 'چالش‌برانگیز (سخت ولی جذاب)', 'pos' => 'adjective', 'synonym' => 'opposite: easy, boring', 'example' => 'Teaching is challenging, but I love it.', 'difficulty' => 'medium'],
                                 ],
                             ],
                             [
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'duration_minutes' => 18,
-                                'hook' => 'Lisa and Emily, old university friends, run into each other and catch up about work — how much can you catch?',
-                                'source' => 'B1 Podcast — "How to Talk About Your Work: English Listening and Speaking Practice"',
-                                'image_query' => 'two friends talking cafe',
+                                'hook' => 'Mike shows how people really describe their work — listen for what comes after "I have to".',
+                                'source' => 'Oxford Online English — "Talking About Your Job in English"',
+                                'image_query' => 'pharmacist working pharmacy',
                                 'audio_url' => $audioUrl,
                                 'listening_segments' => $this->shadowTimestampsFor('M03', 'listening_segments'),
-                                // The same chunks split at every change of speaker and tagged with who is
-                                // talking, so the panel reads as a chat — see missions:align-listening-speakers.
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker here.
                                 'listening_turns' => $this->shadowTimestampsFor('M03', 'listening_turns'),
-                                'transcript_ref' => 'document/M03/How to Talk About Your Work - English Listening and Speaking Practice.transcript.pdf',
-                                // Full real transcript, reconstructed from the podcast's own
-                                // captions — narration bookends the dialogue (intro, vocabulary
-                                // recap, outro), Lisa/Emily have the actual conversation in the
-                                // middle. Shown in-app only after the learner has genuinely
-                                // listened twice (see ⚡listening.blade.php), same gate as
-                                // every other mission.
+                                // The lesson's own human captions for the five parts kept in the cut
+                                // (0:02-1:54, 3:08-4:09, 4:23-5:49, 8:14-9:53, 10:13-10:24 of the
+                                // original; parts 2 and 4 dropped), checked against a Whisper pass of
+                                // the cut audio. On-screen blanks are written as "…".
                                 'transcript' => [
-                                    ['speaker' => 'Narrator', 'text' => "Today's episode is called Talking About Your Job. We'll listen to Lisa and her old university friend Emily who meet again at a cafe after a long time. They talk about their current jobs, what they do every day, and how they feel about work."],
-                                    ['speaker' => 'Lisa', 'text' => "Wow, it's so good to see you. I didn't expect to run into you here."],
-                                    ['speaker' => 'Emily', 'text' => 'What a surprise. I was just grabbing a coffee before heading back to the office. How have you been?'],
-                                    ['speaker' => 'Lisa', 'text' => 'Pretty good, thanks. Just busy with work. You know how it is. Are you still in marketing?'],
-                                    ['speaker' => 'Emily', 'text' => "Yes, I am. I've been working as a marketing assistant at a tech company for almost 2 years now."],
-                                    ['speaker' => 'Lisa', 'text' => 'Nice. What exactly do you do there?'],
-                                    ['speaker' => 'Emily', 'text' => 'Well, I help manage our social media accounts, write content for the website, and support the team during product launches. Sometimes I even work on creating short videos for our campaigns.'],
-                                    ['speaker' => 'Lisa', 'text' => 'That sounds creative. Do you like it?'],
-                                    ['speaker' => 'Emily', 'text' => "Most of the time, yes. The team is great and I get to learn new things every day, but it can get stressful, especially when we're close to a deadline or launching a new product."],
-                                    ['speaker' => 'Lisa', 'text' => 'I totally get that. I work in customer service for an online clothing store. I deal with customer emails and help people track their orders or solve delivery problems.'],
-                                    ['speaker' => 'Emily', 'text' => 'Wow, that must be intense. Do you do that in the office?'],
-                                    ['speaker' => 'Lisa', 'text' => "Not always. It's a hybrid role, so I work from home 3 days a week and go to the office twice a week. I actually like the flexibility. It saves time and helps with work life balance."],
-                                    ['speaker' => 'Emily', 'text' => "I wish I had that. I work from the office most days, although we're allowed to work remotely once a week. If I had to go in every day, I'd probably spend half my time stuck in traffic."],
-                                    ['speaker' => 'Lisa', 'text' => 'Exactly. Sometimes I listen to podcasts on the way. Actually, this one called Five Minute English is great.'],
-                                    ['speaker' => 'Emily', 'text' => "No way. I've heard of it, too. Maybe we should start one about our work lives."],
-                                    ['speaker' => 'Narrator', 'text' => "Great job listening. Now, let's take a moment to go over some useful words and expressions from the conversation."],
-                                    ['speaker' => 'Narrator', 'text' => 'One, marketing assistant. This is someone who works with the marketing team. They help with different tasks like writing, posting on social media, or helping with events and promotions.'],
-                                    ['speaker' => 'Narrator', 'text' => "Two, product launch. When a company is ready to show and sell a new product to the public, that's called a product launch. It's often a big event or campaign."],
-                                    ['speaker' => 'Narrator', 'text' => 'Three, hybrid role. This kind of job lets you work in two places, partly from home and partly at the office. It gives people more flexibility during the week.'],
-                                    ['speaker' => 'Narrator', 'text' => "Four, work life balance. This means having a healthy mix between your work and your personal time. When you have good work life balance, you're not too stressed and still have time to relax or be with your family and friends."],
-                                    ['speaker' => 'Narrator', 'text' => 'Five, deadline. A deadline is the latest time or date when something must be done. When people say they have a deadline, it means they need to finish their work by that time.'],
-                                    ['speaker' => 'Narrator', 'text' => "Six, customer service. This is a type of job where you help people who have questions or problems with a product or service. It's about making sure customers are happy and supported."],
-                                    ['speaker' => 'Narrator', 'text' => "Seven, content. Content is anything you create and share online, like writing, photos, or videos. It's often used for websites, blogs, or social media."],
-                                    ['speaker' => 'Narrator', 'text' => 'Eight, campaign. A campaign is a set of planned actions to promote or advertise something. It often includes emails, social media posts, videos, and more.'],
-                                    ['speaker' => 'Narrator', 'text' => "Nine, intense. When something is intense, it feels strong or difficult. A job or day can be intense if there's a lot to do or if it's stressful or fast-paced."],
-                                    ['speaker' => 'Narrator', 'text' => "That's it for today's episode of the Five Minute English Podcast. Want more daily English practice? Subscribe for more beginner lessons every week. See you next time. And remember, practice a little every day."],
+                                    ['speaker' => 'Mike', 'text' => "Hi, I'm Mike and welcome to Oxford Online English! In this lesson, you can learn how to talk about your job in English. Where do you work? What do you have to do in your job? What kind of company do you work for? In this class, you can learn how to answer questions like this in clear, detailed English. Ready? Let's start!"],
+                                    ['speaker' => 'Mike', 'text' => 'Part one: introducing your job. "I\'m a…", "I work in…", "I work for…". How would you complete these sentences? You could say something like: "I\'m a writer. I work in online education. I work for a publishing company." \'I work in\' is used with a field, meaning a type of work. So, you can say things like: "I work in finance." "I work in digital marketing." You can also use \'work in\' with a place or a department of a company. For example: "I work in the HR department of a financial firm."'],
+                                    ['speaker' => 'Mike', 'text' => '"I work in a school, teaching modern languages." Confused? You can see that if you use \'work in\' to talk about the type of work you do, you don\'t use an article like \'a\' or \'the\'. If you use an article \'a\' or \'the\' after \'work in\', it means you\'re talking about the place or department where you work. \'I work for\' is used with a company. So, you could say: "I\'m a salesman. I work for a mobile phone company." "I work for a law firm based in Frankfurt."'],
+                                    ['speaker' => 'Mike', 'text' => 'Or even: "I run my own business, so I work for myself." What if you don\'t work for a company? Here are some things you could say: "I\'m a freelancer." Meaning: I work independently, for different people and companies. "I\'m self-employed." Meaning: I work for myself, either freelance or I have my own business. "I\'m a business owner." If you don\'t work, and people ask you what you do, what can you say? Here are some useful phrases: "I\'m between jobs at the moment." Meaning: I\'ve left one job, and haven\'t found another yet.'],
+                                    ['speaker' => 'Mike', 'text' => 'This sounds nicer than saying, "I\'m unemployed." "I\'m taking some time out to travel, spend time with my kids, write a book, recover from an illness, etc." Meaning: I\'m not working at the moment because I want to focus on something else. "I\'m retired."'],
+                                    ['speaker' => 'Mike', 'text' => 'Part three: how to describe your job in more detail. So what do you actually do all day? Let\'s see how you can describe your job in more detail. Look at these sentences: "I have to…", "I\'m responsible for…", "Most of my time is spent…". Let\'s do some examples together. We\'ll start with a simple example. "I\'m a nurse. I have to look after patients, give them medicine and make sure they\'re comfortable. I\'m responsible for about 20 to 30 patients.'],
+                                    ['speaker' => 'Mike', 'text' => 'Most of my time is spent talking to patients and checking that everything is okay." Next, let\'s do a more detailed example. "I have to design websites to the client\'s specifications. I\'m responsible for the whole design process, so I have to take the client\'s ideas and turn them into a finished product. Most of my time is spent experimenting with different designs and ideas and seeing what looks good, because attention to detail is important in this kind of work." Can you say something like this about your job and what you do?'],
+                                    ['speaker' => 'Mike', 'text' => 'Try to add details if you can.'],
+                                    ['speaker' => 'Mike', 'text' => 'Part five: how to make a longer answer. At this point, you should be able to introduce your work, say where you work, give details about what you do and say how you feel about your work. Let\'s make some longer sample answers together. First one: "I\'m a pharmacist. I started my own small pharmacy, so I\'m also a business owner. I have to work as a pharmacist, of course, giving advice to patients and making sure they have the right medicine.'],
+                                    ['speaker' => 'Mike', 'text' => 'However, I\'m also responsible for the pharmacy, so I have to manage my staff, do the accounts, and so on. It\'s stimulating work because I have to do many different things every day, so I never get bored." Clear? Could you make an answer like this? Let\'s do one more: "I\'m a writer. I work in online education. I work for a big publishing company, which produces different educational materials that are used all around the world. I have to write lesson plans and materials for teachers to use in the classroom.'],
+                                    ['speaker' => 'Mike', 'text' => 'I spend most of my time thinking about how I can make different things fit together into a lesson. It\'s very challenging work and it can be exhausting, but it\'s also very creative and satisfying, because I know people all around the world are using lessons which I wrote." That\'s the end of the lesson. I hope you learned some new ways to talk about your job and what you do. Thanks very much for watching. See you next time!'],
                                 ],
-                                // Chosen to overlap with vocabulary_builder's own story_words
-                                // (job, team, deal with) wherever the real transcript actually
-                                // allows it — only 3 of these 5 vocab words appear naturally in
-                                // this specific podcast's dialogue, the other vocab words
-                                // (career, full-time, part-time, workplace, colleague,
-                                // responsibility, in charge of, working hours, overtime, salary)
-                                // never come up in this particular conversation, so the
-                                // remaining 2 slots stay non-overlapping (deadline, work life
-                                // balance) rather than force a phrase the transcript never says.
-                                // See feedback_content_authoring_conventions (memory).
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (run my own business as Mike says it).
                                 'target_phrases' => [
                                     [
-                                        'phrase' => 'jobs', 'meaning' => 'the work someone does regularly to earn money',
-                                        'gap_before' => 'They talk about their current ',
-                                        'gap_after' => ', what they do every day, and how they feel about work.',
+                                        'phrase' => 'run my own business', 'meaning' => 'own and manage a company yourself',
+                                        'gap_before' => 'Or even: "I ',
+                                        'gap_after' => ', so I work for myself."',
                                     ],
                                     [
-                                        'phrase' => 'team', 'meaning' => 'a group of people working together on the same goal',
-                                        'gap_before' => 'write content for the website, and support the ',
-                                        'gap_after' => ' during product launches.',
+                                        'phrase' => 'self-employed', 'meaning' => 'working for yourself, not for a company',
+                                        'gap_before' => '"I\'m ',
+                                        'gap_after' => '." Meaning: I work for myself, either freelance or I have my own business.',
                                     ],
                                     [
-                                        'phrase' => 'deal with', 'meaning' => 'to handle a task or problem',
-                                        'gap_before' => 'for an online clothing store. I ',
-                                        'gap_after' => ' customer emails and help people track their orders or solve delivery problems.',
+                                        'phrase' => 'between jobs', 'meaning' => 'not working now, between one job and the next',
+                                        'gap_before' => 'Here are some useful phrases: "I\'m ',
+                                        'gap_after' => ' at the moment."',
                                     ],
                                     [
-                                        'phrase' => 'deadline', 'meaning' => 'the latest time or date when something must be done',
-                                        'gap_before' => "it can get stressful, especially when we're close to a ",
-                                        'gap_after' => ' or launching a new product.',
+                                        'phrase' => 'look after', 'meaning' => 'take care of',
+                                        'gap_before' => '"I\'m a nurse. I have to ',
+                                        'gap_after' => " patients, give them medicine and make sure they're comfortable.",
                                     ],
                                     [
-                                        'phrase' => 'work life balance', 'meaning' => 'a healthy mix between your work and your personal time',
-                                        'gap_before' => 'It saves time and helps with ',
-                                        'gap_after' => '.',
+                                        'phrase' => 'challenging', 'meaning' => 'difficult in an interesting way',
+                                        'gap_before' => "It's very ",
+                                        'gap_after' => ' work and it can be exhausting, but it\'s also very creative and satisfying, because I know people all around the world are using lessons which I wrote."',
                                     ],
                                 ],
-                                'topic_summary' => 'Lisa and Emily, old university friends, meet by chance at a cafe and '
-                                    .'catch up about their jobs — Emily works as a marketing assistant at a tech '
-                                    .'company (social media, content, product launches), while Lisa works in '
-                                    .'customer service for an online clothing store with a hybrid schedule (home '
-                                    .'3 days, office 2). They talk about stress, deadlines, work-life balance, and '
-                                    .'commuting, and both listen to the same podcast on the way to work.',
+                                'topic_summary' => 'Mike, an English teacher, shows how to talk about your job: "I work in" '
+                                    .'(a field or a department) versus "I work for" (a company); what to say if you are a '
+                                    .'freelancer, self-employed, between jobs or retired; how to describe your duties with '
+                                    .'"I have to…", "I\'m responsible for…" and "Most of my time is spent…" (a nurse and a '
+                                    .'web designer); and two longer model answers from a pharmacist and a writer.',
                                 'comprehension_check' => [
-                                    ['statement' => 'Emily works as a marketing assistant.', 'correct' => true, 'difficulty' => 'easy'],
-                                    ['statement' => 'Lisa works in the office every day.', 'correct' => false, 'difficulty' => 'medium'],
-                                    ['statement' => 'Both Lisa and Emily listen to the Five Minute English podcast.', 'correct' => true, 'difficulty' => 'hard'],
+                                    ['statement' => 'The lesson is about how to talk about your job.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Mike says "I\'m unemployed" sounds nicer than "I\'m between jobs".', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'The pharmacist never gets bored because there are many different things to do every day.', 'correct' => true, 'difficulty' => 'hard'],
                                 ],
                                 'detail_question' => [
-                                    'question' => 'How many days a week does Lisa work from home?',
-                                    'options' => ['5 days', '3 days', '0 days'],
+                                    'question' => 'In the nurse example, how many patients is the nurse responsible for?',
+                                    'options' => ['About 5', 'About 20 to 30', 'About 100'],
                                     'correct' => 1,
                                 ],
-                                // No shadow_lines here — Day 1 Listening is comprehension-only
-                                // (synced text + gap-fill); shadowing is Listen Again's job
-                                // (daily_listen_2/3, see DailyListenStep).
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
                             ],
                         ],
                     ],
@@ -2371,11 +2332,11 @@ class MissionSeeder extends Seeder
                                 'key' => 'daily_listen_2',
                                 'label' => 'Listen Again',
                                 'duration_minutes' => 9,
-                                'hook' => 'Same podcast, one more time — familiar is exactly the point.',
+                                'hook' => 'Same lesson, one more time — copy how Mike says "have to": it sounds like "hafta".',
                                 'image_query' => 'people working office study',
                                 'shadow_lines' => [
-                                    '**I** **deal with** **customer** **emails** and **help people** **track** their **orders**.',
-                                    '**Sometimes** I **listen** to **podcasts** on the **way**.',
+                                    "I **have to** **look after** patients, give them **medicine** and make sure they're **comfortable**.",
+                                    'I **run** my **own** **business**, so I **work** for **myself**.',
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'daily_listen_2'),
                             ],
@@ -2602,8 +2563,8 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Same audio, one more time — notice how much easier it sounds now.',
                                 'image_query' => 'colleagues office coffee break',
                                 'shadow_lines' => [
-                                    '**Maybe** we **should** **start** **one** about our **work lives**.',
-                                    "**When** you **have** **good** **work life balance**, you're **not too stressed**.",
+                                    "I'm **also** **responsible** for the pharmacy, so I **have to** **manage** my **staff**.",
+                                    "It's **very** **challenging** work and it **can** be **exhausting**.",
                                 ],
                                 'shadow_timestamps' => $this->shadowTimestampsFor('M03', 'daily_listen_3'),
                             ],
@@ -2634,8 +2595,8 @@ class MissionSeeder extends Seeder
                                 'passage_title' => 'Meet Sara',
                                 'image_query' => 'young woman student portrait smiling',
                                 // Written fresh for this app (see EOS-009 §14) — reuses several
-                                // Vocabulary Builder pool words/phrases (team, responsibility,
-                                // deal with, part-time, working hours, in charge of) so
+                                // Vocabulary Builder pool words/phrases (responsibility,
+                                // part-time, working hours, in charge of) so
                                 // whichever words a learner picked there, they meet again here
                                 // in a fresh context, third person instead of first.
                                 'passage' => 'Sara is a second-year student at a university in Leeds. Her days '
@@ -2651,9 +2612,8 @@ class MissionSeeder extends Seeder
                                     .'at the end of her shift, which she says has taught her more about '
                                     .'responsibility than any lecture has.',
                                 'highlighted_phrases' => [
-                                    ['phrase' => 'team', 'type' => 'reused'],
                                     ['phrase' => 'responsibilities', 'type' => 'reused'],
-                                    ['phrase' => 'deal with', 'type' => 'reused'],
+                                    ['phrase' => 'deal with', 'type' => 'new', 'definition' => 'to handle a task or a problem', 'pos' => 'phrasal verb', 'example' => 'I have to deal with a lot of emails every morning.'],
                                     ['phrase' => 'part-time', 'type' => 'reused'],
                                     ['phrase' => 'working hours', 'type' => 'reused'],
                                     ['phrase' => 'in charge of', 'type' => 'reused'],
@@ -2787,6 +2747,8 @@ class MissionSeeder extends Seeder
 
         $this->seedM05();
         $this->seedM06();
+        $this->seedM07();
+        $this->seedM08();
     }
 
     /**
@@ -4032,6 +3994,1450 @@ class MissionSeeder extends Seeder
                                     'was / were',
                                     'When you started',
                                     'One thing that helped you',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M07 "Family" — the roadmap's 'used to' + Past Continuous.
+     * M01/M06's 17-step layout: story_sequence stays, right after Grammar
+     * in Context, because "what was everyone doing?" is exactly what the
+     * Past Continuous narrates in a picture. The lesson follows Grammar in
+     * Use units 6 (Past continuous) then 18 (used to); vocabulary days 2-3
+     * follow Vocabulary in Use units 13A (Relatives) and 14C (Growing up),
+     * all rewritten in our own words. Media the user picked, both from My
+     * English Coach Dave: his 95-year-old Nanar on growing up in Leicester
+     * (cut from 32 to about 6 minutes: birth, house and brothers, a school
+     * story, a normal day and food back then) and his 69-year-old mum on
+     * meeting his dad, him as a baby, and her own childhood (cut from 31
+     * to about 6 minutes, the burned-in captions blurred out, and the top
+     * definition boxes blurred while they are on screen).
+     */
+    private function seedM07(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M07', 'My English Coach Dave - Life Stories with Nanar.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M07', 'My English Coach Dave - Life Stories with Mum.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M07', 'My English Coach Dave - Life Stories with Mum.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M07'],
+            [
+                'title' => 'Family',
+                'module' => 'Family',
+                'outcome' => 'I can talk about my family\'s past — what we used to do when I was a child, and what was happening at a moment I still remember.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'What did your family use to do when you were small — and what was everyone doing in your favourite family photo?',
+                                'image_query' => 'family together home smiling',
+                                'ambient_video_query' => 'family looking at old photographs',
+                                'warm_up_questions' => [
+                                    'Who is in your family?',
+                                    'Where did you grow up?',
+                                    'What did your family use to do at the weekend?',
+                                    'Who were you closest to when you were a child?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Nanar uses about her childhood — you\'ll need them to tell your family\'s story.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => '**Back in the day**, my grandparents couldn\'t **afford** a house, so they **paid rent** '
+                                    .'for two small rooms. My dad and his brother were **thick as thieves** — always laughing, '
+                                    .'always in trouble — and Grandpa often **told them off**.',
+                                'words' => [
+                                    ['phrase' => 'back in the day', 'meaning' => 'in the past, a long time ago', 'meaning_fa' => 'قدیم‌ها، آن زمان‌ها', 'pos' => 'phrase (informal)', 'example' => 'Back in the day, nobody had a phone at home.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'afford', 'meaning' => 'to have enough money to buy or pay for something', 'meaning_fa' => 'از پس هزینه‌ی چیزی برآمدن، توان خرید داشتن', 'pos' => 'verb', 'example' => "We couldn't afford a car when I was a child.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'pay rent', 'meaning' => 'to pay money every month to live in a house that is not yours', 'meaning_fa' => 'اجاره دادن (اجاره‌ی خانه پرداختن)', 'pos' => 'verb phrase', 'example' => 'My parents paid rent for ten years before they bought a flat.', 'image_query' => 'apartment for rent sign', 'difficulty' => 'easy'],
+                                    ['phrase' => 'thick as thieves', 'meaning' => 'very close friends who share secrets', 'meaning_fa' => 'خیلی صمیمی، جیک‌توجیک', 'pos' => 'idiom', 'example' => 'My sister and my cousin were thick as thieves at school.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'tell (someone) off', 'meaning' => 'to speak angrily to someone because they did something wrong', 'meaning_fa' => 'دعوا کردن، سرزنش کردن (کسی)', 'pos' => 'phrasal verb', 'example' => 'My mum told me off for coming home late.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Nanar is 95. Listen to what life used to be like in her house — and what she was doing when her teacher got angry.',
+                                'source' => 'My English Coach Dave — "Learn English with a 95-Year-Old British Woman!"',
+                                'image_query' => 'old family photographs vintage',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M07', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. Two speakers: Dave
+                                // asks, his grandmother Nanar answers.
+                                'listening_turns' => $this->shadowTimestampsFor('M07', 'listening_turns'),
+                                // The five parts kept in the cut (2:26-2:49, 3:33-5:37,
+                                // 7:18-8:00, 9:08-10:34 and 10:51-12:09 of the original),
+                                // written from the video's own English captions and checked
+                                // against a Whisper pass of the cut audio. Nanar's Leicester
+                                // English ("it were", "everybody were") is kept as she says it.
+                                'transcript' => [
+                                    ['speaker' => 'Dave', 'text' => 'Um, so where were you born, and when were you born?'],
+                                    ['speaker' => 'Nanar', 'text' => 'I was born in Bond Street Nursing Home on Easter Sunday, 1930!'],
+                                    ['speaker' => 'Dave', 'text' => '1930! So how old does that make you?'],
+                                    ['speaker' => 'Nanar', 'text' => 'What, now? 95, isn\'t it?'],
+                                    ['speaker' => 'Dave', 'text' => '95, everyone. So, where did you grow up?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Down Bath Lane. It was called Bath Lane.'],
+                                    ['speaker' => 'Dave', 'text' => 'Bath Lane. And which city is that?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Leicester City.'],
+                                    ['speaker' => 'Dave', 'text' => 'Leicester. Okay, Bath Lane. Interesting.'],
+                                    ['speaker' => 'Nanar', 'text' => 'It was called Bath Lane because there was a pub halfway up the road, and it was called the New Bath. And it was a pub, it used to be open till 10, 11 o\'clock at night.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, wow. And when you were young, Nanar, what was your house like when you were a child? What do you remember about the house when you were very young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Well, we didn\'t… my mum hadn\'t got a house. She rented this house from this man who was ill. He slept in the front room all the time.'],
+                                    ['speaker' => 'Dave', 'text' => 'What?'],
+                                    ['speaker' => 'Nanar', 'text' => 'He slept in… the man who owned the house…'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah.'],
+                                    ['speaker' => 'Nanar', 'text' => '…slept in the house. My mum used to pay rent, and we lived in the back two back rooms.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, okay. So it was a shared house.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yes, I suppose so.'],
+                                    ['speaker' => 'Dave', 'text' => 'Wow. And what do you remember about the house? Was it big, dark, cold?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, it was a… well, I used to think it were a poor house, really. Although people lived like that then.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah, yeah. Did you have any brothers or sisters?'],
+                                    ['speaker' => 'Nanar', 'text' => 'I had a brother who died…'],
+                                    ['speaker' => 'Dave', 'text' => 'When you were young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'He died, yeah. He wasn\'t very old. And I got a brother who was… what was Albert? I think Albert was about four or five years older than me. And then there was Ray. There was about 18 months between me and Ray.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah. And you two were thick as thieves.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah, as they say.'],
+                                    ['speaker' => 'Dave', 'text' => 'As they say, yeah. Like two peas in a pod.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. \'Cause when… he used to smoke, and my dad used to tell him off. He used to hit him \'cause he used to smoke.'],
+                                    ['speaker' => 'Dave', 'text' => 'What did you think of school when you were young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Oh dear. Don\'t tell me about school.'],
+                                    ['speaker' => 'Dave', 'text' => 'Why?'],
+                                    ['speaker' => 'Nanar', 'text' => '\'Cause I was in this class and I was doing something, and the teacher made me… because he had a blackboard that swung round…'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, yeah.'],
+                                    ['speaker' => 'Nanar', 'text' => 'And the teacher made me stand behind the blackboard. But the thing was, I kept peeping round, and the class was in uproar.'],
+                                    ['speaker' => 'Dave', 'text' => '\'Cause you were, like, laughing? You were, like, peeping like that.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. Everybody were laughing. And the teacher hit me. So my mum went up to school and hit the teacher.'],
+                                    ['speaker' => 'Dave', 'text' => 'Really? How old were you, roughly?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Eight, nine.'],
+                                    ['speaker' => 'Dave', 'text' => 'So, Nana, what was a normal day like when you were young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'We used to go to school, used to play in the street, play hopscotch.'],
+                                    ['speaker' => 'Dave', 'text' => 'Do you know what hopscotch is?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Don\'t you?'],
+                                    ['speaker' => 'Dave', 'text' => 'I do. Can you describe it?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. You got the slabs on the floor, and you do it: one, two, three, four, five, six, seven, eight, nine, ten. And you had a stone, and you had to throw the stone, and wherever the stone went, you had to hop on one leg to it.'],
+                                    ['speaker' => 'Dave', 'text' => 'And, you know, back in the day, what did you have for breakfast? What was a normal breakfast?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Porridge.'],
+                                    ['speaker' => 'Dave', 'text' => 'Porridge? Every day?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. My mum used to make it with milk.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, right. Porridge. And how did you cook food? Was there an oven?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yes. Like… what do you call them? Stoves.'],
+                                    ['speaker' => 'Dave', 'text' => 'A gas oven?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Gas oven, yeah.'],
+                                    ['speaker' => 'Dave', 'text' => 'So you had an oven in the house. You didn\'t use coal?'],
+                                    ['speaker' => 'Nanar', 'text' => 'We did have coal fires, but I don\'t think she used to, no. She used to use the oven.'],
+                                    ['speaker' => 'Dave', 'text' => 'And this sounds silly, but when you were young, did you have electricity in the house?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, it was all gas.'],
+                                    ['speaker' => 'Dave', 'text' => 'No electricity?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No. Gas.'],
+                                    ['speaker' => 'Dave', 'text' => 'Where did people buy food when you were young? Were there big supermarkets like Tesco\'s and Sainsbury\'s?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, no. We used to go to Worthington\'s quite a lot. It was sort of a shop on the corner or something like that.'],
+                                    ['speaker' => 'Dave', 'text' => 'Okay, so it was small, local shops.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yes, yeah.'],
+                                    ['speaker' => 'Dave', 'text' => 'Okay. But were there supermarkets? I know you didn\'t go to supermarkets.'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, no. We had open market.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, like a real market?'],
+                                    ['speaker' => 'Nanar', 'text' => 'A real market, yes.'],
+                                    ['speaker' => 'Dave', 'text' => 'Wow. Here\'s a question for you, Nanar. What was your favourite meal as a child?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Difficult. It was difficult, because we didn\'t have the money to buy expensive food or nice food. You sort of had to buy what you could afford. But I mean, we used to get chips in the little bag.'],
+                                    ['speaker' => 'Dave', 'text' => 'How much for?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Well, I…'],
+                                    ['speaker' => 'Dave', 'text' => 'I don\'t know the old money, everyone.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Tuppence.'],
+                                    ['speaker' => 'Dave', 'text' => 'Tuppence. That means nothing to me.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Bag of chips for tuppence, and they put salt and vinegar on for you as well.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (tell him off and could afford as
+                                // the forms Nanar actually says).
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'pay rent', 'meaning' => 'pay money every month to live in a house',
+                                        'gap_before' => '…slept in the house. My mum used to ',
+                                        'gap_after' => ', and we lived in the back two back rooms.',
+                                    ],
+                                    [
+                                        'phrase' => 'thick as thieves', 'meaning' => 'very close friends',
+                                        'gap_before' => 'Yeah. And you two were ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'tell him off', 'meaning' => 'speak angrily to him for doing something wrong',
+                                        'gap_before' => 'he used to smoke, and my dad used to ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'back in the day', 'meaning' => 'in the past, long ago',
+                                        'gap_before' => 'And, you know, ',
+                                        'gap_after' => ', what did you have for breakfast?',
+                                    ],
+                                    [
+                                        'phrase' => 'afford', 'meaning' => 'have enough money for',
+                                        'gap_before' => 'You sort of had to buy what you could ',
+                                        'gap_after' => '.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Dave talks with his grandmother Nanar, who was born in 1930 and grew up '
+                                    .'on Bath Lane in Leicester. Her mum used to pay rent for two rooms in a shared house, '
+                                    .'and her dad used to tell off her brother Ray for smoking. She tells a school story — '
+                                    .'she was doing something silly, the teacher hit her, and her mum hit the teacher. Then '
+                                    .'she describes a normal day back then: playing hopscotch in the street, porridge for '
+                                    .'breakfast, a gas oven, no electricity, small local shops, and chips for tuppence.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Nanar was born in 1930.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'When Nanar was a child, her family had their own house.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'After the teacher hit Nanar, her mum went to the school and hit the teacher.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What did Nanar usually have for breakfast?',
+                                    'options' => ['Bacon and eggs', 'Porridge', 'Chips'],
+                                    'correct' => 1,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'The words for the people in your family tree — and how well you get on with them.',
+                                // Vocabulary in Use unit 13A ("Relatives"), our own sentences.
+                                'story' => 'I come from a **close family**. My mum is an **only child**, but my dad has lots of '
+                                    .'**relatives**. I have an **elder** brother and two little sisters who are **twins**. I '
+                                    .'**get on well with** all of them — most of the time!',
+                                'words' => [
+                                    ['phrase' => 'relatives', 'meaning' => 'the people in your family, like aunts, uncles and cousins', 'meaning_fa' => 'اقوام، خویشاوندان', 'pos' => 'noun (plural)', 'synonym' => 'relations', 'example' => 'All our relatives come to our house for the New Year.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'close family', 'meaning' => 'a family who like each other and spend a lot of time together', 'meaning_fa' => 'خانواده‌ی صمیمی و نزدیک به هم', 'pos' => 'noun phrase', 'example' => "We're a close family — we have dinner together every Friday.", 'image_query' => 'happy family hug', 'difficulty' => 'easy'],
+                                    ['phrase' => 'only child', 'meaning' => 'a person who has no brothers or sisters', 'meaning_fa' => 'تک‌فرزند', 'pos' => 'noun phrase', 'example' => "I'm an only child, so my cousins are like my sisters.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'elder', 'meaning' => 'older (used about brothers, sisters and children in a family)', 'meaning_fa' => 'بزرگ‌تر (برادر یا خواهر)', 'pos' => 'adjective', 'synonym' => 'older', 'example' => 'My elder sister lives in Shiraz.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'twins', 'meaning' => 'two children born to the same mother at the same time', 'meaning_fa' => 'دوقلوها', 'pos' => 'noun (plural)', 'example' => 'The twins look the same, but they are very different.', 'image_query' => 'twin sisters', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly relationship with someone', 'meaning_fa' => 'با کسی خوب کنار آمدن، رابطه‌ی خوب داشتن', 'pos' => 'phrasal verb', 'example' => 'I get on well with my uncle — we like the same football team.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — this time copy how Nanar says "used to" and "was doing".',
+                                'image_query' => 'old school classroom blackboard',
+                                'shadow_lines' => [
+                                    'My **mum** **used** to **pay** **rent**.',
+                                    'I was in this **class** and I was **doing** **something**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M07', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'Two ways to go back in time: what was happening at one moment, and what you did again and again.',
+                                'focus' => "Past Continuous + 'used to'",
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 6 and 18: was / were + -ing,
+                                // past continuous vs past simple with when / while, then
+                                // used to, and its negative and question.
+                                'lesson' => [
+                                    'intro' => 'Two past forms: was / were + -ing for what was happening, and used to for what you often did but don\'t do now.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · was / were + -ing',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use <strong>was / were + -ing</strong> for something in the middle of happening at a time in the past: <strong>At 8 o\'clock I was having dinner.</strong>',
+                                                    'fa' => 'برای کاری که در یک لحظه از گذشته در حال انجام بود (هنوز تمام نشده بود) از was / were + ing استفاده کن: At 8 o\'clock I was having dinner.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Past Continuous',
+                                                    'parts' => [
+                                                        ['text' => 'My mum', 'caption' => 'subject'],
+                                                        ['text' => 'was', 'caption' => 'was / were', 'tone' => 'accent'],
+                                                        ['text' => 'cooking', 'caption' => 'verb + -ing'],
+                                                        ['text' => 'at 7 o\'clock', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'We was playing in the street.', 'right' => 'We were playing in the street.', 'highlight' => 'were'],
+                                                        ['wrong' => 'I was play with my cousins.', 'right' => 'I was playing with my cousins.', 'highlight' => 'playing'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'At 10 last night, my dad was watching the news.',
+                                                            'The children were sleeping when we got home.',
+                                                            'What were you doing at this time yesterday?',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · was doing or did? when / while',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'The longer action is <strong>was / were + -ing</strong>; the short one that happens in the middle is past simple: <strong>I was cooking when the phone rang.</strong>',
+                                                    'fa' => 'کار طولانی‌تر که در جریان بود را با was / were + ing بگو و کار کوتاهی که وسط آن اتفاق افتاد را با گذشته‌ی ساده: I was cooking when the phone rang. معمولاً while قبل از کار طولانی و when قبل از کار کوتاه می‌آید.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Something happened in the middle',
+                                                    'parts' => [
+                                                        ['text' => 'While we were eating,', 'caption' => 'was / were + -ing', 'tone' => 'accent'],
+                                                        ['text' => 'my uncle', 'caption' => 'subject'],
+                                                        ['text' => 'arrived', 'caption' => 'past simple', 'tone' => 'success'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Sara',
+                                                    'wrong' => 'I watched TV when my brother was calling me.',
+                                                    'right' => 'I was watching TV when my brother called me.',
+                                                    'explanation' => 'Watching TV was the long action, so it takes was + -ing. The call was short — past simple.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'My grandma was cooking when we arrived.',
+                                                            'I met my best friend while I was living in Tabriz.',
+                                                            'It was raining when we left the house.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · used to + verb',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>used to + verb</strong> = you did it often in the past, or it was true then, but not now: <strong>We used to live near the sea.</strong>',
+                                                    'fa' => 'used to + فعل ساده یعنی کاری را در گذشته بارها انجام می‌دادی یا چیزی در گذشته درست بود، ولی الان دیگر نه: We used to live near the sea. دقت کن: use to برای حال وجود ندارد؛ برای حال از Present Simple استفاده کن.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'used to',
+                                                    'parts' => [
+                                                        ['text' => 'My grandpa', 'caption' => 'subject'],
+                                                        ['text' => 'used to', 'caption' => 'used to', 'tone' => 'accent'],
+                                                        ['text' => 'tell', 'caption' => 'base verb'],
+                                                        ['text' => 'us stories', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I use to visit my grandma every summer.', 'right' => 'I used to visit my grandma every summer.', 'highlight' => 'used to'],
+                                                        ['wrong' => 'We used to playing in the street.', 'right' => 'We used to play in the street.', 'highlight' => 'play'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'then: we used to live in a village', 'right' => 'now: we live in a city'],
+                                                        ['left' => 'then: there used to be a shop on the corner', 'right' => 'now: there is a supermarket'],
+                                                        ['left' => 'then: I used to hate vegetables', 'right' => 'now: I love them'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · didn\'t use to and Did … use to?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'With <strong>did / didn\'t</strong>, write <strong>use to</strong> (no -d): <strong>I didn\'t use to like fish.</strong> <strong>Did you use to walk to school?</strong>',
+                                                    'fa' => 'در جمله‌ی منفی و سؤالی، did نشانه‌ی گذشته است، پس used به use برمی‌گردد: I didn\'t use to، Did you use to …? (مثل didn\'t go، نه didn\'t went).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Question',
+                                                    'parts' => [
+                                                        ['text' => 'Did', 'caption' => 'did', 'tone' => 'accent'],
+                                                        ['text' => 'you', 'caption' => 'subject'],
+                                                        ['text' => 'use to', 'caption' => 'use to (no -d)'],
+                                                        ['text' => 'play outside?', 'caption' => 'base verb + the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Did you used to have a pet?', 'right' => 'Did you use to have a pet?', 'highlight' => 'use to'],
+                                                        ['wrong' => "We didn't used to have a car.", 'right' => "We didn't use to have a car.", 'highlight' => 'use to'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'was / were + -ing: one moment', 'words' => ['at 8 o\'clock', 'when the phone rang', 'while we were eating']],
+                                                        ['label' => 'used to: again and again', 'words' => ['every summer', 'on Sundays', 'when I was a child', 'back in the day']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> family — then tell a picture story about one busy Sunday, and soon say it out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'When I was a child, my family used to', 'My grandparents used to', "I didn't use to",
+                                    'At 8 o\'clock last night, I was', 'When my parents met, they were', 'While my mum was cooking,',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about their family\'s past, using the past '
+                                    .'continuous (was / were + -ing) for something in progress at a past moment, the past '
+                                    .'simple for a short action in the middle of it, and used to + base verb (didn\'t use to '
+                                    .'/ did … use to in negatives and questions) for past habits and states that are not true now.',
+                                'grammar_major_criteria' => 'a wrong form of be ("we was playing"), a missing -ing after '
+                                    .'was / were ("I was play"), "use to" for a past habit in an affirmative sentence, "used to" '
+                                    .'after did / didn\'t, used to + -ing ("used to playing"), the past continuous for the short '
+                                    .'action that interrupts ("when my brother was calling"), the sentence does not actually '
+                                    .'continue the given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues with the past continuous (was / were + -ing), used to + '
+                                    .'base verb, or didn\'t use to + base verb, as the starter already given needs',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I was play football when it started to rain.',
+                                        'options' => ['I was play football when it started to rain.', 'I was playing football when it started to rain.', 'I were playing football when it started to rain.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'I use to visit my grandparents every summer.',
+                                        'options' => ['I used to visit my grandparents every summer.', 'I use to visit my grandparents every summer.', 'I was used to visit my grandparents every summer.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'My dad cooked when my uncle was arriving.',
+                                        'options' => ['My dad cooked when my uncle was arriving.', 'My dad was cooking when my uncle was arriving.', 'My dad was cooking when my uncle arrived.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'Did you used to walk to school?',
+                                        'options' => ['Did you used to walk to school?', 'Did you use to walk to school?', 'Were you use to walk to school?'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['when', 'watching', 'I', 'called.', 'TV', 'you', 'was'], 'answer' => 'I was watching TV when you called.'],
+                                    ['words' => ['the', 'used', 'We', 'sea.', 'live', 'to', 'near'], 'answer' => 'We used to live near the sea.'],
+                                    ['words' => ['use', 'outside?', 'you', 'Did', 'play', 'to'], 'answer' => 'Did you use to play outside?'],
+                                ],
+                            ],
+                            [
+                                'key' => 'story_sequence',
+                                'label' => 'Picture Story',
+                                // Kept for M07 (see M01's and M06's notes): "what was everyone
+                                // doing?" is what the Past Continuous describes, so the pictures
+                                // come right after the lesson as fresh applied practice.
+                                'duration_minutes' => 10,
+                                'hook' => 'You just learned was / were + -ing. Now say what everyone was doing at Grandma\'s house last Sunday, one picture at a time.',
+                                // Captions are ground truth for the AI feedback prompt only —
+                                // never rendered to the learner (see the step's own docblock).
+                                // Each query was checked against its real first Pexels result
+                                // (square), so the picture matches its caption.
+                                'sequence_images' => [
+                                    ['image_query' => 'grandmother baking in kitchen', 'caption' => 'Grandma was making bread in the kitchen', 'alt_description' => 'Old hands kneading dough on a table'],
+                                    ['image_query' => 'grandfather reading newspaper', 'caption' => 'Grandpa was reading his newspaper by the window', 'alt_description' => 'An old man reading a newspaper by a window with the sea outside'],
+                                    ['image_query' => 'kids playing in backyard', 'caption' => 'Little Leo was playing catch outside', 'alt_description' => 'A small boy playing catch with a ball in front of a house'],
+                                    ['image_query' => 'family lunch table grandparents', 'caption' => 'In the end, the whole family was having lunch together outside', 'alt_description' => 'Grandparents and grandchildren having a meal at a table outside'],
+                                ],
+                                // Vocabulary in Use unit 92 (Time and sequence), D and E.
+                                'sequencing_words' => ['First', 'Meanwhile', 'At the same time', 'In the end'],
+                                'narration_tense' => 'Past Continuous',
+                                'narration_kind' => 'what everyone was doing at one moment in the past',
+                                'narration_example' => 'First, Grandma was making bread...',
+                                'narration_not' => 'present or past simple',
+                            ],
+                            [
+                                // A real talk between two real people, natural speed: My English
+                                // Coach Dave's "Learn English with My 69-Year-Old Mum" — four
+                                // parts of the 31-minute walk, cut to about 6 minutes, the
+                                // creator's burned-in captions blurred out (and his top word
+                                // boxes while they show) so the step's own caption toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Dave\'s dad was trying to impress his mum with a very hot curry. Hear her story — and what she used to do as a child — then say it with them.',
+                                'source' => 'My English Coach Dave — "Learn English with My 69-Year-Old Mum"',
+                                'video_url' => $shadowingVideoUrl,
+                                // The video's auto-captions, checked against the creator's
+                                // burned-in captions, re-timed per sentence on Whisper's word
+                                // timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M07', 'video_shadowing_segments'),
+                                'topic_summary' => 'Dave walks in the countryside with his mum and asks about the family. '
+                                    .'She met his dad at a tennis club; on their first date he ate a very hot curry — he was '
+                                    .'trying to impress her. As a baby, Dave made up his own language. Then she remembers her '
+                                    .'own childhood: playing in the street, losing touch with her best friend after the 11-plus '
+                                    .'exam, the meal she used to have most Saturdays, feeling like the poor kid at a posh school, '
+                                    .'and the tennis lessons she and her friends used to skip.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Dave\'s mum and dad met at a tennis club.', 'correct' => true],
+                                    ['statement' => 'Dave\'s mum went to the same secondary school as her best friend Anne.', 'correct' => false],
+                                    ['statement' => 'As a child, Dave\'s mum loved fish fingers, peas and mashed potatoes.', 'correct' => true],
+                                ],
+                                // Real phrases Dave and his mum use on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'get together', 'meaning' => 'to start a romantic relationship'],
+                                    ['phrase' => 'the rest is history', 'meaning' => 'everybody knows what happened after that'],
+                                    ['phrase' => 'show off', 'meaning' => 'to do something to make people notice and admire you'],
+                                    ['phrase' => 'make up', 'meaning' => 'to invent something, like a story or a language'],
+                                    ['phrase' => 'lose touch', 'meaning' => 'to stop seeing or talking to someone over time'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words the
+                                // speakers actually say. Chosen for this mission's grammar: a
+                                // past continuous question and answer, were saying, then used
+                                // to for an old habit three times. Bold marks naturally-stressed
+                                // content words (rendered by <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'So, was he **trying** to **show** **off**?',
+                                    'I **think** he was **trying** to **impress** me.',
+                                    '**Only** **I** could **understand** what you were **saying**.',
+                                    'It was an **exam** that we **used** to **have**.',
+                                    'But I **used** to like to make a **volcano** of my **mashed** **potatoes**.',
+                                    'We **used** to just **knock** the **ball** out of **court**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M07', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for growing up, and for what your parents let you do.',
+                                // Vocabulary in Use unit 14C ("Past and present"), our own sentences.
+                                'story' => 'My mum **grew up** in a small town. She **was brought up** by her grandparents, '
+                                    .'and they were very **strict**: she **wasn\'t allowed to** go to parties. Years later, my '
+                                    .'parents **let** me **stay out late** — very different!',
+                                'words' => [
+                                    ['phrase' => 'grow up', 'meaning' => 'to change from a child into an adult; to spend your childhood somewhere', 'meaning_fa' => 'بزرگ شدن', 'pos' => 'phrasal verb (grow – grew – grown)', 'example' => 'I grew up in Isfahan, near my grandparents.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'be brought up', 'meaning' => 'to be looked after by someone until you are an adult', 'meaning_fa' => 'تربیت شدن، بزرگ شدن (زیر دست کسی)', 'pos' => 'verb phrase (passive)', 'example' => 'He was brought up by his aunt after his parents died.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'strict', 'meaning' => 'making people follow rules and behave well', 'meaning_fa' => 'سخت‌گیر', 'pos' => 'adjective', 'example' => 'My dad was strict about homework.', 'image_query' => 'strict father pointing finger', 'difficulty' => 'easy'],
+                                    ['phrase' => 'be allowed to', 'meaning' => 'to have permission to do something', 'meaning_fa' => 'اجازه داشتن', 'pos' => 'verb phrase', 'example' => "I wasn't allowed to watch TV on school nights.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'let (someone) do', 'meaning' => 'to allow someone to do something (more informal than allow)', 'meaning_fa' => 'اجازه دادن (به کسی برای کاری)', 'pos' => 'verb (let – let – let)', 'synonym' => 'allow (someone) to do', 'example' => 'My parents let me drive their car when I was eighteen.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'stay out late', 'meaning' => 'not to come home until late at night', 'meaning_fa' => 'تا دیروقت بیرون ماندن', 'pos' => 'verb phrase', 'example' => 'Teenagers often want to stay out late with their friends.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now listen for "used to make" and "used to get".',
+                                'image_query' => 'bowl of porridge breakfast',
+                                'shadow_lines' => [
+                                    'My **mum** **used** to **make** it with **milk**.',
+                                    'We **used** to **get** **chips** in the **little** **bag**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M07', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your family when you were a child — '
+                                    .'where you grew up, two things your family used to do, and one moment you remember (what '
+                                    .'was everyone doing?) — using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Where did you grow up? What was your house like?',
+                                    'Do you come from a big family or a small family?',
+                                    'What did your family use to do at the weekend?',
+                                    'Who did you get on well with when you were a child?',
+                                    'Were your parents strict? What weren\'t you allowed to do?',
+                                    'Think of a family photo you like. What was everyone doing in it?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Leila — her grandmother\'s house used to be the centre of the whole family. What happened to it?',
+                                'passage_title' => 'Leila\'s Friday house',
+                                'image_query' => 'grandmother and granddaughter garden',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // and is told mostly in used to and the past continuous.
+                                'passage' => 'Leila grew up in Shiraz in a close family. She was an only child, but she never '
+                                    .'felt alone, because every Friday all her relatives used to come to her grandmother\'s '
+                                    .'house. Back in the day, her grandparents couldn\'t afford a big house — they paid rent '
+                                    .'for a small one with a garden — but there was always room for everyone. Her grandmother '
+                                    .'was quite strict: the children weren\'t allowed to eat before the adults. Leila and her '
+                                    .'elder cousin Sima were thick as thieves, and Grandpa often told them off for climbing the '
+                                    .'orange tree. Leila remembers one Friday very well. Her uncles were talking in the garden, '
+                                    .'her grandmother was cooking rice, and the twins were sleeping on the sofa, when suddenly '
+                                    .'the lights went out. Nobody was worried. Grandpa lit some candles and told stories until '
+                                    .'midnight, and the parents let the children stay out late in the garden. Today the house '
+                                    .'belongs to someone else, but Leila still gets on well with all her cousins.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'grew up', 'type' => 'reused'],
+                                    ['phrase' => 'close family', 'type' => 'reused'],
+                                    ['phrase' => 'only child', 'type' => 'reused'],
+                                    ['phrase' => 'relatives', 'type' => 'reused'],
+                                    ['phrase' => 'Back in the day', 'type' => 'reused'],
+                                    ['phrase' => 'afford', 'type' => 'reused'],
+                                    ['phrase' => 'paid rent', 'type' => 'reused'],
+                                    ['phrase' => 'strict', 'type' => 'reused'],
+                                    ['phrase' => 'weren\'t allowed to', 'type' => 'reused'],
+                                    ['phrase' => 'elder', 'type' => 'reused'],
+                                    ['phrase' => 'thick as thieves', 'type' => 'reused'],
+                                    ['phrase' => 'told them off', 'type' => 'reused'],
+                                    ['phrase' => 'twins', 'type' => 'reused'],
+                                    ['phrase' => 'stay out late', 'type' => 'reused'],
+                                    ['phrase' => 'gets on well with', 'type' => 'reused'],
+                                    ['phrase' => 'lit', 'type' => 'new', 'definition' => 'started a fire or a light burning (past of light)', 'pos' => 'verb (light – lit – lit)', 'example' => 'We lit a candle when the power went off.'],
+                                    ['phrase' => 'belongs to', 'type' => 'new', 'definition' => 'is the property of someone', 'pos' => 'verb phrase', 'example' => 'This old watch belongs to my grandfather.'],
+                                ],
+                                'topic_summary' => 'A short story about Leila, an only child from a close family in Shiraz. '
+                                    .'Every Friday her relatives used to meet at her grandmother\'s small rented house. She '
+                                    .'remembers one evening when everyone was busy and the lights suddenly went out, and the '
+                                    .'night turned into stories by candlelight.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Leila has two brothers.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'Leila\'s grandparents did not own their house.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'When the lights went out, the family was scared and went home.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What did Leila\'s relatives use to do every Friday?',
+                                    'What were the people in the house doing when the lights went out?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Writing about your family\'s past is a way to keep it — and a story your own children may read one day.',
+                                'title' => 'My family, then and now',
+                                'prompts' => [
+                                    ['label' => 'Where you grew up', 'image_query' => 'old neighborhood street houses'],
+                                    ['label' => 'Who was in your family', 'image_query' => 'family portrait vintage'],
+                                    ['label' => 'Something your family used to do', 'image_query' => 'family picnic park'],
+                                    ['label' => 'Something you weren\'t allowed to do', 'image_query' => 'child looking out window'],
+                                    ['label' => 'One moment you remember: what was everyone doing?', 'image_query' => 'family dinner table evening'],
+                                    ['label' => 'How your family is different now', 'image_query' => 'family video call laptop'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['used to + verb', "didn't use to", 'was / were + -ing', 'when / while', 'back in the day', 'when I was a child', 'but now'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Imagine this photo was taken last night when you walked in. What was everyone doing?',
+                                'image_query' => 'big family dinner table grandparents',
+                                'guiding_questions' => [
+                                    'What was the grandfather doing when you walked in?',
+                                    'What was the grandmother holding?',
+                                    'What food was on the table?',
+                                    'Who was the young father looking at? What do you think he was saying?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): a family of three
+                                // generations at a wooden kitchen table — a grey-haired grandfather
+                                // on the left, the grandmother next to him raising a glass, a
+                                // little boy in orange in the middle, a young father turning to a
+                                // curly-haired girl on the right, and plates, fruit and a roast
+                                // on the table. Changing the query or orientation invalidates
+                                // these coordinates.
+                                'hotspots' => [
+                                    ['x' => 22, 'y' => 42, 'question_index' => 0],
+                                    ['x' => 34, 'y' => 62, 'question_index' => 1],
+                                    ['x' => 52, 'y' => 82, 'question_index' => 2],
+                                    ['x' => 76, 'y' => 44, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Tell me about your family when you were a child. Where did you live, and what did you use to do together?',
+                                    'Describe a family member you used to spend a lot of time with.',
+                                    'Talk about a family celebration you remember. What was everyone doing?',
+                                    'What were the rules in your house when you were a child? Were your parents strict?',
+                                    'How is your family life different now from when you were small?',
+                                    'Tell a funny or surprising story from your family\'s past.',
+                                ],
+                                'role_reversal_topic' => 'family life in the past',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your family when you were a child.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'used to + verb',
+                                    "didn't use to",
+                                    'was / were + -ing',
+                                    'when / while',
+                                    'Where you grew up',
+                                    'One family moment you remember',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M08 "Friends" — the roadmap's Comparatives & Superlatives.
+     * M05's 16-step layout (no story_sequence: comparing is not a story
+     * told in order, so the comparisons are practised in Picture
+     * Description and the two AI conversations instead). The lesson follows
+     * Grammar in Use units 105-108 in order: -er / more, much / a bit +
+     * comparative, as … as, then the -est / the most. Vocabulary days 2-3
+     * follow Vocabulary in Use unit 11 (Describing character: A-B, then C
+     * "Describing a friend"), all rewritten in our own words — unit 13B was
+     * already taught in M02. Media the user picked, both from My English
+     * Coach Dave: Dave and his best friend Elliot on how they met, stayed
+     * close and whether making friends gets harder (cut from 46 to about 6
+     * minutes) and Dave's dad Ian with his friend of nearly 60 years, Tony,
+     * playing "Who is the most…?" (cut from 46 to about 6 minutes, the
+     * burned-in captions blurred out, and the top definition boxes blurred
+     * while they are on screen).
+     */
+    private function seedM08(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M08', 'My English Coach Dave - Friendship with Elliot.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M08', 'My English Coach Dave - Best Friends for 60 Years.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M08', 'My English Coach Dave - Best Friends for 60 Years.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M08'],
+            [
+                'title' => 'Friends',
+                'module' => 'Friends',
+                'outcome' => 'I can describe my friends and compare us — who is funnier, who is more patient, who is the most reliable — and say how a friendship has changed.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Who is your oldest friend — and which of you is funnier? Could you explain why in English?',
+                                'image_query' => 'friends group laughing outdoors',
+                                'ambient_video_query' => 'friends walking together park',
+                                'warm_up_questions' => [
+                                    'Who is your best friend?',
+                                    'How did you meet?',
+                                    'What is your friend like?',
+                                    'Who is funnier — you or your best friend?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Dave and Elliot use about their friendship — you\'ll need them to talk about yours.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'Sam and I met at school, and now we\'re **lifelong friends**. When he moved to Canada, '
+                                    .'we **stayed close**, because we both **put the effort in** and called every week. I '
+                                    .'**drifted apart** from my other school friends. Sam has become more **introverted**, '
+                                    .'but with me he still talks for hours.',
+                                'words' => [
+                                    ['phrase' => 'stay close', 'meaning' => 'to stay good friends, even when life changes or you live far apart', 'meaning_fa' => 'صمیمی ماندن، رابطه‌ی نزدیک را حفظ کردن', 'pos' => 'verb phrase', 'example' => 'My cousin and I stayed close after she moved to Mashhad.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'drift apart', 'meaning' => 'to slowly become less close, without a fight, until you are not really friends', 'meaning_fa' => 'کم‌کم از هم دور شدن (بدون دعوا)', 'pos' => 'phrasal verb', 'example' => 'We drifted apart after university because we were both so busy.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'put the effort in', 'meaning' => 'to give time and energy to something so that it works', 'meaning_fa' => 'وقت و انرژی گذاشتن، تلاش کردن', 'pos' => 'verb phrase (informal)', 'example' => 'A friendship lasts when both people put the effort in.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'a lifelong friend', 'meaning' => 'a friend you have for all of your life, or for most of it', 'meaning_fa' => 'دوست همیشگی، دوستِ یک عمر', 'pos' => 'noun phrase', 'example' => 'My grandmother met her lifelong friend at primary school.', 'image_query' => 'two old women friends laughing', 'difficulty' => 'easy'],
+                                    ['phrase' => 'introverted', 'meaning' => 'quiet, and happier alone or with a few people than in a big group (opposite: an extrovert)', 'meaning_fa' => 'درون‌گرا', 'pos' => 'adjective', 'example' => "I'm quite introverted — I prefer one friend to a big party.", 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Dave and Elliot have been best friends since they were eight. How did they stay close when Dave lived in Korea — and is it harder to make friends as an adult?',
+                                'source' => 'My English Coach Dave — "Can You Follow This Real British English Conversation?"',
+                                'image_query' => 'two friends talking park bench',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M08', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. Two speakers: Dave
+                                // asks, his best friend Elliot answers.
+                                'listening_turns' => $this->shadowTimestampsFor('M08', 'listening_turns'),
+                                // The five parts kept in the cut (2:40-3:59, 5:43-6:57,
+                                // 7:36-8:43, 18:28-18:43 and 20:47-22:48 of the original),
+                                // written from the video's captions and checked against a
+                                // Whisper pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Dave', 'text' => 'So the next section is about friendship, and like I said, we have known each other for quite a long time, since Year 4. That\'s age eight to nine in the UK. Um, it\'s a long time.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Yeah. Nearly 30 years.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah, yeah. So my question is, do you remember the first time we actually spoke in Year 4?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Um, I don\'t. But you weren\'t my best friend then.'],
+                                    ['speaker' => 'Dave', 'text' => 'No. So, no, I do remember. That\'s really upsetting, because I do remember the first time.'],
+                                    ['speaker' => 'Elliot', 'text' => 'What was it?'],
+                                    ['speaker' => 'Dave', 'text' => 'I remember being in the playground, and it was… I\'m not going to use last names, but it was you, Dan, Katie and Ramsay, and you were playing Batman. And you all chose characters, and I didn\'t have a character. And I remember, I think it was either you or Dan or someone said, "Oh, you can just be Penguin." And I was so upset. But at the same time, I thought to myself, "Well, at least I\'m playing with someone in the playground," you know. But that\'s my first memory of you.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Okay. Well, I have memories of that time. I\'m sorry. You\'re better than Penguin.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, thank you. Thank you.'],
+                                    ['speaker' => 'Dave', 'text' => 'Why do you think we stayed close even when I moved abroad? And I\'m not talking about when I moved to France, \'cause I moved to France when I was 18, but in 2012, I moved to South Korea to teach English. So, why do you think we stayed close?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Um, well, first of all, when you did move away, that was devastating. My best friend was leaving me to go halfway around the world. But I think we stayed close because we stayed in touch, you know. We would video call fairly regularly, and every time you came back to the UK, which was only once a year, I would absolutely take every opportunity within the time that you were here to see you.'],
+                                    ['speaker' => 'Dave', 'text' => 'I felt very privileged.'],
+                                    ['speaker' => 'Elliot', 'text' => 'But I think, moreover, the reason we stayed close is because of our connection, you know. I think it\'s quite rare that, certainly, you know, adults stay as close and connected when you live halfway across the world for a prolonged period of time. I think that\'s quite rare.'],
+                                    ['speaker' => 'Dave', 'text' => 'Okay, next question is, were you ever surprised that we didn\'t drift apart? \'Cause I\'m sure, you know, I\'ve drifted apart with some friends, and I\'m sure you have, too.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Well, that\'s what, you know, going back to what I just said, I think it\'s rare that people don\'t.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah.'],
+                                    ['speaker' => 'Elliot', 'text' => 'You know, I have friends that I was very close with in school that I\'m not friends with anymore. And that\'s not for any personal reasons. It\'s just, you know, you grow up, you move apart.'],
+                                    ['speaker' => 'Dave', 'text' => 'Right. It\'s strange. They say, um, you need seven years of friendship with someone, and then that\'s a lifelong friend.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Wow. I don\'t know if that\'s true. I don\'t know if that\'s true. But what I would say is, sometimes I look back and think, and kind of can\'t believe that we have stayed as close as we are, because we could have so easily not. You know, it would have been no problem at all to just not contact you when you lived in Korea, especially because of the time difference.'],
+                                    ['speaker' => 'Dave', 'text' => 'I think we both put the effort in. I think that\'s what\'s important.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Can I just say, Dave is on a hill. We\'re the same height, but he looks…'],
+                                    ['speaker' => 'Dave', 'text' => 'I\'ll stand here. Look, I am a bit taller than you.'],
+                                    ['speaker' => 'Elliot', 'text' => 'No, you\'re not.'],
+                                    ['speaker' => 'Dave', 'text' => 'I am. Look.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Yeah, yeah. Now look. Look, I\'ll stand where Dave was. Now I look taller than you are.'],
+                                    ['speaker' => 'Dave', 'text' => 'Um, do you feel like it\'s harder or easier to make new friends now as an adult?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Harder.'],
+                                    ['speaker' => 'Dave', 'text' => 'Even for you? \'Cause Elliot\'s quite, um, an extrovert, I would say. You\'re quite talkative and good with people.'],
+                                    ['speaker' => 'Elliot', 'text' => 'No. I think I\'ve become more introverted in later life.'],
+                                    ['speaker' => 'Dave', 'text' => 'Interesting.'],
+                                    ['speaker' => 'Elliot', 'text' => 'You know, definitely… I think that… well, I don\'t know. I\'ve heard that the older men get, the harder they find it to make friends. I mean, by the age of 30, I would say, certainly 40 — not that we are nearly 40 — but you\'ve kind of made all the friends. You\'ve been through all these sort of transformative periods in your life. You\'ve been to school, you might have gone to higher education, university, for example. You\'ve been through your first, second, third job. You\'ve made friends and hopefully maintained friendships throughout all of that. It gets to a point where maybe it gets a bit weird to keep making new friends. That\'s how I feel. I\'m quite self-conscious about that sort of thing.'],
+                                    ['speaker' => 'Dave', 'text' => 'What, about making new friends?'],
+                                    ['speaker' => 'Elliot', 'text' => 'Well, I wouldn\'t want anyone thinking, "Why is this weirdo talking to me? Oh, why is he, like, walking around? Will you be friends with me?"'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah, I don\'t say that.'],
+                                    ['speaker' => 'Elliot', 'text' => 'Um, that is weird. But yeah, I definitely think it\'s harder, also because when you\'re an adult, you are in situations where you meet new people less frequently, less regularly, you know.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah.'],
+                                    ['speaker' => 'Elliot', 'text' => 'And you have to choose who you spend time with. Less free time. So when I went to university, as an example, I was suddenly around hundreds of new people, you know, on my course, who I lived with in the flat. Um, you know, that doesn\'t happen anymore.'],
+                                    ['speaker' => 'Dave', 'text' => 'Right.'],
+                                    ['speaker' => 'Elliot', 'text' => 'I have my own house, and I go and I see the same work colleagues every day. You meet less people. Um, sorry, you meet new people less often.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (stayed close and drift apart
+                                // as the forms Dave and Elliot actually say).
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'stayed close', 'meaning' => 'stayed good friends',
+                                        'gap_before' => 'But I think we ',
+                                        'gap_after' => ' because we stayed in touch, you know.',
+                                    ],
+                                    [
+                                        'phrase' => 'drift apart', 'meaning' => 'slowly become less close',
+                                        'gap_before' => 'Okay, next question is, were you ever surprised that we didn\'t ',
+                                        'gap_after' => '?',
+                                    ],
+                                    [
+                                        'phrase' => 'a lifelong friend', 'meaning' => 'a friend for all of your life',
+                                        'gap_before' => 'you need seven years of friendship with someone, and then that\'s ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'put the effort in', 'meaning' => 'gave time and energy to it',
+                                        'gap_before' => 'I think we both ',
+                                        'gap_after' => '. I think that\'s what\'s important.',
+                                    ],
+                                    [
+                                        'phrase' => 'introverted', 'meaning' => 'quiet, happier with fewer people',
+                                        'gap_before' => 'I think I\'ve become more ',
+                                        'gap_after' => ' in later life.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Dave and his best friend Elliot have known each other since Year 4, when '
+                                    .'they were eight or nine. Dave remembers the first time they played together — he had '
+                                    .'to be Penguin in a game of Batman. When Dave moved to South Korea in 2012, they stayed '
+                                    .'close: they video called, and Elliot saw him every time he came home. Many school '
+                                    .'friends drift apart, but they both put the effort in. They argue about who is taller, '
+                                    .'and then Elliot explains why making new friends is harder as an adult.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Dave and Elliot first met at school when they were about eight or nine.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Elliot thinks it is easier to make new friends as an adult.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'When Dave lived in Korea, Elliot tried to see him every time he came back to the UK.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What game were the children playing the first time Dave remembers Elliot?',
+                                    'options' => ['Football', 'Batman', 'Hide and seek'],
+                                    'correct' => 1,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for what someone is like — soon you\'ll say who is more patient, and who is the most generous.',
+                                // Vocabulary in Use unit 11A-B ("What are you like?", "Opposites"),
+                                // our own sentences.
+                                'story' => 'My friend Nima is very **confident** — he talks to everyone — but his brother is '
+                                    .'quite **shy**. Nima is **hard-working** and **generous**: he always pays for the coffee! '
+                                    .'He\'s also very **honest**, but he isn\'t very **patient** in traffic.',
+                                'words' => [
+                                    ['phrase' => 'confident', 'meaning' => 'sure about yourself and what you can do (opposite: shy)', 'meaning_fa' => 'با اعتمادبه‌نفس', 'pos' => 'adjective', 'example' => "She's confident enough to speak in front of the whole class.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'shy', 'meaning' => 'nervous about meeting or talking to new people', 'meaning_fa' => 'خجالتی', 'pos' => 'adjective', 'example' => 'My son is shy at first, but then he never stops talking.', 'image_query' => 'shy child hiding behind mother', 'difficulty' => 'easy'],
+                                    ['phrase' => 'hard-working', 'meaning' => 'putting a lot of time and effort into your work (opposite: lazy)', 'meaning_fa' => 'سخت‌کوش، پرتلاش', 'pos' => 'adjective', 'example' => 'Ali is the most hard-working person in our office.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'patient', 'meaning' => 'able to stay calm and not get angry when you have to wait (opposite: impatient)', 'meaning_fa' => 'صبور', 'pos' => 'adjective', 'example' => 'My dad is very patient — he taught me to drive.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'generous', 'meaning' => 'happy to give people money, time or help (opposite: mean)', 'meaning_fa' => 'دست‌ودل‌باز، سخاوتمند', 'pos' => 'adjective', 'example' => 'My aunt is so generous — she always brings presents.', 'image_query' => 'friend giving gift', 'difficulty' => 'medium'],
+                                    ['phrase' => 'honest', 'meaning' => 'always telling the truth (opposite: dishonest)', 'meaning_fa' => 'صادق، روراست', 'pos' => 'adjective', 'example' => 'Be honest — do you like my new haircut?', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — this time copy how Elliot compares: "better than" and "as close as".',
+                                'image_query' => 'school playground children playing',
+                                'shadow_lines' => [
+                                    'You\'re **better** than **Penguin**.',
+                                    'We have **stayed** as **close** as we **are**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M08', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'Friends get described by comparison: "he\'s funnier than me", "she\'s the most patient person I know".',
+                                'focus' => 'Comparatives & Superlatives',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 105-108: -er / more + than,
+                                // much / a bit + comparative, as … as, then the -est /
+                                // the most.
+                                'lesson' => [
+                                    'intro' => 'Four ways to compare people: -er / more, much / a bit, as … as, and the -est / the most.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · -er or more … than',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Short adjectives take <strong>-er</strong>, longer ones take <strong>more</strong>, then <strong>than</strong>: <strong>Dave is taller than Elliot. Tony is more serious than Ian.</strong>',
+                                                    'fa' => 'برای مقایسه‌ی دو نفر: صفت کوتاه + er و صفت بلند more + صفت، و بعد than. صفت دوهجایی که به y ختم می‌شود: funny → funnier. بی‌قاعده‌ها: good → better، bad → worse، far → further.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Comparative',
+                                                    'parts' => [
+                                                        ['text' => 'My brother', 'caption' => 'subject'],
+                                                        ['text' => 'is', 'caption' => 'verb'],
+                                                        ['text' => 'funnier', 'caption' => '-er / more + adjective', 'tone' => 'accent'],
+                                                        ['text' => 'than me', 'caption' => 'than + person'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'She is more tall than me.', 'right' => 'She is taller than me.', 'highlight' => 'taller'],
+                                                        ['wrong' => 'He is more gooder at maths.', 'right' => 'He is better at maths.', 'highlight' => 'better'],
+                                                        ['wrong' => 'Tony is more serious that Ian.', 'right' => 'Tony is more serious than Ian.', 'highlight' => 'than'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => '-er: short words', 'words' => ['taller', 'older', 'kinder', 'nicer', 'bigger']],
+                                                        ['label' => '-y → -ier', 'words' => ['funnier', 'easier', 'happier', 'lazier']],
+                                                        ['label' => 'more: longer words', 'words' => ['more patient', 'more generous', 'more confident', 'more serious']],
+                                                        ['label' => 'irregular', 'words' => ['good → better', 'bad → worse', 'far → further']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · much / a bit + comparative',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Say how big the difference is: <strong>much / a lot / far</strong> (big) or <strong>a bit / a little / slightly</strong> (small) before the comparative: <strong>Ian\'s much more adventurous.</strong>',
+                                                    'fa' => 'برای اینکه بگویی فرق زیاد است یا کم، much / a lot / far (خیلی) یا a bit / a little / slightly (کمی) را قبل از صفت مقایسه‌ای بگذار. very قبل از صفت مقایسه‌ای نمی‌آید: much taller، نه very taller.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'How much?',
+                                                    'parts' => [
+                                                        ['text' => 'I am', 'caption' => 'subject + verb'],
+                                                        ['text' => 'a bit', 'caption' => 'a bit / much', 'tone' => 'accent'],
+                                                        ['text' => 'taller', 'caption' => 'comparative'],
+                                                        ['text' => 'than you', 'caption' => 'than + person'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'My sister is very older than me.', 'right' => 'My sister is much older than me.', 'highlight' => 'much'],
+                                                        ['wrong' => 'This game is a bit more easier.', 'right' => 'This game is a bit easier.', 'highlight' => 'a bit easier'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'I am a bit taller than you.',
+                                                            'Ian\'s much more solitary than Tony.',
+                                                            'Making friends is a lot harder for adults.',
+                                                        ]],
+                                                        ['label' => 'Two more patterns', 'items' => [
+                                                            'It\'s getting harder and harder to meet new people.',
+                                                            'The older you get, the harder it is to make friends.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · as … as and not as … as',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>as + adjective + as</strong> = the same. <strong>not as … as</strong> = less: <strong>I\'m not as resourceful as Ian.</strong>',
+                                                    'fa' => 'as + صفت + as یعنی «به همان اندازه». not as … as یعنی «به اندازه‌ی … نیست». در گفتار روزمره بعد از than و as ضمیر مفعولی می‌آید: than me، as him (یا than I am).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'not as … as',
+                                                    'parts' => [
+                                                        ['text' => 'Tony', 'caption' => 'subject'],
+                                                        ['text' => 'isn\'t as', 'caption' => 'not as', 'tone' => 'accent'],
+                                                        ['text' => 'resourceful', 'caption' => 'adjective'],
+                                                        ['text' => 'as Ian', 'caption' => 'as + person'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Reza',
+                                                    'wrong' => 'My brother is as tall like me.',
+                                                    'right' => 'My brother is as tall as me.',
+                                                    'explanation' => 'After as + adjective, say as again — not like and not than.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'We\'re the same height — he\'s as tall as me.',
+                                                            'My new friends aren\'t as close as my school friends.',
+                                                            'He\'ll be the same as he was last time.',
+                                                            'She\'s older than me. = She\'s older than I am.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · the -est and the most',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'To compare one person with the whole group, use <strong>the + -est</strong> or <strong>the most</strong>: <strong>Who is the funniest? Who is the most stubborn?</strong>',
+                                                    'fa' => 'برای مقایسه‌ی یک نفر با کل گروه: the + صفت + est (صفت کوتاه) یا the most + صفت (صفت بلند). good → the best و bad → the worst. برای مکان و گروه in می‌آید (the tallest in my class) و برای تجربه ever + Present Perfect (the nicest thing anybody\'s ever said).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Superlative',
+                                                    'parts' => [
+                                                        ['text' => 'Ian', 'caption' => 'subject'],
+                                                        ['text' => 'is', 'caption' => 'verb'],
+                                                        ['text' => 'the most', 'caption' => 'the -est / the most', 'tone' => 'accent'],
+                                                        ['text' => 'adventurous', 'caption' => 'adjective'],
+                                                        ['text' => 'in our group', 'caption' => 'in + group / place'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'He is most funny person in my class.', 'right' => 'He is the funniest person in my class.', 'highlight' => 'the funniest'],
+                                                        ['wrong' => 'She is the tallest of my family.', 'right' => 'She is the tallest in my family.', 'highlight' => 'in'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'Who was the most mischievous when you were younger?',
+                                                            'It\'s the nicest thing anybody\'s ever said about me.',
+                                                            'I\'m probably the most boring person you\'ve ever met.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences comparing <strong>your</strong> friends — then watch two friends of 60 years play "Who is the most…?", and soon say it out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in Video Shadowing next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'My best friend is more', 'I\'m a bit', 'I\'m not as',
+                                    'The funniest person I know is', 'The most generous friend I have', 'Making new friends as an adult is much',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence comparing people they know, using a correct '
+                                    .'comparative (-er / more + than, with much / a bit / a lot before it when the difference '
+                                    .'is big or small), as … as / not as … as for the same or less, or a correct superlative '
+                                    .'(the -est / the most, often with in + group or ever + present perfect).',
+                                'grammar_major_criteria' => 'a double comparative ("more taller", "more better"), more + a '
+                                    .'short adjective ("more tall"), -er on a long adjective ("patienter"), "that" or "then" '
+                                    .'instead of than, very before a comparative ("very older"), as … like or as … than instead '
+                                    .'of as … as, a superlative without the ("most funny person"), the wrong irregular form '
+                                    .'("gooder", "the baddest"), the sentence does not actually continue the given starter, or '
+                                    .'it is not a genuine personal statement',
+                                'grammar_context' => 'continues with a comparative + than, much / a bit + comparative, as … '
+                                    .'as / not as … as, or the -est / the most, as the starter already given needs',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'My brother is more tall than me.',
+                                        'options' => ['My brother is taller than me.', 'My brother is more tall than me.', 'My brother is tallest than me.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'Sara is the most funny person in our group.',
+                                        'options' => ['Sara is the most funny person in our group.', 'Sara is funnier person in our group.', 'Sara is the funniest person in our group.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'I\'m not as patient than my sister.',
+                                        'options' => ['I\'m not as patient than my sister.', 'I\'m not as patient as my sister.', 'I\'m not patient as my sister.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'Making friends is very harder for adults.',
+                                        'options' => ['Making friends is very harder for adults.', 'Making friends is much harder for adults.', 'Making friends is more harder for adults.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['than', 'is', 'My', 'me.', 'friend', 'funnier', 'best'], 'answer' => 'My best friend is funnier than me.'],
+                                    ['words' => ['as', 'not', 'I\'m', 'him.', 'as', 'confident'], 'answer' => 'I\'m not as confident as him.'],
+                                    ['words' => ['person', 'Who', 'the', 'is', 'patient', 'most', 'you', 'know?'], 'answer' => 'Who is the most patient person you know?'],
+                                ],
+                            ],
+                            [
+                                // A real talk between three real people, natural speed: My
+                                // English Coach Dave's "Best Friends for 60 Years" — the
+                                // "Who is the most…?" game and the question before it, cut to
+                                // about 6 minutes, the creator's burned-in captions blurred
+                                // out (and his top word boxes while they show) so the step's
+                                // own caption toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Dave\'s dad Ian and his friend Tony have been friends for nearly 60 years. Who was the most mischievous? Who is the most stubborn? Watch them point — then say it with them.',
+                                'source' => 'My English Coach Dave — "Best Friends for 60 Years – Can You Understand Their English?"',
+                                'video_url' => $shadowingVideoUrl,
+                                // The creator's own English captions, re-timed per sentence on
+                                // Whisper's word timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M08', 'video_shadowing_segments'),
+                                'topic_summary' => 'Dave sits down with his dad, Ian, and Ian\'s best friend Tony — friends '
+                                    .'for nearly 60 years. First Ian says what he admires about Tony: he is reliable, loyal and '
+                                    .'consistent. Then Dave plays a game: he asks "Who is the most…?", counts three, two, one, '
+                                    .'and they point. Who was the most mischievous? Who was the better student? Who is the '
+                                    .'funniest, the most adventurous, the most stubborn — and who would survive the longest on '
+                                    .'a desert island? After each point, they explain why.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Ian says Tony is reliable, loyal and consistent.', 'correct' => true],
+                                    ['statement' => 'They both agree that Tony is the most adventurous.', 'correct' => false],
+                                    ['statement' => 'Tony thinks Ian would survive longer on a desert island.', 'correct' => true],
+                                ],
+                                // Real phrases Ian, Tony and Dave use on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'balance out', 'meaning' => 'to be different in a way that makes a good mix together'],
+                                    ['phrase' => 'risk-averse', 'meaning' => 'not wanting to take risks'],
+                                    ['phrase' => 'put yourself forward', 'meaning' => 'to offer to do something, without being asked'],
+                                    ['phrase' => 'dig your heels in', 'meaning' => 'to refuse to change your mind'],
+                                    ['phrase' => 'resourceful', 'meaning' => 'good at finding ways to solve problems'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words the
+                                // speakers actually say. Chosen for this mission's grammar: two
+                                // superlatives with ever, a comparative question and answer,
+                                // not as … as, and much more twice. Bold marks naturally-stressed
+                                // content words (rendered by <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'It\'s the **nicest** thing **anybody\'s** ever **said** about me.',
+                                    'I\'m **probably** the most **boring** person you\'ve ever **met**.',
+                                    'Who was the **better** **student**?',
+                                    'So **Tony** was the more **academic** person.',
+                                    'I don\'t think I\'m as **resourceful** as **Ian** is.',
+                                    '**Ian\'s** much more **solitary**, but much more **self-sufficient**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M08', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words you need to describe a friend you really trust.',
+                                // Vocabulary in Use unit 11C ("Describing a friend") plus sense
+                                // of humour from 11A, our own sentences.
+                                'story' => 'My best friend Mina is very **sensible** — she never does anything **silly**, so I '
+                                    .'can always **trust** her. She\'s also **creative** and a really **talented** painter. '
+                                    .'And she has a great **sense of humour**: she makes everyone laugh.',
+                                'words' => [
+                                    ['phrase' => 'sensible', 'meaning' => 'practical, and making good decisions (not doing stupid things)', 'meaning_fa' => 'عاقل، منطقی', 'pos' => 'adjective', 'example' => "It's sensible to save some money every month.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'silly', 'meaning' => 'not sensible; a bit stupid, often in a funny way', 'meaning_fa' => 'بچگانه، بی‌فکر، مسخره', 'pos' => 'adjective', 'example' => 'We were silly kids — we once painted the cat blue.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'trust', 'meaning' => 'to be sure that someone is honest and will not hurt you', 'meaning_fa' => 'اعتماد کردن (به کسی)', 'pos' => 'verb', 'example' => 'I trust my sister with all my secrets.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'creative', 'meaning' => 'good at thinking of new ideas and using your imagination', 'meaning_fa' => 'خلاق', 'pos' => 'adjective', 'example' => 'Reza is the most creative person in our team.', 'image_query' => 'artist painting canvas', 'difficulty' => 'easy'],
+                                    ['phrase' => 'talented', 'meaning' => 'having a natural ability to do something well', 'meaning_fa' => 'بااستعداد', 'pos' => 'adjective', 'example' => 'She is a talented singer — much better than me!', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sense of humour', 'meaning' => 'the ability to laugh and to see when something is funny', 'meaning_fa' => 'شوخ‌طبعی', 'pos' => 'noun phrase', 'example' => 'My best friend has a great sense of humour.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now listen for "more introverted" and "less often".',
+                                'image_query' => 'friends meeting in cafe',
+                                'shadow_lines' => [
+                                    'I think I\'ve become **more** **introverted** in **later** **life**.',
+                                    'You **meet** new **people** less **often**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M08', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your best friend — how you met, '
+                                    .'what they are like, and three ways you are different (who is taller, funnier, more '
+                                    .'patient?) — using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Who is your oldest friend? How did you meet?',
+                                    'What is your best friend like? Is he or she more confident than you?',
+                                    'Who is the funniest person in your group of friends?',
+                                    'Have you ever drifted apart from a good friend? What happened?',
+                                    'Is it harder or easier to make friends now than when you were at school?',
+                                    'What do you think makes a friendship last?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Arash and Kian — two friends who are different in almost every way. So why are they still so close?',
+                                'passage_title' => 'Two very different friends',
+                                'image_query' => 'two young men friends laughing',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // and compares the two friends all the way through.
+                                'passage' => 'Arash and Kian have been friends since primary school. They are lifelong friends '
+                                    .'now, but they are very different. Arash is taller and much more confident: he can talk to '
+                                    .'anyone at a party. Kian is shy and quieter, but he is the most hard-working person in '
+                                    .'their class and far more patient than Arash. Arash has a great sense of humour, but he '
+                                    .'can be a bit silly. Kian is more sensible, so when Arash has a problem, Kian is the first '
+                                    .'person he calls — he knows he can trust him. People say opposites attract, and these two '
+                                    .'are the proof. Three years ago, Kian moved to Germany for work, and many people thought '
+                                    .'the two friends would drift apart. They didn\'t. They both put the effort in: they talk '
+                                    .'every Sunday, and because Arash isn\'t as busy as Kian, he usually flies to Berlin. '
+                                    .'"Kian isn\'t as funny as me," Arash says, "but he\'s the most honest and generous friend '
+                                    .'I have."',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'lifelong friends', 'type' => 'reused'],
+                                    ['phrase' => 'confident', 'type' => 'reused'],
+                                    ['phrase' => 'shy', 'type' => 'reused'],
+                                    ['phrase' => 'hard-working', 'type' => 'reused'],
+                                    ['phrase' => 'patient', 'type' => 'reused'],
+                                    ['phrase' => 'sense of humour', 'type' => 'reused'],
+                                    ['phrase' => 'silly', 'type' => 'reused'],
+                                    ['phrase' => 'sensible', 'type' => 'reused'],
+                                    ['phrase' => 'trust', 'type' => 'reused'],
+                                    ['phrase' => 'drift apart', 'type' => 'reused'],
+                                    ['phrase' => 'put the effort in', 'type' => 'reused'],
+                                    ['phrase' => 'honest', 'type' => 'reused'],
+                                    ['phrase' => 'generous', 'type' => 'reused'],
+                                    ['phrase' => 'opposites attract', 'type' => 'new', 'definition' => 'people who are very different often like each other', 'pos' => 'saying', 'example' => 'She loves parties and he loves books — opposites attract!'],
+                                    ['phrase' => 'proof', 'type' => 'new', 'definition' => 'something that shows that a thing is true', 'pos' => 'noun', 'example' => 'This photo is proof that we were friends at school.'],
+                                ],
+                                'topic_summary' => 'A short text about Arash and Kian, friends since primary school. Arash is '
+                                    .'taller, more confident and funnier; Kian is shyer, more sensible and more patient. When '
+                                    .'Kian moved to Germany, they did not drift apart, because they both put the effort in.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Arash is taller than Kian.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Kian is more confident than Arash.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'After Kian moved to Germany, the two friends stopped talking.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'In what ways is Kian different from Arash?',
+                                    'How do the two friends stay close now that Kian lives in Germany?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Writing down why a friend matters is a small gift — you could even send it to them.',
+                                'title' => 'My best friend and me',
+                                'prompts' => [
+                                    ['label' => 'How and when you met', 'image_query' => 'two kids school friends'],
+                                    ['label' => 'What your friend is like', 'image_query' => 'smiling young woman portrait'],
+                                    ['label' => 'Three ways you are different', 'image_query' => 'two friends different styles'],
+                                    ['label' => 'Something you have in common', 'image_query' => 'friends playing football together'],
+                                    ['label' => 'The best thing about your friend', 'image_query' => 'friends hugging'],
+                                    ['label' => 'How you stay close', 'image_query' => 'video call friends laptop'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['-er / more … than', 'much / a bit + comparative', 'as … as', 'not as … as', 'the -est / the most', 'stay close', 'put the effort in'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Four friends, one street, four very different styles. Who is the tallest — and who looks the happiest?',
+                                'image_query' => 'four friends walking street',
+                                'guiding_questions' => [
+                                    'Who is the tallest of the four friends? Who is the shortest?',
+                                    'Who looks the most energetic? What is he doing?',
+                                    'Compare the two friends in the middle. Who looks happier? Whose clothes are darker?',
+                                    'Whose shoes are the most colourful? Which shoes do you like best?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): four young men on a
+                                // street, arms round each other — on the left one in a white
+                                // hoodie kicking up a leg, then one in black with red-striped
+                                // trousers laughing, one in a grey hoodie and ripped teal jeans,
+                                // and on the right the tallest, in a black tracksuit, beanie and
+                                // yellow boots. Changing the query or orientation invalidates
+                                // these coordinates.
+                                'hotspots' => [
+                                    ['x' => 72, 'y' => 14, 'question_index' => 0],
+                                    ['x' => 27, 'y' => 55, 'question_index' => 1],
+                                    ['x' => 50, 'y' => 30, 'question_index' => 2],
+                                    ['x' => 70, 'y' => 91, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Describe your best friend. How are you similar, and how are you different?',
+                                    'Who is the funniest, the kindest and the most reliable person you know? Why?',
+                                    'Compare your school friends with the friends you have now.',
+                                    'Is it harder to make friends as an adult than as a child? Why?',
+                                    'Tell me about a friend you drifted apart from. What happened?',
+                                    'What makes a friendship last for 60 years?',
+                                ],
+                                'role_reversal_topic' => 'friends and friendship',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your closest friends and how they are different from you.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    '-er / more … than',
+                                    'much / a bit + comparative',
+                                    'as … as / not as … as',
+                                    'the -est / the most',
+                                    'How you met your best friend',
+                                    'Who is the most … in your group',
                                 ],
                             ],
                             [
