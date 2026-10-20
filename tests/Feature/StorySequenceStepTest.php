@@ -19,7 +19,10 @@ class StorySequenceStepTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function makeRun(): MissionRun
+    /**
+     * @param  array<string, mixed>  $storyExtras  extra story_sequence keys, e.g. the narration tense
+     */
+    private function makeRun(array $storyExtras = []): MissionRun
     {
         $learner = User::factory()->create();
         $mission = Mission::create([
@@ -37,6 +40,7 @@ class StorySequenceStepTest extends TestCase
                             ['image_query' => 'breakfast kitchen', 'caption' => 'She has breakfast'],
                         ],
                         'sequencing_words' => ['First', 'Then'],
+                        ...$storyExtras,
                     ],
                     ['key' => 'activation'],
                 ],
@@ -115,6 +119,59 @@ class StorySequenceStepTest extends TestCase
         ]);
 
         $this->assertSame('activation', $run->fresh()->currentStepKey());
+    }
+
+    public function test_a_routine_is_told_in_present_simple_by_default(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->andReturn('First she wakes up.'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()
+                ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'told in PRESENT SIMPLE')
+                    && str_contains($systemPrompt, 'not past tense'))
+                ->andReturn(json_encode(['strength' => 'Good.', 'expression' => 'First', 'correction' => 'None.']));
+        });
+
+        Livewire::test('missions.steps.story-sequence', ['run' => $run])
+            ->assertSee('using Present Simple like you just practiced')
+            ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
+            ->call('save')
+            ->assertSet('completed', true);
+    }
+
+    /**
+     * M06's pictures tell a finished story, so the step asks for the Past
+     * Simple on screen and the AI judges that tense, not M01's routine one.
+     */
+    public function test_a_finished_story_is_told_in_the_tense_the_mission_sets(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun([
+            'narration_tense' => 'Past Simple',
+            'narration_kind' => 'a story that already happened',
+            'narration_example' => 'First, he was bored in class...',
+            'narration_not' => 'present tense',
+        ]);
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->andReturn('First she woke up.'));
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()
+                ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'told in PAST SIMPLE')
+                    && str_contains($systemPrompt, 'not present tense')
+                    && ! str_contains($systemPrompt, 'PRESENT SIMPLE'))
+                ->andReturn(json_encode(['strength' => 'Good.', 'expression' => 'First', 'correction' => 'None.']));
+        });
+
+        Livewire::test('missions.steps.story-sequence', ['run' => $run])
+            ->assertSee('using Past Simple like you just practiced')
+            ->assertDontSee('using Present Simple')
+            ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
+            ->call('save')
+            ->assertSet('completed', true);
     }
 
     public function test_a_failed_review_never_blocks_saving_the_recording(): void

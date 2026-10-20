@@ -520,6 +520,8 @@ class Mission extends Model
             'M02' => 'connection',
             'M03' => 'focus',
             'M04' => 'nourish',
+            'M05' => 'play',
+            'M06' => 'learn',
             default => 'daily-life',
         };
     }

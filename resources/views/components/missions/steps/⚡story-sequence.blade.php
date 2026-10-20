@@ -85,6 +85,26 @@ new class extends Component
             ->all();
     }
 
+    /**
+     * The tense the story is told in, authored per mission next to the
+     * pictures: M01's routine is Present Simple (the default, so a mission
+     * that says nothing keeps M01's behaviour), M06's finished story is
+     * Past Simple. 'not' is the tense slip the AI should look for first.
+     *
+     * @return array{tense: string, kind: string, example: string, not: string}
+     */
+    public function narration(): array
+    {
+        $content = $this->run->mission->stepContent('story_sequence');
+
+        return [
+            'tense' => $content['narration_tense'] ?? 'Present Simple',
+            'kind' => $content['narration_kind'] ?? 'a routine',
+            'example' => $content['narration_example'] ?? 'First, she wakes up...',
+            'not' => $content['narration_not'] ?? 'past tense',
+        ];
+    }
+
     public function save(): void
     {
         $this->validate([
@@ -118,8 +138,9 @@ new class extends Component
     /**
      * Same 3-part feedback shape as every other speaking/writing step, but
      * grounded in the picture captions (the actual story, author-side only
-     * — never shown to the learner) and judging sequencing language +
-     * Present Simple, the two things this exercise is actually for. Silent
+     * — never shown to the learner) and judging sequencing language + the
+     * mission's narration tense (see narration()), the two things this
+     * exercise is actually for. Silent
      * on failure: the recording's own Evidence is already saved either way.
      */
     private function transcribeAndReview(): void
@@ -138,17 +159,19 @@ new class extends Component
             $sequencingContext = $sequencingWords
                 ? ' Sequencing words they were encouraged to use: '.implode(', ', $sequencingWords).'.'
                 : '';
+            $narration = $this->narration();
 
             $data = app(AiFeedbackCard::class)->generate(
                 [['role' => 'user', 'text' => "Transcript of the learner narrating the picture sequence: \"{$this->transcript}\""]],
                 systemPrompt: 'You are an encouraging English speaking coach. '.ucfirst($this->run->learner->levelDescription())
                     .' just narrated a sequence of pictures showing this real order of events: "'.$captions.'". '
-                    .'This is a routine, so it should be told in PRESENT SIMPLE ("First, she wakes up..."), not '
-                    .'past tense.'.$sequencingContext.' Judge whether they covered the events in order and used '
-                    .'sequencing words. Reply with ONLY valid JSON, no markdown fences: {"strength": "one specific '
-                    .'thing they did well, one sentence", "expression": "one good sequencing word or phrase they '
-                    .'actually used", "correction": "one grammar or vocabulary mistake to fix, one sentence, '
-                    .'phrased kindly — prefer a tense slip (e.g. past instead of present simple) if there is one", '
+                    .'This is '.$narration['kind'].', so it should be told in '.strtoupper($narration['tense'])
+                    .' ("'.$narration['example'].'"), not '.$narration['not'].'.'.$sequencingContext.' Judge whether '
+                    .'they covered the events in order and used sequencing words. Reply with ONLY valid JSON, no '
+                    .'markdown fences: {"strength": "one specific thing they did well, one sentence", "expression": '
+                    .'"one good sequencing word or phrase they actually used", "correction": "one grammar or '
+                    .'vocabulary mistake to fix, one sentence, phrased kindly — prefer a tense slip (e.g. '
+                    .$narration['not'].' instead of '.strtolower($narration['tense']).') if there is one", '
                     .'"severity": "minor or major — how serious this grammar/vocabulary issue is"}',
                 requiredKeys: ['strength', 'expression', 'correction'],
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
@@ -256,7 +279,7 @@ new class extends Component
     @unless ($completed)
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Tell the story, in order</p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">The pictures are already in order — narrate them first to last, using Present Simple like you just practiced.</p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">The pictures are already in order — narrate them first to last, using {{ $this->narration()['tense'] }} like you just practiced.</p>
         </div>
 
         <x-sequential-picture-story :images="$sequenceImages" />

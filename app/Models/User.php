@@ -334,7 +334,7 @@ class User extends Authenticatable
      * total, how many were today, when the last one was, the split by
      * mission day and the latest few with their times.
      *
-     * @return array{total: int, today: int, last: ?Carbon, byDay: array<int, int>, recent: Collection<int, AudioListen>}
+     * @return array{total: int, selfReported: int, today: int, last: ?Carbon, byDay: array<int, int>, recent: Collection<int, AudioListen>}
      */
     public function audioListenSummary(string $missionCode, string $source, ?string $pickKey = null): array
     {
@@ -342,6 +342,7 @@ class User extends Authenticatable
 
         return [
             'total' => $listens->count(),
+            'selfReported' => $listens->where('self_reported', true)->count(),
             'today' => $listens->filter(fn (AudioListen $listen) => $listen->created_at->isToday())->count(),
             'last' => $listens->first()?->created_at,
             'byDay' => $listens->whereNotNull('day_number')->countBy('day_number')->sortKeys()->all(),

@@ -151,8 +151,6 @@ class DailyListenStepTest extends TestCase
         $this->mockLenientCheck(2);
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->call('markListened')
-            ->assertSet('listened', true)
             ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 0)
             ->set('shadowRecordings.1', UploadedFile::fake()->create('shadow-1.webm', 200, 'audio/webm'))
@@ -165,31 +163,17 @@ class DailyListenStepTest extends TestCase
         $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
     }
 
-    public function test_continue_is_blocked_until_the_audio_has_played_once(): void
-    {
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])->call('save');
-
-        $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
-        $this->assertSame('daily_listen_2', $run->fresh()->currentStepKey());
-    }
-
-    public function test_having_listened_is_remembered_when_the_learner_comes_back(): void
+    public function test_continue_never_waits_for_the_audio_to_play_only_for_the_shadowed_lines(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->assertSet('listened', false)
-            ->call('markListened');
+            ->assertSee('Shadow these lines')
+            ->assertDontSee('Listen at least once')
+            ->call('save')
+            ->assertHasErrors(['shadowRecordings']);
 
-        Livewire::test('missions.steps.daily-listen-2', ['run' => $run->fresh()])
-            ->assertSet('listened', true);
-
-        // Per day, and never counted as the step's own Evidence.
-        Livewire::test('missions.steps.daily-listen-3', ['run' => $run->fresh()])
-            ->assertSet('listened', false);
-        $this->assertSame('daily_listen_2', $run->fresh()->currentStepKey());
+        $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
     }
 
     public function test_continue_is_blocked_until_every_line_is_shadowed(): void
@@ -198,7 +182,6 @@ class DailyListenStepTest extends TestCase
         $this->mockLenientCheck(1);
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->call('markListened')
             ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 0)
             // Line 1 never shadowed.
@@ -215,7 +198,6 @@ class DailyListenStepTest extends TestCase
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try that line again.'])));
 
         $component = Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->call('markListened')
             ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 0);
 
@@ -229,7 +211,6 @@ class DailyListenStepTest extends TestCase
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->twice()->andThrow(new RuntimeException('GROQ_API_KEY is not set.')));
 
         $component = Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->call('markListened')
             ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 0)
             ->set('shadowRecordings.1', UploadedFile::fake()->create('shadow-1.webm', 200, 'audio/webm'))
@@ -261,7 +242,7 @@ class DailyListenStepTest extends TestCase
             'mission_run_id' => $run->id,
             'phase' => 'daily_listen_2',
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['listened' => true, 'shadowed_lines' => 2]),
+            'content_ref' => json_encode(['shadowed_lines' => 2]),
         ]);
         Evidence::create([
             'mission_run_id' => $run->id,
@@ -271,7 +252,6 @@ class DailyListenStepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run, 'readOnly' => true])
-            ->assertSet('listened', true)
             ->assertSeeHtml('http://localhost/storage/shadow-0.webm')
             ->assertDontSee('Continue');
     }
@@ -282,7 +262,6 @@ class DailyListenStepTest extends TestCase
         $this->mockLenientCheck(2);
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->call('markListened')
             ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 0)
             ->set('shadowRecordings.1', UploadedFile::fake()->create('shadow-1.webm', 200, 'audio/webm'))

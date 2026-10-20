@@ -2,15 +2,20 @@
 
 The PDFs print each speaker's name on a line of its own, then their words.
 A name is any short, capitalised line that appears at least twice.
+Reads the PDFs with pypdf, or with poppler's pdftotext where pypdf isn't installed.
 """
-import collections, glob, json, logging, pathlib, re, sys
+import collections, glob, json, logging, pathlib, re, subprocess, sys
 
 logging.disable(logging.CRITICAL)
-from pypdf import PdfReader
+try:
+    from pypdf import PdfReader
+except ImportError:
+    PdfReader = None
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 NAME = re.compile(r"^[A-Z][a-z]+(?: [A-Z][a-z]+){0,2}$")
-NOISE = re.compile(r"^(BBC LEARNING ENGLISH|bbclearningenglish\.com.*|Page \d+ of \d+|This is not a word-for-word transcript\.?)$", re.I)
+# pdftotext also keeps each page's running header and copyright footer as lines of their own.
+NOISE = re.compile(r"^(BBC LEARNING ENGLISH|bbclearningenglish\.com.*|Page \d+ of \d+|This is not a word-for-word transcript\.?|Real Easy English|6 Minute English|©\s*British Broadcasting Corporation \d{4})$", re.I)
 
 
 def clean(text):
@@ -19,12 +24,18 @@ def clean(text):
     return re.sub(r"\s+", " ", text).strip()
 
 
-def parse(pdf):
-    reader = PdfReader(str(pdf))
+def pdf_lines(pdf):
+    if PdfReader is None:
+        text = subprocess.run(['pdftotext', '-enc', 'UTF-8', str(pdf), '-'], capture_output=True, text=True, check=True).stdout
+        return [l.strip() for l in text.splitlines() if l.strip()]
     lines = []
-    for page in reader.pages:
+    for page in PdfReader(str(pdf)).pages:
         lines += [l.strip() for l in (page.extract_text() or '').splitlines() if l.strip()]
-    lines = [l for l in lines if not NOISE.match(l)]
+    return lines
+
+
+def parse(pdf):
+    lines = [l for l in pdf_lines(pdf) if not NOISE.match(l)]
     if 'VOCABULARY' in lines:
         lines = lines[:lines.index('VOCABULARY')]
     counts = collections.Counter(l for l in lines if NAME.match(l))

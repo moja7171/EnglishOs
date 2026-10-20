@@ -142,6 +142,31 @@ class GroqClient
             ->all();
     }
 
+    /**
+     * Same transcription, one entry per spoken WORD with its own real
+     * start/end time (seconds). Segment timing is sentence-ish at best —
+     * one segment can hold several sentences, so a line inside it could
+     * only be placed by guessing — while word timing lets a shadow line's
+     * pause land exactly where its last word ends. Offline only, like
+     * transcribeSegmentsWithTimestamps() (see missions:cache-shadow-timestamps).
+     *
+     * @return list<array{text: string, start: float, end: float}>
+     */
+    public function transcribeWordsWithTimestamps(string $audioPath): array
+    {
+        $data = $this->request($audioPath, verbose: true, granularity: 'word');
+
+        return collect($data['words'])
+            ->map(fn (array $word) => [
+                'text' => trim((string) ($word['word'] ?? '')),
+                'start' => (float) ($word['start'] ?? 0.0),
+                'end' => (float) ($word['end'] ?? 0.0),
+            ])
+            ->filter(fn (array $word) => $word['text'] !== '')
+            ->values()
+            ->all();
+    }
+
     private static function confidenceTier(float $avgLogprob): string
     {
         return match (true) {
@@ -152,9 +177,9 @@ class GroqClient
     }
 
     /**
-     * @return array{text: string, duration: float, segments: array}
+     * @return array{text: string, duration: float, segments: array, words: array}
      */
-    private function request(string $audioPath, bool $verbose = false, bool $segments = false): array
+    private function request(string $audioPath, bool $verbose = false, bool $segments = false, ?string $granularity = null): array
     {
         if ($this->apiKey === '') {
             throw new RuntimeException('GROQ_API_KEY is not set.');
@@ -164,8 +189,8 @@ class GroqClient
             'response_format' => $verbose ? 'verbose_json' : 'json',
         ];
 
-        if ($segments) {
-            $payload['timestamp_granularities[]'] = 'segment';
+        if ($segments || $granularity !== null) {
+            $payload['timestamp_granularities[]'] = $granularity ?? 'segment';
         }
 
         // file_get_contents() reads the audio into an in-memory string (not
@@ -230,7 +255,7 @@ class GroqClient
      * to throw on failure — request() decides whether that's the end of
      * the road or a cue to try the fallback model.
      *
-     * @return array{text: string, duration: float, segments: array}
+     * @return array{text: string, duration: float, segments: array, words: array}
      */
     private function attempt(string $model, array $payload, string $fileBody, string $filename, int $timeoutSeconds): array
     {
@@ -253,6 +278,7 @@ class GroqClient
             'text' => (string) data_get($response->json(), 'text', ''),
             'duration' => (float) data_get($response->json(), 'duration', 0.0),
             'segments' => (array) data_get($response->json(), 'segments', []),
+            'words' => (array) data_get($response->json(), 'words', []),
         ];
     }
 }

@@ -295,7 +295,7 @@ new class extends Component
             <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Try listening first without reading — the text below is there if you need it.</p>
         @endunless
         <div class="mt-2">
-            <x-audio-player :url="$listening['audio_url'] ?? null" :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1]" :segments="$this->listeningSegments()" />
+            <x-audio-player :url="$listening['audio_url'] ?? null" :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1, 'manual_report' => true]" :segments="$this->listeningSegments()" />
         </div>
     </div>
 

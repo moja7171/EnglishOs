@@ -30,8 +30,13 @@ Thumbs.db
 # Third-party copyrighted reference textbooks — local team reference only,
 # never distributed via this repo. See document/Requirements/ EOS-009 §14.
 /document/English_Vocabulary_in_Use.pdf
+/document/English Vocabulary in Use*.pdf
 /document/Intermediate_Grammar_in_Use.pdf
 
 # In-app listening picks: audio, transcripts and their synced text. Too big and not ours to
 # redistribute through git — copied onto the server by hand (see listening:build-picks).
 /document/*/picks/
+
+# Mission audio and video: big, copied to the server by hand like the listening picks.
+/document/*/*.mp3
+/document/*/*.mp4

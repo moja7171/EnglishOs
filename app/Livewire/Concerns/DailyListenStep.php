@@ -40,8 +40,6 @@ trait DailyListenStep
 
     public bool $readOnly = false;
 
-    public bool $listened = false;
-
     /** @var array<int, ?UploadedFile> keyed by shadowLines() index */
     public array $shadowRecordings = [];
 
@@ -57,12 +55,8 @@ trait DailyListenStep
     public function mount(): void
     {
         if (! $this->readOnly) {
-            $this->listened = $this->run->hasListenedIn($this->phaseKey());
-
             return;
         }
-
-        $this->listened = true;
 
         foreach ($this->run->evidence()->where('phase', $this->phaseKey())->where('type', Evidence::TYPE_AUDIO)->get() as $audio) {
             $decoded = json_decode($audio->content_ref, true);
@@ -70,23 +64,6 @@ trait DailyListenStep
             if (is_array($decoded) && isset($decoded['line_index'], $decoded['url'])) {
                 $this->savedShadowUrls[$decoded['line_index']] = $decoded['url'];
             }
-        }
-    }
-
-    /**
-     * Called the moment the audio finishes playing once — real completed
-     * listens only (the same "audio-ended" signal Day 1's own Listening
-     * step uses), not just pressing play. Shadowing only makes sense once
-     * the learner has actually heard the line in context first. Remembered
-     * on the run, so leaving mid-step and coming back doesn't lock Continue
-     * behind another full listen.
-     */
-    public function markListened(): void
-    {
-        $this->listened = true;
-
-        if (! $this->readOnly) {
-            $this->run->markListenedIn($this->phaseKey());
         }
     }
 
@@ -195,7 +172,7 @@ trait DailyListenStep
             'mission_run_id' => $this->run->id,
             'phase' => $this->phaseKey(),
             'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['listened' => true, 'shadowed_lines' => count($lines)]),
+            'content_ref' => json_encode(['shadowed_lines' => count($lines)]),
         ]);
 
         foreach ($this->shadowRecordings as $index => $recording) {

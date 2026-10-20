@@ -77,15 +77,11 @@
             passSkipped: false,
             segments: {{ Illuminate\Support\Js::from($segments) }},
             shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
-            // Freely switchable, any number of times, never a one-time
-            // choice — watch a few times without shadowing, then a few
-            // times with it, in whatever order. Starts on whenever
-            // shadowing is offered at all, since that's usually why the
-            // learner is here.
-            shadowModeOn: {{ count($shadowTimestamps) ? 'true' : 'false' }},
             shadowSeen: [],
             activeShadowIndex: null,
             replayEndTime: null,
+            lastShadowCheck: null,
+            shadowFrame: null,
             init() {
                 const video = this.$refs.video;
                 const seek = this.$refs.seek;
@@ -94,27 +90,12 @@
                     this.currentTime = video.currentTime;
                     if (! this.dragging) seek.value = video.currentTime;
 
-                    if (this.replayEndTime !== null && video.currentTime >= this.replayEndTime) {
-                        video.pause();
-                        this.replayEndTime = null;
-                    }
-
-                    if (this.shadowModeOn && ({{ $shadowActive }}) && this.activeShadowIndex === null) {
-                        for (let i = 0; i < this.shadowTimestamps.length; i++) {
-                            const point = this.shadowTimestamps[i];
-                            if (! point || this.shadowSeen.includes(i)) continue;
-                            if (video.currentTime >= point.start && video.currentTime < point.end) {
-                                video.pause();
-                                this.activeShadowIndex = i;
-                                this.shadowSeen.push(i);
-                                this.showControls();
-                                break;
-                            }
-                        }
-                    }
+                    this.checkShadowPoints(video);
                 });
+                video.addEventListener('seeking', () => this.lastShadowCheck = null);
                 video.addEventListener('play', () => {
                     this.playing = true;
+                    this.watchShadowPoints(video);
                     this.scheduleHide();
                     if (this.mode === 'inline' && this.hasSegments) this.mode = 'focus';
                 });
@@ -139,6 +120,19 @@
                 if (this.$refs.track) {
                     this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
                 }
+
+                // Shadowing is never a setting — it is simply what the
+                // second watch is. The moment the caller's shadow-active
+                // turns on, the video restarts from the top with every
+                // line still to come, so the pauses cover the whole video.
+                this.$watch(() => Boolean({{ $shadowActive }}), (on) => {
+                    if (! on || ! this.shadowTimestamps.length) return;
+                    video.pause();
+                    video.currentTime = 0;
+                    this.shadowSeen = [];
+                    this.activeShadowIndex = null;
+                    this.replayEndTime = null;
+                });
 
                 // Scrolls only the text panel, never the page — an element's
                 // scrollIntoView also scrolls every scrollable ancestor,
@@ -166,6 +160,50 @@
                     if (this.currentTime >= this.segments[i].start) return i;
                 }
                 return -1;
+            },
+            // Pauses right as a line has been heard through to its own
+            // real end (so the learner repeats what they just heard) —
+            // checked on every animation frame while playing, not just on
+            // 'timeupdate', which only fires about every 250ms and let the
+            // pause land a word or two into the next sentence. Only a
+            // genuine play-through counts: a seek across a line's end
+            // (lastShadowCheck reset on 'seeking') never fires its pause.
+            checkShadowPoints(media) {
+                const now = media.currentTime;
+                const previous = this.lastShadowCheck;
+                this.lastShadowCheck = now;
+
+                if (this.replayEndTime !== null) {
+                    if (now >= this.replayEndTime) {
+                        media.pause();
+                        this.replayEndTime = null;
+                    }
+                    return;
+                }
+
+                if (previous === null || this.activeShadowIndex !== null || ! ({{ $shadowActive }})) return;
+
+                for (let i = 0; i < this.shadowTimestamps.length; i++) {
+                    const point = this.shadowTimestamps[i];
+                    if (! point || this.shadowSeen.includes(i)) continue;
+                    if (previous < point.end && now >= point.end && now - point.end < 1) {
+                        media.pause();
+                        this.activeShadowIndex = i;
+                        this.shadowSeen.push(i);
+                        this.showControls();
+                        break;
+                    }
+                }
+            },
+            watchShadowPoints(media) {
+                if (! this.shadowTimestamps.length || this.shadowFrame) return;
+                const tick = () => {
+                    this.shadowFrame = null;
+                    if (media.paused || media.ended) return;
+                    this.checkShadowPoints(media);
+                    this.shadowFrame = requestAnimationFrame(tick);
+                };
+                this.shadowFrame = requestAnimationFrame(tick);
             },
             replayShadowLine(index) {
                 const point = this.shadowTimestamps[index];
@@ -260,6 +298,7 @@
                     :source="$listen['source']"
                     :day-number="$listen['day_number'] ?? null"
                     :pick-key="$listen['pick_key'] ?? null"
+                    :allow-manual-report="$listen['manual_report'] ?? false"
                     :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
                 />
             </div>
@@ -285,7 +324,6 @@
             @if ($poster) poster="{{ $poster }}" @endif
             preload="metadata"
             playsinline
-            crossorigin="anonymous"
             x-on:click="togglePlay()"
         >
             <source src="{{ $url }}" type="video/mp4">
@@ -399,19 +437,6 @@
          video, so the text panel and the shadow prompt stay on screen with
          it. --}}
     <div :class="mode === 'focus' ? 'flex min-h-0 flex-1 flex-col overflow-y-auto' : ''">
-    @if (count($shadowLines))
-        <label class="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-line p-3 dark:border-line-dark">
-            <span>
-                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Shadow while watching</span>
-                <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">Pauses playback at each line so you can repeat it before recording. Off just means you pause it yourself — recording the lines below is still required.</span>
-            </span>
-            <span class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors" :class="shadowModeOn ? 'bg-accent dark:bg-accent-dark' : 'bg-surface-sunken dark:bg-surface-sunken-dark'">
-                <input type="checkbox" x-model="shadowModeOn" class="peer absolute inset-0 h-full w-full cursor-pointer opacity-0">
-                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" :class="shadowModeOn ? 'translate-x-6' : 'translate-x-1'"></span>
-            </span>
-        </label>
-    @endif
-
     @if (count($segments))
         {{-- Synced text panel, same idea as <x-audio-player>'s — always
              shown with the video, inline and in focus alike. --}}

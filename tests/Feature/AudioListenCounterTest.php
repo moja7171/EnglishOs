@@ -173,6 +173,56 @@ class AudioListenCounterTest extends TestCase
         $this->assertSame(0, $learner->audioListens()->count());
     }
 
+    public function test_a_mission_player_that_allows_it_takes_the_learners_own_word_as_a_self_reported_listen(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->counter($learner, extra: ['allowManualReport' => true])
+            ->assertSee('I listened to this')
+            ->call('reportListen')
+            ->assertSeeHtml('data-testid="listen-count">1<')
+            ->assertSee('1 self-reported')
+            ->assertDispatched('listen-self-reported');
+
+        $this->assertDatabaseHas('audio_listens', ['learner_id' => $learner->id, 'source' => AudioListen::SOURCE_LISTENING, 'self_reported' => true]);
+    }
+
+    public function test_a_video_asks_if_the_learner_watched_it_not_listened(): void
+    {
+        $this->counter(User::factory()->create(), source: AudioListen::SOURCE_VIDEO_SHADOWING, extra: ['allowManualReport' => true])
+            ->assertSee('I watched this')
+            ->assertDontSee('I listened to this');
+    }
+
+    public function test_a_manual_report_and_a_verified_listen_both_count_but_stay_distinguishable(): void
+    {
+        $learner = User::factory()->create();
+
+        $component = $this->counter($learner, extra: ['allowManualReport' => true])
+            ->dispatch('listen-completed', missionCode: 'M01', source: 'listening', duration: 120.0);
+
+        $this->travel(61)->seconds();
+
+        $component->call('reportListen')->assertSeeHtml('data-testid="listen-count">2<');
+
+        $summary = $learner->audioListenSummary('M01', AudioListen::SOURCE_LISTENING);
+        $this->assertSame(2, $summary['total']);
+        $this->assertSame(1, $summary['selfReported']);
+    }
+
+    public function test_the_mission_players_offer_the_manual_report_only_when_asked(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        foreach (['audio-player', 'video-player'] as $component) {
+            $with = $this->renderPlayer($component, ['listen' => ['mission_code' => 'M01', 'source' => 'listening', 'manual_report' => true]]);
+            $without = $this->renderPlayer($component, ['listen' => ['mission_code' => 'M01', 'source' => 'listening']]);
+
+            $this->assertStringContainsString('wire:click="reportListen"', $with);
+            $this->assertStringNotContainsString('wire:click="reportListen"', $without);
+        }
+    }
+
     public function test_the_badge_shows_progress_toward_the_target_until_it_is_reached(): void
     {
         $learner = User::factory()->create();

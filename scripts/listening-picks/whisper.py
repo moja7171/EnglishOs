@@ -2,6 +2,9 @@
 
 Cached per file, so it can be stopped and resumed. Honours Groq's rate limit:
 a 429 sleeps for the retry-after Groq asks for, then tries again.
+
+The key comes from .env, or from the environment for a one-off run without writing it there:
+  GROQ_API_KEY=... python scripts/listening-picks/whisper.py
 """
 import json, os, pathlib, re, sys, time
 import requests
@@ -12,7 +15,7 @@ SCR.mkdir(parents=True, exist_ok=True)
 PROXY = os.environ.get('LISTENING_PROXY')
 PROXIES = {'http': PROXY, 'https': PROXY} if PROXY else None
 env = dict(re.findall(r'^([A-Z_]+)=(.*)$', (ROOT / '.env').read_text(encoding='utf-8'), re.M))
-KEY = env['GROQ_API_KEY'].strip('"\' ')
+KEY = (os.environ.get('GROQ_API_KEY') or env.get('GROQ_API_KEY', '')).strip('"\' ')
 MODEL = env.get('GROQ_WHISPER_MODEL', 'whisper-large-v3-turbo').strip('"\' ')
 URL = 'https://api.groq.com/openai/v1/audio/transcriptions'
 
