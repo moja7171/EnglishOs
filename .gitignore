@@ -40,3 +40,6 @@ Thumbs.db
 # Mission audio and video: big, copied to the server by hand like the listening picks.
 /document/*/*.mp3
 /document/*/*.mp4
+
+# Host logins (FTP passwords etc.) — never in git
+/document/*.local.md

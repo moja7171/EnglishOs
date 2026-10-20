@@ -41,6 +41,10 @@ php artisan boost:install
 
 Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
+## Mission media
+
+Mission audio/video and the listening picks' audio are git-ignored and served from the download host (`MEDIA_BASE_URL`, `https://dl.growwise.ir/englishos/mXX/...`). After building a mission, upload what is new with `FTP_PASS='...' python3 -I scripts/upload-media.py` (all missions by default, or `M09`; `--dry` lists). It skips files already on the host. The FTP login is in `document/download-host.local.md` (git-ignored). Upload before setting `MEDIA_BASE_URL` / deploying.
+
 ## Contributing
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
