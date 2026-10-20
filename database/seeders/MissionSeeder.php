@@ -2784,6 +2784,607 @@ class MissionSeeder extends Seeder
                 ],
             ]
         );
+
+        $this->seedM05();
+    }
+
+    /**
+     * Seeds M05 "Hobbies & Free Time" — the first mission authored without
+     * a source PDF (see EOS-009 §6/§7): the 4-day, 16-step layout of
+     * M02-M04 (no story_sequence — this lesson has no picture narration),
+     * the grammar point Mission::roadmapCatalog() assigns it (gerunds vs
+     * infinitives), and media the user picked: Oxford Online English's
+     * "How to Talk About Your Free Time and Hobbies" (cut from 9 to about
+     * 6 minutes: the like/love/enjoy + -ing part, how to say when and why
+     * you started, and one model answer) and Pensando Inglés' "My Favorite
+     * Hobbies" vlog (about 6 minutes cut from 23: guitar, learning
+     * languages, reading and martial arts, sponsor segment removed, the
+     * creator's burned-in captions blurred out).
+     */
+    private function seedM05(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M05', 'Oxford Online English - Free Time and Hobbies.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M05', 'Pensando Ingles - My Favorite Hobbies.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M05', 'Pensando Ingles - My Favorite Hobbies.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M05'],
+            [
+                'title' => 'Hobbies & Free Time',
+                'module' => 'Free Time',
+                'outcome' => 'I can talk about my hobbies and free time — what I enjoy doing, how often, how I got into it, and what I want to try next.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Someone asks "So what do you do for fun?" — could you answer with more than "nothing special"?',
+                                'image_query' => 'hobby painting guitar leisure',
+                                'ambient_video_query' => 'person playing acoustic guitar relaxing at home',
+                                'warm_up_questions' => [
+                                    'What do you like doing in your free time?',
+                                    'How often do you do it?',
+                                    'How did you get into your favourite hobby?',
+                                    'Is there a hobby you would like to try one day?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five small phrases that turn "I like football" into a real answer about your free time.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'On Saturdays I usually **hang out** with my friends at the park. I play '
+                                    .'tennis **once or twice** a week — my older brother **got me into** it last '
+                                    .'summer, and now I always try to **beat** him. I would love to try painting '
+                                    .'too, but I never **get the chance**.',
+                                'words' => [
+                                    ['phrase' => 'hang out', 'meaning' => 'to spend time relaxing somewhere or with someone', 'meaning_fa' => 'وقت گذراندن (با دوستان)، دور هم بودن', 'pos' => 'phrasal verb', 'example' => 'We usually hang out at a café near the university.', 'image_query' => 'friends hanging out cafe', 'difficulty' => 'easy'],
+                                    ['phrase' => 'once or twice', 'meaning' => 'one or two times; not very often', 'meaning_fa' => 'یکی دو بار', 'pos' => 'phrase', 'example' => 'I go swimming once or twice a month.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get (someone) into (something)', 'meaning' => 'to make someone start liking an activity', 'meaning_fa' => 'کسی را به چیزی علاقه‌مند کردن', 'pos' => 'phrasal verb', 'example' => 'My uncle got me into chess when I was eight.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'beat', 'meaning' => 'to win against someone in a game or sport', 'meaning_fa' => 'شکست دادن (در بازی)', 'pos' => 'verb', 'synonym' => 'opposite: lose to', 'example' => 'My sister always beats me at table tennis.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get the chance', 'meaning' => 'to have the time or opportunity to do something', 'meaning_fa' => 'فرصت (انجام کاری) را پیدا کردن', 'pos' => 'verb phrase', 'example' => "I love hiking, but I don't often get the chance.", 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Oli shows how people really talk about their free time — listen for the little word that comes after "I enjoy".',
+                                'source' => 'Oxford Online English — "How to Talk About Your Free Time and Hobbies in English"',
+                                'image_query' => 'friends playing basketball park',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M05', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker here.
+                                'listening_turns' => $this->shadowTimestampsFor('M05', 'listening_turns'),
+                                // The lesson's own human captions for the three parts kept in
+                                // the cut (0:00-4:21, 5:16-6:23, 7:23-7:52 of the original),
+                                // checked against a Whisper pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Oli', 'text' => "Hello, I'm Oli. Welcome to Oxford Online English! In this lesson, you can learn about how to talk about your free time and hobbies in English. What do you like doing in your free time? Do you have any interesting hobbies? Talking about your free time is a great way to start a conversation in English, or to find things in common when you're speaking to somebody. By the end of this lesson, you'll be able to speak clearly and naturally about your free time and your hobbies in English."],
+                                    ['speaker' => 'Oli', 'text' => 'Part one: free time and hobbies vocabulary. What words do you know for free time activities in English? Some people prefer things you can do at home, like watching TV, reading, or cooking. Other people like sports, like playing football, playing basketball, playing tennis, going swimming, going jogging, or going climbing, or maybe doing boxing, doing judo, or doing yoga.'],
+                                    ['speaker' => 'Oli', 'text' => 'Of course, many people prefer more social activities, for example, hanging out with your friends, relaxing with your family, or going shopping. Or maybe you like to do something more creative, like taking photos, painting, or writing stories or writing a blog. What about you? What kind of free time activities do you prefer? Let\'s look at how you can talk about free time activities and hobbies which you like.'],
+                                    ['speaker' => 'Oli', 'text' => 'Part two: what do you like doing? In my free time, I like... What could you say here? "In my free time, I like playing basketball." "In my free time, I like relaxing with my family." "In my free time, I like reading books." Can you see a pattern here? In every sentence, after \'like\', we use a verb plus -ing. Can you make a sentence? What do you like doing in your free time?'],
+                                    ['speaker' => 'Oli', 'text' => "But just using 'like' can be repetitive and boring. So what other verbs can you use? Well, you could use verbs like 'love', 'enjoy', or 'hate'. For example: \"I love going swimming.\" \"I enjoy watching TV.\" \"I hate going shopping.\" Can you see the same pattern? After all of these verbs, you need to use a verb with -ing."],
+                                    ['speaker' => 'Oli', 'text' => "You can also add words like 'really', 'sometimes', or 'absolutely', to make your meaning stronger or weaker. For example: \"I really like taking photos.\" \"Sometimes I enjoy going jogging.\" \"I absolutely hate playing football.\" Now it's your turn. What can you say? Can you make your own sentences?"],
+                                    ['speaker' => 'Oli', 'text' => 'OK, so now you can say something about what you like or don\'t like doing. Let\'s look at how you can add more details to your ideas. First, let\'s say how often you do your free time activity. For example: "I like playing sport. I play football every Tuesday evening." "I absolutely hate going shopping. I only go shopping once or twice a year." "I really like taking photos, but I don\'t get the chance to do it often."'],
+                                    ['speaker' => 'Oli', 'text' => "What about you? How often do you do your hobbies? You can use these phrases to help you talk. 'Every...' For example: 'every weekend', 'every Saturday afternoon', 'every day'. 'Once or twice a...', for example: 'once a week', 'twice a month', 'three times a year', and so on. Can you make some sentences like this about your free time and hobbies? How often do you do your hobbies?"],
+                                    ['speaker' => 'Oli', 'text' => 'OK, next, let\'s look at giving background information, especially if you have an interesting or an unusual hobby. You can talk about when and why you started doing it. For example, "I started playing tennis when I was 10." "I\'ve been learning to paint for six months now." "I decided to do yoga because I wanted to be healthy." "My French friend got me into climbing."'],
+                                    ['speaker' => 'Oli', 'text' => 'In the last sentence, the phrase "My friend got me into something" means that your friend introduced this activity to you, and now you like it. What can you say about your hobby? Can you use some of these phrases to talk about yourself? For example, I started climbing when I was living in Russia. I\'ve been climbing for about eight years. I also recently decided to do yoga because I wanted to be more flexible. When I was younger, my dad got me into photography.'],
+                                    ['speaker' => 'Oli', 'text' => 'Let\'s try using everything we\'ve looked at to make a longer answer. For example, "I really like playing tennis. I play every weekend at the park near my house. Sometimes I play with my brother, or sometimes with a friend. My brother got me into it because he loves sports, and he needed someone to play with. I didn\'t like it at first because it was hard, and I lost all the time. But now, I enjoy it, especially when I beat my brother."'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (beat / got me into as the
+                                // inflected forms Oli actually says).
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'hanging out', 'meaning' => 'spending time relaxing with someone',
+                                        'gap_before' => 'Of course, many people prefer more social activities, for example, ',
+                                        'gap_after' => ' with your friends, relaxing with your family, or going shopping.',
+                                    ],
+                                    [
+                                        'phrase' => 'once or twice', 'meaning' => 'one or two times',
+                                        'gap_before' => 'I absolutely hate going shopping. I only go shopping ',
+                                        'gap_after' => ' a year.',
+                                    ],
+                                    [
+                                        'phrase' => 'get the chance', 'meaning' => 'have the time or opportunity',
+                                        'gap_before' => "I really like taking photos, but I don't ",
+                                        'gap_after' => ' to do it often.',
+                                    ],
+                                    [
+                                        'phrase' => 'got me into', 'meaning' => 'made me start liking (an activity)',
+                                        'gap_before' => 'My French friend ',
+                                        'gap_after' => ' climbing.',
+                                    ],
+                                    [
+                                        'phrase' => 'beat', 'meaning' => 'win against',
+                                        'gap_before' => 'But now, I enjoy it, especially when I ',
+                                        'gap_after' => ' my brother.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Oli, an English teacher, shows how to talk about free time: words '
+                                    .'for common hobbies, the pattern "like / love / enjoy / hate + verb-ing", how to '
+                                    .'add how often and where you do something, how to explain when and why you '
+                                    .'started ("I decided to…", "my friend got me into…"), and finally one longer '
+                                    .'model answer about playing tennis with a brother.',
+                                'comprehension_check' => [
+                                    ['statement' => "Oli says that after 'like', 'love' and 'enjoy' we use a verb with -ing.", 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Oli says short answers with no details sound the most natural.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => "In the model answer, the speaker didn't enjoy tennis at first.", 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'Who got Oli into photography?',
+                                    'options' => ['His French friend', 'His dad', 'His brother'],
+                                    'correct' => 1,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'The words for starting a hobby, loving it — or quietly giving it up.',
+                                'story' => 'Last spring my neighbour **took up** **gardening**, and now she is really '
+                                    .'**keen on** growing her own tomatoes. My dad prefers **DIY** — he built our '
+                                    .'bookshelves himself. I tried stamp **collecting** when I was a kid, but I '
+                                    .'**gave** it **up** after a few months.',
+                                'words' => [
+                                    ['phrase' => 'take up', 'meaning' => 'to start doing a new hobby or activity', 'meaning_fa' => 'شروع کردن (یک سرگرمی تازه)', 'pos' => 'phrasal verb', 'example' => 'I took up running during the summer holidays.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'gardening', 'meaning' => 'growing flowers and vegetables as a hobby', 'meaning_fa' => 'باغبانی', 'pos' => 'noun', 'example' => 'Gardening helps my mum relax after work.', 'image_query' => 'gardening planting flowers', 'difficulty' => 'easy'],
+                                    ['phrase' => 'keen on', 'meaning' => 'very interested in something, liking it a lot', 'meaning_fa' => 'علاقه‌مند به، مشتاقِ', 'pos' => 'adjective phrase', 'synonym' => 'into', 'example' => "He's really keen on taking photos of birds.", 'difficulty' => 'hard'],
+                                    ['phrase' => 'DIY', 'meaning' => 'making or repairing things at home yourself ("do it yourself")', 'meaning_fa' => 'کارهای «خودت انجامش بده» (تعمیر و ساخت در خانه)', 'pos' => 'noun', 'example' => 'We painted the kitchen ourselves — I love DIY.', 'image_query' => 'diy woodworking tools home', 'difficulty' => 'medium'],
+                                    ['phrase' => 'collecting', 'meaning' => 'getting many things of one kind as a hobby (stamps, coins…)', 'meaning_fa' => 'جمع‌آوری کردن (کلکسیون)', 'pos' => 'noun', 'example' => 'Coin collecting is a quiet, cheap hobby.', 'image_query' => 'stamp collection album', 'difficulty' => 'easy'],
+                                    ['phrase' => 'give up', 'meaning' => 'to stop doing something you did regularly', 'meaning_fa' => 'کنار گذاشتن، ترک کردن', 'pos' => 'phrasal verb', 'synonym' => 'quit', 'example' => 'She gave up the piano when she started university.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same lesson, one more time — this time copy how Oli says the -ing words.',
+                                'image_query' => 'family relaxing together at home weekend',
+                                'shadow_lines' => [
+                                    'In my **free** **time**, I **like** **relaxing** with my **family**.',
+                                    "I **really** **like** **taking** **photos**, but I **don't** get the **chance** to **do** it **often**.",
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M05', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 14,
+                                'hook' => 'One small choice — "playing" or "to play"? — decides whether your hobby sentence sounds natural.',
+                                'focus' => 'Gerunds vs Infinitives',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use's verb + -ing / verb + to units.
+                                'lesson' => [
+                                    'intro' => 'Three small things: verbs that take -ing, verbs that take to, and -ing after little words like at and in.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · enjoy + -ing',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After <strong>enjoy, don\'t mind, finish, give up</strong> and <strong>keep</strong>, the next verb takes <strong>-ing</strong>.<br>With <strong>like, love, hate</strong>, -ing is the natural choice for hobbies.',
+                                                    'fa' => 'بعد از enjoy، don\'t mind، finish، give up و keep فعل بعدی همیشه ing می‌گیرد. برای حرف زدن از سرگرمی‌ها بعد از like، love و hate هم ing طبیعی‌ترین انتخاب است.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Verb + -ing',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'subject'],
+                                                        ['text' => 'enjoy', 'caption' => 'verb'],
+                                                        ['text' => 'playing', 'caption' => 'verb + -ing'],
+                                                        ['text' => 'chess', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Leo',
+                                                    'wrong' => 'I enjoy to cook for my friends.',
+                                                    'right' => 'I enjoy cooking for my friends.',
+                                                    'explanation' => 'Enjoy is always followed by -ing, never by to.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'I love going swimming on Sunday mornings.',
+                                                            "I don't mind getting up early for a match.",
+                                                            'She gave up playing the piano last year.',
+                                                            'He keeps losing at chess, but he loves it.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · want + to',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After <strong>want, would like, decide, plan, hope</strong> and <strong>learn</strong>, use <strong>to + verb</strong>.',
+                                                    'fa' => 'بعد از want، would like، decide، plan، hope و learn فعل بعدی با to می‌آید (to + شکل ساده‌ی فعل). این فعل‌ها معمولاً درباره‌ی برنامه و خواسته‌ی آینده‌اند.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Verb + to',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'subject'],
+                                                        ['text' => 'want', 'caption' => 'verb'],
+                                                        ['text' => 'to learn', 'caption' => 'to + verb'],
+                                                        ['text' => 'the guitar', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I decided joining a dance class.', 'right' => 'I decided to join a dance class.', 'highlight' => 'to join'],
+                                                        ['wrong' => "I'd like trying surfing one day.", 'right' => "I'd like to try surfing one day.", 'highlight' => 'to try'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'rule_examples',
+                                                    'items' => [
+                                                        ['rule' => 'want + to + verb', 'example' => 'I want to learn the guitar.', 'highlight' => 'to learn'],
+                                                        ['rule' => 'decide + to + verb', 'example' => 'She decided to take up yoga.', 'highlight' => 'to take up'],
+                                                        ['rule' => 'would like + to + verb', 'example' => "I'd like to try painting.", 'highlight' => 'to try'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · good at + -ing',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After a little word like <strong>at, in, of, about</strong>, a verb always takes <strong>-ing</strong>.',
+                                                    'fa' => 'بعد از حرف اضافه (at، in، of، about، on …) فعل همیشه ing می‌گیرد، نه to: good at drawing، interested in learning.',
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Mina',
+                                                    'wrong' => "I'm interested in learn Spanish.",
+                                                    'right' => "I'm interested in learning Spanish.",
+                                                    'explanation' => '"in" is a preposition, so the verb after it takes -ing.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            "I'm good at drawing faces.",
+                                                            "He's thinking about joining a running club.",
+                                                            "We're tired of watching TV every evening.",
+                                                        ]],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Also useful: go + -ing', 'words' => ['go swimming', 'go jogging', 'go climbing', 'go fishing', 'go shopping']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> free time — and use them out loud soon, in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1, talking about your own hobbies.',
+                                ],
+                                'frequency_starters' => [
+                                    'In my free time, I enjoy', "I'm really good at", 'Next year I want',
+                                    "I'd love to learn how", 'A few years ago I gave up', "I'm interested in",
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about their free time, using the correct verb '
+                                    .'form after the starter: -ing after enjoy / give up / a preposition (at, in, of, '
+                                    .'about), and to + verb after want / would like / decide / learn how.',
+                                'grammar_major_criteria' => 'the verb right after the starter has the wrong form (e.g. '
+                                    .'"enjoy to swim", "want playing", "good at play", a bare verb after "in"), the '
+                                    .'sentence does not actually continue the given starter, or it is not a genuine '
+                                    .'personal statement',
+                                'grammar_context' => 'continues with the correct verb form (verb + -ing or to + verb) '
+                                    .'for the starter already given',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I enjoy to swim in the sea.',
+                                        'options' => ['I enjoy to swim in the sea.', 'I enjoy swimming in the sea.', 'I enjoy swim in the sea.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'She decided joining a dance class.',
+                                        'options' => ['She decided joining a dance class.', 'She decided join a dance class.', 'She decided to join a dance class.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => "I'm interested in learn Spanish.",
+                                        'options' => ["I'm interested in learning Spanish.", "I'm interested in learn Spanish.", "I'm interested to learning Spanish."],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['playing', 'enjoy', 'I', 'chess.'], 'answer' => 'I enjoy playing chess.'],
+                                    ['words' => ['to', 'want', 'guitar.', 'I', 'the', 'learn'], 'answer' => 'I want to learn the guitar.'],
+                                    ['words' => ['at', 'drawing.', "She's", 'good'], 'answer' => "She's good at drawing."],
+                                ],
+                            ],
+                            [
+                                // A real vlog, one speaker, natural speed: Pensando Inglés'
+                                // "My Favorite Hobbies" (about 6 minutes cut from the original
+                                // 23: guitar, learning languages, reading, martial arts and why
+                                // he stopped; the sponsor segment and the guitar playing left
+                                // out; the creator's burned-in captions blurred out so the
+                                // step's own caption toggle works).
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Kyle shows you his real hobbies, guitar in hand — hear "I enjoy making" and "I like to play" at natural speed, then say them yourself.',
+                                'source' => 'Pensando Inglés — "Learn Real-Life English: My Favorite Hobbies"',
+                                'video_url' => $shadowingVideoUrl,
+                                // The video's own auto-captions, checked against the creator's
+                                // burned-in captions, re-timed per sentence on Whisper's
+                                // word timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M05', 'video_shadowing_segments'),
+                                'topic_summary' => 'Kyle, an American English teacher, talks about his hobbies. He has '
+                                    .'played the guitar on and off for about 20 years, and explains why we "play" an '
+                                    .'instrument. Learning languages changed his life — Spanish helped him meet his '
+                                    .'wife. He loves reading non-fiction because he likes to keep on learning. He '
+                                    .'trained in martial arts for almost four years, but stopped because it was '
+                                    .'expensive and he wanted to spend his time and money on his channel instead.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Kyle has played the guitar on and off for many years.', 'correct' => true],
+                                    ['statement' => 'Kyle prefers reading fantasy stories.', 'correct' => false],
+                                    ['statement' => 'One reason Kyle stopped martial arts was the cost.', 'correct' => true],
+                                ],
+                                // Real phrases Kyle uses and explains on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'pastime', 'meaning' => 'something you do for fun in your free time; a hobby'],
+                                    ['phrase' => 'on and off', 'meaning' => 'sometimes doing something, then stopping, then starting again'],
+                                    ['phrase' => 'be passionate about', 'meaning' => 'to love something and care about it a lot'],
+                                    ['phrase' => 'keep on (doing)', 'meaning' => 'to continue doing something'],
+                                    ['phrase' => 'in good shape', 'meaning' => 'healthy and physically fit'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words the
+                                // speaker actually says. Chosen for this mission's grammar:
+                                // enjoy + -ing, like / love / prefer / want + to, -ing as a
+                                // subject and stop + -ing. Bold marks naturally-stressed
+                                // content words (rendered by <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    "I do **enjoy** **making** **music**, and I **think** it's **fun**.",
+                                    '**Not** very **good**, but I **do** **like** to **play** **guitar**.',
+                                    '**Learning** **languages** has **absolutely** **changed** my **life** in so many **ways**.',
+                                    'I **love** to **read** because I **always** love to **keep** on **learning**.',
+                                    'I just **want** to **know** how to **protect** **myself** and my **family**.',
+                                    'I **decided** that I **wanted** to **stop** **giving** my **time** and **money** to that.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M05', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words that make your hobby sound like part of your life.',
+                                'story' => 'In my **spare time** I am really **into** photography. Last month I '
+                                    .'**joined** a photography **club** that meets every Saturday. I am not very '
+                                    .'**good at** it yet, but it is my favourite **pastime** — it helps me '
+                                    .'**unwind** after a long week.',
+                                'words' => [
+                                    ['phrase' => 'spare time', 'meaning' => 'time when you are not working or studying', 'meaning_fa' => 'وقت آزاد، اوقات فراغت', 'pos' => 'noun phrase', 'synonym' => 'free time', 'example' => 'What do you do in your spare time?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'into', 'meaning' => '(informal) very interested in something', 'meaning_fa' => 'علاقه‌مند به (محاوره‌ای)', 'pos' => 'preposition (be into)', 'synonym' => 'keen on', 'example' => "I'm really into old films at the moment.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'join a club', 'meaning' => 'to become a member of a group that meets to do an activity', 'meaning_fa' => 'عضو یک باشگاه یا گروه شدن', 'pos' => 'verb phrase', 'example' => 'I joined a book club to meet new people.', 'image_query' => 'book club meeting people', 'difficulty' => 'easy'],
+                                    ['phrase' => 'good at', 'meaning' => 'able to do something well', 'meaning_fa' => 'در کاری خوب بودن، مهارت داشتن', 'pos' => 'adjective phrase', 'synonym' => 'opposite: bad at', 'example' => "She's good at drawing people's faces.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'pastime', 'meaning' => 'something you do for fun in your free time', 'meaning_fa' => 'سرگرمی، مشغولیت اوقات فراغت', 'pos' => 'noun', 'synonym' => 'hobby', 'example' => 'Fishing is a popular pastime in my town.', 'image_query' => 'man fishing lake', 'difficulty' => 'medium'],
+                                    ['phrase' => 'unwind', 'meaning' => 'to relax after work or after something stressful', 'meaning_fa' => 'آرام گرفتن، از فشار کار رها شدن', 'pos' => 'verb', 'synonym' => 'relax', 'example' => 'Reading in bed helps me unwind.', 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same audio, one more time — now listen for "decided to" and "wanted to".',
+                                'image_query' => 'woman doing yoga outdoors',
+                                'shadow_lines' => [
+                                    'I **decided** to **do** **yoga** because I **wanted** to be **healthy**.',
+                                    "I **didn't** **like** it at **first** because it was **hard**, and I **lost** all the **time**.",
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M05', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your hobbies — what you '
+                                    .'enjoy doing, how often, and one thing you want to try — using the new '
+                                    .'vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'What do you enjoy doing in your free time?',
+                                    'How often do you do it, and where?',
+                                    'How did you get into it?',
+                                    "Is there a hobby you've given up? Why?",
+                                    'What new hobby would you like to try, and why?',
+                                    'What are you good at that most people don\'t know about?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Sara — a busy nurse who found a hobby in the strangest place. Can you follow her story?',
+                                'passage_title' => 'Meet Sara',
+                                'image_query' => 'young woman pottery wheel',
+                                // Written fresh for this app (EOS-009 §14) — reuses several
+                                // Vocabulary Builder words (took up, keen on, spare time, gave up,
+                                // get the chance, joined, unwind, got her into) in a fresh
+                                // context, third person instead of first, and is full of the
+                                // mission's -ing / to patterns.
+                                'passage' => 'Sara is a nurse in Shiraz, and for years she had almost no spare time. '
+                                    .'When she did get the chance to relax, she usually just watched TV — she was '
+                                    .'tired of doing nothing, but too tired to try anything new. Last year a friend '
+                                    .'from work got her into pottery. At first Sara wasn\'t keen on it: her bowls kept '
+                                    .'falling apart, and she nearly gave up after two lessons. But she decided to '
+                                    .'join a small evening class, and now she goes once or twice a week. She says '
+                                    .'making something with her hands is the best way to unwind after a long shift, '
+                                    .'and she is proud of being a complete beginner who keeps getting better. Next '
+                                    .'year she hopes to sell a few of her cups at a local market, and she is already '
+                                    .'looking forward to choosing the colours.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'spare time', 'type' => 'reused'],
+                                    ['phrase' => 'get the chance', 'type' => 'reused'],
+                                    ['phrase' => 'got her into', 'type' => 'reused'],
+                                    ['phrase' => 'keen on', 'type' => 'reused'],
+                                    ['phrase' => 'gave up', 'type' => 'reused'],
+                                    ['phrase' => 'once or twice', 'type' => 'reused'],
+                                    ['phrase' => 'unwind', 'type' => 'reused'],
+                                    ['phrase' => 'pottery', 'type' => 'new', 'definition' => 'making pots, bowls and cups from clay', 'pos' => 'noun', 'example' => 'She sells her pottery at the weekend market.'],
+                                    ['phrase' => 'looking forward to', 'type' => 'new', 'definition' => 'feeling happy about something that is going to happen (followed by -ing)', 'pos' => 'phrase', 'example' => "I'm looking forward to seeing my friends this weekend."],
+                                ],
+                                'topic_summary' => 'A short profile of Sara, a nurse who had almost no free time until a '
+                                    .'friend got her into pottery. She nearly gave up at first, but joined an evening '
+                                    .'class, now goes once or twice a week, uses it to unwind, and hopes to sell some '
+                                    .'of her cups next year.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Sara works as a nurse.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Sara loved pottery from the very first lesson.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Sara hopes to sell some of her cups next year.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'How did Sara get into pottery?',
+                                    'Why does Sara say pottery is good for her after work?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Writing about your free time often shows you which hobby really matters to you.',
+                                'title' => 'My free time',
+                                'prompts' => [
+                                    ['label' => 'What you enjoy doing', 'image_query' => 'person reading book cozy'],
+                                    ['label' => 'How often and where you do it', 'image_query' => 'people jogging park morning'],
+                                    ['label' => 'How you got into it', 'image_query' => 'father teaching child to ride bike'],
+                                    ['label' => 'Something you gave up', 'image_query' => 'old piano keys dusty'],
+                                    ['label' => 'A hobby you want to try', 'image_query' => 'rock climbing indoor wall'],
+                                    ['label' => 'Why it matters to you', 'image_query' => 'happy person painting canvas'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['enjoy + -ing', 'love + -ing', 'want to', 'decided to', "I'd like to", 'good at + -ing', 'interested in + -ing', 'gave up + -ing'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Forget your own hobbies for a minute — how is this family spending its evening?',
+                                'image_query' => 'family playing board game living room',
+                                'guiding_questions' => [
+                                    'What game are the woman and the two girls playing?',
+                                    'What is the woman in the orange jumper doing?',
+                                    'What are the two older women in the background doing?',
+                                    'What can you see on the shelves behind them?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): a woman in an orange
+                                // jumper and two girls playing chess at a small table in front,
+                                // two older women sitting at a dining table in the background
+                                // (one centre, one on the right), kitchen shelves with jars and
+                                // a vase top-left. Changing the query or orientation
+                                // invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 40, 'y' => 82, 'question_index' => 0],
+                                    ['x' => 36, 'y' => 45, 'question_index' => 1],
+                                    ['x' => 72, 'y' => 32, 'question_index' => 2],
+                                    ['x' => 18, 'y' => 15, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Describe your favourite hobby in detail, with no preparation.',
+                                    'Talk about a hobby you gave up, and why you stopped.',
+                                    'Explain a new hobby you would like to take up, and why.',
+                                    'What did you enjoy doing in your free time as a child?',
+                                    'Do you prefer hobbies you do alone or with other people? Why?',
+                                    'Is it important to have a hobby? Why or why not?',
+                                ],
+                                'role_reversal_topic' => 'hobbies and free time',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your hobbies and free time.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'Verb + -ing (enjoy, love, give up…)',
+                                    'Verb + to (want, decide, would like…)',
+                                    'How often you do it',
+                                    'How you got into it',
+                                    'One reason',
+                                    'One hobby you want to try',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
     }
 
     /**
