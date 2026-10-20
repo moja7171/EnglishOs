@@ -937,42 +937,20 @@ window.eosConfetti = {
  * auto-pauses can cost a few seconds, but a learner who clearly listened
  * through to the end must not stay locked out. Jumping straight to the end
  * credits nothing, so it still can't be skipped.
- *
- * `onProgress(fraction, skipped)` reports how much of the current listen has
- * been genuinely heard (0 to 1) every time it changes, and whether the
- * learner has jumped around during it — so the player can show why a listen
- * is (not) adding up. It reports 0 when a listen finishes or starts over.
  */
-window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6, onProgress = null) {
+window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6) {
     const heard = new Set();
     let last = null;
     let waitingForRestart = false;
-    let skipped = false;
-
-    const report = () => {
-        if (onProgress) {
-            const duration = media.duration;
-            const total = Number.isFinite(duration) && duration > 0 ? Math.ceil(duration) : 0;
-
-            onProgress(total ? Math.min(1, heard.size / total) : 0, skipped);
-        }
-    };
 
     const reset = () => {
         heard.clear();
         last = null;
         waitingForRestart = false;
-        skipped = false;
-        report();
     };
 
     media.addEventListener('seeking', () => {
         last = null;
-
-        if (heard.size > 0 && ! waitingForRestart) {
-            skipped = true;
-            report();
-        }
     });
     media.addEventListener('ended', () => {
         const duration = media.duration;
@@ -1010,7 +988,6 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
         }
 
         last = now;
-        report();
 
         if (heard.size / Math.ceil(duration) >= threshold) {
             reset();

@@ -156,7 +156,6 @@ new class extends Component
     $video = $run->mission->stepContent('video_shadowing');
     $shadowLines = $video['shadow_lines'] ?? [];
     $targetPhrases = $video['target_phrases'] ?? [];
-    $listenCount = $run->learner->audioListenCount($run->mission->code, \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING);
     // Two focused sub-steps instead of one long scroll (EOS-009 §8's
     // UI/UX review) — the first watch (just understand it) and the quick
     // check, then the second watch where the video pauses at each line
@@ -183,7 +182,6 @@ new class extends Component
         <div class="mt-2">
             <x-video-player
                 :url="$video['video_url'] ?? ''"
-                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING, 'manual_report' => true]"
                 :captions-url="$video['captions_url'] ?? null"
                 :title="$video['source'] ?? 'Video'"
                 :segments="$video['video_segments'] ?? []"
@@ -192,7 +190,6 @@ new class extends Component
                 shadow-active="activeSubstep === 1"
             />
         </div>
-        <p class="mt-2 text-xs text-ink-soft dark:text-ink-soft-dark">Tap CC above for captions.</p>
     </div>
 
     @if ($completed)
@@ -201,8 +198,6 @@ new class extends Component
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Video Shadowing complete
             </p>
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You've watched this video {{ $listenCount }} {{ Str::plural('time', $listenCount) }} so far.</p>
-
             <button
                 wire:click="proceed"
                 wire:loading.attr="disabled"
@@ -234,7 +229,7 @@ new class extends Component
                  is required, and the player does not pause for shadowing. --}}
             <div x-show="activeSubstep === 0" x-cloak class="space-y-6">
                 @unless ($readOnly)
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">First watch: just follow the story, with captions if you like. Next you'll watch it again and repeat the lines out loud.</p>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">First watch: just follow the story — tap CC on the video for captions. Next you'll watch it again and repeat the lines out loud.</p>
 
                     <div>
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
@@ -248,14 +243,16 @@ new class extends Component
                 @if (count($targetPhrases))
                     <div>
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Expressions to notice</p>
-                        <div class="mt-2 flex flex-wrap gap-1.5">
+                        <ul class="mt-2 divide-y divide-line card-sunken px-4 dark:divide-line-dark">
                             @foreach ($targetPhrases as $item)
-                                <span
-                                    title="{{ $item['meaning'] }}"
-                                    class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark"
-                                >{{ $item['phrase'] }}</span>
+                                <li class="py-2.5">
+                                    <p x-lookup class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $item['phrase'] }}</p>
+                                    @if (filled($item['meaning'] ?? null))
+                                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $item['meaning'] }}</p>
+                                    @endif
+                                </li>
                             @endforeach
-                        </div>
+                        </ul>
                     </div>
                 @endif
             </div>
@@ -268,16 +265,16 @@ new class extends Component
                     <div>
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
                         @unless ($readOnly)
-                            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
-                                Watch again from the start — it pauses at each line. Repeat it out loud, then record it below.
+                            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
+                                Watch again from the start — it pauses after each line. Say it out loud, then record it. Pick any {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines.
                             </p>
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                                Record at least {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines — pick the ones you like.
+                            <p class="mt-2 flex items-start gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
+                                @svg('heroicon-o-light-bulb', 'mt-px h-3.5 w-3.5 shrink-0')
+                                Bold words are usually stressed — say them a little longer and louder.
                             </p>
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Bold words are usually stressed — try to make them a little longer and louder than the rest.</p>
                         @endunless
 
-                        <div class="mt-2 space-y-3">
+                        <div class="mt-3 space-y-3">
                             @foreach ($shadowLines as $index => $line)
                                 <div class="card-sunken p-4">
                                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>

@@ -537,8 +537,9 @@ new class extends Component
                                 >
                                 <button
                                     type="submit"
-                                    class="h-10 shrink-0 cursor-pointer rounded-full bg-accent px-4 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                                >Check</button>
+                                    title="Check"
+                                    class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                                ><span class="sr-only">Check</span>@svg('heroicon-o-check', 'h-5 w-5')</button>
                             </form>
                             <button
                                 type="button"
@@ -617,8 +618,9 @@ new class extends Component
                                 <button
                                     type="button"
                                     wire:click="continueGrammar"
-                                    class="w-full cursor-pointer rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                                >Continue</button>
+                                    title="Continue"
+                                    class="flex w-full cursor-pointer items-center justify-center rounded-full bg-accent px-5 py-3 text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                                ><span class="sr-only">Continue</span>@svg('heroicon-o-arrow-right', 'h-5 w-5')</button>
                             </div>
                         @endif
                     @else
@@ -646,33 +648,8 @@ new class extends Component
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
                                 @if ($type === 'speaking') How did that feel? @else Did you remember it? @endif
                             </p>
-                            <div @class(['mt-2 grid gap-2', 'grid-cols-2' => $type === 'speaking', 'grid-cols-3' => $type !== 'speaking'])>
-                                <button
-                                    type="button"
-                                    wire:click="gradeSelf(1)"
-                                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-danger-line bg-danger-soft px-2 py-2.5 text-danger-ink transition-colors hover:opacity-90"
-                                >
-                                    <span class="text-sm font-bold">Again</span>
-                                    <span class="text-[11px] font-semibold opacity-70">{{ $model->nextIntervalLabel(1) }}</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    wire:click="gradeSelf(4)"
-                                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-line px-2 py-2.5 text-ink transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-                                >
-                                    <span class="text-sm font-bold">Good</span>
-                                    <span class="text-[11px] font-semibold opacity-70">{{ $model->nextIntervalLabel(4) }}</span>
-                                </button>
-                                @if ($type !== 'speaking')
-                                    <button
-                                        type="button"
-                                        wire:click="gradeSelf(5)"
-                                        class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-success/40 bg-success-soft px-2 py-2.5 text-success transition-colors hover:opacity-90 dark:border-success-dark/40 dark:bg-success-soft-dark dark:text-success-dark"
-                                    >
-                                        <span class="text-sm font-bold">Easy</span>
-                                        <span class="text-[11px] font-semibold opacity-70">{{ $model->nextIntervalLabel(5) }}</span>
-                                    </button>
-                                @endif
+                            <div class="mt-2">
+                                <x-review-grade-buttons :item="$model" :grades="$type === 'speaking' ? [1, 4] : [1, 4, 5]" />
                             </div>
                         </div>
                     @endif

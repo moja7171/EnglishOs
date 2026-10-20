@@ -66,8 +66,6 @@
             duration: 0,
             dragging: false,
             speed: 1,
-            passProgress: 0,
-            passSkipped: false,
             segments: {{ Illuminate\Support\Js::from($segments) }},
             shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
             shadowSeen: [],
@@ -131,10 +129,7 @@
                             duration: duration,
                         });
                         this.$dispatch('audio-listened');
-                    }, 0.9, () => this.$dispatch('audio-listened'), 0.6, (fraction, skipped) => {
-                        this.passProgress = fraction;
-                        this.passSkipped = skipped;
-                    });
+                    }, 0.9, () => this.$dispatch('audio-listened'), 0.6);
                 @endif
 
                 @if ($onListened)
@@ -256,21 +251,9 @@
             <source src="{{ $url }}" type="audio/mpeg">
         </audio>
 
-        @if ($listen)
-            <div class="mb-3 flex items-start justify-between gap-3">
-                {{-- How far the current listen has got — makes it obvious
-                     why a listen did (or didn't) get counted. --}}
-                <div x-show="passProgress > 0" x-cloak class="min-w-0 flex-1 space-y-1" data-testid="listen-progress">
-                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
-                        This listen: <span class="font-semibold tabular-nums" x-text="Math.round(passProgress * 100) + '%'"></span> heard
-                        <span x-show="passSkipped" x-cloak class="text-ink-faint dark:text-ink-faint-dark">· skipped parts don't count</span>
-                    </p>
-                    <div class="h-1 overflow-hidden rounded-full bg-line dark:bg-line-dark">
-                        <div class="h-full rounded-full bg-accent transition-all dark:bg-accent-dark" :style="'width: ' + Math.round(passProgress * 100) + '%'"></div>
-                    </div>
-                </div>
-                @if (($listen['chip'] ?? true) !== false)
-                    <div class="ml-auto">
+        @if ($listen && ($listen['chip'] ?? true) !== false)
+            <div class="mb-3 flex items-start justify-end gap-3">
+                <div>
                         <livewire:listen-counter
                             :mission-code="$listen['mission_code']"
                             :source="$listen['source']"
@@ -279,8 +262,7 @@
                             :allow-manual-report="$listen['manual_report'] ?? false"
                             :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source'].'-'.($listen['pick_key'] ?? '')"
                         />
-                    </div>
-                @endif
+                </div>
             </div>
         @endif
 

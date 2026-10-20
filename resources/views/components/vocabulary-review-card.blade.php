@@ -4,12 +4,14 @@
     gradeWord(int $quality, bool $remembered).
 
     Front: the word (with a speaker), its part of speech and a five-dot
-    strength meter, then "I remember" / "Not sure". The card flips in the
+    strength meter, then a ✓ ("I remember") and a ✗ ("Not sure") icon
+    button, matching the green/red swipe directions. The card flips in the
     browser (see Alpine.data('recallCard') in resources/js/app.js — flip,
     swipe, keyboard and the leave animation never touch the server). Back:
     meaning, example and the learner's own sentence (target word in bold),
-    then the grade buttons, each printing the gap its grade would schedule
-    ("Good · 6d"). Someone who wasn't sure gets one "Again" button instead.
+    then the grade buttons — an icon each (Again ↻, Good 👍, Easy 🚀, see
+    <x-review-grade-buttons>) over the gap its grade would schedule ("6d").
+    Someone who wasn't sure gets one "next" arrow instead.
     Every field a word doesn't have is simply left out.
 
     @param \App\Models\VocabularyWord $word
@@ -82,17 +84,25 @@
 
             <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Do you remember it?</p>
 
-            <div class="grid w-full grid-cols-2 gap-2">
-                <button
-                    type="button"
-                    x-on:click="flip(false)"
-                    class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-line px-4 py-3 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >Not sure <kbd class="{{ $keyHint }}">←</kbd></button>
-                <button
-                    type="button"
-                    x-on:click="flip(true)"
-                    class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >@svg('heroicon-o-check', 'h-4 w-4') I remember <kbd class="{{ $keyHint }}">Space</kbd></button>
+            <div class="flex items-start justify-center gap-10">
+                <div class="flex flex-col items-center gap-1.5">
+                    <button
+                        type="button"
+                        x-on:click="flip(false)"
+                        title="Not sure (←)"
+                        class="inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border-2 border-danger-line bg-danger-soft text-danger-ink transition-transform hover:scale-105 active:scale-95"
+                    ><span class="sr-only">Not sure</span>@svg('heroicon-o-x-mark', 'h-8 w-8')</button>
+                    <kbd class="{{ $keyHint }} text-ink-faint dark:text-ink-faint-dark">←</kbd>
+                </div>
+                <div class="flex flex-col items-center gap-1.5">
+                    <button
+                        type="button"
+                        x-on:click="flip(true)"
+                        title="I remember (Space)"
+                        class="inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border-2 border-success/40 bg-success-soft text-success transition-transform hover:scale-105 active:scale-95 dark:border-success-dark/40 dark:bg-success-soft-dark dark:text-success-dark"
+                    ><span class="sr-only">I remember</span>@svg('heroicon-o-check', 'h-8 w-8')</button>
+                    <kbd class="{{ $keyHint }} text-ink-faint dark:text-ink-faint-dark">Space</kbd>
+                </div>
             </div>
         </div>
 
@@ -132,37 +142,8 @@
                 </div>
             @endif
 
-            <div x-show="recalled" class="grid grid-cols-3 gap-2">
-                <button
-                    type="button"
-                    x-on:click="grade(1)"
-                    x-bind:disabled="busy"
-                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-danger-line bg-danger-soft px-2 py-2.5 text-danger-ink transition-colors hover:opacity-90 disabled:opacity-50"
-                >
-                    <span class="text-sm font-bold">Again</span>
-                    <span class="text-[11px] font-semibold opacity-70">{{ $word->nextIntervalLabel(1) }}</span>
-                    <kbd class="{{ $keyHint }}">1</kbd>
-                </button>
-                <button
-                    type="button"
-                    x-on:click="grade(4)"
-                    x-bind:disabled="busy"
-                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-line px-2 py-2.5 text-ink transition-colors hover:border-ink-faint hover:bg-surface-sunken disabled:opacity-50 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-                >
-                    <span class="text-sm font-bold">Good</span>
-                    <span class="text-[11px] font-semibold opacity-70">{{ $word->nextIntervalLabel(4) }}</span>
-                    <kbd class="{{ $keyHint }}">2</kbd>
-                </button>
-                <button
-                    type="button"
-                    x-on:click="grade(5)"
-                    x-bind:disabled="busy"
-                    class="flex cursor-pointer flex-col items-center gap-0.5 rounded-xl border border-success/40 bg-success-soft px-2 py-2.5 text-success transition-colors hover:opacity-90 disabled:opacity-50 dark:border-success-dark/40 dark:bg-success-soft-dark dark:text-success-dark"
-                >
-                    <span class="text-sm font-bold">Easy</span>
-                    <span class="text-[11px] font-semibold opacity-70">{{ $word->nextIntervalLabel(5) }}</span>
-                    <kbd class="{{ $keyHint }}">3</kbd>
-                </button>
+            <div x-show="recalled">
+                <x-review-grade-buttons :item="$word" alpine :key-hint="$keyHint" />
             </div>
 
             <div x-show="! recalled" x-cloak>
@@ -170,8 +151,14 @@
                     type="button"
                     x-on:click="grade(1)"
                     x-bind:disabled="busy"
+                    title="Next — see it again in {{ $word->nextIntervalLabel(1) }}"
                     class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
-                >Next — see it again in {{ $word->nextIntervalLabel(1) }} @svg('heroicon-o-arrow-right', 'h-3.5 w-3.5') <kbd class="{{ $keyHint }}">Space</kbd></button>
+                >
+                    <span class="sr-only">Next — see it again in</span>
+                    @svg('heroicon-o-arrow-path', 'h-4 w-4') {{ $word->nextIntervalLabel(1) }}
+                    @svg('heroicon-o-arrow-right', 'ml-1 h-5 w-5')
+                    <kbd class="{{ $keyHint }}">Space</kbd>
+                </button>
             </div>
         </div>
     </div>

@@ -187,13 +187,6 @@ class AudioListenCounterTest extends TestCase
         $this->assertDatabaseHas('audio_listens', ['learner_id' => $learner->id, 'source' => AudioListen::SOURCE_LISTENING, 'self_reported' => true]);
     }
 
-    public function test_a_video_asks_if_the_learner_watched_it_not_listened(): void
-    {
-        $this->counter(User::factory()->create(), source: AudioListen::SOURCE_VIDEO_SHADOWING, extra: ['allowManualReport' => true])
-            ->assertSee('I watched this')
-            ->assertDontSee('I listened to this');
-    }
-
     public function test_a_manual_report_and_a_verified_listen_both_count_but_stay_distinguishable(): void
     {
         $learner = User::factory()->create();
@@ -210,17 +203,15 @@ class AudioListenCounterTest extends TestCase
         $this->assertSame(1, $summary['selfReported']);
     }
 
-    public function test_the_mission_players_offer_the_manual_report_only_when_asked(): void
+    public function test_the_mission_player_offers_the_manual_report_only_when_asked(): void
     {
         $this->actingAs(User::factory()->create());
 
-        foreach (['audio-player', 'video-player'] as $component) {
-            $with = $this->renderPlayer($component, ['listen' => ['mission_code' => 'M01', 'source' => 'listening', 'manual_report' => true]]);
-            $without = $this->renderPlayer($component, ['listen' => ['mission_code' => 'M01', 'source' => 'listening']]);
+        $with = $this->renderPlayer('audio-player', ['listen' => ['mission_code' => 'M01', 'source' => 'listening', 'manual_report' => true]]);
+        $without = $this->renderPlayer('audio-player', ['listen' => ['mission_code' => 'M01', 'source' => 'listening']]);
 
-            $this->assertStringContainsString('wire:click="reportListen"', $with);
-            $this->assertStringNotContainsString('wire:click="reportListen"', $without);
-        }
+        $this->assertStringContainsString('wire:click="reportListen"', $with);
+        $this->assertStringNotContainsString('wire:click="reportListen"', $without);
     }
 
     public function test_the_badge_shows_progress_toward_the_target_until_it_is_reached(): void
@@ -301,18 +292,13 @@ class AudioListenCounterTest extends TestCase
 
         $this->assertStringContainsString('eosListenTracker', $this->renderPlayer('audio-player', ['listen' => ['mission_code' => 'M01', 'source' => 'listening']]));
         $this->assertStringNotContainsString('eosListenTracker', $this->renderPlayer('audio-player', []));
-        $this->assertStringContainsString('eosListenTracker', $this->renderPlayer('video-player', ['listen' => ['mission_code' => 'M01', 'source' => 'video_shadowing']]));
-        $this->assertStringNotContainsString('eosListenTracker', $this->renderPlayer('video-player', []));
     }
 
-    public function test_the_players_show_how_far_the_current_listen_has_got(): void
+    public function test_the_player_does_not_show_how_much_of_the_listen_was_heard(): void
     {
         $this->actingAs(User::factory()->create());
-        $listen = ['mission_code' => 'M01', 'source' => 'listening'];
 
-        $this->assertStringContainsString('listen-progress', $this->renderPlayer('audio-player', ['listen' => $listen]));
-        $this->assertStringContainsString('listen-progress', $this->renderPlayer('video-player', ['listen' => $listen]));
-        $this->assertStringNotContainsString('listen-progress', $this->renderPlayer('audio-player', []));
+        $this->assertStringNotContainsString('listen-progress', $this->renderPlayer('audio-player', ['listen' => ['mission_code' => 'M01', 'source' => 'listening']]));
     }
 
     public function test_a_page_that_draws_its_own_badge_can_switch_the_players_off(): void

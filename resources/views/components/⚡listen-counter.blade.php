@@ -123,7 +123,6 @@ new class extends Component
     $target = \App\Models\AudioListen::targetFor($source);
     $reached = $summary['total'] >= $target;
     $canReport = $selfReportable || $allowManualReport;
-    $isVideo = $source === \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING;
 @endphp
 
 <div x-data="{ open: false }" class="flex flex-col items-start gap-2">
@@ -166,7 +165,7 @@ new class extends Component
                 wire:click="reportListen"
                 wire:loading.attr="disabled"
                 class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-            >{{ $selfReportable ? 'I listened to this one' : ($isVideo ? 'I watched this' : 'I listened to this') }} @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
+            >{{ $selfReportable ? 'I listened to this one' : 'I listened to this' }} @svg('heroicon-s-check', 'h-3.5 w-3.5')</button>
         @endif
     </div>
 
