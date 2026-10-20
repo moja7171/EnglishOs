@@ -188,6 +188,24 @@
     --mood-texture-size: 26px 26px;
 }
 
+/* M07 "Family" — a warm plum (an old family photo album, a grandmother's
+   cardigan), paired with a faint diamond lattice like a patchwork quilt —
+   threads crossing both ways, so it never reads as connection's single
+   diagonal, focus's square grid, or the dotted/ring textures. */
+[data-mood='kin'] {
+    --color-accent: #8e4fb5;
+    --color-accent-dark: #b98ae0;
+    --color-accent-soft: #efe2f7;
+    --color-accent-soft-dark: #3a2150;
+    --color-accent-ink: #66308a;
+    --color-accent-ink-dark: #dcbcf5;
+    --color-dawn: #c79be6;
+    --color-dusk: #5e3a8f;
+    --mood-texture: repeating-linear-gradient(45deg, color-mix(in srgb, var(--color-accent) calc(8% * var(--mood-boost)), transparent) 0 1px, transparent 1px 18px),
+        repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-accent) calc(8% * var(--mood-boost)), transparent) 0 1px, transparent 1px 18px);
+    --mood-texture-size: auto;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

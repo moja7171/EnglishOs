@@ -522,6 +522,7 @@ class Mission extends Model
             'M04' => 'nourish',
             'M05' => 'play',
             'M06' => 'learn',
+            'M07' => 'kin',
             default => 'daily-life',
         };
     }

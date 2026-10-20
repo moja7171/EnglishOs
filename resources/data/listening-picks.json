@@ -133,24 +133,24 @@
   ],
   "M07" : [
     [
-      {"src":"sme","title":"Stress-free family meals","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260625","min":7,"tx":"page"},
+      {"src":"lee","title":"Talking about family","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240503","min":6,"tx":"page"},
       {"src":"voa","title":"Summer Fun with Family Expressions","url":"https://learningenglish.voanews.com/a/summer-fun-with-family-expressions/5972820.html","tx":"page"},
-      {"src":"teded","title":"Should you care what your parents value?","url":"https://ed.ted.com/lessons/would-you-stop-dating-someone-your-parents-didn-t-like","min":9}
+      {"src":"sme","title":"Stress-free family meals","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260625","min":7,"tx":"page"}
     ],
     [
-      {"src":"sme","title":"Was Christmas better in the past?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225","min":7,"tx":"page"},
+      {"src":"lee","title":"Talking about family trees","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260724","min":6,"tx":"page"},
       {"src":"voa","title":"The Difference: Used to, Be Used to, Get Used to","url":"https://learningenglish.voanews.com/a/the-difference-used-to-be-used-to-get-used-to/5245290.html","tx":"page","grammar":true},
-      {"src":"teded","title":"Are all of your memories real?","url":"https://ed.ted.com/lessons/are-all-of-your-memories-real-daniel-l-schacter","min":8}
+      {"src":"sme","title":"Was Christmas better in the past?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225","min":7,"tx":"page"}
     ],
     [
-      {"src":"sme","title":"Can you trust ancestry DNA kits?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241205","min":7,"tx":"page"},
+      {"src":"lee","title":"Talking about having kids","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260213","min":6,"tx":"page"},
       {"src":"voa","title":"Is Blood Thicker Than Water?","url":"https://learningenglish.voanews.com/a/is-blood-thicker-than-water-/4558634.html","tx":"page"},
-      {"src":"teded","title":"The sibling rivalry that tore a town apart","url":"https://ed.ted.com/lessons/the-sibling-rivalry-that-divided-a-town-jay-van-bavel-and-dominic-packer","min":8}
+      {"src":"sme","title":"Can you trust ancestry DNA kits?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241205","min":7,"tx":"page"}
     ],
     [
-      {"src":"sme","title":"The secrets to a healthy old age","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241121","min":7,"tx":"page"},
+      {"src":"lee","title":"Talking about memory","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260424","min":6,"tx":"page"},
       {"src":"voa","title":"How to Use 'When' and 'While'","url":"https://learningenglish.voanews.com/a/how-to-use-when-and-while-/5888101.html","tx":"page"},
-      {"src":"teded","title":"What adults can learn from children","url":"https://ed.ted.com/lessons/what-adults-can-learn-from-kids-adora-svitak","min":11}
+      {"src":"sme","title":"The secrets to a healthy old age","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241121","min":7,"tx":"page"}
     ]
   ],
   "M08" : [

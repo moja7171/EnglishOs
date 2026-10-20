@@ -2787,6 +2787,7 @@ class MissionSeeder extends Seeder
 
         $this->seedM05();
         $this->seedM06();
+        $this->seedM07();
     }
 
     /**
@@ -4032,6 +4033,751 @@ class MissionSeeder extends Seeder
                                     'was / were',
                                     'When you started',
                                     'One thing that helped you',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M07 "Family" — the roadmap's 'used to' + Past Continuous.
+     * M01/M06's 17-step layout: story_sequence stays, right after Grammar
+     * in Context, because "what was everyone doing?" is exactly what the
+     * Past Continuous narrates in a picture. The lesson follows Grammar in
+     * Use units 6 (Past continuous) then 18 (used to); vocabulary days 2-3
+     * follow Vocabulary in Use units 13A (Relatives) and 14C (Growing up),
+     * all rewritten in our own words. Media the user picked, both from My
+     * English Coach Dave: his 95-year-old Nanar on growing up in Leicester
+     * (cut from 32 to about 6 minutes: birth, house and brothers, a school
+     * story, a normal day and food back then) and his 69-year-old mum on
+     * meeting his dad, him as a baby, and her own childhood (cut from 31
+     * to about 6 minutes, the burned-in captions blurred out, and the top
+     * definition boxes blurred while they are on screen).
+     */
+    private function seedM07(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M07', 'My English Coach Dave - Life Stories with Nanar.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M07', 'My English Coach Dave - Life Stories with Mum.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M07', 'My English Coach Dave - Life Stories with Mum.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M07'],
+            [
+                'title' => 'Family',
+                'module' => 'Family',
+                'outcome' => 'I can talk about my family\'s past — what we used to do when I was a child, and what was happening at a moment I still remember.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'What did your family use to do when you were small — and what was everyone doing in your favourite family photo?',
+                                'image_query' => 'family together home smiling',
+                                'ambient_video_query' => 'family looking at old photographs',
+                                'warm_up_questions' => [
+                                    'Who is in your family?',
+                                    'Where did you grow up?',
+                                    'What did your family use to do at the weekend?',
+                                    'Who were you closest to when you were a child?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Nanar uses about her childhood — you\'ll need them to tell your family\'s story.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => '**Back in the day**, my grandparents couldn\'t **afford** a house, so they **paid rent** '
+                                    .'for two small rooms. My dad and his brother were **thick as thieves** — always laughing, '
+                                    .'always in trouble — and Grandpa often **told them off**.',
+                                'words' => [
+                                    ['phrase' => 'back in the day', 'meaning' => 'in the past, a long time ago', 'meaning_fa' => 'قدیم‌ها، آن زمان‌ها', 'pos' => 'phrase (informal)', 'example' => 'Back in the day, nobody had a phone at home.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'afford', 'meaning' => 'to have enough money to buy or pay for something', 'meaning_fa' => 'از پس هزینه‌ی چیزی برآمدن، توان خرید داشتن', 'pos' => 'verb', 'example' => "We couldn't afford a car when I was a child.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'pay rent', 'meaning' => 'to pay money every month to live in a house that is not yours', 'meaning_fa' => 'اجاره دادن (اجاره‌ی خانه پرداختن)', 'pos' => 'verb phrase', 'example' => 'My parents paid rent for ten years before they bought a flat.', 'image_query' => 'apartment for rent sign', 'difficulty' => 'easy'],
+                                    ['phrase' => 'thick as thieves', 'meaning' => 'very close friends who share secrets', 'meaning_fa' => 'خیلی صمیمی، جیک‌توجیک', 'pos' => 'idiom', 'example' => 'My sister and my cousin were thick as thieves at school.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'tell (someone) off', 'meaning' => 'to speak angrily to someone because they did something wrong', 'meaning_fa' => 'دعوا کردن، سرزنش کردن (کسی)', 'pos' => 'phrasal verb', 'example' => 'My mum told me off for coming home late.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Nanar is 95. Listen to what life used to be like in her house — and what she was doing when her teacher got angry.',
+                                'source' => 'My English Coach Dave — "Learn English with a 95-Year-Old British Woman!"',
+                                'image_query' => 'old family photographs vintage',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M07', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. Two speakers: Dave
+                                // asks, his grandmother Nanar answers.
+                                'listening_turns' => $this->shadowTimestampsFor('M07', 'listening_turns'),
+                                // The five parts kept in the cut (2:26-2:49, 3:33-5:37,
+                                // 7:18-8:00, 9:08-10:34 and 10:51-12:09 of the original),
+                                // written from the video's own English captions and checked
+                                // against a Whisper pass of the cut audio. Nanar's Leicester
+                                // English ("it were", "everybody were") is kept as she says it.
+                                'transcript' => [
+                                    ['speaker' => 'Dave', 'text' => 'Um, so where were you born, and when were you born?'],
+                                    ['speaker' => 'Nanar', 'text' => 'I was born in Bond Street Nursing Home on Easter Sunday, 1930!'],
+                                    ['speaker' => 'Dave', 'text' => '1930! So how old does that make you?'],
+                                    ['speaker' => 'Nanar', 'text' => 'What, now? 95, isn\'t it?'],
+                                    ['speaker' => 'Dave', 'text' => '95, everyone. So, where did you grow up?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Down Bath Lane. It was called Bath Lane.'],
+                                    ['speaker' => 'Dave', 'text' => 'Bath Lane. And which city is that?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Leicester City.'],
+                                    ['speaker' => 'Dave', 'text' => 'Leicester. Okay, Bath Lane. Interesting.'],
+                                    ['speaker' => 'Nanar', 'text' => 'It was called Bath Lane because there was a pub halfway up the road, and it was called the New Bath. And it was a pub, it used to be open till 10, 11 o\'clock at night.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, wow. And when you were young, Nanar, what was your house like when you were a child? What do you remember about the house when you were very young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Well, we didn\'t… my mum hadn\'t got a house. She rented this house from this man who was ill. He slept in the front room all the time.'],
+                                    ['speaker' => 'Dave', 'text' => 'What?'],
+                                    ['speaker' => 'Nanar', 'text' => 'He slept in… the man who owned the house…'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah.'],
+                                    ['speaker' => 'Nanar', 'text' => '…slept in the house. My mum used to pay rent, and we lived in the back two back rooms.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, okay. So it was a shared house.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yes, I suppose so.'],
+                                    ['speaker' => 'Dave', 'text' => 'Wow. And what do you remember about the house? Was it big, dark, cold?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, it was a… well, I used to think it were a poor house, really. Although people lived like that then.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah, yeah. Did you have any brothers or sisters?'],
+                                    ['speaker' => 'Nanar', 'text' => 'I had a brother who died…'],
+                                    ['speaker' => 'Dave', 'text' => 'When you were young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'He died, yeah. He wasn\'t very old. And I got a brother who was… what was Albert? I think Albert was about four or five years older than me. And then there was Ray. There was about 18 months between me and Ray.'],
+                                    ['speaker' => 'Dave', 'text' => 'Yeah. And you two were thick as thieves.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah, as they say.'],
+                                    ['speaker' => 'Dave', 'text' => 'As they say, yeah. Like two peas in a pod.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. \'Cause when… he used to smoke, and my dad used to tell him off. He used to hit him \'cause he used to smoke.'],
+                                    ['speaker' => 'Dave', 'text' => 'What did you think of school when you were young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Oh dear. Don\'t tell me about school.'],
+                                    ['speaker' => 'Dave', 'text' => 'Why?'],
+                                    ['speaker' => 'Nanar', 'text' => '\'Cause I was in this class and I was doing something, and the teacher made me… because he had a blackboard that swung round…'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, yeah.'],
+                                    ['speaker' => 'Nanar', 'text' => 'And the teacher made me stand behind the blackboard. But the thing was, I kept peeping round, and the class was in uproar.'],
+                                    ['speaker' => 'Dave', 'text' => '\'Cause you were, like, laughing? You were, like, peeping like that.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. Everybody were laughing. And the teacher hit me. So my mum went up to school and hit the teacher.'],
+                                    ['speaker' => 'Dave', 'text' => 'Really? How old were you, roughly?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Eight, nine.'],
+                                    ['speaker' => 'Dave', 'text' => 'So, Nana, what was a normal day like when you were young?'],
+                                    ['speaker' => 'Nanar', 'text' => 'We used to go to school, used to play in the street, play hopscotch.'],
+                                    ['speaker' => 'Dave', 'text' => 'Do you know what hopscotch is?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Don\'t you?'],
+                                    ['speaker' => 'Dave', 'text' => 'I do. Can you describe it?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. You got the slabs on the floor, and you do it: one, two, three, four, five, six, seven, eight, nine, ten. And you had a stone, and you had to throw the stone, and wherever the stone went, you had to hop on one leg to it.'],
+                                    ['speaker' => 'Dave', 'text' => 'And, you know, back in the day, what did you have for breakfast? What was a normal breakfast?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Porridge.'],
+                                    ['speaker' => 'Dave', 'text' => 'Porridge? Every day?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yeah. My mum used to make it with milk.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, right. Porridge. And how did you cook food? Was there an oven?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yes. Like… what do you call them? Stoves.'],
+                                    ['speaker' => 'Dave', 'text' => 'A gas oven?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Gas oven, yeah.'],
+                                    ['speaker' => 'Dave', 'text' => 'So you had an oven in the house. You didn\'t use coal?'],
+                                    ['speaker' => 'Nanar', 'text' => 'We did have coal fires, but I don\'t think she used to, no. She used to use the oven.'],
+                                    ['speaker' => 'Dave', 'text' => 'And this sounds silly, but when you were young, did you have electricity in the house?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, it was all gas.'],
+                                    ['speaker' => 'Dave', 'text' => 'No electricity?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No. Gas.'],
+                                    ['speaker' => 'Dave', 'text' => 'Where did people buy food when you were young? Were there big supermarkets like Tesco\'s and Sainsbury\'s?'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, no. We used to go to Worthington\'s quite a lot. It was sort of a shop on the corner or something like that.'],
+                                    ['speaker' => 'Dave', 'text' => 'Okay, so it was small, local shops.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Yes, yeah.'],
+                                    ['speaker' => 'Dave', 'text' => 'Okay. But were there supermarkets? I know you didn\'t go to supermarkets.'],
+                                    ['speaker' => 'Nanar', 'text' => 'No, no. We had open market.'],
+                                    ['speaker' => 'Dave', 'text' => 'Oh, like a real market?'],
+                                    ['speaker' => 'Nanar', 'text' => 'A real market, yes.'],
+                                    ['speaker' => 'Dave', 'text' => 'Wow. Here\'s a question for you, Nanar. What was your favourite meal as a child?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Difficult. It was difficult, because we didn\'t have the money to buy expensive food or nice food. You sort of had to buy what you could afford. But I mean, we used to get chips in the little bag.'],
+                                    ['speaker' => 'Dave', 'text' => 'How much for?'],
+                                    ['speaker' => 'Nanar', 'text' => 'Well, I…'],
+                                    ['speaker' => 'Dave', 'text' => 'I don\'t know the old money, everyone.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Tuppence.'],
+                                    ['speaker' => 'Dave', 'text' => 'Tuppence. That means nothing to me.'],
+                                    ['speaker' => 'Nanar', 'text' => 'Bag of chips for tuppence, and they put salt and vinegar on for you as well.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (tell him off and could afford as
+                                // the forms Nanar actually says).
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'pay rent', 'meaning' => 'pay money every month to live in a house',
+                                        'gap_before' => '…slept in the house. My mum used to ',
+                                        'gap_after' => ', and we lived in the back two back rooms.',
+                                    ],
+                                    [
+                                        'phrase' => 'thick as thieves', 'meaning' => 'very close friends',
+                                        'gap_before' => 'Yeah. And you two were ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'tell him off', 'meaning' => 'speak angrily to him for doing something wrong',
+                                        'gap_before' => 'he used to smoke, and my dad used to ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'back in the day', 'meaning' => 'in the past, long ago',
+                                        'gap_before' => 'And, you know, ',
+                                        'gap_after' => ', what did you have for breakfast?',
+                                    ],
+                                    [
+                                        'phrase' => 'afford', 'meaning' => 'have enough money for',
+                                        'gap_before' => 'You sort of had to buy what you could ',
+                                        'gap_after' => '.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Dave talks with his grandmother Nanar, who was born in 1930 and grew up '
+                                    .'on Bath Lane in Leicester. Her mum used to pay rent for two rooms in a shared house, '
+                                    .'and her dad used to tell off her brother Ray for smoking. She tells a school story — '
+                                    .'she was doing something silly, the teacher hit her, and her mum hit the teacher. Then '
+                                    .'she describes a normal day back then: playing hopscotch in the street, porridge for '
+                                    .'breakfast, a gas oven, no electricity, small local shops, and chips for tuppence.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Nanar was born in 1930.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'When Nanar was a child, her family had their own house.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'After the teacher hit Nanar, her mum went to the school and hit the teacher.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What did Nanar usually have for breakfast?',
+                                    'options' => ['Bacon and eggs', 'Porridge', 'Chips'],
+                                    'correct' => 1,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'The words for the people in your family tree — and how well you get on with them.',
+                                // Vocabulary in Use unit 13A ("Relatives"), our own sentences.
+                                'story' => 'I come from a **close family**. My mum is an **only child**, but my dad has lots of '
+                                    .'**relatives**. I have an **elder** brother and two little sisters who are **twins**. I '
+                                    .'**get on well with** all of them — most of the time!',
+                                'words' => [
+                                    ['phrase' => 'relatives', 'meaning' => 'the people in your family, like aunts, uncles and cousins', 'meaning_fa' => 'اقوام، خویشاوندان', 'pos' => 'noun (plural)', 'synonym' => 'relations', 'example' => 'All our relatives come to our house for the New Year.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'close family', 'meaning' => 'a family who like each other and spend a lot of time together', 'meaning_fa' => 'خانواده‌ی صمیمی و نزدیک به هم', 'pos' => 'noun phrase', 'example' => "We're a close family — we have dinner together every Friday.", 'image_query' => 'happy family hug', 'difficulty' => 'easy'],
+                                    ['phrase' => 'only child', 'meaning' => 'a person who has no brothers or sisters', 'meaning_fa' => 'تک‌فرزند', 'pos' => 'noun phrase', 'example' => "I'm an only child, so my cousins are like my sisters.", 'difficulty' => 'easy'],
+                                    ['phrase' => 'elder', 'meaning' => 'older (used about brothers, sisters and children in a family)', 'meaning_fa' => 'بزرگ‌تر (برادر یا خواهر)', 'pos' => 'adjective', 'synonym' => 'older', 'example' => 'My elder sister lives in Shiraz.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'twins', 'meaning' => 'two children born to the same mother at the same time', 'meaning_fa' => 'دوقلوها', 'pos' => 'noun (plural)', 'example' => 'The twins look the same, but they are very different.', 'image_query' => 'twin sisters', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get on well with', 'meaning' => 'to have a friendly relationship with someone', 'meaning_fa' => 'با کسی خوب کنار آمدن، رابطه‌ی خوب داشتن', 'pos' => 'phrasal verb', 'example' => 'I get on well with my uncle — we like the same football team.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — this time copy how Nanar says "used to" and "was doing".',
+                                'image_query' => 'old school classroom blackboard',
+                                'shadow_lines' => [
+                                    'My **mum** **used** to **pay** **rent**.',
+                                    'I was in this **class** and I was **doing** **something**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M07', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'Two ways to go back in time: what was happening at one moment, and what you did again and again.',
+                                'focus' => "Past Continuous + 'used to'",
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 6 and 18: was / were + -ing,
+                                // past continuous vs past simple with when / while, then
+                                // used to, and its negative and question.
+                                'lesson' => [
+                                    'intro' => 'Two past forms: was / were + -ing for what was happening, and used to for what you often did but don\'t do now.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · was / were + -ing',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use <strong>was / were + -ing</strong> for something in the middle of happening at a time in the past: <strong>At 8 o\'clock I was having dinner.</strong>',
+                                                    'fa' => 'برای کاری که در یک لحظه از گذشته در حال انجام بود (هنوز تمام نشده بود) از was / were + ing استفاده کن: At 8 o\'clock I was having dinner.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Past Continuous',
+                                                    'parts' => [
+                                                        ['text' => 'My mum', 'caption' => 'subject'],
+                                                        ['text' => 'was', 'caption' => 'was / were', 'tone' => 'accent'],
+                                                        ['text' => 'cooking', 'caption' => 'verb + -ing'],
+                                                        ['text' => 'at 7 o\'clock', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'We was playing in the street.', 'right' => 'We were playing in the street.', 'highlight' => 'were'],
+                                                        ['wrong' => 'I was play with my cousins.', 'right' => 'I was playing with my cousins.', 'highlight' => 'playing'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'At 10 last night, my dad was watching the news.',
+                                                            'The children were sleeping when we got home.',
+                                                            'What were you doing at this time yesterday?',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · was doing or did? when / while',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'The longer action is <strong>was / were + -ing</strong>; the short one that happens in the middle is past simple: <strong>I was cooking when the phone rang.</strong>',
+                                                    'fa' => 'کار طولانی‌تر که در جریان بود را با was / were + ing بگو و کار کوتاهی که وسط آن اتفاق افتاد را با گذشته‌ی ساده: I was cooking when the phone rang. معمولاً while قبل از کار طولانی و when قبل از کار کوتاه می‌آید.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Something happened in the middle',
+                                                    'parts' => [
+                                                        ['text' => 'While we were eating,', 'caption' => 'was / were + -ing', 'tone' => 'accent'],
+                                                        ['text' => 'my uncle', 'caption' => 'subject'],
+                                                        ['text' => 'arrived', 'caption' => 'past simple', 'tone' => 'success'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Sara',
+                                                    'wrong' => 'I watched TV when my brother was calling me.',
+                                                    'right' => 'I was watching TV when my brother called me.',
+                                                    'explanation' => 'Watching TV was the long action, so it takes was + -ing. The call was short — past simple.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'My grandma was cooking when we arrived.',
+                                                            'I met my best friend while I was living in Tabriz.',
+                                                            'It was raining when we left the house.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · used to + verb',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>used to + verb</strong> = you did it often in the past, or it was true then, but not now: <strong>We used to live near the sea.</strong>',
+                                                    'fa' => 'used to + فعل ساده یعنی کاری را در گذشته بارها انجام می‌دادی یا چیزی در گذشته درست بود، ولی الان دیگر نه: We used to live near the sea. دقت کن: use to برای حال وجود ندارد؛ برای حال از Present Simple استفاده کن.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'used to',
+                                                    'parts' => [
+                                                        ['text' => 'My grandpa', 'caption' => 'subject'],
+                                                        ['text' => 'used to', 'caption' => 'used to', 'tone' => 'accent'],
+                                                        ['text' => 'tell', 'caption' => 'base verb'],
+                                                        ['text' => 'us stories', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I use to visit my grandma every summer.', 'right' => 'I used to visit my grandma every summer.', 'highlight' => 'used to'],
+                                                        ['wrong' => 'We used to playing in the street.', 'right' => 'We used to play in the street.', 'highlight' => 'play'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'then: we used to live in a village', 'right' => 'now: we live in a city'],
+                                                        ['left' => 'then: there used to be a shop on the corner', 'right' => 'now: there is a supermarket'],
+                                                        ['left' => 'then: I used to hate vegetables', 'right' => 'now: I love them'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · didn\'t use to and Did … use to?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'With <strong>did / didn\'t</strong>, write <strong>use to</strong> (no -d): <strong>I didn\'t use to like fish.</strong> <strong>Did you use to walk to school?</strong>',
+                                                    'fa' => 'در جمله‌ی منفی و سؤالی، did نشانه‌ی گذشته است، پس used به use برمی‌گردد: I didn\'t use to، Did you use to …? (مثل didn\'t go، نه didn\'t went).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'Question',
+                                                    'parts' => [
+                                                        ['text' => 'Did', 'caption' => 'did', 'tone' => 'accent'],
+                                                        ['text' => 'you', 'caption' => 'subject'],
+                                                        ['text' => 'use to', 'caption' => 'use to (no -d)'],
+                                                        ['text' => 'play outside?', 'caption' => 'base verb + the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Did you used to have a pet?', 'right' => 'Did you use to have a pet?', 'highlight' => 'use to'],
+                                                        ['wrong' => "We didn't used to have a car.", 'right' => "We didn't use to have a car.", 'highlight' => 'use to'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'was / were + -ing: one moment', 'words' => ['at 8 o\'clock', 'when the phone rang', 'while we were eating']],
+                                                        ['label' => 'used to: again and again', 'words' => ['every summer', 'on Sundays', 'when I was a child', 'back in the day']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> family — then tell a picture story about one busy Sunday, and soon say it out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'When I was a child, my family used to', 'My grandparents used to', "I didn't use to",
+                                    'At 8 o\'clock last night, I was', 'When my parents met, they were', 'While my mum was cooking,',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about their family\'s past, using the past '
+                                    .'continuous (was / were + -ing) for something in progress at a past moment, the past '
+                                    .'simple for a short action in the middle of it, and used to + base verb (didn\'t use to '
+                                    .'/ did … use to in negatives and questions) for past habits and states that are not true now.',
+                                'grammar_major_criteria' => 'a wrong form of be ("we was playing"), a missing -ing after '
+                                    .'was / were ("I was play"), "use to" for a past habit in an affirmative sentence, "used to" '
+                                    .'after did / didn\'t, used to + -ing ("used to playing"), the past continuous for the short '
+                                    .'action that interrupts ("when my brother was calling"), the sentence does not actually '
+                                    .'continue the given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues with the past continuous (was / were + -ing), used to + '
+                                    .'base verb, or didn\'t use to + base verb, as the starter already given needs',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I was play football when it started to rain.',
+                                        'options' => ['I was play football when it started to rain.', 'I was playing football when it started to rain.', 'I were playing football when it started to rain.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'I use to visit my grandparents every summer.',
+                                        'options' => ['I used to visit my grandparents every summer.', 'I use to visit my grandparents every summer.', 'I was used to visit my grandparents every summer.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'My dad cooked when my uncle was arriving.',
+                                        'options' => ['My dad cooked when my uncle was arriving.', 'My dad was cooking when my uncle was arriving.', 'My dad was cooking when my uncle arrived.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'Did you used to walk to school?',
+                                        'options' => ['Did you used to walk to school?', 'Did you use to walk to school?', 'Were you use to walk to school?'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['when', 'watching', 'I', 'called.', 'TV', 'you', 'was'], 'answer' => 'I was watching TV when you called.'],
+                                    ['words' => ['the', 'used', 'We', 'sea.', 'live', 'to', 'near'], 'answer' => 'We used to live near the sea.'],
+                                    ['words' => ['use', 'outside?', 'you', 'Did', 'play', 'to'], 'answer' => 'Did you use to play outside?'],
+                                ],
+                            ],
+                            [
+                                'key' => 'story_sequence',
+                                'label' => 'Picture Story',
+                                // Kept for M07 (see M01's and M06's notes): "what was everyone
+                                // doing?" is what the Past Continuous describes, so the pictures
+                                // come right after the lesson as fresh applied practice.
+                                'duration_minutes' => 10,
+                                'hook' => 'You just learned was / were + -ing. Now say what everyone was doing at Grandma\'s house last Sunday, one picture at a time.',
+                                // Captions are ground truth for the AI feedback prompt only —
+                                // never rendered to the learner (see the step's own docblock).
+                                // Each query was checked against its real first Pexels result
+                                // (square), so the picture matches its caption.
+                                'sequence_images' => [
+                                    ['image_query' => 'grandmother baking in kitchen', 'caption' => 'Grandma was making bread in the kitchen', 'alt_description' => 'Old hands kneading dough on a table'],
+                                    ['image_query' => 'grandfather reading newspaper', 'caption' => 'Grandpa was reading his newspaper by the window', 'alt_description' => 'An old man reading a newspaper by a window with the sea outside'],
+                                    ['image_query' => 'kids playing in backyard', 'caption' => 'Little Leo was playing catch outside', 'alt_description' => 'A small boy playing catch with a ball in front of a house'],
+                                    ['image_query' => 'family lunch table grandparents', 'caption' => 'In the end, the whole family was having lunch together outside', 'alt_description' => 'Grandparents and grandchildren having a meal at a table outside'],
+                                ],
+                                // Vocabulary in Use unit 92 (Time and sequence), D and E.
+                                'sequencing_words' => ['First', 'Meanwhile', 'At the same time', 'In the end'],
+                                'narration_tense' => 'Past Continuous',
+                                'narration_kind' => 'what everyone was doing at one moment in the past',
+                                'narration_example' => 'First, Grandma was making bread...',
+                                'narration_not' => 'present or past simple',
+                            ],
+                            [
+                                // A real talk between two real people, natural speed: My English
+                                // Coach Dave's "Learn English with My 69-Year-Old Mum" — four
+                                // parts of the 31-minute walk, cut to about 6 minutes, the
+                                // creator's burned-in captions blurred out (and his top word
+                                // boxes while they show) so the step's own caption toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Dave\'s dad was trying to impress his mum with a very hot curry. Hear her story — and what she used to do as a child — then say it with them.',
+                                'source' => 'My English Coach Dave — "Learn English with My 69-Year-Old Mum"',
+                                'video_url' => $shadowingVideoUrl,
+                                // The video's auto-captions, checked against the creator's
+                                // burned-in captions, re-timed per sentence on Whisper's word
+                                // timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M07', 'video_shadowing_segments'),
+                                'topic_summary' => 'Dave walks in the countryside with his mum and asks about the family. '
+                                    .'She met his dad at a tennis club; on their first date he ate a very hot curry — he was '
+                                    .'trying to impress her. As a baby, Dave made up his own language. Then she remembers her '
+                                    .'own childhood: playing in the street, losing touch with her best friend after the 11-plus '
+                                    .'exam, the meal she used to have most Saturdays, feeling like the poor kid at a posh school, '
+                                    .'and the tennis lessons she and her friends used to skip.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Dave\'s mum and dad met at a tennis club.', 'correct' => true],
+                                    ['statement' => 'Dave\'s mum went to the same secondary school as her best friend Anne.', 'correct' => false],
+                                    ['statement' => 'As a child, Dave\'s mum loved fish fingers, peas and mashed potatoes.', 'correct' => true],
+                                ],
+                                // Real phrases Dave and his mum use on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'get together', 'meaning' => 'to start a romantic relationship'],
+                                    ['phrase' => 'the rest is history', 'meaning' => 'everybody knows what happened after that'],
+                                    ['phrase' => 'show off', 'meaning' => 'to do something to make people notice and admire you'],
+                                    ['phrase' => 'make up', 'meaning' => 'to invent something, like a story or a language'],
+                                    ['phrase' => 'lose touch', 'meaning' => 'to stop seeing or talking to someone over time'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words the
+                                // speakers actually say. Chosen for this mission's grammar: a
+                                // past continuous question and answer, were saying, then used
+                                // to for an old habit three times. Bold marks naturally-stressed
+                                // content words (rendered by <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'So, was he **trying** to **show** **off**?',
+                                    'I **think** he was **trying** to **impress** me.',
+                                    '**Only** **I** could **understand** what you were **saying**.',
+                                    'It was an **exam** that we **used** to **have**.',
+                                    'But I **used** to like to make a **volcano** of my **mashed** **potatoes**.',
+                                    'We **used** to just **knock** the **ball** out of **court**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M07', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for growing up, and for what your parents let you do.',
+                                // Vocabulary in Use unit 14C ("Past and present"), our own sentences.
+                                'story' => 'My mum **grew up** in a small town. She **was brought up** by her grandparents, '
+                                    .'and they were very **strict**: she **wasn\'t allowed to** go to parties. Years later, my '
+                                    .'parents **let** me **stay out late** — very different!',
+                                'words' => [
+                                    ['phrase' => 'grow up', 'meaning' => 'to change from a child into an adult; to spend your childhood somewhere', 'meaning_fa' => 'بزرگ شدن', 'pos' => 'phrasal verb (grow – grew – grown)', 'example' => 'I grew up in Isfahan, near my grandparents.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'be brought up', 'meaning' => 'to be looked after by someone until you are an adult', 'meaning_fa' => 'تربیت شدن، بزرگ شدن (زیر دست کسی)', 'pos' => 'verb phrase (passive)', 'example' => 'He was brought up by his aunt after his parents died.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'strict', 'meaning' => 'making people follow rules and behave well', 'meaning_fa' => 'سخت‌گیر', 'pos' => 'adjective', 'example' => 'My dad was strict about homework.', 'image_query' => 'strict father pointing finger', 'difficulty' => 'easy'],
+                                    ['phrase' => 'be allowed to', 'meaning' => 'to have permission to do something', 'meaning_fa' => 'اجازه داشتن', 'pos' => 'verb phrase', 'example' => "I wasn't allowed to watch TV on school nights.", 'difficulty' => 'medium'],
+                                    ['phrase' => 'let (someone) do', 'meaning' => 'to allow someone to do something (more informal than allow)', 'meaning_fa' => 'اجازه دادن (به کسی برای کاری)', 'pos' => 'verb (let – let – let)', 'synonym' => 'allow (someone) to do', 'example' => 'My parents let me drive their car when I was eighteen.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'stay out late', 'meaning' => 'not to come home until late at night', 'meaning_fa' => 'تا دیروقت بیرون ماندن', 'pos' => 'verb phrase', 'example' => 'Teenagers often want to stay out late with their friends.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now listen for "used to make" and "used to get".',
+                                'image_query' => 'bowl of porridge breakfast',
+                                'shadow_lines' => [
+                                    'My **mum** **used** to **make** it with **milk**.',
+                                    'We **used** to **get** **chips** in the **little** **bag**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M07', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your family when you were a child — '
+                                    .'where you grew up, two things your family used to do, and one moment you remember (what '
+                                    .'was everyone doing?) — using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Where did you grow up? What was your house like?',
+                                    'Do you come from a big family or a small family?',
+                                    'What did your family use to do at the weekend?',
+                                    'Who did you get on well with when you were a child?',
+                                    'Were your parents strict? What weren\'t you allowed to do?',
+                                    'Think of a family photo you like. What was everyone doing in it?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Meet Leila — her grandmother\'s house used to be the centre of the whole family. What happened to it?',
+                                'passage_title' => 'Leila\'s Friday house',
+                                'image_query' => 'grandmother and granddaughter garden',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // and is told mostly in used to and the past continuous.
+                                'passage' => 'Leila grew up in Shiraz in a close family. She was an only child, but she never '
+                                    .'felt alone, because every Friday all her relatives used to come to her grandmother\'s '
+                                    .'house. Back in the day, her grandparents couldn\'t afford a big house — they paid rent '
+                                    .'for a small one with a garden — but there was always room for everyone. Her grandmother '
+                                    .'was quite strict: the children weren\'t allowed to eat before the adults. Leila and her '
+                                    .'elder cousin Sima were thick as thieves, and Grandpa often told them off for climbing the '
+                                    .'orange tree. Leila remembers one Friday very well. Her uncles were talking in the garden, '
+                                    .'her grandmother was cooking rice, and the twins were sleeping on the sofa, when suddenly '
+                                    .'the lights went out. Nobody was worried. Grandpa lit some candles and told stories until '
+                                    .'midnight, and the parents let the children stay out late in the garden. Today the house '
+                                    .'belongs to someone else, but Leila still gets on well with all her cousins.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'grew up', 'type' => 'reused'],
+                                    ['phrase' => 'close family', 'type' => 'reused'],
+                                    ['phrase' => 'only child', 'type' => 'reused'],
+                                    ['phrase' => 'relatives', 'type' => 'reused'],
+                                    ['phrase' => 'Back in the day', 'type' => 'reused'],
+                                    ['phrase' => 'afford', 'type' => 'reused'],
+                                    ['phrase' => 'paid rent', 'type' => 'reused'],
+                                    ['phrase' => 'strict', 'type' => 'reused'],
+                                    ['phrase' => 'weren\'t allowed to', 'type' => 'reused'],
+                                    ['phrase' => 'elder', 'type' => 'reused'],
+                                    ['phrase' => 'thick as thieves', 'type' => 'reused'],
+                                    ['phrase' => 'told them off', 'type' => 'reused'],
+                                    ['phrase' => 'twins', 'type' => 'reused'],
+                                    ['phrase' => 'stay out late', 'type' => 'reused'],
+                                    ['phrase' => 'gets on well with', 'type' => 'reused'],
+                                    ['phrase' => 'lit', 'type' => 'new', 'definition' => 'started a fire or a light burning (past of light)', 'pos' => 'verb (light – lit – lit)', 'example' => 'We lit a candle when the power went off.'],
+                                    ['phrase' => 'belongs to', 'type' => 'new', 'definition' => 'is the property of someone', 'pos' => 'verb phrase', 'example' => 'This old watch belongs to my grandfather.'],
+                                ],
+                                'topic_summary' => 'A short story about Leila, an only child from a close family in Shiraz. '
+                                    .'Every Friday her relatives used to meet at her grandmother\'s small rented house. She '
+                                    .'remembers one evening when everyone was busy and the lights suddenly went out, and the '
+                                    .'night turned into stories by candlelight.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Leila has two brothers.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'Leila\'s grandparents did not own their house.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'When the lights went out, the family was scared and went home.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What did Leila\'s relatives use to do every Friday?',
+                                    'What were the people in the house doing when the lights went out?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Writing about your family\'s past is a way to keep it — and a story your own children may read one day.',
+                                'title' => 'My family, then and now',
+                                'prompts' => [
+                                    ['label' => 'Where you grew up', 'image_query' => 'old neighborhood street houses'],
+                                    ['label' => 'Who was in your family', 'image_query' => 'family portrait vintage'],
+                                    ['label' => 'Something your family used to do', 'image_query' => 'family picnic park'],
+                                    ['label' => 'Something you weren\'t allowed to do', 'image_query' => 'child looking out window'],
+                                    ['label' => 'One moment you remember: what was everyone doing?', 'image_query' => 'family dinner table evening'],
+                                    ['label' => 'How your family is different now', 'image_query' => 'family video call laptop'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['used to + verb', "didn't use to", 'was / were + -ing', 'when / while', 'back in the day', 'when I was a child', 'but now'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Imagine this photo was taken last night when you walked in. What was everyone doing?',
+                                'image_query' => 'big family dinner table grandparents',
+                                'guiding_questions' => [
+                                    'What was the grandfather doing when you walked in?',
+                                    'What was the grandmother holding?',
+                                    'What food was on the table?',
+                                    'Who was the young father looking at? What do you think he was saying?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): a family of three
+                                // generations at a wooden kitchen table — a grey-haired grandfather
+                                // on the left, the grandmother next to him raising a glass, a
+                                // little boy in orange in the middle, a young father turning to a
+                                // curly-haired girl on the right, and plates, fruit and a roast
+                                // on the table. Changing the query or orientation invalidates
+                                // these coordinates.
+                                'hotspots' => [
+                                    ['x' => 22, 'y' => 42, 'question_index' => 0],
+                                    ['x' => 34, 'y' => 62, 'question_index' => 1],
+                                    ['x' => 52, 'y' => 82, 'question_index' => 2],
+                                    ['x' => 76, 'y' => 44, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Tell me about your family when you were a child. Where did you live, and what did you use to do together?',
+                                    'Describe a family member you used to spend a lot of time with.',
+                                    'Talk about a family celebration you remember. What was everyone doing?',
+                                    'What were the rules in your house when you were a child? Were your parents strict?',
+                                    'How is your family life different now from when you were small?',
+                                    'Tell a funny or surprising story from your family\'s past.',
+                                ],
+                                'role_reversal_topic' => 'family life in the past',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your family when you were a child.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'used to + verb',
+                                    "didn't use to",
+                                    'was / were + -ing',
+                                    'when / while',
+                                    'Where you grew up',
+                                    'One family moment you remember',
                                 ],
                             ],
                             [
