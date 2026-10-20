@@ -628,6 +628,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\GeminiWordDefiner' => __DIR__ . '/../..' . '/app/Services/GeminiWordDefiner.php',
         'App\\Services\\GroqClient' => __DIR__ . '/../..' . '/app/Services/GroqClient.php',
         'App\\Services\\ListeningPicks' => __DIR__ . '/../..' . '/app/Services/ListeningPicks.php',
+        'App\\Services\\MediaHost' => __DIR__ . '/../..' . '/app/Services/MediaHost.php',
         'App\\Services\\MyMemoryClient' => __DIR__ . '/../..' . '/app/Services/MyMemoryClient.php',
         'App\\Services\\PersianGlossary' => __DIR__ . '/../..' . '/app/Services/PersianGlossary.php',
         'App\\Services\\PexelsClient' => __DIR__ . '/../..' . '/app/Services/PexelsClient.php',

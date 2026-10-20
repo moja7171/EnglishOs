@@ -86,6 +86,7 @@ return array(
     'App\\Services\\GeminiWordDefiner' => $baseDir . '/app/Services/GeminiWordDefiner.php',
     'App\\Services\\GroqClient' => $baseDir . '/app/Services/GroqClient.php',
     'App\\Services\\ListeningPicks' => $baseDir . '/app/Services/ListeningPicks.php',
+    'App\\Services\\MediaHost' => $baseDir . '/app/Services/MediaHost.php',
     'App\\Services\\MyMemoryClient' => $baseDir . '/app/Services/MyMemoryClient.php',
     'App\\Services\\PersianGlossary' => $baseDir . '/app/Services/PersianGlossary.php',
     'App\\Services\\PexelsClient' => $baseDir . '/app/Services/PexelsClient.php',
