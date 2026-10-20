@@ -38,13 +38,13 @@
         cards only exist on its shadowing sub-step) pass an expression
         tied to that state so the pause-and-prompt never fires on a
         sub-step where "find this line below" wouldn't be true yet.
-
-    Watches are deliberately not counted: how much of a video has been
-    seen is no use to the learner here — the shadowed recordings are what
-    the step asks for.
+    @param array{mission_code: string, source: string, day_number?: int, manual_report?: bool}|null $listen Counts
+        real watches (at least 90% played through, never skipped to) and
+        shows a "Listens: N" chip — see <x-audio-player>. null = no counting.
 --}}
 @props([
     'url',
+    'listen' => null,
     'captionsUrl' => null,
     'poster' => null,
     'title' => 'Video',
@@ -100,6 +100,17 @@
                 video.addEventListener('pause', () => { this.playing = false; this.showControls() });
                 video.addEventListener('ended', () => { this.playing = false; this.showControls(); {{ $onEnded }} });
                 if (video.readyState >= 1) this.duration = video.duration;
+
+                @if ($listen)
+                    window.eosListenTracker(video, (duration) => {
+                        Livewire.dispatchTo('listen-counter', 'listen-completed', {
+                            missionCode: {{ Illuminate\Support\Js::from($listen['mission_code']) }},
+                            source: {{ Illuminate\Support\Js::from($listen['source']) }},
+                            pickKey: {{ Illuminate\Support\Js::from($listen['pick_key'] ?? null) }},
+                            duration: duration,
+                        });
+                    }, 0.9, null, 0.6);
+                @endif
 
                 if (this.$refs.track) {
                     this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
@@ -265,6 +276,19 @@
             },
         }"
     >
+    @if ($listen)
+        <div x-show="mode === 'inline'" class="mb-2 flex justify-end">
+            <livewire:listen-counter
+                :mission-code="$listen['mission_code']"
+                :source="$listen['source']"
+                :day-number="$listen['day_number'] ?? null"
+                :pick-key="$listen['pick_key'] ?? null"
+                :allow-manual-report="$listen['manual_report'] ?? false"
+                :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
+            />
+        </div>
+    @endif
+
     <div
         tabindex="0"
         x-on:keydown="onKeydown($event)"
