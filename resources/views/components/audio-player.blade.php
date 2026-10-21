@@ -120,7 +120,14 @@
                     if (this.focusOnPlay && this.segments.length) this.focus = true;
                 });
                 audio.addEventListener('pause', () => this.playing = false);
-                audio.addEventListener('ended', () => { this.playing = false; {{ $onEnded }} });
+                // Pinned to the very end: the last 'timeupdate' can land up
+                // to ~250ms short of it, leaving the bar visibly unfinished.
+                audio.addEventListener('ended', () => {
+                    this.playing = false;
+                    this.currentTime = this.duration || audio.currentTime;
+                    seek.value = this.currentTime;
+                    {{ $onEnded }}
+                });
                 // Metadata may already have loaded before these listeners
                 // were attached.
                 if (audio.readyState >= 1) resolveDuration();
@@ -287,7 +294,7 @@
                     type="range"
                     x-ref="seek"
                     min="0"
-                    step="1"
+                    step="any"
                     :max="duration || 0"
                     value="0"
                     x-on:pointerdown="dragging = true"

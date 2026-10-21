@@ -179,6 +179,27 @@
         togglePreview() {
             this.$refs.preview.paused ? this.$refs.preview.play() : this.$refs.preview.pause();
         },
+        // The take's real length: MediaRecorder webm has no duration in
+        // its header (Infinity) until the browser has scanned the whole
+        // file, which a seek far past the end forces — the same trick as
+        // the shared audio player. The timer's value stays as the fallback.
+        resolvePreviewDuration() {
+            const audio = this.$refs.preview;
+            if (isFinite(audio.duration) && audio.duration > 0) { this.previewDuration = audio.duration; return; }
+            audio.currentTime = 1e101;
+            audio.addEventListener('timeupdate', () => { audio.currentTime = 0; }, { once: true });
+        },
+        // Every frame while playing, not just on 'timeupdate' (~4×/s), so
+        // the bar moves smoothly, not in steps.
+        followPreview() {
+            const audio = this.$refs.preview;
+            const tick = () => {
+                if (audio.paused || audio.ended) return;
+                this.previewTime = audio.currentTime;
+                requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+        },
         discardTake() {
             if (this.$refs.preview) this.$refs.preview.pause();
             if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
@@ -238,15 +259,16 @@
         },
     }"
 >
-    {{-- The take's own playback, before it is sent. webm from MediaRecorder
-         reports no real duration, hence previewDuration from the timer. --}}
+    {{-- The take's own playback, before it is sent. A finished play-through
+         leaves the bar full (and the clock on the total) until Play again. --}}
     <audio
         x-ref="preview"
         x-bind:src="previewUrl"
-        x-on:play="previewPlaying = true"
+        x-on:loadedmetadata="resolvePreviewDuration()"
+        x-on:durationchange="if (isFinite($el.duration) && $el.duration > 0) previewDuration = $el.duration"
+        x-on:play="previewPlaying = true; followPreview()"
         x-on:pause="previewPlaying = false"
-        x-on:ended="previewPlaying = false; previewTime = 0"
-        x-on:timeupdate="previewTime = $el.currentTime"
+        x-on:ended="previewPlaying = false; previewTime = previewDuration"
         preload="auto"
         class="hidden"
     ></audio>
