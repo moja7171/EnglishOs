@@ -121,6 +121,25 @@ class PairPracticeSession extends Model
                 ->orWhere('created_at', '>', now()->subMinutes(self::INVITE_MINUTES)));
     }
 
+    /**
+     * An Android intent that opens a Google Meet link in the Meet app, and
+     * in the browser when the app isn't installed — a plain link from the
+     * installed web app opens Meet's website instead. Null for any other
+     * call link.
+     */
+    public static function meetAppIntent(string $url): ?string
+    {
+        $parts = parse_url($url);
+
+        if (($parts['scheme'] ?? null) !== 'https' || ($parts['host'] ?? null) !== 'meet.google.com') {
+            return null;
+        }
+
+        $path = ($parts['path'] ?? '').(isset($parts['query']) ? '?'.$parts['query'] : '');
+
+        return 'intent://meet.google.com'.$path.'#Intent;scheme=https;package=com.google.android.apps.tachyon;S.browser_fallback_url='.rawurlencode($url).';end';
+    }
+
     public function isAccessibleBy(User $user): bool
     {
         return $user->id === $this->user_a_id || $user->id === $this->user_b_id;

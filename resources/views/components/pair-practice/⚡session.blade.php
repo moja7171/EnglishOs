@@ -208,7 +208,7 @@ new class extends Component
                 @endif
 
                 @if ($session->meet_link)
-                    <a href="{{ $session->meet_link }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+                    <a href="{{ $session->meet_link }}" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent) && @js(PairPracticeSession::meetAppIntent($session->meet_link))) { $event.preventDefault(); window.location.href = @js(PairPracticeSession::meetAppIntent($session->meet_link)) }" class="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
                         @svg('heroicon-o-video-camera', 'h-4 w-4') Open the call
                     </a>
                 @endif
@@ -221,7 +221,7 @@ new class extends Component
             @if ($isStarter && ! $session->meet_link)
                 <div class="card-sunken space-y-3 p-4">
                     <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">Not together? Make a call and share its link.</p>
-                    <a href="https://meet.google.com/new" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark">
+                    <a href="https://meet.google.com/new" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent) && @js(PairPracticeSession::meetAppIntent('https://meet.google.com/new'))) { $event.preventDefault(); window.location.href = @js(PairPracticeSession::meetAppIntent('https://meet.google.com/new')) }" class="flex items-center justify-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark">
                         @svg('heroicon-o-video-camera', 'h-4 w-4') Open Google Meet
                     </a>
                     <form wire:submit="shareLink" class="flex gap-2">
@@ -254,7 +254,7 @@ new class extends Component
                 <span class="text-ink-faint dark:text-ink-faint-dark">· {{ min($session->positionInStage() + 1, $session->cardsInStage()) }}/{{ $session->cardsInStage() }}</span>
             </p>
             @if ($session->meet_link)
-                <a href="{{ $session->meet_link }}" target="_blank" rel="noopener noreferrer" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-faint hover:bg-surface-sunken dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark" title="Open the call">@svg('heroicon-o-video-camera', 'h-5 w-5')</a>
+                <a href="{{ $session->meet_link }}" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent) && @js(PairPracticeSession::meetAppIntent($session->meet_link))) { $event.preventDefault(); window.location.href = @js(PairPracticeSession::meetAppIntent($session->meet_link)) }" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-faint hover:bg-surface-sunken dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark" title="Open the call">@svg('heroicon-o-video-camera', 'h-5 w-5')</a>
             @endif
             <span
                 wire:key="timer-{{ $stage }}"
