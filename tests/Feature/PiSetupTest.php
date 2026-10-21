@@ -14,7 +14,7 @@ use Tests\TestCase;
  * backfill (anyone with program_started_at already set); the forced
  * redirect only ever catches someone truly new. The page itself stays
  * open to everyone though, linked from the account menu so anyone can
- * come back and re-copy the setup messages later.
+ * come back to the guide later.
  */
 class PiSetupTest extends TestCase
 {
@@ -39,23 +39,22 @@ class PiSetupTest extends TestCase
         $this->actingAs($learner)->get('/')->assertOk();
     }
 
-    public function test_the_setup_page_shows_all_3_roles_with_the_learners_level(): void
+    public function test_the_guide_explains_voice_mode_and_the_control_words(): void
     {
-        $learner = User::factory()->create(['pi_onboarded_at' => null, 'cefr_level' => 'A2+']);
+        $learner = User::factory()->create(['pi_onboarded_at' => null]);
 
         $this->actingAs($learner)->get('/pi-setup')
             ->assertOk()
-            ->assertSee('Teacher')
-            ->assertSee('Language Partner')
-            ->assertSee('Pronunciation Coach')
-            ->assertSee('A2+');
+            ->assertSee('How voice practice works')
+            ->assertSee('turn on voice mode first')
+            ->assertSee('slower');
     }
 
     public function test_an_already_onboarded_learner_can_still_revisit_the_setup_page(): void
     {
         $learner = User::factory()->create(['pi_onboarded_at' => now()]);
 
-        $this->actingAs($learner)->get('/pi-setup')->assertOk()->assertSee('Teacher');
+        $this->actingAs($learner)->get('/pi-setup')->assertOk()->assertSee('How voice practice works');
     }
 
     public function test_the_account_menu_links_to_pi_setup(): void

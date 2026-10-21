@@ -4,19 +4,17 @@ use App\Services\PiPrompts;
 use Livewire\Component;
 
 /**
- * A one-time screen before a learner's first mission: set up 3 persistent
- * chats in Pi (or any other live-voice AI assistant), each with a fixed
- * persona (teacher/language partner/pronunciation coach — see
- * App\Services\PiPrompts). The daily voice practice page (/pi) then just says
- * "paste this in your Teacher chat" via <x-pi-practice-card> — this page is
- * the only place the setup message itself is shown.
+ * A one-time screen before a learner's first mission: a short guide to the
+ * daily voice practice with Pi (or any other live-voice AI assistant).
+ * Nothing to set up there — every day's prompt on /pi is self-contained
+ * (see App\Services\PiPrompts) — so this only explains how a session runs.
  *
  * The home route (routes/web.php) forces this on anyone whose
  * pi_onboarded_at is still null; existing users are grandfathered by that
  * column's migration, so the forced redirect only ever catches someone
  * truly before Mission 1. The route itself has no such gate, though — it's
- * also linked from the account menu so anyone can come back and re-copy
- * the setup messages later.
+ * also linked from the account menu and the practice page so anyone can
+ * come back to it later.
  */
 new class extends Component
 {
@@ -29,46 +27,34 @@ new class extends Component
 };
 ?>
 
-@php
-    $roles = app(PiPrompts::class)->onboardingRoles(auth()->user());
-@endphp
-
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     <header class="border-b border-line pb-4 dark:border-line-dark">
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Set up your voice practice partners</h1>
+        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">How voice practice works</h1>
         <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-            Pi and Google's Gemini Live are both free, separate voice AI apps — you talk to them live and they write
-            down both sides as you go. Use whichever one you like (or both). Your daily voice practice sends you to it
-            for real spoken practice. Open it now and start 3 separate chats, one per card below, and paste in that card's
-            message to set its role. You only do this once.
+            Ten minutes a day of real speaking with a free voice AI app, at the end of your day. Nothing to set up.
         </p>
     </header>
 
-    <div class="space-y-3">
-        @foreach ($roles as $role)
-            <div
-                x-data="{ copied: false, copy() { navigator.clipboard.writeText($refs.setup.value); this.copied = true; setTimeout(() => this.copied = false, 1500) } }"
-                class="rounded-2xl border border-line p-4 dark:border-line-dark"
-            >
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $role['label'] }}</p>
-                <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">{{ $role['when'] }}</p>
-                <textarea
-                    x-ref="setup"
-                    readonly
-                    rows="3"
-                    class="mt-2 w-full resize-none rounded-lg border border-line bg-surface-sunken px-2 py-1.5 text-xs text-ink-soft dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-soft-dark"
-                >{{ $role['setupMessage'] }}</textarea>
-                <button
-                    type="button"
-                    x-on:click="copy()"
-                    class="mt-2 cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >
-                    <span x-show="! copied">Copy message</span>
-                    <span x-show="copied" x-cloak>Copied!</span>
-                </button>
-            </div>
-        @endforeach
-    </div>
+    <section class="card space-y-3 p-4" aria-label="How it works">
+        <ol class="list-decimal space-y-1.5 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
+            <li>
+                Install a voice AI app —
+                <a href="https://pi.ai" target="_blank" rel="noopener noreferrer" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Pi</a>
+                or
+                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Gemini Live</a>.
+            </li>
+            <li>Each day, open Voice practice here and copy the day's prompt.</li>
+            <li>In the app, turn on voice mode first, then send the prompt.</li>
+            <li>The AI tells you the plan, then you talk. About 10 minutes, then 2-3 short fixes.</li>
+        </ol>
+
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+            Say these any time:
+            @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)
+                <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $word }}</span> ({{ $meaning }}){{ $loop->last ? '.' : ',' }}
+            @endforeach
+        </p>
+    </section>
 
     <button
         type="button"
@@ -76,5 +62,5 @@ new class extends Component
         wire:loading.attr="disabled"
         wire:target="done"
         class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-    >Done — I created the 3 chats @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
+    >Got it @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
 </div>
