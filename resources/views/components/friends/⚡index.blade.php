@@ -271,6 +271,12 @@ new class extends Component
         >@svg('heroicon-o-chart-bar', 'h-4.5 w-4.5')</a>
     </header>
 
+    <a href="{{ route('pair-practice.index') }}" wire:navigate class="flex items-center gap-2.5 card px-4 py-3 text-sm font-semibold text-ink transition-colors hover:border-accent dark:text-ink-dark dark:hover:border-accent-dark">
+        <span aria-hidden="true">👫</span>
+        <span class="flex-1">Practice together · 12 min</span>
+        @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+    </a>
+
     @if ($this->friendsActiveTodayCount)
         <p class="flex items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
             @svg('heroicon-s-fire', 'h-3.5 w-3.5 text-accent-ink dark:text-accent-ink-dark')

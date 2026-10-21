@@ -10,6 +10,7 @@ use App\Http\Controllers\VocabularyWordController;
 use App\Models\DirectMessage;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
+use App\Models\PairPracticeSession;
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
@@ -129,6 +130,19 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/friends/board', function () {
         return view('friends-board');
     })->name('friends.board');
+
+    // In-person Pair Practice: two friends on one phone. The list of friends
+    // (today's progress, nudge, pair streak) and one round's page; a round
+    // belongs to both friends, whoever started it.
+    Route::get('/pair', function () {
+        return view('pair-practice');
+    })->name('pair-practice.index');
+
+    Route::get('/pair/{session}', function (PairPracticeSession $session) {
+        abort_unless($session->isAccessibleBy(auth()->user()), 403);
+
+        return view('pair-practice-session', compact('session'));
+    })->name('pair-practice.show');
 
     Route::get('/friends/{user}/conversation', function (User $user) {
         return view('friends-conversation', compact('user'));

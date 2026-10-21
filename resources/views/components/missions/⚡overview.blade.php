@@ -3,6 +3,7 @@
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Services\ListeningPicks;
+use App\Services\PairPractice;
 use App\Services\PexelsClient;
 use App\Services\PiPractice;
 use App\Services\PiPrompts;
@@ -141,6 +142,27 @@ new class extends Component
     public function needsPlacement(): bool
     {
         return auth()->user()->latestPlacementTest() === null;
+    }
+
+    /**
+     * The one-line way into Pair Practice — only for someone with a friend
+     * to practise with, showing the best streak among their pairs.
+     *
+     * @return array{streak: int}|null
+     */
+    #[Computed]
+    public function pairPractice(): ?array
+    {
+        $me = auth()->user();
+        $friends = $me->mutualFriends();
+
+        if ($friends->isEmpty()) {
+            return null;
+        }
+
+        $pairPractice = app(PairPractice::class);
+
+        return ['streak' => $friends->max(fn ($friend) => $pairPractice->pairStreak($me, $friend))];
     }
 
     #[Computed]
@@ -461,6 +483,14 @@ new class extends Component
         <a href="{{ route('pi.setup') }}" wire:navigate class="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
             @svg('heroicon-o-microphone', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
             <span class="flex-1">How voice practice works · 2 min</span>
+            @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+        </a>
+    @endif
+
+    @if ($pair = $this->pairPractice)
+        <a href="{{ route('pair-practice.index') }}" wire:navigate class="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+            <span aria-hidden="true" class="w-4 shrink-0 text-center text-xs">👫</span>
+            <span class="flex-1">Practice with a friend{{ $pair['streak'] > 0 ? ' · 🔥 '.$pair['streak'] : '' }}</span>
             @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
         </a>
     @endif
