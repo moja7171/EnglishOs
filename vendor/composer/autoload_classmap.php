@@ -71,6 +71,7 @@ return array(
     'App\\Notifications\\DirectMessageReceived' => $baseDir . '/app/Notifications/DirectMessageReceived.php',
     'App\\Notifications\\FollowRequestAccepted' => $baseDir . '/app/Notifications/FollowRequestAccepted.php',
     'App\\Notifications\\FollowRequestReceived' => $baseDir . '/app/Notifications/FollowRequestReceived.php',
+    'App\\Notifications\\PairPracticeInvite' => $baseDir . '/app/Notifications/PairPracticeInvite.php',
     'App\\Notifications\\PairPracticeNudge' => $baseDir . '/app/Notifications/PairPracticeNudge.php',
     'App\\Notifications\\PartnerAnswerReceived' => $baseDir . '/app/Notifications/PartnerAnswerReceived.php',
     'App\\Notifications\\PartnerSessionStarted' => $baseDir . '/app/Notifications/PartnerSessionStarted.php',

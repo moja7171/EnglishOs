@@ -613,6 +613,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Notifications\\DirectMessageReceived' => __DIR__ . '/../..' . '/app/Notifications/DirectMessageReceived.php',
         'App\\Notifications\\FollowRequestAccepted' => __DIR__ . '/../..' . '/app/Notifications/FollowRequestAccepted.php',
         'App\\Notifications\\FollowRequestReceived' => __DIR__ . '/../..' . '/app/Notifications/FollowRequestReceived.php',
+        'App\\Notifications\\PairPracticeInvite' => __DIR__ . '/../..' . '/app/Notifications/PairPracticeInvite.php',
         'App\\Notifications\\PairPracticeNudge' => __DIR__ . '/../..' . '/app/Notifications/PairPracticeNudge.php',
         'App\\Notifications\\PartnerAnswerReceived' => __DIR__ . '/../..' . '/app/Notifications/PartnerAnswerReceived.php',
         'App\\Notifications\\PartnerSessionStarted' => __DIR__ . '/../..' . '/app/Notifications/PartnerSessionStarted.php',
