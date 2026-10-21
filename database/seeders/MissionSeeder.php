@@ -37,6 +37,15 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        // Pair Practice speaking cards for this day (App\Services\PairPractice):
+                        // the asker reads the question, sees the short model answer and ticks
+                        // each target word the answerer uses. Grammar only from Day 2 on.
+                        'pair_speaking' => [
+                            ['question' => 'Are you a morning person?', 'answer' => 'No, I\'m not a morning person. I get up at seven, but I feel tired until ten.', 'words' => ['morning person', 'get up']],
+                            ['question' => 'Do you sleep in at the weekend?', 'answer' => 'Yes, I always sleep in on Fridays. I get up at about ten.', 'words' => ['sleep in', 'always']],
+                            ['question' => 'What happens when you oversleep?', 'answer' => 'When I oversleep, I usually skip breakfast and run to the bus.', 'words' => ['oversleep', 'usually']],
+                            ['question' => 'Do you ever skip breakfast? Why?', 'answer' => 'Sometimes I skip breakfast because I\'m not hungry in the morning.', 'words' => ['skip breakfast', 'sometimes']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -238,6 +247,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'What do you do first every morning?', 'answer' => 'I usually have a shower first, and then I clean my teeth.', 'words' => ['have a shower', 'clean my teeth', 'usually']],
+                            ['question' => 'What do you usually have for breakfast?', 'answer' => 'I often have cereal with milk, and I never drink coffee in the morning.', 'words' => ['cereal', 'often', 'never']],
+                            ['question' => 'How often do you get a takeaway?', 'answer' => 'We get a takeaway about once a week, usually on Friday night.', 'words' => ['takeaway', 'once a week']],
+                            ['question' => 'Who does the shopping in your family?', 'answer' => 'My mum usually does the shopping, but I sometimes buy a snack on the way home.', 'words' => ['does the shopping', 'snack']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -556,6 +571,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Which housework do you hate?', 'answer' => 'I hate most housework, especially doing the washing.', 'words' => ['housework', 'doing the washing']],
+                            ['question' => 'Do you stay in or go out on Friday night?', 'answer' => 'I usually stay in on Fridays, but on Saturdays I go out with friends.', 'words' => ['stay in', 'go out']],
+                            ['question' => 'How often do you eat out?', 'answer' => 'We eat out about twice a month, usually at a small pizza place near our house.', 'words' => ['eat out', 'twice a month']],
+                            ['question' => 'Who do you chat with every day?', 'answer' => 'I chat with my sister every evening. We never miss a day.', 'words' => ['chat', 'never']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -737,6 +758,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Describe a normal weekday for you, from morning to night.', 'answer' => 'I get up at seven, have a shower and go to work. In the evening I usually stay in.', 'words' => ['get up', 'have a shower', 'usually']],
+                            ['question' => 'What does your best friend do at the weekend?', 'answer' => 'She sleeps in on Saturday, then she does the shopping with her mum.', 'words' => ['sleeps in', 'does the shopping']],
+                            ['question' => 'What is one habit you want to change?', 'answer' => 'I often skip breakfast. I want to eat cereal or fruit every morning.', 'words' => ['often', 'skip breakfast']],
+                            ['question' => 'How is your weekend different from your weekdays?', 'answer' => 'On weekdays I never sleep in, but at the weekend I always get up late and go out.', 'words' => ['never', 'sleep in', 'go out']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -947,6 +974,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'How do you stay in touch with old friends?', 'answer' => 'I usually stay in touch on WhatsApp, and we meet up once a month.', 'words' => ['stay in touch', 'meet up']],
+                            ['question' => 'Did you ever lose touch with a friend? What happened?', 'answer' => 'Yes, I lost touch with a school friend when she moved to another city.', 'words' => ['lost touch']],
+                            ['question' => 'Is there someone you want to get back in touch with?', 'answer' => 'Yes, I\'d like to get back in touch with my old neighbour. She was really kind.', 'words' => ['get back in touch']],
+                            ['question' => 'Can people stay friends after school?', 'answer' => 'Yes. My best friend and I stayed friends after school, and we still meet up every summer.', 'words' => ['stayed friends', 'meet up']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -1089,6 +1122,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Tell me about your best friend. What is he or she doing these days?', 'answer' => 'My best friend is a nurse. These days she\'s working nights, so we don\'t see each other much.', 'words' => ['best friend', 'these days']],
+                            ['question' => 'How did you and your oldest friend get to know each other?', 'answer' => 'We got to know each other at primary school. Now he lives in Shiraz, but we talk every week.', 'words' => ['got to know each other', 'every week']],
+                            ['question' => 'Who do you get on well with at work or school?', 'answer' => 'I get on well with Reza. He always helps me, and this month we\'re working on a project together.', 'words' => ['get on well with', 'always', 'this month']],
+                            ['question' => 'What makes a good friendship?', 'answer' => 'A good friendship needs time. My mate Ali always listens, and he never judges me.', 'words' => ['friendship', 'mate']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -1326,6 +1365,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Is anyone in your family very outgoing?', 'answer' => 'Yes, my brother is really outgoing. He talks to everyone, and right now he\'s planning a big party.', 'words' => ['outgoing', 'right now']],
+                            ['question' => 'Who is in your close family?', 'answer' => 'My close family is my parents and my sister. We have dinner together every Friday.', 'words' => ['close family', 'every Friday']],
+                            ['question' => 'How often do you see your relatives?', 'answer' => 'I see my relatives a few times a year. This week my aunt is staying with us.', 'words' => ['relatives', 'this week']],
+                            ['question' => 'What is your current job or class, and how is it going?', 'answer' => 'My current job is in a bank. I like it, but I\'m looking for something new at the moment.', 'words' => ['current', 'at the moment']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -1472,6 +1517,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Describe a friend: what is he or she like, and what is he or she doing at the moment?', 'answer' => 'Sara is calm and kind. She usually works in a shop, but at the moment she\'s studying for an exam.', 'words' => ['usually', 'at the moment']],
+                            ['question' => 'How do you stay in touch with friends who live far away?', 'answer' => 'We stay in touch with video calls, and we\'re planning to meet up next summer.', 'words' => ['stay in touch', 'meet up']],
+                            ['question' => 'Who in your family do you get on well with?', 'answer' => 'I get on well with my grandmother. She\'s teaching me to cook these days.', 'words' => ['get on well with', 'these days']],
+                            ['question' => 'Tell me about a friendship that changed.', 'answer' => 'I lost touch with an old friend after university, but this year we\'re talking again.', 'words' => ['lost touch', 'old friend']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -1594,6 +1645,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'What\'s your favourite dish from your country?', 'answer' => 'My favourite dish is ghormeh sabzi. It has a lot of herbs and some meat.', 'words' => ['dish', 'a lot of', 'some']],
+                            ['question' => 'Which cuisine do you like apart from Persian food?', 'answer' => 'I love Italian cuisine, especially pasta with a bit of cheese.', 'words' => ['cuisine', 'a bit of']],
+                            ['question' => 'Is there any food you think is bland?', 'answer' => 'Yes, I think plain rice is bland without any sauce or butter.', 'words' => ['bland', 'any']],
+                            ['question' => 'Do you take a packed lunch to work or school?', 'answer' => 'Yes, I usually take a packed lunch: some bread, cheese and a few tomatoes.', 'words' => ['packed lunch', 'a few']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -1744,6 +1801,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you eat home-cooked food most days?', 'answer' => 'Yes, I eat home-cooked food most days. My mum doesn\'t buy much frozen food.', 'words' => ['home-cooked', 'much', 'frozen']],
+                            ['question' => 'Do you have a balanced diet?', 'answer' => 'I try to have a balanced diet, but I eat a lot of bread and not many vegetables.', 'words' => ['balanced diet', 'a lot of', 'many']],
+                            ['question' => 'What ingredients do you always have in your kitchen?', 'answer' => 'I always have some fresh herbs, a few onions and a little oil. They\'re my main ingredients.', 'words' => ['fresh', 'a few', 'a little', 'ingredients']],
+                            ['question' => 'What do you do with leftovers?', 'answer' => 'We eat the leftovers for lunch the next day, so we don\'t throw away much food.', 'words' => ['leftovers', 'much']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -1956,6 +2019,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you have a sweet tooth?', 'answer' => 'Yes, I have a real sweet tooth. I eat a lot of chocolate and too many biscuits.', 'words' => ['sweet tooth', 'too many']],
+                            ['question' => 'Do you like spicy food?', 'answer' => 'I like a little spicy food, but too much chilli hurts my stomach.', 'words' => ['spicy', 'a little', 'too much']],
+                            ['question' => 'What food do you want to cut down on?', 'answer' => 'I want to cut down on junk food. I eat too many crisps.', 'words' => ['cut down on', 'junk food']],
+                            ['question' => 'Is it easy to eat healthy food where you live?', 'answer' => 'It\'s quite easy. Healthy food like fruit is cheap, but unhealthy food is everywhere too.', 'words' => ['healthy food', 'unhealthy food']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -2083,6 +2152,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What did you eat yesterday? Was it healthy?', 'answer' => 'I had some eggs for breakfast and a lot of rice for lunch, but I didn\'t eat any vegetables.', 'words' => ['some', 'a lot of', 'any']],
+                            ['question' => 'Describe a dish you can cook. What do you need?', 'answer' => 'I can make an omelette. The ingredients are simple: a few eggs, a little butter and some cheese.', 'words' => ['ingredients', 'a few', 'a little']],
+                            ['question' => 'What is one change you want to make to your diet?', 'answer' => 'I want to cut down on sugar and eat more home-cooked meals.', 'words' => ['cut down on', 'home-cooked']],
+                            ['question' => 'What food from your country should a tourist try?', 'answer' => 'They should try kebab. It isn\'t spicy, and it comes with a lot of fresh bread.', 'words' => ['spicy', 'fresh', 'a lot of']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -2195,6 +2270,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Would you like to run your own business? Why?', 'answer' => 'Yes, I\'d love to run my own business, but you have to work very long hours.', 'words' => ['run my own business', 'have to']],
+                            ['question' => 'What is good and bad about being self-employed?', 'answer' => 'When you\'re self-employed you can choose your hours, but you don\'t get paid holidays.', 'words' => ['self-employed', 'can']],
+                            ['question' => 'Who do you look after in your family?', 'answer' => 'I look after my little brother after school, so I can\'t go out until six.', 'words' => ['look after', 'can\'t']],
+                            ['question' => 'What is challenging about your job or your studies?', 'answer' => 'Maths is challenging for me. I have to study every night.', 'words' => ['challenging', 'have to']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -2311,6 +2392,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you work or study full-time or part-time?', 'answer' => 'I work part-time in a café, so I have to study in the evenings.', 'words' => ['part-time', 'have to']],
+                            ['question' => 'What rules are there in your workplace or school?', 'answer' => 'In my workplace we must wear a uniform, and we can\'t use our phones at the desk.', 'words' => ['workplace', 'must', 'can\'t']],
+                            ['question' => 'Tell me about a colleague or classmate you like.', 'answer' => 'My colleague Neda is great. She can speak three languages, and she always helps me.', 'words' => ['colleague', 'can']],
+                            ['question' => 'What career would you like in five years?', 'answer' => 'I\'d like a career in design. For that I need to be able to use new software.', 'words' => ['career', 'be able to']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -2538,6 +2625,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What are your responsibilities at work or at home?', 'answer' => 'One responsibility I have is the shopping. I\'m also in charge of paying the bills.', 'words' => ['responsibility', 'in charge of']],
+                            ['question' => 'What are your working hours?', 'answer' => 'My working hours are nine to five, but sometimes I have to stay late.', 'words' => ['working hours', 'have to']],
+                            ['question' => 'Do you ever do overtime?', 'answer' => 'Yes, I do overtime at the end of the month. I don\'t have to, but the money is good.', 'words' => ['overtime', 'don\'t have to']],
+                            ['question' => 'Is salary important to you in a job?', 'answer' => 'Salary is important, but I must enjoy my work too.', 'words' => ['salary', 'must']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -2663,6 +2756,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Describe your job or studies: what do you have to do every day?', 'answer' => 'I\'m a student. I have to go to classes in the morning, and I must finish my homework every night.', 'words' => ['have to', 'must']],
+                            ['question' => 'What can you do now that you couldn\'t do five years ago?', 'answer' => 'Now I can drive, but five years ago I couldn\'t. I can also speak more English.', 'words' => ['can', 'couldn\'t']],
+                            ['question' => 'Would you like a full-time job or to be self-employed? Why?', 'answer' => 'I\'d like to be self-employed, because then I don\'t have to ask anyone for a day off.', 'words' => ['self-employed', 'don\'t have to']],
+                            ['question' => 'What do you need to do to get your dream job?', 'answer' => 'I need to improve my English, and I have to be able to work in a team.', 'words' => ['have to', 'be able to']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -2784,6 +2883,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Where do you like to hang out with your friends?', 'answer' => 'We like hanging out at a café near the park. We go there once or twice a week.', 'words' => ['hanging out', 'once or twice']],
+                            ['question' => 'Who got you into your favourite hobby?', 'answer' => 'My uncle got me into chess. He enjoys playing it every Friday.', 'words' => ['got me into', 'enjoys playing']],
+                            ['question' => 'Who can you beat at a game?', 'answer' => 'I can beat my brother at football, but never at chess. I hate losing!', 'words' => ['beat', 'losing']],
+                            ['question' => 'What would you like to try if you get the chance?', 'answer' => 'If I get the chance, I\'d love to try skiing.', 'words' => ['get the chance', 'to try']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -2900,6 +3005,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you like going camping?', 'answer' => 'Yes, I enjoy going camping in the mountains. I want to go again this summer.', 'words' => ['going camping', 'enjoy', 'want to']],
+                            ['question' => 'Would you try rock climbing?', 'answer' => 'I\'d love to try rock climbing, but I\'m afraid of falling.', 'words' => ['rock climbing', 'love to try']],
+                            ['question' => 'What do you do to keep fit?', 'answer' => 'I work out three times a week. Going to the gym keeps me fit.', 'words' => ['work out', 'keeps me fit']],
+                            ['question' => 'What do you do just for fun?', 'answer' => 'Just for fun, I do a bit of drawing. I like drawing people on the bus.', 'words' => ['for fun', 'a bit of']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -3155,6 +3266,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What are you really into at the moment?', 'answer' => 'I\'m really into cooking at the moment. I\'m keen on trying new recipes.', 'words' => ['into', 'keen on']],
+                            ['question' => 'Which jobs at home don\'t you mind doing?', 'answer' => 'I don\'t mind washing the dishes, but I can\'t stand ironing.', 'words' => ['don\'t mind', 'can\'t stand']],
+                            ['question' => 'What kind of music do you quite like?', 'answer' => 'I quite like old Persian pop. I enjoy listening to it in the car.', 'words' => ['quite like', 'enjoy listening']],
+                            ['question' => 'Do you have a lot in common with your best friend?', 'answer' => 'Yes, we have a lot in common. We both love watching football and playing video games.', 'words' => ['have a lot in common', 'love watching']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -3283,6 +3400,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Describe your perfect free day.', 'answer' => 'I\'d get up late and hang out with friends in the park. In the evening I\'d enjoy watching a film.', 'words' => ['hang out', 'enjoy watching']],
+                            ['question' => 'What hobby did you give up, and why?', 'answer' => 'I gave up playing the guitar because I didn\'t have time to practise.', 'words' => ['gave up playing', 'to practise']],
+                            ['question' => 'Is there a hobby you can\'t stand?', 'answer' => 'I can\'t stand fishing. Waiting for hours is so boring.', 'words' => ['can\'t stand', 'waiting']],
+                            ['question' => 'What new hobby would you like to learn?', 'answer' => 'I\'d like to learn to swim. I\'m keen on doing more sport this year.', 'words' => ['like to learn', 'keen on']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -3393,6 +3516,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'When did you start learning English?', 'answer' => 'I started at school when I was ten. I didn\'t like it at first.', 'words' => ['started', 'didn\'t']],
+                            ['question' => 'Did you ever quit a class? Why?', 'answer' => 'Yes, I quit a gym class last year. It wasn\'t a good fit for me.', 'words' => ['quit', 'a good fit']],
+                            ['question' => 'Do you like one-on-one lessons or group classes?', 'answer' => 'I like one-on-one lessons. Last year a private teacher helped me gain confidence.', 'words' => ['one-on-one', 'gain confidence']],
+                            ['question' => 'Tell me about an experience that opened your eyes.', 'answer' => 'A trip to Turkey opened my eyes. I spoke English with tourists for the first time.', 'words' => ['opened my eyes', 'spoke']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -3509,6 +3638,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Is anyone in your family fluent in English?', 'answer' => 'My cousin is fluent. She lived in Canada for five years.', 'words' => ['fluent', 'lived']],
+                            ['question' => 'Which English accent do you like?', 'answer' => 'I like the British accent. I picked up some words from British TV shows.', 'words' => ['accent', 'picked up']],
+                            ['question' => 'Tell me about a time you made yourself understood in English.', 'answer' => 'Last summer I got lost in Istanbul, but I made myself understood and found my hotel.', 'words' => ['made myself understood', 'found']],
+                            ['question' => 'When did you feel you made progress in English?', 'answer' => 'I made progress when I started watching films without subtitles.', 'words' => ['made progress', 'started']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -3816,6 +3951,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Tell me about the last exam you took.', 'answer' => 'I took an exam in June. I revised for it for two weeks, and I passed.', 'words' => ['took an exam', 'revised for', 'passed']],
+                            ['question' => 'Did you ever fail an exam? How did you feel?', 'answer' => 'Yes, I failed my driving test the first time. I felt terrible, but I passed the second time.', 'words' => ['failed', 'passed']],
+                            ['question' => 'How did you revise for big exams at school?', 'answer' => 'I revised for exams at night. I made notes and asked my sister to test me.', 'words' => ['revised for', 'made']],
+                            ['question' => 'When did you get a good grade and feel proud?', 'answer' => 'I got a good grade in maths last year. I did my best, and it worked.', 'words' => ['got a good grade', 'did my best']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -3939,6 +4080,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Describe your first English class.', 'answer' => 'My first class was in a small room. The teacher was kind, but I didn\'t understand much.', 'words' => ['was', 'didn\'t understand']],
+                            ['question' => 'What helped you most with your English?', 'answer' => 'Watching films helped me most. I picked up a lot of everyday phrases.', 'words' => ['helped', 'picked up']],
+                            ['question' => 'Tell me about a time English was hard for you.', 'answer' => 'Once I tried to order food in English, but the waiter didn\'t understand my accent.', 'words' => ['tried', 'accent']],
+                            ['question' => 'What did you do last week to practise English?', 'answer' => 'I listened to a podcast every day, and I made progress with my listening.', 'words' => ['listened', 'made progress']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -4049,6 +4196,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'What was life like for your parents back in the day?', 'answer' => 'Back in the day my parents didn\'t have much money. They couldn\'t afford a car.', 'words' => ['back in the day', 'afford']],
+                            ['question' => 'Who were you thick as thieves with as a child?', 'answer' => 'My cousin and I were thick as thieves. We did everything together.', 'words' => ['thick as thieves']],
+                            ['question' => 'When did your parents tell you off?', 'answer' => 'My mum told me off when I came home late or forgot my homework.', 'words' => ['told me off']],
+                            ['question' => 'Is it hard to pay rent where you live?', 'answer' => 'Yes, very hard. Many young people can\'t afford to pay rent in the city centre.', 'words' => ['pay rent', 'afford']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -4231,6 +4384,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'What did you use to do with your relatives when you were little?', 'answer' => 'We used to visit my relatives every Nowruz. We played in the garden all day.', 'words' => ['used to', 'relatives']],
+                            ['question' => 'Are you an only child? What was that like?', 'answer' => 'No, I\'m not an only child. My elder brother used to take me to school.', 'words' => ['only child', 'elder', 'used to']],
+                            ['question' => 'What were you doing at eight o\'clock last night?', 'answer' => 'At eight o\'clock I was having dinner with my close family.', 'words' => ['was having', 'close family']],
+                            ['question' => 'Did you get on well with your cousins as a child?', 'answer' => 'I got on well with my cousins, the twins. We used to play football every Friday.', 'words' => ['got on well with', 'twins', 'used to']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -4556,6 +4715,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Where did you grow up?', 'answer' => 'I grew up in a small town near Tabriz. I was brought up by my grandparents.', 'words' => ['grew up', 'was brought up']],
+                            ['question' => 'Were your parents strict?', 'answer' => 'Yes, they were quite strict. I wasn\'t allowed to stay out late.', 'words' => ['strict', 'wasn\'t allowed to', 'stay out late']],
+                            ['question' => 'What did your parents let you do as a teenager?', 'answer' => 'They used to let me go to the cinema with friends, but not travel alone.', 'words' => ['used to', 'let me']],
+                            ['question' => 'What were you doing when you heard some big family news?', 'answer' => 'I was cooking when my sister called. She was getting married!', 'words' => ['was cooking', 'was getting']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -4683,6 +4848,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Describe a family photo from your childhood.', 'answer' => 'In the photo we were sitting in the garden, and my grandfather was holding me.', 'words' => ['were sitting', 'was holding']],
+                            ['question' => 'What did your family use to do at the weekend?', 'answer' => 'We used to go to the mountains on Fridays and have a picnic.', 'words' => ['used to']],
+                            ['question' => 'How is family life different now from when you were a child?', 'answer' => 'When I was a child, we used to eat together every night. Now everyone is busy.', 'words' => ['used to']],
+                            ['question' => 'Tell me about a time someone told you off.', 'answer' => 'I was playing football in the house when I broke a window. My dad told me off.', 'words' => ['was playing', 'told me off']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -4796,6 +4967,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you have a lifelong friend?', 'answer' => 'Yes, Amir is a lifelong friend. We met when we were six.', 'words' => ['a lifelong friend']],
+                            ['question' => 'Why do friends sometimes drift apart?', 'answer' => 'Friends drift apart when they move away or get busy with work.', 'words' => ['drift apart']],
+                            ['question' => 'How do you stay close to friends who are busy?', 'answer' => 'We stay close because we both put the effort in. We call every Sunday.', 'words' => ['stay close', 'put the effort in']],
+                            ['question' => 'Are you introverted or outgoing?', 'answer' => 'I\'m a bit introverted. I like one or two good friends, not a big group.', 'words' => ['introverted']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -4943,6 +5120,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Who is the most generous person you know?', 'answer' => 'My aunt is the most generous person I know. She always buys gifts for everyone.', 'words' => ['the most generous']],
+                            ['question' => 'Are you more confident than your best friend?', 'answer' => 'No, I\'m shyer than my best friend. She\'s much more confident at parties.', 'words' => ['shyer than', 'more confident']],
+                            ['question' => 'Who is the most hard-working person in your family?', 'answer' => 'My dad is the most hard-working. He works harder than anyone I know.', 'words' => ['the most hard-working', 'harder than']],
+                            ['question' => 'Who is more patient, you or your mum?', 'answer' => 'My mum is far more patient than me. I get angry more quickly.', 'words' => ['more patient than']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -5257,6 +5440,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Who has the best sense of humour among your friends?', 'answer' => 'Reza has the best sense of humour. He\'s funnier than any comedian.', 'words' => ['the best', 'sense of humour', 'funnier than']],
+                            ['question' => 'Who is the most creative person you know?', 'answer' => 'My sister is the most creative person I know. She\'s a really talented painter.', 'words' => ['the most creative', 'talented']],
+                            ['question' => 'Are you more sensible now than at school?', 'answer' => 'Yes, I\'m more sensible now. At school I was much sillier than my friends.', 'words' => ['more sensible', 'sillier than']],
+                            ['question' => 'Who do you trust the most?', 'answer' => 'I trust my brother the most. He\'s the most honest person in my life.', 'words' => ['trust', 'the most']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -5382,6 +5571,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Compare your two closest friends.', 'answer' => 'Ali is funnier than Sam, but Sam is more patient and a better listener.', 'words' => ['funnier than', 'more patient', 'better']],
+                            ['question' => 'What is the best thing about having friends?', 'answer' => 'The best thing is that you\'re never alone. Life is easier with good friends.', 'words' => ['the best', 'easier']],
+                            ['question' => 'Who was your best friend at school, and what was he or she like?', 'answer' => 'Mina was my best friend. She was the most confident girl in our class.', 'words' => ['best friend', 'the most confident']],
+                            ['question' => 'Is it harder to make friends as an adult?', 'answer' => 'Yes, it\'s harder. Adults are busier, so you have to put the effort in.', 'words' => ['harder', 'busier', 'put the effort in']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',
@@ -5497,6 +5692,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'foundation',
                         'label' => 'Day 1',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Are you outgoing or reserved?', 'answer' => 'I\'m quite reserved with new people, but I\'m outgoing with my family.', 'words' => ['reserved', 'outgoing']],
+                            ['question' => 'What drains your energy?', 'answer' => 'Long meetings drain me. After work I need a quiet hour.', 'words' => ['drain']],
+                            ['question' => 'How do you recharge after a busy day?', 'answer' => 'I recharge by walking alone in the park with some music.', 'words' => ['recharge']],
+                            ['question' => 'When did you last feel on top of the world?', 'answer' => 'I felt on top of the world when I got my first job.', 'words' => ['on top of the world']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'mission_brief',
@@ -5614,6 +5815,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'build',
                         'label' => 'Day 2',
                         'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Tell me about something you are proud of.', 'answer' => 'I\'m proud of the cake that I made for my mum\'s birthday.', 'words' => ['proud of', 'that']],
+                            ['question' => 'What is something that makes you anxious?', 'answer' => 'Exams are something that makes me really anxious.', 'words' => ['anxious', 'that makes']],
+                            ['question' => 'Describe a person who is always curious.', 'answer' => 'My nephew is someone who is always curious. He asks a hundred questions a day.', 'words' => ['someone who', 'curious']],
+                            ['question' => 'Tell me about a time you were disappointed.', 'answer' => 'I was disappointed when the concert that I wanted to see was cancelled.', 'words' => ['disappointed', 'that I wanted']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_2',
@@ -5925,6 +6132,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'practice',
                         'label' => 'Day 3',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Describe a friend who is very reliable.', 'answer' => 'Sara is a friend who is always on time. She\'s the most reliable person I know.', 'words' => ['who', 'reliable']],
+                            ['question' => 'Who is the most helpful person at your work or school?', 'answer' => 'Our teacher is someone who is always helpful. She stays after class to answer questions.', 'words' => ['someone who', 'helpful']],
+                            ['question' => 'Are you careful or careless with money?', 'answer' => 'I\'m careful with money. I don\'t buy things that I don\'t need.', 'words' => ['careful', 'things that']],
+                            ['question' => 'What kind of person is good to travel with?', 'answer' => 'Someone sociable and reasonable. I don\'t like people who complain all the time.', 'words' => ['sociable', 'reasonable', 'people who']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'vocabulary_builder_3',
@@ -6050,6 +6263,12 @@ class MissionSeeder extends Seeder
                         'phase' => 'challenge',
                         'label' => 'Day 4',
                         'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Describe someone whose personality you admire.', 'answer' => 'My grandmother is a woman whose patience is amazing. She never gets angry.', 'words' => ['whose']],
+                            ['question' => 'What kind of person are you?', 'answer' => 'I\'m the kind of person who needs time alone to recharge.', 'words' => ['the kind of person who', 'recharge']],
+                            ['question' => 'Describe a place where you feel relaxed.', 'answer' => 'My room is the place where I recharge. It\'s quiet and full of books.', 'words' => ['the place where', 'recharge']],
+                            ['question' => 'What do you look for in a friend?', 'answer' => 'I want a friend who is honest and reliable, someone I can trust.', 'words' => ['a friend who', 'reliable']],
+                        ],
                         'steps' => [
                             [
                                 'key' => 'picture_description',

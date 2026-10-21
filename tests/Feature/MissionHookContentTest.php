@@ -329,4 +329,34 @@ class MissionHookContentTest extends TestCase
             $this->assertNotEmpty($content['role_reversal_topic'] ?? null, "{$code} has no role_reversal_topic.");
         }
     }
+
+    /**
+     * Pair Practice's speaking stage draws from each day's pair_speaking
+     * cards: every day needs about four, and every target word the asker
+     * ticks must really be in the model answer they read.
+     */
+    public function test_every_missions_days_have_pair_speaking_cards_whose_target_words_are_in_the_answer(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09'] as $code) {
+            $mission = Mission::where('code', $code)->firstOrFail();
+
+            foreach ($mission->phases as $index => $phase) {
+                $day = $index + 1;
+                $cards = $phase['pair_speaking'] ?? [];
+
+                $this->assertGreaterThanOrEqual(4, count($cards), "{$code} Day {$day} has fewer than 4 pair_speaking cards.");
+
+                foreach ($cards as $card) {
+                    $this->assertNotEmpty($card['question'] ?? null, "{$code} Day {$day} has a card with no question.");
+                    $this->assertNotEmpty($card['words'] ?? [], "{$code} Day {$day}: \"{$card['question']}\" has no target words.");
+
+                    foreach ($card['words'] as $word) {
+                        $this->assertStringContainsStringIgnoringCase($word, $card['answer'], "{$code} Day {$day}: \"{$word}\" is not in the model answer.");
+                    }
+                }
+            }
+        }
+    }
 }
