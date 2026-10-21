@@ -29,11 +29,18 @@ new class extends Component
 
     /**
      * Shares a video-call link (Google Meet or any https call link) with
-     * the friend, for practising apart.
+     * the friend, for practising apart. A link pasted without its scheme
+     * ("meet.google.com/abc-defg-hij") gets https:// in front.
      */
     public function shareLink(): void
     {
         $this->authorizePlayer();
+
+        $this->meetLink = trim($this->meetLink);
+
+        if ($this->meetLink !== '' && ! preg_match('#^[a-z][a-z0-9+.-]*:#i', $this->meetLink)) {
+            $this->meetLink = 'https://'.$this->meetLink;
+        }
 
         $this->validate(['meetLink' => ['required', 'url:https', 'max:255']]);
 
@@ -218,7 +225,7 @@ new class extends Component
                         @svg('heroicon-o-video-camera', 'h-4 w-4') Open Google Meet
                     </a>
                     <form wire:submit="shareLink" class="flex gap-2">
-                        <input type="url" wire:model="meetLink" placeholder="Paste the call link" class="min-w-0 flex-1 rounded-full border border-line bg-surface px-4 py-2 text-sm text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark">
+                        <input type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" wire:model="meetLink" placeholder="Paste the call link" class="min-w-0 flex-1 rounded-full border border-line bg-surface px-4 py-2 text-sm text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark">
                         <button type="submit" class="shrink-0 cursor-pointer rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white dark:bg-accent-dark">Share</button>
                     </form>
                     @error('meetLink') <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
