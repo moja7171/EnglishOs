@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Console\Commands\Concerns\SendsScheduledPush;
 use App\Models\User;
 use App\Notifications\StreakWarning;
+use App\Services\Reminders;
 use Illuminate\Console\Command;
 
 /**
@@ -58,7 +59,14 @@ class SendStreakWarnings extends Command
         // must not be retried every minute for the rest of the window.
         $user->forceFill(['last_streak_warning_on' => $day])->save();
 
-        $this->sendPush($user, new StreakWarning($streak), 'Streak warning');
+        $reminders = app(Reminders::class);
+
+        if (! $reminders->hasRoomToday($user)) {
+            return false;
+        }
+
+        $this->sendPush($user, new StreakWarning($streak, $reminders->whatsWaiting($user)), 'Streak warning');
+        $reminders->countSent($user);
 
         return true;
     }

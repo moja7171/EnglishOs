@@ -25,7 +25,7 @@ class PartnerSessionStarted extends Notification
     {
         return [
             'icon' => 'heroicon-o-users',
-            'title' => "{$this->inviter->name} invited you to practice \"{$this->session->mission->title}\" together",
+            'title' => "دعوت از {$this->inviter->name}: «{$this->session->mission->title}» رو با هم تمرین کنید",
             'url' => route('partner-sessions.show', $this->session),
         ];
     }

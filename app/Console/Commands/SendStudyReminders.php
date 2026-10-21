@@ -5,13 +5,14 @@ namespace App\Console\Commands;
 use App\Console\Commands\Concerns\SendsScheduledPush;
 use App\Models\User;
 use App\Notifications\StudyReminder;
+use App\Services\Reminders;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 
 /**
  * Sends each learner a "time to study" alert at each of the (up to two)
- * times they chose, in their own timezone. Scheduled every minute in
- * routes/console.php.
+ * times they chose, in their own timezone — unless today's mission day is
+ * already done, they've been away a week (see Reminders), or today's
+ * reminder limit is used up. Scheduled every minute in routes/console.php.
  */
 class SendStudyReminders extends Command
 {
@@ -67,7 +68,14 @@ class SendStudyReminders extends Command
             $user->forceFill(["last_study_reminder_{$slot}_on" => $day])->save();
             $firedTimes[] = $time;
 
-            $this->sendPush($user, new StudyReminder($time, Carbon::parse($day)->dayOfYear + $slot), 'Study reminder');
+            $reminders = app(Reminders::class);
+
+            if ($reminders->finishedToday($user) || $reminders->isAway($user) || ! $reminders->hasRoomToday($user)) {
+                continue;
+            }
+
+            $this->sendPush($user, new StudyReminder($time, $reminders->whatsWaiting($user), $user->dailyReviewCount()), 'Study reminder');
+            $reminders->countSent($user);
             $sent++;
         }
 

@@ -261,7 +261,7 @@ class PartnerSessionTest extends TestCase
 
         $this->assertSame(1, $bob->notifications()->where('type', PartnerSessionStarted::class)->count());
         $this->assertSame(0, $alice->notifications()->where('type', PartnerSessionStarted::class)->count());
-        $this->assertStringContainsString('invited you to practice', $bob->notifications()->where('type', PartnerSessionStarted::class)->first()->data['title']);
+        $this->assertStringContainsString('دعوت از', $bob->notifications()->where('type', PartnerSessionStarted::class)->first()->data['title']);
     }
 
     public function test_a_run_of_answers_leaves_the_partner_one_unread_alert_that_clears_when_they_open_the_session(): void

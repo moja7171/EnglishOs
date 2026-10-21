@@ -165,8 +165,8 @@ new class extends Component
 
                         <ul class="space-y-2 text-sm text-ink dark:text-ink-dark">
                             <li class="flex gap-2">@svg('heroicon-s-clock', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>ساعت مطالعه</b> — تا دو بار در روز، هر ساعتی که خودتان بخواهید</span></li>
-                            <li class="flex gap-2">@svg('heroicon-s-arrow-path', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>مرور کلمات</b> — وقتی چیزی برای مرور دارید</span></li>
-                            <li class="flex gap-2">@svg('heroicon-s-fire', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>حفظ زنجیره</b> — پیش از آنکه زنجیرهٔ یادگیری‌تان بشکند</span></li>
+                            <li class="flex gap-2">@svg('heroicon-s-arrow-path', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>مرور کلمه‌ها</b> — وقتی چیزی برای مرور دارید</span></li>
+                            <li class="flex gap-2">@svg('heroicon-s-fire', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>زنجیره در خطر</b> — پیش از آنکه زنجیرهٔ یادگیری‌تان بشکند</span></li>
                         </ul>
 
                         <p x-show="push.iosNeedsInstall" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">

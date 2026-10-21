@@ -16,7 +16,10 @@ class StreakWarning extends Notification
 {
     use WritesPersianNumbers;
 
-    public function __construct(private readonly int $streakDays) {}
+    /**
+     * @param  string|null  $waiting  what's waiting, from Reminders::whatsWaiting()
+     */
+    public function __construct(private readonly int $streakDays, private readonly ?string $waiting = null) {}
 
     /**
      * @return list<string>
@@ -30,12 +33,11 @@ class StreakWarning extends Notification
     {
         $days = $this->persianNumber($this->streakDays);
 
-        $body = $this->streakDays === 1
-            ? 'زنجیرهٔ یادگیری‌تان در خطر است؛ امروز یک مرحله کار کنید.'
-            : "زنجیرهٔ {$days} روزه‌تان در خطر است؛ امروز یک مرحله کار کنید.";
+        $body = ($this->streakDays === 1 ? 'زنجیره‌ات امشب می‌شکنه.' : "زنجیرهٔ {$days} روزه‌ات امشب می‌شکنه.")
+            .' '.($this->waiting ?? 'یه مرحله کافیه.');
 
         return (new WebPushMessage)
-            ->title('حفظ زنجیره')
+            ->title('زنجیره در خطر 🔥')
             ->body($body)
             ->icon('/icon-192.png')
             ->badge('/badge-96.png')

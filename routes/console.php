@@ -28,6 +28,14 @@ Schedule::call(fn () => Artisan::call('streak:send-warnings'))
     ->name('streak:send-warnings')
     ->everyMinute()
     ->withoutOverlapping();
+Schedule::call(fn () => Artisan::call('reminders:send-comeback'))
+    ->name('reminders:send-comeback')
+    ->everyMinute()
+    ->withoutOverlapping();
+Schedule::call(fn () => Artisan::call('pair:send-streak-warnings'))
+    ->name('pair:send-streak-warnings')
+    ->everyMinute()
+    ->withoutOverlapping();
 
 Schedule::call(fn () => Artisan::call('ai:relay-sync-local-url'))
     ->name('ai:relay-sync-local-url')

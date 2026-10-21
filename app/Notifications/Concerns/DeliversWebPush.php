@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Concerns;
 
+use App\Models\User;
 use App\Notifications\Channels\DeferredWebPushChannel;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
@@ -14,11 +15,27 @@ use NotificationChannels\WebPush\WebPushMessage;
 trait DeliversWebPush
 {
     /**
+     * Bell only during the learner's quiet hours (see
+     * User::isInQuietHours()), unless the notification can't wait.
+     *
      * @return list<string>
      */
     public function via(object $notifiable): array
     {
+        if ($this->silentInQuietHours() && $notifiable instanceof User && $notifiable->isInQuietHours()) {
+            return ['database'];
+        }
+
         return ['database', DeferredWebPushChannel::class];
+    }
+
+    /**
+     * False for an alert that is only useful right now, like a live Pair
+     * Practice invite.
+     */
+    protected function silentInQuietHours(): bool
+    {
+        return true;
     }
 
     public function toWebPush(object $notifiable, Notification $notification): WebPushMessage

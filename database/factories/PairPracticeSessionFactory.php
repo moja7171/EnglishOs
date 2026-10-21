@@ -12,7 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class PairPracticeSessionFactory extends Factory
 {
     /**
-     * A round on its first vocabulary card, started by user A.
+     * A round user B has joined, on its first vocabulary card, started by
+     * user A.
      *
      * @return array<string, mixed>
      */
@@ -35,6 +36,7 @@ class PairPracticeSessionFactory extends Factory
                     ['question' => 'What time do you wake up?', 'answer' => 'I usually wake up at seven.', 'words' => ['wake up', 'usually'], 'source' => 'M01 · Day 1'],
                 ],
             ],
+            'joined_at' => now(),
             'results' => [],
             'stage' => PairPracticeSession::STAGE_VOCABULARY,
             'stage_ends_at' => now()->addSeconds(PairPracticeSession::STAGE_SECONDS[PairPracticeSession::STAGE_VOCABULARY]),
@@ -47,6 +49,7 @@ class PairPracticeSessionFactory extends Factory
     public function waiting(): static
     {
         return $this->state(fn () => [
+            'joined_at' => null,
             'stage' => PairPracticeSession::STAGE_WAITING,
             'stage_ends_at' => null,
         ]);
