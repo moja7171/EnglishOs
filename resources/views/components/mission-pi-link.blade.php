@@ -15,7 +15,7 @@
     </span>
     <span class="flex-1">
         <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Voice practice for this mission</span>
-        <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Ten minutes a day with a voice AI of your choice, outside the app. Come back to it whenever you like.</span>
+        <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">10 minutes of talking with a voice AI.</span>
     </span>
     @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
 </a>

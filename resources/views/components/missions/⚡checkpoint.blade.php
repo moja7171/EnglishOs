@@ -201,7 +201,7 @@ new class extends Component
             <header class="border-b border-line pb-4 dark:border-line-dark">
                 <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Your voice, {{ $this->mission->code }} in</p>
                 <h1 class="mt-0.5 font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Answer it again</h1>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">The exact same question you answered when you started — then you'll hear both side by side.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Your first question again — then hear both.</p>
             </header>
 
             <div class="mt-4 card p-4">

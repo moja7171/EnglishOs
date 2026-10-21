@@ -42,7 +42,7 @@
                  "you seem to be having trouble" — naming the struggle is
                  exactly what would make it sting. --}}
             <p class="mt-2 text-xs text-accent-ink/80 dark:text-accent-ink-dark/80">
-                No rush either way — everything you've written is saved, so you can leave this one and come back to it later.
+                Your work is saved — come back anytime.
             </p>
         @endif
     </div>

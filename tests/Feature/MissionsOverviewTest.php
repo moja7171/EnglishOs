@@ -201,7 +201,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Finish M01 first to unlock this one.');
+            ->assertSee('Next · M02');
     }
 
     public function test_a_mission_unlocks_once_its_predecessor_is_complete(): void
@@ -216,7 +216,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Finish M01 first to unlock this one.')
+            ->assertDontSee('Next · M02')
             ->assertSeeHtml(route('missions.show', $second));
     }
 
@@ -232,7 +232,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Finish M01 first to unlock this one.');
+            ->assertDontSee('Next · M02');
     }
 
     public function test_a_mission_stays_gated_when_its_predecessor_needs_retry_evidence(): void
@@ -247,7 +247,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Finish M01 first to unlock this one.');
+            ->assertSee('Next · M02');
     }
 
     public function test_progress_already_made_on_a_gated_mission_is_never_locked_out(): void
@@ -264,31 +264,44 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Finish M01 first to unlock this one.');
+            ->assertDontSee('Next · M02');
     }
 
-    public function test_a_mission_card_shows_its_cached_cover_image(): void
+    public function test_the_next_mission_card_shows_its_cached_cover_image(): void
     {
         $learner = User::factory()->create();
-        $mission = $this->makeMission();
-        MissionRun::findOrStart($learner, $mission);
+        MissionRun::findOrStart($learner, $this->makeMission());
+        $this->makeMission('M02');
         $this->actingAs($learner);
 
         // Reads back the exact asset Mission Brief itself would have
-        // cached under "M01-brief" — never triggers a fresh Pexels fetch.
+        // cached under "M02-brief" — never triggers a fresh Pexels fetch.
         $this->mock(PexelsClient::class, function ($mock) {
             $mock->shouldReceive('cachedImageUrl')
-                ->with('M01-brief')
+                ->with('M02-brief')
                 ->once()
-                ->andReturn('http://localhost/storage/vocabulary-images/m01-brief.jpg');
-            // The other 23 roadmap slots are all unbuilt here, each
-            // asking for their own "coming soon" placeholder image —
-            // irrelevant to this test, just needs to not throw.
+                ->andReturn('http://localhost/storage/vocabulary-images/m02-brief.jpg');
             $mock->shouldReceive('imageUrlFor')->andReturn(null);
         });
 
         Livewire::test('missions.overview')
-            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-brief.jpg');
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m02-brief.jpg');
+    }
+
+    public function test_home_shows_the_next_mission_and_one_line_for_the_rest(): void
+    {
+        $learner = User::factory()->create();
+        $first = $this->makeMission();
+        MissionRun::findOrStart($learner, $first);
+        $this->makeMission('M02');
+        $this->actingAs($learner);
+
+        // M02 is the next (gated) one; M03–M24 are the 22 after it.
+        Livewire::test('missions.overview')
+            ->assertSee('Next · M02')
+            ->assertSee('22 more missions')
+            ->assertSeeHtml('href="'.route('learner.guide').'"')
+            ->assertDontSee($first->outcome);
     }
 
     public function test_the_today_box_shows_one_listening_row_not_the_picks_themselves(): void
@@ -414,12 +427,12 @@ class MissionsOverviewTest extends TestCase
     public function test_no_thumbnail_without_a_cached_cover_image(): void
     {
         $learner = User::factory()->create();
-        $mission = $this->makeMission();
-        MissionRun::findOrStart($learner, $mission);
+        MissionRun::findOrStart($learner, $this->makeMission());
+        $this->makeMission('M02');
         $this->actingAs($learner);
 
         $this->mock(PexelsClient::class, function ($mock) {
-            $mock->shouldReceive('cachedImageUrl')->with('M01-brief')->once()->andReturn(null);
+            $mock->shouldReceive('cachedImageUrl')->with('M02-brief')->once()->andReturn(null);
             // The other 23 roadmap slots are all unbuilt here — their own
             // "coming soon" placeholder image must also stay absent, or
             // this test's <img>-free assertion would be testing the

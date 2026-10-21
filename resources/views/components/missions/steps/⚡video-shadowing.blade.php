@@ -182,6 +182,7 @@ new class extends Component
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $video['source'] ?? 'Video' }}</p>
         <div class="mt-2">
             <x-video-player
+                text-hidden
                 :url="$video['video_url'] ?? ''"
                 :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING, 'manual_report' => true]"
                 :captions-url="$video['captions_url'] ?? null"
@@ -233,7 +234,7 @@ new class extends Component
                  is required, and the player does not pause for shadowing. --}}
             <div x-show="activeSubstep === 0" x-cloak class="space-y-6">
                 @unless ($readOnly)
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">First watch: just follow the story — tap CC on the video for captions. Next you'll watch it again and repeat the lines out loud.</p>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">First watch: just follow along.</p>
 
                     <div>
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
@@ -270,11 +271,11 @@ new class extends Component
                         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
                         @unless ($readOnly)
                             <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                                Watch again from the start — it pauses after each line. Say it out loud, then record it. Pick any {{ $this->requiredShadowedLines() }} of the {{ count($shadowLines) }} lines.
+                                It pauses after each line — say it, then record any {{ $this->requiredShadowedLines() }} of {{ count($shadowLines) }}.
                             </p>
                             <p class="mt-2 flex items-start gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
                                 @svg('heroicon-o-light-bulb', 'mt-px h-3.5 w-3.5 shrink-0')
-                                Bold words are usually stressed — say them a little longer and louder.
+                                Bold = stressed.
                             </p>
                         @endunless
 

@@ -279,7 +279,7 @@ new class extends Component
     @unless ($completed)
         <div>
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Tell the story, in order</p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">The pictures are already in order — narrate them first to last, using {{ $this->narration()['tense'] }} like you just practiced.</p>
+            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Tell the story in order, using {{ $this->narration()['tense'] }}.</p>
         </div>
 
         <x-sequential-picture-story :images="$sequenceImages" />

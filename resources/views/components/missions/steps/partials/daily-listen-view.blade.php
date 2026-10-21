@@ -39,10 +39,11 @@
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Listen Again</p>
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>
         @unless ($readOnly)
-            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Playback will pause on its own at each line below — repeat it out loud, then find it in the list to record yourself.</p>
+            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">It pauses at each line — say it, then record it below.</p>
         @endunless
         <div class="mt-2">
             <x-audio-player
+                text-hidden
                 :url="$listening['audio_url'] ?? null"
                 :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => $this->dayNumber(), 'manual_report' => true]"
                 :segments="$this->listeningSegments()"

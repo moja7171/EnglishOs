@@ -11,6 +11,9 @@
         (see missions:align-listening-speakers): the panel then reads as a
         chat, one bubble per speaker turn. [] renders the player exactly as
         before, with no panel at all.
+    @param bool $textHidden Starts the synced text panel closed behind a
+        "Show text" button (a mission's own listening, which is meant to be
+        heard before it is read); full screen always shows it.
     @param list<string> $shadowLines Shadowing targets (may carry **bold**
         stress markers), parallel to $shadowTimestamps by index. Given
         together with it, playback auto-pauses the moment each line has
@@ -48,6 +51,7 @@
     'onEnded' => null,
     'onListened' => null,
     'segments' => [],
+    'textHidden' => false,
     'shadowLines' => [],
     'shadowTimestamps' => [],
 ])
@@ -61,6 +65,7 @@
         x-data="{
             focus: false,
             focusOnPlay: false,
+            showText: {{ $textHidden ? 'false' : 'true' }},
             playing: false,
             currentTime: 0,
             duration: 0,
@@ -357,15 +362,27 @@
         </div>
 
         @if (count($segments))
-            {{-- Full-screen entry (and its way out): the text is always
-                 shown, this only makes it big. In full screen this row
-                 moves to the top. --}}
+            {{-- Show/hide the text, and full screen (which makes it big).
+                 In full screen this row moves to the top. --}}
             <div
                 class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
                 :class="focus ? 'order-0 mx-auto mb-3 w-full max-w-3xl shrink-0' : 'mt-3'"
             >
                 <button
                     type="button"
+                    x-show="! focus"
+                    x-on:click="showText = ! showText"
+                    x-bind:aria-expanded="showText"
+                    class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                >
+                    @svg('heroicon-o-document-text', 'h-4 w-4')
+                    <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
+                </button>
+
+                <button
+                    type="button"
+                    x-show="showText || focus"
+                    @if ($textHidden) x-cloak @endif
                     x-on:click="focus = ! focus"
                     x-bind:aria-pressed="focus"
                     class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
@@ -374,7 +391,7 @@
                     <span x-show="focus" x-cloak class="inline-flex items-center gap-1.5">@svg('heroicon-o-arrows-pointing-in', 'h-4 w-4') Exit</span>
                 </button>
 
-                <label class="inline-flex cursor-pointer items-center gap-2 text-xs text-ink-soft dark:text-ink-soft-dark">
+                <label x-show="showText && ! focus" @if ($textHidden) x-cloak @endif class="inline-flex cursor-pointer items-center gap-2 text-xs text-ink-soft dark:text-ink-soft-dark">
                     <input
                         type="checkbox"
                         x-model="focusOnPlay"
@@ -420,6 +437,8 @@
             @endphp
             <div
                 x-lookup
+                x-show="showText || focus"
+                @if ($textHidden) x-cloak @endif
                 class="space-y-3 overflow-y-auto card-sunken p-3"
                 :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-lg leading-relaxed sm:text-xl' : 'mt-4 max-h-72 text-sm'"
             >
@@ -450,6 +469,8 @@
                  right now", the same idea as karaoke captions. --}}
             <div
                 x-lookup
+                x-show="showText || focus"
+                @if ($textHidden) x-cloak @endif
                 class="space-y-1.5 overflow-y-auto card-sunken p-3"
                 :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : 'mt-4 max-h-56 text-sm'"
             >

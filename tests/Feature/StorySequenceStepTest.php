@@ -136,7 +136,7 @@ class StorySequenceStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
-            ->assertSee('using Present Simple like you just practiced')
+            ->assertSee('using Present Simple.')
             ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
             ->call('save')
             ->assertSet('completed', true);
@@ -167,7 +167,7 @@ class StorySequenceStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
-            ->assertSee('using Past Simple like you just practiced')
+            ->assertSee('using Past Simple.')
             ->assertDontSee('using Present Simple')
             ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
             ->call('save')

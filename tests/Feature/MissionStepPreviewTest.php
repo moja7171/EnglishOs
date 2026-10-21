@@ -105,7 +105,7 @@ class MissionStepPreviewTest extends TestCase
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'error_log'])
             ->assertDontSee('No recurring mistakes found')
             ->assertDontSee('Review my mistakes')
-            ->assertSee('It fills in once you reach this step');
+            ->assertSee('fills in once you reach this step');
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_result'])
             ->assertDontSee('Get My Result');
@@ -313,7 +313,7 @@ class MissionStepPreviewTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('Finish M01 first to unlock this one.')
+            ->assertSee('Next · '.$mission->code)
             ->assertSeeHtml('href="'.route('missions.show', [$mission, 'overview']).'"');
     }
 }

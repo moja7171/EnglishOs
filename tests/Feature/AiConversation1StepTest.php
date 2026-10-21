@@ -205,7 +205,7 @@ class AiConversation1StepTest extends TestCase
         $run = MissionRun::findOrStart($learner, $mission);
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSee('Same questions as Day 1')
+            ->assertSee('Same ideas as Day 1')
             ->assertSee('What time do you usually wake up?');
     }
 

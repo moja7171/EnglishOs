@@ -111,7 +111,7 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
             ->assertSeeHtml(route('missions.show', [$mission, 'mission_brief', 'retry' => 1]))
-            ->assertSee('Practice this step again');
+            ->assertSee('Practice again');
     }
 
     public function test_no_practice_again_link_for_a_pure_ai_summary_step(): void
@@ -136,7 +136,7 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'ai_feedback_1'])
             ->assertSet('isReviewing', true)
-            ->assertDontSee('Practice this step again');
+            ->assertDontSee('Practice again');
     }
 
     public function test_no_practice_again_link_while_not_reviewing(): void
@@ -149,7 +149,7 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
             ->assertSet('isReviewing', false)
-            ->assertDontSee('Practice this step again');
+            ->assertDontSee('Practice again');
     }
 
     public function test_retry_reopens_an_already_evidenced_step_as_live_and_editable(): void
@@ -444,7 +444,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertDontSee('Mission Result');
     }
 
-    public function test_a_step_page_carries_the_slim_position_bar_and_the_overview_does_not(): void
+    public function test_a_step_page_has_the_one_line_header_and_no_hero_while_the_overview_has_the_hero(): void
     {
         $this->seed(MissionSeeder::class);
 
@@ -455,12 +455,17 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
-            ->assertSeeHtml('x-data="missionStepBar"')
-            ->assertSeeHtml('aria-label="Back to the top of Get Ready"')
-            ->assertSee('1/3');
+            ->assertSeeHtml('data-step-header')
+            ->assertSee('Day 1 · Get Ready')
+            ->assertSeeHtml('aria-label="Step 1 of 3"')
+            ->assertSeeHtml('data-ask-instructor-trigger')
+            ->assertDontSee($mission->outcome)
+            ->assertDontSee('All missions');
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
-            ->assertDontSeeHtml('x-data="missionStepBar"');
+            ->assertDontSeeHtml('data-step-header')
+            ->assertSee($mission->outcome)
+            ->assertSee('All missions');
     }
 
     public function test_the_hero_panel_shows_an_ambient_video_when_the_mission_has_a_query(): void

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -48,10 +49,15 @@ new class extends Component
             request()->session()->put('auth_login_at', now()->timestamp);
         }
 
-        // Straight into the placement test rather than the first mission:
-        // the level it finds replaces the self-assessment above, which is
-        // a guess nobody really reads. It's skippable — see ⚡placement.
-        $this->redirect(route('placement'), navigate: true);
+        // Straight into the first step of the first mission — the placement
+        // test and the voice practice guide are one-line offers on home
+        // (see missions/⚡overview), never a gate before learning starts.
+        $firstMission = Mission::where('code', 'M01')->first();
+
+        $this->redirect(
+            $firstMission ? route('missions.show', [$firstMission, $firstMission->stepKeys()[0] ?? null]) : route('home'),
+            navigate: true,
+        );
     }
 };
 ?>

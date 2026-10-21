@@ -172,7 +172,7 @@
         <x-logo icon-class="h-8 w-8" :with-text="false" />
         <div class="flex-1">
             <p class="font-semibold text-ink dark:text-ink-dark">Install English OS</p>
-            <p class="text-ink-faint dark:text-ink-faint-dark">Add it to your home screen for quick, full-screen access.</p>
+            <p class="text-ink-faint dark:text-ink-faint-dark">Add it to your home screen.</p>
         </div>
         <button type="button" x-on:click="dismiss()" class="px-2 py-1.5 font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Not now</button>
         <button type="button" x-on:click="install()" class="shrink-0 rounded-full bg-accent px-3 py-1.5 font-semibold text-white dark:bg-accent-dark">Install</button>

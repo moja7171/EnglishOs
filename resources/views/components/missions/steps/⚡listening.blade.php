@@ -291,11 +291,8 @@ new class extends Component
 
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>
-        @unless ($readOnly)
-            <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">Try listening first without reading — the text below is there if you need it.</p>
-        @endunless
         <div class="mt-2">
-            <x-audio-player :url="$listening['audio_url'] ?? null" :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1, 'manual_report' => true]" :segments="$this->listeningSegments()" />
+            <x-audio-player text-hidden :url="$listening['audio_url'] ?? null" :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1, 'manual_report' => true]" :segments="$this->listeningSegments()" />
         </div>
     </div>
 
@@ -388,7 +385,7 @@ new class extends Component
             {{-- Sub-step 1: first listen + a short true/false check. --}}
             <div x-show="activeSubstep === {{ $comprehensionIndex }}" x-cloak>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — quick check</p>
-                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen once, then a few quick true/false taps about what you heard.</p>
+                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen once, then true or false.</p>
                 <div class="mt-2">
                     <x-quick-round :cards="$comprehensionCards" />
                 </div>
@@ -398,7 +395,7 @@ new class extends Component
         {{-- Sub-step 2: second listen + gap-fill, answered by picking from a word bank. --}}
         <div x-show="activeSubstep === {{ $gapFillIndex }}" x-cloak>
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening — fill the gaps</p>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen again, then pick the word you heard in each gap from the word bank below.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen again and fill each gap.</p>
 
             @if (count($targetPhrases))
                 <div class="mt-3 flex flex-wrap gap-1.5">

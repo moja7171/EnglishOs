@@ -170,26 +170,6 @@ new class extends Component
     }
 
     /**
-     * The full curriculum is 24 missions (EOS-009 §15 roadmap, v3.0); only
-     * the ones actually seeded so far are playable. Every slot 1-24 is
-     * computed, but the view (⚡overview.blade.php's own template) stops
-     * rendering individual cards at the first unseeded one and links to
-     * /program's full roadmap instead — rendering all ~20 "coming soon"
-     * placeholders here used to be the single biggest source of home-page
-     * clutter (home-page declutter pass, 2026-10).
-     *
-     * Evidence Before Progress (EOS-001 Article 3) also gates mission-to-
-     * mission: a seeded mission whose predecessor's MissionRun isn't at
-     * least 'complete' or 'needs_review' — never started, still
-     * 'in_progress', or 'retry_evidence' — renders as gated instead of
-     * clickable. A learner who already has ANY run of their own for that
-     * mission is exempt, so this never retroactively locks progress made
-     * before the gate existed (or while an admin's Evidence-gating bypass
-     * was on — see User::bypassesEvidenceGating() — entirely below).
-     *
-     * @return list<array{code: string, mission: ?Mission, blockedBy: ?Mission}>
-     */
-    /**
      * The mission's cover image, reused from Mission Brief's own cache
      * (see ⚡mission-brief.blade.php's heroImageUrl()) — this reads the
      * exact same cache key so it never triggers a fresh Pexels fetch,
@@ -201,6 +181,48 @@ new class extends Component
         return app(PexelsClient::class)->cachedImageUrl($mission->code.'-brief');
     }
 
+    /**
+     * What home shows below Today: one small card for the next mission
+     * still to unlock, and how many more come after it (locked or not
+     * built yet) — the full list lives on the roadmap (/guide).
+     *
+     * @return array{next: ?Mission, moreCount: int}
+     */
+    #[Computed]
+    public function upcoming(): array
+    {
+        $upcoming = collect($this->missionSlots)->filter(fn ($slot) => ! $slot['mission'] || $slot['blockedBy']);
+        $next = $upcoming->first(fn ($slot) => $slot['mission'] !== null)['mission'] ?? null;
+
+        return [
+            'next' => $next,
+            'moreCount' => $upcoming->count() - ($next ? 1 : 0),
+        ];
+    }
+
+    /**
+     * The voice practice guide is offered as one line on home until the
+     * learner has opened it and tapped through (see ⚡pi-setup's done()).
+     */
+    #[Computed]
+    public function needsPiGuide(): bool
+    {
+        return auth()->user()->pi_onboarded_at === null;
+    }
+
+    /**
+     * Every slot of the 24-mission curriculum (EOS-009 §15 roadmap, v3.0),
+     * with the seeded Mission if there is one and what still gates it.
+     * Home only uses it for upcoming() — the full list is the roadmap.
+     *
+     * Evidence Before Progress (EOS-001 Article 3) also gates mission-to-
+     * mission: a seeded mission whose predecessor's MissionRun isn't at
+     * least 'complete' or 'needs_review' is gated (see
+     * MissionRun::gatingMission(), which also exempts a learner who
+     * already has a run of their own for it).
+     *
+     * @return list<array{code: string, mission: ?Mission, blockedBy: ?Mission}>
+     */
     #[Computed]
     public function missionSlots(): array
     {
@@ -367,7 +389,7 @@ new class extends Component
             <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today · {{ $today['mission']->code }} done</p>
             <div class="mt-2 rounded-xl card-accent p-3">
                 <p class="text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Want to hear how far you've come?</p>
-                <p class="mt-0.5 text-xs text-accent-ink/80 dark:text-accent-ink-dark/80">Answer the same question from your placement test again, and listen to both side by side. Takes about a minute — entirely optional.</p>
+                <p class="mt-0.5 text-xs text-accent-ink/80 dark:text-accent-ink-dark/80">Your placement question again, side by side · 1 min</p>
                 <a
                     href="{{ route('missions.checkpoint', $today['mission']) }}"
                     wire:navigate
@@ -377,7 +399,7 @@ new class extends Component
 
             @if ($today['nextMission'])
                 <p class="mt-4 text-xs text-ink-faint dark:text-ink-faint-dark">
-                    Or skip it — <a href="{{ route('missions.show', $today['nextMission']) }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">start {{ $today['nextMission']->code }}: {{ $today['nextMission']->title }}</a>.
+                    Or skip it — <a href="{{ route('missions.show', [$today['nextMission'], $today['nextMission']->stepKeys()[0] ?? null]) }}" wire:navigate class="underline hover:text-ink dark:hover:text-ink-dark">start {{ $today['nextMission']->code }}: {{ $today['nextMission']->title }}</a>.
                 </p>
             @endif
 
@@ -397,12 +419,12 @@ new class extends Component
                 <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">{{ $today['nextMission']->code }}: {{ $today['nextMission']->title }}</p>
                 <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Day 1 · ~{{ \App\Models\Mission::formatDuration(collect($today['nextMission']->phases[0]['steps'] ?? [])->sum(fn ($s) => (int) ($s['duration_minutes'] ?? 0))) }}</p>
                 <a
-                    href="{{ route('missions.show', $today['nextMission']) }}"
+                    href="{{ route('missions.show', [$today['nextMission'], $today['nextMission']->stepKeys()[0] ?? null]) }}"
                     wire:navigate
                     class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
                 >Start {{ $today['nextMission']->code }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
             @else
-                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} isn't built yet — until it is, keep the streak alive with a <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a> session and a chat with your voice AI partner.</p>
+                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} is coming soon — keep your streak with <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a>.</p>
             @endif
 
             @if ($listening = $this->listening)
@@ -428,18 +450,17 @@ new class extends Component
     </section>
 
     @if ($this->needsPlacement)
-        <a
-            href="{{ route('placement') }}"
-            wire:navigate
-            class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
-        >
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
-                @svg('heroicon-o-academic-cap', 'h-4 w-4')
-            </span>
-            <span class="flex-1">
-                <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Find out where you're starting</span>
-                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">An 8-minute check — it sets how the app talks to you, and gives you something real to measure against at the end.</span>
-            </span>
+        <a href="{{ route('placement') }}" wire:navigate class="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+            @svg('heroicon-o-academic-cap', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+            <span class="flex-1">Find your level · 8 min</span>
+            @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+        </a>
+    @endif
+
+    @if ($this->needsPiGuide)
+        <a href="{{ route('pi.setup') }}" wire:navigate class="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+            @svg('heroicon-o-microphone', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+            <span class="flex-1">How voice practice works · 2 min</span>
             @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
         </a>
     @endif
@@ -451,7 +472,6 @@ new class extends Component
             </span>
             <span class="flex-1">
                 <span class="block text-sm font-semibold text-ink dark:text-ink-dark">You missed a day, but your streak is safe!</span>
-                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">One skipped day never breaks it — keep going.</span>
             </span>
         </div>
     @elseif ($this->justLostStreak)
@@ -461,7 +481,6 @@ new class extends Component
             </span>
             <span class="flex-1">
                 <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Fresh start — your best run was {{ auth()->user()->longestStreak() }} {{ Str::plural('day', auth()->user()->longestStreak()) }}.</span>
-                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Let's see if today can be the start of a new one.</span>
             </span>
         </div>
     @elseif ($this->needsTodayReminder)
@@ -491,56 +510,31 @@ new class extends Component
         </div>
     @endif
 
-    {{-- Unseeded slots (~20 of 24 right now) used to each render their own
-         full "Coming soon" card — by far the longest, lowest-value stretch
-         of the page. Missions are seeded in order, so the first unseeded
-         slot means every slot after it is unseeded too: stop there and
-         hand off to /program's full roadmap instead of 20 near-identical
-         placeholder cards (home-page declutter pass). --}}
-    @php $roadmapRemaining = false; @endphp
-    @foreach ($this->missionSlots as $slot)
-        @if (! $slot['mission'])
-            @php $roadmapRemaining = true; @endphp
-            @break
-        @elseif ($slot['blockedBy'])
-            <div class="flex items-center justify-between gap-3 card-sunken p-4">
-                <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}" wire:navigate class="block min-w-0 flex-1">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
-                    <p class="font-display text-lg font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['mission']->title }}</p>
-                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Finish {{ $slot['blockedBy']->code }} first to unlock this one.</p>
-                    <span class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-accent-ink dark:text-accent-ink-dark">
-                        @svg('heroicon-o-eye', 'h-3.5 w-3.5') Preview
-                    </span>
-                </a>
-                <a
-                    href="{{ route('missions.show', [$slot['blockedBy'], 'overview']) }}"
-                    wire:navigate
-                    title="Go to {{ $slot['blockedBy']->code }}"
-                    class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark"
-                >@svg('heroicon-o-lock-closed', 'h-4 w-4')</a>
-            </div>
-        @else
-            @php $coverUrl = $this->missionCoverUrl($slot['mission']); @endphp
-            <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}"
-               data-mood="{{ $slot['mission']->moodKey() }}"
-               class="flex items-center gap-3.5 card p-4 transition-colors hover:border-accent dark:hover:border-accent-dark">
-                @if ($coverUrl)
-                    <img src="{{ $coverUrl }}" alt="" class="h-14 w-14 shrink-0 rounded-xl object-cover">
-                @endif
-                <div class="min-w-0 flex-1">
-                    <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $slot['mission']->code }} · {{ $slot['mission']->module }}</p>
-                    <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $slot['mission']->title }}</h2>
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $slot['mission']->outcome }}</p>
-                </div>
-            </a>
-        @endif
-    @endforeach
+    @php $upcoming = $this->upcoming; @endphp
+    @if ($next = $upcoming['next'])
+        @php $coverUrl = $this->missionCoverUrl($next); @endphp
+        <a
+            href="{{ route('missions.show', [$next, 'overview']) }}"
+            wire:navigate
+            data-mood="{{ $next->moodKey() }}"
+            class="flex items-center gap-3 card-sunken px-4 py-3 transition-colors hover:border-accent dark:hover:border-accent-dark"
+        >
+            @if ($coverUrl)
+                <img src="{{ $coverUrl }}" alt="" class="h-10 w-10 shrink-0 rounded-lg object-cover opacity-70">
+            @endif
+            <span class="min-w-0 flex-1">
+                <span class="block text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Next · {{ $next->code }}</span>
+                <span class="block truncate font-display text-base font-bold text-ink-soft dark:text-ink-soft-dark">{{ $next->title }}</span>
+            </span>
+            @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+        </a>
+    @endif
 
-    @if ($roadmapRemaining)
+    @if ($upcoming['moreCount'] > 0)
         <a
             href="{{ route('learner.guide') }}"
             wire:navigate
-            class="flex items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line px-4 py-3 text-xs font-semibold text-ink-faint transition-colors hover:border-ink-faint hover:text-ink-soft dark:border-line-dark dark:text-ink-faint-dark dark:hover:text-ink-soft-dark"
-        >See the full 24-mission roadmap @svg('heroicon-o-arrow-left', 'h-3.5 w-3.5')</a>
+            class="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-ink-faint transition-colors hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark"
+        >🔒 {{ $upcoming['moreCount'] }} more {{ Str::plural('mission', $upcoming['moreCount']) }} · Roadmap @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
     @endif
 </div>

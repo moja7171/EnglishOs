@@ -4,17 +4,14 @@ use App\Services\PiPrompts;
 use Livewire\Component;
 
 /**
- * A one-time screen before a learner's first mission: a short guide to the
- * daily voice practice with Pi (or any other live-voice AI assistant).
- * Nothing to set up there — every day's prompt on /pi is self-contained
- * (see App\Services\PiPrompts) — so this only explains how a session runs.
+ * A short guide to the daily voice practice with Pi (or any other
+ * live-voice AI assistant). Nothing to set up there — every day's prompt on
+ * /pi is self-contained (see App\Services\PiPrompts) — so this only explains
+ * how a session runs.
  *
- * The home route (routes/web.php) forces this on anyone whose
- * pi_onboarded_at is still null; existing users are grandfathered by that
- * column's migration, so the forced redirect only ever catches someone
- * truly before Mission 1. The route itself has no such gate, though — it's
- * also linked from the account menu and the practice page so anyone can
- * come back to it later.
+ * Offered as a one-line suggestion on home until the learner has been
+ * through it once (pi_onboarded_at, set by done()), never forced; also
+ * linked from the account menu and the practice page.
  */
 new class extends Component
 {

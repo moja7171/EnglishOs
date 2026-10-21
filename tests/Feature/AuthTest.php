@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -45,12 +46,30 @@ class AuthTest extends TestCase
             ->set('password', 'super-secret')
             ->set('password_confirmation', 'super-secret')
             ->call('register')
-            // Into the placement test, not straight to the first mission —
-            // see ⚡register.blade.php.
-            ->assertRedirect(route('placement'));
+            // No mission seeded here, so home; see the test below for M01.
+            ->assertRedirect(route('home'));
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'ada@example.com', 'name' => 'Ada Lovelace']);
+    }
+
+    public function test_a_new_learner_goes_straight_to_the_first_step_of_m01(): void
+    {
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief'], ['key' => 'vocabulary_builder_1']]]],
+        ]);
+
+        Livewire::test('auth.register')
+            ->set('name', 'Ada Lovelace')
+            ->set('email', 'ada@example.com')
+            ->set('password', 'super-secret')
+            ->set('password_confirmation', 'super-secret')
+            ->call('register')
+            ->assertRedirect(route('missions.show', [$mission, 'mission_brief']));
     }
 
     public function test_registration_saves_the_learners_self_reported_level_and_target_band(): void
@@ -63,7 +82,7 @@ class AuthTest extends TestCase
             ->set('cefr_level', 'A2')
             ->set('target_band', '6.5')
             ->call('register')
-            ->assertRedirect(route('placement'));
+            ->assertRedirect(route('home'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'ada@example.com',

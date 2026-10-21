@@ -305,7 +305,7 @@ class MissionBriefStepTest extends TestCase
         $run = MissionRun::findOrStart($learner, $mission);
 
         Livewire::test('missions.steps.mission-brief', ['run' => $run])
-            ->assertSee('record yourself answering this one:')
+            ->assertSee('Optional — record this one:')
             ->assertSee('What time do you usually wake up?');
     }
 
