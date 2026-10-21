@@ -2849,6 +2849,7 @@ class MissionSeeder extends Seeder
         $this->seedM07();
         $this->seedM08();
         $this->seedM09();
+        $this->seedM10();
     }
 
     /**
@@ -6327,6 +6328,724 @@ class MissionSeeder extends Seeder
                                     'whose or where',
                                     'What kind of person you are',
                                     'Someone who gives you energy',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M10 "Relationships" — the roadmap's Present Perfect with for /
+     * since. M05's 16-step layout (no story_sequence: the present perfect
+     * links the past to now — how long, ever, never, yet — it is not a
+     * story told in order, so it is practised in Picture Description — "how
+     * long have they been married?" — and the two AI conversations instead).
+     * The lesson follows Grammar in Use units 7-8 (have / has + past
+     * participle; ever / never, just / already / yet) and 11-12 (how long…?,
+     * for / since, when…? vs how long…?); units 9-10 (continuous) and 13-14
+     * (present perfect vs past) are left for later. Vocabulary days 2-3
+     * follow Vocabulary in Use units 15 (Romance, marriage and divorce) and
+     * 60C (approximate time: for ages, recently, lately…), all rewritten in
+     * our own words. Pair speaking cards ask about other people's
+     * relationships — parents, grandparents, couples in films — never the
+     * learner's own love life. Media the user picked: Vanessa and her
+     * husband Dan's live lesson on relationships (cut from 50 to about 6
+     * minutes: how long they have been married and known each other, don't
+     * rush, have fun together, take a breath before you speak) and Bob the
+     * Canadian and Jen's Q&A about marriage (cut from 26 to about 6
+     * minutes: getting engaged, rings, getting more mature, the most
+     * unforgettable place, putting the other first, the empty nest).
+     */
+    private function seedM10(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M10', 'Speak English with Vanessa - Relationships with Dan.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M10', 'Bob the Canadian - Marriage with Jen.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M10', 'Bob the Canadian - Marriage with Jen.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M10'],
+            [
+                'title' => 'Relationships',
+                'module' => 'Relationships',
+                'outcome' => 'I can talk about the relationships around me and how long they have lasted — they\'ve been married for…, we\'ve known each other since…, I\'ve never….',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Why should people take advice about love with a grain of salt?', 'answer' => 'Advice is just one person\'s opinion, so I take it with a grain of salt.', 'words' => ['take it with a grain of salt']],
+                            ['question' => 'Why is it a bad idea to rush into marriage?', 'answer' => 'If you rush into marriage, you don\'t really know the other person yet.', 'words' => ['rush into']],
+                            ['question' => 'How do the happy couples in films maintain a good relationship?', 'answer' => 'They maintain it by talking a lot and having fun together.', 'words' => ['maintain']],
+                            ['question' => 'What happens to a film character who has a temper?', 'answer' => 'He has a temper, so small problems build up and one day he explodes.', 'words' => ['temper', 'build up']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Think of the oldest couple you know. Could you say in English how long they have been together?',
+                                'image_query' => 'couple holding hands walking',
+                                'ambient_video_query' => 'old couple walking park',
+                                'warm_up_questions' => [
+                                    'Who is the oldest couple in your family?',
+                                    'How long have you known your best friend?',
+                                    'What makes a relationship last a long time?',
+                                    'Do you like films about love? Which one?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Vanessa and Dan use about their marriage — you\'ll need them to talk about any couple.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'My aunt Shirin has a lot of advice about love, but I **take it with a grain of salt**. '
+                                    .'She says, "Don\'t **rush into** marriage, and talk about small problems before they '
+                                    .'**build up**." My uncle **has a temper**, so she knows! Still, they have been married for '
+                                    .'thirty years, and they **maintain** a happy home.',
+                                'words' => [
+                                    ['phrase' => 'maintain', 'meaning' => 'to keep something in good condition, so that it continues', 'meaning_fa' => 'حفظ کردن، نگه داشتن', 'pos' => 'verb', 'example' => 'It takes work to maintain a strong friendship.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'take it with a grain of salt', 'meaning' => 'to not believe all of something, because it may not be completely true for you', 'meaning_fa' => 'با احتیاط پذیرفتن، صددرصد باور نکردن', 'pos' => 'idiom', 'example' => 'It\'s only my opinion, so take it with a grain of salt.', 'difficulty' => 'hard'],
+                                    ['phrase' => 'rush into', 'meaning' => 'to start something important too quickly, without thinking enough', 'meaning_fa' => 'عجولانه وارد کاری شدن', 'pos' => 'phrasal verb', 'example' => 'Don\'t rush into buying a house.', 'image_query' => 'man running late hurry', 'difficulty' => 'medium'],
+                                    ['phrase' => 'have a temper', 'meaning' => 'to get angry quickly and easily', 'meaning_fa' => 'زود عصبانی شدن، تندخو بودن', 'pos' => 'phrase', 'example' => 'My brother has a temper, but he calms down fast.', 'image_query' => 'angry man shouting', 'difficulty' => 'medium'],
+                                    ['phrase' => 'build up', 'meaning' => 'to slowly grow bigger or stronger', 'meaning_fa' => 'کم‌کم جمع شدن، انباشته شدن', 'pos' => 'phrasal verb', 'example' => 'If you never talk about problems, they build up.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Vanessa gives her husband a little test: how long have we been married? Listen to find out if he passes — and what keeps them together.',
+                                'source' => 'Speak English with Vanessa — "LIVE: English Conversation Lesson: Relationships!" (with her husband Dan)',
+                                'image_query' => 'happy couple talking at home',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M10', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. Two speakers: Vanessa
+                                // and Dan.
+                                'listening_turns' => $this->shadowTimestampsFor('M10', 'listening_turns'),
+                                // The five parts kept in the cut (1:35-4:28, 6:47-7:11,
+                                // 12:15-13:24, 14:55-15:30 and 20:32-21:31 of the
+                                // original), written from the video's human captions and
+                                // checked against a Whisper pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Vanessa', 'text' => 'Let\'s start with a couple pieces of factual information. How long have we… This is a kind of test.'],
+                                    ['speaker' => 'Dan', 'text' => 'Oh, it\'s a test for me.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'How long have we been married?'],
+                                    ['speaker' => 'Dan', 'text' => 'We\'ve been married eight years.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Oh, he passed the test. This year in August it will be nine years. So we\'ve been married eight and a half years or so.'],
+                                    ['speaker' => 'Dan', 'text' => 'Which is a long time for the average American of our age, because we\'re only 31. So we\'ve been married a little while.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yes. And when did we meet each other?'],
+                                    ['speaker' => 'Dan', 'text' => 'We met each other the very first day of college, which is university in other countries.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yes, so I was 17 years old, but I was almost 18. The next week was my birthday, so I was pretty much 18 years old, and you were 18 too, right?'],
+                                    ['speaker' => 'Dan', 'text' => 'Yeah.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So we\'ve known each other for quite a long time, from 18 to 31. What is that? 13 years? A long time. And a lot has happened during that time. I think knowing someone, being in a relationship with someone for 13 years, is normal for maybe our parents\' generation, but for our generation it\'s something that\'s a little bit surprising. When people meet us, they\'re surprised that we are 31 and we\'ve been married for eight years.'],
+                                    ['speaker' => 'Dan', 'text' => 'Yeah, and that we\'ve only dated each other for a really long time.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yes.'],
+                                    ['speaker' => 'Dan', 'text' => 'That\'s not very usual, I don\'t think.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yeah, and that we still like each other. I think that there\'s a lot of…'],
+                                    ['speaker' => 'Dan', 'text' => 'Do we?'],
+                                    ['speaker' => 'Vanessa', 'text' => 'You\'ll find out today.'],
+                                    ['speaker' => 'Dan', 'text' => 'We do.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So there\'s a lot of things that we do in our relationship, or principles that we have, that have really helped us to maintain a healthy, strong relationship. And those are the two words that I want to focus on today: having a healthy relationship, not just how to find a boyfriend. I can\'t give you advice on that… or find a girlfriend. But having a healthy relationship and having a strong relationship, it means that you feel confident in your relationship. You feel confident in yourself…'],
+                                    ['speaker' => 'Dan', 'text' => 'Yes.'],
+                                    ['speaker' => 'Vanessa', 'text' => '…when you\'re part of that relationship.'],
+                                    ['speaker' => 'Dan', 'text' => 'And it means it will last a long time. And if you want to have children, it will be a good relationship to have children. Because really, if you\'re going to get married, it\'s probably mostly to have children, in my personal opinion.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So today, before we get started, I\'d like to give a couple disclaimers. First of all, we have a unique situation, that we met each other when we were young. All of these are personal tips, but that\'s all we can do, is share from our personal lives. We have not been married for 50 years. I know there are plenty of people who have been together much longer than us, so take it with a grain of salt.'],
+                                    ['speaker' => 'Dan', 'text' => 'Yes. But apparently it\'s working.'],
+                                    ['speaker' => 'Dan', 'text' => 'Connected to that, I would say don\'t rush. So don\'t rush into a relationship. For example, for Vanessa and I, we knew each other for six months before we even dated, and after dating, we didn\'t live together for four years.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yes, and of course this is a little bit unusual.'],
+                                    ['speaker' => 'Dan', 'text' => 'And we were young.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Because we were so young.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Well, I wanted to share some things that have personally really helped me in our relationship, beyond the general principles, and this is to have fun together. I think that this can apply before you are married, but also during your marriage. I know that we have some friends who have been together for a long time, and then, even though they both like each other, they feel like, "Eh, there\'s nothing special any more. Maybe we shouldn\'t be together." Of course, everyone has their own situation, but for us, it\'s been really helpful to have some common activities that we really like to do together.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'There\'s actually a bunch of studies that show… people who are 100 years old, or pretty old, and they\'ve been in a relationship for a while, something that has helped them is to have fun together. Because you\'re not always going to be a honeymoon couple who just met each other. You\'re going to be just normal people.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And something that the marriage counselor who I was watching… something that she mentioned is that sometimes, after you\'ve been with someone for a long time, your relationship tends to get more serious. Not just serious as in you\'re going to stay together, but serious as in your demeanor. Demeanor means your face, your attitude. Your attitude becomes really serious, because you\'re talking about daily life, your job. Are you doing the dishes? Who\'s cooking dinner? Where\'s our baby? Just factual things.'],
+                                    ['speaker' => 'Dan', 'text' => 'Yes.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Not really fun things.'],
+                                    ['speaker' => 'Dan', 'text' => 'And I think maybe an extra bit of advice — you said take a deep breath. This is a good idea. Take a deep breath. If you\'re feeling a little angry at your partner, before you say something, just breathe. Because, I mean, I know we look very happy all the time, but we get angry with each other, too.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'It\'s true.'],
+                                    ['speaker' => 'Dan', 'text' => 'I promise you it happens. I\'ve had to learn, especially me. Sometimes I get a little bit… I have a temper. I can get angry.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'He can get upset at times.'],
+                                    ['speaker' => 'Dan', 'text' => 'I can get angry sometimes.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'I think everybody can get upset sometimes.'],
+                                    ['speaker' => 'Dan', 'text' => 'So I\'ve had to learn to stop and take a little breath before I say something. Because when you\'re angry, you might say something really mean. And if you say something really bad, your partner is going to remember that.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yes.'],
+                                    ['speaker' => 'Dan', 'text' => 'So you don\'t want to let a lot of those bad words build up over time.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'maintain', 'meaning' => 'keep something good going',
+                                        'gap_before' => 'that have really helped us to ',
+                                        'gap_after' => ' a healthy, strong relationship.',
+                                    ],
+                                    [
+                                        'phrase' => 'take it with a grain of salt', 'meaning' => 'don\'t believe all of it',
+                                        'gap_before' => 'who have been together much longer than us, so ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'rush into', 'meaning' => 'start too quickly',
+                                        'gap_before' => 'So don\'t ',
+                                        'gap_after' => ' a relationship.',
+                                    ],
+                                    [
+                                        'phrase' => 'have a temper', 'meaning' => 'get angry quickly',
+                                        'gap_before' => 'Sometimes I get a little bit… I ',
+                                        'gap_after' => '. I can get angry.',
+                                    ],
+                                    [
+                                        'phrase' => 'build up', 'meaning' => 'slowly grow bigger',
+                                        'gap_before' => 'let a lot of those bad words ',
+                                        'gap_after' => ' over time.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Vanessa and her husband Dan are 31. They have been married for about '
+                                    .'eight and a half years, and they have known each other since the first day of '
+                                    .'college — 13 years. People are often surprised, so they say: take our tips with a '
+                                    .'grain of salt. Dan\'s tip is don\'t rush into a relationship: they knew each other '
+                                    .'for six months before they dated. Vanessa\'s tip is to have fun together, because '
+                                    .'after you\'ve been with someone for a long time, life gets serious. And Dan has had '
+                                    .'to learn to take a breath before he speaks when he is angry, so bad words don\'t '
+                                    .'build up.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Vanessa and Dan have been married for about eight and a half years.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Vanessa and Dan lived together for four years before they started dating.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Dan says he has had to learn to take a breath before he speaks when he is angry.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'How long did Vanessa and Dan know each other before they started dating?',
+                                    'options' => ['Six months', 'Four years', '13 years'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'How long have your parents been married?', 'answer' => 'My parents have been married for thirty years. They got married in 1995.', 'words' => ['have been married', 'for', 'got married']],
+                            ['question' => 'Where do couples in your country usually go on their honeymoon?', 'answer' => 'A lot of couples go to Kish or Turkey on their honeymoon.', 'words' => ['honeymoon']],
+                            ['question' => 'Why do couples in films often break up?', 'answer' => 'They break up because they have never really talked about their problems.', 'words' => ['break up', 'have never']],
+                            ['question' => 'How do your grandparents celebrate their anniversary?', 'answer' => 'They have had a family dinner on every anniversary since they got married.', 'words' => ['anniversary', 'since']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for a love story from the first date to the anniversary — and, sometimes, the end.',
+                                // Vocabulary in Use unit 15 (Romance, marriage and divorce),
+                                // our own sentences.
+                                'story' => 'My cousin Neda **went out with** Kian for two years. They **broke up** once, but '
+                                    .'after a month they were back together. Last spring they **got engaged**, and they **got '
+                                    .'married** in September. Their **honeymoon** was a week in Shiraz. Next month is their '
+                                    .'first wedding **anniversary**.',
+                                'words' => [
+                                    ['phrase' => 'go out with', 'meaning' => 'to have a romantic relationship with someone', 'meaning_fa' => 'با کسی دوست بودن، با کسی بیرون رفتن (رابطه‌ی عاطفی)', 'pos' => 'phrasal verb', 'example' => 'She went out with him for a year before they got engaged.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'break up', 'meaning' => 'to end a romantic relationship', 'meaning_fa' => 'به هم زدن، جدا شدن', 'pos' => 'phrasal verb', 'example' => 'They broke up after six months.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get engaged', 'meaning' => 'to formally agree to marry someone', 'meaning_fa' => 'نامزد کردن', 'pos' => 'phrase', 'example' => 'My sister got engaged last week — look at her ring!', 'image_query' => 'engagement ring proposal', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get married', 'meaning' => 'to become husband and wife (get married to someone, not with)', 'meaning_fa' => 'ازدواج کردن', 'pos' => 'phrase', 'example' => 'They got married in a small garden.', 'image_query' => 'wedding couple garden', 'difficulty' => 'easy'],
+                                    ['phrase' => 'honeymoon', 'meaning' => 'a holiday that a couple takes just after they get married', 'meaning_fa' => 'ماه عسل', 'pos' => 'noun', 'example' => 'They went to the mountains on their honeymoon.', 'image_query' => 'couple beach honeymoon', 'difficulty' => 'easy'],
+                                    ['phrase' => 'anniversary', 'meaning' => 'the same day as an important event in an earlier year', 'meaning_fa' => 'سالگرد', 'pos' => 'noun', 'example' => 'Today is my parents\' 25th wedding anniversary.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — this time copy how Vanessa says how long: "for quite a long time", "for 50 years".',
+                                'image_query' => 'couple laughing kitchen',
+                                'shadow_lines' => [
+                                    'So we\'ve **known** each other for **quite** a **long** **time**.',
+                                    'We have **not** been **married** for 50 **years**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M10', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'A relationship is measured in time: "We\'ve known each other since college", "They\'ve been married for 46 years".',
+                                'focus' => 'Present Perfect with for / since',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 7-8 (have / has + past
+                                // participle, ever / never, just / already / yet) and 11-12
+                                // (how long…?, for / since, when…? vs how long…?).
+                                'lesson' => [
+                                    'intro' => 'The present perfect joins the past to now: they\'ve got engaged, I\'ve never been to a wedding abroad, we\'ve known each other for years.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · have / has + past participle',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use <strong>have / has + past participle</strong> for something in the past that matters now: <strong>He\'s lost his wedding ring.</strong> (He doesn\'t have it now.)',
+                                                    'fa' => 'حال کامل = have / has + اسم مفعول (p.p). برای کاری در گذشته که نتیجه‌اش الان مهم است یا خبرِ تازه است. زمانِ دقیق را نمی‌گوییم؛ با زمانِ تمام‌شده (yesterday, in 2015) گذشته‌ی ساده لازم است. been to یعنی رفته و برگشته، gone to یعنی رفته و هنوز آنجاست.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'have / has + past participle',
+                                                    'parts' => [
+                                                        ['text' => 'They', 'caption' => 'person'],
+                                                        ['text' => '\'ve', 'caption' => 'have / has'],
+                                                        ['text' => 'got engaged', 'caption' => 'past participle', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I have saw that film three times.', 'right' => 'I have seen that film three times.', 'highlight' => 'seen'],
+                                                        ['wrong' => 'He have lost his ring.', 'right' => 'He has lost his ring.', 'highlight' => 'has'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            'A lot has happened during that time.',
+                                                            'For us, it\'s been really helpful to have some common activities.',
+                                                            'I\'ve had to learn to stop and take a little breath.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · ever / never, just / already / yet',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>ever</strong> = at any time in your life (questions); <strong>never</strong> = not at any time. <strong>just</strong> = a moment ago, <strong>already</strong> = sooner than expected, <strong>yet</strong> = until now (questions and negatives, at the end).',
+                                                    'fa' => 'ever در سؤال: «تا حالا…؟» و never یعنی «هیچ‌وقت» (با فعل مثبت: I\'ve never…). just و already بین have و p.p می‌آیند؛ yet آخرِ جمله و فقط در سؤال و منفی. بعد از It\'s the first time هم حال کامل می‌آید: It\'s the first time I\'ve been to a wedding.',
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'ever / never', 'words' => ['Have you ever been to…?', 'I\'ve never…', 'the best film I\'ve ever seen']],
+                                                        ['label' => 'just / already / yet', 'words' => ['They\'ve just got engaged.', 'I\'ve already told her.', 'Has he called yet?']],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Did you ever been to a wedding abroad?', 'right' => 'Have you ever been to a wedding abroad?', 'highlight' => 'Have you ever been'],
+                                                        ['wrong' => 'They haven\'t chosen a date already.', 'right' => 'They haven\'t chosen a date yet.', 'highlight' => 'yet'],
+                                                        ['wrong' => 'It\'s the first time I see a wedding like this.', 'right' => 'It\'s the first time I\'ve seen a wedding like this.', 'highlight' => 'I\'ve seen'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'Where is the most unforgettable place you have ever been to with Jen?',
+                                                            'There\'s some places that we have never been able to go to.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · How long…? for / since',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'For something that started in the past and is still true, ask <strong>How long have you…?</strong> and answer with <strong>for</strong> + a length of time or <strong>since</strong> + the start: <strong>for eight years / since college</strong>.',
+                                                    'fa' => 'در فارسی می‌گوییم «ده سال است که می‌شناسمش» با حال ساده؛ در انگلیسی حال کامل لازم است: I\'ve known her for ten years (نه I know her). for + مدت (for ten years, for ages)، since + نقطه‌ی شروع (since 2015, since we met). know و be و have معمولاً ing نمی‌گیرند. for را گاهی می‌اندازند: We\'ve been married eight years.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'How long + for / since',
+                                                    'parts' => [
+                                                        ['text' => 'We\'ve known', 'caption' => 'have + past participle'],
+                                                        ['text' => 'each other', 'caption' => 'rest'],
+                                                        ['text' => 'for 13 years', 'caption' => 'for + length', 'tone' => 'accent'],
+                                                        ['text' => '/ since college', 'caption' => 'since + start', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I know him for five years.', 'right' => 'I\'ve known him for five years.', 'highlight' => 'I\'ve known'],
+                                                        ['wrong' => 'They\'ve been married since ten years.', 'right' => 'They\'ve been married for ten years.', 'highlight' => 'for'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'for…', 'words' => ['eight years', 'six months', 'a long time', 'ages']],
+                                                        ['label' => 'since…', 'words' => ['2015', 'college', 'last summer', 'we met']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · When…? or How long…?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>When did…?</strong> asks about a finished time (past simple). <strong>How long have…?</strong> asks about the time until now: <strong>When did they meet? — In 2010. How long have they known each other? — Since 2010.</strong>',
+                                                    'fa' => 'با زمانِ تمام‌شده (in 2010, last year, ago) گذشته‌ی ساده؛ برای «از آن موقع تا حالا» حال کامل. در منفی: I haven\'t seen her for ages / since May. و می‌توانی بگویی It\'s been two years since we met.',
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Reza',
+                                                    'wrong' => 'My parents have met in 1990.',
+                                                    'right' => 'My parents met in 1990.',
+                                                    'explanation' => 'In 1990 is a finished time, so it needs the past simple. For the time until now, use the present perfect: they\'ve known each other since 1990.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'When did they get engaged? — Last year.',
+                                                            'How long have they been engaged? — For a year.',
+                                                            'I haven\'t seen my cousins since the summer.',
+                                                            'It\'s been ages since we went to a wedding.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> people — how long you\'ve known them, what you\'ve never done — then watch Bob and Jen answer questions about their marriage, and soon say it out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in Video Shadowing next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'My parents have been married for', 'I\'ve known my best friend since', 'I have never',
+                                    'My family has lived in our home for', 'I haven\'t seen my cousins since', 'The best film about love I\'ve ever seen',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about the people and relationships in their life, using '
+                                    .'the present perfect correctly: have / has + past participle for a period up to now, for + '
+                                    .'a length of time or since + a starting point, ever / never / just / already / yet in the '
+                                    .'right place, and the past simple only for a finished time ("we met in 2015").',
+                                'grammar_major_criteria' => 'the present simple instead of the present perfect for a period '
+                                    .'up to now ("I know him for five years"), since with a length of time ("since ten years") or '
+                                    .'for with a starting point ("for 2015"), the past simple form instead of the past participle '
+                                    .'("I have saw"), has / have not agreeing with the subject, the present perfect with a '
+                                    .'finished time ("we have met in 2015"), yet in a positive statement, the sentence does not '
+                                    .'actually continue the given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues with the present perfect (have / has + past participle) and, '
+                                    .'where the starter needs it, a length of time after for or a starting point after since',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I know her since 2015.',
+                                        'options' => ['I\'ve known her since 2015.', 'I know her since 2015.', 'I\'m knowing her since 2015.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'They have been married since ten years.',
+                                        'options' => ['They have been married since ten years.', 'They have been married for ten years.', 'They are married for ten years.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'Have you ever went to a wedding abroad?',
+                                        'options' => ['Did you ever went to a wedding abroad?', 'Have you ever went to a wedding abroad?', 'Have you ever been to a wedding abroad?'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'How long are they together?',
+                                        'options' => ['How long are they together?', 'How long have they been together?', 'How long do they be together?'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['married', 'eight', 'They', 'for', 'been', 'years.', 'have'], 'answer' => 'They have been married for eight years.'],
+                                    ['words' => ['since', 'We\'ve', 'other', 'college.', 'each', 'known'], 'answer' => 'We\'ve known each other since college.'],
+                                    ['words' => ['been', 'a', 'Have', 'wedding?', 'ever', 'to', 'you'], 'answer' => 'Have you ever been to a wedding?'],
+                                ],
+                            ],
+                            [
+                                // A real couple at natural speed: Bob the Canadian and his
+                                // wife Jen answer viewers' questions about marriage, each
+                                // question shown on a card — cut to about 6 minutes (getting
+                                // engaged, rings, disagreeing, the most unforgettable place,
+                                // gifts, the secret of a long marriage, the empty nest). The
+                                // creator burns no captions in, so the step's own caption
+                                // toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Bob and Jen have been married for a long time. Watch them answer viewers\' questions about marriage — then say their lines about how things have changed.',
+                                'source' => 'Learn English with Bob the Canadian — "An English Lesson about Marriage and a Q&A about Marriage" (with Jen)',
+                                'video_url' => $shadowingVideoUrl,
+                                // The creator's own English captions, re-timed per line on
+                                // Whisper's word timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M10', 'video_shadowing_segments'),
+                                'topic_summary' => 'Bob and Jen answer viewers\' questions about marriage. Bob proposed and '
+                                    .'gave Jen an engagement ring, so she became his fiancée. A woman who has been married '
+                                    .'for 46 years asks about rings: Jen\'s ring hasn\'t fit since she had kids, and she '
+                                    .'hasn\'t had it redone. They say they have got more mature when they disagree. Bob\'s '
+                                    .'most unforgettable place is British Columbia, and they don\'t give each other gifts. '
+                                    .'Putting the other person first has really helped them. They call themselves a boring '
+                                    .'old couple, and when the kids leave they want to visit places they have never been '
+                                    .'able to go to.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Bob proposed to Jen and gave her an engagement ring.', 'correct' => true],
+                                    ['statement' => 'Jen still wears her wedding ring every day.', 'correct' => false],
+                                    ['statement' => 'Jen says she has matured a lot in how she responds to Bob.', 'correct' => true],
+                                ],
+                                // Real phrases Bob and Jen use on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'get engaged', 'meaning' => 'to agree to marry someone'],
+                                    ['phrase' => 'an engagement ring', 'meaning' => 'the ring you give when you ask someone to marry you'],
+                                    ['phrase' => 'get more mature', 'meaning' => 'to become calmer and wiser with time'],
+                                    ['phrase' => 'take care of', 'meaning' => 'to look after someone'],
+                                    ['phrase' => 'a boring old couple', 'meaning' => 'a couple happy to do quiet, simple things (a joke)'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words Bob
+                                // and Jen actually say. Chosen for this mission's grammar:
+                                // how long + for, haven't…, have gotten / have matured, ever,
+                                // that's been… and never.
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'How **long** have you been **married**? We have been **married** for 46 **years**.',
+                                    'I just **haven\'t** gotten it **redone**.',
+                                    'I **know** I\'ve **matured** a **lot** in how I **respond** to you.',
+                                    'Where is the most **unforgettable** **place** you have **ever** been to with Jen?',
+                                    'And I **think** that\'s been **very** **helpful** for us.',
+                                    'Places that we have **never** been **able** to go to.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M10', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Has your family had a big get-together lately?', 'answer' => 'No, we haven\'t had one lately. The last one was ages ago.', 'words' => ['lately', 'ages ago']],
+                            ['question' => 'Have you seen a good love story recently?', 'answer' => 'Yes, I saw one the other day. It\'s the best film I\'ve seen recently.', 'words' => ['the other day', 'recently']],
+                            ['question' => 'How do people meet their partners these days?', 'answer' => 'These days a lot of couples have met online.', 'words' => ['These days', 'have met']],
+                            ['question' => 'How long have your grandparents lived in the same house?', 'answer' => 'They\'ve lived there for ages — since 1980.', 'words' => ['for ages', 'since']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the time words that go with the present perfect: for ages, recently, lately.',
+                                // Vocabulary in Use unit 60C (approximate periods of time),
+                                // our own sentences.
+                                'story' => 'I\'ve known my neighbour Mrs Rahimi **for ages**. She moved here **ages ago**, when I '
+                                    .'was a child. I haven\'t seen her **lately** — she has been ill **recently**. I visited '
+                                    .'her **the other day** with some fruit. "**These days** nobody visits old people," she '
+                                    .'said. "Thank you, dear."',
+                                'words' => [
+                                    ['phrase' => 'for ages', 'meaning' => 'for a very long time (usually with the present perfect)', 'meaning_fa' => 'خیلی وقت است، سال‌ها', 'pos' => 'phrase', 'example' => 'I haven\'t seen him for ages.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ages ago', 'meaning' => 'a long time ago (with the past simple)', 'meaning_fa' => 'خیلی وقت پیش', 'pos' => 'phrase', 'example' => 'They met ages ago, at school.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'recently', 'meaning' => 'not long ago; in the last few weeks or months', 'meaning_fa' => 'اخیراً، به‌تازگی', 'pos' => 'adverb', 'example' => 'Have you heard from Sara recently?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'lately', 'meaning' => 'in the last few weeks (often in questions and negatives with the present perfect)', 'meaning_fa' => 'این اواخر، تازگی‌ها', 'pos' => 'adverb', 'example' => 'I haven\'t slept well lately.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'the other day', 'meaning' => 'a few days ago (with the past simple)', 'meaning_fa' => 'چند روز پیش، همین چند روز پیش', 'pos' => 'phrase', 'example' => 'I saw your brother the other day.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'these days', 'meaning' => 'now, compared with the past', 'meaning_fa' => 'این روزها', 'pos' => 'phrase', 'example' => 'These days people often meet online.', 'image_query' => 'young people smartphones cafe', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now listen for "have been together" and "I\'ve had to learn".',
+                                'image_query' => 'old couple laughing together',
+                                'shadow_lines' => [
+                                    'I know that we have some **friends** who have been **together** for a **long** **time**.',
+                                    'So I\'ve had to **learn** to **stop** and take a **little** **breath**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M10', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about a couple or a friendship you '
+                                    .'know well — your parents, grandparents, or two friends: how long they have known each '
+                                    .'other, how they met, and what has helped them — using for, since and the new '
+                                    .'vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Who is the couple you know that has been together the longest? How long have they been together?',
+                                    'How long have you known your oldest friend? How did you meet?',
+                                    'Have you ever been to a wedding that you will never forget?',
+                                    'What do you think has helped your parents or grandparents stay together?',
+                                    'How have weddings in your country changed recently?',
+                                    'Do you think people rush into marriage these days? Why?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Fifty years together — what is their secret? Their granddaughter asked them.',
+                                'passage_title' => 'Fifty years and still going strong',
+                                'image_query' => 'elderly couple anniversary family',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // with the present perfect in almost every sentence.
+                                'passage' => 'Last Saturday, the Karimi family had a big party: it was Grandma Mahin and '
+                                    .'Grandpa Javad\'s golden anniversary. They have been married for fifty years — since the '
+                                    .'summer of 1976. Javad went out with Mahin for two years before they got engaged. "We '
+                                    .'didn\'t rush into anything," Mahin laughs. Their honeymoon was a short trip to the '
+                                    .'Caspian Sea, but they have never forgotten it. Have they ever argued? "Of course!" says '
+                                    .'Javad. "I have a temper, and in the first years small problems built up. But I\'ve '
+                                    .'learned to take a deep breath." These days they walk together every morning, and they '
+                                    .'haven\'t missed a walk for ages. Their granddaughter Sara asked them the other day how '
+                                    .'they maintain such a happy marriage. Mahin smiled: "We\'ve always had fun together. But '
+                                    .'take our advice with a grain of salt — every couple is different." Recently, Sara has '
+                                    .'started to write their story down. She hasn\'t finished it yet.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'anniversary', 'type' => 'reused'],
+                                    ['phrase' => 'went out with', 'type' => 'reused'],
+                                    ['phrase' => 'got engaged', 'type' => 'reused'],
+                                    ['phrase' => 'rush into', 'type' => 'reused'],
+                                    ['phrase' => 'honeymoon', 'type' => 'reused'],
+                                    ['phrase' => 'have a temper', 'type' => 'reused'],
+                                    ['phrase' => 'built up', 'type' => 'reused'],
+                                    ['phrase' => 'These days', 'type' => 'reused'],
+                                    ['phrase' => 'for ages', 'type' => 'reused'],
+                                    ['phrase' => 'the other day', 'type' => 'reused'],
+                                    ['phrase' => 'maintain', 'type' => 'reused'],
+                                    ['phrase' => 'with a grain of salt', 'type' => 'reused'],
+                                    ['phrase' => 'Recently', 'type' => 'reused'],
+                                    ['phrase' => 'golden anniversary', 'type' => 'new', 'definition' => 'the day when a couple have been married for fifty years', 'pos' => 'noun', 'example' => 'My grandparents had a big party for their golden anniversary.'],
+                                    ['phrase' => 'still going strong', 'type' => 'new', 'definition' => 'still working well or still happy after a long time', 'pos' => 'phrase', 'example' => 'Their friendship started at school, and it\'s still going strong.'],
+                                ],
+                                'topic_summary' => 'Mahin and Javad have been married for fifty years. He went out with her '
+                                    .'for two years before they got engaged, and they have never forgotten their honeymoon. '
+                                    .'Javad has a temper, but he has learned to take a deep breath. They walk together every '
+                                    .'morning, and their granddaughter Sara has started to write their story down.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Mahin and Javad have been married since 1976.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'They got engaged a few weeks after they met.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Sara has already finished writing her grandparents\' story.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'How long have Mahin and Javad been married?',
+                                    'What has helped Javad with his temper?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Every family has one couple everyone admires — write their story, and how long it has lasted.',
+                                'title' => 'A couple I admire',
+                                'prompts' => [
+                                    ['label' => 'Who they are', 'image_query' => 'elderly couple smiling portrait'],
+                                    ['label' => 'How long they have been together', 'image_query' => 'old wedding photo album'],
+                                    ['label' => 'How and when they met', 'image_query' => 'young couple first date cafe'],
+                                    ['label' => 'Something that has helped them', 'image_query' => 'couple cooking together kitchen'],
+                                    ['label' => 'Something they have never done', 'image_query' => 'couple looking at map travel'],
+                                    ['label' => 'What you have learned from them', 'image_query' => 'grandmother talking granddaughter'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['have / has + past participle', 'for + a length of time', 'since + a starting point', 'ever / never', 'just / already / yet', 'anniversary', 'for ages'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Tell me about a couple you know who have been together for a long time.', 'answer' => 'My aunt and uncle have been together for twenty years. They met at university.', 'words' => ['have been together', 'for']],
+                            ['question' => 'What is the best film about love you\'ve ever seen?', 'answer' => 'The best one I\'ve ever seen is Titanic. I\'ve watched it three times.', 'words' => ['I\'ve ever seen', 'I\'ve watched']],
+                            ['question' => 'What advice would you give a friend who has just got engaged?', 'answer' => 'Don\'t rush into the wedding, and talk about money before you get married.', 'words' => ['rush into', 'get married']],
+                            ['question' => 'When did your parents meet, and how long have they known each other?', 'answer' => 'They met in 1990, so they\'ve known each other for over thirty years.', 'words' => ['met', 'they\'ve known', 'for']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Three generations at one table — how long have these people known each other, and what have they just done?',
+                                'image_query' => 'family dinner grandparents',
+                                'guiding_questions' => [
+                                    'Look at the older couple. How long do you think they have been married?',
+                                    'Look at the young man and woman. How long have they known each other, do you think?',
+                                    'What have they just put on the table? What haven\'t they eaten yet?',
+                                    'The grandparents are raising their glasses. What has just happened — what are they celebrating?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): a family at a wooden
+                                // kitchen table — on the left a grey-haired grandfather in a
+                                // white jumper and a grandmother with red hair, both holding
+                                // glasses, then a little boy, a dark-haired young woman and a
+                                // young man holding a curly-haired girl; a roast, salad and
+                                // plates on the table. Changing the query or orientation
+                                // invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 30, 'y' => 45, 'question_index' => 0],
+                                    ['x' => 71, 'y' => 46, 'question_index' => 1],
+                                    ['x' => 54, 'y' => 77, 'question_index' => 2],
+                                    ['x' => 33, 'y' => 65, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Tell me about a couple you know well. How long have they been together, and how did they meet?',
+                                    'Who is your oldest friend? How long have you known each other, and how has the friendship changed?',
+                                    'What do you think helps a relationship last a long time?',
+                                    'Have you ever been to a wedding that was very different from the others? Tell me about it.',
+                                    'How have weddings and relationships changed in your country recently?',
+                                    'Do you think people get married too young or too late these days? Why?',
+                                ],
+                                'role_reversal_topic' => 'relationships, marriage and long friendships',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about the relationships around you — a couple you admire and your oldest friendship: how long they have lasted and what has kept them strong.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'have / has + past participle',
+                                    'How long…? with for / since',
+                                    'ever / never or just / already / yet',
+                                    'When…? (past) and How long…?',
+                                    'A couple or friendship you know well',
+                                    'Something that has changed over time',
                                 ],
                             ],
                             [

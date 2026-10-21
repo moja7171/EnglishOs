@@ -52,7 +52,7 @@ def parse(pdf):
 
 def main():
     report = []
-    for pdf in sorted(glob.glob(str(ROOT / 'document/M0*/picks/*.pdf'))):
+    for pdf in sorted(glob.glob(str(ROOT / 'document/M[0-9][0-9]/picks/*.pdf'))):
         pdf = pathlib.Path(pdf)
         turns, names = parse(pdf)
         words = sum(len(t['text'].split()) for t in turns)
