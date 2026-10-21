@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\GivesConversationFeedback;
 use App\Models\Mission;
 use App\Services\ListeningPicks;
 use App\Services\PiPractice;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use GivesConversationFeedback;
+
     /**
      * Locked: these decide which day's practice is shown AND which day an
      * "I practiced" tick is filed under, so the browser must never be able
@@ -21,6 +24,9 @@ new class extends Component
 
     #[Locked]
     public int $day = 1;
+
+    /** The voice-AI chat the learner copied and pasted back in, for feedback. */
+    public string $pastedChat = '';
 
     /**
      * No arguments = the day the learner is pointed at (see PiPractice:
@@ -61,6 +67,24 @@ new class extends Component
         auth()->user()->recordPiPracticeToday($this->missionCode, $this->day);
 
         unset($this->practicedToday);
+    }
+
+    /**
+     * Pi keeps a written transcript of a voice chat; the learner copies it
+     * and pastes it here. Speaker names may or may not come along, so the
+     * AI is told how to tell the two sides apart.
+     */
+    public function checkPastedChat(): void
+    {
+        $this->validate(['pastedChat' => ['required', 'string', 'min:40', 'max:12000']], attributes: ['pastedChat' => 'chat']);
+
+        $this->requestConversationFeedback(
+            $this->pastedChat,
+            situation: 'a voice conversation the learner had with an AI speaking partner (such as Pi), copied from '
+                .'the app and pasted in. Speaker names may be missing — the AI\'s turns are usually longer and '
+                .'ask questions or give corrections; judge ONLY the learner\'s own turns. It was spoken and then '
+                .'transcribed, so ignore punctuation, capital letters and filler words.',
+        );
     }
 
     #[Computed]
@@ -267,6 +291,37 @@ new class extends Component
                 class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
             >I practiced @svg('heroicon-s-check', 'h-4 w-4')</button>
             <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak</span>
+        @endif
+    </section>
+
+    <section class="card space-y-3 p-4" aria-label="Feedback on your chat">
+        <label for="pasted-chat" class="block text-sm font-semibold text-ink dark:text-ink-dark">Feedback on your chat</label>
+        <textarea
+            id="pasted-chat"
+            wire:model="pastedChat"
+            rows="3"
+            placeholder="Copy the chat text from Pi and paste it here"
+            class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+        ></textarea>
+        @error('pastedChat')
+            <p class="text-xs text-danger-ink">{{ $message }}</p>
+        @enderror
+        <button
+            type="button"
+            wire:click="checkPastedChat"
+            wire:loading.attr="disabled"
+            wire:target="checkPastedChat"
+            class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
+        >
+            <span wire:loading.remove wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
+            <span wire:loading wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
+            <span class="font-fa">بررسی</span>
+        </button>
+
+        @if ($feedback || $feedbackError)
+            <div wire:loading.class="opacity-60" wire:target="checkPastedChat" class="border-t border-line pt-3 dark:border-line-dark">
+                <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="checkPastedChat" />
+            </div>
         @endif
     </section>
 </div>

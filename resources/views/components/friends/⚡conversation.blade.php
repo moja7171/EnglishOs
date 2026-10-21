@@ -1,10 +1,10 @@
 <?php
 
+use App\Livewire\Concerns\GivesConversationFeedback;
 use App\Models\DirectMessage;
 use App\Models\FriendReport;
 use App\Models\User;
 use App\Notifications\DirectMessageReceived;
-use App\Services\AiFeedbackCard;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Carbon\CarbonInterface;
@@ -17,7 +17,14 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use GivesConversationFeedback;
     use WithFileUploads;
+
+    /** A pause this long between two messages starts a new chat session. */
+    private const SESSION_GAP_MINUTES = 60;
+
+    /** How many messages from before the latest session go along as context. */
+    private const CONTEXT_LINES = 6;
 
     public User $other;
 
@@ -36,11 +43,6 @@ new class extends Component
 
     /** A report was just sent — show the confirmation instead of the form. */
     public bool $reportSent = false;
-
-    /** @var array{strength: string, expression: string, correction: array{original: string, corrected: string, why: string, suggestion: string}|null}|null */
-    public ?array $feedback = null;
-
-    public ?string $feedbackError = null;
 
     /** Mission this learner is on, for the "Interview & report" task card. */
     public ?string $starterTitle = null;
@@ -213,7 +215,7 @@ new class extends Component
         // generateFeedback() below has something to actually read. Silent
         // fallback to a generic label on any failure: sending the voice
         // message itself must never be blocked by a transcription hiccup.
-        $body = 'Voice message';
+        $body = DirectMessage::VOICE_FALLBACK_BODY;
         try {
             $transcript = trim(app(GroqClient::class)->transcribe($this->voiceMessage->getRealPath()));
             $body = $transcript !== '' ? $transcript : $body;
@@ -388,96 +390,78 @@ new class extends Component
     }
 
     /**
-     * On-demand, never persisted — regenerating always reflects the
-     * conversation as it stands right now, and there's no need for a new
-     * table just to cache something this cheap to recompute. Judges ONLY
-     * the requesting learner's own messages (never the friend's) — this is
-     * a peer conversation, not something the other person agreed to be
-     * graded on. Same strength/expression/correction shape as AI Feedback
-     * #1 for consistency across the app.
+     * Feedback on the LATEST SESSION of this chat only — the messages
+     * since the last pause of SESSION_GAP_MINUTES or more (so "today's
+     * chat", or the last one if today has none). Up to CONTEXT_LINES
+     * messages from before that pause go along as context the AI must not
+     * judge. Judges ONLY the requesting learner's own messages (never the
+     * friend's) — this is a peer conversation, not something the other
+     * person agreed to be graded on.
      */
     public function generateFeedback(): void
     {
-        $this->feedbackError = null;
+        ['earlier' => $earlier, 'session' => $session] = $this->latestSession();
 
-        $transcript = $this->conversationTranscript();
-
-        if ($transcript->where('mine', true)->isEmpty()) {
+        if ($session->where('mine', true)->isEmpty()) {
+            $this->feedback = null;
             $this->feedbackError = 'Send a few messages first — there\'s nothing to give feedback on yet.';
 
             return;
         }
 
-        try {
-            $data = app(AiFeedbackCard::class)->generate(
-                [['role' => 'user', 'text' => $transcript
-                    ->map(fn ($line) => ($line['mine'] ? 'Me' : $this->other->name).': '.$line['text'])
-                    ->implode("\n")]],
-                systemPrompt: 'You are an encouraging English teacher reviewing a casual text chat between two '
-                    .'friends practicing English together. Below, "Me" is '.auth()->user()->levelDescription()
-                    .' — give feedback ONLY on "Me"\'s own messages. The other person\'s lines are context only and '
-                    .'must never be evaluated or commented on. This is informal chatting, so lowercase, short forms '
-                    .'like "u" or relaxed punctuation are fine — only correct a real grammar or vocabulary error. '
-                    .'Ignore any line that is not written in English. Choose at most ONE correction, the most '
-                    .'useful one; if nothing is worth fixing, set "correction" to null — never invent a mistake. '
-                    .'Keep everything short and kind, the way you would for someone easily overwhelmed. Reply with '
-                    .'ONLY valid JSON, no markdown fences, no extra text, in exactly this shape: '
-                    .'{"strength": "one full sentence, in PERSIAN (Farsi), about one specific thing \"Me\" did well", '
-                    .'"expression": "one full sentence, in PERSIAN (Farsi), pointing out one good English word or '
-                    .'phrase \"Me\" actually used — you can quote the English itself inside the Persian sentence", '
-                    .'"correction": {"original": "\"Me\"\'s own flawed message or sentence, quoted exactly, in ENGLISH", '
-                    .'"corrected": "the corrected version of that same text, in ENGLISH", '
-                    .'"why": "one short sentence, in PERSIAN (Farsi), explaining the underlying rule", '
-                    .'"suggestion": "one short, concrete next step, in PERSIAN (Farsi)"} or null}. '
-                    .'Only "original" and "corrected" are in English; every other field is plain Persian, with no '
-                    .'English words mixed in unless quoting a specific English word or phrase.',
-                requiredKeys: ['strength', 'expression'],
-            );
+        $lines = fn (Collection $messages) => $messages
+            ->map(fn ($line) => ($line['mine'] ? 'Me' : $this->other->name).': '.$line['text'])
+            ->implode("\n");
 
-            $correction = $data['correction'] ?? null;
-
-            $this->feedback = [
-                'strength' => $data['strength'],
-                'expression' => $data['expression'],
-                'correction' => is_array($correction) && filled($correction['original'] ?? null) && filled($correction['corrected'] ?? null)
-                    ? [
-                        'original' => $correction['original'],
-                        'corrected' => $correction['corrected'],
-                        'why' => $correction['why'] ?? '',
-                        'suggestion' => $correction['suggestion'] ?? '',
-                    ]
-                    : null,
-            ];
-        } catch (Throwable) {
-            $this->feedbackError = "Couldn't check your English right now — try again in a moment.";
-        }
-    }
-
-    public function dismissFeedback(): void
-    {
-        $this->feedback = null;
-        $this->feedbackError = null;
+        $this->requestConversationFeedback(
+            ($earlier->isEmpty() ? '' : "EARLIER (context only):\n".$lines($earlier)."\n\n")
+                ."LATEST SESSION:\n".$lines($session),
+            situation: 'a casual text chat between two friends practicing English together. "Me" is the learner. '
+                .'Judge ONLY "Me"\'s lines under LATEST SESSION; lines under EARLIER and the other person\'s lines '
+                .'are context only. This is informal chatting, so lowercase, short forms like "u" or relaxed '
+                .'punctuation are fine.',
+        );
     }
 
     /**
-     * @return Collection<int, array{mine: bool, text: string}>
+     * The newest 40 messages, split at the last pause of
+     * SESSION_GAP_MINUTES or more. Nudges are left out, and so is a voice
+     * message whose transcription failed (its body is only the fallback
+     * label, not anything the learner said).
+     *
+     * @return array{earlier: Collection<int, array{mine: bool, text: string}>, session: Collection<int, array{mine: bool, text: string}>}
      */
-    private function conversationTranscript()
+    private function latestSession(): array
     {
-        return auth()->user()->conversationWith($this->other)
+        $messages = auth()->user()->conversationWith($this->other)
             ->reorder()
             ->latest('id')
             ->limit(40)
             ->get()
             ->reverse()
-            ->reject(fn ($message) => $message->type === DirectMessage::TYPE_NUDGE)
-            ->map(fn ($message) => [
-                'mine' => $message->sender_id === auth()->id(),
-                'text' => $message->type === DirectMessage::TYPE_FILE
-                    ? "[attached a file: {$message->attachment_name}]"
-                    : $message->body,
-            ])
+            ->reject(fn ($message) => $message->type === DirectMessage::TYPE_NUDGE
+                || ($message->type === DirectMessage::TYPE_AUDIO && $message->body === DirectMessage::VOICE_FALLBACK_BODY))
             ->values();
+
+        $sessionStart = 0;
+
+        foreach ($messages as $index => $message) {
+            if ($index > 0 && $messages[$index - 1]->created_at->diffInMinutes($message->created_at) >= self::SESSION_GAP_MINUTES) {
+                $sessionStart = $index;
+            }
+        }
+
+        $toLines = fn (Collection $part) => $part->map(fn ($message) => [
+            'mine' => $message->sender_id === auth()->id(),
+            'text' => $message->type === DirectMessage::TYPE_FILE
+                ? "[attached a file: {$message->attachment_name}]"
+                : $message->body,
+        ])->values();
+
+        return [
+            'earlier' => $toLines($messages->slice(max(0, $sessionStart - self::CONTEXT_LINES), min($sessionStart, self::CONTEXT_LINES))),
+            'session' => $toLines($messages->slice($sessionStart)),
+        ];
     }
 
     /**
@@ -711,7 +695,7 @@ new class extends Component
                     @elseif ($message->type === 'audio')
                         <div>
                             <x-audio-player-compact :url="route('friends.attachment', $message)" :mine="$mine" />
-                            @if ($message->body && $message->body !== 'Voice message')
+                            @if ($message->body && $message->body !== App\Models\DirectMessage::VOICE_FALLBACK_BODY)
                                 @if ($mine)
                                     {{-- The sender's own transcript is a mirror of how clearly they came across. --}}
                                     <p class="mt-1.5 text-xs text-white/75 dark:text-white/75">{{ $message->body }}</p>
@@ -853,10 +837,11 @@ new class extends Component
                     wire:target="generateFeedback"
                     title="Check my English"
                     aria-label="Check my English"
-                    class="ms-auto inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
+                    class="ms-auto inline-flex h-10 shrink-0 cursor-pointer items-center gap-1 rounded-full px-3 text-sm font-semibold text-accent-ink transition-colors hover:bg-surface-sunken dark:text-accent-ink-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:opacity-50"
                 >
                     <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
                     <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
+                    <span class="font-fa">بررسی</span>
                 </button>
             </div>
 
@@ -960,75 +945,8 @@ new class extends Component
         {{-- Feedback sheet — slides over the chat (it used to render below the
              fold, invisible on a phone) and closes with ✕. --}}
         @if ($feedback || $feedbackError)
-            <div wire:loading.class="opacity-60" wire:target="generateFeedback" class="absolute inset-x-0 bottom-0 z-20 max-h-[75%] space-y-3 overflow-y-auto border-t border-line bg-surface p-4 shadow-[0_-8px_24px_rgb(0_0_0/0.12)] dark:border-line-dark dark:bg-surface-dark">
-                <div class="flex items-center justify-between gap-2">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Feedback on your side of the conversation</p>
-                    <div class="flex items-center gap-1">
-                        @if ($feedback)
-                            <button
-                                type="button"
-                                wire:click="generateFeedback"
-                                wire:loading.attr="disabled"
-                                wire:target="generateFeedback"
-                                aria-label="Refresh feedback"
-                                title="Refresh feedback"
-                                class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4')</span>
-                                <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')</span>
-                            </button>
-                        @endif
-                        <button
-                            type="button"
-                            wire:click="dismissFeedback"
-                            aria-label="Close feedback"
-                            title="Close"
-                            class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-                        >@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
-                    </div>
-                </div>
-
-                @if ($feedback)
-                    <div class="rounded-xl border-l-4 border-success bg-success/5 p-3 dark:border-success-dark dark:bg-success-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-success uppercase dark:text-success-dark">
-                            @svg('heroicon-o-check-circle', 'h-4 w-4')
-                            One thing you did well
-                        </p>
-                        <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['strength'] }}</p>
-                    </div>
-
-                    <div class="rounded-xl border-l-4 border-accent bg-accent/5 p-3 dark:border-accent-dark dark:bg-accent-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-accent uppercase dark:text-accent-dark">
-                            @svg('heroicon-o-book-open', 'h-4 w-4')
-                            A good expression you used
-                        </p>
-                        <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['expression'] }}</p>
-                    </div>
-
-                    @if ($feedback['correction'])
-                        <div class="rounded-xl border-l-4 border-warning bg-warning-soft p-3">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-warning-ink uppercase">
-                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                                Something to fix
-                            </p>
-                            <p class="mt-2 text-sm text-danger-ink line-through decoration-danger">{{ $feedback['correction']['original'] }}</p>
-                            <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $feedback['correction']['corrected'] }}</p>
-                            @if ($feedback['correction']['why'])
-                                <p class="font-fa mt-2 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['correction']['why'] }}</p>
-                            @endif
-                            @if ($feedback['correction']['suggestion'])
-                                <p class="font-fa mt-1 flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
-                                    @svg('heroicon-o-arrow-trending-up', 'mt-0.5 h-4 w-4 shrink-0')
-                                    {{ $feedback['correction']['suggestion'] }}
-                                </p>
-                            @endif
-                        </div>
-                    @else
-                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Nothing to fix in your recent messages — nice work.</p>
-                    @endif
-                @else
-                    <p class="text-sm text-danger-ink">{{ $feedbackError }}</p>
-                @endif
+            <div wire:loading.class="opacity-60" wire:target="generateFeedback" class="absolute inset-x-0 bottom-0 z-20 max-h-[75%] overflow-y-auto border-t border-line bg-surface p-4 shadow-[0_-8px_24px_rgb(0_0_0/0.12)] dark:border-line-dark dark:bg-surface-dark">
+                <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="generateFeedback" />
             </div>
         @endif
     </div>

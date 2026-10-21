@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\GivesConversationFeedback;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
@@ -30,6 +31,7 @@ use Livewire\WithFileUploads;
  */
 new class extends Component
 {
+    use GivesConversationFeedback;
     use PreviewsStep;
     use TracksAiUsage;
     use WithFileUploads;
@@ -275,6 +277,36 @@ new class extends Component
         $this->completed = true;
     }
 
+    /**
+     * One feedback card over all three solo answers together, on demand
+     * after they're saved (never blocks Continue). Rounds whose
+     * transcription failed are simply left out.
+     */
+    public function checkSoloAnswers(): void
+    {
+        $answers = collect($this->roundGroups())
+            ->map(fn (array $group, int $index) => filled($this->soloTranscripts[$index] ?? null)
+                ? ($group['label'] ?? 'Round '.($index + 1))."\nQuestions: ".implode(' / ', $group['questions'] ?? [])
+                    ."\nMy answer: ".$this->soloTranscripts[$index]
+                : null)
+            ->filter();
+
+        if ($answers->isEmpty()) {
+            $this->feedback = null;
+            $this->feedbackError = 'Your answers could not be turned into text, so there is nothing to check.';
+
+            return;
+        }
+
+        $this->requestConversationFeedback(
+            $answers->implode("\n\n"),
+            situation: 'spoken answers the learner recorded alone to a few questions about people they know, '
+                .'turned into text by speech recognition. Judge ONLY the "My answer" parts; the questions are '
+                .'context. Ignore punctuation, capital letters, filler words and small speech-recognition glitches.',
+            onCallSucceeded: fn () => $this->recordGeminiCall(),
+        );
+    }
+
     public function proceed(): void
     {
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
@@ -335,6 +367,26 @@ new class extends Component
                         </div>
                     @endforeach
                 </div>
+            @endif
+
+            @if ($mode === 'solo' && ! $preview && collect($soloTranscripts)->filter()->isNotEmpty())
+                @if ($feedback || $feedbackError)
+                    <div wire:loading.class="opacity-60" wire:target="checkSoloAnswers" class="border-t border-line pt-3 dark:border-line-dark">
+                        <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="checkSoloAnswers" />
+                    </div>
+                @else
+                    <button
+                        type="button"
+                        wire:click="checkSoloAnswers"
+                        wire:loading.attr="disabled"
+                        wire:target="checkSoloAnswers"
+                        class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-2 text-sm font-semibold text-accent-ink transition-colors hover:bg-surface-sunken disabled:pointer-events-none disabled:opacity-60 dark:border-line-dark dark:text-accent-ink-dark dark:hover:bg-surface-sunken-dark"
+                    >
+                        <span wire:loading.remove wire:target="checkSoloAnswers">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
+                        <span wire:loading wire:target="checkSoloAnswers">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
+                        <span class="font-fa">بررسی</span>
+                    </button>
+                @endif
             @endif
 
             @unless ($readOnly)

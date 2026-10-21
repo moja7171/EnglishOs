@@ -60,6 +60,25 @@ class AiFeedbackCardTest extends TestCase
         $this->assertSame('minor', $data['severity']);
     }
 
+    public function test_json_wrapped_in_markdown_fences_still_parses(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn("```json\n".json_encode([
+                'strength' => 'Clear, simple sentences.',
+                'expression' => 'have breakfast',
+                'correction' => null,
+            ])."\n```");
+        });
+
+        $data = app(AiFeedbackCard::class)->generate(
+            [['role' => 'user', 'text' => 'some text']],
+            systemPrompt: 'some prompt',
+            requiredKeys: ['strength', 'expression'],
+        );
+
+        $this->assertSame('have breakfast', $data['expression']);
+    }
+
     public function test_non_json_output_throws(): void
     {
         $this->mock(GeminiClient::class, function ($mock) {

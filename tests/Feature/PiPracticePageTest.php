@@ -8,6 +8,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PiPracticeLog;
 use App\Models\User;
+use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
@@ -228,6 +229,48 @@ class PiPracticePageTest extends TestCase
             'mission_code' => 'M01',
             'day_number' => 1,
         ]);
+    }
+
+    public function test_a_pasted_pi_chat_gets_feedback_on_the_learners_own_turns(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $chat = "Pi: What did you do this weekend?\nMe: I go to the park with my sister and we eat ice cream.";
+
+        $this->mock(GeminiClient::class, function ($mock) use ($chat) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages, $systemPrompt) => $messages[0]['text'] === $chat
+                    && str_contains($systemPrompt, 'judge ONLY the learner\'s own turns'))
+                ->andReturn(json_encode([
+                    'strength' => 'جمله‌ات کامل بود.',
+                    'expression' => 'ice cream',
+                    'correction' => [
+                        'original' => 'I go to the park',
+                        'corrected' => 'I went to the park',
+                        'why' => 'برای گذشته فعل گذشته لازم است.',
+                        'suggestion' => 'دو جمله درباره دیروز بگو.',
+                    ],
+                ]));
+        });
+
+        Livewire::test('pi-practice.index')
+            ->set('pastedChat', $chat)
+            ->call('checkPastedChat')
+            ->assertSee('I went to the park')
+            ->assertSee('برای گذشته فعل گذشته لازم است.');
+    }
+
+    public function test_a_too_short_paste_is_not_sent_for_feedback(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        Livewire::test('pi-practice.index')
+            ->set('pastedChat', 'hi')
+            ->call('checkPastedChat')
+            ->assertHasErrors(['pastedChat' => 'min']);
     }
 
     public function test_ticking_i_practiced_twice_on_the_same_day_keeps_a_single_row(): void
