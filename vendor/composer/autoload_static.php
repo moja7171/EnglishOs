@@ -575,6 +575,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Http\\Requests\\StoreVocabularyWordRequest' => __DIR__ . '/../..' . '/app/Http/Requests/StoreVocabularyWordRequest.php',
         'App\\Http\\Resources\\DictionaryEntryResource' => __DIR__ . '/../..' . '/app/Http/Resources/DictionaryEntryResource.php',
         'App\\Livewire\\Concerns\\DailyListenStep' => __DIR__ . '/../..' . '/app/Livewire/Concerns/DailyListenStep.php',
+        'App\\Livewire\\Concerns\\GivesConversationFeedback' => __DIR__ . '/../..' . '/app/Livewire/Concerns/GivesConversationFeedback.php',
         'App\\Livewire\\Concerns\\PreviewsStep' => __DIR__ . '/../..' . '/app/Livewire/Concerns/PreviewsStep.php',
         'App\\Livewire\\Concerns\\TracksAiUsage' => __DIR__ . '/../..' . '/app/Livewire/Concerns/TracksAiUsage.php',
         'App\\Livewire\\Concerns\\TracksCheckAttempts' => __DIR__ . '/../..' . '/app/Livewire/Concerns/TracksCheckAttempts.php',

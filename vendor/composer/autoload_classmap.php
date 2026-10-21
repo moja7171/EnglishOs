@@ -33,6 +33,7 @@ return array(
     'App\\Http\\Requests\\StoreVocabularyWordRequest' => $baseDir . '/app/Http/Requests/StoreVocabularyWordRequest.php',
     'App\\Http\\Resources\\DictionaryEntryResource' => $baseDir . '/app/Http/Resources/DictionaryEntryResource.php',
     'App\\Livewire\\Concerns\\DailyListenStep' => $baseDir . '/app/Livewire/Concerns/DailyListenStep.php',
+    'App\\Livewire\\Concerns\\GivesConversationFeedback' => $baseDir . '/app/Livewire/Concerns/GivesConversationFeedback.php',
     'App\\Livewire\\Concerns\\PreviewsStep' => $baseDir . '/app/Livewire/Concerns/PreviewsStep.php',
     'App\\Livewire\\Concerns\\TracksAiUsage' => $baseDir . '/app/Livewire/Concerns/TracksAiUsage.php',
     'App\\Livewire\\Concerns\\TracksCheckAttempts' => $baseDir . '/app/Livewire/Concerns/TracksCheckAttempts.php',
