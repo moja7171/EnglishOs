@@ -36,7 +36,7 @@ new class extends Component
         <ol class="list-decimal space-y-1.5 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
             <li>
                 Install a voice AI app —
-                <a href="https://pi.ai" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = @js(App\Services\PiPrompts::PI_ANDROID_INTENT) }" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Pi</a>
+                <a href="https://pi.ai" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Pi</a>
                 or
                 <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Gemini Live</a>.
             </li>

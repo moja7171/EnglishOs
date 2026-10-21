@@ -114,7 +114,9 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice'))
             ->assertSee('Copy & open Pi')
-            ->assertSee('package=ai.inflection.pi');
+            ->assertSee('package=ai.inflection.pi')
+            ->assertSee('open the Pi app and paste')
+            ->assertDontSee('S.browser_fallback_url=https%3A%2F%2Fpi.ai');
     }
 
     public function test_each_day_of_the_mission_has_its_own_practice(): void

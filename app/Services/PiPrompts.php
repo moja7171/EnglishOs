@@ -32,13 +32,23 @@ use Illuminate\Support\Str;
  */
 class PiPrompts
 {
-    public const PI_URL = 'https://pi.ai';
+    /**
+     * Asks Android to open Pi in its app — a plain link from the installed
+     * web app opens Pi's website, which blocks many of our learners. The
+     * page appends a fallback back to itself (see piAndroidIntentJs()) so
+     * a phone that can't open the app stays put instead of landing on the
+     * blocked site.
+     */
+    public const PI_ANDROID_INTENT = 'intent://pi.ai#Intent;scheme=https;package=ai.inflection.pi';
 
     /**
-     * Opens Pi in its Android app — a plain link from the installed web app
-     * opens Pi's website — and in the browser when the app isn't installed.
+     * The JavaScript expression for PI_ANDROID_INTENT with a fallback to
+     * the current page.
      */
-    public const PI_ANDROID_INTENT = 'intent://pi.ai#Intent;scheme=https;package=ai.inflection.pi;S.browser_fallback_url=https%3A%2F%2Fpi.ai;end';
+    public static function piAndroidIntentJs(): string
+    {
+        return "'".self::PI_ANDROID_INTENT.";S.browser_fallback_url=' + encodeURIComponent(location.href.split('#')[0] + '#pi') + ';end'";
+    }
 
     /**
      * The fixed practice of each day of a mission: what the learner sees it
