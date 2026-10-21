@@ -12,7 +12,7 @@ class VoiceRecorderComponentTest extends TestCase
         $html = Blade::render('<x-voice-recorder field="audioFile" />');
 
         $this->assertStringContainsString('Record</button>', $html);
-        $this->assertStringContainsString('Stop (', $html);
+        $this->assertStringContainsString('Stop</button>', $html);
     }
 
     public function test_the_compact_style_shows_icon_only_buttons_with_no_labels(): void
@@ -32,5 +32,17 @@ class VoiceRecorderComponentTest extends TestCase
 
         $this->assertStringContainsString('cancelRecording', $default);
         $this->assertStringContainsString('cancelRecording', $compact);
+    }
+
+    public function test_both_styles_can_pause_a_take_and_review_it_before_it_is_uploaded(): void
+    {
+        foreach (['<x-voice-recorder field="audioFile" />', '<x-voice-recorder field="audioFile" :compact="true" />'] as $template) {
+            $html = Blade::render($template);
+
+            $this->assertStringContainsString('pauseRecording', $html);
+            $this->assertStringContainsString('resumeRecording', $html);
+            $this->assertStringContainsString('x-on:click="sendRecording"', $html);
+            $this->assertStringContainsString('MAX_SECONDS: 180', $html);
+        }
     }
 }
