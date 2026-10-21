@@ -274,6 +274,15 @@ class PairPracticeTest extends TestCase
             ->assertSeeHtml('https://meet.google.com/abc-defg-hij');
     }
 
+    public function test_a_google_meet_link_opens_in_the_meet_app_on_android(): void
+    {
+        $this->assertSame(
+            'intent://meet.google.com/iti-zyof-iev#Intent;scheme=https;package=com.google.android.apps.tachyon;S.browser_fallback_url=https%3A%2F%2Fmeet.google.com%2Fiti-zyof-iev;end',
+            PairPracticeSession::meetAppIntent('https://meet.google.com/iti-zyof-iev'),
+        );
+        $this->assertNull(PairPracticeSession::meetAppIntent('https://zoom.us/j/123'));
+    }
+
     public function test_cancelling_an_invite_leaves_nothing_in_the_history(): void
     {
         $session = PairPracticeSession::factory()->waiting()->create();
