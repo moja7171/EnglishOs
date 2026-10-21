@@ -74,7 +74,9 @@ trait GivesConversationFeedback
                     .'"why": "one short sentence, in PERSIAN (Farsi), explaining the underlying rule", '
                     .'"suggestion": "one short, concrete next step, in PERSIAN (Farsi)"} or null}. '
                     .'Only "original" and "corrected" are in English; every other field is plain Persian, with no '
-                    .'English words mixed in unless quoting a specific English word or phrase.',
+                    .'English words mixed in unless quoting a specific English word or phrase. '
+                    .'Always write every English word or phrase in Latin letters inside «», e.g. «study» — '
+                    .'never spell an English word in Persian letters.',
                 requiredKeys: ['strength', 'expression'],
                 onCallSucceeded: $onCallSucceeded,
             );

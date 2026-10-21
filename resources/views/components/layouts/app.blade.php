@@ -178,6 +178,8 @@
         <button type="button" x-on:click="install()" class="shrink-0 rounded-full bg-accent px-3 py-1.5 font-semibold text-white dark:bg-accent-dark">Install</button>
     </div>
 
+    <x-image-viewer />
+
     @livewireScripts
     <script>
         // Service workers require a secure context (HTTPS, or exactly

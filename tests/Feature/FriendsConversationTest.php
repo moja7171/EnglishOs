@@ -804,7 +804,8 @@ class FriendsConversationTest extends TestCase
                 ->withArgs(fn ($messages, $systemPrompt) => str_contains($messages[0]['text'], 'Me: I goes to school every day.')
                     && str_contains($messages[0]['text'], 'Nice, me too.')
                     && ! str_contains($messages[0]['text'], 'Keep it up!')
-                    && str_contains($systemPrompt, 'Judge ONLY "Me"'))
+                    && str_contains($systemPrompt, 'Judge ONLY "Me"')
+                    && str_contains($systemPrompt, 'in Latin letters'))
                 ->andReturn(json_encode([
                     'strength' => 'جمله‌ات کامل و واضح بود.',
                     'expression' => 'every day',

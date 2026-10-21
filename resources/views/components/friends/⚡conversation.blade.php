@@ -837,11 +837,10 @@ new class extends Component
                     wire:target="generateFeedback"
                     title="Check my English"
                     aria-label="Check my English"
-                    class="ms-auto inline-flex h-10 shrink-0 cursor-pointer items-center gap-1 rounded-full px-3 text-sm font-semibold text-accent-ink transition-colors hover:bg-surface-sunken dark:text-accent-ink-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:opacity-50"
+                    class="ms-auto inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
                 >
                     <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
                     <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-                    <span class="font-fa">بررسی</span>
                 </button>
             </div>
 

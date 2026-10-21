@@ -315,7 +315,7 @@ new class extends Component
         >
             <span wire:loading.remove wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
             <span wire:loading wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-            <span class="font-fa">بررسی</span>
+            Feedback
         </button>
 
         @if ($feedback || $feedbackError)

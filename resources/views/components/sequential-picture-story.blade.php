@@ -19,12 +19,12 @@
         @foreach ($images as $index => $image)
             <div class="w-36 shrink-0">
                 <div class="relative">
-                    <img
-                        src="{{ $image['url'] }}"
-                        alt="{{ $image['alt'] ?? $image['caption'] ?? 'Step '.($index + 1) }}"
+                    <x-zoomable-image
+                        :url="$image['url']"
+                        :alt="$image['alt'] ?? $image['caption'] ?? 'Step '.($index + 1)"
                         class="h-28 w-36 rounded-xl object-cover"
-                    >
-                    <span class="absolute top-1.5 left-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-ink/80 text-[11px] font-bold text-white dark:bg-ink-dark/80">
+                    />
+                    <span class="pointer-events-none absolute top-1.5 left-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-ink/80 text-[11px] font-bold text-white dark:bg-ink-dark/80">
                         {{ $index + 1 }}
                     </span>
                 </div>
