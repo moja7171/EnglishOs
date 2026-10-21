@@ -27,13 +27,23 @@
             rows="{{ $rows }}"
             class="mt-2 w-full resize-none rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark"
         >{{ $task['prompt'] }}</textarea>
-        <button
-            type="button"
-            x-on:click="copy()"
-            class="mt-2 cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
-        >
-            <span x-show="! copied">Copy prompt</span>
-            <span x-show="copied" x-cloak>Copied!</span>
-        </button>
+        <div class="mt-2 flex flex-wrap gap-2">
+            <button
+                type="button"
+                x-on:click="copy()"
+                class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
+            >
+                <span x-show="! copied">Copy prompt</span>
+                <span x-show="copied" x-cloak>Copied!</span>
+            </button>
+            {{-- Copies, then opens Pi (its app on Android) so the learner only has to paste. --}}
+            <a
+                href="{{ App\Services\PiPrompts::PI_URL }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                x-on:click="copy(); if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = @js(App\Services\PiPrompts::PI_ANDROID_INTENT) }"
+                class="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >Copy &amp; open Pi</a>
+        </div>
     </div>
 @endif
