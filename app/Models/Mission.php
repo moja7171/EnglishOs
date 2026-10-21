@@ -524,6 +524,7 @@ class Mission extends Model
             'M06' => 'learn',
             'M07' => 'kin',
             'M08' => 'mates',
+            'M09' => 'self',
             default => 'daily-life',
         };
     }

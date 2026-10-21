@@ -224,6 +224,23 @@
     --mood-texture-size: 34px 34px;
 }
 
+/* M09 "Personality" — a deep crimson (a name badge, a red armchair by
+   the window), paired with faint quarter-circle ridges like a fingerprint
+   — no two people the same — so it never reads as learn's small rings,
+   mates' paired rings, or the dotted and line-based textures. */
+[data-mood='self'] {
+    --color-accent: #c23a48;
+    --color-accent-dark: #e8707b;
+    --color-accent-soft: #f8dfe2;
+    --color-accent-soft-dark: #4a1c23;
+    --color-accent-ink: #8f2633;
+    --color-accent-ink-dark: #ffb8c1;
+    --color-dawn: #ee8f99;
+    --color-dusk: #8a2f45;
+    --mood-texture: repeating-radial-gradient(circle at 0 0, transparent 0 7px, color-mix(in srgb, var(--color-accent) calc(10% * var(--mood-boost)), transparent) 7px 8px);
+    --mood-texture-size: 40px 40px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

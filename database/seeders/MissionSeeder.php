@@ -2749,6 +2749,7 @@ class MissionSeeder extends Seeder
         $this->seedM06();
         $this->seedM07();
         $this->seedM08();
+        $this->seedM09();
     }
 
     /**
@@ -5438,6 +5439,675 @@ class MissionSeeder extends Seeder
                                     'the -est / the most',
                                     'How you met your best friend',
                                     'Who is the most … in your group',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M09 "Personality" — the roadmap's Defining Relative Clauses.
+     * M05's 16-step layout (no story_sequence: a relative clause says which
+     * person or what kind of person, it is not a story told in order, so it
+     * is practised in Picture Description — "the man who…", "the woman
+     * whose…" — and the two AI conversations instead). The lesson follows
+     * Grammar in Use units 92-94 in order: who / that for people, that /
+     * which for things, leaving the pronoun out, then whose / where (units
+     * 95-96, extra-information clauses, are left for later). Vocabulary
+     * days 2-3 follow Vocabulary in Use units 12A (Feelings) and 72B-C
+     * (-able, -ful / -less adjectives), all rewritten in our own words —
+     * unit 11 was already taught in M08. Media the user picked: Evie's
+     * podcast episode on introverts and extroverts (cut from 17 to about 6
+     * minutes: the two types, the energy test and why she is an ambivert,
+     * and why confident learners speak sooner) and Bob the Canadian's
+     * "Describing People" lesson (cut from 27 to about 6 minutes: warm,
+     * impatient, calm, loyal, courageous, timid, sympathetic, generous and
+     * frugal, each defined with "someone who…").
+     */
+    private function seedM09(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M09', 'English with Evie - Introverts and Extroverts.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M09', 'Bob the Canadian - Describing People.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M09', 'Bob the Canadian - Describing People.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M09'],
+            [
+                'title' => 'Personality',
+                'module' => 'Personality',
+                'outcome' => 'I can say what kind of person I am and describe the people in my life — someone who…, a friend whose…, a place where I recharge.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Think of someone you love. Could you say in one English sentence what kind of person they are?',
+                                'image_query' => 'thoughtful portrait person',
+                                'ambient_video_query' => 'people talking in cafe',
+                                'warm_up_questions' => [
+                                    'Are you a quiet person or a talkative person?',
+                                    'What is one word that describes you?',
+                                    'Do big parties give you energy or make you tired?',
+                                    'What kind of person is your best friend?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Evie uses for introverts and extroverts — you\'ll need them to describe yourself.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'My sister Leila is very **outgoing**: she talks to everyone at a party. I\'m more '
+                                    .'**reserved**. Big parties **drain** me, so the next day I stay at home to **recharge**. '
+                                    .'But after a quiet evening with one good friend, I feel **on top of the world**.',
+                                'words' => [
+                                    ['phrase' => 'outgoing', 'meaning' => 'friendly and happy to meet and talk to new people', 'meaning_fa' => 'اجتماعی، خوش‌برخورد', 'pos' => 'adjective', 'example' => 'Mina is so outgoing — she made five new friends on her first day.', 'image_query' => 'friendly woman laughing with group', 'difficulty' => 'easy'],
+                                    ['phrase' => 'reserved', 'meaning' => 'quiet, and not showing your feelings or talking much, especially with new people', 'meaning_fa' => 'کم‌حرف، تودار', 'pos' => 'adjective', 'example' => 'My grandfather is a reserved man, but he is very kind.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'drain', 'meaning' => 'to make someone feel very tired, with no energy left', 'meaning_fa' => 'خسته کردن، انرژی کسی را گرفتن', 'pos' => 'verb', 'example' => 'Long meetings really drain me.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'recharge', 'meaning' => 'to rest so that you get your energy back', 'meaning_fa' => 'دوباره انرژی گرفتن، شارژ شدن', 'pos' => 'verb', 'example' => 'After work I go for a walk alone to recharge.', 'image_query' => 'woman relaxing alone with book', 'difficulty' => 'easy'],
+                                    ['phrase' => 'on top of the world', 'meaning' => 'extremely happy', 'meaning_fa' => 'در اوج خوشحالی', 'pos' => 'idiom', 'example' => 'When I passed my driving test, I felt on top of the world.', 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Evie talks for a living — so why does she say she is an introvert? Listen to the test she uses to tell the two types apart.',
+                                'source' => 'English with Evie — "Do Extroverts Speak Better English?" (The English Podcast)',
+                                'image_query' => 'woman podcast microphone coffee',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M09', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Evie.
+                                'listening_turns' => $this->shadowTimestampsFor('M09', 'listening_turns'),
+                                // The three parts kept in the cut (1:16-3:02, 4:21-6:57
+                                // and 10:38-12:24 of the original), written from the
+                                // video's captions and checked against a Whisper pass of
+                                // the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Evie', 'text' => 'So, introverts and extroverts. This might be a term that you are familiar with already. I know some people are interested in, like, personality tests and things like this. But just in case you do not know what is an introvert or an extrovert, you haven\'t heard these terms before, it\'s basically a way of describing how outgoing somebody is, how much they like to be around people.'],
+                                    ['speaker' => 'Evie', 'text' => 'So, if you are extroverted, it means that you are somebody who loves to be surrounded by people, hanging out with people. It gives you energy. It makes you super happy. Extroverts are usually very confident, and they have lots of friends, and they love being at, like, a house party. If they could walk into a room full of people that they don\'t know, for them, that\'s like the dream.'],
+                                    ['speaker' => 'Evie', 'text' => 'Meanwhile, for introverts, the association is that they are a little bit more shy, I suppose. Maybe more reserved, we would say. They maybe prefer to be with people who they know very, very well. And often introverts really like to be by themselves. If they are under stress, or if an introvert feels like everything in the world is too much, they\'re maybe more likely to spend some time alone, as opposed to seeking out lots of people, trying to find lots of people to hang out with.'],
+                                    ['speaker' => 'Evie', 'text' => 'The other way that people say you can tell whether you are more introverted or extroverted as a person is if you go and hang out with, like, a big group of people. You know, maybe some of them are your friends, but some of them are new people, and you\'re socialising with loads of people during an evening. Does that experience… does it give you energy, or does it take energy away?'],
+                                    ['speaker' => 'Evie', 'text' => 'If you are an introvert, if it drains you, if you feel like, "Okay, that social interaction was, like, really fun, but now I need to recharge," then probably you are more of an introvert. But if you go to that event and you literally leave it feeling on top of the world, if you feel like you have so much energy, you feel great, that was the best thing, it refreshed you, then you are an extrovert. So, the idea that if socialising gives you energy, then you\'re an extrovert, and if it takes energy away, then you are an introvert.'],
+                                    ['speaker' => 'Evie', 'text' => 'I am an introvert. I know that… maybe that\'s surprising. I think whenever I tell people I\'m an introvert, they\'re like, "Girl, no way." But I actually think I probably am. I did do the Myers-Briggs personality type thing, the 16 personality types test, and I was 53% introverted. So I think I\'m half and half, you know? Half introverted, half extroverted, I think.'],
+                                    ['speaker' => 'Evie', 'text' => 'I know there are some people who call this, like, at the borderline, we would say. At the borderline, 50%, around this sort of area. If you\'re on the borderline with these things, then you are an ambivert. So you\'re not an introvert, you\'re not an extrovert, you\'re an ambivert. And I think I can be extroverted. Like, I really enjoy speaking with people. I enjoy, like, spending time with people. Like, I love it. I love talking. Obviously, this is, like, my job: just talk.'],
+                                    ['speaker' => 'Evie', 'text' => 'But apparently, students who are more self-confident, who feel less anxious in social situations, they learn languages better. So this technically means that extroverts can learn how to speak in a language faster than somebody who\'s super shy or super introverted. And I think that makes sense, because so much of language learning is just doing the damn thing.'],
+                                    ['speaker' => 'Evie', 'text' => 'Like, if you want to sit down and write… I don\'t mean this. I hate studying grammar, but some people actually love studying grammar, and they really, genuinely learn languages by sitting down and, like, studying a textbook. I have a friend like this. She speaks, like, four languages, and she loves to read a textbook and study grammar. She\'s insane, but she is a really great linguist. So I\'m not going to say that doing that doesn\'t work, but she is also very confident.'],
+                                    ['speaker' => 'Evie', 'text' => 'Like, even though she might not have the best linguistic abilities, if she meets somebody who speaks French, for example, you know 100% she is going to speak French. And she\'s so extroverted. She doesn\'t care that she\'s making mistakes. She\'ll just… "I\'m going to speak French to you," and she goes. And I think it\'s one of the things that makes her so amazing at learning a language, because she goes, "I can do this," and she just does it. And that means that she gets so many more opportunities. She gets so many more opportunities to practise and improve and build confidence.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript (drains as the form Evie
+                                // actually says).
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'outgoing', 'meaning' => 'friendly with new people',
+                                        'gap_before' => 'it\'s basically a way of describing how ',
+                                        'gap_after' => ' somebody is, how much they like to be around people.',
+                                    ],
+                                    [
+                                        'phrase' => 'reserved', 'meaning' => 'quiet, not showing much',
+                                        'gap_before' => 'Maybe more ',
+                                        'gap_after' => ', we would say.',
+                                    ],
+                                    [
+                                        'phrase' => 'drains', 'meaning' => 'makes you very tired',
+                                        'gap_before' => 'If you are an introvert, if it ',
+                                        'gap_after' => ' you, if you feel like,',
+                                    ],
+                                    [
+                                        'phrase' => 'recharge', 'meaning' => 'get your energy back',
+                                        'gap_before' => 'really fun, but now I need to ',
+                                        'gap_after' => ',"',
+                                    ],
+                                    [
+                                        'phrase' => 'on top of the world', 'meaning' => 'extremely happy',
+                                        'gap_before' => 'you literally leave it feeling ',
+                                        'gap_after' => ', if you feel like you have so much energy',
+                                    ],
+                                ],
+                                'topic_summary' => 'Evie explains two personality types. Extroverts are people who love '
+                                    .'being around people: a party gives them energy. Introverts are more reserved and '
+                                    .'prefer people who they know very well. Her test: if socialising drains you and you '
+                                    .'need to recharge, you are an introvert; if you leave feeling on top of the world, you '
+                                    .'are an extrovert. She was 53% introverted, so she calls herself an ambivert. Then she '
+                                    .'says confident students often learn languages faster — like her friend who speaks '
+                                    .'four languages and always speaks French when she meets somebody who speaks it.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Evie says extroverts usually get energy from being with lots of people.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Evie\'s personality test said she was 80% introverted.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Evie\'s friend speaks French with new people even when she makes mistakes.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What does Evie call a person who is half introverted and half extroverted?',
+                                    'options' => ['An ambivert', 'A linguist', 'A borderline'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for how people feel — soon you\'ll describe someone who gets anxious, or a friend who was proud of you.',
+                                // Vocabulary in Use unit 12A ("How do you feel?"), our own
+                                // sentences.
+                                'story' => 'My brother Amir always gets **anxious** before exams. Last month he passed his '
+                                    .'English test, and my parents were very **proud** of him. He was a bit **disappointed** '
+                                    .'with his speaking score, though. His friend failed, so he was **upset** — and maybe a '
+                                    .'little **jealous**. Now Amir is **curious** about the next level.',
+                                'words' => [
+                                    ['phrase' => 'proud', 'meaning' => 'happy because you, or someone close to you, did something well', 'meaning_fa' => 'مفتخر، سربلند', 'pos' => 'adjective', 'example' => 'I\'m so proud of my daughter — she won the race!', 'image_query' => 'proud parents graduation', 'difficulty' => 'easy'],
+                                    ['phrase' => 'disappointed', 'meaning' => 'sad because something was not as good as you hoped', 'meaning_fa' => 'ناامید، دلسرد', 'pos' => 'adjective', 'example' => 'We were disappointed that the concert was cancelled.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'curious', 'meaning' => 'wanting to know or learn about something', 'meaning_fa' => 'کنجکاو', 'pos' => 'adjective', 'example' => 'Children are curious about everything.', 'image_query' => 'curious child looking magnifying glass', 'difficulty' => 'easy'],
+                                    ['phrase' => 'anxious', 'meaning' => 'worried and nervous about something that might happen', 'meaning_fa' => 'نگران، مضطرب', 'pos' => 'adjective', 'example' => 'I always feel anxious before I speak in public.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'jealous', 'meaning' => 'unhappy because someone has something you want, or because someone you love likes another person', 'meaning_fa' => 'حسود، دچار حسادت', 'pos' => 'adjective', 'example' => 'He was jealous of his friend\'s new car.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'upset', 'meaning' => 'unhappy because something bad has happened', 'meaning_fa' => 'ناراحت، دلخور', 'pos' => 'adjective', 'example' => 'She was upset when her cat got lost.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — this time copy how Evie describes people: "somebody who…" and "people who…".',
+                                'image_query' => 'people talking at house party',
+                                'shadow_lines' => [
+                                    'You are **somebody** who **loves** to be **surrounded** by **people**.',
+                                    'They maybe **prefer** to be with people who they **know** very, very **well**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M09', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'A personality is a "someone who…": a friend who always listens, a boss who never gets angry.',
+                                'focus' => 'Defining Relative Clauses',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 92-94: who / that for people,
+                                // that / which for things, leaving the pronoun out, then
+                                // whose / where.
+                                'lesson' => [
+                                    'intro' => 'A relative clause tells you which person or thing you mean: someone who…, a test that…, the friend I…, a place where….',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · who / that for people',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After a person, use <strong>who</strong> (or <strong>that</strong>) to say which person or what kind of person: <strong>A warm person is someone who makes others feel comfortable.</strong>',
+                                                    'fa' => 'برای اینکه بگویی منظورت کدام آدم یا چه جور آدمی است، بعد از اسمِ شخص who (یا that) بیاور. who برای آدم رایج‌تر است. فعل بعد از who با اسمِ قبلش جور می‌شود: someone who gets و people who get.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'who for people',
+                                                    'parts' => [
+                                                        ['text' => 'An introvert', 'caption' => 'person'],
+                                                        ['text' => 'is someone', 'caption' => 'verb + someone'],
+                                                        ['text' => 'who', 'caption' => 'who / that', 'tone' => 'accent'],
+                                                        ['text' => 'needs time alone', 'caption' => 'verb + rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I have a friend which speaks four languages.', 'right' => 'I have a friend who speaks four languages.', 'highlight' => 'who'],
+                                                        ['wrong' => 'She is someone who love parties.', 'right' => 'She is someone who loves parties.', 'highlight' => 'loves'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'someone who…', 'words' => ['gets annoyed easily', 'stays calm', 'likes to give', 'tells the truth']],
+                                                        ['label' => 'people who…', 'words' => ['love parties', 'need time alone', 'never give up']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · that / which for things',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After a thing, use <strong>that</strong> or <strong>which</strong> — never who: <strong>It\'s a test that tells you your personality type.</strong> Don\'t add <strong>it / he / she</strong> again.',
+                                                    'fa' => 'بعد از اشیا that یا which بیاور (نه who). ضمیر را تکرار نکن: who / that / which خودش جای he / she / it نشسته است. what یعنی the thing that: What I need is a quiet evening.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'that / which for things',
+                                                    'parts' => [
+                                                        ['text' => 'It\'s a test', 'caption' => 'thing'],
+                                                        ['text' => 'that', 'caption' => 'that / which', 'tone' => 'accent'],
+                                                        ['text' => 'tells you your type', 'caption' => 'verb + rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I have a friend who she speaks French.', 'right' => 'I have a friend who speaks French.', 'highlight' => 'who speaks'],
+                                                        ['wrong' => 'It\'s a job who makes me happy.', 'right' => 'It\'s a job that makes me happy.', 'highlight' => 'that'],
+                                                        ['wrong' => 'The thing what I like about him is his humour.', 'right' => 'The thing that I like about him is his humour.', 'highlight' => 'that'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            'It\'s one of the things that makes her so amazing at learning a language.',
+                                                            'They love walking into a room full of people that they don\'t know.',
+                                                        ]],
+                                                        ['label' => 'what = the thing that', 'items' => [
+                                                            'What I need after a party is a quiet evening.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · Leaving out who / that',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'When another subject comes after <strong>who / that / which</strong>, you can leave it out: <strong>people (who) they know very well</strong>. A preposition goes at the end: <strong>the friend I talk to most</strong>.',
+                                                    'fa' => 'اگر بعد از who / that / which یک فاعل دیگر بیاید، می‌توانی آن را حذف کنی: the people (that) I met. ولی اگر خودش فاعلِ فعل بعدی است، حذف نمی‌شود: the man who lives next door. در گفتار، حرف اضافه به آخر جمله می‌رود: the person I was talking to.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'No who / that',
+                                                    'parts' => [
+                                                        ['text' => 'the friend', 'caption' => 'person'],
+                                                        ['text' => '(that)', 'caption' => 'can leave out', 'tone' => 'accent'],
+                                                        ['text' => 'I', 'caption' => 'new subject'],
+                                                        ['text' => 'talk to most', 'caption' => 'verb + preposition'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Sara',
+                                                    'wrong' => 'The man lives next door is very friendly.',
+                                                    'right' => 'The man who lives next door is very friendly.',
+                                                    'explanation' => 'Here who is the subject of lives, so it has to stay. Leave it out only when another subject follows: the man (who) I met.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'They prefer to be with people they know very, very well.',
+                                                            'Jen is the person I can always trust.',
+                                                            'Is this the podcast you were talking about?',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · whose and where',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>whose</strong> = his / her / their: <strong>a friend whose sister speaks four languages</strong>. <strong>where</strong> = in or at that place: <strong>a party where I didn\'t know anyone</strong>.',
+                                                    'fa' => 'whose به جای his / her / their می‌آید و بعدش یک اسم می‌آید: a woman whose son is a firefighter. where برای مکان است: the town where I grew up. بعد از where دیگر there یا in را تکرار نکن.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'whose',
+                                                    'parts' => [
+                                                        ['text' => 'I have a friend', 'caption' => 'person'],
+                                                        ['text' => 'whose', 'caption' => 'whose', 'tone' => 'accent'],
+                                                        ['text' => 'sister', 'caption' => 'noun'],
+                                                        ['text' => 'speaks four languages', 'caption' => 'verb + rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I know a man who his son is a doctor.', 'right' => 'I know a man whose son is a doctor.', 'highlight' => 'whose'],
+                                                        ['wrong' => 'That\'s the café where we met there.', 'right' => 'That\'s the café where we met.', 'highlight' => 'where we met'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'He\'s someone whose friends call him when they have a problem.',
+                                                            'A house party is a place where extroverts feel at home.',
+                                                            'My room is the place where I recharge.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> people — the friend who…, the place where… — then watch Bob define personality words with "someone who…", and soon say them out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in Video Shadowing next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'My best friend is someone who', 'I don\'t like people who', 'The person I talk to most',
+                                    'I have a friend whose', 'The place where I feel most relaxed', 'I\'m the kind of person who',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about people, things or places in their life, using '
+                                    .'a correct defining relative clause: who / that after a person, that / which after a '
+                                    .'thing, the pronoun left out only when another subject follows it ("the person I talk '
+                                    .'to most"), whose + noun for possession, or where for a place.',
+                                'grammar_major_criteria' => 'which or what after a person ("a friend which"), who after a '
+                                    .'thing ("a job who"), an extra pronoun inside the clause ("a friend who she speaks", '
+                                    .'"the café where we met there"), who his / who her instead of whose, the subject pronoun '
+                                    .'left out ("the man lives next door is…"), a verb that does not agree with the noun before '
+                                    .'who ("someone who love"), what instead of that after a noun ("the thing what"), the '
+                                    .'sentence does not actually continue the given starter, or it is not a genuine personal '
+                                    .'statement',
+                                'grammar_context' => 'continues with a defining relative clause (who / that / which, no '
+                                    .'pronoun when another subject follows, whose or where) and a main verb, as the starter '
+                                    .'already given needs',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I have a friend which speaks four languages.',
+                                        'options' => ['I have a friend who speaks four languages.', 'I have a friend which speaks four languages.', 'I have a friend what speaks four languages.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'It\'s a test who tells you your personality type.',
+                                        'options' => ['It\'s a test who tells you your personality type.', 'It\'s a test it tells you your personality type.', 'It\'s a test that tells you your personality type.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'I know a woman who her son is a firefighter.',
+                                        'options' => ['I know a woman who her son is a firefighter.', 'I know a woman whose son is a firefighter.', 'I know a woman where her son is a firefighter.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'The man lives next door is very calm.',
+                                        'options' => ['The man lives next door is very calm.', 'The man who lives next door is very calm.', 'The man he lives next door is very calm.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['who', 'is', 'someone', 'An', 'loves', 'parties.', 'extrovert'], 'answer' => 'An extrovert is someone who loves parties.'],
+                                    ['words' => ['I', 'the', 'is', 'trust', 'person', 'most.', 'She'], 'answer' => 'She is the person I trust most.'],
+                                    ['words' => ['a', 'is', 'This', 'café', 'recharge.', 'where', 'I'], 'answer' => 'This is a café where I recharge.'],
+                                ],
+                            ],
+                            [
+                                // A real teacher at natural speed: Bob the Canadian's
+                                // "Describing People" lesson — each word shown on a card with
+                                // its "someone who…" definition, then Bob's own stories —
+                                // cut to about 6 minutes (nine words kept; aggressive, vulgar,
+                                // violent, cruel and the side stories left out). The creator
+                                // burns no captions in, so the step's own caption toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Bob explains nine personality words the way a dictionary would — "someone who…" — and then tells you which ones are true about him. Watch, then say the definitions with him.',
+                                'source' => 'Learn English with Bob the Canadian — "Let\'s Learn English! Topic: Describing People!"',
+                                'video_url' => $shadowingVideoUrl,
+                                // The creator's own English captions, re-timed per sentence on
+                                // Whisper's word timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M09', 'video_shadowing_segments'),
+                                'topic_summary' => 'Bob describes people with one pattern: a word, then "someone who…". '
+                                    .'A warm person is someone who makes others feel comfortable, like his uncle. He '
+                                    .'admits he is impatient when Jen and the kids are not ready to leave, and he wishes he '
+                                    .'were calm, like Jen. He is loyal to the mechanic he has used since he was 16, '
+                                    .'firefighters are courageous, and a timid person is shy and easily scared. Last come '
+                                    .'sympathetic, generous — with money, time or food — and frugal: someone who is careful '
+                                    .'with money and avoids wasting it.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Bob says he is sometimes impatient, for example when his family is not ready to leave.', 'correct' => true],
+                                    ['statement' => 'Bob says Jen gets upset quickly when they disagree.', 'correct' => false],
+                                    ['statement' => 'Bob has taken his car to the same mechanic since he was 16.', 'correct' => true],
+                                ],
+                                // Real phrases Bob uses on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'get annoyed', 'meaning' => 'to become a bit angry'],
+                                    ['phrase' => 'take too long', 'meaning' => 'to need more time than you want'],
+                                    ['phrase' => 'stay faithful', 'meaning' => 'to keep supporting someone and not leave them'],
+                                    ['phrase' => 'face danger', 'meaning' => 'to be brave when something could hurt you'],
+                                    ['phrase' => 'be generous with your time', 'meaning' => 'to give people your time happily'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words Bob
+                                // actually says. Chosen for this mission's grammar: five
+                                // "someone who…" definitions and one "relatives … who are".
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'I have some **relatives** in my family who are very **warm** people.',
+                                    'Someone who gets **annoyed** **easily** when things take too **long**.',
+                                    'Someone who stays **relaxed** and does not get **upset** easily.',
+                                    'Someone who is **brave** and not **afraid** to face **danger** or **difficulty**.',
+                                    'I\'m someone who **likes** to **give** and **share** with others.',
+                                    'Someone who is **careful** with **money** and avoids **wasting** it.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M09', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words you need to describe someone you can count on (and someone you can\'t).',
+                                // Vocabulary in Use unit 72B-C (-able, then -ful / -less),
+                                // our own sentences.
+                                'story' => 'My colleague Darya is someone you can always count on — she\'s very **reliable**. '
+                                    .'She\'s **sociable** too, and she\'s always **helpful** when someone has a problem. She\'s '
+                                    .'**careful** with her work, and she\'s **reasonable** when we disagree. Her brother? He\'s '
+                                    .'a bit **careless** — he loses his keys every week!',
+                                'words' => [
+                                    ['phrase' => 'reliable', 'meaning' => 'someone you can trust to do what they say (opposite: unreliable)', 'meaning_fa' => 'قابل‌اعتماد', 'pos' => 'adjective', 'example' => 'Arman is reliable — if he says he\'ll come at eight, he comes at eight.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sociable', 'meaning' => 'friendly and enjoying time with other people (opposite: unsociable)', 'meaning_fa' => 'معاشرتی، اهل رفت‌وآمد', 'pos' => 'adjective', 'example' => 'My parents are very sociable — they have guests every weekend.', 'image_query' => 'friends dinner party table', 'difficulty' => 'medium'],
+                                    ['phrase' => 'reasonable', 'meaning' => 'fair and sensible; (a price) not too expensive', 'meaning_fa' => 'منطقی، معقول', 'pos' => 'adjective', 'example' => 'My boss is reasonable — she listens before she decides.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'helpful', 'meaning' => 'happy to help people; useful', 'meaning_fa' => 'کمک‌کننده، مفید', 'pos' => 'adjective', 'example' => 'The woman at the station was very helpful.', 'image_query' => 'person helping elderly woman', 'difficulty' => 'easy'],
+                                    ['phrase' => 'careful', 'meaning' => 'thinking about what you do, so that you don\'t make mistakes or have accidents', 'meaning_fa' => 'محتاط، بادقت', 'pos' => 'adjective', 'example' => 'Be careful — the floor is wet.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'careless', 'meaning' => 'not thinking enough about what you do, so you make mistakes (opposite: careful)', 'meaning_fa' => 'بی‌دقت، سهل‌انگار', 'pos' => 'adjective', 'example' => 'I made some careless mistakes in my test.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now listen for "students who…" and "the things that…".',
+                                'image_query' => 'student speaking confidently in class',
+                                'shadow_lines' => [
+                                    'Students who are **more** **self-confident**, who feel **less** **anxious** in social situations',
+                                    'It\'s one of the **things** that **makes** her so **amazing** at learning a language.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M09', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about what kind of person you are — '
+                                    .'introvert, extrovert or ambivert? — and describe two people you know with "someone '
+                                    .'who…" and "a friend whose…", using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Are you an introvert, an extrovert or an ambivert? Why do you think so?',
+                                    'What kind of person drains you, and what kind of person gives you energy?',
+                                    'Describe a friend who is very reliable.',
+                                    'Is there someone in your family whose personality is very different from yours?',
+                                    'Where do you go when you need to recharge?',
+                                    'What is the most important quality in a friend?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Nadia needs a flatmate. Three people answer her advert — which one is the person she is looking for?',
+                                'passage_title' => 'Looking for the right flatmate',
+                                'image_query' => 'two women sharing apartment kitchen',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // with a relative clause in almost every sentence.
+                                'passage' => 'Nadia is looking for a flatmate, so she put an advert online: "I\'m a reserved, '
+                                    .'careful person who works from home. I\'m looking for someone who is reliable and '
+                                    .'reasonable." Three people answered. The first was a man whose messages were full of '
+                                    .'mistakes — a bit careless, Nadia thought. The second was Tara, a sociable student who '
+                                    .'loves parties. "Big parties drain me," Nadia said. "I need a flat where I can recharge." '
+                                    .'The third was Bahar, a nurse who works at night, so she is at home only in the '
+                                    .'afternoons. She was polite and helpful, and she asked lots of curious questions about '
+                                    .'the neighbourhood. Nadia was anxious before they met, but Bahar was exactly the kind of '
+                                    .'person she wanted. Six months later, they are good friends. "She\'s someone I can '
+                                    .'trust," Nadia says. "And she\'s very proud of our clean kitchen!"',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'reserved', 'type' => 'reused'],
+                                    ['phrase' => 'careful', 'type' => 'reused'],
+                                    ['phrase' => 'reliable', 'type' => 'reused'],
+                                    ['phrase' => 'reasonable', 'type' => 'reused'],
+                                    ['phrase' => 'careless', 'type' => 'reused'],
+                                    ['phrase' => 'sociable', 'type' => 'reused'],
+                                    ['phrase' => 'drain me', 'type' => 'reused'],
+                                    ['phrase' => 'recharge', 'type' => 'reused'],
+                                    ['phrase' => 'helpful', 'type' => 'reused'],
+                                    ['phrase' => 'curious', 'type' => 'reused'],
+                                    ['phrase' => 'anxious', 'type' => 'reused'],
+                                    ['phrase' => 'proud', 'type' => 'reused'],
+                                    ['phrase' => 'flatmate', 'type' => 'new', 'definition' => 'a person you share a flat with', 'pos' => 'noun', 'example' => 'My flatmate always forgets to buy milk.'],
+                                    ['phrase' => 'advert', 'type' => 'new', 'definition' => 'a notice or short text that tells people about something (also: ad)', 'pos' => 'noun', 'example' => 'I found my job through an advert online.'],
+                                ],
+                                'topic_summary' => 'Nadia, a reserved and careful person, wants a flatmate who is reliable and '
+                                    .'reasonable. The first man is careless, and Tara is a sociable student who loves parties. '
+                                    .'Bahar, a nurse who works at night, is helpful and curious — and six months later they '
+                                    .'are good friends.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Nadia wanted a flatmate who was reliable and reasonable.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Nadia chose Tara because she loves parties.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Bahar is usually at home in the afternoons because she works at night.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What kind of person was Nadia looking for?',
+                                    'Why didn\'t Nadia choose the first two people?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Describing yourself in English is harder than it sounds — and it is the first thing a new friend or boss will ask.',
+                                'title' => 'What kind of person am I?',
+                                'prompts' => [
+                                    ['label' => 'Introvert, extrovert or ambivert?', 'image_query' => 'woman reading alone cafe'],
+                                    ['label' => 'Three words that describe you', 'image_query' => 'smiling young man portrait'],
+                                    ['label' => 'A person who knows you well', 'image_query' => 'two friends talking bench'],
+                                    ['label' => 'Something that drains you', 'image_query' => 'tired man desk evening'],
+                                    ['label' => 'A place where you recharge', 'image_query' => 'quiet room window plants'],
+                                    ['label' => 'A quality you want to have', 'image_query' => 'calm woman meditation'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['who / that (people)', 'that / which (things)', 'no who / that before a new subject', 'whose', 'where', 'reliable', 'recharge'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'A room full of people — who is the life of the party, and who would rather be at home?',
+                                'image_query' => 'friends party living room',
+                                'guiding_questions' => [
+                                    'Find the person who looks the most outgoing. What is he or she doing?',
+                                    'Is there someone who looks quieter than the others? Describe them.',
+                                    'Describe a person whose clothes or hair you like.',
+                                    'What kind of place is this — a place where you would feel on top of the world, or a place that would drain you?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): four friends on a
+                                // sofa in a basement room — on the left a young man in a white
+                                // sleeveless jumper, then a woman with short white hair in pink,
+                                // a man in a yellow shirt and glasses laughing loudly, and on
+                                // the right, in a beanbag, a calmer woman with long dark hair
+                                // holding a bowl of popcorn; snacks and a radio in front.
+                                // Changing the query or orientation invalidates these
+                                // coordinates.
+                                'hotspots' => [
+                                    ['x' => 61, 'y' => 45, 'question_index' => 0],
+                                    ['x' => 82, 'y' => 52, 'question_index' => 1],
+                                    ['x' => 50, 'y' => 38, 'question_index' => 2],
+                                    ['x' => 60, 'y' => 88, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'What kind of person are you? Give examples from your life.',
+                                    'Describe someone who gives you energy, and someone who drains you.',
+                                    'Tell me about a friend whose personality is very different from yours.',
+                                    'What is a place where you can really relax? Why?',
+                                    'Do you think introverts or extroverts learn languages faster? Why?',
+                                    'What kind of person would be the perfect flatmate or colleague for you?',
+                                ],
+                                'role_reversal_topic' => 'personality and the people in your life',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about what kind of person you are and the people who matter most to you.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'who / that for people',
+                                    'that / which for things',
+                                    'a clause without who / that',
+                                    'whose or where',
+                                    'What kind of person you are',
+                                    'Someone who gives you energy',
                                 ],
                             ],
                             [

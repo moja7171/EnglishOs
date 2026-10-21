@@ -177,24 +177,24 @@
   ],
   "M09" : [
     [
+      {"src":"lee","title":"Talking about yourself","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240830","min":6,"tx":"page"},
       {"src":"sme","title":"Do you get jealous easily?","url":"https://podcasts.apple.com/us/podcast/do-you-get-jealous-easily/id262026947?i=1000606585114","min":6,"apple":true},
-      {"src":"voa","title":"Introvert or Extrovert. Which One Are You?","url":"https://learningenglish.voanews.com/a/introvert-or-extrovert-which-are-you/3025369.html","tx":"page"},
-      {"src":"teded","title":"Should you trust your first impression? - Peter Mende-Siedlecki","url":"https://ed.ted.com/lessons/should-you-trust-your-first-impression-peter-mende-siedlecki","min":6}
+      {"src":"voa","title":"Introvert or Extrovert. Which One Are You?","url":"https://learningenglish.voanews.com/a/introvert-or-extrovert-which-are-you/3025369.html","tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about worries","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250620","min":6,"tx":"page"},
       {"src":"sme","title":"Why everyone loves the underdog","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-240328","min":6,"tx":"page"},
-      {"src":"voa","title":"Everyday Grammar: Relative Pronouns","url":"https://learningenglish.voanews.com/a/everyday-grammar-relative-pronouns/2793920.html","tx":"page","grammar":true},
-      {"src":"teded","title":"How to handle your emotions","url":"https://ed.ted.com/lessons/how-to-manage-your-emotions","min":7}
+      {"src":"voa","title":"Everyday Grammar: Relative Pronouns","url":"https://learningenglish.voanews.com/a/everyday-grammar-relative-pronouns/2793920.html","tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about happiness","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250912","min":6,"tx":"page"},
       {"src":"sme","title":"The psychology of greed","url":"https://podcasts.apple.com/us/podcast/the-psychology-of-greed/id262026947?i=1000642081712","min":6,"apple":true},
-      {"src":"voa","title":"Grammar and Optimism","url":"https://learningenglish.voanews.com/a/grammar-and-optimism-/7334755.html","min":6,"tx":"page"},
-      {"src":"teded","title":"How do you know who deserves your trust?","url":"https://ed.ted.com/lessons/how-do-you-know-whom-to-trust-ram-neta","min":6}
+      {"src":"voa","title":"Grammar and Optimism","url":"https://learningenglish.voanews.com/a/grammar-and-optimism-/7334755.html","min":6,"tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about being grumpy","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260814","min":6,"tx":"page"},
       {"src":"sme","title":"How important is politeness?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250605","min":6,"tx":"page"},
-      {"src":"voa","title":"'When Life Gives You Lemons ...'","url":"https://learningenglish.voanews.com/a/words-and-their-stories-when-life-gives-you-lemons-/4254126.html","tx":"page"},
-      {"src":"teded","title":"Ethical dilemma: Would you stretch the truth?","url":"https://ed.ted.com/lessons/ethical-dilemma-would-you-lie-sarah-stroud","min":6}
+      {"src":"voa","title":"'When Life Gives You Lemons ...'","url":"https://learningenglish.voanews.com/a/words-and-their-stories-when-life-gives-you-lemons-/4254126.html","tx":"page"}
     ]
   ],
   "M10" : [
