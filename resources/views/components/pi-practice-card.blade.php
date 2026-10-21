@@ -14,7 +14,7 @@
 
 @if ($task)
     <div
-        x-data="{ copied: false, copy() { navigator.clipboard.writeText($refs.prompt.value); this.copied = true; setTimeout(() => this.copied = false, 1500) } }"
+        x-data="{ copied: false, openedPi: false, copy() { navigator.clipboard.writeText($refs.prompt.value); this.copied = true; setTimeout(() => this.copied = false, 1500) } }"
         class="rounded-xl border border-dashed border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark"
     >
         <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink dark:text-ink-dark">
@@ -36,14 +36,14 @@
                 <span x-show="! copied">Copy prompt</span>
                 <span x-show="copied" x-cloak>Copied!</span>
             </button>
-            {{-- Copies, then opens Pi (its app on Android) so the learner only has to paste. --}}
-            <a
-                href="{{ App\Services\PiPrompts::PI_URL }}"
-                target="_blank"
-                rel="noopener noreferrer"
-                x-on:click="copy(); if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = @js(App\Services\PiPrompts::PI_ANDROID_INTENT) }"
-                class="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-            >Copy &amp; open Pi</a>
+            {{-- Copies, then tries Pi's Android app; a phone that can't open it
+                 stays on this page with the line below. --}}
+            <button
+                type="button"
+                x-on:click="copy(); openedPi = true; if (/Android/i.test(navigator.userAgent)) { window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }"
+                class="cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >Copy &amp; open Pi</button>
         </div>
+        <p x-show="openedPi" x-cloak class="mt-2 text-xs font-semibold text-success dark:text-success-dark">Prompt copied ✓ — open the Pi app and paste.</p>
     </div>
 @endif
