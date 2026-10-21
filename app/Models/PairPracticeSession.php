@@ -9,14 +9,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One in-person Pair Practice round: two friends, one phone, ~12 minutes of
- * vocabulary, grammar and speaking cards. Roles swap on every card — the
- * speaker answers out loud, the judge sees the answer and scores it.
+ * One Pair Practice round: two friends, each on their own phone (side by
+ * side or on a video call), ~12 minutes of vocabulary, grammar and speaking
+ * cards. It waits until the invited friend joins. Roles swap on every card
+ * — the speaker sees only the prompt and answers out loud, the judge sees
+ * the answer and scores it.
  */
-#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'mission_code', 'day_number', 'deck', 'results', 'stage', 'stage_ends_at', 'score_a', 'score_b', 'finished_at'])]
+#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'mission_code', 'day_number', 'meet_link', 'joined_at', 'deck', 'results', 'stage', 'stage_ends_at', 'score_a', 'score_b', 'finished_at'])]
 class PairPracticeSession extends Model
 {
     use HasFactory;
+
+    public const STAGE_WAITING = 'waiting';
 
     public const STAGE_VOCABULARY = 'vocabulary';
 
@@ -35,11 +39,29 @@ class PairPracticeSession extends Model
         self::STAGE_SPEAKING => 360,
     ];
 
+    /**
+     * How long the invited friend has to join before the invite expires.
+     */
+    public const INVITE_MINUTES = 10;
+
+    /**
+     * How long an unfinished round can be picked up again after a dropped
+     * connection or a closed tab.
+     */
+    public const RESUME_HOURS = 2;
+
+    /**
+     * Most points one speaking answer can earn, however many target words
+     * the asker heard — so speaking doesn't outweigh the other stages.
+     */
+    public const SPEAKING_MAX_POINTS = 2;
+
     protected function casts(): array
     {
         return [
             'deck' => 'array',
             'results' => 'array',
+            'joined_at' => 'datetime',
             'stage_ends_at' => 'datetime',
             'finished_at' => 'datetime',
             'day_number' => 'integer',
@@ -84,6 +106,21 @@ class PairPracticeSession extends Model
         $query->where('user_a_id', $lowId)->where('user_b_id', $highId);
     }
 
+    /**
+     * Rounds that can still be picked up: unfinished, recent enough to
+     * resume, and not an invite that expired before the friend joined.
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeOpen(Builder $query): void
+    {
+        $query->whereNull('finished_at')
+            ->where('created_at', '>=', now()->subHours(self::RESUME_HOURS))
+            ->where(fn (Builder $query) => $query
+                ->where('stage', '!=', self::STAGE_WAITING)
+                ->orWhere('created_at', '>', now()->subMinutes(self::INVITE_MINUTES)));
+    }
+
     public function isAccessibleBy(User $user): bool
     {
         return $user->id === $this->user_a_id || $user->id === $this->user_b_id;
@@ -97,6 +134,30 @@ class PairPracticeSession extends Model
     public function isFinished(): bool
     {
         return $this->stage === self::STAGE_DONE;
+    }
+
+    public function isWaiting(): bool
+    {
+        return $this->stage === self::STAGE_WAITING;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->isWaiting() && $this->created_at->lte(now()->subMinutes(self::INVITE_MINUTES));
+    }
+
+    /**
+     * The invited friend joins and the first stage's clock starts. Only
+     * the one who did not start the round can join, and only in time.
+     */
+    public function join(User $user): void
+    {
+        if (! $this->isWaiting() || $this->isExpired() || $user->id === $this->started_by_id || ! $this->isAccessibleBy($user)) {
+            return;
+        }
+
+        $this->joined_at = now();
+        $this->advanceStage();
     }
 
     /**

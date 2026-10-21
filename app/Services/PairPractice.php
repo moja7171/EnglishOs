@@ -10,24 +10,24 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * In-person Pair Practice: which mission days two friends have BOTH
+ * Pair Practice: which mission days two friends have BOTH
  * finished, the cards drawn from those days, each friend's progress today
  * and the pair's shared streak. A day counts once every one of its steps
  * has Evidence, so a day only one of them finished stays locked.
  */
 class PairPractice
 {
-    public const VOCABULARY_CARDS = 12;
+    public const VOCABULARY_CARDS = 8;
 
     public const GRAMMAR_CARDS = 8;
 
     public const SPEAKING_CARDS = 6;
 
     /**
-     * Share of each stage's cards drawn from the newest shared mission; the
-     * rest review older shared missions.
+     * Share of each stage's cards drawn from the recent shared days; the
+     * rest review older ones.
      */
-    private const LATEST_MISSION_SHARE = 0.75;
+    private const RECENT_SHARE = 0.75;
 
     public function __construct(private readonly ProgramPlanner $planner) {}
 
@@ -123,9 +123,11 @@ class PairPractice
     }
 
     /**
-     * Draws a new round from the days both have finished: mostly the newest
-     * shared mission, plus some review of older ones. Null when they share
-     * no finished day yet.
+     * Draws a new round from the days both have finished, waiting for the
+     * friend to join. Recent days come first — the newest shared day, then
+     * the rest of its mission and every day finished since the pair last
+     * practised — plus some review of older ones. Null when they share no
+     * finished day yet.
      */
     public function start(User $starter, User $friend): ?PairPracticeSession
     {
@@ -136,32 +138,30 @@ class PairPractice
         }
 
         $latest = $shared->last();
-        [$latestDays, $olderDays] = $shared->partition(fn (array $day) => $day['mission']->is($latest['mission']));
+        $latestKey = $latest['mission']->code.'-'.$latest['day'];
+        $positions = $shared->keys()->flip();
+        $lastPractised = PairPracticeSession::forPair($starter, $friend)->whereNotNull('finished_at')->latest('finished_at')->first();
+        $lastPosition = $lastPractised ? $positions->get($lastPractised->mission_code.'-'.$lastPractised->day_number) : null;
 
-        // The newest shared day's own questions come first in speaking.
-        $latestSpeaking = collect($this->dayContent($latest['mission'], $latest['day'])['speaking'])->shuffle()
-            ->concat($this->contentOf($latestDays->except($latest['mission']->code.'-'.$latest['day']), 'speaking')->shuffle());
+        [$recentDays, $olderDays] = $shared->partition(fn (array $day, string $key) => $day['mission']->is($latest['mission'])
+            || ($lastPosition !== null && $positions[$key] > $lastPosition));
 
         [$lowId, $highId] = $starter->id < $friend->id ? [$starter->id, $friend->id] : [$friend->id, $starter->id];
 
-        $session = new PairPracticeSession([
+        return PairPracticeSession::create([
             'user_a_id' => $lowId,
             'user_b_id' => $highId,
             'started_by_id' => $starter->id,
             'mission_code' => $latest['mission']->code,
             'day_number' => $latest['day'],
             'deck' => [
-                PairPracticeSession::STAGE_VOCABULARY => $this->draw($this->contentOf($latestDays, 'vocabulary')->shuffle(), $this->contentOf($olderDays, 'vocabulary')->shuffle(), self::VOCABULARY_CARDS),
-                PairPracticeSession::STAGE_GRAMMAR => $this->draw($this->contentOf($latestDays, 'grammar')->shuffle(), $this->contentOf($olderDays, 'grammar')->shuffle(), self::GRAMMAR_CARDS),
-                PairPracticeSession::STAGE_SPEAKING => $this->draw($latestSpeaking, $this->contentOf($olderDays, 'speaking')->shuffle(), self::SPEAKING_CARDS, shuffle: false),
+                PairPracticeSession::STAGE_VOCABULARY => $this->draw($this->newestDayFirst($recentDays, $latestKey, 'vocabulary'), $this->contentOf($olderDays, 'vocabulary')->shuffle(), self::VOCABULARY_CARDS),
+                PairPracticeSession::STAGE_GRAMMAR => $this->draw($this->newestDayFirst($recentDays, $latestKey, 'grammar'), $this->contentOf($olderDays, 'grammar')->shuffle(), self::GRAMMAR_CARDS),
+                PairPracticeSession::STAGE_SPEAKING => $this->draw($this->newestDayFirst($recentDays, $latestKey, 'speaking'), $this->contentOf($olderDays, 'speaking')->shuffle(), self::SPEAKING_CARDS, shuffle: false),
             ],
             'results' => [],
-            'stage' => '',
+            'stage' => PairPracticeSession::STAGE_WAITING,
         ]);
-
-        $session->advanceStage();
-
-        return $session;
     }
 
     /**
@@ -250,20 +250,33 @@ class PairPractice
     }
 
     /**
-     * $count cards, about LATEST_MISSION_SHARE of them from $latest; when
-     * one pool runs short the other fills the gap.
+     * The newest shared day's cards (shuffled) ahead of the other recent
+     * days' cards (shuffled), so a short draw still covers the newest day.
      *
-     * @param  Collection<int, array<string, mixed>>  $latest
+     * @param  Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>  $recentDays
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function newestDayFirst(Collection $recentDays, string $latestKey, string $kind): Collection
+    {
+        return $this->contentOf($recentDays->only($latestKey), $kind)->shuffle()
+            ->concat($this->contentOf($recentDays->except($latestKey), $kind)->shuffle());
+    }
+
+    /**
+     * $count cards, about RECENT_SHARE of them from $recent (taken from its
+     * front); when one pool runs short the other fills the gap.
+     *
+     * @param  Collection<int, array<string, mixed>>  $recent
      * @param  Collection<int, array<string, mixed>>  $older
      * @return list<array<string, mixed>>
      */
-    private function draw(Collection $latest, Collection $older, int $count, bool $shuffle = true): array
+    private function draw(Collection $recent, Collection $older, int $count, bool $shuffle = true): array
     {
-        $fromOlder = min($older->count(), $count - (int) ceil($count * self::LATEST_MISSION_SHARE));
-        $fromLatest = min($latest->count(), $count - $fromOlder);
-        $fromOlder = min($older->count(), $count - $fromLatest);
+        $fromOlder = min($older->count(), $count - (int) ceil($count * self::RECENT_SHARE));
+        $fromRecent = min($recent->count(), $count - $fromOlder);
+        $fromOlder = min($older->count(), $count - $fromRecent);
 
-        $cards = $latest->take($fromLatest)->concat($older->take($fromOlder));
+        $cards = $recent->take($fromRecent)->concat($older->take($fromOlder));
 
         return ($shuffle ? $cards->shuffle() : $cards)->values()->all();
     }
