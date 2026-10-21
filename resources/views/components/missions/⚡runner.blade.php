@@ -3,7 +3,9 @@
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PreviewMissionRun;
+use App\Services\ListeningPicks;
 use App\Services\PexelsClient;
+use App\Services\ProgramPlanner;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -69,6 +71,19 @@ new class extends Component
         return $this->missionLocked
             ? MissionRun::gatingMission(auth()->user(), $this->mission)
             : null;
+    }
+
+    /**
+     * The day of this mission the learner is on today — the same day the
+     * home Today box shows — for the mission's listening and Pi links, so
+     * they open today's practice; day 1 for any other mission, e.g. one
+     * already finished.
+     */
+    public function getTodaysDayNumberProperty(): int
+    {
+        $today = app(ListeningPicks::class)->dayFor(app(ProgramPlanner::class)->plan(auth()->user())['today']);
+
+        return ($today['missionCode'] ?? null) === $this->mission->code ? $today['dayNumber'] : 1;
     }
 
     public function getCurrentStepKeyProperty(): ?string
@@ -383,8 +398,8 @@ new class extends Component
         @if ($this->missionLocked)
             <x-missions.locked-notice :gating-mission="$this->gatingMission" />
         @else
-            <x-mission-listening-link :mission="$mission" />
-            <x-mission-pi-link :mission="$mission" />
+            <x-mission-listening-link :mission="$mission" :day="$this->todaysDayNumber" />
+            <x-mission-pi-link :mission="$mission" :day="$this->todaysDayNumber" />
         @endif
 
         {{-- Mission overview, styled as a journey path --}}

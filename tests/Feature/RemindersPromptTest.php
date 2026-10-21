@@ -46,8 +46,8 @@ class RemindersPromptTest extends TestCase
         Livewire::test('notifications.reminders-prompt', ['variant' => 'sheet'])
             ->assertSee('یادآورها را روشن کنید')
             ->assertSee('ساعت مطالعه')
-            ->assertSee('مرور کلمات')
-            ->assertSee('حفظ زنجیره');
+            ->assertSee('مرور کلمه‌ها')
+            ->assertSee('زنجیره در خطر');
     }
 
     public function test_nothing_is_shown_when_phone_alerts_are_not_configured(): void

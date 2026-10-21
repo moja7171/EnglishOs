@@ -193,7 +193,7 @@ trait DailyListenStep
             $this->savedShadowUrls[$index] = $url;
         }
 
-        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
     /**

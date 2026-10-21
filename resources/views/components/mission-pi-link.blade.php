@@ -1,12 +1,13 @@
-@props(['mission'])
+@props(['mission', 'day' => 1])
 
 {{-- Entry point to a mission's own daily voice practice (/pi/M03/1). Shown
-     on the mission's day overview and on its "done" card, next to the
+     on the mission's day overview (opening the learner's day today) and on
+     its "done" card (day 1), next to the
      listening link, so a learner can come back to a finished mission's
      practice. The page itself decides how far the learner has got — later
      days stay locked there. --}}
 <a
-    href="{{ route('pi.practice', [$mission->code, 1]) }}"
+    href="{{ route('pi.practice', [$mission->code, $day]) }}"
     wire:navigate
     class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
 >

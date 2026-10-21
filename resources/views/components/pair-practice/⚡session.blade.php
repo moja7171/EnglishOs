@@ -100,21 +100,23 @@ new class extends Component
     }
 
     /**
-     * Ends the round now — or, before the friend joined, calls the invite
-     * off without leaving an empty round in the pair's history.
+     * Before the friend joined: calls the invite off (kept, so the friend's
+     * page says so instead of breaking). During a round: ends it for both
+     * — too short a round doesn't count.
      */
     public function end(): void
     {
         $this->authorizePlayer();
 
-        if ($this->session->isWaiting()) {
-            $this->session->delete();
+        $wasWaiting = $this->session->isWaiting();
+
+        $this->withLockedSession(fn (PairPracticeSession $session) => $session->isWaiting()
+            ? $session->cancel(auth()->user())
+            : $session->endEarly(auth()->user()));
+
+        if ($wasWaiting) {
             $this->redirectRoute('pair-practice.index', navigate: true);
-
-            return;
         }
-
-        $this->withLockedSession(fn (PairPracticeSession $session) => $session->finish());
     }
 
     /**
@@ -154,12 +156,29 @@ new class extends Component
     ];
 @endphp
 
-<div class="mx-auto max-w-xl space-y-4 p-4 sm:p-6" @unless ($session->isFinished()) wire:poll.2s @endunless>
-    @if ($session->isFinished())
+<div class="mx-auto max-w-xl space-y-4 p-4 sm:p-6" @unless ($session->isFinished() || $session->isCancelled()) wire:poll.2s @endunless>
+    @if ($session->isCancelled())
+        @php
+            $endedBy = $session->endedBy;
+            $who = $endedBy?->is($me) ? 'You' : ($endedBy->name ?? 'Your friend');
+        @endphp
+        <div class="card space-y-2 p-6 text-center">
+            @if ($session->joined_at === null)
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $who }} cancelled the invite.</p>
+            @else
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $who }} ended the round.</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Too short to count — try a full round next time.</p>
+            @endif
+            <a href="{{ route('pair-practice.index') }}" wire:navigate class="inline-block pt-1 text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Back ›</a>
+        </div>
+    @elseif ($session->isFinished())
         @php [$first, $second] = $session->players(); @endphp
         <header class="text-center">
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $session->mission_code }} · Day {{ $session->day_number }}</p>
             <h1 class="mt-1 font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Well done, both of you!</h1>
+            @if ($session->endedBy)
+                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">{{ $session->endedBy->is($me) ? 'You' : $session->endedBy->name }} ended the round.</p>
+            @endif
         </header>
 
         <div class="grid grid-cols-2 gap-3">
@@ -347,6 +366,36 @@ new class extends Component
             <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">{{ $card['source'] ?? '' }}</p>
         @endif
 
-        <button type="button" wire:click="end" wire:confirm="End this round now?" class="mx-auto block cursor-pointer text-xs font-semibold text-ink-faint hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark">End round</button>
+        <div x-data="{ confirming: false }" x-on:keydown.escape.window="confirming = false">
+            <button type="button" x-on:click="confirming = true" class="mx-auto block cursor-pointer text-xs font-semibold text-ink-faint hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark">End round</button>
+
+            <div x-show="confirming" x-cloak x-transition.opacity x-on:click="confirming = false" class="fixed inset-0 z-[60] bg-ink/40"></div>
+            <div
+                x-show="confirming"
+                x-cloak
+                x-transition:enter="transition duration-200 ease-out motion-reduce:duration-0"
+                x-transition:enter-start="translate-y-full"
+                x-transition:enter-end="translate-y-0"
+                x-transition:leave="transition duration-150 ease-in motion-reduce:duration-0"
+                x-transition:leave-start="translate-y-0"
+                x-transition:leave-end="translate-y-full"
+                role="dialog"
+                aria-modal="true"
+                aria-label="End the round"
+                class="fixed inset-x-0 bottom-0 z-[70] mx-auto w-full max-w-lg rounded-t-2xl border border-b-0 border-line bg-surface pb-[env(safe-area-inset-bottom)] shadow-2xl dark:border-line-dark dark:bg-surface-dark"
+            >
+                <div class="mx-auto mt-2 mb-1 h-1 w-10 rounded-full bg-line dark:bg-line-dark" aria-hidden="true"></div>
+                <div class="space-y-4 p-5 text-center">
+                    <div>
+                        <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">End for both of you?</p>
+                        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $session->countsIfEndedNow() ? 'Scores so far are saved.' : 'Too short to count yet.' }}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" x-on:click="confirming = false" class="cursor-pointer rounded-full border border-line px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">Keep going</button>
+                        <button type="button" wire:click="end" x-on:click="confirming = false" wire:loading.attr="disabled" class="cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">End</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 </div>

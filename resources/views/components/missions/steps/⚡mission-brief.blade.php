@@ -85,7 +85,7 @@ new class extends Component
             ]);
         }
 
-        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 };
 ?>

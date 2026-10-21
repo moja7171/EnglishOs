@@ -3,11 +3,13 @@
 namespace App\Notifications;
 
 use App\Notifications\Concerns\DeliversWebPush;
+use App\Notifications\Concerns\WritesPersianNumbers;
 use Illuminate\Notifications\Notification;
 
 class StreakMilestoneReached extends Notification
 {
     use DeliversWebPush;
+    use WritesPersianNumbers;
 
     public function __construct(private readonly int $milestone) {}
 
@@ -18,7 +20,7 @@ class StreakMilestoneReached extends Notification
     {
         return [
             'icon' => 'heroicon-s-fire',
-            'title' => "You reached a {$this->milestone}-day streak!",
+            'title' => "زنجیرهٔ {$this->persianNumber($this->milestone)} روزه! 🔥",
             'url' => route('progress.index'),
         ];
     }

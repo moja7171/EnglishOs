@@ -199,24 +199,24 @@
   ],
   "M10" : [
     [
+      {"src":"lee","title":"Talking about relationships","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250214","min":6,"tx":"page"},
       {"src":"sme","title":"The science of falling in love","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-240801","min":6,"tx":"page"},
-      {"src":"voa","title":"Romantic Relationships. Let's Talk.","url":"https://learningenglish.voanews.com/a/words-and-their-stories-romantic-relationships/3714928.html","tx":"page"},
-      {"src":"teded","title":"What is love?","url":"https://ed.ted.com/lessons/what-is-love-brad-troeger","min":7}
+      {"src":"voa","title":"Romantic Relationships. Let's Talk.","url":"https://learningenglish.voanews.com/a/words-and-their-stories-romantic-relationships/3714928.html","tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about home towns","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241108","min":6,"tx":"page"},
       {"src":"sme","title":"Divorce: Why does it happen?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241024","min":7,"tx":"page"},
-      {"src":"voa","title":"Have You Perfected the Perfect Tenses?","url":"https://learningenglish.voanews.com/a/everyday-grammar-have-you-perfected-the-perfect-tenses/3137265.html","tx":"page","grammar":true},
-      {"src":"teded","title":"The science of attraction","url":"https://ed.ted.com/lessons/the-science-of-attraction-dawn-maslar","min":6}
+      {"src":"voa","title":"Have You Perfected the Perfect Tenses?","url":"https://learningenglish.voanews.com/a/everyday-grammar-have-you-perfected-the-perfect-tenses/3137265.html","tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about moving house","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260626","min":6,"tx":"page"},
       {"src":"sme","title":"Is rejection good for us?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260917","min":6,"tx":"page"},
-      {"src":"voa","title":"What Does It Take to Be a 'Power Couple'?","url":"https://learningenglish.voanews.com/a/what-does-it-take-to-be-a-power-couple-/7963076.html","min":5,"tx":"page"},
-      {"src":"teded","title":"The history of marriage","url":"https://ed.ted.com/lessons/the-history-of-marriage-alex-gendler","min":6}
+      {"src":"voa","title":"What Does It Take to Be a 'Power Couple'?","url":"https://learningenglish.voanews.com/a/what-does-it-take-to-be-a-power-couple-/7963076.html","min":5,"tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about gifts","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250425","min":6,"tx":"page"},
       {"src":"sme","title":"Why does heartbreak hurt so much?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-261001","min":7,"tx":"page"},
-      {"src":"voa","title":"'Love Hurts' & Other Love Expressions","url":"https://learningenglish.voanews.com/a/love-hurts-other-love-expressions/4775439.html","tx":"page"},
-      {"src":"teded","title":"The science of love's fall","url":"https://ed.ted.com/lessons/the-science-of-falling-in-love-shannon-odell","min":9}
+      {"src":"voa","title":"'Love Hurts' & Other Love Expressions","url":"https://learningenglish.voanews.com/a/love-hurts-other-love-expressions/4775439.html","tx":"page"}
     ]
   ],
   "M11" : [

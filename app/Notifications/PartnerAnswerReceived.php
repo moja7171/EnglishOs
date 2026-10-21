@@ -20,7 +20,7 @@ class PartnerAnswerReceived extends Notification
     {
         return [
             'icon' => 'heroicon-o-users',
-            'title' => "{$this->responder->name} answered a partner session question",
+            'title' => "جواب جدید از {$this->responder->name} در تمرین دونفره",
             'url' => route('partner-sessions.show', $this->session),
         ];
     }

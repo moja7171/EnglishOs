@@ -38,4 +38,12 @@ class AiChainDegraded extends Notification
     {
         return 'ai-chain-'.md5($this->chainName);
     }
+
+    /**
+     * An admin alert about a live outage.
+     */
+    protected function silentInQuietHours(): bool
+    {
+        return false;
+    }
 }

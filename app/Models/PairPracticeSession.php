@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * — the speaker sees only the prompt and answers out loud, the judge sees
  * the answer and scores it.
  */
-#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'mission_code', 'day_number', 'meet_link', 'joined_at', 'deck', 'results', 'stage', 'stage_ends_at', 'score_a', 'score_b', 'finished_at'])]
+#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'mission_code', 'day_number', 'meet_link', 'joined_at', 'ended_by_id', 'deck', 'results', 'stage', 'stage_ends_at', 'score_a', 'score_b', 'finished_at'])]
 class PairPracticeSession extends Model
 {
     use HasFactory;
@@ -29,6 +29,12 @@ class PairPracticeSession extends Model
     public const STAGE_SPEAKING = 'speaking';
 
     public const STAGE_DONE = 'done';
+
+    /**
+     * An invite called off before the friend joined, or a round ended too
+     * early to count — kept (not deleted) so the other phone can say so.
+     */
+    public const STAGE_CANCELLED = 'cancelled';
 
     /**
      * Each stage's time box in seconds, in the order they are played.
@@ -55,6 +61,12 @@ class PairPracticeSession extends Model
      * the asker heard — so speaking doesn't outweigh the other stages.
      */
     public const SPEAKING_MAX_POINTS = 2;
+
+    /**
+     * A round ended by hand with fewer answered cards than this doesn't
+     * count: no history row, no score, and its day stays unpractised.
+     */
+    public const MIN_COUNTED_CARDS = 4;
 
     protected function casts(): array
     {
@@ -95,6 +107,14 @@ class PairPracticeSession extends Model
     }
 
     /**
+     * @return BelongsTo<User, $this>
+     */
+    public function endedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'ended_by_id');
+    }
+
+    /**
      * Every session of this pair, whichever of the two started it.
      *
      * @param  Builder<self>  $query
@@ -115,6 +135,7 @@ class PairPracticeSession extends Model
     public function scopeOpen(Builder $query): void
     {
         $query->whereNull('finished_at')
+            ->where('stage', '!=', self::STAGE_CANCELLED)
             ->where('created_at', '>=', now()->subHours(self::RESUME_HOURS))
             ->where(fn (Builder $query) => $query
                 ->where('stage', '!=', self::STAGE_WAITING)
@@ -153,6 +174,11 @@ class PairPracticeSession extends Model
     public function isFinished(): bool
     {
         return $this->stage === self::STAGE_DONE;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->stage === self::STAGE_CANCELLED;
     }
 
     public function isWaiting(): bool
@@ -313,6 +339,44 @@ class PairPracticeSession extends Model
                 );
             }
         }
+    }
+
+    /**
+     * Calls off an invite before the friend joined. Either of the two can.
+     */
+    public function cancel(User $by): void
+    {
+        if (! $this->isWaiting()) {
+            return;
+        }
+
+        $this->forceFill(['stage' => self::STAGE_CANCELLED, 'stage_ends_at' => null, 'ended_by_id' => $by->id])->save();
+    }
+
+    /**
+     * One of the two taps End: the round finishes for both — or, with
+     * fewer than MIN_COUNTED_CARDS answered, is dropped as too short.
+     */
+    public function endEarly(User $by): void
+    {
+        if ($this->isFinished() || $this->isCancelled() || $this->isWaiting()) {
+            return;
+        }
+
+        $this->ended_by_id = $by->id;
+
+        if (! $this->countsIfEndedNow()) {
+            $this->forceFill(['stage' => self::STAGE_CANCELLED, 'stage_ends_at' => null])->save();
+
+            return;
+        }
+
+        $this->finish();
+    }
+
+    public function countsIfEndedNow(): bool
+    {
+        return count($this->results ?? []) >= self::MIN_COUNTED_CARDS;
     }
 
     public function scoreFor(User $user): int

@@ -241,6 +241,24 @@
     --mood-texture-size: 40px 40px;
 }
 
+/* M10 "Relationships" — a dusty rose (old love letters, a wedding
+   bouquet), paired with two large interlocked rings set on a diagonal,
+   like a pair of wedding rings — bigger and far more overlapped than
+   mates' small side-by-side rings, so the two never read alike. */
+[data-mood='bond'] {
+    --color-accent: #b85c78;
+    --color-accent-dark: #e894ad;
+    --color-accent-soft: #f7e1e8;
+    --color-accent-soft-dark: #4a2231;
+    --color-accent-ink: #8a3d56;
+    --color-accent-ink-dark: #ffc4d4;
+    --color-dawn: #eba6bb;
+    --color-dusk: #8c4862;
+    --mood-texture: radial-gradient(circle at 42% 42%, transparent 8px, color-mix(in srgb, var(--color-accent) calc(11% * var(--mood-boost)), transparent) 8px 9px, transparent 9px),
+        radial-gradient(circle at 58% 58%, transparent 8px, color-mix(in srgb, var(--color-accent) calc(11% * var(--mood-boost)), transparent) 8px 9px, transparent 9px);
+    --mood-texture-size: 52px 52px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

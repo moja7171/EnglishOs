@@ -47,7 +47,7 @@ class PhoneAlertsTest extends TestCase
 
         $payload = $notification->toWebPush($bob, $notification)->toArray();
 
-        $this->assertSame("{$alice->name} wants to connect", $payload['body']);
+        $this->assertSame("درخواست دوستی از {$alice->name}", $payload['body']);
         $this->assertSame(['url' => route('friends.index')], $payload['data']);
         $this->assertArrayNotHasKey('tag', $payload);
     }

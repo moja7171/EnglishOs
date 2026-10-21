@@ -24,7 +24,7 @@ class PairPracticeInvite extends Notification
     {
         return [
             'icon' => 'heroicon-o-users',
-            'title' => "{$this->inviter->name} wants to practise with you now",
+            'title' => "دعوت به تمرین: {$this->inviter->name} الان منتظرته",
             'url' => route('pair-practice.show', $this->session),
             'sender_id' => $this->inviter->id,
         ];
@@ -33,5 +33,13 @@ class PairPracticeInvite extends Notification
     protected function webPushTag(): ?string
     {
         return "pair-invite-{$this->session->id}";
+    }
+
+    /**
+     * A live invite: the friend is waiting right now.
+     */
+    protected function silentInQuietHours(): bool
+    {
+        return false;
     }
 }

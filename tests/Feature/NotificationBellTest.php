@@ -22,7 +22,7 @@ class NotificationBellTest extends TestCase
         $this->actingAs($me);
 
         $component = Livewire::test('notifications.bell')
-            ->assertSee("{$alice->name} wants to connect");
+            ->assertSee("درخواست دوستی از {$alice->name}");
 
         $this->assertSame(1, $component->instance()->unreadCount());
     }
@@ -65,7 +65,7 @@ class NotificationBellTest extends TestCase
 
         $this->actingAs($me);
 
-        Livewire::test('notifications.bell')->assertDontSee("{$alice->name} wants to connect");
+        Livewire::test('notifications.bell')->assertDontSee("درخواست دوستی از {$alice->name}");
     }
 
     public function test_notifications_that_were_unread_on_open_stay_highlighted(): void
@@ -164,7 +164,7 @@ class NotificationBellTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('notifications.bell')
-            ->assertSee("{$alice->name} wants to connect")
+            ->assertSee("درخواست دوستی از {$alice->name}")
             ->assertDontSee('Decline');
     }
 

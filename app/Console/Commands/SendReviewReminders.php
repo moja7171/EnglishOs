@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Console\Commands\Concerns\SendsScheduledPush;
 use App\Models\User;
 use App\Notifications\ReviewReminder;
+use App\Services\Reminders;
 use Illuminate\Console\Command;
 
 /**
@@ -53,10 +54,12 @@ class SendReviewReminders extends Command
             return false;
         }
 
-        // One evening alert at most: the streak warning (sent earlier the same
-        // evening) is the more important of the two, and a learner who acted
-        // on it doesn't need a second nudge half an hour later.
-        if ($user->last_streak_warning_on?->toDateString() === $day) {
+        // Only when no other reminder went out today: the study reminder
+        // already lists the words due, the streak warning is the more
+        // important evening alert, and a week away stops daily alerts.
+        $reminders = app(Reminders::class);
+
+        if ($reminders->sentToday($user) > 0 || $reminders->isAway($user)) {
             return false;
         }
 
@@ -76,6 +79,7 @@ class SendReviewReminders extends Command
         $user->forceFill(['last_review_reminder_on' => $day])->save();
 
         $this->sendPush($user, new ReviewReminder($dueCount), 'Review reminder');
+        $reminders->countSent($user);
 
         return true;
     }

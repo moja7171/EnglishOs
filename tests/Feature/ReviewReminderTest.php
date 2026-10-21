@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Notifications\ReviewReminder;
+use App\Services\Reminders;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -203,10 +204,10 @@ class ReviewReminderTest extends TestCase
 
         $payload = $notification->toWebPush($user, $notification)->toArray();
 
-        $this->assertStringContainsString('۵ مورد', $payload['body']);
+        $this->assertStringContainsString('۵ کلمه', $payload['body']);
         $this->assertSame(['url' => route('review.index')], $payload['data']);
         $this->assertSame('review-reminder', $payload['tag']);
-        $this->assertSame('مرور کلمات', $payload['title']);
+        $this->assertSame('مرور کلمه‌ها', $payload['title']);
     }
 
     public function test_the_reminder_is_honoured_to_the_exact_minute(): void
@@ -225,10 +226,11 @@ class ReviewReminderTest extends TestCase
         $this->assertNotNull($user->fresh()->last_review_reminder_on);
     }
 
-    public function test_nothing_is_sent_when_the_streak_warning_already_went_out_tonight(): void
+    public function test_nothing_is_sent_when_another_reminder_already_went_out_today(): void
     {
         Carbon::setTestNow(self::TEHRAN_EVENING);
-        $user = $this->learner(['last_streak_warning_on' => '2026-10-03']);
+        $user = $this->learner();
+        app(Reminders::class)->countSent($user);
         $this->expectReminders(0);
 
         $this->runCommand();
@@ -236,10 +238,14 @@ class ReviewReminderTest extends TestCase
         $this->assertNull($user->fresh()->last_review_reminder_on);
     }
 
-    public function test_yesterdays_streak_warning_does_not_hold_back_tonights_reminder(): void
+    public function test_yesterdays_reminders_do_not_hold_back_tonights_reminder(): void
     {
         Carbon::setTestNow(self::TEHRAN_EVENING);
-        $this->learner(['last_streak_warning_on' => '2026-10-02']);
+        $user = $this->learner();
+        Carbon::setTestNow(now()->subDay());
+        app(Reminders::class)->countSent($user);
+        app(Reminders::class)->countSent($user);
+        Carbon::setTestNow(self::TEHRAN_EVENING);
         $this->expectReminders(1);
 
         $this->runCommand();

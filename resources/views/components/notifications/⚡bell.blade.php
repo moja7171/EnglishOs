@@ -149,7 +149,7 @@ new class extends Component
                             @svg($item->data['icon'], 'h-3.5 w-3.5')
                         </span>
                         <span>
-                            <span class="block font-semibold text-ink dark:text-ink-dark">{{ $item->data['title'] }}</span>
+                            <span dir="auto" class="block font-semibold text-ink dark:text-ink-dark">{{ $item->data['title'] }}</span>
                             <span class="mt-0.5 block text-ink-faint dark:text-ink-faint-dark">{{ $item->created_at->diffForHumans() }}</span>
                         </span>
                     </a>

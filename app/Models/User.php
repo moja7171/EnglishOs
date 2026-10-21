@@ -1653,6 +1653,21 @@ class User extends Authenticatable
     }
 
     /**
+     * Local hours (from START, up to END) in which the phone stays silent:
+     * friend alerts still reach the bell, but don't buzz.
+     */
+    public const QUIET_HOURS_START = 23;
+
+    public const QUIET_HOURS_END = 8;
+
+    public function isInQuietHours(): bool
+    {
+        $hour = now($this->reminderTimezone())->hour;
+
+        return $hour >= self::QUIET_HOURS_START || $hour < self::QUIET_HOURS_END;
+    }
+
+    /**
      * The zone this learner's reminder time is read in — the one saved from
      * their browser (see rememberTimezone()), Tehran until there is one.
      */

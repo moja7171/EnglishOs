@@ -311,7 +311,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Listen today')
+            ->assertSee('Extra listening')
             ->assertSeeHtml('href="'.route('listening.show').'"')
             ->assertDontSee('Routines')
             ->assertDontSee('Describing Your Day: Mornings')
@@ -329,15 +329,15 @@ class MissionsOverviewTest extends TestCase
         Livewire::test('missions.overview')->assertSee('Listened today')->assertSee('2×');
     }
 
-    public function test_the_today_box_makes_clear_listening_is_not_one_of_the_steps(): void
+    public function test_the_today_box_keeps_listening_out_of_the_days_order(): void
     {
         $learner = User::factory()->create();
         MissionRun::findOrStart($learner, $this->makeMission());
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('any order, not a step')
-            ->assertSeeInOrder(['Listen today', "Today's steps", 'in order']);
+            ->assertSee('Anytime · one is enough')
+            ->assertSeeInOrder(["Today's steps", 'in order', 'Continue', 'Extra listening']);
     }
 
     public function test_the_today_box_has_no_i_listened_button_only_a_link_to_the_page(): void
@@ -359,7 +359,7 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSee('Listened today')
-            ->assertDontSee('any order, not a step');
+            ->assertDontSee('Anytime · one is enough');
     }
 
     public function test_a_tick_from_yesterday_does_not_mark_today_as_listened(): void
@@ -369,7 +369,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('any order, not a step')
+            ->assertSee('Anytime · one is enough')
             ->assertDontSee('Listened today');
     }
 
@@ -379,7 +379,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('missions.overview')
-            ->assertSee('any order, not a step')
+            ->assertSee('Anytime · one is enough')
             ->assertDontSee('Listened today');
     }
 
@@ -387,7 +387,7 @@ class MissionsOverviewTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
 
-        Livewire::test('missions.overview')->assertSee('Listen today');
+        Livewire::test('missions.overview')->assertSee('Extra listening');
     }
 
     public function test_the_today_box_shows_the_next_missions_picks_when_a_checkpoint_is_offered(): void
@@ -407,7 +407,7 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSee('Your voice, M06 in')
-            ->assertSee('Listen today');
+            ->assertSee('Extra listening');
     }
 
     public function test_the_today_box_has_no_listening_once_all_missions_are_complete(): void
@@ -421,7 +421,7 @@ class MissionsOverviewTest extends TestCase
 
         $this->actingAs($learner);
 
-        Livewire::test('missions.overview')->assertDontSee('Listen today');
+        Livewire::test('missions.overview')->assertDontSee('Extra listening');
     }
 
     public function test_no_thumbnail_without_a_cached_cover_image(): void

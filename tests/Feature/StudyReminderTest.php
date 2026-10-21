@@ -135,30 +135,25 @@ class StudyReminderTest extends TestCase
         $this->runCommand();
     }
 
-    public function test_the_alert_is_in_persian_and_opens_the_home_page(): void
+    public function test_the_alert_names_their_time_and_what_is_waiting_and_opens_the_home_page(): void
     {
         $user = User::factory()->create();
+        $notification = new StudyReminder('20:30', 'روز ۳ از M05: Listening، حدود ۸ دقیقه', 5);
 
-        foreach (range(0, count(StudyReminder::MESSAGES) - 1) as $index) {
-            $notification = new StudyReminder('12:00', $index);
-            $payload = $notification->toWebPush($user, $notification)->toArray();
+        $payload = $notification->toWebPush($user, $notification)->toArray();
 
-            $this->assertSame('یادآور مطالعه', $payload['title']);
-            $this->assertMatchesRegularExpression('/\p{Arabic}/u', $payload['body']);
-            $this->assertSame(['url' => route('home')], $payload['data']);
-        }
+        $this->assertSame('یادآور ساعت ۲۰:۳۰', $payload['title']);
+        $this->assertStringContainsString('روز ۳ از M05: Listening', $payload['body']);
+        $this->assertStringContainsString('۵ کلمه برای مرور', $payload['body']);
+        $this->assertSame(['url' => route('home')], $payload['data']);
     }
 
-    public function test_the_alert_tells_the_learner_the_time_is_the_one_they_set(): void
+    public function test_without_anything_specific_waiting_the_alert_still_reads_in_persian(): void
     {
         $user = User::factory()->create();
-        $notification = new StudyReminder('20:30', 0);
+        $notification = new StudyReminder('12:00');
 
-        $body = $notification->toWebPush($user, $notification)->toArray()['body'];
-
-        $this->assertStringContainsString('۲۰:۳۰', $body);
-        $this->assertStringContainsString('خودتان گذاشتید', $body);
-        $this->assertStringNotContainsString('{time}', $body);
+        $this->assertSame(StudyReminder::FALLBACK_MESSAGE, $notification->toWebPush($user, $notification)->toArray()['body']);
     }
 
     public function test_the_picker_starts_with_both_slots_off(): void

@@ -21,7 +21,7 @@ class FollowRequestReceived extends Notification
     {
         return [
             'icon' => 'heroicon-o-user-plus',
-            'title' => "{$this->follower->name} wants to connect",
+            'title' => "درخواست دوستی از {$this->follower->name}",
             'url' => route('friends.index'),
             'follower_id' => $this->follower->id,
         ];

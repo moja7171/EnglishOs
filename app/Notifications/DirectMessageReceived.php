@@ -33,8 +33,8 @@ class DirectMessageReceived extends Notification
         $sender = $this->message->sender;
 
         $title = $this->message->type === DirectMessage::TYPE_NUDGE
-            ? "{$sender->name} sent you a nudge"
-            : "{$sender->name} sent you a message";
+            ? "تلنگر از {$sender->name} 👋"
+            : "پیام جدید از {$sender->name}";
 
         return [
             'icon' => $this->message->type === DirectMessage::TYPE_NUDGE ? 'heroicon-s-fire' : 'heroicon-o-chat-bubble-left-right',

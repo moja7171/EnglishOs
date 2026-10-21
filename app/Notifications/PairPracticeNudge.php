@@ -23,7 +23,7 @@ class PairPracticeNudge extends Notification
     {
         return [
             'icon' => 'heroicon-s-fire',
-            'title' => "{$this->sender->name} is waiting: finish today so you can practise together",
+            'title' => "تلنگر از {$this->sender->name}: درس امروزت رو تموم کن تا با هم تمرین کنید",
             'url' => route('pair-practice.index'),
             'sender_id' => $this->sender->id,
         ];

@@ -46,6 +46,21 @@ class PairPracticeTest extends TestCase
         ]);
     }
 
+    /**
+     * A round on its first card with $count word cards ("word 0", …) ahead
+     * of the factory's grammar and speaking cards.
+     */
+    private function sessionWithWordCards(int $count): PairPracticeSession
+    {
+        $session = PairPracticeSession::factory()->create();
+        $session->deck = [...$session->deck, 'vocabulary' => collect(range(0, $count - 1))
+            ->map(fn (int $i) => ['prompt' => "واژه {$i}", 'answer' => "word {$i}", 'source' => 'M01 · Day 1'])
+            ->all()];
+        $session->save();
+
+        return $session;
+    }
+
     private function makeMutualFriend(User $me): User
     {
         $friend = User::factory()->create();
@@ -283,16 +298,73 @@ class PairPracticeTest extends TestCase
         $this->assertNull(PairPracticeSession::meetAppIntent('https://zoom.us/j/123'));
     }
 
-    public function test_cancelling_an_invite_leaves_nothing_in_the_history(): void
+    public function test_a_cancelled_invite_leaves_nothing_in_the_history_and_the_friend_is_told(): void
     {
         $session = PairPracticeSession::factory()->waiting()->create();
+        [$starter, $friend] = $session->players();
 
-        $this->actingAs($session->startedBy);
+        $this->actingAs($starter);
         Livewire::test('pair-practice.session', ['session' => $session])
             ->call('end')
             ->assertRedirect(route('pair-practice.index'));
 
-        $this->assertModelMissing($session);
+        $session->refresh();
+        $this->assertTrue($session->isCancelled());
+        $this->assertNull($session->finished_at);
+        $this->assertSame(0, PairPracticeSession::forPair($starter, $friend)->open()->count());
+
+        $this->actingAs($friend);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee($starter->name.' cancelled the invite.')
+            ->call('join');
+        $this->assertTrue($session->refresh()->isCancelled());
+    }
+
+    public function test_a_round_ended_too_early_does_not_count(): void
+    {
+        $session = $this->sessionWithWordCards(6);
+        [$first, $second] = $session->players();
+
+        $this->actingAs($second);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('Too short to count yet.')
+            ->call('judge', false, 0)
+            ->call('end');
+
+        $session->refresh();
+        $this->assertTrue($session->isCancelled());
+        $this->assertNull($session->finished_at);
+        $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $first->id]);
+
+        $this->actingAs($first);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee($second->name.' ended the round.')
+            ->assertSee('Too short to count');
+    }
+
+    public function test_ending_a_round_tells_the_other_phone_who_ended_it(): void
+    {
+        $session = $this->sessionWithWordCards(6);
+        [$first, $second] = $session->players();
+
+        foreach (range(0, PairPracticeSession::MIN_COUNTED_CARDS - 1) as $card) {
+            $this->actingAs($card % 2 === 0 ? $second : $first);
+            Livewire::test('pair-practice.session', ['session' => $session->refresh()])->call('judge', true, $card);
+        }
+
+        $this->actingAs($first);
+        Livewire::test('pair-practice.session', ['session' => $session->refresh()])
+            ->assertSee('Scores so far are saved.')
+            ->call('end');
+
+        $session->refresh();
+        $this->assertTrue($session->isFinished());
+        $this->assertSame($first->id, $session->ended_by_id);
+
+        $this->actingAs($second);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('Well done, both of you!')
+            ->assertSee($first->name.' ended the round.');
     }
 
     public function test_only_the_judge_sees_the_answer(): void
@@ -392,18 +464,21 @@ class PairPracticeTest extends TestCase
 
     public function test_a_word_the_speaker_could_not_say_goes_into_their_own_words_at_the_end(): void
     {
-        $session = PairPracticeSession::factory()->create();
+        $session = $this->sessionWithWordCards(PairPracticeSession::MIN_COUNTED_CARDS);
         [$first, $second] = $session->players();
 
-        $this->actingAs($second);
+        foreach (range(0, PairPracticeSession::MIN_COUNTED_CARDS - 1) as $card) {
+            $this->actingAs($card % 2 === 0 ? $second : $first);
+            Livewire::test('pair-practice.session', ['session' => $session->refresh()])->call('judge', $card !== 0, $card);
+        }
 
-        Livewire::test('pair-practice.session', ['session' => $session])
-            ->call('judge', false, 0)
+        $this->actingAs($second);
+        Livewire::test('pair-practice.session', ['session' => $session->refresh()])
             ->call('end')
             ->assertSee('added to My Words');
 
-        $this->assertDatabaseHas('vocabulary_words', ['learner_id' => $first->id, 'word' => 'wake up', 'meaning_fa' => 'بیدار شدن']);
-        $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $second->id, 'word' => 'wake up']);
+        $this->assertDatabaseHas('vocabulary_words', ['learner_id' => $first->id, 'word' => 'word 0', 'meaning_fa' => 'واژه 0']);
+        $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $second->id, 'word' => 'word 0']);
     }
 
     public function test_the_invited_friend_sees_join_on_the_friends_list(): void

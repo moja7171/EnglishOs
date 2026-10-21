@@ -19,7 +19,7 @@ class FollowRequestAccepted extends Notification
     {
         return [
             'icon' => 'heroicon-o-check-circle',
-            'title' => "{$this->accepter->name} accepted your friend request",
+            'title' => "حالا با {$this->accepter->name} دوستید 🎉",
             'url' => route('friends.conversation', $this->accepter),
         ];
     }
