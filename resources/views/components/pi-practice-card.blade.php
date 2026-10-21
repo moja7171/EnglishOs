@@ -1,17 +1,16 @@
 {{--
-    A practice prompt for one of the learner's 3 persistent Pi chats (see
-    App\Services\PiPrompts and /pi-setup), shown on the daily voice practice
-    page (/pi) — purely a suggestion, never touches Evidence.
+    The day's ready-to-paste prompt (see App\Services\PiPrompts), shown on
+    the daily voice practice page (/pi) — purely a suggestion, never
+    touches Evidence.
 
     Renders nothing if $task is null (the caller passes a PiPrompts
     *Task() result straight through — same fail-soft convention as every
     PexelsClient call).
 
-    @param string $roleLabel One of PiPrompts::onboardingRoles()'s labels, e.g. "Teacher".
-    @param array{instruction: string, prompt: string}|null $task
+    @param array{prompt: string}|null $task
     @param int $rows Visible height of the prompt box.
 --}}
-@props(['roleLabel', 'task', 'rows' => 2])
+@props(['task', 'rows' => 2])
 
 @if ($task)
     <div
@@ -20,9 +19,8 @@
     >
         <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink dark:text-ink-dark">
             @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
-            {{ $roleLabel }} chat in your voice AI app
+            Today's prompt
         </p>
-        <p class="mt-1 text-xs text-ink-soft dark:text-ink-soft-dark">{{ $task['instruction'] }}</p>
         <textarea
             x-ref="prompt"
             readonly

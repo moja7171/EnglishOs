@@ -62,7 +62,7 @@
             @svg('heroicon-o-book-open', 'h-5 w-5') Learner guide
         </a>
         <a href="{{ route('pi.setup') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
-            @svg('heroicon-o-chat-bubble-left-right', 'h-5 w-5') Voice practice setup
+            @svg('heroicon-o-chat-bubble-left-right', 'h-5 w-5') Voice practice guide
         </a>
 
         <div class="my-1 border-t border-line dark:border-line-dark"></div>

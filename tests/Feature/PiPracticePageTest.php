@@ -92,8 +92,9 @@ class PiPracticePageTest extends TestCase
         $this->get(route('pi.practice'))
             ->assertSee('Voice practice today')
             ->assertSee('M01 · My Daily Life · Day 1 of 4')
-            ->assertSee('Pronunciation Coach')
-            ->assertSee('Like always, let');
+            ->assertSee('Pronunciation')
+            ->assertSee("Today's plan", false)
+            ->assertSee("Don't greet me");
     }
 
     public function test_the_page_links_to_both_voice_apps_in_a_new_tab(): void
@@ -111,11 +112,11 @@ class PiPracticePageTest extends TestCase
     {
         $this->actingAs($this->finishedLearner());
 
-        $this->get(route('pi.practice', ['M01', 2]))->assertSee('Teacher chat');
-        $this->get(route('pi.practice', ['M01', 3]))->assertSee('Language Partner chat');
+        $this->get(route('pi.practice', ['M01', 2]))->assertSee('5 questions');
+        $this->get(route('pi.practice', ['M01', 3]))->assertSee('6 turns');
         $this->get(route('pi.practice', ['M01', 4]))
             ->assertSee('Retell &amp; Fix', false)
-            ->assertSee('retell game');
+            ->assertSee('3 fixes');
     }
 
     public function test_a_day_finished_earlier_today_stays_the_target_until_the_learner_practices(): void

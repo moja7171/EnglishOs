@@ -32,34 +32,26 @@ class PiPromptsTest extends TestCase
         ]);
     }
 
-    public function test_onboarding_roles_interpolate_the_learners_real_level(): void
+    private function task(int $day, string $missionCode = 'M01', string $level = 'B1'): array
     {
-        $learner = User::factory()->create(['cefr_level' => 'A2+']);
-
-        $roles = app(PiPrompts::class)->onboardingRoles($learner);
-
-        $this->assertSame(['teacher', 'partner', 'coach'], array_keys($roles));
-        foreach ($roles as $role) {
-            $this->assertArrayHasKey('label', $role);
-            $this->assertArrayHasKey('when', $role);
-            $this->assertStringContainsString('A2+', $role['setupMessage']);
-        }
+        return app(PiPrompts::class)->dayTask(User::factory()->make(['cefr_level' => $level]), $missionCode, $day);
     }
 
-    public function test_each_day_of_a_mission_has_its_own_fixed_chat(): void
+    public function test_every_day_is_a_self_contained_short_session_with_a_plan(): void
     {
         $this->makeMission();
 
-        $chats = collect(range(1, 4))
-            ->map(fn (int $day) => app(PiPrompts::class)->dayTask('M01', $day)['instruction'])
-            ->all();
+        foreach (range(1, 4) as $day) {
+            $task = $this->task($day, level: 'A2+');
 
-        $this->assertSame([
-            'Go to your Pronunciation Coach chat and try this:',
-            'Go to your Teacher chat and try this:',
-            'Go to your Language Partner chat and try this:',
-            'Go to your Teacher chat and try this:',
-        ], $chats);
+            $this->assertStringContainsString('at A2+ level', $task['prompt']);
+            $this->assertStringContainsString("Don't greet me and no small talk", $task['prompt']);
+            $this->assertStringContainsString('reason in 8 words or less', $task['prompt']);
+            $this->assertMatchesRegularExpression('/Round 1 of \d+/', $task['prompt']);
+            $this->assertStringContainsString('"why?" = explain a bit more', $task['prompt']);
+            $this->assertStringEndsWith('tell me this plan in one short sentence, then begin round 1.', $task['prompt']);
+            $this->assertCount(3, $task['plan']);
+        }
     }
 
     public function test_pronunciation_day_uses_the_shadow_lines_without_bold_markers(): void
@@ -68,9 +60,10 @@ class PiPromptsTest extends TestCase
             ['key' => 'daily_listen', 'shadow_lines' => ['**Otherwise** I\'m **very grumpy**.', 'Another line.']],
         ]);
 
-        $task = app(PiPrompts::class)->dayTask('M01', 1);
+        $task = $this->task(1);
 
-        $this->assertStringContainsString("Otherwise I'm very grumpy. / Another line.", $task['prompt']);
+        $this->assertStringContainsString("1. Otherwise I'm very grumpy.\n2. Another line.", $task['prompt']);
+        $this->assertStringContainsString('Round 1 of 3', $task['prompt']);
         $this->assertStringNotContainsString('**', $task['prompt']);
     }
 
@@ -83,9 +76,9 @@ class PiPromptsTest extends TestCase
             ]],
         ]);
 
-        $task = app(PiPrompts::class)->dayTask('M01', 1);
+        $task = $this->task(1);
 
-        $this->assertStringContainsString('He gets up at six every morning. / We always sleep in on Sundays.', $task['prompt']);
+        $this->assertStringContainsString("1. He gets up at six every morning.\n2. We always sleep in on Sundays.", $task['prompt']);
     }
 
     public function test_pronunciation_day_hands_over_at_most_six_lines(): void
@@ -93,7 +86,7 @@ class PiPromptsTest extends TestCase
         $words = collect(range(1, 8))->map(fn (int $n) => ['phrase' => "word {$n}", 'example' => "Example number {$n}."])->all();
         $this->makeMission([['key' => 'vocabulary_builder_1', 'words' => $words]]);
 
-        $task = app(PiPrompts::class)->dayTask('M01', 1);
+        $task = $this->task(1);
 
         $this->assertStringContainsString('Example number 6.', $task['prompt']);
         $this->assertStringNotContainsString('Example number 7.', $task['prompt']);
@@ -103,9 +96,9 @@ class PiPromptsTest extends TestCase
     {
         $this->makeMission();
 
-        $task = app(PiPrompts::class)->dayTask('M01', 1);
+        $task = $this->task(1);
 
-        $this->assertStringContainsString('"My Daily Life"', $task['prompt']);
+        $this->assertStringContainsString('Make up 6 short, useful lines about "My Daily Life"', $task['prompt']);
     }
 
     public function test_grammar_day_is_built_from_the_missions_grammar_focus(): void
@@ -114,51 +107,66 @@ class PiPromptsTest extends TestCase
             ['key' => 'grammar_in_context', 'focus' => 'Present Simple + Adverbs of Frequency'],
         ]);
 
-        $task = app(PiPrompts::class)->dayTask('M01', 2);
+        $task = $this->task(2);
 
         $this->assertStringContainsString('Present Simple + Adverbs of Frequency', $task['prompt']);
     }
 
     public function test_grammar_day_uses_the_roadmap_grammar_when_the_mission_is_not_seeded(): void
     {
-        $task = app(PiPrompts::class)->dayTask('M05', 2);
+        $task = $this->task(2, 'M05');
 
         $this->assertStringContainsString('Gerunds vs Infinitives', $task['prompt']);
     }
 
-    public function test_conversation_day_uses_the_mission_title_and_grounds_target_phrases(): void
+    public function test_conversation_day_suggests_the_interview_questions_and_the_taught_phrases(): void
     {
-        $this->makeMission([], [
-            ['key' => 'ai_conversation_1', 'target_phrases' => [
-                ['phrase' => 'get up', 'meaning' => 'to stand up and leave your bed'],
-                ['phrase' => 'oversleep', 'meaning' => 'to sleep longer than you should'],
-            ]],
+        $this->makeMission([
+            ['key' => 'listening', 'target_phrases' => [['phrase' => 'get up'], ['phrase' => 'oversleep']]],
+        ], [
+            ['key' => 'video_shadowing', 'target_phrases' => [['phrase' => 'get up'], ['phrase' => 'pack a lunch']]],
+            ['key' => 'ai_conversation_1', 'interview_questions' => ['What time do you usually wake up?']],
         ]);
 
-        $task = app(PiPrompts::class)->dayTask('M01', 3);
+        $task = $this->task(3);
 
-        $this->assertStringContainsString('My Daily Life', $task['prompt']);
-        $this->assertStringContainsString('get up, oversleep', $task['prompt']);
-        $this->assertStringNotContainsString('real challenge', $task['prompt']);
+        $this->assertStringContainsString('casual chat about "My Daily Life". My goal: I can talk about my daily routine.', $task['prompt']);
+        $this->assertStringContainsString('- What time do you usually wake up?', $task['prompt']);
+        $this->assertStringContainsString('try to use: get up, oversleep, pack a lunch.', $task['prompt']);
+        $this->assertStringContainsString('In rounds 3 and 6, I ask you a question', $task['prompt']);
     }
 
-    public function test_conversation_day_omits_the_phrase_hint_when_the_mission_has_none(): void
+    public function test_conversation_day_omits_the_hints_when_the_mission_has_none(): void
     {
         $this->makeMission();
 
-        $task = app(PiPrompts::class)->dayTask('M01', 3);
+        $task = $this->task(3);
 
-        $this->assertStringNotContainsString('try working in', $task['prompt']);
+        $this->assertStringNotContainsString('Questions you can ask me', $task['prompt']);
+        $this->assertStringNotContainsString('try to use', $task['prompt']);
     }
 
-    public function test_retell_day_holds_the_fixes_until_the_end(): void
+    public function test_retell_day_offers_the_missions_stories_and_holds_the_fixes_until_the_end(): void
     {
-        $this->makeMission();
+        $this->makeMission([
+            ['key' => 'listening', 'topic_summary' => 'Neil and Georgie talk about mornings. They also talk about breakfast.'],
+        ]);
 
-        $task = app(PiPrompts::class)->dayTask('M01', 4);
+        $task = $this->task(4);
 
-        $this->assertStringContainsString('retell game about "My Daily Life"', $task['prompt']);
+        $this->assertStringContainsString("- Neil and Georgie talk about mornings.\n", $task['prompt']);
+        $this->assertStringNotContainsString('They also talk about breakfast.', $task['prompt']);
         $this->assertStringContainsString('no fixing while I talk', $task['prompt']);
-        $this->assertStringContainsString('3 most useful fixes', $task['prompt']);
+        $this->assertStringContainsString('my 3 most useful fixes', $task['prompt']);
+    }
+
+    public function test_retell_day_without_stories_falls_back_to_the_mission_title(): void
+    {
+        $this->makeMission();
+
+        $task = $this->task(4);
+
+        $this->assertStringContainsString('what I learned about "My Daily Life"', $task['prompt']);
+        $this->assertStringNotContainsString('Stories:', $task['prompt']);
     }
 }

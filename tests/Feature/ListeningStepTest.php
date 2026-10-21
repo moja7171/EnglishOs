@@ -77,7 +77,7 @@ class ListeningStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.listening', ['run' => $run])
-            ->assertDontSee('Language Partner chat in your voice AI app');
+            ->assertDontSee("Today's prompt", false);
     }
 
     public function test_the_wrap_up_offers_discussing_the_topic_with_a_mutual_friend(): void

@@ -5,161 +5,119 @@ namespace App\Services;
 use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Builds ready-to-paste prompts for Pi (or any other live-voice AI
  * assistant) — a separate app with no API of ours to call, so the whole
- * mechanism is "tell the learner exactly what to paste where". Same
- * "build it from the mission's own seeded content" approach the old
- * ProgramPlanner::speaking() used, generalized to 3 fixed personas
- * (teacher/partner/pronunciation coach).
+ * mechanism is "tell the learner exactly what to paste where", built from
+ * the mission's own seeded content.
  *
- * The personas are used once a day, outside the mission steps, on the
- * /pi practice page (see App\Services\PiPractice): each of a mission's 4
- * days has its own fixed practice — pronunciation, grammar, conversation,
+ * The prompts are used once a day, outside the mission steps, on the /pi
+ * practice page (see App\Services\PiPractice): each of a mission's 4 days
+ * has its own fixed practice — pronunciation, grammar, conversation,
  * retell — built by dayTask(). Every day always returns a prompt: when the
  * mission lacks the content a day would normally use, it falls back to a
  * shorter prompt built from the mission's title or roadmap grammar, so the
  * page never has an empty card.
  *
- * Content is deliberately written as a live spoken exchange (Pi asks,
- * waits, reacts, continues — a game/role-play/quick-fire round) rather
- * than a "send text, get graded" loop: Pi is a live-voice assistant, not
- * a chat interface, and a "give me 3 sentences to check" style prompt
- * reads as a text drill even when spoken aloud. Low-pressure, playful
- * framing ("game", "no big deal", "fun not a test") is intentional too —
- * this is optional extra practice, not evaluated Evidence, so it should
- * feel inviting at every CEFR level, never like a test.
+ * Every prompt is self-contained — the learner's level, the rules, the
+ * plan and the material all travel in it — because Pi keeps a single
+ * running conversation (no separate chats per role) and a voice session
+ * may start fresh. The rules keep a session short and specific: no greeting
+ * or small talk (a voice session otherwise opens with "how are you?"),
+ * 1-2 short sentences per turn, one very short fix per turn, numbered
+ * rounds so it ends after about 10 minutes, and a fixed wrap-up. The AI
+ * can't track time, so the length is set in rounds, not minutes.
  */
 class PiPrompts
 {
-    public const ROLE_TEACHER = 'teacher';
-
-    public const ROLE_PARTNER = 'partner';
-
-    public const ROLE_COACH = 'coach';
-
     /**
-     * The fixed practice of each day of a mission: which of the 3 Pi chats
-     * it happens in, what the learner sees it called, and the one-line goal.
+     * The fixed practice of each day of a mission: what the learner sees it
+     * called and the one-line goal.
      *
-     * @var array<int, array{role: string, label: string, title: string, goal: string}>
+     * @var array<int, array{title: string, goal: string}>
      */
     public const DAYS = [
         1 => [
-            'role' => self::ROLE_COACH,
-            'label' => 'Pronunciation Coach',
             'title' => 'Pronunciation',
-            'goal' => 'Say this day\'s new words and phrases out loud, and get one quick, specific fix on each.',
+            'goal' => 'Repeat short lines from this mission out loud and find the words that are hard to understand.',
         ],
         2 => [
-            'role' => self::ROLE_TEACHER,
-            'label' => 'Teacher',
             'title' => 'Grammar',
-            'goal' => 'Play with the mission\'s grammar point out loud — a spoken game, not a written test.',
+            'goal' => 'Answer 5 quick questions out loud with this mission\'s grammar.',
         ],
         3 => [
-            'role' => self::ROLE_PARTNER,
-            'label' => 'Language Partner',
             'title' => 'Conversation',
-            'goal' => 'A short, easy role-play on the mission\'s topic — fast spoken answers, nothing deep.',
+            'goal' => 'A short chat about this mission\'s topic — 6 quick turns, 2 of them your questions.',
         ],
         4 => [
-            'role' => self::ROLE_TEACHER,
-            'label' => 'Teacher',
             'title' => 'Retell & Fix',
-            'goal' => 'Tell the story of this mission in your own words, then get your 3 most useful fixes.',
+            'goal' => 'Retell one story from this mission in your own words, then get your 3 most useful fixes.',
         ],
     ];
 
     /**
-     * The most example lines the pronunciation day hands to the coach in
-     * one go — enough for a quick echo game, few enough to finish.
+     * The words the learner can say to steer a session — listed in every
+     * prompt and on the practice page.
+     *
+     * @var array<string, string>
+     */
+    public const CONTROL_WORDS = [
+        'next' => 'skip to the next round',
+        'again' => 'say it again',
+        'slower' => 'speak more slowly',
+        'why?' => 'explain a bit more',
+        'stop' => 'end the session now',
+        'more' => 'keep going after the end',
+    ];
+
+    /**
+     * The most example lines the pronunciation day hands to the AI in one
+     * go — enough for a quick echo round, few enough to finish in time.
      */
     private const MAX_PRONUNCIATION_LINES = 6;
 
     /**
-     * The one-time setup message for each of the 3 persistent Pi chats —
-     * shown on /pi-setup. Content is final (not a placeholder), written
-     * in English since Pi is an English-speaking assistant.
-     *
-     * @return array<string, array{label: string, when: string, setupMessage: string}>
+     * The most suggested questions and target phrases the conversation day
+     * hands over — a guide, not a script.
      */
-    public function onboardingRoles(User $learner): array
-    {
-        $level = $learner->cefr_level;
-
-        return [
-            self::ROLE_TEACHER => [
-                'label' => 'Teacher',
-                'when' => 'Grammar and Retell & Fix days of your daily voice practice.',
-                'setupMessage' => "Hi! I'm learning English, currently around {$level} level. From now on in "
-                    .'this chat, please be my English grammar coach — but keep it playful and spoken, more like '
-                    .'a quick game than a lesson. When I bring you a grammar point, turn it into a short back-'
-                    .'and-forth: ask me a few real questions that need it, one at a time, wait for my spoken '
-                    .'answer, and react like we\'re actually talking, not grading a test. If I make a mistake, '
-                    .'give me one short, friendly fix and keep going — never a long list, never anything that '
-                    .'feels like an exam. Keep your own language at my level. Ready?',
-            ],
-            self::ROLE_PARTNER => [
-                'label' => 'Language Partner',
-                'when' => 'Conversation day of your daily voice practice.',
-                'setupMessage' => "Hi! I'm learning English, currently around {$level} level. From now on in "
-                    .'this chat, please be a friendly English conversation partner. When I ask you to talk about '
-                    .'something, keep it light and spoken — ask me one question at a time, wait for my spoken '
-                    .'answer, react naturally, then follow up, like a real conversation, never an interview. '
-                    .'Feel free to turn it into a quick game sometimes too — would-you-rather, two truths and a '
-                    .'lie, a mini role-play, building a story together — whatever keeps it fun. Keep your own '
-                    .'language at my level. Ready?',
-            ],
-            self::ROLE_COACH => [
-                'label' => 'Pronunciation Coach',
-                'when' => 'Pronunciation day of your daily voice practice.',
-                'setupMessage' => "Hi! I'm learning English, currently around {$level} level. From now on in "
-                    .'this chat, please be my pronunciation coach. When I give you lines to practice, say each '
-                    .'one aloud the way a native speaker naturally would, let me repeat it back, react like '
-                    .'we\'re actually practicing together, then give me one quick, specific fix — the exact '
-                    .'sound or stress to adjust, never just \'try again\' — and move straight on. Keep your own '
-                    .'language at my level, and keep the pace snappy and encouraging, like a fun game, never a '
-                    .'test. Ready?',
-            ],
-        ];
-    }
+    private const MAX_CONVERSATION_HINTS = 4;
 
     /**
      * The practice for one day (1-4) of one mission, with everything the
      * practice page shows about it.
      *
-     * @return array{role: string, roleLabel: string, title: string, goal: string, instruction: string, prompt: string}
+     * @return array{title: string, goal: string, plan: list<string>, prompt: string}
      */
-    public function dayTask(string $missionCode, int $dayNumber): array
+    public function dayTask(User $learner, string $missionCode, int $dayNumber): array
     {
-        $day = self::DAYS[$dayNumber] ?? self::DAYS[1];
+        $dayNumber = isset(self::DAYS[$dayNumber]) ? $dayNumber : 1;
         $mission = Mission::where('code', $missionCode)->first();
         $catalog = Mission::roadmapCatalog()[$missionCode] ?? ['title' => $missionCode, 'grammar' => ''];
         $title = $mission?->title ?? $catalog['title'];
 
-        $prompt = match ($dayNumber) {
-            2 => $this->grammarPrompt($mission?->stepContent('grammar_in_context')['focus'] ?? $catalog['grammar'], $title),
-            3 => $this->conversationPrompt($title, $this->targetPhrases($mission)),
-            4 => $this->retellPrompt($title),
-            default => $this->pronunciationPrompt($title, $this->pronunciationLines($mission, $dayNumber)),
+        $session = match ($dayNumber) {
+            2 => $this->grammarSession($mission?->stepContent('grammar_in_context')['focus'] ?? $catalog['grammar'], $title),
+            3 => $this->conversationSession($mission, $title),
+            4 => $this->retellSession($mission, $title),
+            default => $this->pronunciationSession($title, $this->pronunciationLines($mission, $dayNumber)),
         };
 
+        $day = self::DAYS[$dayNumber];
+
         return [
-            'role' => $day['role'],
-            'roleLabel' => $day['label'],
             'title' => $day['title'],
             'goal' => $day['goal'],
-            'instruction' => "Go to your {$day['label']} chat and try this:",
-            'prompt' => $prompt,
+            'plan' => $session['plan'],
+            'prompt' => $this->prompt($learner, $day['title'], $title, $session),
         ];
     }
 
     /**
-     * What the day's steps give the coach to say aloud: the shadowing
-     * lines when the day has them, otherwise the example sentences of the
-     * words the learner just met, otherwise the mission's target phrases.
+     * What the day's steps give the AI to say aloud: the shadowing lines
+     * when the day has them, otherwise the example sentences of the words
+     * the learner just met, otherwise the mission's target phrases.
      * (Day 1 is comprehension-only, so it normally uses the new words.)
      *
      * @return list<string>
@@ -188,67 +146,178 @@ class PiPrompts
     }
 
     /**
+     * The phrases the mission's listening and video taught — the ones worth
+     * pulling into the conversation.
+     *
      * @return list<string>
      */
     private function targetPhrases(?Mission $mission): array
     {
-        return collect($mission?->stepContent('ai_conversation_1')['target_phrases'] ?? [])
-            ->pluck('phrase')
+        return collect(['listening', 'video_shadowing'])
+            ->flatMap(fn (string $stepKey) => collect($mission?->stepContent($stepKey)['target_phrases'] ?? [])->pluck('phrase'))
             ->filter()
+            ->unique()
+            ->take(self::MAX_CONVERSATION_HINTS)
             ->values()
             ->all();
     }
 
     /**
-     * @param  list<string>  $lines
+     * The shared head (level, rules) and tail (start now) wrapped around a
+     * day's own plan and material.
+     *
+     * @param  array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}  $session
      */
-    private function pronunciationPrompt(string $title, array $lines): string
+    private function prompt(User $learner, string $dayTitle, string $missionTitle, array $session): string
     {
-        if ($lines === []) {
-            return "Like always, let's play a quick echo game on \"{$title}\": make up a few short, useful sentences "
-                .'about it and say the first one the way a native speaker naturally would — real speed, real '
-                .'rhythm — I\'ll repeat it right back, then give me one quick, specific fix, nothing long, and we '
-                .'jump straight to the next one. Keep the pace snappy and fun, like a game, not a test.';
-        }
+        $level = $learner->cefr_level ?: 'B1';
+        $controlWords = collect(self::CONTROL_WORDS)
+            ->map(fn (string $meaning, string $word) => "\"{$word}\" = {$meaning}")
+            ->implode(', ');
+        $steps = collect($session['steps'])
+            ->map(fn (string $step, int $index) => ($index + 1).'. '.$step)
+            ->implode("\n");
 
-        return 'Like always, let\'s turn these into a quick echo game: '.implode(' / ', $lines).'. Say the first one '
-            .'the way a native speaker naturally would — real speed, real rhythm — I\'ll repeat it right '
-            .'back, then give me one quick, specific fix, nothing long, and we jump straight to the next '
-            .'line. Keep the pace snappy and fun, like a game, not a test.';
-    }
-
-    private function grammarPrompt(string $focus, string $title): string
-    {
-        $focus = $focus !== '' ? $focus : $title;
-
-        return "Like always, let's practice \"{$focus}\" as a quick spoken game, not a written test. Ask me 3 or 4 "
-            .'real questions, one at a time, that need "'.$focus.'" to answer — wait for me to answer out '
-            .'loud before the next one, and react like we\'re actually chatting. If I get the grammar '
-            .'wrong, jump in gently with a one-line fix and keep going — no big deal, we\'re just playing '
-            .'with it.';
+        return "I'm an English learner at {$level} level. This is a 10-minute voice practice.\n\n"
+            ."Rules for you:\n"
+            ."- Don't greet me and no small talk. Start right away.\n"
+            ."- Speak in 1-2 short, simple sentences per turn. No long explanations.\n"
+            ."- If I make a mistake, say the correct sentence, then the reason in 8 words or less. Or give one short tip. Only one fix per turn.\n"
+            ."- Say the round number each time, like \"Round 1 of {$session['rounds']}\".\n"
+            ."- My control words: {$controlWords}.\n"
+            ."- After the last round, stop. Give me my {$session['fixes']} most useful fixes, each with a very short reason, and 1 thing I did well. Then only ask: \"More?\"\n\n"
+            ."Today: {$dayTitle} — \"{$missionTitle}\".\n"
+            .$steps."\n"
+            .($session['material'] !== '' ? "\n".$session['material']."\n" : '')
+            ."\nStart now: tell me this plan in one short sentence, then begin round 1.";
     }
 
     /**
-     * @param  list<string>  $phrases
+     * @param  list<string>  $lines
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
      */
-    private function conversationPrompt(string $title, array $phrases): string
+    private function pronunciationSession(string $title, array $lines): array
     {
-        $phraseHint = $phrases !== []
-            ? ' If it fits naturally, try working in: '.implode(', ', $phrases).'.'
-            : '';
+        $count = $lines === [] ? self::MAX_PRONUNCIATION_LINES : count($lines);
 
-        return "Like always, let's do a short spoken role-play about \"{$title}\": you pick a real-life situation around "
-            .'it and play your part, and I\'ll play mine. Fire off quick, easy questions one at a time — nothing '
-            .'deep, just fast spoken answers — react like we\'re really chatting, and keep the energy quick and '
-            .'fun.'.$phraseHint;
+        return [
+            'rounds' => $count + 1,
+            'fixes' => 2,
+            'plan' => [
+                'Start — the AI tells you the plan (1 min)',
+                "{$count} lines — the AI says one, you repeat it; then all of them in a row (7 min)",
+                'Wrap-up — 2 fixes and 1 thing you did well (2 min)',
+            ],
+            'steps' => [
+                ($lines === []
+                    ? "Make up {$count} short, useful lines about \"{$title}\". In rounds 1 to {$count}, say one line at natural speed, and I repeat it."
+                    : "In rounds 1 to {$count}, say one line below at natural speed, and I repeat it."),
+                'After I repeat it, tell me if every word came through clearly. If not, name the unclear word and say it slowly once.',
+                'In round '.($count + 1).', I say all the lines in a row.',
+            ],
+            'material' => $lines === []
+                ? ''
+                : "Lines:\n".collect($lines)->map(fn (string $line, int $index) => ($index + 1).'. '.$line)->implode("\n"),
+        ];
     }
 
-    private function retellPrompt(string $title): string
+    /**
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
+     */
+    private function grammarSession(string $focus, string $title): array
     {
-        return "Like always, let's play a retell game about \"{$title}\". I'll tell you in my own words what I learned and "
-            .'did — no notes — and you just listen, no fixing while I talk. Then ask me 2 or 3 follow-up '
-            .'questions, one at a time, and I\'ll answer out loud. At the end, give me my 3 most useful fixes '
-            .'and 3 better phrases I could use next time — quick and friendly, nothing long, like a game, not '
-            .'a test.';
+        $focus = $focus !== '' ? $focus : $title;
+
+        return [
+            'rounds' => 5,
+            'fixes' => 2,
+            'plan' => [
+                'Start — the AI tells you the plan and gives 1 example (1 min)',
+                '5 questions — answer each one out loud (7 min)',
+                'Wrap-up — 2 fixes and 1 thing you did well (2 min)',
+            ],
+            'steps' => [
+                "Before round 1, give me one short example sentence with \"{$focus}\".",
+                "In rounds 1 to 5, ask me one real question about my life that needs \"{$focus}\". Wait for my answer, react in a few words, then fix or move on.",
+            ],
+            'material' => '',
+        ];
+    }
+
+    /**
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
+     */
+    private function conversationSession(?Mission $mission, string $title): array
+    {
+        $questions = collect($mission?->stepContent('ai_conversation_1')['interview_questions'] ?? [])
+            ->filter()
+            ->take(self::MAX_CONVERSATION_HINTS)
+            ->values();
+        $phrases = $this->targetPhrases($mission);
+
+        $material = collect([
+            $questions->isNotEmpty() ? "Questions you can ask me:\n".$questions->map(fn (string $question) => "- {$question}")->implode("\n") : null,
+            $phrases !== [] ? 'Phrases I should try to use: '.implode(', ', $phrases).'. Ask questions that make me need them.' : null,
+        ])->filter()->implode("\n\n");
+
+        return [
+            'rounds' => 6,
+            'fixes' => 2,
+            'plan' => [
+                'Start — the AI tells you the plan (1 min)',
+                '6 turns — the AI asks, you answer; in turns 3 and 6 you ask (7 min)',
+                'Wrap-up — 2 fixes and 1 thing you did well (2 min)',
+            ],
+            'steps' => [
+                "We have a casual chat about \"{$title}\"."
+                    .($mission?->outcome ? ' My goal: '.Str::finish($mission->outcome, '.') : ''),
+                'In rounds 1, 2, 4 and 5, ask me one question. Wait for my answer, react in a few words, then fix or move on.',
+                'In rounds 3 and 6, I ask you a question instead. Answer in 1-2 sentences.',
+            ],
+            'material' => $material,
+        ];
+    }
+
+    /**
+     * The stories the learner can retell: the first sentence of what the
+     * mission's listening, video and reading were about.
+     *
+     * @return list<string>
+     */
+    private function retellStories(?Mission $mission): array
+    {
+        return collect(['listening', 'video_shadowing', 'reading_comprehension'])
+            ->map(fn (string $stepKey) => (string) ($mission?->stepContent($stepKey)['topic_summary'] ?? ''))
+            ->filter()
+            ->map(fn (string $summary) => preg_split('/(?<=[.!?])\s+/', trim($summary))[0])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
+     */
+    private function retellSession(?Mission $mission, string $title): array
+    {
+        $stories = $this->retellStories($mission);
+
+        return [
+            'rounds' => 3,
+            'fixes' => 3,
+            'plan' => [
+                'Retell — 1-2 minutes in your own words, no interruptions (3 min)',
+                '2 follow-up questions — answer out loud (4 min)',
+                'Wrap-up — 3 fixes and 1 thing you did well (3 min)',
+            ],
+            'steps' => [
+                $stories === []
+                    ? "In round 1, I tell you in my own words what I learned about \"{$title}\". Just listen — no fixing while I talk."
+                    : 'In round 1, I pick one story below and retell it in my own words. Just listen — no fixing while I talk.',
+                'In rounds 2 and 3, ask me one follow-up question about it. Wait for my answer, react in a few words.',
+            ],
+            'material' => $stories === []
+                ? ''
+                : "Stories:\n".collect($stories)->map(fn (string $story) => "- {$story}")->implode("\n"),
+        ];
     }
 }

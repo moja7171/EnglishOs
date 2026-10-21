@@ -104,12 +104,12 @@ new class extends Component
     }
 
     /**
-     * @return array{role: string, roleLabel: string, title: string, goal: string, instruction: string, prompt: string}
+     * @return array{title: string, goal: string, plan: list<string>, prompt: string}
      */
     #[Computed]
     public function task(): array
     {
-        return app(PiPrompts::class)->dayTask($this->missionCode, $this->day);
+        return app(PiPrompts::class)->dayTask(auth()->user(), $this->missionCode, $this->day);
     }
 
     #[Computed]
@@ -211,6 +211,15 @@ new class extends Component
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">The last thing of your day, after the mission steps. It is never a step and never blocks anything.</p>
     </section>
 
+    <section class="card space-y-2 p-4" aria-label="Today's plan">
+        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Today's plan</p>
+        <ol class="list-decimal space-y-1 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
+            @foreach ($this->task['plan'] as $planStep)
+                <li>{{ $planStep }}</li>
+            @endforeach
+        </ol>
+    </section>
+
     <section class="card space-y-3 p-4" aria-label="How to practice">
         <ol class="list-decimal space-y-1.5 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
             <li>
@@ -219,19 +228,29 @@ new class extends Component
                 <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Gemini Live</a>,
                 or any other one you already use.
             </li>
-            <li>Go to your <span class="font-semibold text-ink dark:text-ink-dark">{{ $this->task['roleLabel'] }}</span> chat there.</li>
-            <li>Copy the prompt below, paste it in, and talk out loud.</li>
+            <li>Turn on voice mode first.</li>
+            <li>Copy the prompt below, send it, and talk out loud.</li>
         </ol>
 
-        <x-pi-practice-card :role-label="$this->task['roleLabel']" :task="$this->task" :rows="5" />
+        <x-pi-practice-card :task="$this->task" :rows="6" />
+
+        <div class="space-y-1 text-xs text-ink-faint dark:text-ink-faint-dark">
+            <p>
+                Say these any time:
+                @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)
+                    <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $word }}</span> ({{ $meaning }}){{ $loop->last ? '.' : ',' }}
+                @endforeach
+            </p>
+            <p>Talking too much? Say <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">"Shorter, please."</span></p>
+        </div>
 
         @if ($day === 4)
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Afterwards, save the better phrases you liked in My Words.</p>
+            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Afterwards, save the fixes you want to remember in My Words.</p>
         @endif
 
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-            Haven't made your 3 chats yet?
-            <a href="{{ route('pi.setup') }}" wire:navigate class="font-semibold underline">Voice practice setup</a>
+            First time?
+            <a href="{{ route('pi.setup') }}" wire:navigate class="font-semibold underline">How voice practice works</a>
         </p>
     </section>
 
