@@ -252,7 +252,7 @@ class PairPracticeTest extends TestCase
         $this->assertSame(0, PairPracticeSession::forPair($session->userA, $session->userB)->open()->count());
     }
 
-    public function test_the_starter_can_share_a_call_link_but_only_an_https_one(): void
+    public function test_the_starter_can_share_a_call_link_pasted_with_or_without_https(): void
     {
         $session = PairPracticeSession::factory()->waiting()->create();
         [$starter, $friend] = $session->players();
@@ -262,7 +262,7 @@ class PairPracticeTest extends TestCase
             ->set('meetLink', 'javascript:alert(1)')
             ->call('shareLink')
             ->assertHasErrors('meetLink')
-            ->set('meetLink', 'https://meet.google.com/abc-defg-hij')
+            ->set('meetLink', ' meet.google.com/abc-defg-hij ')
             ->call('shareLink')
             ->assertHasNoErrors();
 
