@@ -236,7 +236,7 @@ new class extends Component
                 @php $label = is_array($prompt) ? ($prompt['label'] ?? '') : $prompt; @endphp
                 <div class="flex shrink-0 flex-col items-center gap-1">
                     @if ($imageUrl = $promptImages[$label] ?? null)
-                        <img src="{{ $imageUrl }}" alt="" class="h-14 w-14 rounded-xl object-cover">
+                        <x-zoomable-image :url="$imageUrl" :alt="$label" class="h-14 w-14 rounded-xl object-cover" />
                     @else
                         <div class="flex h-14 w-14 items-center justify-center rounded-xl border border-line dark:border-line-dark"></div>
                     @endif

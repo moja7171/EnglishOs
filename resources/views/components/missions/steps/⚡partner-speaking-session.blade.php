@@ -384,7 +384,7 @@ new class extends Component
                     >
                         <span wire:loading.remove wire:target="checkSoloAnswers">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
                         <span wire:loading wire:target="checkSoloAnswers">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-                        <span class="font-fa">بررسی</span>
+                        Feedback
                     </button>
                 @endif
             @endif

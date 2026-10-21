@@ -293,6 +293,12 @@ new class extends Component
                             alt="A picture to describe"
                             class="h-52 w-full object-cover"
                         >
+                        <button
+                            type="button"
+                            x-on:click="$dispatch('zoom-image', { url: @js($imageUrl), alt: 'A picture to describe' })"
+                            aria-label="Enlarge picture"
+                            class="absolute right-2 bottom-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                        >@svg('heroicon-o-arrows-pointing-out', 'h-4 w-4')</button>
                         @foreach (($content['hotspots'] ?? []) as $hotspot)
                             @php $qi = $hotspot['question_index'] ?? null; @endphp
                             <button

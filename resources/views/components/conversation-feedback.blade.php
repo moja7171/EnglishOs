@@ -6,7 +6,7 @@
 
 <div class="space-y-3">
     <div class="flex items-center justify-between gap-2">
-        <p class="font-fa text-sm font-semibold text-ink dark:text-ink-dark">بازخورد</p>
+        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Feedback</p>
         <div class="flex items-center gap-1">
             @if ($feedback)
                 <button

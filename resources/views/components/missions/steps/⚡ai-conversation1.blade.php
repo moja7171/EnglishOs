@@ -226,7 +226,8 @@ new class extends Component
                     .'Only mention pace or filler words if the numbers given are genuinely notable (very slow, '
                     .'very fast, or many filler words) — otherwise focus the tip on content/language as usual. '
                     .'Keep both simple, plain Persian, no jargon, no English words mixed in unless quoting a '
-                    .'specific English word or phrase they actually said.',
+                    .'specific English word or phrase they actually said. Always write every English word or '
+                    .'phrase in Latin letters inside «», e.g. «study» — never spell an English word in Persian letters.',
                 profile: GeminiClient::PROFILE_JUDGE,
             );
             $this->recordGeminiCall();
@@ -454,7 +455,8 @@ new class extends Component
                     .'"severity": "minor or major — how serious this grammar/vocabulary issue is"}. '
                     .'Only the "original" and "corrected" fields are in English (quoting the learner\'s own words); '
                     .'every other field must be written in plain Persian, no English words mixed in unless quoting '
-                    .'a specific English word or phrase.',
+                    .'a specific English word or phrase. Always write every English word or phrase in Latin '
+                    .'letters inside «», e.g. «study» — never spell an English word in Persian letters.',
                 requiredKeys: ['strength', 'expression', 'severity', 'correction.original', 'correction.corrected', 'correction.why', 'correction.suggestion'],
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
