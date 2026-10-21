@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
+use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -145,6 +146,71 @@ class PartnerSpeakingSessionStepTest extends TestCase
             ->assertSet('completed', true);
 
         $this->assertSame(3, Evidence::where('phase', 'partner_speaking_session')->where('type', Evidence::TYPE_AUDIO)->count());
+    }
+
+    public function test_saved_solo_answers_can_get_one_feedback_card_together(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribeWithConfidence')->times(3)->andReturn([
+                'text' => 'We meet at university.',
+                'duration' => 20.0,
+                'segments' => [['text' => 'We meet at university.', 'confidence' => 'high']],
+            ]);
+        });
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages) => str_contains($messages[0]['text'], "Your Friends\nQuestions: Who is your closest friend? / How did you meet?\nMy answer: We meet at university.")
+                    && str_contains($messages[0]['text'], 'Deeper'))
+                ->andReturn(json_encode([
+                    'strength' => 'جواب‌هایت کامل بود.',
+                    'expression' => 'university',
+                    'correction' => [
+                        'original' => 'We meet at university.',
+                        'corrected' => 'We met at university.',
+                        'why' => 'برای گذشته از met استفاده کن.',
+                        'suggestion' => 'دو جمله دیگر به گذشته بگو.',
+                    ],
+                ]));
+        });
+
+        Livewire::test('missions.steps.partner-speaking-session', ['run' => $run])
+            ->call('chooseSolo')
+            ->set('soloRecordings.0', UploadedFile::fake()->create('r0.webm', 200, 'audio/webm'))
+            ->set('soloRecordings.1', UploadedFile::fake()->create('r1.webm', 200, 'audio/webm'))
+            ->set('soloRecordings.2', UploadedFile::fake()->create('r2.webm', 200, 'audio/webm'))
+            ->call('saveSolo')
+            ->call('checkSoloAnswers')
+            ->assertSee('We met at university.')
+            ->assertSee('برای گذشته از met استفاده کن.');
+
+        $this->assertSame(1, $run->fresh()->gemini_calls);
+    }
+
+    public function test_solo_answers_with_no_transcript_are_not_sent_for_feedback(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribeWithConfidence')->times(3)->andThrow(new \RuntimeException('Groq is down.'));
+        });
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        Livewire::test('missions.steps.partner-speaking-session', ['run' => $run])
+            ->call('chooseSolo')
+            ->set('soloRecordings.0', UploadedFile::fake()->create('r0.webm', 200, 'audio/webm'))
+            ->set('soloRecordings.1', UploadedFile::fake()->create('r1.webm', 200, 'audio/webm'))
+            ->set('soloRecordings.2', UploadedFile::fake()->create('r2.webm', 200, 'audio/webm'))
+            ->call('saveSolo')
+            ->assertDontSee('wire:click="checkSoloAnswers"', false)
+            ->call('checkSoloAnswers')
+            ->assertSet('feedback', null)
+            ->assertSet('feedbackError', fn ($error) => str_contains($error, 'nothing to check'));
     }
 
     public function test_sync_partner_completion_does_not_fire_when_only_the_partner_has_answered(): void

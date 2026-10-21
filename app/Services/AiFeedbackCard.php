@@ -50,7 +50,8 @@ class AiFeedbackCard
             $onCallSucceeded();
         }
 
-        $data = json_decode(trim($raw), true);
+        // Models sometimes wrap the JSON in ```json fences despite being told not to.
+        $data = json_decode(preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($raw)), true);
 
         if (! is_array($data) || ! $this->hasAllKeys($data, $requiredKeys)) {
             throw new RuntimeException('Unexpected AI response format.');

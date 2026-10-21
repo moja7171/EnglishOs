@@ -23,6 +23,9 @@ class DirectMessage extends Model
 
     public const TYPE_FILE = 'file';
 
+    /** The body of a voice message whose transcription failed — a label, not anything the sender said. */
+    public const VOICE_FALLBACK_BODY = 'Voice message';
+
     protected function casts(): array
     {
         return [

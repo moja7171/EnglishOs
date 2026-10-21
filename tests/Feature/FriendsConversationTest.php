@@ -804,7 +804,7 @@ class FriendsConversationTest extends TestCase
                 ->withArgs(fn ($messages, $systemPrompt) => str_contains($messages[0]['text'], 'Me: I goes to school every day.')
                     && str_contains($messages[0]['text'], 'Nice, me too.')
                     && ! str_contains($messages[0]['text'], 'Keep it up!')
-                    && str_contains($systemPrompt, 'ONLY on "Me"'))
+                    && str_contains($systemPrompt, 'Judge ONLY "Me"'))
                 ->andReturn(json_encode([
                     'strength' => 'جمله‌ات کامل و واضح بود.',
                     'expression' => 'every day',
@@ -845,7 +845,7 @@ class FriendsConversationTest extends TestCase
 
         Livewire::test('friends.conversation', ['other' => $bob])
             ->call('generateFeedback')
-            ->assertSee('Nothing to fix in your recent messages')
+            ->assertSee('Nothing to fix')
             ->assertDontSee('Something to fix');
     }
 
@@ -872,6 +872,113 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])->call('generateFeedback');
+    }
+
+    public function test_ai_feedback_judges_the_latest_session_with_a_few_earlier_lines_as_context(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->travelTo(now()->subHours(3));
+        foreach (range(1, 8) as $number) {
+            DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => "old-{$number}-end"]);
+        }
+        $this->travelBack();
+
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'new-line-end']);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function ($messages) {
+                    [$earlier, $session] = explode('LATEST SESSION:', $messages[0]['text']);
+
+                    return str_contains($session, 'Me: new-line-end')
+                        && ! str_contains($session, 'old-')
+                        && str_contains($earlier, 'EARLIER (context only)')
+                        && str_contains($earlier, 'old-3-end')
+                        && str_contains($earlier, 'old-8-end')
+                        && ! str_contains($earlier, 'old-2-end');
+                })
+                ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null]));
+        });
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])->call('generateFeedback');
+    }
+
+    public function test_ai_feedback_needs_a_message_of_mine_in_the_latest_session(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->travelTo(now()->subHours(2));
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hello from yesterday.']);
+        $this->travelBack();
+
+        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Are you there?']);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('generateFeedback')
+            ->assertSee("there's nothing to give feedback on yet");
+    }
+
+    public function test_ai_feedback_leaves_out_a_voice_message_that_was_not_transcribed(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_AUDIO, 'body' => DirectMessage::VOICE_FALLBACK_BODY]);
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_AUDIO, 'body' => 'I am going to the park.']);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn ($messages) => str_contains($messages[0]['text'], 'Me: I am going to the park.')
+                    && ! str_contains($messages[0]['text'], DirectMessage::VOICE_FALLBACK_BODY))
+                ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null]));
+        });
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.conversation', ['other' => $bob])->call('generateFeedback');
+    }
+
+    public function test_ai_feedback_stops_after_the_hourly_limit(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hello!']);
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
+            ->times(10)
+            ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null])));
+
+        $this->actingAs($me);
+
+        $chat = Livewire::test('friends.conversation', ['other' => $bob]);
+
+        foreach (range(1, 10) as $attempt) {
+            $chat->call('generateFeedback')->assertSet('feedbackError', null);
+        }
+
+        $chat->call('generateFeedback')
+            ->assertSet('feedback', null)
+            ->assertSee('10 checks this hour');
     }
 
     public function test_a_failed_ai_feedback_call_shows_a_friendly_message(): void
