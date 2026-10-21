@@ -206,7 +206,7 @@ new class extends Component
     /**
      * What home shows below Today: one small card for the next mission
      * still to unlock, and how many more come after it (locked or not
-     * built yet) — the full list lives on the roadmap (/guide).
+     * built yet) — the full list lives on the Progress page's Path tab.
      *
      * @return array{next: ?Mission, moreCount: int}
      */
@@ -562,7 +562,7 @@ new class extends Component
 
     @if ($upcoming['moreCount'] > 0)
         <a
-            href="{{ route('learner.guide') }}"
+            href="{{ route('progress.index') }}#path"
             wire:navigate
             class="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-ink-faint transition-colors hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark"
         >🔒 {{ $upcoming['moreCount'] }} more {{ Str::plural('mission', $upcoming['moreCount']) }} · Roadmap @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>

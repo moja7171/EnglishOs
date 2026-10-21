@@ -213,6 +213,40 @@ class MissionRun extends Model
     }
 
     /**
+     * The learner's own voice from this run, to listen back to on the
+     * mission's recap page: the latest recording of each step that took
+     * one, in mission step order. One per step, not every take — a
+     * shadowing or Daily Listen step can hold a dozen short clips.
+     *
+     * A step that records per line or per round (Daily Listen, Video
+     * Shadowing, Partner Speaking) stores JSON with the URL inside;
+     * every other step stores the bare URL.
+     *
+     * @return list<array{label: string, url: string}>
+     */
+    public function recordingsByStep(): array
+    {
+        $latestUrlByPhase = $this->evidence()
+            ->where('type', Evidence::TYPE_AUDIO)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->mapWithKeys(fn (Evidence $evidence) => [
+                $evidence->phase => json_decode($evidence->content_ref, true)['url'] ?? $evidence->content_ref,
+            ])
+            ->filter(fn ($url) => is_string($url) && $url !== '');
+
+        return collect($this->mission->stepKeys())
+            ->filter(fn (string $key) => $latestUrlByPhase->has($key))
+            ->map(fn (string $key) => [
+                'label' => $this->mission->stepLabel($key),
+                'url' => $latestUrlByPhase->get($key),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
      * How many Final Talk (ai_conversation_2) rounds one attempt asks.
      */
     public const FINAL_TALK_ROUNDS_PER_ATTEMPT = 3;
