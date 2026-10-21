@@ -27,6 +27,8 @@
     @param string|null $onEnded Raw Alpine statement(s) run on playback end
         — same convention as <x-audio-player>'s $onEnded.
     @param list<array{text: string, start: float, end: float}> $segments
+    @param bool $textHidden Starts the text panel closed behind a "Show
+        text" button; while it is closed, play does not enter "focus".
     @param list<string> $shadowLines
     @param list<array{start: float, end: float}|null> $shadowTimestamps
         See <x-audio-player> for the full behavior these three drive —
@@ -50,6 +52,7 @@
     'title' => 'Video',
     'onEnded' => null,
     'segments' => [],
+    'textHidden' => false,
     'shadowLines' => [],
     'shadowTimestamps' => [],
     'shadowActive' => 'true',
@@ -73,6 +76,7 @@
             mode: 'inline',
             returnMode: 'inline',
             hasSegments: {{ count($segments) ? 'true' : 'false' }},
+            showText: {{ $textHidden ? 'false' : 'true' }},
             segments: {{ Illuminate\Support\Js::from($segments) }},
             shadowTimestamps: {{ Illuminate\Support\Js::from($shadowTimestamps) }},
             shadowSeen: [],
@@ -95,7 +99,7 @@
                     this.playing = true;
                     this.watchShadowPoints(video);
                     this.scheduleHide();
-                    if (this.mode === 'inline' && this.hasSegments) this.mode = 'focus';
+                    if (this.mode === 'inline' && this.hasSegments && this.showText) this.mode = 'focus';
                 });
                 video.addEventListener('pause', () => { this.playing = false; this.showControls() });
                 video.addEventListener('ended', () => { this.playing = false; this.showControls(); {{ $onEnded }} });
@@ -422,11 +426,24 @@
          it. --}}
     <div :class="mode === 'focus' ? 'flex min-h-0 flex-1 flex-col overflow-y-auto' : ''">
     @if (count($segments))
-        {{-- Synced text panel, same idea as <x-audio-player>'s — always
-             shown with the video, inline and in focus alike. --}}
+        <button
+            type="button"
+            x-show="mode === 'inline'"
+            x-on:click="showText = ! showText"
+            x-bind:aria-expanded="showText"
+            class="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+        >
+            @svg('heroicon-o-document-text', 'h-4 w-4')
+            <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
+        </button>
+
+        {{-- Synced text panel, same idea as <x-audio-player>'s — inline
+             while showText is on, and always in focus. --}}
         <div
             x-lookup
             x-ref="segmentsPanel"
+            x-show="showText || mode === 'focus'"
+            @if ($textHidden) x-cloak @endif
             :class="mode === 'focus' ? 'min-h-32 flex-1 text-base' : 'max-h-40 text-sm'"
             class="relative mt-3 space-y-1.5 overflow-y-auto card-sunken p-3"
         >

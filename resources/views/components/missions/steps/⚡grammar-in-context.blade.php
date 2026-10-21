@@ -652,7 +652,7 @@ new class extends Component
 
         <div>
             <p class="text-sm font-medium text-ink dark:text-ink-dark">Make it personal</p>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Finish at least 3 sentences about your own life. Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Write at least 3 sentences about your life.</p>
             @unless ($readOnly)
                 @php $vocabularyWords = $run->selectedVocabularyWords(); @endphp
                 @if ($vocabularyWords)

@@ -423,13 +423,12 @@ class ListeningStepTest extends TestCase
     }
 
     /**
-     * Real behavior redesign: the synced text panel (real Whisper
-     * segments — see missions:cache-shadow-timestamps) is always
-     * visible now, with a "try not to read" hint on the first listen —
-     * there's no more transcript lock/unlock-after-N-listens mechanic to
-     * gate at all.
+     * The synced text panel (real Whisper segments — see
+     * missions:cache-shadow-timestamps) starts closed behind a "Show text"
+     * button, so the first listen is a real listen; the segments are
+     * already in the page for that button to reveal.
      */
-    public function test_the_synced_text_panel_shows_real_segments_with_a_dont_read_hint(): void
+    public function test_the_synced_text_panel_starts_closed_behind_a_show_text_button(): void
     {
         $learner = User::factory()->create();
         $mission = Mission::create([
@@ -453,7 +452,8 @@ class ListeningStepTest extends TestCase
         $run = MissionRun::findOrStart($learner, $mission);
 
         Livewire::test('missions.steps.listening', ['run' => $run])
-            ->assertSee('Try listening first without reading')
+            ->assertSee('Show text')
+            ->assertSeeHtml('x-show="showText || focus"')
             ->assertSee('Hello and welcome.')
             ->assertSee("And I'm Georgie.")
             ->assertDontSee('Show transcript');

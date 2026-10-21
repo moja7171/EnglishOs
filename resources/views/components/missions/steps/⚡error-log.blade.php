@@ -250,7 +250,7 @@ new class extends Component
             <div wire:loading.remove wire:target="generate">
                 @svg('heroicon-o-magnifying-glass', 'mx-auto h-6 w-6 text-ink-faint dark:text-ink-faint-dark')
                 @if ($preview)
-                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Here the AI reviews the mistakes you made in your own speaking and writing, then you fix each one with a new example. It fills in once you reach this step.</p>
+                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your own mistakes — fills in once you reach this step.</p>
                 @else
                     <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your mistakes haven't been reviewed yet.</p>
                     <button

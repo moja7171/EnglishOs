@@ -305,11 +305,13 @@ class ProgramPlannerTest extends TestCase
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
         $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
-        $this->makeMission('M02', 'People');
+        $next = $this->makeMission('M02', 'People');
         $this->actingAs($learner);
 
+        // Straight into the first step, not the day overview.
         Livewire::test('missions.overview')
-            ->assertSee('Start a new mission');
+            ->assertSee('Start a new mission')
+            ->assertSeeHtml('href="'.route('missions.show', [$next, $next->stepKeys()[0]]).'"');
     }
 
     public function test_the_old_program_url_redirects_to_the_merged_guide(): void

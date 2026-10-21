@@ -8,13 +8,10 @@ use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
- * A one-time gate before a learner's first mission — see
- * App\Services\PiPrompts and resources/views/components/⚡pi-setup.blade.php.
- * Existing users are grandfathered by the pi_onboarded_at migration's
- * backfill (anyone with program_started_at already set); the forced
- * redirect only ever catches someone truly new. The page itself stays
- * open to everyone though, linked from the account menu so anyone can
- * come back to the guide later.
+ * The voice practice guide — see App\Services\PiPrompts and
+ * resources/views/components/⚡pi-setup.blade.php. Never a gate: home offers
+ * it as one line until the learner has been through it once, and the page
+ * stays linked from the account menu so anyone can come back to it.
  */
 class PiSetupTest extends TestCase
 {
@@ -25,18 +22,22 @@ class PiSetupTest extends TestCase
         $this->get('/')->assertRedirect('/login');
     }
 
-    public function test_a_learner_who_has_not_onboarded_pi_is_redirected_to_pi_setup(): void
+    public function test_a_learner_who_has_not_seen_the_guide_reaches_home_with_a_one_line_offer(): void
     {
         $learner = User::factory()->create(['pi_onboarded_at' => null]);
 
-        $this->actingAs($learner)->get('/')->assertRedirect(route('pi.setup'));
+        $this->actingAs($learner)->get('/')
+            ->assertOk()
+            ->assertSee('How voice practice works · 2 min');
     }
 
-    public function test_a_learner_who_already_onboarded_pi_reaches_home_normally(): void
+    public function test_the_offer_is_gone_once_the_learner_has_been_through_the_guide(): void
     {
         $learner = User::factory()->create(['pi_onboarded_at' => now()]);
 
-        $this->actingAs($learner)->get('/')->assertOk();
+        $this->actingAs($learner)->get('/')
+            ->assertOk()
+            ->assertDontSee('How voice practice works · 2 min');
     }
 
     public function test_the_guide_explains_voice_mode_and_the_control_words(): void

@@ -347,18 +347,20 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6" data-mood="{{ $mission->moodKey() }}">
-    <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        All missions
-    </a>
+@php
+    $isStepView = ! ($this->showOverview && $this->currentStepKey !== null) && $this->activeStepKey;
+@endphp
 
-    @if ($this->showOverview || $this->activeStepKey === 'mission_brief')
-        {{-- Full hero only at the mission's entry points (day overview,
-             Mission Brief) — a learner three steps into a day already
-             knows which mission they're in, so repeating the gradient
-             banner and outcome sentence on every step just pushed the
-             real content further down the page. --}}
+<div class="mx-auto max-w-2xl {{ $isStepView ? 'space-y-4 px-4 pb-6 sm:px-6' : 'space-y-6 p-6' }}" data-mood="{{ $mission->moodKey() }}">
+    @unless ($isStepView)
+        <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
+            All missions
+        </a>
+
+        {{-- The hero banner only on the day overview — inside a step the
+             one-line header below says where the learner is, so the step's
+             own content starts at the top of the screen. --}}
         <div class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-8 text-white sm:p-9">
             @if ($videoUrl = $this->heroVideoUrl())
                 <div class="absolute inset-0 -z-30 overflow-hidden">
@@ -375,13 +377,7 @@ new class extends Component
             <h1 class="mt-3 max-w-[16ch] font-display text-3xl font-semibold text-balance">{{ $mission->title }}</h1>
             <p class="mt-2 max-w-[46ch] text-sm text-white/75">{{ $mission->outcome }}</p>
         </div>
-    @else
-        <div class="flex items-center gap-2">
-            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-accent"></span>
-            <p class="text-xs font-bold tracking-widest text-ink-faint uppercase dark:text-ink-faint-dark">{{ $mission->code }}</p>
-            <p class="truncate font-display text-sm font-semibold text-ink dark:text-ink-dark">{{ $mission->title }}</p>
-        </div>
-    @endif
+    @endunless
 
     @if ($this->showOverview && $this->currentStepKey !== null)
         @if ($this->missionLocked)
@@ -463,100 +459,45 @@ new class extends Component
     @elseif ($this->activeStepKey)
         @php
             $daySteps = $this->activeDay['stepKeys'] ?? [];
-            $position = array_search($this->activeStepKey, $daySteps, true) + 1;
         @endphp
-        <div class="flex items-center justify-between">
-            <a
-                href="{{ route('missions.show', [$mission, 'overview']) }}"
-                wire:navigate
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-            >
-                @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-                All Days
-            </a>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                {{ \App\Models\Mission::dayHeading($this->activeDayIndex + 1, $this->activeDay['label'] ?? '') }}
-            </p>
-        </div>
-
-        {{-- The checklist is the "you are here" cue while it is on screen; once
-             it has scrolled away the slim bar takes over (see <x-missions.step-bar>). --}}
-        <div x-data="missionStepBar" x-on:scroll.window.passive="queue()" x-on:resize.window="queue()">
         <x-missions.step-bar
+            :back-url="route('missions.show', [$mission, 'overview'])"
             :day-number="$this->activeDayIndex + 1"
-            :day-label="$this->activeDay['label'] ?? ''"
+            :day-heading="\App\Models\Mission::dayHeading($this->activeDayIndex + 1, $this->activeDay['label'] ?? '')"
             :step-label="$mission->stepLabel($this->activeStepKey)"
-            :icon="$this->stepIcon($this->activeStepKey)"
-            :states="collect($daySteps)->map(fn ($key) => $key === $this->activeStepKey
-                ? 'active'
-                : ($key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true) ? 'done' : 'ahead'))->all()"
+            :ask-instructor="! $this->isPreviewing"
+            :steps="collect($daySteps)->map(fn ($key) => [
+                'label' => $mission->stepLabel($key),
+                'icon' => $this->stepIcon($key),
+                'url' => route('missions.show', [$mission, $key]),
+                'state' => $key === $this->activeStepKey
+                    ? 'active'
+                    : ($key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true) ? 'done' : 'ahead'),
+                'here' => $key === $this->currentStepKey && $key !== $this->activeStepKey && ! $this->missionLocked,
+                'minutes' => $mission->stepDuration($key),
+            ])->all()"
         />
 
-        {{-- Vertical checklist, scoped to this day only --}}
-        <nav x-ref="anchor" class="space-y-1">
-            @foreach ($daySteps as $key)
-                @php
-                    $done = $key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true);
-                    $active = $key === $this->activeStepKey;
-                    $ahead = ! in_array($key, $this->reachableStepKeys, true);
-                @endphp
-                <a
-                    href="{{ route('missions.show', [$mission, $key]) }}"
-                    wire:navigate
-                    @if ($active) aria-current="step" @endif
-                    class="flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm transition-colors
-                        {{ match (true) {
-                            $active => 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark',
-                            $done => 'border-success/30 bg-success-soft text-success dark:border-success-dark/30 dark:bg-success-soft-dark dark:text-success-dark',
-                            $ahead => 'border-dashed border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark',
-                            default => 'border-line text-ink-soft dark:border-line-dark dark:text-ink-soft-dark',
-                        } }}"
-                >
-                    @svg($this->stepIcon($key), 'h-4 w-4 shrink-0')
-                    <span class="flex-1 {{ $active || $done ? 'font-semibold' : '' }}">{{ $mission->stepLabel($key) }}</span>
-                    @if ($key === $this->currentStepKey && ! $active && ! $this->missionLocked)
-                        <span class="shrink-0 animate-badge-pop rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
-                    @endif
-                    @if ($duration = $mission->stepDuration($key))
-                        <span class="shrink-0 text-xs {{ $active ? 'text-white/80' : 'opacity-70' }}">~{{ Mission::formatDuration($duration) }}</span>
-                    @endif
-                    @if ($done && ! $active)
-                        @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
-                    @elseif ($ahead)
-                        @svg('heroicon-o-eye', 'h-3.5 w-3.5 shrink-0')
-                    @endif
-                </a>
-            @endforeach
-        </nav>
-        </div>
-
         @if ($this->isPreviewing)
-            <div class="rounded-2xl border border-dashed border-accent bg-accent-soft p-4 text-sm dark:border-accent-dark dark:bg-accent-soft-dark" role="status">
-                <p class="flex items-center gap-2 font-semibold text-accent-ink dark:text-accent-ink-dark">
+            <div class="flex items-center gap-3 rounded-2xl border border-dashed border-accent bg-accent-soft px-4 py-3 text-sm dark:border-accent-dark dark:bg-accent-soft-dark" role="status">
+                <p class="flex flex-1 items-center gap-2 font-semibold text-accent-ink dark:text-accent-ink-dark">
                     @svg('heroicon-o-eye', 'h-4 w-4 shrink-0')
-                    Preview only: you can't do this step yet
+                    Preview only
                 </p>
                 @if ($this->missionLocked && $this->gatingMission)
-                    <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
-                        This mission unlocks when you finish {{ $this->gatingMission->code }} · {{ $this->gatingMission->title }}.
-                    </p>
                     <a
                         href="{{ route('missions.show', [$this->gatingMission, 'overview']) }}"
                         wire:navigate
-                        class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
+                        class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
                     >
                         Go to {{ $this->gatingMission->code }}
                         @svg('heroicon-o-chevron-right', 'h-3 w-3')
                     </a>
                 @elseif ($this->currentPosition)
-                    <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
-                        You are on {{ \App\Models\Mission::dayHeading($this->currentPosition['dayNumber'], $this->currentPosition['dayLabel']) }}, at
-                        <span class="font-semibold">{{ $this->currentPosition['stepLabel'] }}</span>.
-                    </p>
                     <a
                         href="{{ route('missions.show', [$mission, $this->currentPosition['stepKey']]) }}"
                         wire:navigate
-                        class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
+                        class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
                     >
                         Go to where I am
                         @svg('heroicon-o-chevron-right', 'h-3 w-3')
@@ -566,37 +507,20 @@ new class extends Component
         @endif
 
         <div class="card p-5" data-step-card>
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                    Step {{ $position }} of {{ count($daySteps) }}
-                </p>
-                @if ($this->isPreviewing)
-                    <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                        Preview
+            @if ($this->isReviewing)
+                <div class="mb-4 flex items-center justify-between gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
+                        @svg('heroicon-s-check-circle', 'h-4 w-4') Done
                     </span>
-                @elseif ($this->isReviewing)
-                    <span class="flex items-center gap-2">
-                        <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                            Reviewing a completed step
-                        </span>
-                        {{-- Always available while reviewing any step with
-                             real learner input (mission structure redesign,
-                             Epic H) — not just when the AI happens to
-                             suggest it on Mission Result. Icon+tooltip, not
-                             a text label, per the project's secondary-
-                             action convention. --}}
-                        @if (Mission::isStepRedoable($this->activeStepKey))
-                            <a
-                                href="{{ route('missions.show', [$mission, $this->activeStepKey, 'retry' => 1]) }}"
-                                wire:navigate
-                                title="Practice this step again"
-                                class="inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface hover:text-ink dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark"
-                            >@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')</a>
-                        @endif
-                    </span>
-                @endif
-            </div>
-            <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->stepLabel($this->activeStepKey) }}</h2>
+                    @if (Mission::isStepRedoable($this->activeStepKey))
+                        <a
+                            href="{{ route('missions.show', [$mission, $this->activeStepKey, 'retry' => 1]) }}"
+                            wire:navigate
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        >@svg('heroicon-o-arrow-path', 'h-3.5 w-3.5') Practice again</a>
+                    @endif
+                </div>
+            @endif
 
             @if ($this->stepComponent)
                 @php
@@ -608,11 +532,9 @@ new class extends Component
                         ? ['stepKey' => $this->activeStepKey]
                         : [];
                 @endphp
-                <div class="mt-4">
-                    @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing || $this->isPreviewing, 'preview' => $this->isPreviewing, ...$extraProps], key($run->id.'-'.$this->activeStepKey.'-'.($this->isPreviewing ? 'pv' : ($this->isReviewing ? 'ro' : 'live'))))
-                </div>
+                @livewire($this->stepComponent, ['run' => $run, 'readOnly' => $this->isReviewing || $this->isPreviewing, 'preview' => $this->isPreviewing, ...$extraProps], key($run->id.'-'.$this->activeStepKey.'-'.($this->isPreviewing ? 'pv' : ($this->isReviewing ? 'ro' : 'live'))))
             @else
-                <p class="mt-2 text-sm text-ink-faint dark:text-ink-faint-dark">Step screen not built yet.</p>
+                <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Step screen not built yet.</p>
             @endif
         </div>
 

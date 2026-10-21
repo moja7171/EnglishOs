@@ -147,9 +147,8 @@ new class extends Component
                  ("record yourself answering one") never said which,
                  leaving the learner to guess. --}}
             <div class="mt-3 card-sunken p-4">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record yourself answering this one:</p>
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record this one:</p>
                 <p class="mt-1 text-sm text-ink dark:text-ink-dark">"{{ $brief['warm_up_questions'][0] ?? '' }}"</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Never graded, never required — just something real to look back on later in this mission.</p>
                 <div class="mt-2">
                     <x-voice-recorder field="warmUpRecording" :file="$warmUpRecording" file-name="mission-brief-warmup.webm" />
                 </div>

@@ -116,7 +116,7 @@ class VideoShadowingStepTest extends TestCase
 
         $this->assertStringContainsString('activeSubstep === 1', $html);
         $this->assertStringContainsString('First watch', $html);
-        $this->assertStringContainsString('Watch again from the start', $html);
+        $this->assertStringContainsString('It pauses after each line', $html);
     }
 
     public function test_the_page_is_split_into_2_sub_steps(): void
@@ -215,7 +215,7 @@ class VideoShadowingStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
 
-        $this->assertSame(1, substr_count($html, 'Bold words are usually stressed'));
+        $this->assertSame(1, substr_count($html, 'Bold = stressed'));
     }
 
     public function test_every_shadow_line_renders_with_its_own_recorder(): void

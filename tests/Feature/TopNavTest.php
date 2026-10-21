@@ -133,7 +133,7 @@ class TopNavTest extends TestCase
         $this->get(route('home'))->assertDontSee('new in Friends');
     }
 
-    public function test_the_bottom_nav_is_shown_inside_a_mission(): void
+    public function test_the_bottom_nav_is_hidden_inside_a_mission(): void
     {
         $mission = Mission::create([
             'code' => 'M01',
@@ -147,7 +147,7 @@ class TopNavTest extends TestCase
 
         $this->get(route('missions.show', $mission))
             ->assertOk()
-            ->assertSee('aria-label="Primary"', false);
+            ->assertDontSee('aria-label="Primary"', false);
     }
 
     public function test_the_bottom_nav_stays_out_of_the_placement_test_and_chat_threads(): void

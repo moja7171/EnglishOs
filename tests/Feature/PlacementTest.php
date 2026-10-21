@@ -156,13 +156,13 @@ class PlacementTest extends TestCase
         // assertSeeHtml, not assertSee: the banner's apostrophe is literal
         // template text, so it never gets HTML-escaped the way assertSee
         // escapes what you hand it.
-        Livewire::test('missions.overview')->assertSeeHtml("Find out where you're starting");
+        Livewire::test('missions.overview')->assertSeeHtml('Find your level');
 
         $learner->placementTests()->create([
             'level' => 'A2', 'recognition_level' => 'A2', 'detail' => [],
         ]);
 
-        Livewire::test('missions.overview')->assertDontSeeHtml("Find out where you're starting");
+        Livewire::test('missions.overview')->assertDontSeeHtml('Find your level');
     }
 
     public function test_a_checkpoint_level_blends_the_new_spoken_grade_with_the_prior_recognition_band(): void

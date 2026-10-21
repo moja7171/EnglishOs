@@ -42,7 +42,7 @@
              one most able to deflate someone. It promises, it doesn't
              report a lack. --}}
         <p class="mt-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
-            Nothing here yet — this fills up as you go. Every mistake you stop repeating gets its own line.
+            Nothing here yet.
         </p>
     @else
         <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">

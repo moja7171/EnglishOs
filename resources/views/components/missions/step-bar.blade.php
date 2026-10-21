@@ -1,60 +1,99 @@
 {{--
-    The slim "you are here" bar pinned to the top of a mission step once the
-    day's step list has scrolled out of sight — the day, the step and how far
-    through the day the learner is, so a long step never loses its place. Tap
-    it to jump back to the top.
+    The one-line header of a mission step, pinned to the top while the step
+    scrolls: back to the day overview, "Day N · Step name", the day's
+    progress dots and (when given) the ask-instructor icon. Tapping the name
+    or the dots opens the day's step list as a sheet (<x-menu-panel>), so the
+    step's own content starts right under this line instead of under a
+    checklist.
 
-    It is opaque and flush with the top edge on purpose: a see-through strip
-    that slid about behind the content is what got the old sticky Continue bar
-    removed (see <x-sticky-bar>). Only the thin progress line moves.
+    It is opaque on purpose, and has no backdrop blur or transform: either
+    would make the sheet's fixed positioning relative to this bar.
 
-    It must sit inside an element with x-data="missionStepBar" that also holds
-    the step list marked x-ref="anchor" — see missions/⚡runner.blade.php.
-
+    @param string $backUrl Where the back arrow goes (the day overview).
     @param int $dayNumber 1-based day the step belongs to.
-    @param string $dayLabel That day's name, e.g. "Build".
+    @param string $dayHeading That day's heading for the sheet, e.g. "Day 2 · Build".
     @param string $stepLabel The active step's name.
-    @param string $icon Heroicons name for the step, from stepIcon().
-    @param list<'done'|'active'|'ahead'> $states One entry per step of the day.
+    @param list<array{label: string, icon: string, url: string, state: 'done'|'active'|'ahead', here: bool, minutes: ?int}> $steps One entry per step of the day.
+    @param bool $askInstructor Shows the icon that opens <livewire:missions.ask-instructor>.
 --}}
-@props(['dayNumber', 'dayLabel', 'stepLabel', 'icon', 'states'])
+@props(['backUrl', 'dayNumber', 'dayHeading', 'stepLabel', 'steps', 'askInstructor' => false])
 
-@php
-    $position = array_search('active', $states, true) + 1;
-@endphp
+<div class="sticky top-0 z-30 -mx-4 border-b border-line bg-ground px-2 py-1.5 sm:-mx-6 sm:px-4 dark:border-line-dark dark:bg-ground-dark" data-step-header>
+    <div class="flex items-center gap-1">
+        <a
+            href="{{ $backUrl }}"
+            wire:navigate
+            aria-label="All days"
+            class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+        >@svg('heroicon-o-chevron-left', 'h-5 w-5')</a>
 
-<div
-    x-show="visible"
-    x-cloak
-    x-transition:enter="transition duration-200 ease-out motion-reduce:duration-0"
-    x-transition:enter-start="-translate-y-full opacity-0"
-    x-transition:enter-end="translate-y-0 opacity-100"
-    x-transition:leave="transition duration-150 ease-in motion-reduce:duration-0"
-    x-transition:leave-start="translate-y-0 opacity-100"
-    x-transition:leave-end="-translate-y-full opacity-0"
-    class="fixed inset-x-0 top-0 z-30 border-b border-line bg-ground shadow-sm dark:border-line-dark dark:bg-ground-dark"
->
-    <button
-        type="button"
-        x-on:click="toTop()"
-        aria-label="Back to the top of {{ $stepLabel }}"
-        class="mx-auto flex w-full max-w-2xl cursor-pointer items-center gap-3 px-6 pt-2 pb-1.5 text-left"
-    >
-        @svg($icon, 'h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')
-        <span class="min-w-0 flex-1">
-            <span class="block truncate text-[10px] leading-tight font-bold tracking-widest text-ink-faint uppercase dark:text-ink-faint-dark">{{ \App\Models\Mission::dayHeading($dayNumber, $dayLabel) }}</span>
-            <span class="block truncate text-sm leading-tight font-semibold text-ink dark:text-ink-dark">{{ $stepLabel }}</span>
-        </span>
-        <span class="shrink-0 text-xs font-semibold text-ink-faint tabular-nums dark:text-ink-faint-dark">{{ $position }}/{{ count($states) }}</span>
-    </button>
+        <div class="relative min-w-0 flex-1" x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape.window="open = false" x-back-close="{ open: open, close: () => open = false }">
+            <button
+                type="button"
+                x-on:click="open = ! open"
+                aria-haspopup="menu"
+                class="flex w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-full px-2 py-1.5 text-left transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
+            >
+                <span class="min-w-0 flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">Day {{ $dayNumber }} · {{ $stepLabel }}</span>
+                <span class="flex shrink-0 items-center gap-1" aria-label="Step {{ collect($steps)->search(fn ($step) => $step['state'] === 'active') + 1 }} of {{ count($steps) }}">
+                    @foreach ($steps as $step)
+                        <span @class([
+                            'h-1.5 rounded-full',
+                            'w-4 bg-accent dark:bg-accent-dark' => $step['state'] === 'active',
+                            'w-1.5 bg-success dark:bg-success-dark' => $step['state'] === 'done',
+                            'w-1.5 bg-line dark:bg-line-dark' => $step['state'] === 'ahead',
+                        ])></span>
+                    @endforeach
+                </span>
+            </button>
 
-    <div class="mx-auto flex max-w-2xl gap-1 px-6 pb-2" aria-hidden="true">
-        @foreach ($states as $state)
-            <span class="h-[3px] flex-1 overflow-hidden rounded-full {{ $state === 'done' ? 'bg-success dark:bg-success-dark' : 'bg-line dark:bg-line-dark' }}">
-                @if ($state === 'active')
-                    <span class="block h-full origin-left rounded-full bg-accent dark:bg-accent-dark" x-bind:style="`transform: scaleX(${progress})`"></span>
-                @endif
-            </span>
-        @endforeach
+            <x-menu-panel role="menu" aria-label="Steps of this day" width="sm:w-80" class="sm:py-1">
+                <p class="px-4 pt-2 pb-1 text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $dayHeading }}</p>
+                <nav class="space-y-1 px-2 pb-2">
+                    @foreach ($steps as $step)
+                        <a
+                            href="{{ $step['url'] }}"
+                            wire:navigate
+                            wire:key="step-sheet-{{ $loop->index }}"
+                            @if ($step['state'] === 'active') aria-current="step" @endif
+                            @class([
+                                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors',
+                                'bg-accent font-semibold text-white dark:bg-accent-dark' => $step['state'] === 'active',
+                                'font-semibold text-success hover:bg-surface-sunken dark:text-success-dark dark:hover:bg-surface-sunken-dark' => $step['state'] === 'done',
+                                'text-ink-faint hover:bg-surface-sunken dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark' => $step['state'] === 'ahead',
+                            ])
+                        >
+                            @svg($step['icon'], 'h-4 w-4 shrink-0')
+                            <span class="flex-1">{{ $step['label'] }}</span>
+                            @if ($step['here'])
+                                <span class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
+                            @endif
+                            @if ($step['minutes'])
+                                <span class="shrink-0 text-xs opacity-70">~{{ \App\Models\Mission::formatDuration($step['minutes']) }}</span>
+                            @endif
+                            @if ($step['state'] === 'done')
+                                @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
+                            @elseif ($step['state'] === 'ahead')
+                                @svg('heroicon-o-eye', 'h-3.5 w-3.5 shrink-0')
+                            @endif
+                        </a>
+                    @endforeach
+                </nav>
+                <a href="{{ $backUrl }}" wire:navigate class="flex items-center gap-2 border-t border-line px-4 py-3 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+                    @svg('heroicon-o-map', 'h-4 w-4') All days
+                </a>
+            </x-menu-panel>
+        </div>
+
+        @if ($askInstructor)
+            <button
+                type="button"
+                x-data
+                x-on:click="$dispatch('ask-instructor-toggle')"
+                data-ask-instructor-trigger
+                aria-label="Ask your AI instructor"
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark"
+            >@svg('heroicon-o-sparkles', 'h-5 w-5')</button>
+        @endif
     </div>
 </div>

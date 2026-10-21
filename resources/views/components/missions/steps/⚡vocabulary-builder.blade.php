@@ -591,7 +591,7 @@ new class extends Component
             <div>
                 <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['story'] }} of {{ $vbPhaseCount }}</p>
                 <p class="mt-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today's words</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Read the short story below — new words are highlighted, with the full breakdown underneath.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Read the story — new words are highlighted.</p>
             </div>
 
             <div class="card-sunken p-4">

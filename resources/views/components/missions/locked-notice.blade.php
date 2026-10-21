@@ -8,11 +8,11 @@
         Preview only: this mission isn't unlocked yet
     </p>
     <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">
-        Look through every day and step. You can't do any of it until
+        Unlocks when
         @if ($gatingMission)
-            you finish {{ $gatingMission->code }} · {{ $gatingMission->title }}.
+            you finish {{ $gatingMission->code }}.
         @else
-            the missions before it are finished.
+            the missions before it are done.
         @endif
     </p>
     @if ($gatingMission)

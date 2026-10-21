@@ -322,12 +322,12 @@ new class extends Component
 ?>
 
 {{--
-    A floating chat widget rather than an inline accordion at the bottom of
-    the step — the accordion was easy to scroll past and lose track of.
-    The trigger is a fixed round icon in the corner, reachable from
-    anywhere on the step; opening it reveals the full persisted history
-    for this step as a real chat thread (same bubble/wallpaper structure
-    as the Friends conversation page), not just the latest exchange.
+    The chat panel behind the small sparkles icon in the step header (see
+    <x-missions.step-bar>, which dispatches 'ask-instructor-toggle') — no
+    floating button of its own, so nothing sits over the step's content or
+    its Continue bar. Opening it shows the full persisted history for this
+    run's topic as a real chat thread (same bubble/wallpaper structure as
+    the Friends conversation page), not just the latest exchange.
 --}}
 <div
     x-data="{
@@ -351,33 +351,15 @@ new class extends Component
             });
         },
     }"
+    x-on:ask-instructor-toggle.window="open = ! open; if (open) scrollToBottom()"
+    x-on:keydown.escape.window="open = false"
 >
-    {{--
-        bottom-24 on mobile, not bottom-5 — on a narrow viewport the
-        content column spans nearly the full width (no max-w-2xl margin
-        like desktop gets), so this trigger otherwise sits directly on
-        top of the mission's own Next link and the sticky Continue bar,
-        both anchored to that same bottom-right corner. Raising it here
-        stacks it cleanly above them instead of covering them; desktop
-        never has this collision (the centered column keeps real
-        clearance), so it stays at bottom-5 from sm: up.
-    --}}
-    <button
-        type="button"
-        x-on:click="open = !open; if (open) $nextTick(() => scrollToBottom())"
-        title="{{ $this->topicLabel() }} — your AI Instructor"
-        class="fixed right-5 bottom-24 z-40 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-5 dark:bg-accent-dark"
-    >
-        <span x-show="!open">@svg('heroicon-o-sparkles', 'h-6 w-6')</span>
-        <span x-show="open" x-cloak>@svg('heroicon-o-x-mark', 'h-6 w-6')</span>
-    </button>
-
     <div
         x-show="open"
         x-cloak
-        x-transition.origin.bottom.right.scale.95.opacity.duration.150ms
-        x-on:click.outside="open = false"
-        class="fixed right-5 bottom-40 z-40 flex h-[28rem] max-h-[calc(100vh-8rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden card shadow-2xl sm:bottom-24"
+        x-transition.origin.top.right.scale.95.opacity.duration.150ms
+        x-on:click.outside="if (! $event.target.closest('[data-ask-instructor-trigger]')) open = false"
+        class="fixed top-14 right-3 z-40 flex h-[28rem] max-h-[calc(100dvh-5rem)] w-[23rem] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden card shadow-2xl sm:right-[max(1.5rem,calc((100vw-42rem)/2+1.5rem))]"
     >
         <div class="flex shrink-0 items-center gap-2.5 border-b border-line px-4 py-3 dark:border-line-dark">
             <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
@@ -385,7 +367,7 @@ new class extends Component
             </span>
             <div class="min-w-0 flex-1">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->topicLabel() }}</p>
-                <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask me anything about English — I'll explain, never just solve it for you.</p>
+                <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask anything about English.</p>
             </div>
             <button
                 type="button"
@@ -425,7 +407,7 @@ new class extends Component
             @empty
                 <div class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
                     @svg('heroicon-o-sparkles', 'h-6 w-6 text-ink-faint/50 dark:text-ink-faint-dark/50')
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Ask about a word, a grammar rule, or anything else about English — by typing, by voice, or with a file attached.</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Type, record or attach a file.</p>
                 </div>
             @endforelse
 

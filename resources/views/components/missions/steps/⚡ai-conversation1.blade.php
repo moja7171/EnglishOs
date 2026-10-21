@@ -628,7 +628,7 @@ new class extends Component
                     @svg('heroicon-o-clipboard-document-list', 'h-4 w-4')
                     Instruction
                 </p>
-                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Practice alone first — you'll answer similar questions out loud to the AI Instructor right after.</p>
+                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Practice alone first, then talk to the AI.</p>
                 <p class="mt-1 text-sm font-medium text-ink dark:text-ink-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
             </div>
 
@@ -638,7 +638,7 @@ new class extends Component
 
             @if (count($warmUpQuestions))
                 <div class="mt-3 rounded-2xl bg-surface-sunken/60 p-4 dark:bg-surface-sunken-dark/60">
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Same questions as Day 1 (optional — just ideas to touch on, not a checklist, and not in any order)</p>
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Same ideas as Day 1 — any order.</p>
                     <div class="mt-2 flex flex-wrap gap-1.5">
                         @foreach ($warmUpQuestions as $question)
                             <span class="rounded-full border border-line bg-surface px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">{{ $question }}</span>
@@ -648,7 +648,7 @@ new class extends Component
             @endif
 
             <p class="mt-3 text-sm text-ink-soft dark:text-ink-soft-dark">
-                This is one continuous recording — just talk freely for 2 minutes, you don't need to answer the ideas above in order.
+                One recording — talk freely for 2 minutes.
             </p>
 
             <div class="mt-2">
@@ -679,7 +679,7 @@ new class extends Component
         </x-progress-bar>
 
         <div>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — tap "Read aloud" if you'd rather hear it than read it. It'll ask one follow-up after each answer.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — one follow-up after each.</p>
         </div>
 
         <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some when you answer" />
