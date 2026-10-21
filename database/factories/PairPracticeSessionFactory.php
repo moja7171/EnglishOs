@@ -40,4 +40,15 @@ class PairPracticeSessionFactory extends Factory
             'stage_ends_at' => now()->addSeconds(PairPracticeSession::STAGE_SECONDS[PairPracticeSession::STAGE_VOCABULARY]),
         ];
     }
+
+    /**
+     * A round that is still waiting for user B to join.
+     */
+    public function waiting(): static
+    {
+        return $this->state(fn () => [
+            'stage' => PairPracticeSession::STAGE_WAITING,
+            'stage_ends_at' => null,
+        ]);
+    }
 }

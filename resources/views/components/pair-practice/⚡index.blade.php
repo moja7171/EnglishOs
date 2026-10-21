@@ -2,6 +2,7 @@
 
 use App\Models\PairPracticeSession;
 use App\Models\User;
+use App\Notifications\PairPracticeInvite;
 use App\Notifications\PairPracticeNudge;
 use App\Services\PairPractice;
 use Illuminate\Support\Facades\Cache;
@@ -14,7 +15,7 @@ new class extends Component
      * One row per friend: their progress today, what the two of you can
      * practise and how the pair has been doing.
      *
-     * @return list<array{friend: User, today: array{done: int, total: int, finished: bool}, streak: int, sharedDays: int, lockedDay: ?array, nudged: bool, sessions: int, last: ?PairPracticeSession}>
+     * @return list<array{friend: User, today: array{done: int, total: int, finished: bool}, streak: int, sharedDays: int, lockedDay: ?array, nudged: bool, sessions: int, last: ?PairPracticeSession, open: ?PairPracticeSession}>
      */
     #[Computed]
     public function pairs(): array
@@ -34,6 +35,7 @@ new class extends Component
                 'nudged' => Cache::has($this->nudgeKey($friend)),
                 'sessions' => (clone $finished)->count(),
                 'last' => $finished->latest('finished_at')->first(),
+                'open' => PairPracticeSession::forPair($me, $friend)->open()->latest()->first(),
             ];
         })->values()->all();
     }
@@ -55,7 +57,8 @@ new class extends Component
     }
 
     /**
-     * Picks up today's unfinished round of this pair, or draws a new one.
+     * Picks up the pair's open round (or joins the friend's invite), or
+     * draws a new one and invites the friend to join on their phone.
      */
     public function start(int $friendId): void
     {
@@ -63,12 +66,11 @@ new class extends Component
 
         abort_unless(auth()->user()->canMessageWith($friend), 403);
 
-        $session = PairPracticeSession::forPair(auth()->user(), $friend)
-            ->whereNull('finished_at')
-            ->where('created_at', '>=', now()->subHours(2))
-            ->latest()
-            ->first()
-            ?? app(PairPractice::class)->start(auth()->user(), $friend);
+        $session = PairPracticeSession::forPair(auth()->user(), $friend)->open()->latest()->first();
+
+        if (! $session && $session = app(PairPractice::class)->start(auth()->user(), $friend)) {
+            $friend->notify(new PairPracticeInvite($session, auth()->user()));
+        }
 
         if ($session) {
             $this->redirectRoute('pair-practice.show', $session, navigate: true);
@@ -90,7 +92,7 @@ new class extends Component
 
     <header>
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Practice together</h1>
-        <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">One phone, two people, 12 minutes.</p>
+        <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Each on your own phone · side by side or on a call · 12 min</p>
     </header>
 
     @forelse ($this->pairs as $pair)
@@ -132,14 +134,23 @@ new class extends Component
             @endif
 
             <div class="flex gap-2">
-                @if ($pair['sharedDays'] > 0)
+                @if ($pair['open'] || $pair['sharedDays'] > 0)
+                    @php
+                        $open = $pair['open'];
+                        $label = match (true) {
+                            $open === null => 'Start · 12 min',
+                            $open->isWaiting() && $open->started_by_id === $friend->id => 'Join '.$friend->name,
+                            $open->isWaiting() => 'Waiting for '.$friend->name,
+                            default => 'Continue',
+                        };
+                    @endphp
                     <button
                         type="button"
                         wire:click="start({{ $friend->id }})"
                         wire:loading.attr="disabled"
                         wire:target="start({{ $friend->id }})"
-                        class="flex-1 cursor-pointer rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
-                    >Start · 12 min</button>
+                        class="flex-1 cursor-pointer truncate rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
+                    >{{ $label }}</button>
                 @else
                     <span class="flex-1 rounded-full border border-dashed border-line px-4 py-2 text-center text-xs font-semibold text-ink-faint dark:border-line-dark dark:text-ink-faint-dark">Finish a day together first</span>
                 @endif

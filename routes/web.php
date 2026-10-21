@@ -138,9 +138,10 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('friends-board');
     })->name('friends.board');
 
-    // In-person Pair Practice: two friends on one phone. The list of friends
-    // (today's progress, nudge, pair streak) and one round's page; a round
-    // belongs to both friends, whoever started it.
+    // Pair Practice: two friends, each on their own phone, side by side or
+    // on a video call. The list of friends (today's progress, nudge, pair
+    // streak) and one round's page; a round belongs to both friends,
+    // whoever started it.
     Route::get('/pair', function () {
         return view('pair-practice');
     })->name('pair-practice.index');
