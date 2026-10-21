@@ -421,6 +421,38 @@ class MissionRun extends Model
     }
 
     /**
+     * Where a step sends the learner once it's saved. Mid-day: back to
+     * this mission, which opens the next step. When the step just saved
+     * finished its day: home, where the rest of the day waits (the "day
+     * done" note, Daily Review, the voice practice with Pi) — the mission's
+     * own page says none of that. Read from the latest step Evidence, so a
+     * step done out of order never counts as the end of a day it didn't
+     * finish. A run with nothing left stays on its own "done" card.
+     */
+    public function urlAfterSavingAStep(): string
+    {
+        $stepKeys = $this->mission->stepKeys();
+        $savedKey = $this->evidence()->whereIn('phase', $stepKeys)->latest('id')->value('phase');
+        $recorded = $this->evidence()->pluck('phase')->all();
+
+        foreach ($this->mission->phases ?? [] as $phase) {
+            $dayKeys = collect($phase['steps'] ?? [])->map(fn ($step) => is_array($step) ? $step['key'] : $step);
+
+            if (! $dayKeys->contains($savedKey)) {
+                continue;
+            }
+
+            $dayDone = $dayKeys->every(fn (string $key) => in_array($key, $recorded, true));
+
+            if ($dayDone && $this->currentStepKey() !== null) {
+                return route('home');
+            }
+        }
+
+        return route('missions.show', $this->mission);
+    }
+
+    /**
      * The previous mission blocking this one, or null if it's open —
      * Evidence Before Progress (EOS-001 Article 3) applied mission-to-
      * mission: a mission stays gated until its predecessor's run is at

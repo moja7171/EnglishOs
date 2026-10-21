@@ -19,7 +19,7 @@
     <span class="min-w-0 flex-1">
         <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Voice practice · {{ $practice['title'] }}</span>
         @unless ($practice['practicedToday'])
-            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Last 10 minutes of your day · not a step</span>
+            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Last 10 minutes of your day</span>
         @endunless
     </span>
     @if ($practice['practicedToday'])

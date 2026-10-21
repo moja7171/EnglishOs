@@ -5,8 +5,10 @@ namespace Tests\Feature;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PiPracticeLog;
 use App\Models\PlacementTest;
 use App\Models\User;
+use App\Models\VocabularyWord;
 use App\Services\ProgramPlanner;
 use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -286,6 +288,93 @@ class ProgramPlannerTest extends TestCase
             ->assertSee('Today · Day 2 of My Daily Life')
             ->assertSee('Continue')
             ->assertDontSee('Keep going');
+    }
+
+    public function test_the_main_button_starts_the_day_with_daily_review_when_items_are_due(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission());
+        VocabularyWord::create(['learner_id' => $learner->id, 'word' => 'commute', 'meaning' => 'to travel to work', 'next_review_at' => now()->subMinute()]);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Start with Daily Review')
+            ->assertSeeHtml('href="'.route('review.index').'"')
+            ->assertDontSee('Continue');
+    }
+
+    public function test_with_the_days_steps_done_the_main_button_is_pi_and_the_next_day_waits(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSeeInOrder(['Day 1 done', 'Voice practice with Pi', 'Keep going — Day 2'])
+            ->assertSeeHtml('href="'.route('pi.practice').'"');
+    }
+
+    public function test_once_pi_is_done_too_the_next_day_is_the_only_button(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run);
+        PiPracticeLog::factory()->for($learner, 'learner')->create();
+        $this->actingAs($learner);
+
+        $html = Livewire::test('missions.overview')
+            ->assertDontSee('Voice practice with Pi')
+            ->html();
+
+        $this->assertSame(1, substr_count($html, 'Keep going — Day 2'));
+    }
+
+    public function test_a_step_that_finishes_its_day_sends_the_learner_home(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->record($run, 'mission_brief');
+        $this->assertSame(route('missions.show', $run->mission), $run->urlAfterSavingAStep());
+
+        $this->record($run, 'vocabulary_builder');
+        $this->assertSame(route('home'), $run->urlAfterSavingAStep());
+    }
+
+    public function test_a_step_done_out_of_order_does_not_count_as_the_end_of_its_day(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        $this->record($run, 'vocabulary_builder');
+
+        $this->assertSame(route('missions.show', $run->mission), $run->urlAfterSavingAStep());
+    }
+
+    public function test_the_last_step_of_the_mission_stays_on_the_mission(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+
+        foreach ($run->mission->stepKeys() as $key) {
+            $this->record($run, $key);
+        }
+
+        $this->assertSame(route('missions.show', $run->mission), $run->urlAfterSavingAStep());
+    }
+
+    public function test_the_missions_listening_and_pi_links_open_todays_day(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($learner, $mission);
+        $this->finishDayOne($run, now()->subDay());
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 2]).'"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 2]).'"');
     }
 
     public function test_the_missions_page_offers_a_checkpoint_after_a_checkpoint_mission(): void

@@ -1,25 +1,26 @@
 @props(['listening'])
 
-{{-- The daily listening habit, shown inside the Today box as one quiet row
-     that opens /listening. The three picks, their levels, the transcript
-     links and the "I listened" tick all live on that page — the box only
-     points there and reflects whether today's tick has been made.
+{{-- The daily listening habit, shown at the bottom of the Today box as one
+     quiet row that opens /listening. The three picks, their levels, the
+     transcript links and the "I listened" tick all live on that page — the
+     box only points there and reflects whether today's tick has been made.
      Deliberately NOT styled like the mission steps (no check circles, no
-     numbers, no current state): it's an anytime, any-order habit that
-     never gates Continue. --}}
+     numbers, no current state) and kept out of the day's order: one pick,
+     any time of day, never gates Continue. Named apart from the steps'
+     own "Listen Again" so the two are never taken for each other. --}}
 <a
     href="{{ route('listening.show') }}"
     wire:navigate
     class="mt-3 flex items-center gap-3 rounded-xl bg-surface-sunken px-3 py-2.5 transition-colors hover:opacity-90 dark:bg-surface-sunken-dark"
-    aria-label="Daily listening"
+    aria-label="Extra listening"
 >
     <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
         @svg('heroicon-o-speaker-wave', 'h-4 w-4')
     </span>
     <span class="min-w-0 flex-1">
-        <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Listen today</span>
+        <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Extra listening</span>
         @unless ($listening['listenedToday'])
-            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Three picks · any order, not a step</span>
+            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Anytime · one is enough</span>
         @endunless
     </span>
     @if ($listening['listenedToday'])

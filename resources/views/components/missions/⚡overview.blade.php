@@ -96,6 +96,67 @@ new class extends Component
     }
 
     /**
+     * The Today box's one main button on a mission day: always the next
+     * thing to do, so the learner never has to work the order out — Daily
+     * Review first (a 2-minute warm-up), then the day's steps, then the
+     * voice practice with Pi, and only then the next day. Listening is not
+     * in this order: it's any time of day.
+     *
+     * @return array{label: string, url: string}|null
+     */
+    #[Computed]
+    public function nextAction(): ?array
+    {
+        $today = $this->program['today'];
+
+        if ($today['kind'] !== 'mission_day') {
+            return null;
+        }
+
+        if (($this->review['remaining'] ?? 0) > 0) {
+            return ['label' => 'Start with Daily Review', 'url' => route('review.index')];
+        }
+
+        if (! $today['dayCompletedToday']) {
+            $currentStep = collect($today['steps'])->firstWhere('current', true);
+
+            return [
+                'label' => $currentStep ? 'Continue' : 'Open mission',
+                'url' => route('missions.show', [$today['mission'], $currentStep['key'] ?? null]),
+            ];
+        }
+
+        if ($this->piPractice !== null && ! $this->piPractice['practicedToday']) {
+            return ['label' => 'Voice practice with Pi', 'url' => route('pi.practice')];
+        }
+
+        return $this->keepGoing;
+    }
+
+    /**
+     * The way into the next day once today's is done — the main button
+     * when nothing else is left today, a quiet extra until then.
+     *
+     * @return array{label: string, url: string}|null
+     */
+    #[Computed]
+    public function keepGoing(): ?array
+    {
+        $today = $this->program['today'];
+
+        if ($today['kind'] !== 'mission_day' || ! $today['dayCompletedToday']) {
+            return null;
+        }
+
+        $upNext = $today['upNext'];
+
+        return [
+            'label' => 'Keep going — Day '.$upNext['dayNumber'].' · ~'.Mission::formatDuration($upNext['minutes']),
+            'url' => route('missions.show', [$today['mission'], $upNext['stepKey']]),
+        ];
+    }
+
+    /**
      * A dense glance-able strip atop the home page linking to the full
      * /progress page — that page's own progressStats()/averageMemoryFreshness()
      * data existed before but was buried in Profile Settings (tab 3 of 5),
@@ -343,12 +404,10 @@ new class extends Component
             @if ($today['dayLabel'])
                 <p class="mt-0.5 text-sm font-semibold text-ink dark:text-ink-dark">{{ $today['dayLabel'] }}</p>
             @endif
-            {{-- The listening row comes first, visibly apart from the steps
-                 below: it is NOT one of them (any time, any order, never
-                 blocks Continue). --}}
-            @if ($listening = $this->listening)
-                <x-listening-today :listening="$listening" />
-            @endif
+            {{-- The day in the order it's meant to be done: Daily Review as
+                 the warm-up, the steps, then Pi — and one main button below
+                 that always points at the next of them (see nextAction()).
+                 Listening sits apart at the bottom: any time of day. --}}
             @if ($review = $this->review)
                 <x-review-today :review="$review" />
             @endif
@@ -381,27 +440,35 @@ new class extends Component
             </ul>
             @if ($today['dayCompletedToday'])
                 {{-- Finished earlier today: stay on this day (the date flips
-                     the box to the next one tomorrow) and make carrying on
-                     an offer, not the main button. --}}
-                @php $upNext = $today['upNext']; @endphp
+                     the box to the next one tomorrow). --}}
                 <div class="mt-3 flex items-center gap-2 rounded-xl bg-success-soft px-3 py-2.5 text-sm font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
                     @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0') Day {{ $today['dayNumber'] }} done — nice work.
                 </div>
-                <a
-                    href="{{ route('missions.show', [$today['mission'], $upNext['stepKey']]) }}"
-                    wire:navigate
-                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >Keep going — Day {{ $upNext['dayNumber'] }} · ~{{ \App\Models\Mission::formatDuration($upNext['minutes']) }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
-            @else
-                @php $currentStep = collect($today['steps'])->firstWhere('current', true); @endphp
-                <a
-                    href="{{ route('missions.show', [$today['mission'], $currentStep['key'] ?? null]) }}"
-                    wire:navigate
-                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >{{ $currentStep ? 'Continue' : 'Open mission' }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
             @endif
             @if ($piPractice = $this->piPractice)
                 <x-pi-today :practice="$piPractice" />
+            @endif
+            @php $nextAction = $this->nextAction; $keepGoing = $this->keepGoing; @endphp
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+                <a
+                    href="{{ $nextAction['url'] }}"
+                    wire:navigate
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                >{{ $nextAction['label'] }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+                {{-- The next day stays a quiet offer while Review or Pi is
+                     still left today, so it never pulls the learner past them. --}}
+                @if ($keepGoing && $keepGoing !== $nextAction)
+                    <a
+                        href="{{ $keepGoing['url'] }}"
+                        wire:navigate
+                        class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >{{ $keepGoing['label'] }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+                @endif
+            </div>
+            @if ($listening = $this->listening)
+                <div class="mt-4 border-t border-line dark:border-line-dark">
+                    <x-listening-today :listening="$listening" />
+                </div>
             @endif
 
         @elseif ($today['kind'] === 'checkpoint')
@@ -425,14 +492,16 @@ new class extends Component
                 </p>
             @endif
 
-            @if ($listening = $this->listening)
-                <x-listening-today :listening="$listening" />
-            @endif
             @if ($review = $this->review)
                 <x-review-today :review="$review" />
             @endif
             @if ($piPractice = $this->piPractice)
                 <x-pi-today :practice="$piPractice" />
+            @endif
+            @if ($listening = $this->listening)
+                <div class="mt-4 border-t border-line dark:border-line-dark">
+                    <x-listening-today :listening="$listening" />
+                </div>
             @endif
 
         @elseif ($today['kind'] === 'start_next')
@@ -449,14 +518,16 @@ new class extends Component
                 <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $today['nextMissionCode'] }} is coming soon — keep your streak with <a href="{{ route('review.index') }}" wire:navigate class="underline">Review</a>.</p>
             @endif
 
-            @if ($listening = $this->listening)
-                <x-listening-today :listening="$listening" />
-            @endif
             @if ($review = $this->review)
                 <x-review-today :review="$review" />
             @endif
             @if ($piPractice = $this->piPractice)
                 <x-pi-today :practice="$piPractice" />
+            @endif
+            @if ($listening = $this->listening)
+                <div class="mt-4 border-t border-line dark:border-line-dark">
+                    <x-listening-today :listening="$listening" />
+                </div>
             @endif
 
         @else

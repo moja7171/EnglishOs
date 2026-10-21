@@ -75,7 +75,8 @@ class ListeningPageTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $this->get(route('listening.show'))
-            ->assertSee('Listen today')
+            ->assertSee('Extra listening')
+            ->assertSee('Pick one — that\'s enough.', false)
             ->assertSee('M01 · My Daily Life · Day 1 of 4')
             ->assertSeeInOrder(['Routines', 'Describing Your Day: Mornings', "Why you need a good night's sleep"])
             ->assertSeeInOrder(['Lighter', 'Medium', 'Challenging']);

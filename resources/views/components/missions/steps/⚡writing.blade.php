@@ -152,7 +152,7 @@ new class extends Component
 
     public function proceed(): void
     {
-        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
     /**

@@ -422,7 +422,7 @@ new class extends Component
 
     private function leaveStep(): void
     {
-        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
     /**

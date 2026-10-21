@@ -50,7 +50,7 @@
             <div>
                 <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">اولین قدم</p>
                 <p class="mt-1 text-sm leading-8 text-ink dark:text-ink-dark">
-                    وقتی وارد می‌شی، صفحه‌ی اصلی («Missions») رو می‌بینی. یه بخش به اسم «Today» بهت می‌گه امروز دقیقاً باید چیکار کنی. فقط کافیه روی دکمه‌ی «Start» (برای شروع یه ماموریت جدید) یا «Continue» / «Open mission» (برای ادامه‌ی ماموریتی که وسطشی) بزنی — بقیه‌ش رو خود برنامه قدم‌به‌قدم نشونت می‌ده.
+                    وقتی وارد می‌شی، صفحه‌ی اصلی («Missions») رو می‌بینی. یه بخش به اسم «Today» بهت می‌گه امروز دقیقاً باید چیکار کنی. فقط کافیه دکمه‌ی اصلی اون کادر رو بزنی — همیشه کار بعدی رو نشون می‌ده: اول Daily Review، بعد مرحله‌های امروز («Continue»)، آخر هم تمرین صوتی با Pi. شنیدن جداست: هر وقت از روز.
                 </p>
             </div>
         </section>
@@ -156,7 +156,7 @@
                         <div>
                             <p class="text-xs font-bold text-ink dark:text-ink-dark">چقدر و چطور؟</p>
                             <ul class="mt-1 list-disc space-y-1 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
-                                <li>روزی ۱۵ تا ۲۰ دقیقه کافیه، همین.</li>
+                                <li>روزی یه فایل کافیه، هر وقت از روز.</li>
                                 <li>برای هر کلمه‌ی ناآشنا نایست — فقط ادامه بده.</li>
                                 <li>فایلی رو انتخاب کن که بدون زحمت حدود ۷۰ تا ۸۰ درصدش رو می‌فهمی. اگه کمتره، یه پله ساده‌تر برو.</li>
                                 <li>هیچ‌وقت زیرنویس فارسی نذار؛ اگه لازم شد، فقط زیرنویس انگلیسی.</li>
@@ -164,8 +164,8 @@
                         </div>
                         <div>
                             <p class="text-xs font-bold text-ink dark:text-ink-dark">از کجا شروع کنم؟</p>
-                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">برای هر روز برنامه، سه پیشنهاد آماده‌ست، از سبک‌تر تا چالشی‌تر. <strong class="text-ink dark:text-ink-dark">حداقل یکی رو گوش بده، دوست داشتی هر سه تا رو.</strong></p>
-                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">کارت «Listen today» توی صفحه‌ی اصلی، پیشنهادهای روز خودت رو باز می‌کنه. بعدش «I listened» رو بزن تا توی استریک حساب بشه.</p>
+                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">برای هر روز برنامه، سه پیشنهاد آماده‌ست، از سبک‌تر تا چالشی‌تر. <strong class="text-ink dark:text-ink-dark">یکی رو گوش بده، همین کافیه.</strong></p>
+                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">کارت «Extra listening» پایین کادر Today توی صفحه‌ی اصلی، پیشنهادهای روز خودت رو باز می‌کنه. بعدش «I listened» رو بزن تا توی استریک حساب بشه.</p>
                             <a
                                 href="{{ route('listening.show') }}"
                                 wire:navigate

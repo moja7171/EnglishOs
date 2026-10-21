@@ -207,7 +207,7 @@ new class extends Component
                 @svg('heroicon-o-speaker-wave', 'h-5 w-5')
             </span>
             <div>
-                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->isToday ? 'Listen today' : 'Listening' }}</h1>
+                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->isToday ? 'Extra listening' : 'Listening' }}</h1>
                 <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }} of 4</p>
             </div>
         </div>
@@ -245,8 +245,8 @@ new class extends Component
     </header>
 
     <section class="space-y-1">
-        <p class="text-base font-semibold text-ink dark:text-ink-dark">Listen to at least one, or all three if you like.</p>
-        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Pick whichever you prefer. The three go from lighter to more challenging.</p>
+        <p class="text-base font-semibold text-ink dark:text-ink-dark">Pick one — that's enough.</p>
+        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Lighter to more challenging.</p>
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Grammar in this mission: <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $this->mission['grammar'] }}</span></p>
     </section>
 

@@ -188,7 +188,7 @@ new class extends Component
             'content_ref' => json_encode($this->mistakes),
         ]);
 
-        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
     /**
@@ -211,7 +211,7 @@ new class extends Component
             'content_ref' => json_encode([]),
         ]);
 
-        $this->redirect(route('missions.show', $this->run->mission), navigate: true);
+        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 };
 ?>
