@@ -32,6 +32,14 @@ use Illuminate\Support\Str;
  */
 class PiPrompts
 {
+    public const PI_URL = 'https://pi.ai';
+
+    /**
+     * Opens Pi in its Android app — a plain link from the installed web app
+     * opens Pi's website — and in the browser when the app isn't installed.
+     */
+    public const PI_ANDROID_INTENT = 'intent://pi.ai#Intent;scheme=https;package=ai.inflection.pi;S.browser_fallback_url=https%3A%2F%2Fpi.ai;end';
+
     /**
      * The fixed practice of each day of a mission: what the learner sees it
      * called and the one-line goal.

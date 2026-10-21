@@ -108,6 +108,15 @@ class PiPracticePageTest extends TestCase
             ->assertSeeHtml('rel="noopener noreferrer"');
     }
 
+    public function test_pi_opens_in_its_android_app_and_the_prompt_can_be_copied_on_the_way(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('pi.practice'))
+            ->assertSee('Copy & open Pi')
+            ->assertSee('package=ai.inflection.pi');
+    }
+
     public function test_each_day_of_the_mission_has_its_own_practice(): void
     {
         $this->actingAs($this->finishedLearner());
