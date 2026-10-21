@@ -58,6 +58,13 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('progress');
     })->name('progress.index');
 
+    // One finished mission looked back on: its grammar, the learner's own
+    // words and recordings. Only for a mission the learner has cleared —
+    // the component 404s otherwise, since only it loads the run.
+    Route::get('/progress/{mission:code}', function (Mission $mission) {
+        return view('progress-mission', compact('mission'));
+    })->name('progress.mission');
+
     // /program and /guide used to be two separate, divergent "how this
     // works" pages (an English roadmap doc and a Persian FAQ/orientation
     // doc) reachable from different parts of the app with no link between

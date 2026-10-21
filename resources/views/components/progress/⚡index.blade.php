@@ -169,6 +169,24 @@ new class extends Component
         return auth()->user()->totalPracticeMinutes();
     }
 
+    /**
+     * The Path tab: all 24 missions with where the learner stands on
+     * each — see User::missionJourney().
+     *
+     * @return list<array{code: string, title: string, mission: ?Mission, run: ?\App\Models\MissionRun, state: string, dayNumber: ?int}>
+     */
+    #[Computed]
+    public function journey(): array
+    {
+        return auth()->user()->missionJourney();
+    }
+
+    #[Computed]
+    public function totalListens(): int
+    {
+        return auth()->user()->totalListensCount();
+    }
+
     /** @return list<array{label: string, count: int}> */
     #[Computed]
     public function vocabularyGrowth(): array
@@ -211,7 +229,7 @@ new class extends Component
 <div
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
     x-data="{
-        tab: ['overview', 'activity', 'growth'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview',
+        tab: ['path', 'overview', 'activity', 'growth'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'path',
         setTab(name) {
             this.tab = name;
             history.replaceState(history.state, '', '#' + name);
@@ -229,26 +247,33 @@ new class extends Component
         </span>
         <div class="min-w-0">
             <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">My Progress</h1>
+            @php $missionsDone = collect($this->journey)->where('state', 'done')->count(); @endphp
             <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
+                <span class="inline-flex items-center gap-1.5">
+                    @svg('heroicon-o-check-badge', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $missionsDone }} {{ Str::plural('mission', $missionsDone) }}
+                </span>
                 <span class="inline-flex items-center gap-1.5">
                     @svg('heroicon-o-book-open', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->progressStats['vocabularyCount'] }} {{ Str::plural('word', $this->progressStats['vocabularyCount']) }}
                 </span>
                 <span class="inline-flex items-center gap-1.5">
                     @svg('heroicon-o-clock', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ Mission::formatDuration($this->totalPracticeMinutes) }}
                 </span>
+                <span class="inline-flex items-center gap-1.5">
+                    @svg('heroicon-o-speaker-wave', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $this->totalListens }} {{ Str::plural('listen', $this->totalListens) }}
+                </span>
             </p>
         </div>
     </header>
 
-    <div role="tablist" aria-label="Progress sections" class="grid grid-cols-3 gap-1 card p-1">
-        @foreach (['overview' => 'Overview', 'activity' => 'Activity', 'growth' => 'Growth'] as $tabKey => $tabLabel)
+    <div role="tablist" aria-label="Progress sections" class="grid grid-cols-4 gap-1 card p-1">
+        @foreach (['path' => 'Path', 'overview' => 'Overview', 'activity' => 'Activity', 'growth' => 'Growth'] as $tabKey => $tabLabel)
             <button
                 type="button"
                 role="tab"
                 x-on:click="setTab('{{ $tabKey }}')"
                 :aria-selected="tab === '{{ $tabKey }}'"
                 :class="tab === '{{ $tabKey }}' ? 'bg-accent text-white dark:bg-accent-dark' : 'text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark'"
-                class="cursor-pointer rounded-full px-3 py-2 text-sm font-semibold transition-colors"
+                class="cursor-pointer rounded-full px-2 py-2 text-sm font-semibold transition-colors"
             >
                 {{ $tabLabel }}
                 @if ($tabKey === 'growth' && ($this->masteredErrors->isNotEmpty() || $this->fadingErrors->isNotEmpty()))
@@ -259,9 +284,73 @@ new class extends Component
         @endforeach
     </div>
 
+    {{-- Path — the whole road, M01 to M24: what's behind (each with the
+         one thing it taught), where the learner is, and what's ahead. --}}
+    <div x-show="tab === 'path'" role="tabpanel" class="card p-4">
+        <ol class="relative">
+            @foreach ($this->journey as $slot)
+                @php $isLast = $loop->last; @endphp
+                <li class="relative flex gap-3 {{ $isLast ? '' : 'pb-3' }}">
+                    @unless ($isLast)
+                        <span aria-hidden="true" @class([
+                            'absolute top-7 bottom-0 left-[13px] w-0.5',
+                            'bg-success dark:bg-success-dark' => $slot['state'] === 'done',
+                            'bg-line dark:bg-line-dark' => $slot['state'] !== 'done',
+                        ])></span>
+                    @endunless
+
+                    @if ($slot['state'] === 'done')
+                        <span class="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-3.5 w-3.5')</span>
+                    @elseif ($slot['state'] === 'current')
+                        <span class="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-white ring-4 ring-accent/20 dark:bg-accent-dark dark:ring-accent-dark/25">@svg('heroicon-s-play', 'h-3 w-3')</span>
+                    @else
+                        <span @class([
+                            'relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 bg-surface text-[10px] font-bold dark:bg-surface-dark',
+                            'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => $slot['state'] === 'open',
+                            'border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark' => $slot['state'] === 'locked',
+                        ])>{{ (int) substr($slot['code'], 1) }}</span>
+                    @endif
+
+                    @php
+                        $href = match ($slot['state']) {
+                            'done' => route('progress.mission', $slot['mission']),
+                            'current' => route('missions.show', $slot['mission']),
+                            'open' => route('missions.show', [$slot['mission'], 'overview']),
+                            default => null,
+                        };
+                    @endphp
+                    <div class="min-w-0 flex-1 pt-0.5">
+                        @if ($href)
+                            <a href="{{ $href }}" wire:navigate class="group flex items-center justify-between gap-2">
+                                <span class="min-w-0">
+                                    <span class="block text-sm font-semibold text-ink group-hover:text-accent-ink dark:text-ink-dark dark:group-hover:text-accent-ink-dark">
+                                        <span class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['code'] }}</span> {{ $slot['title'] }}
+                                    </span>
+                                    @if ($slot['state'] === 'done' && $slot['mission']->outcome)
+                                        <span class="mt-0.5 line-clamp-2 block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $slot['mission']->outcome }}</span>
+                                    @elseif ($slot['state'] === 'current')
+                                        <span class="mt-0.5 block text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">You're here{{ $slot['dayNumber'] ? ' · Day '.$slot['dayNumber'].' of '.count($slot['mission']->phases ?? []) : '' }}</span>
+                                    @elseif ($slot['state'] === 'open')
+                                        <span class="mt-0.5 block text-xs text-accent-ink dark:text-accent-ink-dark">Up next</span>
+                                    @endif
+                                </span>
+                                @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                            </a>
+                        @else
+                            <p class="flex items-center justify-between gap-2 text-sm text-ink-faint dark:text-ink-faint-dark">
+                                <span><span class="text-xs font-bold">{{ $slot['code'] }}</span> {{ $slot['title'] }}</span>
+                                @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
+                            </p>
+                        @endif
+                    </div>
+                </li>
+            @endforeach
+        </ol>
+    </div>
+
     {{-- Overview — only what's useful today: the streak, the week's goal,
          what to review, and the reassurance surface. --}}
-    <div x-show="tab === 'overview'" role="tabpanel" class="space-y-4">
+    <div x-show="tab === 'overview'" x-cloak role="tabpanel" class="space-y-4">
         <div class="card p-4">
             <div class="flex items-end justify-between gap-3">
                 <div>

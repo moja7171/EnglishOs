@@ -300,7 +300,7 @@ class MissionsOverviewTest extends TestCase
         Livewire::test('missions.overview')
             ->assertSee('Next · M02')
             ->assertSee('22 more missions')
-            ->assertSeeHtml('href="'.route('learner.guide').'"')
+            ->assertSeeHtml('href="'.route('progress.index').'#path"')
             ->assertDontSee($first->outcome);
     }
 

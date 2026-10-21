@@ -249,6 +249,65 @@ class User extends Authenticatable
     }
 
     /**
+     * Every slot of the 24-mission roadmap with where this learner stands
+     * on it — the Path tab of the Progress page. 'done' is a run the
+     * mission-to-mission gate counts as cleared (complete or needs_review,
+     * see MissionRun::gatingMission()); 'current' is any other run; 'open'
+     * is a seeded mission nothing gates; everything else is 'locked'
+     * (gated, or not built yet). Only a 'current' slot carries its
+     * mission day, since that one costs a dayProgress() per run.
+     *
+     * @return list<array{code: string, title: string, mission: ?Mission, run: ?MissionRun, state: string, dayNumber: ?int}>
+     */
+    public function missionJourney(): array
+    {
+        $seeded = Mission::orderBy('code')->get()->keyBy('code');
+        $runs = $this->missionRuns()->get()->keyBy('mission_id');
+        $catalog = Mission::roadmapCatalog();
+
+        return collect(range(1, Mission::TOTAL_ROADMAP_MISSIONS))
+            ->map(fn (int $n) => sprintf('M%02d', $n))
+            ->map(function (string $code) use ($seeded, $runs, $catalog) {
+                $mission = $seeded->get($code);
+                $run = $mission ? $runs->get($mission->id) : null;
+
+                $state = match (true) {
+                    $run !== null && in_array($run->status, [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW], true) => 'done',
+                    $run !== null => 'current',
+                    $mission !== null && MissionRun::gatingMission($this, $mission) === null => 'open',
+                    default => 'locked',
+                };
+
+                $dayNumber = null;
+
+                if ($state === 'current') {
+                    $days = $run->dayProgress();
+                    $dayNumber = min(count($days), collect($days)->where('done', true)->count() + 1) ?: null;
+                }
+
+                return [
+                    'code' => $code,
+                    'title' => $mission->title ?? $catalog[$code]['title'],
+                    'mission' => $mission,
+                    'run' => $run,
+                    'state' => $state,
+                    'dayNumber' => $dayNumber,
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * Every listen the learner logged — in-app episodes, Video Shadowing
+     * videos and the daily picks, heard or self-reported (see AudioListen).
+     * A count, not a duration: a listen stores no length.
+     */
+    public function totalListensCount(): int
+    {
+        return $this->audioListens()->count();
+    }
+
+    /**
      * The mission this learner is actively working on right now, if any —
      * feeds the Friends Board's per-friend progress ring/journey map.
      * "Latest" by started_at since a learner could in principle have more
