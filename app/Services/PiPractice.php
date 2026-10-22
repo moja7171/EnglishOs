@@ -20,6 +20,12 @@ use App\Models\User;
  */
 class PiPractice
 {
+    /**
+     * The "last 10 minutes of a learner's day": what home counts for Pi in
+     * the day's time.
+     */
+    public const MINUTES = 10;
+
     public function __construct(private ListeningPicks $picks) {}
 
     /**

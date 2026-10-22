@@ -259,6 +259,23 @@
     --mood-texture-size: 52px 52px;
 }
 
+/* M11 "Work" — a warm copper (a brass name plate, a new briefcase),
+   paired with small arrowheads all pointing forward, to the future —
+   solid wedges, so they never read as the dots, rings or line patterns
+   of the other moods. */
+[data-mood='ahead'] {
+    --color-accent: #b0652f;
+    --color-accent-dark: #e0965e;
+    --color-accent-soft: #f6e6d9;
+    --color-accent-soft-dark: #45291a;
+    --color-accent-ink: #85471d;
+    --color-accent-ink-dark: #ffc79a;
+    --color-dawn: #e8a77a;
+    --color-dusk: #8a4a22;
+    --mood-texture: conic-gradient(from 240deg at 45% 50%, color-mix(in srgb, var(--color-accent) calc(9% * var(--mood-boost)), transparent) 0deg 60deg, transparent 60deg);
+    --mood-texture-size: 26px 26px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

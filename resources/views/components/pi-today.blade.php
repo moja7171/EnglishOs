@@ -1,18 +1,16 @@
-@props(['practice'])
+@props(['practice', 'current' => false])
 
-{{-- The daily voice practice with Pi, shown inside the Today box as one
-     quiet row that opens /pi. Same family as <x-listening-today>, but it sits
-     BELOW the day's steps: it is meant as the last 10 minutes of the day.
-     Like the listening row it is NOT one of the steps (no check circles, no
-     numbers, never gates Continue, always open). The prompt, the links and
-     the "I practiced" tick all live on that page — the box only points there
-     and reflects whether today's tick has been made. --}}
+{{-- The daily voice practice with Pi as the last line of the Today box's
+     checklist (<x-today-row>), opening /pi: the last 10 minutes of the day.
+     The prompt and links live on that page; the circle here is the same
+     "I practiced" tick, so it can be made without leaving home. --}}
 <x-today-row
     :href="route('pi.practice')"
     :title="'Voice practice · '.$practice['title']"
     label="Daily voice practice"
+    :minutes="\App\Services\PiPractice::MINUTES"
     :done="$practice['practicedToday']"
-    :hint="$practice['practicedToday'] ? 'Practiced today' : 'Last 10 minutes of your day'"
+    :current="$current"
     tick="markPracticed"
     tick-label="I practiced"
 />

@@ -111,7 +111,7 @@ class SpeakingRecallTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('1 item ready for Daily Review');
+            ->assertSee('Daily Review · 1 item');
     }
 
     public function test_the_browsable_list_shows_every_tracked_prompt(): void

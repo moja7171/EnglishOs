@@ -313,7 +313,7 @@ class MissionStepPreviewTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('Next · '.$mission->code)
+            ->assertSee('Next: '.$mission->code)
             ->assertSeeHtml('href="'.route('missions.show', [$mission, 'overview']).'"');
     }
 }

@@ -482,7 +482,7 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('3 items ready for Daily Review');
+            ->assertSee('Daily Review · 3 items');
     }
 
     public function test_todays_review_is_capped_at_the_daily_limit_with_the_most_overdue_first(): void
@@ -503,7 +503,7 @@ class DailyReviewTest extends TestCase
             $items->pluck('id')->all(),
         );
 
-        Livewire::test('missions.overview')->assertSee('8 items ready for Daily Review');
+        Livewire::test('missions.overview')->assertSee('Daily Review · 8 items');
     }
 
     public function test_reviewing_an_item_uses_up_one_of_todays_eight_instead_of_pulling_in_a_ninth(): void
@@ -534,8 +534,8 @@ class DailyReviewTest extends TestCase
         $this->assertSame(0, $learner->dailyReviewCount());
 
         Livewire::test('missions.overview')
-            ->assertSee('Reviewed today')
-            ->assertDontSee('ready for Daily Review');
+            ->assertSee('Daily Review')
+            ->assertDontSee('Daily Review ·');
 
         Livewire::test('review.index')
             ->assertSee('review done');
@@ -547,20 +547,7 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Daily Review')
-            ->assertDontSee('Reviewed today');
-    }
-
-    public function test_the_todays_box_row_breaks_the_batch_down_by_kind(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDueWord($learner);
-        $this->makeDuePrompt($learner);
-        $this->makeDueError($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->assertSee('1 word · 1 grammar · 1 speaking');
+            ->assertDontSee('Daily Review');
     }
 
     /**

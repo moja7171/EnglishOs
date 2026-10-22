@@ -45,7 +45,7 @@ class ProgramPlanner
      * @return array{
      *   programDay: int, totalDays: int, calendarDay: int, daysDelta: int,
      *   missionNumber: int, totalMissions: int, started: bool,
-     *   today: array{kind: string, mission: ?Mission, run: ?MissionRun, dayNumber: ?int, dayLabel: ?string, steps: list<array{key: string, label: string, minutes: int, done: bool, current: bool}>, estimatedMinutes: int, dayCompletedToday: bool, upNext: ?array{dayNumber: int, label: string, minutes: int, stepKey: string}, nextMission: ?Mission, nextMissionCode: ?string, speaking: ?array{title: string, focus: ?string, questions: list<string>, prompt: string}}
+     *   today: array{kind: string, mission: ?Mission, run: ?MissionRun, dayNumber: ?int, dayCount: ?int, dayLabel: ?string, steps: list<array{key: string, label: string, minutes: int, done: bool, current: bool}>, estimatedMinutes: int, dayCompletedToday: bool, upNext: ?array{dayNumber: int, label: string, minutes: int, stepKey: string}, nextMission: ?Mission, nextMissionCode: ?string, speaking: ?array{title: string, focus: ?string, questions: list<string>, prompt: string}}
      * }
      */
     public function plan(User $learner): array
@@ -88,7 +88,7 @@ class ProgramPlanner
     private function today(User $learner, Collection $runs, Collection $completed): array
     {
         $base = [
-            'mission' => null, 'run' => null, 'dayNumber' => null, 'dayLabel' => null,
+            'mission' => null, 'run' => null, 'dayNumber' => null, 'dayCount' => null, 'dayLabel' => null,
             'steps' => [], 'estimatedMinutes' => 0, 'nextMission' => null, 'nextMissionCode' => null,
             'checkpointAvailable' => false, 'dayCompletedToday' => false, 'upNext' => null,
         ];
@@ -201,6 +201,7 @@ class ProgramPlanner
             'mission' => $run->mission,
             'run' => $run,
             'dayNumber' => $index + 1,
+            'dayCount' => count($days),
             'dayLabel' => $day['label'] ?? null,
             'steps' => collect($day['stepKeys'] ?? [])->map(fn (string $key) => [
                 'key' => $key,

@@ -526,6 +526,7 @@ class Mission extends Model
             'M08' => 'mates',
             'M09' => 'self',
             'M10' => 'bond',
+            'M11' => 'ahead',
             default => 'daily-life',
         };
     }
