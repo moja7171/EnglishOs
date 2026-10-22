@@ -118,7 +118,10 @@ new class extends Component
             return;
         }
 
-        $data = json_decode($this->run->latestEvidence('ai_conversation_1')?->content_ref ?? '{}', true);
+        // The step saves a text row and an audio row in the same second, so
+        // "latest" alone can pick the recording; the transcript is the text one.
+        $textEvidence = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->latest()->first();
+        $data = json_decode($textEvidence?->content_ref ?? '{}', true);
 
         $this->transcript = $data['transcript'] ?? null;
         $this->segments = $data['segments'] ?? [];
