@@ -2,6 +2,10 @@
 
 namespace App\Livewire\Concerns;
 
+use App\Models\AiUsageLog;
+use App\Services\AiLimitReached;
+use App\Services\AiUsage;
+use App\Services\GeminiClient;
 use App\Services\LearnerFeedback;
 use Closure;
 use Illuminate\Support\Facades\RateLimiter;
@@ -50,6 +54,7 @@ trait GivesConversationFeedback
         $limiterKey = 'conversation-feedback:'.auth()->id();
 
         if (RateLimiter::tooManyAttempts($limiterKey, self::FEEDBACK_HOURLY_LIMIT)) {
+            app(AiUsage::class)->recordLimited(AiUsageLog::PROVIDER_GEMINI, GeminiClient::PROFILE_JUDGE);
             $this->feedback = null;
             $this->feedbackError = 'That\'s '.self::FEEDBACK_HOURLY_LIMIT.' checks this hour — try again later.';
 
@@ -67,6 +72,9 @@ trait GivesConversationFeedback
                 spoken: $spoken,
                 onCallSucceeded: $onCallSucceeded,
             );
+        } catch (AiLimitReached) {
+            $this->feedback = null;
+            $this->feedbackError = "You've used today's AI checks — try again tomorrow.";
         } catch (Throwable) {
             $this->feedback = null;
             $this->feedbackError = "Couldn't check your English right now — try again in a moment.";

@@ -63,6 +63,8 @@ class User extends Authenticatable
             'finish_line_told_on' => 'date',
             'gemini_api_key' => 'encrypted',
             'groq_api_key' => 'encrypted',
+            'last_seen_at' => 'datetime',
+            'ai_daily_limit' => 'integer',
         ];
     }
 
@@ -199,6 +201,14 @@ class User extends Authenticatable
     public function avatarUrl(): ?string
     {
         return $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null;
+    }
+
+    /**
+     * @return HasMany<AiUsageLog, $this>
+     */
+    public function aiUsageLogs(): HasMany
+    {
+        return $this->hasMany(AiUsageLog::class);
     }
 
     /**
@@ -532,10 +542,19 @@ class User extends Authenticatable
      */
     public function dailyReviewCount(): int
     {
-        $due = collect($this->reviewSources())
-            ->sum(fn (HasMany $relation) => $relation->where('next_review_at', '<=', now())->count());
+        $due = $this->dueReviewCount();
 
         return $due === 0 ? 0 : min($due, $this->dailyReviewAllowance());
+    }
+
+    /**
+     * Every item due now across every review system, with no daily limit —
+     * the real backlog (the admin page shows it).
+     */
+    public function dueReviewCount(): int
+    {
+        return collect($this->reviewSources())
+            ->sum(fn (HasMany $relation) => $relation->where('next_review_at', '<=', now())->count());
     }
 
     /**
@@ -869,6 +888,15 @@ class User extends Authenticatable
         $chains = $this->streakChains($this->activeDates());
 
         return $chains === [] ? 0 : max($chains);
+    }
+
+    /**
+     * The length of the most recent streak, whether it is still going or
+     * has ended — what a learner whose streak just broke had built.
+     */
+    public function lastStreakLength(): int
+    {
+        return $this->streakChains($this->activeDates())[0] ?? 0;
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AiUsageLog;
 use App\Models\ShadowDraft;
 use App\Models\StepDraft;
 use Illuminate\Foundation\Inspiring;
@@ -23,6 +24,9 @@ Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [ShadowDraft:
     ->daily();
 Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [StepDraft::class]]))
     ->name('step-drafts:prune')
+    ->daily();
+Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [AiUsageLog::class]]))
+    ->name('ai-usage-logs:prune')
     ->daily();
 Schedule::call(fn () => Artisan::call('review:send-reminders'))
     ->name('review:send-reminders')

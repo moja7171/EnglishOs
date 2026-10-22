@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AiUsageLog;
 use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -16,6 +17,9 @@ class GroqClient
     use UsesOutboundProxy;
 
     private const PROVIDER = 'groq';
+
+    /** How a transcription shows in the admin's usage log. */
+    private const USAGE_PROFILE = 'whisper';
 
     private readonly string $apiKey;
 
@@ -222,9 +226,11 @@ class GroqClient
 
         // The learner's own key first, the app's key as the silent
         // fallback — same rules as GeminiClient::chat().
+        $usage = new AiUsage;
+
         if ($this->personalKey !== '') {
             try {
-                return $this->chain->walk(
+                return $usage->track(self::PROVIDER, self::USAGE_PROFILE, AiUsageLog::KEY_OWN, fn () => $this->chain->walk(
                     provider: self::PROVIDER,
                     logLabel: 'GroqClient (personal key)',
                     chain: $this->configuredChain(),
@@ -232,7 +238,7 @@ class GroqClient
                     limits: GeminiClient::personalKeyLimits($limits),
                     tracked: false,
                     logContext: ['audio_bytes' => strlen($fileBody)],
-                );
+                ));
             } catch (Throwable $e) {
                 if ($this->apiKey === '') {
                     throw $e;
@@ -240,7 +246,7 @@ class GroqClient
             }
         }
 
-        return $this->chain->walk(
+        $walkAppKey = fn () => $this->chain->walk(
             provider: self::PROVIDER,
             logLabel: 'GroqClient',
             chain: $this->configuredChain(),
@@ -252,6 +258,15 @@ class GroqClient
             logContext: ['audio_bytes' => strlen($fileBody)],
             chainName: 'Groq Whisper',
         );
+
+        // A pinned chain is an admin probe (diagnostics), not a learner's request.
+        if ($this->pinnedChain !== null) {
+            return $walkAppKey();
+        }
+
+        $usage->ensureAppKeyAllowed(self::PROVIDER, self::USAGE_PROFILE);
+
+        return $usage->track(self::PROVIDER, self::USAGE_PROFILE, AiUsageLog::KEY_APP, $walkAppKey);
     }
 
     /**

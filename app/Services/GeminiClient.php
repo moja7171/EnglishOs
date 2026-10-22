@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AiUsageLog;
 use App\Services\Concerns\UsesOutboundProxy;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -108,9 +109,11 @@ class GeminiClient
             'attempt_timeout' => (int) config('services.gemini.attempt_timeout', 10),
         ];
 
+        $usage = new AiUsage;
+
         if ($this->personalKey !== '') {
             try {
-                return $this->chain->walk(
+                return $usage->track(self::PROVIDER, $profile, AiUsageLog::KEY_OWN, fn () => $this->chain->walk(
                     provider: self::PROVIDER,
                     logLabel: 'GeminiClient (personal key)',
                     chain: $this->configuredChain($profile),
@@ -118,7 +121,7 @@ class GeminiClient
                     limits: self::personalKeyLimits($limits),
                     tracked: false,
                     logContext: ['profile' => $profile],
-                );
+                ));
             } catch (Throwable $e) {
                 if ($this->apiKey === '') {
                     throw $e;
@@ -126,7 +129,7 @@ class GeminiClient
             }
         }
 
-        return $this->chain->walk(
+        $walkAppKey = fn () => $this->chain->walk(
             provider: self::PROVIDER,
             logLabel: 'GeminiClient',
             chain: $this->configuredChain($profile),
@@ -136,6 +139,15 @@ class GeminiClient
             logContext: ['profile' => $profile],
             chainName: "Gemini {$profile}",
         );
+
+        // A pinned chain is an admin probe (diagnostics), not a learner's request.
+        if ($this->pinnedChain !== null) {
+            return $walkAppKey();
+        }
+
+        $usage->ensureAppKeyAllowed(self::PROVIDER, $profile);
+
+        return $usage->track(self::PROVIDER, $profile, AiUsageLog::KEY_APP, $walkAppKey);
     }
 
     /**
