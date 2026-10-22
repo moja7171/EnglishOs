@@ -479,4 +479,26 @@ class ErrorLogStepTest extends TestCase
 
         $this->assertDatabaseCount('error_pattern_reviews', 0);
     }
+
+    public function test_a_generated_review_comes_back_after_leaving_without_another_ai_call(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            ['error' => 'She go to work.', 'correction' => 'She goes to work.', 'drills' => [['sentence' => 'He ___ fast.', 'answer' => 'runs']]],
+        ])));
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
+            ->set('newExamples.0', 'My sister goes to school.')
+            ->set('drillAnswers.0.0', 'runs')
+            ->call('checkDrill', 0, 0);
+
+        $returned = Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->assertSet('generated', true)
+            ->assertSet('newExamples', ['My sister goes to school.'])
+            ->assertSet('drillChecked', [[true]]);
+
+        $this->assertSame('She goes to work.', $returned->get('mistakes')[0]['correction']);
+    }
 }

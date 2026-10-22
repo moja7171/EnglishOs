@@ -46,7 +46,7 @@ new class extends Component
         </ol>
 
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-            Say these any time:
+            Say one on its own, any time:
             @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)
                 <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $word }}</span> ({{ $meaning }}){{ $loop->last ? '.' : ',' }}
             @endforeach

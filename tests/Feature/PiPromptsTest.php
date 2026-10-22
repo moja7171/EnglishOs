@@ -45,11 +45,13 @@ class PiPromptsTest extends TestCase
             $task = $this->task($day, level: 'A2+');
 
             $this->assertStringContainsString('at A2+ level', $task['prompt']);
-            $this->assertStringContainsString("Don't greet me and no small talk", $task['prompt']);
+            $this->assertStringContainsString('Be my warm, fun English buddy', $task['prompt']);
+            $this->assertStringContainsString("Don't ask how I am. No small talk.", $task['prompt']);
+            $this->assertStringContainsString('count only when I say one alone', $task['prompt']);
             $this->assertStringContainsString('reason in 8 words or less', $task['prompt']);
             $this->assertMatchesRegularExpression('/Round 1 of \d+/', $task['prompt']);
             $this->assertStringContainsString('"why?" = explain a bit more', $task['prompt']);
-            $this->assertStringEndsWith('tell me this plan in one short sentence, then begin round 1.', $task['prompt']);
+            $this->assertStringEndsWith('tell me the plan in one short sentence, then begin round 1.', $task['prompt']);
             $this->assertCount(3, $task['plan']);
         }
     }

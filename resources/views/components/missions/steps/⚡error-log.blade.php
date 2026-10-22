@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
@@ -11,6 +12,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
 
@@ -42,13 +44,20 @@ new class extends Component
      * — including just revisiting an incomplete step — fired a real Gemini
      * call. It now only loads already-saved mistakes in read-only mode; a
      * fresh review waits for the learner to press the button below, which
-     * calls generate() explicitly.
+     * calls generate() explicitly. A review already generated comes back
+     * from the step's draft, so leaving never costs another AI call.
      */
     public function mount(): void
     {
+        if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
+            return;
+        }
+
         // A preview has no mistakes of its own to show — leave it on the
         // "not reviewed yet" state, which the view words for previews.
-        if ($this->readOnly && ! $this->preview) {
+        if (! $this->preview) {
             $items = $this->run->errorLogItems;
             $this->mistakes = $items->map(fn ($i) => [
                 'error' => $i->error,
@@ -60,6 +69,21 @@ new class extends Component
             $this->newExamples = $items->pluck('new_example')->all();
             $this->generated = true;
         }
+    }
+
+    protected function draftPhase(): string
+    {
+        return 'error_log';
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['mistakes', 'generated', 'newExamples', 'drillAnswers', 'drillChecked'];
+    }
+
+    public function updatedNewExamples(): void
+    {
+        $this->keepStepDraft();
     }
 
     /**
@@ -85,6 +109,8 @@ new class extends Component
 
         unset($this->drillErrors[$mistakeIndex][$drillIndex]);
         $this->drillChecked[$mistakeIndex][$drillIndex] = $this->normalizeAnswer($given) === $this->normalizeAnswer($expected);
+
+        $this->keepStepDraft();
     }
 
     private function normalizeAnswer(string $text): string
@@ -142,6 +168,8 @@ new class extends Component
                 ->all();
             $this->newExamples = array_fill(0, count($data), '');
             $this->generated = true;
+
+            $this->keepStepDraft();
         } catch (Throwable $e) {
             $this->error = AiFailure::message($e, "Couldn't get the error log from the AI Instructor");
         }
@@ -189,6 +217,8 @@ new class extends Component
             'content_ref' => json_encode($this->mistakes),
         ]);
 
+        $this->forgetStepDraft();
+
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
@@ -211,6 +241,8 @@ new class extends Component
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([]),
         ]);
+
+        $this->forgetStepDraft();
 
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }

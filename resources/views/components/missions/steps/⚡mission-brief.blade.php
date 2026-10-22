@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Models\Evidence;
 use App\Models\Mission;
@@ -7,11 +8,13 @@ use App\Models\MissionRun;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use WithFileUploads;
 
@@ -30,11 +33,17 @@ new class extends Component
      */
     public ?UploadedFile $warmUpRecording = null;
 
+    /** The kept warm-up recording's path on the public disk, until the step is saved — see updatedWarmUpRecording(). */
+    #[Locked]
+    public ?string $warmUpRecordingPath = null;
+
     public ?string $savedWarmUpRecordingUrl = null;
 
     public function mount(): void
     {
         if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
             return;
         }
 
@@ -61,6 +70,42 @@ new class extends Component
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-brief', $query);
     }
 
+    protected function draftPhase(): string
+    {
+        return 'mission_brief';
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['score', 'warmUpRecordingPath'];
+    }
+
+    public function updatedScore(): void
+    {
+        $this->keepStepDraft();
+    }
+
+    /**
+     * The take is stored (and kept in the step's draft) the moment its
+     * upload finishes, so leaving before Continue never loses it.
+     */
+    public function updatedWarmUpRecording(): void
+    {
+        $this->validate([
+            'warmUpRecording' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
+        ]);
+
+        $this->warmUpRecordingPath = $this->keepDraftRecording($this->warmUpRecording, $this->warmUpRecordingPath);
+        $this->warmUpRecording = null;
+
+        $this->keepStepDraft();
+    }
+
+    public function warmUpRecordingUrl(): ?string
+    {
+        return $this->warmUpRecordingPath === null ? null : Storage::disk('public')->url($this->warmUpRecordingPath);
+    }
+
     public function save(): void
     {
         $this->validate([
@@ -74,16 +119,16 @@ new class extends Component
             'content_ref' => (string) $this->score,
         ]);
 
-        if ($this->warmUpRecording) {
-            $path = $this->warmUpRecording->store('missions/'.strtolower($this->run->mission->code).'/evidence', 'public');
-
+        if ($this->warmUpRecordingPath) {
             Evidence::create([
                 'mission_run_id' => $this->run->id,
                 'phase' => 'mission_brief',
                 'type' => Evidence::TYPE_AUDIO,
-                'content_ref' => Storage::disk('public')->url($path),
+                'content_ref' => $this->warmUpRecordingUrl(),
             ]);
         }
+
+        $this->forgetStepDraft();
 
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
@@ -150,7 +195,7 @@ new class extends Component
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record this one:</p>
                 <p class="mt-1 text-sm text-ink dark:text-ink-dark">"{{ $brief['warm_up_questions'][0] ?? '' }}"</p>
                 <div class="mt-2">
-                    <x-voice-recorder field="warmUpRecording" :file="$warmUpRecording" file-name="mission-brief-warmup.webm" />
+                    <x-voice-recorder field="warmUpRecording" :file="$this->warmUpRecordingUrl()" file-name="mission-brief-warmup.webm" />
                 </div>
             </div>
         @endif

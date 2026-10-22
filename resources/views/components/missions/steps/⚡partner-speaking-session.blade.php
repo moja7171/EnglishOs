@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Concerns\GivesConversationFeedback;
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
@@ -11,6 +12,7 @@ use App\Services\GroqClient;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -32,6 +34,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use GivesConversationFeedback;
+    use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
     use WithFileUploads;
@@ -47,8 +50,12 @@ new class extends Component
 
     public ?PartnerSession $session = null;
 
-    /** @var array<int, ?UploadedFile> keyed by round_groups index (0-2) */
+    /** @var array<int, ?UploadedFile> keyed by round_groups index (0-2) — only the upload slot, see updatedSoloRecordings() */
     public array $soloRecordings = [];
+
+    /** @var array<int, string> keyed by round_groups index — each kept recording's path on the public disk */
+    #[Locked]
+    public array $soloAudioPaths = [];
 
     /** @var array<int, string> keyed by round_groups index — Groq transcript, empty if transcription failed or hasn't run */
     public array $soloTranscripts = [];
@@ -93,16 +100,29 @@ new class extends Component
             return;
         }
 
+        $this->restoreStepDraft();
+
         // Not readOnly means no Evidence exists yet for this step — if a
         // shared session already exists (the learner picked a friend from
         // the choice screen earlier, went and answered some questions
         // there, and has now come back here), land straight in partner
-        // mode instead of showing the choice screen again.
+        // mode instead of showing the choice screen again — unless they
+        // had already switched to solo.
         $this->session = PartnerSession::findFor($this->run->mission, self::STEP_KEY, $this->run->learner);
 
-        if ($this->session) {
+        if ($this->session && $this->mode !== 'solo') {
             $this->mode = 'partner';
         }
+    }
+
+    protected function draftPhase(): string
+    {
+        return self::STEP_KEY;
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['mode', 'soloAudioPaths'];
     }
 
     /**
@@ -128,19 +148,46 @@ new class extends Component
     }
 
     /**
-     * Never persisted — just switches this visit's local UI state, so a
-     * learner is never blocked on a friend being around or answering (see
+     * Kept in the step's draft, so a learner who leaves comes back to
+     * solo — never blocked on a friend being around or answering (see
      * this component's own docblock). Available both from the initial
      * choice screen and from the 48h-stale banner below.
      */
     public function chooseSolo(): void
     {
         $this->mode = 'solo';
+
+        $this->keepStepDraft();
+    }
+
+    /**
+     * Each round's recording is stored (and kept in the step's draft) the
+     * moment its upload finishes, so leaving the step never loses it; a
+     * new take replaces the round's old one, file included.
+     */
+    public function updatedSoloRecordings(mixed $recording, int|string $index): void
+    {
+        if (! $recording instanceof UploadedFile) {
+            return;
+        }
+
+        $index = (int) $index;
+        $this->soloAudioPaths[$index] = $this->keepDraftRecording($recording, $this->soloAudioPaths[$index] ?? null);
+        unset($this->soloRecordings[$index]);
+
+        $this->keepStepDraft();
+    }
+
+    public function soloRecordingUrl(int $index): ?string
+    {
+        $path = $this->soloAudioPaths[$index] ?? null;
+
+        return $path === null ? null : Storage::disk('public')->url($path);
     }
 
     public function soloRecordedCount(): int
     {
-        return collect($this->soloRecordings)->filter()->count();
+        return count($this->soloAudioPaths);
     }
 
     #[Computed]
@@ -233,18 +280,11 @@ new class extends Component
             return;
         }
 
-        $mission = $this->run->mission;
-
-        foreach ($this->soloRecordings as $index => $recording) {
-            if (! $recording) {
-                continue;
-            }
-
-            $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
+        foreach ($this->soloAudioPaths as $index => $path) {
             $url = Storage::disk('public')->url($path);
 
             try {
-                $result = app(GroqClient::class)->transcribeWithConfidence($recording->getRealPath());
+                $result = app(GroqClient::class)->transcribeWithConfidence(Storage::disk('public')->path($path));
                 $this->recordGroqCall();
                 $this->soloTranscripts[$index] = trim($result['text']);
                 $this->soloSegments[$index] = $result['segments'];
@@ -273,6 +313,7 @@ new class extends Component
             ]),
         ]);
 
+        $this->forgetStepDraft();
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
     }
@@ -489,7 +530,7 @@ new class extends Component
                             </ul>
 
                             <div class="mt-2" wire:key="solo-recorder-{{ $index }}">
-                                <x-voice-recorder field="soloRecordings.{{ $index }}" :file="$soloRecordings[$index] ?? null" file-name="partner-speaking-solo-{{ $index }}.webm" />
+                                <x-voice-recorder field="soloRecordings.{{ $index }}" :file="$this->soloRecordingUrl($index)" file-name="partner-speaking-solo-{{ $index }}.webm" />
                             </div>
                         </div>
                     @endforeach

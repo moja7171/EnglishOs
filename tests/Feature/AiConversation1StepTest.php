@@ -289,8 +289,76 @@ class AiConversation1StepTest extends TestCase
         // Evidence is already saved — currentStepKey has already advanced,
         // the recap is just a courtesy screen before navigating away.
         $this->assertSame('writing', $run->fresh()->currentStepKey());
+        $this->assertDatabaseCount('step_drafts', 0);
 
         $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
+    }
+
+    public function test_after_an_answer_the_next_question_is_shown_and_its_answer_is_saved_under_it(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun(questionCount: 3);
+
+        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
+        $this->completeWarmUp($component);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->twice()->andReturn('At seven.', 'I have breakfast.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturn(
+            json_encode(['severity' => 'none', 'hint' => '']),
+            'Nice!',
+            json_encode(['severity' => 'none', 'hint' => '']),
+            'Sounds good!',
+        ));
+
+        $component->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSee('What do you normally do in the morning?');
+
+        $component->set('audioFile', UploadedFile::fake()->create('answer2.webm', 100, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSee('How often do you exercise?');
+
+        $this->assertSame('What do you normally do in the morning?', $component->get('turns')[1]['question']);
+        $this->assertSame('I have breakfast.', $component->get('turns')[1]['answer']);
+    }
+
+    public function test_a_warm_up_recording_is_kept_when_the_learner_leaves_before_continuing(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'));
+
+        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSet('warmUpDone', false);
+
+        Storage::disk('public')->assertExists($component->get('warmUpAudioPath'));
+        $this->assertNotNull($component->get('warmUpAudioUrl'));
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_leaving_mid_interview_comes_back_to_the_next_question_with_the_answers_so_far(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun(questionCount: 3);
+
+        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
+        $this->completeWarmUp($component);
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('At seven.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturn(json_encode(['severity' => 'none', 'hint' => '']), 'Nice!'));
+
+        $component->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))->call('submitAnswer');
+
+        $returned = Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSet('warmUpDone', true)
+            ->assertSet('round', 1)
+            ->assertSet('transcript', 'I usually wake up at seven and have breakfast.')
+            ->assertSee('What do you normally do in the morning?');
+
+        $this->assertSame('At seven.', $returned->get('turns')[0]['answer']);
+        $this->assertNotNull($returned->get('warmUpAudioUrl'));
     }
 
     public function test_a_major_feedback_severity_records_a_struggle_signal(): void

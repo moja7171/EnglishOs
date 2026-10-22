@@ -323,4 +323,26 @@ class PictureDescriptionStepTest extends TestCase
         Livewire::test('missions.steps.picture-description', ['run' => $run])
             ->assertSeeHtml('x-on:click="activeQuestion = (activeQuestion === 0 ? null : 0)"');
     }
+
+    public function test_a_recording_is_kept_when_the_learner_leaves_before_saving(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+
+        Livewire::test('missions.steps.picture-description', ['run' => $run])
+            ->set('recording', UploadedFile::fake()->create('take.webm', 400, 'audio/webm'));
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribeWithDuration')->once()->andReturn(['text' => 'There is a family.', 'duration' => 10.0]));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['strength' => 'Clear.', 'expression' => 'there is', 'correction' => 'None.', 'severity' => 'minor'])));
+
+        $returned = Livewire::test('missions.steps.picture-description', ['run' => $run]);
+        $keptPath = $returned->get('recordingPath');
+        Storage::disk('public')->assertExists($keptPath);
+
+        $returned->call('save')->assertSet('completed', true);
+
+        $this->assertSame(Storage::disk('public')->url($keptPath), Evidence::where('type', Evidence::TYPE_AUDIO)->value('content_ref'));
+        $this->assertDatabaseCount('step_drafts', 0);
+    }
 }

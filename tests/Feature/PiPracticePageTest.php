@@ -95,7 +95,7 @@ class PiPracticePageTest extends TestCase
             ->assertSee('M01 · My Daily Life · Day 1 of 4')
             ->assertSee('Pronunciation')
             ->assertSee("Today's plan", false)
-            ->assertSee("Don't greet me");
+            ->assertSee('Be my warm, fun English buddy');
     }
 
     public function test_the_page_links_to_both_voice_apps_in_a_new_tab(): void

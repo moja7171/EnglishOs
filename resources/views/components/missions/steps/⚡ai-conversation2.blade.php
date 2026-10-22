@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
@@ -15,6 +16,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use WithFileUploads;
     use TracksAiUsage;
@@ -74,6 +76,8 @@ new class extends Component
     public function mount(): void
     {
         if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
             return;
         }
 
@@ -87,6 +91,16 @@ new class extends Component
         $this->checklist = $data['requirements'] ?? null;
         $this->checklistNote = $data['note'] ?? null;
         $this->checklistRawResponse = $data['raw_ai_response'] ?? null;
+    }
+
+    protected function draftPhase(): string
+    {
+        return 'ai_conversation_2';
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['roundIndex', 'turns', 'roleReversalDone', 'learnerQuestion', 'aiAnswerToLearner', 'finalTranscript', 'checklist', 'checklistNote', 'checklistRawResponse'];
     }
 
     /**
@@ -189,6 +203,13 @@ new class extends Component
 
             $this->turns[] = ['prompt' => $this->currentRoundPrompt, 'answer' => $answer, 'followup' => $followup];
             $this->roundIndex++;
+
+            // Read above for this round, and Livewire keeps a computed
+            // value for the whole request — without this the page would
+            // still show the prompt just answered.
+            unset($this->currentRoundPrompt, $this->qaRoundsDone, $this->inFinalStage);
+
+            $this->keepStepDraft();
         } catch (\Throwable $e) {
             $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
         } finally {
@@ -258,6 +279,9 @@ new class extends Component
             }
 
             $this->roleReversalDone = true;
+            unset($this->inFinalStage);
+
+            $this->keepStepDraft();
         } catch (\Throwable $e) {
             $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
         } finally {
@@ -382,6 +406,8 @@ new class extends Component
             $this->checklist = $data['requirements'];
             $this->checklistNote = $data['note'];
             $this->checklistRawResponse = $raw;
+
+            $this->keepStepDraft();
         } catch (\Throwable $e) {
             $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
         } finally {
@@ -411,6 +437,8 @@ new class extends Component
                 'raw_ai_response' => $this->checklistRawResponse,
             ]),
         ]);
+
+        $this->forgetStepDraft();
 
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }

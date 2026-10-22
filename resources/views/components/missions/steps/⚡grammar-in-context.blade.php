@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
@@ -13,6 +14,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
@@ -69,6 +71,8 @@ new class extends Component
     public function mount(): void
     {
         if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
             return;
         }
 
@@ -149,9 +153,22 @@ new class extends Component
         );
     }
 
+    protected function draftPhase(): string
+    {
+        return 'grammar_in_context';
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['practiceStarted'];
+    }
+
+    /** Kept in the step's draft, so a learner who leaves comes back to practice, not the lesson. */
     public function startPractice(): void
     {
         $this->practiceStarted = true;
+
+        $this->keepStepDraft();
     }
 
     public function checkOne(int $index): void
@@ -394,6 +411,7 @@ new class extends Component
 
         $this->syncGrammarPoint($filledSentences->first());
 
+        $this->forgetStepDraft();
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
     }
@@ -635,7 +653,7 @@ new class extends Component
                 <p class="text-sm font-medium text-ink dark:text-ink-dark">Quick check</p>
                 <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
                 <div class="mt-2">
-                    <x-quick-round :cards="$this->quickCheckCards()" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
+                    <x-quick-round :cards="$this->quickCheckCards()" :draft-key="$preview ? null : $this->draftPrefix().'quickCheck'" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
                 </div>
             </div>
 
@@ -644,7 +662,7 @@ new class extends Component
                     <p class="text-sm font-medium text-ink dark:text-ink-dark">Build the sentence</p>
                     <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap the words in the right order — another warm-up, skip anytime.</p>
                     <div class="mt-2">
-                        <x-word-order-round :cards="$this->wordOrderCards()" on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length })" />
+                        <x-word-order-round :cards="$this->wordOrderCards()" :draft-key="$preview ? null : $this->draftPrefix().'wordOrder'" on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length })" />
                     </div>
                 </div>
             @endif

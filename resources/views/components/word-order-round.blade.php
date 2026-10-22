@@ -17,8 +17,12 @@
     @param string|null $onComplete Raw Alpine statement(s) run when the
         round finishes naturally.
     @param string|null $onSkip Raw Alpine statement(s) run when skipped.
+    @param string|null $draftKey A localStorage key: when given, the round
+        is kept in this browser after every sentence and comes back where
+        it was after a reload, like <x-quick-round>'s; a round that comes
+        back finished runs $onComplete again.
 --}}
-@props(['cards', 'onComplete' => null, 'onSkip' => null])
+@props(['cards', 'onComplete' => null, 'onSkip' => null, 'draftKey' => null])
 
 @if (count($cards))
     <div
@@ -32,6 +36,30 @@
             correctCount: 0,
             finished: false,
             skipped: false,
+            draftKey: @js($draftKey),
+            init() {
+                if (! this.draftKey) return;
+                let saved = null;
+                try { saved = JSON.parse(localStorage.getItem(this.draftKey)); } catch (e) {}
+                if (! saved || saved.total !== this.cards.length) return;
+                this.index = saved.index;
+                this.correctCount = saved.correctCount;
+                this.finished = saved.finished;
+                if (this.finished) {
+                    {{ $onComplete }}
+                }
+            },
+            saveDraft() {
+                if (! this.draftKey) return;
+                try {
+                    localStorage.setItem(this.draftKey, JSON.stringify({
+                        total: this.cards.length,
+                        index: this.index,
+                        correctCount: this.correctCount,
+                        finished: this.finished,
+                    }));
+                } catch (e) {}
+            },
             get card() { return this.cards[this.index] ?? null },
             get isLast() { return this.index >= this.cards.length - 1 },
             get built() { return this.tray.join(' ') },
@@ -54,12 +82,14 @@
             advance() {
                 if (this.isLast) {
                     this.finished = true;
+                    this.saveDraft();
                     $dispatch('word-order-completed', { correct: this.correctCount, total: this.cards.length });
                     {{ $onComplete }}
                     return;
                 }
                 this.index++;
                 this.reset();
+                this.saveDraft();
             },
             skip() {
                 this.skipped = true;

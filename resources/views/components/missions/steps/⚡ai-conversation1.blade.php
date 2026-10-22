@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
@@ -13,6 +14,7 @@ use App\Services\GroqClient;
 use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -29,6 +31,7 @@ use Livewire\WithFileUploads;
  */
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use WithFileUploads;
     use TracksAiUsage;
@@ -50,8 +53,12 @@ new class extends Component
 
     public ?UploadedFile $warmUpAudioFile = null;
 
-    /** Stored to disk (not just held in memory) the moment the warm-up round finishes — see finishWarmUp(). */
+    /** Stored to disk the moment the upload finishes — see updatedWarmUpAudioFile(). */
     public ?string $warmUpAudioUrl = null;
+
+    /** The same recording's path on the public disk, for transcribing it. */
+    #[Locked]
+    public ?string $warmUpAudioPath = null;
 
     /** Groq transcript of the warm-up recording — see Activation's old transcribeAndReflect() docblock. */
     public ?string $transcript = null;
@@ -110,9 +117,15 @@ new class extends Component
 
     public function mount(): void
     {
+        if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
+            return;
+        }
+
         // A preview shows the step as it opens (nothing recorded yet), not
         // as a completed recap — the view makes it inert.
-        if (! $this->readOnly || $this->preview) {
+        if ($this->preview) {
             return;
         }
 
@@ -151,6 +164,16 @@ new class extends Component
         return $this->run->mission->stepContent('ai_conversation_1')['interview_questions'] ?? [];
     }
 
+    protected function draftPhase(): string
+    {
+        return 'ai_conversation_1';
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['warmUpDone', 'warmUpAudioUrl', 'warmUpAudioPath', 'transcript', 'segments', 'reflection', 'round', 'turns'];
+    }
+
     public function getCurrentQuestionProperty(): ?string
     {
         return $this->questions[$this->round] ?? null;
@@ -161,27 +184,43 @@ new class extends Component
     // ---------------------------------------------------------------
 
     /**
-     * Ends the warm-up round: validates the recording (same rule as the
-     * old Activation), stores the recording to permanent disk storage
-     * right away (so it survives regardless of how long the interview
-     * that follows takes), transcribes it and asks for a Persian
-     * reflection — all BEFORE any Evidence exists, since this step isn't
-     * done yet. Never creates Evidence itself; see finishInterview().
+     * The warm-up recording is stored to permanent disk storage (and the
+     * step's draft) the moment its upload finishes — a 2-minute take must
+     * survive the learner leaving before they press Continue.
      */
-    public function finishWarmUp(): void
+    public function updatedWarmUpAudioFile(): void
     {
         $this->validate([
             'warmUpAudioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
         ]);
 
-        $mission = $this->run->mission;
-        $path = $this->warmUpAudioFile->store('missions/'.strtolower($mission->code).'/evidence', 'public');
-        $this->warmUpAudioUrl = Storage::disk('public')->url($path);
+        $this->warmUpAudioPath = $this->keepDraftRecording($this->warmUpAudioFile, $this->warmUpAudioPath);
+        $this->warmUpAudioUrl = Storage::disk('public')->url($this->warmUpAudioPath);
+        $this->warmUpAudioFile = null;
+
+        $this->keepStepDraft();
+    }
+
+    /**
+     * Ends the warm-up round: transcribes the kept recording and asks for
+     * a Persian reflection — all BEFORE any Evidence exists, since this
+     * step isn't done yet. Never creates Evidence itself; see
+     * finishInterview().
+     */
+    public function finishWarmUp(): void
+    {
+        if ($this->warmUpAudioPath === null) {
+            $this->addError('warmUpAudioFile', 'Record your warm-up first.');
+
+            return;
+        }
 
         $this->transcribeAndReflect();
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->warmUpDone = true;
+
+        $this->keepStepDraft();
     }
 
     /**
@@ -195,7 +234,7 @@ new class extends Component
     private function transcribeAndReflect(): void
     {
         try {
-            $result = app(GroqClient::class)->transcribeWithConfidence($this->warmUpAudioFile->getRealPath());
+            $result = app(GroqClient::class)->transcribeWithConfidence(Storage::disk('public')->path($this->warmUpAudioPath));
             $this->recordGroqCall();
             $this->transcript = trim($result['text']);
             $this->segments = $result['segments'];
@@ -328,8 +367,15 @@ new class extends Component
 
             $this->round++;
 
+            // Read above for this round, and Livewire keeps a computed
+            // value for the whole request — without this the page would
+            // still show the question just answered.
+            unset($this->currentQuestion);
+
             if ($this->round >= count($this->questions)) {
                 $this->finishInterview();
+            } else {
+                $this->keepStepDraft();
             }
         } catch (Throwable $e) {
             $this->error = AiFailure::message($e, "Something went wrong talking to the AI Instructor");
@@ -417,6 +463,7 @@ new class extends Component
 
         unset($audioEvidence);
 
+        $this->forgetStepDraft();
         $this->completed = true;
     }
 
@@ -654,7 +701,7 @@ new class extends Component
             </p>
 
             <div class="mt-2">
-                <x-voice-recorder field="warmUpAudioFile" :file="$warmUpAudioFile" file-name="warmup-speaking.webm" />
+                <x-voice-recorder field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" />
             </div>
 
             @error('warmUpAudioFile')
@@ -667,7 +714,7 @@ new class extends Component
                 on-click="$wire.finishWarmUp()"
                 wire-target="finishWarmUp"
                 loading-label="Preparing your recap…"
-                ready-when="{{ $warmUpAudioFile ? 'true' : 'false' }}"
+                ready-when="{{ $warmUpAudioUrl ? 'true' : 'false' }}"
                 hint="Record your answer to continue"
             />
         </div>

@@ -85,6 +85,24 @@ class PartnerSpeakingSessionStepTest extends TestCase
         $this->assertDatabaseCount('evidences', 0);
     }
 
+    public function test_solo_recordings_come_back_after_leaving_the_step(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.partner-speaking-session', ['run' => $run])
+            ->call('chooseSolo')
+            ->set('soloRecordings.0', UploadedFile::fake()->create('r0.webm', 200, 'audio/webm'))
+            ->set('soloRecordings.1', UploadedFile::fake()->create('r1.webm', 200, 'audio/webm'));
+
+        $returned = Livewire::test('missions.steps.partner-speaking-session', ['run' => $run])
+            ->assertSet('mode', 'solo');
+
+        $this->assertSame(2, $returned->instance()->soloRecordedCount());
+        Storage::disk('public')->assertExists($returned->get('soloAudioPaths')[1]);
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
     public function test_solo_path_with_all_3_rounds_records_correct_evidence_and_advances_the_run(): void
     {
         Storage::fake('public');

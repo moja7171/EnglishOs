@@ -106,6 +106,7 @@ class AiConversation2StepTest extends TestCase
         $this->assertTrue($content['requirements']['Present Simple']);
         $this->assertSame('Do you have a daily routine?', $content['role_reversal']['question']);
         $this->assertSame('I usually wake up early too!', $content['role_reversal']['answer']);
+        $this->assertDatabaseCount('step_drafts', 0);
 
         $this->assertSame('error_log', $run->fresh()->currentStepKey());
     }
@@ -538,6 +539,34 @@ class AiConversation2StepTest extends TestCase
             ->assertSet('roleReversalDone', true)
             ->assertSee('What do you do on weekends?')
             ->assertSee('I like to relax.');
+    }
+
+    public function test_after_a_round_the_next_prompt_is_shown(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I get up and go to work.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->twice()->andReturn(json_encode(['severity' => 'none', 'hint' => '']), 'Nice!'));
+
+        Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
+            ->set('audioFile', UploadedFile::fake()->create('r1.webm', 100, 'audio/webm'))
+            ->call('submitRoundAnswer')
+            ->assertSee('Compare weekday and weekend.');
+    }
+
+    public function test_leaving_mid_talk_comes_back_to_the_next_part_with_the_answers_so_far(): void
+    {
+        Storage::fake('local');
+        $run = $this->makeRun();
+        $this->completeQaRounds(Livewire::test('missions.steps.ai-conversation2', ['run' => $run]));
+
+        $returned = Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
+            ->assertSet('roundIndex', 2)
+            ->assertSee('Your turn to ask');
+
+        $this->assertSame(['a1', 'a2'], array_column($returned->get('turns'), 'answer'));
+        $this->assertDatabaseCount('evidences', 0);
     }
 
     // -----------------------------------------------------------------
