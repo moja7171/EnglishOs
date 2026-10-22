@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PiChatFeedback;
 use App\Models\PiPracticeLog;
 use App\Models\User;
 use App\Services\GeminiClient;
@@ -250,6 +251,48 @@ class PiPracticePageTest extends TestCase
             ->call('checkPastedChat')
             ->assertSee('I went to the park')
             ->assertSee('برای گذشته فعل گذشته لازم است.');
+    }
+
+    public function test_the_feedback_on_a_pasted_chat_is_still_there_when_the_learner_comes_back_to_that_day(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1(yesterday: true);
+        $this->actingAs($learner);
+
+        $chat = "My words:\nRound 1 — Q: What did you do? / Me: I go to the park yesterday.";
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
+            ->twice()
+            ->andReturn($this->learnerFeedbackReply(['sentences' => [['original' => 'I go to the park yesterday.', 'status' => 'fix', 'corrected' => 'I went to the park yesterday.', 'why' => 'برای گذشته فعل گذشته لازم است.', 'pattern' => 'past simple']]])));
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->set('pastedChat', $chat)
+            ->call('checkPastedChat')
+            ->call('checkPastedChat');
+
+        $this->assertSame(1, $learner->piChatFeedback()->count());
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->assertSet('pastedChat', $chat)
+            ->assertSee('I went to the park yesterday.');
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 2])
+            ->assertSet('day', 2)
+            ->assertSet('pastedChat', '')
+            ->assertDontSee('I went to the park yesterday.');
+    }
+
+    public function test_closing_the_feedback_forgets_the_saved_chat_of_that_day(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1();
+        $this->actingAs($learner);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['mission_code' => 'M01', 'day_number' => 1]);
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->call('dismissFeedback')
+            ->assertSet('pastedChat', '')
+            ->assertSet('feedback', null);
+
+        $this->assertDatabaseMissing('pi_chat_feedback', ['learner_id' => $learner->id]);
     }
 
     public function test_a_too_short_paste_is_not_sent_for_feedback(): void

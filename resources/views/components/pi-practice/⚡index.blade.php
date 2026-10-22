@@ -2,6 +2,7 @@
 
 use App\Livewire\Concerns\GivesConversationFeedback;
 use App\Models\Mission;
+use App\Models\PiChatFeedback;
 use App\Services\ListeningPicks;
 use App\Services\PiPractice;
 use App\Services\PiPrompts;
@@ -51,6 +52,10 @@ new class extends Component
 
         $this->missionCode = $target['missionCode'];
         $this->day = $target['dayNumber'];
+
+        $saved = $this->savedChatFeedback();
+        $this->pastedChat = $saved->chat ?? '';
+        $this->feedback = $saved?->feedback;
     }
 
     /**
@@ -73,7 +78,8 @@ new class extends Component
      * Pi sends the learner's own words in one "My words:" message (see
      * PiPrompts), which the learner copies and pastes here; a whole copied
      * chat still works. Speaker names may or may not come along, so the
-     * AI is told how to tell the two sides apart.
+     * AI is told how to tell the two sides apart. A good result is kept
+     * for the day on screen (see PiChatFeedback).
      */
     public function checkPastedChat(): void
     {
@@ -88,6 +94,36 @@ new class extends Component
             source: 'pi',
             spoken: true,
         );
+
+        if ($this->feedback !== null) {
+            auth()->user()->piChatFeedback()->updateOrCreate(
+                ['mission_code' => $this->missionCode, 'day_number' => $this->day],
+                ['chat' => $this->pastedChat, 'feedback' => $this->feedback],
+            );
+        }
+    }
+
+    /**
+     * Closing the card forgets the saved chat and feedback of this day.
+     */
+    public function dismissFeedback(): void
+    {
+        $this->savedChatFeedback()?->delete();
+
+        $this->pastedChat = '';
+        $this->feedback = null;
+        $this->feedbackError = null;
+    }
+
+    /**
+     * The last chat pasted for the day on screen, with its feedback.
+     */
+    private function savedChatFeedback(): ?PiChatFeedback
+    {
+        return auth()->user()->piChatFeedback()
+            ->where('mission_code', $this->missionCode)
+            ->where('day_number', $this->day)
+            ->first();
     }
 
     #[Computed]
