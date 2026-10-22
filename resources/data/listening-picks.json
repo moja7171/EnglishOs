@@ -221,24 +221,24 @@
   ],
   "M11" : [
     [
+      {"src":"lee","title":"Talking about work","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260417","min":6,"tx":"page"},
       {"src":"sme","title":"Dreaming of being a chef","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260219","min":7,"tx":"page"},
-      {"src":"voa","title":"Job and Career","url":"https://learningenglish.voanews.com/a/job-and-career/5647041.html","tx":"page"},
-      {"src":"teded","title":"How to get motivated even when you lack the urge","url":"https://ed.ted.com/lessons/how-to-get-motivated-even-when-you-don-t-feel-like-it","min":8}
+      {"src":"voa","title":"Job and Career","url":"https://learningenglish.voanews.com/a/job-and-career/5647041.html","tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about future plans","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241206","min":6,"tx":"page"},
       {"src":"sme","title":"Becoming a musician","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250130","min":7,"tx":"page"},
-      {"src":"voa","title":"Fun with Future Tenses","url":"https://learningenglish.voanews.com/a/everyday-grammar-fun-with-future-tenses/2935173.html","min":6,"tx":"page","grammar":true},
-      {"src":"teded","title":"Why you feel stuck — and how to get energized","url":"https://ed.ted.com/lessons/why-you-feel-stuck-and-how-to-get-motivated-shannon-odell","min":7}
+      {"src":"voa","title":"Fun with Future Tenses","url":"https://learningenglish.voanews.com/a/everyday-grammar-fun-with-future-tenses/2935173.html","min":6,"tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about meetings","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250829","min":6,"tx":"page"},
       {"src":"sme","title":"Why do we procrastinate?","url":"https://podcasts.apple.com/us/podcast/why-do-we-procrastinate/id262026947?i=1000599936223","min":6,"apple":true},
-      {"src":"voa","title":"Tips for Better Conversations in English at Work","url":"https://learningenglish.voanews.com/a/tips-for-better-conversations-at-work/5726549.html","tx":"page"},
-      {"src":"teded","title":"Why you procrastinate even when it's unpleasant","url":"https://ed.ted.com/lessons/why-you-procrastinate-even-when-it-feels-bad","min":9}
+      {"src":"voa","title":"Tips for Better Conversations in English at Work","url":"https://learningenglish.voanews.com/a/tips-for-better-conversations-at-work/5726549.html","tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about weekend plans","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240816","min":6,"tx":"page"},
       {"src":"sme","title":"Call centres: Are you talking to AI?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241219","min":6,"tx":"page"},
-      {"src":"voa","title":"Let's Learn English Level 2, Lesson 2: The Interview","url":"https://learningenglish.voanews.com/a/lets-learn-english-level-2-lesson-2/3960471.html","tx":"page"},
-      {"src":"teded","title":"Career of an astronaut","url":"https://ed.ted.com/lessons/life-of-an-astronaut-jerry-carr","min":7}
+      {"src":"voa","title":"Let's Learn English Level 2, Lesson 2: The Interview","url":"https://learningenglish.voanews.com/a/lets-learn-english-level-2-lesson-2/3960471.html","tx":"page"}
     ]
   ],
   "M12" : [

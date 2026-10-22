@@ -2850,6 +2850,7 @@ class MissionSeeder extends Seeder
         $this->seedM08();
         $this->seedM09();
         $this->seedM10();
+        $this->seedM11();
     }
 
     /**
@@ -7046,6 +7047,743 @@ class MissionSeeder extends Seeder
                                     'When…? (past) and How long…?',
                                     'A couple or friendship you know well',
                                     'Something that has changed over time',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M11 "Work" — the roadmap's future forms: will / going to /
+     * present continuous. M01/M06/M07's 17-step layout: story_sequence stays,
+     * right after Grammar, because a diary of next week ("On Monday she's
+     * meeting…") is exactly what the present continuous for arrangements
+     * narrates. The lesson follows Grammar in Use units 19 (present tenses
+     * for the future), 20 (going to), 21 (will for decisions, offers and
+     * promises) and 23 (will or going to?); 22, 24 and 25 are left for
+     * later. Vocabulary days 2-3 follow Vocabulary in Use units 37 (Making a
+     * career) and 38 (Working in an office), avoiding M03's work words, all
+     * rewritten in our own words. Pair speaking cards ask about the
+     * learner's own plans, always "work or study" so a learner without a
+     * job can answer. Media the user picked: Vanessa and her husband Dan's
+     * conversation lesson on work (cut from 35 to about 6 minutes: her ideal
+     * office, the office acronyms WFH / OOO / EOD, waiting five minutes for
+     * the kids, cutting back for a work-life balance) and Easy English's
+     * Brighton street interviews "What Are Your Plans Today?" (cut from 11½
+     * to about 6 minutes).
+     */
+    private function seedM11(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M11', 'Speak English with Vanessa - Work with Dan.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M11', 'Easy English - Plans Today in Brighton.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M11', 'Easy English - Plans Today in Brighton.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M11'],
+            [
+                'title' => 'Work',
+                'module' => 'Work',
+                'outcome' => 'I can talk about my work or study plans — what I\'m doing next week, what I\'m going to do this year, and what I think will happen.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Would you like to work from home?', 'answer' => 'Yes, I would like to work from home two days a week.', 'words' => ['work from home']],
+                            ['question' => 'Do you have a good work-life balance?', 'answer' => 'Not really. I study a lot, so my work-life balance isn\'t great.', 'words' => ['work-life balance']],
+                            ['question' => 'What do you say when someone asks you something and you don\'t know the answer?', 'answer' => 'I say, "Let me check and get back to you."', 'words' => ['get back to']],
+                            ['question' => 'What would you like to cut back on?', 'answer' => 'I want to cut back on my phone time at night.', 'words' => ['cut back']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'What are you doing tomorrow? Could you say it in English — and what you\'re going to do next year?',
+                                'image_query' => 'people working modern office',
+                                'ambient_video_query' => 'office people working laptops',
+                                'warm_up_questions' => [
+                                    'What do you do — work, study, or both?',
+                                    'What are you doing this weekend?',
+                                    'What is your dream job?',
+                                    'Would you like to work from home one day?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five phrases Vanessa and Dan use about work — you\'ll need them to talk about any job.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'My sister Laleh used to stay at the office until nine every night, and she had no '
+                                    .'**work-life balance**. Now she **works from home** three days a week, and she has **cut '
+                                    .'back** on long meetings. On holiday she turns on her **out of office** message. If her '
+                                    .'boss calls during dinner, she just says, "I\'ll **get back to** you tomorrow."',
+                                'words' => [
+                                    ['phrase' => 'work from home', 'meaning' => 'to do your job at home, not in an office or workplace', 'meaning_fa' => 'دورکاری کردن، از خانه کار کردن', 'pos' => 'phrase', 'example' => 'I work from home on Mondays and Fridays.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'work-life balance', 'meaning' => 'a healthy mix of time for your job and time for your family, friends and yourself', 'meaning_fa' => 'تعادل بین کار و زندگی', 'pos' => 'noun', 'example' => 'My new job gives me a better work-life balance.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'out of office', 'meaning' => 'away from work (an out of office message says you can\'t answer emails now)', 'meaning_fa' => 'خارج از محل کار، در مرخصی (پیام خودکار ایمیل)', 'pos' => 'phrase', 'example' => 'My boss is out of office this week.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'get back to', 'meaning' => 'to answer someone later, or to return to something you were doing', 'meaning_fa' => 'بعداً جواب دادن؛ برگشتن سر کاری', 'pos' => 'phrasal verb', 'example' => 'Let me check, and I\'ll get back to you.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'cut back', 'meaning' => 'to do or use less of something', 'meaning_fa' => 'کم کردن، کاهش دادن', 'pos' => 'phrasal verb', 'example' => 'I\'m trying to cut back on coffee.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Vanessa gives her husband a little office quiz — and describes the office she wants one day. Listen for how they talk about the future.',
+                                'source' => 'Speak English with Vanessa — "English Conversation Lesson: Work, Jobs, and Daily Life" (with her husband Dan)',
+                                'image_query' => 'woman working on laptop at home',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M11', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. Two speakers: Vanessa
+                                // and Dan.
+                                'listening_turns' => $this->shadowTimestampsFor('M11', 'listening_turns'),
+                                // The parts kept in the cut (1:04-1:28, 6:22-6:42, 9:12-10:09,
+                                // 10:23-10:58, 11:54-13:25, 13:43-14:31, 29:11-29:59 and
+                                // 32:15-32:57 of the original), written from the video's human
+                                // captions and checked against a Whisper pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Vanessa', 'text' => 'Today, I have five work-related questions, including a little quiz about some work vocabulary that I don\'t know if Dan will know. Maybe he will. Maybe you will know it. We\'ll see.'],
+                                    ['speaker' => 'Dan', 'text' => 'We\'ll see. We both have non-traditional jobs, so we\'ll see what I know about work vocabulary.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yep. All right. Let\'s start with our first question.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'All right. Let\'s go on to our second question. Our second question is a little more of a modern question. I want to know, would you rather work from home or at a workplace? The workplace could be an office or in a coffee shop or the location that the job is set at. What would you rather do?'],
+                                    ['speaker' => 'Dan', 'text' => 'And how about you?'],
+                                    ['speaker' => 'Vanessa', 'text' => 'I think, for me, because I work for myself — I have my own business teaching you English, Speak English with Vanessa — I\'m going to answer neither. I don\'t want to work at home and I also don\'t want to work in a workplace. This is my ideal scenario. Are you ready?'],
+                                    ['speaker' => 'Dan', 'text' => 'She wants to be totally independent. She wants to work in space.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'I want to work in a castle overlooking a kingdom. No, I want to — and I can probably do this in another couple of years — work for my business, great, but not at home. Last year, when I was pregnant with my baby, I worked at a coworking space. These exist all around the world. Maybe you\'ve heard of them, maybe you haven\'t, but it\'s like a really fun office. They try to make it cool because they want you to go there, and everyone is working just on their laptops for their own jobs. It\'s like the fun place to be. This is, I think, my ideal: I\'m working at the job that I want to work at, being your English teacher, and also in a location where I\'m around other people. Working from home is so convenient with small children. My baby\'s napping in the other room right now. I can nurse her. I can help my kids. I can do those types of things. But when they\'re a little bit older, I\'m out. I want to go and be out in a coworking space. This type of environment, I think, is really healthy for me.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'These are specifically things that you would write in an email in the office. Are you ready?'],
+                                    ['speaker' => 'Dan', 'text' => 'I already think I\'m not going to be very good at this, but let\'s do it.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'The first one is WFH. I\'ll give you a sample sentence.'],
+                                    ['speaker' => 'Dan', 'text' => 'Okay.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'This is a W…'],
+                                    ['speaker' => 'Dan', 'text' => 'Work from home.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yeah. This is a WFH position, or I\'m looking for a WFH position. This is work from home, which is increasingly more common since the pandemic. Yes, work from home. You got it. All right. The next one. You might see this at the bottom of an email: OOO. This is the letter, not the number.'],
+                                    ['speaker' => 'Dan', 'text' => 'Ooh. OOO? Orange, ostriches, orangutans…'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yes, you got it. No, this is out of office. When someone is going to be gone during usual business days — let\'s say you have a vacation Monday through Wednesday — in your email system, you might write an automated message that goes out to everyone. That\'s your OOO, your out of office message that says, "I am sitting on a beach right now. Ha-ha, you\'re at the office. I\'ll see you on Thursday," or something like this.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'All right. The last one is…'],
+                                    ['speaker' => 'Dan', 'text' => 'Only three?'],
+                                    ['speaker' => 'Vanessa', 'text' => 'There\'s only three. The last quiz is… EOD. Would you like a sample sentence?'],
+                                    ['speaker' => 'Dan', 'text' => 'Sure.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'The sample sentence is, "I need this finished by EOD," or "I will have this finished by EOD."'],
+                                    ['speaker' => 'Dan', 'text' => 'Earliest. Earliest? No. Even?'],
+                                    ['speaker' => 'Vanessa', 'text' => 'No. Can you have this finished by EOD? And you would not say this, you would write this in an email or in a text.'],
+                                    ['speaker' => 'Dan', 'text' => 'End of date.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Oh, close. End of…'],
+                                    ['speaker' => 'Dan', 'text' => 'Day. End of day.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yes. Can you have this finished by EOD? Can you have this finished by end of day?'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Just the other day, they were doing something else and I was doing some work. And they busted in the room: "Mommy, you\'re on the computer. Wow, I want to sit on your lap." There were two children on my lap, and I was halfway through finishing an email that I really wanted to finish. There is no way that you can do that, if you have ever tried to do that. So in my mind, I say, "I\'m not going to do that right now. I will wait five minutes, ten minutes. It\'s going to be okay."'],
+                                    ['speaker' => 'Dan', 'text' => 'Ten hours.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Ten hours, it\'s okay. And focus on just whatever they need at that second, and then I can get back to it. Because I think if you try to check your emails while you\'re also talking to your kids or doing something else, your brain is going to go crazy.'],
+                                    ['speaker' => 'Dan', 'text' => 'Hobbies, too.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'What hobbies do I absolutely have to do?'],
+                                    ['speaker' => 'Dan', 'text' => 'Some of them might be painful. I recently stopped watching hockey, which is my favorite sport. That kind of brought a little tear to my eye, but I just don\'t have time for it anymore.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And maybe at another point in your life you\'ll have more.'],
+                                    ['speaker' => 'Dan', 'text' => 'I can watch all the hockey games I want.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'You\'ll have more figurative bandwidth. But for now, if you\'re feeling really stressed by this work-life balance, lay everything out on the table. What is necessary? How can I cut back so that I feel more balanced and happy? I think you owe it to yourself, you owe it to your family, and you\'ll just be a better person for it. But I\'m still working on that, Dan\'s still working on that, so take it with a grain of salt.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'work from home', 'meaning' => 'do your job at home',
+                                        'gap_before' => 'would you rather ',
+                                        'gap_after' => ' or at a workplace?',
+                                    ],
+                                    [
+                                        'phrase' => 'out of office', 'meaning' => 'away from work',
+                                        'gap_before' => 'That\'s your OOO, your ',
+                                        'gap_after' => ' message that says',
+                                    ],
+                                    [
+                                        'phrase' => 'get back to', 'meaning' => 'return to something later',
+                                        'gap_before' => 'and then I can ',
+                                        'gap_after' => ' it.',
+                                    ],
+                                    [
+                                        'phrase' => 'work-life balance', 'meaning' => 'time for work and time for life',
+                                        'gap_before' => 'if you\'re feeling really stressed by this ',
+                                        'gap_after' => ', lay everything out on the table.',
+                                    ],
+                                    [
+                                        'phrase' => 'cut back', 'meaning' => 'do less of something',
+                                        'gap_before' => 'How can I ',
+                                        'gap_after' => ' so that I feel more balanced and happy?',
+                                    ],
+                                ],
+                                'topic_summary' => 'Vanessa gives her husband Dan a little quiz on office words, and he is sure '
+                                    .'he isn\'t going to be very good at it. Vanessa doesn\'t want to work from home or in a normal '
+                                    .'workplace: when her kids are older, she wants to work in a coworking space. Dan guesses WFH '
+                                    .'(work from home), Vanessa explains OOO (out of office) and EOD (end of day). When her kids '
+                                    .'come in, she says, "I\'m not going to do that right now. I will wait." And for a better '
+                                    .'work-life balance, she says, cut back on what isn\'t necessary — Dan has stopped watching '
+                                    .'hockey for now.',
+                                'comprehension_check' => [
+                                    ['statement' => 'When her kids are older, Vanessa wants to work in a coworking space.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Dan guesses that WFH means "work from home".', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'When her kids come in, Vanessa finishes her email first.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What does "EOD" mean in an office email?',
+                                    'options' => ['End of day', 'Every other day', 'Earliest date'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Are you going to apply for a new job or course this year?', 'answer' => 'Yes, I\'m going to apply for a course in graphic design.', 'words' => ['going to', 'apply for']],
+                            ['question' => 'What will you put on your CV?', 'answer' => 'I\'ll put my English course and my computer skills on my CV.', 'words' => ['I\'ll', 'CV']],
+                            ['question' => 'Have you got an interview or an exam soon?', 'answer' => 'Yes, I\'m having an interview on Sunday morning.', 'words' => ['I\'m having', 'interview']],
+                            ['question' => 'At what age do you think you\'ll retire?', 'answer' => 'I think I\'ll retire at sixty, but I\'m not sure.', 'words' => ['I think I\'ll', 'retire']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for a career, from your first CV to the day you retire.',
+                                // Vocabulary in Use unit 37 (Making a career), our own sentences.
+                                'story' => 'My uncle Bahram **applied for** his first job when he was 22. He sent his **CV** to '
+                                    .'ten companies and had three **interviews**. A small bank gave him a job, and after five '
+                                    .'years he **got promoted** to manager — with a nice **pay rise**. Next year he is going to '
+                                    .'**retire**, and he says he\'ll finally learn to paint.',
+                                'words' => [
+                                    ['phrase' => 'apply for', 'meaning' => 'to ask formally for a job, a place on a course, a visa, etc., usually in writing', 'meaning_fa' => 'درخواست دادن برای (کار، دوره، ویزا)', 'pos' => 'phrasal verb', 'example' => 'She applied for a job at a hospital.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'CV', 'meaning' => 'a document that lists your education, skills and the jobs you have done', 'meaning_fa' => 'رزومه', 'pos' => 'noun', 'example' => 'Send your CV to the manager before Friday.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'interview', 'meaning' => 'a meeting where someone asks you questions to see if you are right for a job or course', 'meaning_fa' => 'مصاحبه', 'pos' => 'noun', 'example' => 'I\'m nervous about my interview tomorrow.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get promoted', 'meaning' => 'to be given a higher job with more responsibility', 'meaning_fa' => 'ارتقای شغلی گرفتن، ترفیع گرفتن', 'pos' => 'phrase', 'example' => 'He worked hard and got promoted after two years.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'pay rise', 'meaning' => 'an increase in the money you get for your job', 'meaning_fa' => 'افزایش حقوق', 'pos' => 'noun', 'example' => 'Everyone in the team got a small pay rise this year.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'retire', 'meaning' => 'to stop working because of your age, often at 60 or 65', 'meaning_fa' => 'بازنشسته شدن', 'pos' => 'verb', 'example' => 'My father retired last year, and now he gardens every day.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — this time copy how Vanessa talks about what will happen: "Maybe he will", "I\'m going to answer neither".',
+                                'image_query' => 'business team meeting office',
+                                'shadow_lines' => [
+                                    'I don\'t know if Dan will **know**. Maybe he **will**.',
+                                    'I\'m **going** to answer **neither**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M11', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'Three ways to talk about the future: "I\'m meeting her on Monday", "I\'m going to apply", "OK, I\'ll call her".',
+                                'focus' => 'will / going to / present continuous for the future',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 19 (present continuous and
+                                // present simple for the future), 20 (going to), 21 (will for
+                                // decisions, offers and promises) and 23 (will or going to?).
+                                'lesson' => [
+                                    'intro' => 'English has no single future tense. What you say depends on when you decided: I\'m meeting Sara on Monday (arranged), I\'m going to look for a new job (decided), OK, I\'ll call her (deciding now).',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · I\'m meeting… — plans already arranged',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use <strong>am / is / are + -ing</strong> for plans you have already arranged, often with a day or time: <strong>I\'m meeting my manager on Monday.</strong> For timetables (trains, ferries, classes), use the <strong>present simple</strong>: <strong>The ferry leaves at 9.</strong>',
+                                                    'fa' => 'برای قرارهایی که از قبل گذاشته‌ای و در تقویمت هست، حال استمراری می‌آید، معمولاً با زمان: I\'m seeing the dentist tomorrow. فارسی هم می‌گوییم «فردا می‌رم دکتر» با فعل حال؛ ولی در انگلیسی حال ساده (I go) غلط است و ing لازم است. فقط برای جدول زمانیِ ثابت (حرکت قطار، شروع کلاس) حال ساده: The class starts at 8.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'am / is / are + -ing + time',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'person'],
+                                                        ['text' => '\'m meeting', 'caption' => 'am / is / are + -ing', 'tone' => 'accent'],
+                                                        ['text' => 'my manager', 'caption' => 'rest'],
+                                                        ['text' => 'on Monday', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I see my manager tomorrow at ten.', 'right' => 'I\'m seeing my manager tomorrow at ten.', 'highlight' => 'I\'m seeing'],
+                                                        ['wrong' => 'What do you do this weekend?', 'right' => 'What are you doing this weekend?', 'highlight' => 'are you doing'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'Now we\'re heading off to the beach.',
+                                                            'Yeah, we\'re getting a nine o\'clock ferry over to Santander.',
+                                                            'So we land in Spain on Wednesday morning.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · going to — decided before you speak',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>am / is / are going to + verb</strong> = something you decided <strong>before</strong> now: <strong>I\'m going to look for a new job.</strong> Also for a prediction you can see coming: <strong>You\'re going to be tired tomorrow!</strong>',
+                                                    'fa' => 'going to یعنی «تصمیمش را گرفته‌ام، قصدش را دارم». برای پیش‌بینی از روی نشانه‌ای که الان می‌بینی هم هست: Look at the sky — it\'s going to rain. منفی: I\'m not going to… و بعد از going to فعل ساده می‌آید (نه ing و نه s).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'am / is / are going to + verb',
+                                                    'parts' => [
+                                                        ['text' => 'We', 'caption' => 'person'],
+                                                        ['text' => '\'re going to', 'caption' => 'am / is / are going to', 'tone' => 'accent'],
+                                                        ['text' => 'get', 'caption' => 'verb'],
+                                                        ['text' => 'some sushi', 'caption' => 'rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I going to apply for a new job.', 'right' => 'I\'m going to apply for a new job.', 'highlight' => 'I\'m going to'],
+                                                        ['wrong' => 'He\'s going to applies for the course.', 'right' => 'He\'s going to apply for the course.', 'highlight' => 'apply'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'We\'re going to get some sushi, actually.',
+                                                            'I\'m just going to try and live here as long as I can.',
+                                                            'You\'re going to be knackered.',
+                                                        ]],
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            'I\'m going to answer neither.',
+                                                            'Your brain is going to go crazy.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · will — deciding now, offers and promises',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use <strong>will (\'ll) + verb</strong> when you decide <strong>while you speak</strong>, and to offer, promise or agree: <strong>The phone\'s ringing. — I\'ll get it.</strong> Also for what you think about the future: <strong>I think I\'ll…</strong>, <strong>I don\'t think he\'ll…</strong>, <strong>probably</strong>.',
+                                                    'fa' => 'will برای تصمیمِ همان لحظه (قبلاً فکرش را نکرده بودی)، پیشنهاد (I\'ll help you)، قول (I\'ll call you tonight) و نظر درباره‌ی آینده (I think it\'ll be fine). منفی: won\'t. برای «فکر نمی‌کنم بیاید» بگو I don\'t think he\'ll come (نه I think he won\'t come).',
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Deciding now', 'words' => ['I\'ll get it.', 'I\'ll have the soup.', 'Maybe I\'ll…']],
+                                                        ['label' => 'Offers and promises', 'words' => ['I\'ll help you.', 'I\'ll call you tonight.', 'I won\'t tell anyone.']],
+                                                        ['label' => 'What you think', 'words' => ['I think I\'ll…', 'I don\'t think it\'ll…', 'You\'ll probably…']],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I think I will to stay at home.', 'right' => 'I think I\'ll stay at home.', 'highlight' => 'I\'ll stay'],
+                                                        ['wrong' => 'I think he won\'t come to the meeting.', 'right' => 'I don\'t think he\'ll come to the meeting.', 'highlight' => 'I don\'t think he\'ll'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'And then we\'ll drive back to Kent.',
+                                                            'Maybe I\'ll just figure it out once I get there.',
+                                                            'I think I\'ll always have a connection to that place.',
+                                                        ]],
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            'I\'ll give you a sample sentence.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · will or going to?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Ask yourself: <strong>when did I decide?</strong> Before speaking → <strong>going to</strong> (or <strong>-ing</strong> if it\'s arranged). While speaking → <strong>will</strong>: <strong>I\'m going to order the sushi wrap</strong> (I chose it this morning). <strong>Hmm… I\'ll have the soup</strong> (I chose just now).',
+                                                    'fa' => 'کلید: «کِی تصمیم گرفتی؟» قبل از حرف زدن ← going to (یا حال استمراری اگر با کسی قرار گذاشته‌ای). همین الان، وسط حرف ← will. در ویدیو آدم‌ها برای برنامه‌ی امروز going to و ing می‌گویند و برای تصمیمِ نامطمئن و لحظه‌ای maybe I\'ll.',
+                                                ],
+                                                [
+                                                    'type' => 'mistake_fix',
+                                                    'character' => 'Neda',
+                                                    'wrong' => 'I\'ll meet my new boss on Monday at nine — we arranged it last week.',
+                                                    'right' => 'I\'m meeting my new boss on Monday at nine — we arranged it last week.',
+                                                    'explanation' => 'The meeting was arranged last week, so it isn\'t a decision made now: use the present continuous (or going to), not will.',
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'A: The printer has run out of paper. B: Oh, I\'ll get some.',
+                                                            'I\'m going to buy paper after work — it\'s on my list.',
+                                                            'That\'s what I\'m going to order, probably… maybe I\'ll just figure it out.',
+                                                            'We\'re having a meeting at ten, so I\'ll call you after that.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'E · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> week and your year — what you\'re doing, what you\'re going to do, what you think will happen — then tell Mina\'s week in pictures, and soon say your own plans out loud in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'This weekend I\'m', 'Next year I\'m going to', 'I think I\'ll',
+                                    'I don\'t think I\'ll', 'After this course I\'m going to', 'Tomorrow morning I\'m',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about their own future (work, study or free time), using '
+                                    .'the right future form: am / is / are + -ing for an arranged plan, going to + verb for a '
+                                    .'decision made before or a prediction from what they can see, and will + verb for a decision '
+                                    .'made now, an offer, a promise or an opinion about the future (I think I\'ll…, I don\'t think '
+                                    .'I\'ll…).',
+                                'grammar_major_criteria' => 'the present simple for an arranged plan ("I meet my friend '
+                                    .'tomorrow"), a missing am / is / are ("I going to…"), an -ing or -s verb after going to or '
+                                    .'will ("going to applying", "I will to go"), will for something clearly arranged before, "I '
+                                    .'think I won\'t" instead of "I don\'t think I\'ll", the sentence does not actually continue the '
+                                    .'given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues with a future form that fits the starter: -ing for an '
+                                    .'arranged plan, going to + verb for an intention, or will + verb for an opinion or a decision',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'What do you do this evening?',
+                                        'options' => ['What do you do this evening?', 'What are you doing this evening?', 'What you are doing this evening?'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'I going to apply for a new job.',
+                                        'options' => ['I\'m going to apply for a new job.', 'I going to apply for a new job.', 'I\'m going to applying for a new job.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'The phone is ringing. — I\'m going to get it!',
+                                        'options' => ['The phone is ringing. — I get it!', 'The phone is ringing. — I\'m going to get it!', 'The phone is ringing. — I\'ll get it!'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'I think he won\'t come to the meeting.',
+                                        'options' => ['I think he won\'t come to the meeting.', 'I don\'t think he\'ll come to the meeting.', 'I don\'t think he comes to the meeting.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['meeting', 'I\'m', 'on', 'Monday.', 'manager', 'my'], 'answer' => 'I\'m meeting my manager on Monday.'],
+                                    ['words' => ['apply', 'We\'re', 'job.', 'to', 'new', 'going', 'for', 'a'], 'answer' => 'We\'re going to apply for a new job.'],
+                                    ['words' => ['I\'ll', 'it.', 'think', 'I', 'get'], 'answer' => 'I think I\'ll get it.'],
+                                ],
+                            ],
+                            [
+                                'key' => 'story_sequence',
+                                'label' => 'Picture Story',
+                                // Kept for M11 (see M01's, M06's and M07's notes): a diary of
+                                // next week — what is already arranged — is what the present
+                                // continuous for the future describes, so the pictures come
+                                // right after the lesson as fresh applied practice.
+                                'duration_minutes' => 10,
+                                'hook' => 'You just learned I\'m meeting… for plans already in the diary. Now say what Mina is doing next week, one picture at a time.',
+                                // Captions are ground truth for the AI feedback prompt only —
+                                // never rendered to the learner (see the step's own docblock).
+                                // Each query was checked against its real first Pexels result
+                                // (square), so the picture matches its caption.
+                                'sequence_images' => [
+                                    ['image_query' => 'woman first day office desk', 'caption' => 'On Monday, Mina is starting her new job, and a colleague is showing her the files', 'alt_description' => 'A young woman at an office desk with papers and a blue folder, listening to a colleague'],
+                                    ['image_query' => 'business team meeting office', 'caption' => 'On Tuesday, she is meeting the sales team', 'alt_description' => 'Four people in shirts talking around a white office table'],
+                                    ['image_query' => 'businesswoman airport suitcase', 'caption' => 'On Thursday, she is flying to Istanbul for a conference', 'alt_description' => 'Planes parked at an airport at sunset'],
+                                    ['image_query' => 'family dinner celebration', 'caption' => 'On Friday evening, she is having her daughter\'s birthday dinner with the family', 'alt_description' => 'A family round a table while a little girl blows out the candles on her birthday cake'],
+                                ],
+                                'sequencing_words' => ['On Monday', 'Then, on Tuesday', 'After that', 'At the end of the week'],
+                                'narration_tense' => 'Present Continuous for the future',
+                                'narration_kind' => 'what someone has already arranged for next week',
+                                'narration_example' => 'On Monday, Mina is starting her new job...',
+                                'narration_not' => 'present simple or will',
+                            ],
+                            [
+                                // Real people in the street at natural speed: Easy English asks
+                                // passers-by in Brighton "What are you up to today?" — cut from
+                                // 11½ to about 6 minutes (the membership advert left out). The
+                                // creator's burned-in captions are blurred out so the step's
+                                // own caption toggle works.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'Lunch, a concert, a 30-hour ferry: people in Brighton tell you their plans for today. Watch, then say their plans with them.',
+                                'source' => 'Easy English — "What Are Your Plans Today? | Easy English 205" (street interviews in Brighton)',
+                                'video_url' => $shadowingVideoUrl,
+                                // The creator's burned-in captions, read frame by frame and
+                                // re-timed per line on Whisper's word timing of the cut.
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M11', 'video_shadowing_segments'),
+                                'topic_summary' => 'In Brighton, two friends on their lunch break tell Easy English they are '
+                                    .'going to get some sushi. Other people are heading off to the beach, going to a pop concert, '
+                                    .'or pottery painting. One woman is getting a nine o\'clock ferry to Spain and will land on '
+                                    .'Wednesday morning — "You\'re going to be knackered!" A student who got her degree today is '
+                                    .'going to try and live in Brighton as long as she can, and two friends from Cardiff are '
+                                    .'planning a trip to Japan in a few years.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Two women on their lunch break are going to get sushi.', 'correct' => true],
+                                    ['statement' => 'The woman going to Santander is flying there tonight.', 'correct' => false],
+                                    ['statement' => 'The friends from Cardiff are planning a trip to Japan in a few years.', 'correct' => true],
+                                ],
+                                // Real phrases the people in Brighton use on camera.
+                                'target_phrases' => [
+                                    ['phrase' => 'be up to', 'meaning' => 'to be doing (What are you up to today?)'],
+                                    ['phrase' => 'head off', 'meaning' => 'to leave and go somewhere'],
+                                    ['phrase' => 'a lunch break', 'meaning' => 'the time off work in the middle of the day to eat'],
+                                    ['phrase' => 'figure it out', 'meaning' => 'to find the answer or decide later'],
+                                    ['phrase' => 'knackered', 'meaning' => 'very tired (informal British English)'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: going to for
+                                // a plan, -ing for an arrangement, will for a decision made now
+                                // or later, going to for a prediction, I think I'll.
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'We\'re **going** to get some **sushi**, actually.',
+                                    'Now we\'re heading **off** to the **beach**.',
+                                    'And then we\'ll drive **back** to **Kent**, which is where I **live**.',
+                                    'I actually **haven\'t** decided **yet**, so maybe I\'ll just **figure** it out.',
+                                    'You\'re **going** to be **knackered**.',
+                                    'I think I\'ll **always** have a **connection** to that **place**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M11', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Are you meeting anyone next week?', 'answer' => 'Yes, I\'m meeting my teacher on Monday to arrange my exam.', 'words' => ['I\'m meeting', 'arrange']],
+                            ['question' => 'Do you need to make an appointment with anyone this month?', 'answer' => 'Yes, I\'m going to make an appointment with the dentist.', 'words' => ['going to', 'make an appointment']],
+                            ['question' => 'What will you do if you run out of time in an exam?', 'answer' => 'If I run out of time, I\'ll answer the easy questions first.', 'words' => ['run out of', 'I\'ll']],
+                            ['question' => 'How much paperwork does your work or school give you?', 'answer' => 'A lot! This week I\'m doing the paperwork for my new course.', 'words' => ['paperwork', 'I\'m doing']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for a busy day at the office: arrange, attend, paperwork… and things that break down.',
+                                // Vocabulary in Use unit 38 (Working in an office), our own
+                                // sentences.
+                                'story' => 'Today is a bad day for Kaveh. He has to **arrange** a visit for some clients and '
+                                    .'**attend** a meeting at eleven, but the printer has **broken down** and the coffee machine '
+                                    .'has **run out of** water. His desk is full of **paperwork**. "I\'ll do it after lunch," he '
+                                    .'says, and calls the dentist to **make an appointment** for Friday.',
+                                'words' => [
+                                    ['phrase' => 'arrange', 'meaning' => 'to plan and organise something, such as a meeting or a visit', 'meaning_fa' => 'ترتیب دادن، هماهنگ کردن', 'pos' => 'verb', 'example' => 'Can you arrange a meeting with the new clients?', 'difficulty' => 'medium'],
+                                    ['phrase' => 'make an appointment', 'meaning' => 'to agree a time to see someone, like a doctor or a manager', 'meaning_fa' => 'وقت گرفتن، قرار گذاشتن', 'pos' => 'phrase', 'example' => 'I need to make an appointment with the doctor.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'attend', 'meaning' => 'to go to a meeting, class or event (a little formal)', 'meaning_fa' => 'شرکت کردن در (جلسه، کلاس)', 'pos' => 'verb', 'example' => 'All the team will attend the meeting on Monday.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'paperwork', 'meaning' => 'work with documents, such as forms, reports and letters', 'meaning_fa' => 'کارهای اداری و کاغذی', 'pos' => 'noun', 'example' => 'I spend every Friday doing paperwork.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'break down', 'meaning' => 'to stop working (a machine or a car)', 'meaning_fa' => 'خراب شدن (دستگاه، ماشین)', 'pos' => 'phrasal verb', 'example' => 'The photocopier broke down again this morning.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'run out of', 'meaning' => 'to have no more of something', 'meaning_fa' => 'تمام کردن، ته کشیدن', 'pos' => 'phrasal verb', 'example' => 'The printer has run out of paper.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now listen for "I\'m not going to…, I will…" and what is going to happen to your brain.',
+                                'image_query' => 'woman first day office desk',
+                                'shadow_lines' => [
+                                    'I\'m **not** going to do that right **now**. I will **wait** five **minutes**.',
+                                    'Your **brain** is going to go **crazy**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M11', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your plans for work or study: '
+                                    .'what you\'re doing next week, what you\'re going to do this year, and where you think '
+                                    .'you\'ll be in five years — using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'What are you doing this weekend?',
+                                    'What are you going to do after this course, for your work or study?',
+                                    'Where do you think you\'ll be in five years?',
+                                    'Have you got any appointments or meetings next week? What are they?',
+                                    'Is there something you\'ve decided to change in your work or study life?',
+                                    'Would you rather work from home or in an office in the future? Why?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Arash has a big week coming: an interview on Tuesday. Will he get the job?',
+                                'passage_title' => 'A big week for Arash',
+                                'image_query' => 'young woman job interview',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, third person instead of first,
+                                // with a future form in almost every sentence.
+                                'passage' => 'Next week is going to be a big week for Arash. He has applied for a job at a '
+                                    .'design company, and on Tuesday he\'s having an interview there at ten. He sent his '
+                                    .'CV last month, and yesterday the company called to arrange the time. His mum is '
+                                    .'worried: "What if the bus breaks down?" "Don\'t worry, I\'ll take a taxi," he says. At '
+                                    .'the moment Arash works in a small office, and his job is mostly paperwork. He has never '
+                                    .'had a pay rise. "If I get this job, I\'m going to work from home two days a week," '
+                                    .'he says. "That\'s the work-life balance I want." On Wednesday he\'s attending a '
+                                    .'short training course, and on Thursday he\'s meeting his old manager for lunch. Will he get '
+                                    .'the job? "I think I will," he smiles. "And one day I\'m going to get promoted — before I '
+                                    .'retire, anyway!" Fingers crossed.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'applied for', 'type' => 'reused'],
+                                    ['phrase' => 'interview', 'type' => 'reused'],
+                                    ['phrase' => 'CV', 'type' => 'reused'],
+                                    ['phrase' => 'arrange', 'type' => 'reused'],
+                                    ['phrase' => 'breaks down', 'type' => 'reused'],
+                                    ['phrase' => 'paperwork', 'type' => 'reused'],
+                                    ['phrase' => 'pay rise', 'type' => 'reused'],
+                                    ['phrase' => 'work from home', 'type' => 'reused'],
+                                    ['phrase' => 'work-life balance', 'type' => 'reused'],
+                                    ['phrase' => 'attending', 'type' => 'reused'],
+                                    ['phrase' => 'get promoted', 'type' => 'reused'],
+                                    ['phrase' => 'retire', 'type' => 'reused'],
+                                    ['phrase' => 'a big week', 'type' => 'new', 'definition' => 'a week with something very important in it', 'pos' => 'phrase', 'example' => 'It\'s a big week for my sister — she\'s getting married on Saturday.'],
+                                    ['phrase' => 'Fingers crossed', 'type' => 'new', 'definition' => 'said when you hope something will happen the way you want', 'pos' => 'phrase', 'example' => 'My exam results come out tomorrow. Fingers crossed!'],
+                                ],
+                                'topic_summary' => 'Arash has applied for a new job, and on Tuesday he is having an interview at a '
+                                    .'design company. Now his job is mostly paperwork and he has never had a pay rise. If he gets '
+                                    .'the new job, he is going to work from home two days a week. He thinks he will get it.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Arash\'s interview is on Tuesday at ten.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Arash is going to take the bus, even if it breaks down.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'In the new job, Arash wants to work from home every day.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What is Arash doing on Tuesday and on Wednesday?',
+                                    'Why does Arash want the new job?',
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Next year starts with a plan — write yours for your work or study.',
+                                'title' => 'My plans for the next year',
+                                'prompts' => [
+                                    ['label' => 'What I\'m doing next week', 'image_query' => 'weekly planner calendar desk'],
+                                    ['label' => 'Something I\'m going to learn', 'image_query' => 'woman studying laptop notes'],
+                                    ['label' => 'A plan for my work or study', 'image_query' => 'young man office laptop'],
+                                    ['label' => 'Someone I\'m going to work or study with', 'image_query' => 'people working modern office'],
+                                    ['label' => 'Where I think I\'ll be in five years', 'image_query' => 'woman looking at city view'],
+                                    ['label' => 'How I\'ll feel at the end of the year', 'image_query' => 'happy woman celebrating success'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['am / is / are + -ing (arranged)', 'going to + verb', 'will / won\'t', 'I think I\'ll…', 'apply for', 'make an appointment', 'work-life balance'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What are you doing this weekend?', 'answer' => 'I\'m visiting my grandparents on Friday, and on Saturday I\'m studying.', 'words' => ['I\'m visiting', 'I\'m studying']],
+                            ['question' => 'What are you going to do after this course?', 'answer' => 'I\'m going to look for a better job where I can work from home.', 'words' => ['going to', 'work from home']],
+                            ['question' => 'Do you think you\'ll get promoted or change jobs one day?', 'answer' => 'I think I\'ll get promoted in a few years, if I work hard.', 'words' => ['I think I\'ll', 'get promoted']],
+                            ['question' => 'The phone is ringing and your friend\'s hands are full. What do you say?', 'answer' => 'Don\'t worry, I\'ll get it!', 'words' => ['I\'ll get it']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'A team is planning something big — what are they going to do, and what do you think will happen?',
+                                'image_query' => 'team meeting whiteboard',
+                                'guiding_questions' => [
+                                    'Look at the man in the suit. What is he going to say next, do you think?',
+                                    'Look at the whiteboard: Germany, Russia, USA. What do you think the team is going to do there?',
+                                    'Look at the man in the white jumper. What do you think he\'ll write in his notebook?',
+                                    'Look at the laptops. What are they doing after the meeting — what are their plans for next week?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): an office meeting — on
+                                // the left a man in a dark suit holding papers, a whiteboard with
+                                // "Germany, Russia, USA" written on it, a woman in a beige jacket
+                                // standing by it, a man in a white jumper writing at the table, a
+                                // laptop and tablet on the table, a woman in a checked coat in the
+                                // right foreground. Changing the query or orientation invalidates
+                                // these coordinates.
+                                'hotspots' => [
+                                    ['x' => 11, 'y' => 32, 'question_index' => 0],
+                                    ['x' => 34, 'y' => 18, 'question_index' => 1],
+                                    ['x' => 71, 'y' => 30, 'question_index' => 2],
+                                    ['x' => 52, 'y' => 58, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'What are you doing this week? Tell me about any meetings, classes or appointments.',
+                                    'What are you going to do in your work or study this year? Why?',
+                                    'Where do you think you\'ll be in five years? What will be different?',
+                                    'Would you rather work from home, in an office, or somewhere else? What are you going to choose?',
+                                    'How do you think work will change in your country in the next ten years?',
+                                    'What are you going to cut back on to have a better work-life balance?',
+                                ],
+                                'role_reversal_topic' => 'work, study and plans for the future',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your plans for work or study: what you\'re doing next week, what you\'re going to do this year, and what you think your life will be like in five years.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'am / is / are + -ing for an arranged plan',
+                                    'going to for a decision or intention',
+                                    'will for a prediction, offer or decision now',
+                                    'I think I\'ll… / I don\'t think I\'ll…',
+                                    'A plan for your work or study',
+                                    'Where you think you\'ll be in five years',
                                 ],
                             ],
                             [
