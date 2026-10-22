@@ -103,7 +103,7 @@ class FinishLineTest extends TestCase
         $this->assertSame(95, $forecast['daysLeft']);
         $this->assertSame('2027-01-25', $forecast['steadyDate']->toDateString());
         $this->assertSame('2027-01-25', $forecast['paceDate']->toDateString());
-        $this->assertSame('خط پایان: ۵ بهمن', app(FinishLine::class)->datesLine($forecast));
+        $this->assertSame('خط پایان: ۵ بهمن ۱۴۰۵', app(FinishLine::class)->datesLine($forecast));
     }
 
     public function test_a_slow_pace_gives_a_later_date_next_to_the_steady_one(): void
@@ -118,8 +118,10 @@ class FinishLineTest extends TestCase
         $this->assertSame(94, $forecast['daysLeft']);
         $this->assertSame('2027-01-23', $forecast['steadyDate']->toDateString());
         $this->assertSame(now()->addDays(469)->toDateString(), $forecast['paceDate']->toDateString());
-        $this->assertStringStartsWith('با این روال ', app(FinishLine::class)->datesLine($forecast));
-        $this->assertStringContainsString('روزی یه روز ۳ بهمن', app(FinishLine::class)->datesLine($forecast));
+        $this->assertSame(
+            'خط پایان: ۳ بهمن ۱۴۰۵ (اگه هر روز بیای) · '.app(FinishLine::class)->persianDate($forecast['paceDate']).' (با سرعت الان)',
+            app(FinishLine::class)->datesLine($forecast),
+        );
     }
 
     public function test_no_pace_date_without_a_day_finished_in_the_last_two_weeks(): void
@@ -140,9 +142,9 @@ class FinishLineTest extends TestCase
         $on = fn (string $date) => ['steadyDate' => now('Asia/Tehran')->parse($date, 'Asia/Tehran'), 'paceDate' => null];
 
         // 1 Farvardin 1406 is 21 March 2027; 30 Azar 1405 is 21 December 2026.
-        $this->assertSame('خط پایان: ۱۹ اسفند — قبل از عید 🌱', $finishLine->datesLine($on('2027-03-10')));
-        $this->assertSame('خط پایان: ۲۴ آذر — قبل از یلدا 🍉', $finishLine->datesLine($on('2026-12-15')));
-        $this->assertSame('خط پایان: ۵ بهمن', $finishLine->datesLine($on('2027-01-25')));
+        $this->assertSame('خط پایان: ۱۹ اسفند ۱۴۰۵ — قبل از عید 🌱', $finishLine->datesLine($on('2027-03-10')));
+        $this->assertSame('خط پایان: ۲۴ آذر ۱۴۰۵ — قبل از یلدا 🍉', $finishLine->datesLine($on('2026-12-15')));
+        $this->assertSame('خط پایان: ۵ بهمن ۱۴۰۵', $finishLine->datesLine($on('2027-01-25')));
     }
 
     public function test_no_forecast_before_the_program_has_started(): void
@@ -157,7 +159,7 @@ class FinishLineTest extends TestCase
 
         $this->finishDays($learner, $this->makeMission(), ['foundation']);
 
-        $this->assertToldOnce($learner, 'اگه روزی یه روز بری، ۵ بهمن به خط پایان می‌رسی — '.FinishLine::OUTCOME);
+        $this->assertToldOnce($learner, 'اگه هر روز بیای، ۵ بهمن ۱۴۰۵ به خط پایان می‌رسی — '.FinishLine::OUTCOME);
         $this->assertSame('2027-01-25', $learner->fresh()->finish_line_told_on->toDateString());
     }
 
@@ -271,6 +273,6 @@ class FinishLineTest extends TestCase
         $this->finishDays($learner, $this->makeMission(), ['foundation']);
         $this->actingAs($learner);
 
-        Livewire::test('progress.index')->assertSee('🏁 خط پایان: ۵ بهمن');
+        Livewire::test('progress.index')->assertSee('🏁 خط پایان: ۵ بهمن ۱۴۰۵');
     }
 }

@@ -102,9 +102,10 @@ class FinishLine
     }
 
     /**
-     * Both dates in one short line — "با این روال ۲۸ بهمن · روزی یه روز ۲۰
-     * بهمن" — or just "خط پایان: ۲۰ بهمن" when they're the same day, plus
-     * "before Nowruz / Yalda" when the date lands just before one.
+     * Both dates in one short line, each with what it assumes — "خط پایان:
+     * ۲۰ بهمن ۱۴۰۵ (اگه هر روز بیای) · ۸ خرداد ۱۴۰۶ (با سرعت الان)" — or just
+     * "خط پایان: ۲۰ بهمن ۱۴۰۵" when they're the same day, plus "before
+     * Nowruz / Yalda" when the date lands just before one.
      *
      * @param  array{steadyDate: Carbon, paceDate: ?Carbon}  $forecast
      */
@@ -115,17 +116,20 @@ class FinishLine
 
         $line = $pace === null || $pace->isSameDay($steady)
             ? 'خط پایان: '.$this->persianDate($steady)
-            : 'با این روال '.$this->persianDate($pace).' · روزی یه روز '.$this->persianDate($steady);
+            : 'خط پایان: '.$this->persianDate($steady).' (اگه هر روز بیای) · '.$this->persianDate($pace).' (با سرعت الان)';
 
         $occasion = $this->occasionBefore($this->headlineDate($forecast));
 
         return $occasion === null ? $line : "{$line} — {$occasion}";
     }
 
-    /** "۲۵ بهمن", in the Persian calendar. */
+    /**
+     * "۲۵ بهمن ۱۴۰۵", in the Persian calendar — always with the year, or a
+     * date next spring reads as if it came before one this winter.
+     */
     public function persianDate(CarbonInterface $date): string
     {
-        $formatter = new IntlDateFormatter('fa_IR@calendar=persian', IntlDateFormatter::NONE, IntlDateFormatter::NONE, $date->getTimezone(), IntlDateFormatter::TRADITIONAL, 'd MMMM');
+        $formatter = new IntlDateFormatter('fa_IR@calendar=persian', IntlDateFormatter::NONE, IntlDateFormatter::NONE, $date->getTimezone(), IntlDateFormatter::TRADITIONAL, 'd MMMM y');
 
         return (string) $formatter->format($date);
     }
