@@ -40,7 +40,7 @@
                  stays on this page with the line below. --}}
             <button
                 type="button"
-                x-on:click="copy(); openedPi = true; if (/Android/i.test(navigator.userAgent)) { window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }"
+                x-on:click="copy(); openedPi = true; $dispatch('pi-opened'); if (/Android/i.test(navigator.userAgent)) { window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }"
                 class="cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
             >Copy &amp; open Pi</button>
         </div>

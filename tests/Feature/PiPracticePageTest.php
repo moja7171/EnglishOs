@@ -326,6 +326,20 @@ class PiPracticePageTest extends TestCase
             ->assertSee('Last 10 minutes of your day');
     }
 
+    public function test_the_voice_practice_rows_circle_ticks_it_without_leaving_home(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1(yesterday: true);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSeeHtml('wire:click="markPracticed"')
+            ->call('markPracticed')
+            ->assertSee('Practiced today')
+            ->assertDontSeeHtml('wire:click="markPracticed"');
+
+        $this->assertTrue($learner->hasPracticedWithPiToday());
+    }
+
     public function test_the_today_box_row_shows_the_done_state_after_practicing(): void
     {
         $learner = $this->learnerWhoFinishedDay1(yesterday: true);

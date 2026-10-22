@@ -79,6 +79,41 @@ new class extends Component
     }
 
     /**
+     * The circle on the listening row: the same self-reported "I listened"
+     * tick as on /listening, filed under the day the row points at. The
+     * day comes from the server-side plan, never from the browser.
+     */
+    public function markListened(): void
+    {
+        $listening = $this->listening;
+
+        if ($listening === null) {
+            return;
+        }
+
+        auth()->user()->recordListeningToday($listening['missionCode'], $listening['dayNumber']);
+
+        unset($this->listening);
+    }
+
+    /**
+     * The circle on the Pi row: the same "I practiced" tick as on /pi,
+     * filed under the day the row points at.
+     */
+    public function markPracticed(): void
+    {
+        $practice = $this->piPractice;
+
+        if ($practice === null) {
+            return;
+        }
+
+        auth()->user()->recordPiPracticeToday($practice['missionCode'], $practice['dayNumber']);
+
+        unset($this->piPractice, $this->nextAction);
+    }
+
+    /**
      * Today's Daily Review for the Today box's review row — words,
      * speaking, and grammar combined into one finishable batch (see
      * User::dailyReviewItems()). Null when there is nothing to do AND
