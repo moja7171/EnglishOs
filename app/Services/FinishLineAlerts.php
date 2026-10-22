@@ -77,7 +77,7 @@ class FinishLineAlerts
 
         return $date->lt($told)
             ? "آفرین! {$this->persianNumber($moved)} روز جلو افتادی 🚀 خط پایان شد {$persianDate}"
-            : "خط پایان رفت {$persianDate} — امروز یه روز بری، برمی‌گرده جلو 💪";
+            : "خط پایان رفت {$persianDate} — امروز بیای، برمی‌گرده جلو 💪";
     }
 
     /**
@@ -105,7 +105,7 @@ class FinishLineAlerts
         }
 
         if ($daysDone === 1) {
-            return 'اگه روزی یه روز بری، '.$this->finishLine->persianDate($forecast['steadyDate']).' به خط پایان می‌رسی — '.FinishLine::OUTCOME.' 🎯';
+            return 'اگه هر روز بیای، '.$this->finishLine->persianDate($forecast['steadyDate']).' به خط پایان می‌رسی — '.FinishLine::OUTCOME.' 🎯';
         }
 
         if ($daysLeft <= self::COUNTDOWN_DAYS) {
