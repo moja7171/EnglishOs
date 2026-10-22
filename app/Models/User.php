@@ -393,6 +393,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<PiChatFeedback, $this>
+     */
+    public function piChatFeedback(): HasMany
+    {
+        return $this->hasMany(PiChatFeedback::class, 'learner_id');
+    }
+
+    /**
      * @return HasMany<AudioListen, $this>
      */
     public function audioListens(): HasMany
