@@ -44,6 +44,12 @@
         gates a Continue button doesn't lock out someone whose pauses and
         replays kept them just under 90% (that case never touches the
         counter). null = no counting, the player as before.
+    @param string|null $resumeKey A localStorage key: when given, the player
+        comes back where the learner left this recording (see eosResume in
+        resources/js/app.js) — a shadow line it lands in starts over from
+        the line's beginning — and says so in one line until play. A
+        mission step uses its eos-draft prefix, so saving the step clears it.
+        null = always from the start.
 --}}
 @props([
     'url',
@@ -54,6 +60,7 @@
     'textHidden' => false,
     'shadowLines' => [],
     'shadowTimestamps' => [],
+    'resumeKey' => null,
 ])
 
 @if (! empty($url))
@@ -78,6 +85,8 @@
             replayEndTime: null,
             lastShadowCheck: null,
             shadowFrame: null,
+            resumedFrom: null,
+            stopResume: null,
             init() {
                 const audio = this.$refs.audio;
                 const seek = this.$refs.seek;
@@ -116,6 +125,7 @@
                 audio.addEventListener('seeking', () => this.lastShadowCheck = null);
                 audio.addEventListener('play', () => {
                     this.playing = true;
+                    this.resumedFrom = null;
                     this.watchShadowPoints(audio);
                     if (this.focusOnPlay && this.segments.length) this.focus = true;
                 });
@@ -148,6 +158,13 @@
                     window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9);
                 @endif
 
+                @if ($resumeKey)
+                    this.stopResume = window.eosResume(audio, {{ Illuminate\Support\Js::from($resumeKey) }}, {
+                        snapTo: (time) => this.lineStartAt(time),
+                        onRestored: (time) => { this.resumedFrom = time; this.currentTime = time; seek.value = time; },
+                    });
+                @endif
+
                 this.$watch('activeSegmentIndex', (index) => {
                     this.$nextTick(() => this.$refs['segment-' + index]?.scrollIntoView({block: 'center'}));
                 });
@@ -171,6 +188,7 @@
             },
             destroy() {
                 if (this.focus) document.documentElement.classList.remove('overflow-hidden');
+                this.stopResume?.();
             },
             togglePlay() { this.playing ? this.$refs.audio.pause() : this.$refs.audio.play() },
             cycleSpeed() {
@@ -246,6 +264,12 @@
                 };
                 this.shadowFrame = requestAnimationFrame(tick);
             },
+            // The start of the shadow line playing at `time`, so a resumed
+            // listen never drops the learner into the middle of one.
+            lineStartAt(time) {
+                const line = this.shadowTimestamps.find((point) => point && point.start <= time && time < point.end);
+                return line ? line.start : time;
+            },
             replayShadowLine(index) {
                 const point = this.shadowTimestamps[index];
                 if (! point) return;
@@ -314,6 +338,12 @@
 
             <span class="w-9 shrink-0 text-xs text-ink-faint tabular-nums dark:text-ink-faint-dark" x-text="formatTime(duration)"></span>
         </div>
+
+        @if ($resumeKey)
+            <p x-show="resumedFrom !== null" x-cloak class="mt-1 text-center text-xs text-ink-faint dark:text-ink-faint-dark">
+                Continue from <span x-text="formatTime(resumedFrom)"></span>
+            </p>
+        @endif
 
         {{-- Controls — a real player layout: speed/download as secondary
              actions at the edges, transport controls centered around one

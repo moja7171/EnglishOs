@@ -31,6 +31,7 @@ use Throwable;
  */
 trait DailyListenStep
 {
+    use KeepsShadowDrafts;
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
@@ -40,7 +41,7 @@ trait DailyListenStep
 
     public bool $readOnly = false;
 
-    /** @var array<int, ?UploadedFile> keyed by shadowLines() index */
+    /** @var array<int, ?UploadedFile> keyed by shadowLines() index — only the upload slot, see KeepsShadowDrafts */
     public array $shadowRecordings = [];
 
     /** @var array<int, string> saved recording URLs, for read-only review */
@@ -55,6 +56,12 @@ trait DailyListenStep
     public function mount(): void
     {
         if (! $this->readOnly) {
+            foreach ($this->restoreShadowDrafts() as $draft) {
+                if ($draft->feedback) {
+                    $this->feedback["shadow_{$draft->line_index}"] = $draft->feedback;
+                }
+            }
+
             return;
         }
 
@@ -123,10 +130,10 @@ trait DailyListenStep
      */
     public function checkShadowLine(int $index): void
     {
-        $recording = $this->shadowRecordings[$index] ?? null;
+        $draft = $this->shadowDraft($index);
         $target = $this->shadowLines()[$index] ?? null;
 
-        if (! $recording || ! $target) {
+        if (! $draft || ! $target) {
             return;
         }
 
@@ -134,7 +141,7 @@ trait DailyListenStep
         unset($this->checkErrors[$key]);
 
         try {
-            $transcript = trim(app(GroqClient::class)->transcribe($recording->getRealPath()));
+            $transcript = trim(app(GroqClient::class)->transcribe(Storage::disk('public')->path($draft->path)));
             $this->recordGroqCall();
 
             $data = app(SpokenAnswerChecker::class)->checkShadowing(
@@ -154,6 +161,9 @@ trait DailyListenStep
 
             $this->feedback[$key] = ['severity' => 'none', 'hint' => '', 'unchecked' => true];
         }
+
+        // Kept with the recording, so the verdict comes back with it too.
+        $draft->update(['feedback' => $this->feedback[$key]]);
     }
 
     public function save(): void
@@ -166,8 +176,6 @@ trait DailyListenStep
             return;
         }
 
-        $mission = $this->run->mission;
-
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => $this->phaseKey(),
@@ -175,24 +183,9 @@ trait DailyListenStep
             'content_ref' => json_encode(['shadowed_lines' => count($lines)]),
         ]);
 
-        foreach ($this->shadowRecordings as $index => $recording) {
-            if (! $recording) {
-                continue;
-            }
+        $this->saveShadowEvidence();
 
-            $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
-            $url = Storage::disk('public')->url($path);
-
-            Evidence::create([
-                'mission_run_id' => $this->run->id,
-                'phase' => $this->phaseKey(),
-                'type' => Evidence::TYPE_AUDIO,
-                'content_ref' => json_encode(['line_index' => $index, 'url' => $url]),
-            ]);
-
-            $this->savedShadowUrls[$index] = $url;
-        }
-
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
@@ -237,6 +230,15 @@ trait DailyListenStep
     public function dayNumber(): int
     {
         return (int) substr($this->phaseKey(), -1);
+    }
+
+    /**
+     * Same eos-draft:{run}:{step}: prefix as every other step's browser-
+     * side draft (here: where the audio was left), cleared on save.
+     */
+    public function draftPrefix(): string
+    {
+        return "eos-draft:{$this->run->id}:{$this->phaseKey()}:";
     }
 
     abstract protected function phaseKey(): string;

@@ -936,6 +936,95 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
 };
 
 /**
+ * Picks an <audio>/<video> element back up where the learner left it — a
+ * reload, a closed tab or the phone dropping the page used to send them
+ * back to 0:00. The position lives in this browser only (localStorage
+ * under `key`), saved every couple of seconds, on pause and when the page
+ * is hidden; it is forgotten once the recording plays to its end.
+ *
+ * On the way back the playhead lands REWIND seconds before the saved spot
+ * (a little context to get back into it), passed through `snapTo` first so
+ * a caller can move it to the start of the line it falls in; nothing
+ * plays by itself. `onRestored(time)` runs only when it actually moved. A
+ * spot within the last few seconds counts as finished: back to the start.
+ *
+ * Returns a cleanup for the caller's destroy(): it saves one last time (a
+ * wire:navigate away never fires pagehide) and drops the page listeners.
+ */
+window.eosResume = function (media, key, { snapTo = (time) => time, onRestored = () => {} } = {}) {
+    const REWIND = 3;
+    const SAVE_EVERY = 2;
+    const NEAR_END = 5;
+
+    let ready = false;
+    let lastSaved = null;
+
+    const forget = () => {
+        try { localStorage.removeItem(key); } catch (e) {}
+    };
+
+    const save = () => {
+        if (!ready || media.ended) return;
+
+        const time = media.currentTime;
+
+        try {
+            if (time < 1) {
+                localStorage.removeItem(key);
+            } else {
+                localStorage.setItem(key, time.toFixed(1));
+            }
+            lastSaved = time;
+        } catch (e) {}
+    };
+
+    const restore = () => {
+        if (ready) return;
+        ready = true;
+
+        let saved = null;
+        try { saved = Number(localStorage.getItem(key)); } catch (e) {}
+
+        const duration = media.duration;
+
+        if (!saved || !Number.isFinite(duration) || duration <= 0) return;
+
+        if (saved >= duration - NEAR_END) {
+            forget();
+            return;
+        }
+
+        const time = Math.max(snapTo(Math.max(saved - REWIND, 0)), 0);
+        media.currentTime = time;
+        lastSaved = time;
+        onRestored(time);
+    };
+
+    if (media.readyState >= 1) {
+        restore();
+    } else {
+        media.addEventListener('loadedmetadata', restore, { once: true });
+    }
+
+    media.addEventListener('timeupdate', () => {
+        if (lastSaved === null || Math.abs(media.currentTime - lastSaved) >= SAVE_EVERY) save();
+    });
+    media.addEventListener('pause', save);
+    media.addEventListener('seeked', save);
+    media.addEventListener('ended', forget);
+
+    const saveWhenHidden = () => { if (document.hidden) save(); };
+    document.addEventListener('visibilitychange', saveWhenHidden);
+    window.addEventListener('pagehide', save);
+
+    return () => {
+        save();
+        document.removeEventListener('visibilitychange', saveWhenHidden);
+        window.removeEventListener('pagehide', save);
+    };
+};
+
+/**
  * The link that was just tapped says so. A wire:navigate lands only after the
  * next page has been fetched, so the tapped link/card is marked aria-busy the
  * moment the navigation starts (see a[aria-busy] in app.css): it holds its

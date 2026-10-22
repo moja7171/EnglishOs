@@ -23,6 +23,11 @@
     @param string|null $onComplete Raw Alpine statement(s) run when the
         round finishes naturally, e.g. "$wire.call('unlockWriting')".
     @param string|null $onSkip Raw Alpine statement(s) run when skipped.
+    @param string|null $draftKey A localStorage key: when given, the round
+        is kept in this browser after every answer and comes back where it
+        was after a reload; a round that comes back finished runs
+        $onComplete again, so the caller gets its result back. A mission
+        step uses its eos-draft prefix, so saving the step clears it.
 
     Adaptive mode (Story 4, requirements review, 2026-09-04): starts with
     an easy card; after 2 correct answers in a row (correctStreak, already
@@ -36,7 +41,7 @@
     mixed in alongside its difficulty-tagged meaning-check cards) is
     treated as 'medium'.
 --}}
-@props(['cards', 'onComplete' => null, 'onSkip' => null])
+@props(['cards', 'onComplete' => null, 'onSkip' => null, 'draftKey' => null])
 
 @if (count($cards))
     <div
@@ -67,10 +72,39 @@
                 }
                 return remaining[0];
             },
+            draftKey: @js($draftKey),
             init() {
                 if (this.adaptive) {
                     this.shown = [this.pickNextIndex(['easy', 'medium', 'hard'])];
                 }
+                this.restoreDraft();
+            },
+            restoreDraft() {
+                if (! this.draftKey) return;
+                let saved = null;
+                try { saved = JSON.parse(localStorage.getItem(this.draftKey)); } catch (e) {}
+                if (! saved || saved.total !== this.cards.length) return;
+                this.shown = saved.shown;
+                this.index = saved.index;
+                this.correctCount = saved.correctCount;
+                this.correctStreak = saved.correctStreak;
+                this.finished = saved.finished;
+                if (this.finished) {
+                    {{ $onComplete }}
+                }
+            },
+            saveDraft() {
+                if (! this.draftKey) return;
+                try {
+                    localStorage.setItem(this.draftKey, JSON.stringify({
+                        total: this.cards.length,
+                        shown: this.shown,
+                        index: this.index,
+                        correctCount: this.correctCount,
+                        correctStreak: this.correctStreak,
+                        finished: this.finished,
+                    }));
+                } catch (e) {}
             },
             pick(i) {
                 if (this.selected !== null) return;
@@ -99,6 +133,7 @@
                 if (this.adaptive) {
                     if (this.shown.length >= this.cards.length) {
                         this.finished = true;
+                        this.saveDraft();
                         $dispatch('quick-round-completed', { correct: this.correctCount, total: this.cards.length });
                         {{ $onComplete }}
                         return;
@@ -107,17 +142,20 @@
                     this.shown.push(this.pickNextIndex(levels));
                     this.index++;
                     this.selected = null;
+                    this.saveDraft();
                     this.settle();
                     return;
                 }
                 if (this.isLast) {
                     this.finished = true;
+                    this.saveDraft();
                     $dispatch('quick-round-completed', { correct: this.correctCount, total: this.cards.length });
                     {{ $onComplete }}
                     return;
                 }
                 this.index++;
                 this.selected = null;
+                this.saveDraft();
                 this.settle();
             },
             skip() {

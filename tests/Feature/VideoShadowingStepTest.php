@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\ShadowDraft;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -264,5 +266,40 @@ class VideoShadowingStepTest extends TestCase
 
         $component->assertSee('Not shadowed.');
         $component->assertDontSee('Quick check');
+    }
+
+    public function test_recorded_lines_come_back_after_leaving_the_step_and_count_when_saved(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+
+        $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0, 1);
+        $kept = ShadowDraft::where('mission_run_id', $run->id)->orderBy('line_index')->get();
+
+        // The learner left; the step opens fresh.
+        $component = Livewire::test('missions.steps.video-shadowing', ['run' => $run])
+            ->assertSeeHtml(Storage::disk('public')->url($kept[0]->path))
+            ->assertSeeHtml(Storage::disk('public')->url($kept[1]->path));
+        $this->assertSame(2, $component->instance()->shadowedCount());
+
+        $this->recordLines($component, 2)->call('save')->assertHasNoErrors();
+
+        $this->assertSame(3, Evidence::where('mission_run_id', $run->id)->where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->count());
+        $this->assertDatabaseCount('shadow_drafts', 0);
+        Storage::disk('public')->assertExists($kept[0]->path);
+    }
+
+    public function test_a_new_take_replaces_the_lines_kept_recording(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $component = $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0);
+        $firstPath = ShadowDraft::sole()->path;
+
+        $this->recordLines($component, 0);
+
+        $this->assertDatabaseCount('shadow_drafts', 1);
+        $this->assertNotSame($firstPath, ShadowDraft::sole()->path);
+        Storage::disk('public')->assertMissing($firstPath);
     }
 }

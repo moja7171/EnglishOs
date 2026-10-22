@@ -192,6 +192,15 @@ new class extends Component
         return true;
     }
 
+    /**
+     * Every pick is checked as it lands — a tap on the select and a pick
+     * restored from the browser's draft (x-draft) alike.
+     */
+    public function updatedGapFillSelections(mixed $selection, int|string $index): void
+    {
+        $this->checkGapFill((int) $index);
+    }
+
     public function checkGapFill(int $index): void
     {
         $phrases = $this->targetPhrases();
@@ -280,9 +289,22 @@ new class extends Component
     $gapFillIndex = $hasComprehensionCheck ? 1 : 0;
     $totalSubsteps = $gapFillIndex + 1;
     $nextDisabledExpr = "(activeSubstep === {$gapFillIndex} && ".($this->gapFillAllCorrect() ? 'false' : 'true').')';
+    $draftPrefix = $this->draftPrefix();
+    $keepsDraft = ! $readOnly && ! $preview;
 @endphp
 
-<div class="space-y-6" x-data="{ activeSubstep: 0 }">
+<div
+    class="space-y-6"
+    x-data="{
+        activeSubstep: 0,
+        init() {
+            @if ($keepsDraft)
+                this.activeSubstep = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSubstep', 0);
+                this.$watch('activeSubstep', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSubstep', v));
+            @endif
+        },
+    }"
+>
     @if ($imageUrl = $this->heroImageUrl())
         <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
     @endif
@@ -292,7 +314,7 @@ new class extends Component
     <div>
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>
         <div class="mt-2">
-            <x-audio-player text-hidden :url="$listening['audio_url'] ?? null" :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1, 'manual_report' => true]" :segments="$this->listeningSegments()" />
+            <x-audio-player text-hidden :url="$listening['audio_url'] ?? null" :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1, 'manual_report' => true]" :segments="$this->listeningSegments()" :resume-key="$keepsDraft ? $draftPrefix.'position' : null" />
         </div>
     </div>
 
@@ -387,7 +409,7 @@ new class extends Component
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — quick check</p>
                 <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen once, then true or false.</p>
                 <div class="mt-2">
-                    <x-quick-round :cards="$comprehensionCards" />
+                    <x-quick-round :cards="$comprehensionCards" :draft-key="$keepsDraft ? $draftPrefix.'comprehension' : null" />
                 </div>
             </div>
         @endif
@@ -413,7 +435,7 @@ new class extends Component
                                 <select
                                     wire:model.live="gapFillSelections.{{ $index }}"
                                     @disabled($readOnly)
-                                    wire:change="checkGapFill({{ $index }})"
+                                    @if ($keepsDraft) x-draft="{ key: '{{ $draftPrefix }}gap.{{ $index }}', field: 'gapFillSelections.{{ $index }}' }" @endif
                                     class="inline rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
                                 >
                                     <option value="">…</option>
@@ -453,7 +475,7 @@ new class extends Component
                     @else
                         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional — one real detail from the conversation. Doesn't affect Continue.</p>
                         <div class="mt-2">
-                            <x-quick-round :cards="$detailCard" on-complete="$wire.set('detailCorrect', correctCount === 1)" />
+                            <x-quick-round :cards="$detailCard" :draft-key="$keepsDraft ? $draftPrefix.'detail' : null" on-complete="$wire.set('detailCorrect', correctCount === 1)" />
                         </div>
                     @endif
                 </div>

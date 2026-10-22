@@ -43,6 +43,8 @@
     @param array{mission_code: string, source: string, day_number?: int, manual_report?: bool}|null $listen Counts
         real watches (at least 90% played through, never skipped to) and
         shows a "Listens: N" chip — see <x-audio-player>. null = no counting.
+    @param string|null $resumeKey Comes back where the learner left the
+        video — see <x-audio-player>'s $resumeKey, same behavior.
 --}}
 @props([
     'url',
@@ -56,6 +58,7 @@
     'shadowLines' => [],
     'shadowTimestamps' => [],
     'shadowActive' => 'true',
+    'resumeKey' => null,
 ])
 
 @if (! empty($url))
@@ -84,6 +87,8 @@
             replayEndTime: null,
             lastShadowCheck: null,
             shadowFrame: null,
+            resumedFrom: null,
+            stopResume: null,
             init() {
                 const video = this.$refs.video;
                 const seek = this.$refs.seek;
@@ -97,6 +102,7 @@
                 video.addEventListener('seeking', () => this.lastShadowCheck = null);
                 video.addEventListener('play', () => {
                     this.playing = true;
+                    this.resumedFrom = null;
                     this.watchShadowPoints(video);
                     this.scheduleHide();
                     if (this.mode === 'inline' && this.hasSegments && this.showText) this.mode = 'focus';
@@ -120,6 +126,13 @@
                     this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
                 }
 
+                @if ($resumeKey)
+                    this.stopResume = window.eosResume(video, {{ Illuminate\Support\Js::from($resumeKey) }}, {
+                        snapTo: (time) => this.lineStartAt(time),
+                        onRestored: (time) => { this.resumedFrom = time; this.currentTime = time; seek.value = time; },
+                    });
+                @endif
+
                 // Shadowing is never a setting — it is simply what the
                 // second watch is. The moment the caller's shadow-active
                 // turns on, the video restarts from the top with every
@@ -128,6 +141,7 @@
                     if (! on || ! this.shadowTimestamps.length) return;
                     video.pause();
                     video.currentTime = 0;
+                    this.resumedFrom = null;
                     this.shadowSeen = [];
                     this.activeShadowIndex = null;
                     this.replayEndTime = null;
@@ -147,6 +161,7 @@
             },
             destroy() {
                 if (this.mode !== 'inline') document.documentElement.classList.remove('overflow-hidden');
+                this.stopResume?.();
             },
             centerSegment(index) {
                 const panel = this.$refs.segmentsPanel;
@@ -203,6 +218,12 @@
                     this.shadowFrame = requestAnimationFrame(tick);
                 };
                 this.shadowFrame = requestAnimationFrame(tick);
+            },
+            // The start of the shadow line playing at `time`, so a resumed
+            // watch never drops the learner into the middle of one.
+            lineStartAt(time) {
+                const line = this.shadowTimestamps.find((point) => point && point.start <= time && time < point.end);
+                return line ? line.start : time;
             },
             replayShadowLine(index) {
                 const point = this.shadowTimestamps[index];
@@ -327,11 +348,16 @@
             type="button"
             x-show="!playing"
             x-on:click="togglePlay()"
-            class="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity"
+            class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/20 transition-opacity"
         >
             <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-accent/90 text-white shadow-lg transition-transform hover:scale-105 dark:bg-accent-dark/90">
                 @svg('heroicon-s-play', 'ml-1 h-7 w-7')
             </span>
+            @if ($resumeKey)
+                <span x-show="resumedFrom !== null" x-cloak class="rounded-full bg-black/60 px-2.5 py-1 text-xs text-white">
+                    Continue from <span x-text="formatTime(resumedFrom)"></span>
+                </span>
+            @endif
         </button>
 
         {{-- Bottom control bar — fades with the video, not independently,

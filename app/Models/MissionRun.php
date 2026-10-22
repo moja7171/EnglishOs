@@ -66,6 +66,14 @@ class MissionRun extends Model
     }
 
     /**
+     * @return HasMany<ShadowDraft, $this>
+     */
+    public function shadowDrafts(): HasMany
+    {
+        return $this->hasMany(ShadowDraft::class);
+    }
+
+    /**
      * @return HasMany<ErrorLogItem, $this>
      */
     public function errorLogItems(): HasMany

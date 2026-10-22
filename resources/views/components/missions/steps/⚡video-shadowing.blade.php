@@ -1,15 +1,16 @@
 <?php
 
+use App\Livewire\Concerns\KeepsShadowDrafts;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use KeepsShadowDrafts;
     use PreviewsStep;
     use WithFileUploads;
 
@@ -24,7 +25,7 @@ new class extends Component
      */
     public bool $completed = false;
 
-    /** @var array<int, ?UploadedFile> keyed by shadow_lines index */
+    /** @var array<int, ?UploadedFile> keyed by shadow_lines index — only the upload slot, see KeepsShadowDrafts */
     public array $shadowRecordings = [];
 
     /** @var array<int, string> keyed by shadow_lines index — saved recording URLs, for read-only review */
@@ -45,6 +46,8 @@ new class extends Component
     public function mount(): void
     {
         if (! $this->readOnly) {
+            $this->restoreShadowDrafts();
+
             return;
         }
 
@@ -82,7 +85,7 @@ new class extends Component
 
     public function shadowedCount(): int
     {
-        return collect($this->shadowRecordings)->filter()->count();
+        return count($this->draftShadowUrls);
     }
 
     /** Exposed for the Blade template — a bare `self::CONST` isn't reachable there. */
@@ -99,38 +102,18 @@ new class extends Component
             return;
         }
 
-        $mission = $this->run->mission;
+        $shadowedLineIndices = collect($this->draftShadowUrls)->keys()->sort()->values();
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
-            'phase' => 'video_shadowing',
+            'phase' => $this->phaseKey(),
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
-                'shadowed_line_indices' => collect($this->shadowRecordings)->filter()->keys()->values(),
+                'shadowed_line_indices' => $shadowedLineIndices,
             ]),
         ]);
 
-        // One AUDIO Evidence row per shadowed line — content_ref is JSON
-        // here (unlike most other steps' plain-URL audio Evidence) since
-        // this step can produce more than one recording; line_index is
-        // what lets mount() map each saved file back to its line on review.
-        foreach ($this->shadowRecordings as $index => $recording) {
-            if (! $recording) {
-                continue;
-            }
-
-            $path = $recording->store('missions/'.strtolower($mission->code).'/evidence', 'public');
-            $url = Storage::disk('public')->url($path);
-
-            Evidence::create([
-                'mission_run_id' => $this->run->id,
-                'phase' => 'video_shadowing',
-                'type' => Evidence::TYPE_AUDIO,
-                'content_ref' => json_encode(['line_index' => $index, 'url' => $url]),
-            ]);
-
-            $this->savedShadowUrls[$index] = $url;
-        }
+        $this->saveShadowEvidence();
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->completed = true;
@@ -139,6 +122,11 @@ new class extends Component
     public function proceed(): void
     {
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
+    }
+
+    protected function phaseKey(): string
+    {
+        return 'video_shadowing';
     }
 
     /**
@@ -191,6 +179,7 @@ new class extends Component
                 :shadow-lines="$readOnly ? [] : $shadowLines"
                 :shadow-timestamps="$readOnly ? [] : $this->shadowTimestamps()"
                 shadow-active="activeSubstep === 1"
+                :resume-key="$readOnly || $preview ? null : $draftPrefix.'position'"
             />
         </div>
     </div>
@@ -293,7 +282,7 @@ new class extends Component
                                         @endif
                                     @else
                                         <div class="mt-2" wire:key="shadow-recorder-{{ $index }}">
-                                            <x-voice-recorder field="shadowRecordings.{{ $index }}" :file="$shadowRecordings[$index] ?? null" file-name="video-shadow-{{ $index }}.webm" />
+                                            <x-voice-recorder field="shadowRecordings.{{ $index }}" :file="$draftShadowUrls[$index] ?? null" file-name="video-shadow-{{ $index }}.webm" />
                                         </div>
                                     @endif
                                 </div>

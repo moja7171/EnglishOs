@@ -14,6 +14,8 @@
     @param string $field The Livewire property to upload the recording into.
     @param mixed $file The current value of that property (pass `:file="$audioFile"`)
         — used to render a playback player of the recording once uploaded.
+        May instead be the URL of a recording already kept on the server
+        (see KeepsShadowDrafts), which plays back the same way.
     @param string|null $onRecorded A Livewire method name to call automatically
         once the upload succeeds (e.g. "submitAnswer"). Omit for a manual-submit
         flow (the caller has its own Continue/save button).
@@ -462,7 +464,7 @@
             <div class="mt-3">
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen back — not happy with it? Just record again.</p>
                 <div class="mt-1">
-                    <x-audio-player :url="$file->temporaryUrl()" />
+                    <x-audio-player :url="is_string($file) ? $file : $file->temporaryUrl()" />
                 </div>
             </div>
         @endif
