@@ -52,6 +52,9 @@
         <a href="{{ route('listening.show') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
             @svg('heroicon-o-speaker-wave', 'h-5 w-5') Listening
         </a>
+        <a href="{{ route('notebook.index') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
+            @svg('heroicon-o-book-open', 'h-5 w-5') Notebook
+        </a>
         <a href="{{ route('pi.practice') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
             @svg('heroicon-o-microphone', 'h-5 w-5') Voice practice
         </a>

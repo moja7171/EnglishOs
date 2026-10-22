@@ -8,7 +8,7 @@ use App\Models\AIFeedback;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\AiFailure;
-use App\Services\AiFeedbackCard;
+use App\Services\LearnerFeedback;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\SpokenAnswerChecker;
@@ -93,19 +93,8 @@ new class extends Component
 
     // --- Feedback (was AI Feedback #1) — generated automatically, not on request ---
 
-    public ?string $fbStrength = null;
-
-    public ?string $fbExpression = null;
-
-    public ?string $fbCorrectionOriginal = null;
-
-    public ?string $fbCorrectionCorrected = null;
-
-    public ?string $fbCorrectionWhy = null;
-
-    public ?string $fbCorrectionSuggestion = null;
-
-    public ?string $fbSeverity = null;
+    /** @var array<string, mixed>|null A LearnerFeedback::review() result (or an older saved shape). */
+    public ?array $feedback = null;
 
     /**
      * True once every question has been answered, feedback has been
@@ -139,24 +128,10 @@ new class extends Component
         $this->warmUpDone = true;
         $this->completed = true;
 
-        $this->applyFeedbackData($data['feedback'] ?? []);
+        $this->feedback = ($data['feedback'] ?? null) ?: null;
 
         $audioEvidence = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
         $this->warmUpAudioUrl = $audioEvidence?->content_ref;
-    }
-
-    /** @param array<string, mixed> $data */
-    private function applyFeedbackData(array $data): void
-    {
-        $this->fbStrength = $data['strength'] ?? null;
-        $this->fbExpression = $data['expression'] ?? null;
-        $this->fbSeverity = $data['severity'] ?? null;
-
-        $correction = $data['correction'] ?? [];
-        $this->fbCorrectionOriginal = is_array($correction) ? ($correction['original'] ?? null) : null;
-        $this->fbCorrectionCorrected = is_array($correction) ? ($correction['corrected'] ?? null) : null;
-        $this->fbCorrectionWhy = is_array($correction) ? ($correction['why'] ?? null) : null;
-        $this->fbCorrectionSuggestion = is_array($correction) ? ($correction['suggestion'] ?? null) : null;
     }
 
     public function getQuestionsProperty(): array
@@ -423,17 +398,7 @@ new class extends Component
                 'segments' => $this->segments,
                 'reflection' => $this->reflection,
                 'turns' => $this->turns,
-                'feedback' => [
-                    'strength' => $this->fbStrength,
-                    'expression' => $this->fbExpression,
-                    'correction' => [
-                        'original' => $this->fbCorrectionOriginal,
-                        'corrected' => $this->fbCorrectionCorrected,
-                        'why' => $this->fbCorrectionWhy,
-                        'suggestion' => $this->fbCorrectionSuggestion,
-                    ],
-                    'severity' => $this->fbSeverity,
-                ],
+                'feedback' => $this->feedback,
             ]),
         ]);
 
@@ -444,18 +409,19 @@ new class extends Component
             'content_ref' => $this->warmUpAudioUrl,
         ]);
 
-        if ($this->fbStrength) {
+        if ($this->feedback) {
             $textEvidence = Evidence::where('mission_run_id', $this->run->id)
                 ->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->latest()->first();
+            $firstFix = collect($this->feedback['sentences'])->firstWhere('status', 'fix');
 
             AIFeedback::create([
                 'evidence_id' => $textEvidence->id,
-                'strength' => $this->fbStrength,
+                'strength' => $this->feedback['positives'][0] ?? $this->feedback['summary'],
                 'correction' => json_encode([
-                    'original' => $this->fbCorrectionOriginal,
-                    'corrected' => $this->fbCorrectionCorrected,
-                    'why' => $this->fbCorrectionWhy,
-                    'suggestion' => $this->fbCorrectionSuggestion,
+                    'original' => $firstFix['original'] ?? null,
+                    'corrected' => $firstFix['corrected'] ?? null,
+                    'why' => $firstFix['why'] ?? null,
+                    'suggestion' => $this->feedback['negatives'][0] ?? null,
                 ]),
                 'tone' => 'encouraging',
             ]);
@@ -468,8 +434,8 @@ new class extends Component
     }
 
     /**
-     * Ported from the old AI Feedback #1 step — same prompt, same
-     * required-keys contract — but fired automatically the moment the
+     * Ported from the old AI Feedback #1 step, now the shared
+     * sentence-by-sentence feedback (see LearnerFeedback) — fired automatically the moment the
      * interview ends, not on a manual "get my feedback" click. A failure
      * here never blocks Continue: the learner already finished the real
      * work (the interview itself); a missing report card is a shame, not
@@ -482,35 +448,17 @@ new class extends Component
                 ->map(fn ($t) => "Q: {$t['question']}\nA: {$t['answer']}")
                 ->implode("\n\n");
 
-            $data = app(AiFeedbackCard::class)->generate(
-                [['role' => 'user', 'text' => $transcript]],
-                systemPrompt: 'You are an encouraging English teacher reviewing the spoken interview answers of '
-                    .$this->run->learner->levelDescription().'. '
-                    .'Reply with ONLY valid JSON, no markdown fences, no extra text, in exactly this shape: '
-                    .'{"strength": "one full sentence, in PERSIAN (Farsi), about one specific thing they did well", '
-                    .'"expression": "one full sentence, in PERSIAN (Farsi), pointing out one good English word or '
-                    .'phrase they actually used — you can quote the English word/phrase itself inside the Persian '
-                    .'sentence", '
-                    .'"correction": {'
-                    .'"original": "the learner\'s own flawed sentence, quoted exactly as they said it, in ENGLISH", '
-                    .'"corrected": "the corrected version of that same sentence, in ENGLISH", '
-                    .'"why": "one short sentence, in PERSIAN (Farsi), explaining the underlying grammar or '
-                    .'vocabulary rule behind the mistake", '
-                    .'"suggestion": "one short, concrete, actionable next step, in PERSIAN (Farsi), e.g. what to '
-                    .'practice to strengthen this"'
-                    .'}, '
-                    .'"severity": "minor or major — how serious this grammar/vocabulary issue is"}. '
-                    .'Only the "original" and "corrected" fields are in English (quoting the learner\'s own words); '
-                    .'every other field must be written in plain Persian, no English words mixed in unless quoting '
-                    .'a specific English word or phrase. Always write every English word or phrase in Latin '
-                    .'letters inside «», e.g. «study» — never spell an English word in Persian letters.',
-                requiredKeys: ['strength', 'expression', 'severity', 'correction.original', 'correction.corrected', 'correction.why', 'correction.suggestion'],
+            $this->feedback = app(LearnerFeedback::class)->review(
+                $this->run->learner,
+                $transcript,
+                situation: 'a short spoken interview: each Q is the interviewer, each A is the learner\'s spoken '
+                    .'answer. Judge ONLY the A lines.',
+                source: 'ai_conversation_1',
+                spoken: true,
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
 
-            $this->applyFeedbackData($data);
-
-            if ($this->fbSeverity === 'major') {
+            if ($this->feedback['severity'] === 'major') {
                 $this->run->recordStruggleSignal();
             }
         } catch (Throwable) {
@@ -588,41 +536,10 @@ new class extends Component
                 </div>
             @endif
 
-            @if ($fbStrength)
+            @if ($feedback)
                 <div class="space-y-3">
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Feedback on your conversation</p>
-
-                    <div class="rounded-xl border-l-4 border-success bg-success/5 p-3 dark:border-success-dark dark:bg-success-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-success uppercase dark:text-success-dark">
-                            @svg('heroicon-o-check-circle', 'h-4 w-4')
-                            One thing you did well
-                        </p>
-                        <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $fbStrength }}</p>
-                    </div>
-
-                    <div class="rounded-xl border-l-4 border-accent bg-accent/5 p-3 dark:border-accent-dark dark:bg-accent-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-accent uppercase dark:text-accent-dark">
-                            @svg('heroicon-o-book-open', 'h-4 w-4')
-                            A good expression you used
-                        </p>
-                        <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $fbExpression }}</p>
-                    </div>
-
-                    @if (collect([$fbCorrectionOriginal, $fbCorrectionCorrected, $fbCorrectionWhy, $fbCorrectionSuggestion])->filter(fn ($v) => filled($v))->isNotEmpty())
-                        <div class="rounded-xl border-l-4 {{ $fbSeverity === 'major' ? 'border-danger bg-danger-soft' : 'border-warning bg-warning-soft' }} p-3">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold {{ $fbSeverity === 'major' ? 'text-danger-ink' : 'text-warning-ink' }} uppercase">
-                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                                Something to fix
-                            </p>
-                            <p class="mt-2 text-sm text-danger-ink line-through decoration-danger">{{ $fbCorrectionOriginal }}</p>
-                            <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $fbCorrectionCorrected }}</p>
-                            <p class="font-fa mt-2 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $fbCorrectionWhy }}</p>
-                            <p class="font-fa mt-1 flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
-                                @svg('heroicon-o-arrow-trending-up', 'h-4 w-4 shrink-0 mt-0.5')
-                                {{ $fbCorrectionSuggestion }}
-                            </p>
-                        </div>
-                    @endif
+                    <x-learner-feedback :feedback="$feedback" />
                 </div>
             @endif
 

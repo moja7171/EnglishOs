@@ -82,8 +82,9 @@ new class extends Component
             $this->pastedChat,
             situation: 'a voice conversation the learner had with an AI speaking partner (such as Pi), copied from '
                 .'the app and pasted in. Speaker names may be missing — the AI\'s turns are usually longer and '
-                .'ask questions or give corrections; judge ONLY the learner\'s own turns. It was spoken and then '
-                .'transcribed, so ignore punctuation, capital letters and filler words.',
+                .'ask questions or give corrections; judge ONLY the learner\'s own turns. Ignore filler words.',
+            source: 'pi',
+            spoken: true,
         );
     }
 

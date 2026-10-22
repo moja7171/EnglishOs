@@ -115,8 +115,9 @@ class SentenceChecker
         }
 
         return $prompt
-            .' For a grammar, meaning, or wording problem, the hint must be a short guiding question or nudge '
-            .'that helps the learner fix it themselves — never write the corrected sentence for them. '
+            .' For a grammar, meaning, or wording problem, the hint must be a short nudge — a statement, never '
+            .'a question — that points at what to fix so the learner fixes it themselves; never write the '
+            .'corrected sentence for them. '
             .'EXCEPTION: if the issue is a spelling mistake, a missing/wrong capital letter, or missing end '
             .'punctuation, say directly what the fix is — that is a fact, not the answer to the exercise. '
             .'Phrase a spelling fix explicitly, e.g. \'"wrok" should be spelled "work".\' Keep the hint to ONE '

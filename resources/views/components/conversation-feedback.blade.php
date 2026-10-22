@@ -1,5 +1,5 @@
 {{-- The body of a GivesConversationFeedback result: title row with
-     refresh + close, then the three feedback cards (or the error). The
+     refresh + close, then <x-learner-feedback> (or the error). The
      caller owns the wrapper — a sheet over the chat, an inline card on a
      page. `action` is the Livewire method that (re)asks for feedback. --}}
 @props(['feedback' => null, 'error' => null, 'action'])
@@ -33,43 +33,7 @@
     </div>
 
     @if ($feedback)
-        <div class="rounded-xl border-l-4 border-success bg-success/5 p-3 dark:border-success-dark dark:bg-success-dark/10">
-            <p class="flex items-center gap-1.5 text-xs font-semibold text-success uppercase dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-4 w-4')
-                One thing you did well
-            </p>
-            <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['strength'] }}</p>
-        </div>
-
-        <div class="rounded-xl border-l-4 border-accent bg-accent/5 p-3 dark:border-accent-dark dark:bg-accent-dark/10">
-            <p class="flex items-center gap-1.5 text-xs font-semibold text-accent uppercase dark:text-accent-dark">
-                @svg('heroicon-o-book-open', 'h-4 w-4')
-                A good expression you used
-            </p>
-            <p class="font-fa mt-1 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['expression'] }}</p>
-        </div>
-
-        @if ($feedback['correction'])
-            <div class="rounded-xl border-l-4 border-warning bg-warning-soft p-3">
-                <p class="flex items-center gap-1.5 text-xs font-semibold text-warning-ink uppercase">
-                    @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                    Something to fix
-                </p>
-                <p class="mt-2 text-sm text-danger-ink line-through decoration-danger">{{ $feedback['correction']['original'] }}</p>
-                <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $feedback['correction']['corrected'] }}</p>
-                @if ($feedback['correction']['why'])
-                    <p class="font-fa mt-2 text-sm text-ink dark:text-ink-dark" dir="rtl">{{ $feedback['correction']['why'] }}</p>
-                @endif
-                @if ($feedback['correction']['suggestion'])
-                    <p class="font-fa mt-1 flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
-                        @svg('heroicon-o-arrow-trending-up', 'mt-0.5 h-4 w-4 shrink-0')
-                        {{ $feedback['correction']['suggestion'] }}
-                    </p>
-                @endif
-            </div>
-        @else
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Nothing to fix — nice work.</p>
-        @endif
+        <x-learner-feedback :feedback="$feedback" />
     @else
         <p class="text-sm text-danger-ink">{{ $error }}</p>
     @endif

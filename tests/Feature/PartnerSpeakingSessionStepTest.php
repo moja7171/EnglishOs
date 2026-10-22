@@ -184,16 +184,7 @@ class PartnerSpeakingSessionStepTest extends TestCase
                 ->once()
                 ->withArgs(fn ($messages) => str_contains($messages[0]['text'], "Your Friends\nQuestions: Who is your closest friend? / How did you meet?\nMy answer: We meet at university.")
                     && str_contains($messages[0]['text'], 'Deeper'))
-                ->andReturn(json_encode([
-                    'strength' => 'جواب‌هایت کامل بود.',
-                    'expression' => 'university',
-                    'correction' => [
-                        'original' => 'We meet at university.',
-                        'corrected' => 'We met at university.',
-                        'why' => 'برای گذشته از met استفاده کن.',
-                        'suggestion' => 'دو جمله دیگر به گذشته بگو.',
-                    ],
-                ]));
+                ->andReturn($this->learnerFeedbackReply(['sentences' => [['original' => 'We meet at university.', 'status' => 'fix', 'corrected' => 'We met at university.', 'why' => 'برای گذشته از met استفاده کن.', 'pattern' => 'past simple']]]));
         });
 
         Livewire::test('missions.steps.partner-speaking-session', ['run' => $run])

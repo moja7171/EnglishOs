@@ -806,16 +806,7 @@ class FriendsConversationTest extends TestCase
                     && ! str_contains($messages[0]['text'], 'Keep it up!')
                     && str_contains($systemPrompt, 'Judge ONLY "Me"')
                     && str_contains($systemPrompt, 'in Latin letters'))
-                ->andReturn(json_encode([
-                    'strength' => 'جمله‌ات کامل و واضح بود.',
-                    'expression' => 'every day',
-                    'correction' => [
-                        'original' => 'I goes to school every day.',
-                        'corrected' => 'I go to school every day.',
-                        'why' => 'با I فعل بدون s می‌آید.',
-                        'suggestion' => 'چند جمله‌ی دیگر با I بنویس.',
-                    ],
-                ]));
+                ->andReturn($this->learnerFeedbackReply(['sentences' => [['original' => 'I goes to school every day.', 'status' => 'fix', 'corrected' => 'I go to school every day.', 'why' => 'با I فعل بدون s می‌آید.', 'pattern' => 'subject verb agreement']]]));
         });
 
         $this->actingAs($me);
@@ -836,10 +827,10 @@ class FriendsConversationTest extends TestCase
 
         DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'I usually wake up at six.']);
 
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'strength' => 'جمله‌ات درست بود.',
-            'expression' => 'usually',
-            'correction' => null,
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply([
+            'severity' => 'none',
+            'sentences' => [['original' => 'I usually wake up at six.', 'status' => 'ok', 'corrected' => null, 'why' => null, 'pattern' => null]],
+            'negatives' => [],
         ])));
 
         $this->actingAs($me);
@@ -867,7 +858,7 @@ class FriendsConversationTest extends TestCase
                 ->withArgs(fn ($messages) => str_contains($messages[0]['text'], 'line-45-end')
                     && str_contains($messages[0]['text'], 'line-6-end')
                     && ! str_contains($messages[0]['text'], 'line-5-end'))
-                ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null]));
+                ->andReturn($this->learnerFeedbackReply());
         });
 
         $this->actingAs($me);
@@ -903,7 +894,7 @@ class FriendsConversationTest extends TestCase
                         && str_contains($earlier, 'old-8-end')
                         && ! str_contains($earlier, 'old-2-end');
                 })
-                ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null]));
+                ->andReturn($this->learnerFeedbackReply());
         });
 
         $this->actingAs($me);
@@ -948,7 +939,7 @@ class FriendsConversationTest extends TestCase
                 ->once()
                 ->withArgs(fn ($messages) => str_contains($messages[0]['text'], 'Me: I am going to the park.')
                     && ! str_contains($messages[0]['text'], DirectMessage::VOICE_FALLBACK_BODY))
-                ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null]));
+                ->andReturn($this->learnerFeedbackReply());
         });
 
         $this->actingAs($me);
@@ -967,7 +958,7 @@ class FriendsConversationTest extends TestCase
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
             ->times(10)
-            ->andReturn(json_encode(['strength' => 'خوب', 'expression' => 'ok', 'correction' => null])));
+            ->andReturn($this->learnerFeedbackReply()));
 
         $this->actingAs($me);
 

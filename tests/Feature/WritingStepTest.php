@@ -141,18 +141,15 @@ class WritingStepTest extends TestCase
         $run = $this->makeRun();
 
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                'strength' => 'Clear, simple sentences.',
-                'expression' => 'have breakfast',
-                'correction' => 'Try "wake up early" instead of "wake early".',
-            ]));
+            $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply());
         });
 
         Livewire::test('missions.steps.writing', ['run' => $run])
             ->set('text', 'I usually wake up early and then have breakfast.')
             ->call('save')
             ->assertSet('completed', true)
-            ->assertSee('Clear, simple sentences.')
+            ->assertSee('I work in a hospital.')
+            ->assertSee('دلیل آوردی.')
             ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
@@ -190,11 +187,7 @@ class WritingStepTest extends TestCase
             $mock->shouldReceive('chat')->once()
                 ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, '"wake up"')
                     && str_contains($systemPrompt, '"have a shower"'))
-                ->andReturn(json_encode([
-                    'strength' => 'Clear, simple sentences.',
-                    'expression' => 'wake up',
-                    'correction' => 'Try "wake up early" instead of "wake early".',
-                ]));
+                ->andReturn($this->learnerFeedbackReply());
         });
 
         Livewire::test('missions.steps.writing', ['run' => $run])

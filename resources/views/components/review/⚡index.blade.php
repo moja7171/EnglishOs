@@ -2,6 +2,7 @@
 
 use App\Models\ErrorPatternReview;
 use App\Models\GrammarPoint;
+use App\Models\NotebookEntry;
 use App\Models\SpeakingPrompt;
 use App\Models\VocabularyWord;
 use App\Services\GroqClient;
@@ -146,7 +147,7 @@ new class extends Component
     }
 
     /**
-     * @return array{type: string, model: VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint}|null
+     * @return array{type: string, model: VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint|NotebookEntry}|null
      */
     #[Computed]
     public function currentItem(): ?array
@@ -162,6 +163,7 @@ new class extends Component
             'speaking' => SpeakingPrompt::find($entry['id']),
             'error' => ErrorPatternReview::find($entry['id']),
             'grammar' => GrammarPoint::find($entry['id']),
+            'note' => NotebookEntry::find($entry['id']),
         };
 
         return $model ? ['type' => $entry['type'], 'model' => $model] : null;
@@ -229,11 +231,13 @@ new class extends Component
     /**
      * Whether the typed attempt matches the saved correction, ignoring
      * case, spacing and the final full stop/!/? — the same leniency Error
-     * Log's own drills use. Only meaningful on a grammar pattern card.
+     * Log's own drills use. Only meaningful on a grammar pattern card or a
+     * notebook mistake.
      */
     public function attemptIsCorrect(): bool
     {
-        $correction = $this->currentItem['model']->last_correction ?? '';
+        $model = $this->currentItem['model'] ?? null;
+        $correction = $model instanceof NotebookEntry ? $model->better : ($model->last_correction ?? '');
 
         return $this->normalizeSentence($this->attempt) === $this->normalizeSentence($correction);
     }
@@ -366,7 +370,7 @@ new class extends Component
         $this->gradeCurrent($item['model'], $remembered ? $quality : 1);
     }
 
-    private function gradeCurrent(VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint $model, int $quality): void
+    private function gradeCurrent(VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint|NotebookEntry $model, int $quality): void
     {
         $model->review($quality);
 
@@ -485,6 +489,7 @@ new class extends Component
             $remaining = count($this->queue) - 1;
             $label = match ($type) {
                 'speaking' => 'Speaking',
+                'note' => $model->isMistake() ? 'Your mistake' : 'Your tip',
                 default => 'Grammar',
             };
             $grammarReview = $this->grammarReview;
@@ -492,6 +497,7 @@ new class extends Component
             $icon = match ($type) {
                 'speaking' => 'heroicon-o-microphone',
                 'error' => 'heroicon-o-pencil',
+                'note' => $model->isMistake() ? 'heroicon-o-pencil' : 'heroicon-o-light-bulb',
                 default => 'heroicon-o-academic-cap',
             };
         @endphp
@@ -557,6 +563,65 @@ new class extends Component
                                 @endif
                             @endif
                             <p class="text-sm text-success dark:text-success-dark">{{ $model->last_correction }}</p>
+                        @endif
+                    @elseif ($type === 'note' && $model->isMistake())
+                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                            You said: <span class="text-danger-ink line-through decoration-danger">{{ $model->original }}</span>
+                        </p>
+                        @if (! $revealed)
+                            <form wire:submit="checkAttempt" class="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    wire:model="attempt"
+                                    aria-label="Write the sentence correctly"
+                                    placeholder="Write it correctly…"
+                                    class="w-full rounded-lg border border-line bg-transparent px-2 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+                                >
+                                <button
+                                    type="submit"
+                                    title="Check"
+                                    class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                                ><span class="sr-only">Check</span>@svg('heroicon-o-check', 'h-5 w-5')</button>
+                            </form>
+                            <button
+                                type="button"
+                                wire:click="reveal"
+                                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
+                            >@svg('heroicon-o-eye', 'h-3.5 w-3.5') Just show the fix</button>
+                        @else
+                            @if (trim($attempt) !== '')
+                                @if ($this->attemptIsCorrect())
+                                    <p class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
+                                        @svg('heroicon-o-check-circle', 'h-4 w-4') Spot on!
+                                    </p>
+                                @else
+                                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You wrote: {{ $attempt }}</p>
+                                @endif
+                            @endif
+                            <p class="text-sm text-success dark:text-success-dark">{{ $model->better }}</p>
+                            @if ($model->note)
+                                <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $model->note }}</p>
+                            @endif
+                        @endif
+                    @elseif ($type === 'note')
+                        @if ($techniqueName = $model->techniqueName())
+                            <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $techniqueName }}</p>
+                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">How does it go?</p>
+                        @else
+                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You said: <span class="text-ink dark:text-ink-dark">{{ $model->original }}</span></p>
+                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">How would you say it more naturally?</p>
+                        @endif
+                        @if (! $revealed)
+                            <button
+                                type="button"
+                                wire:click="reveal"
+                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                            >@svg('heroicon-o-eye', 'h-4 w-4') Show</button>
+                        @else
+                            <p class="flex items-center gap-2 text-sm text-success dark:text-success-dark">{{ $model->better }} <x-speak-button :text="$model->better" /></p>
+                            @if ($model->note)
+                                <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $model->note }}</p>
+                            @endif
                         @endif
                     @elseif ($hasQuestion)
                         @php
@@ -677,6 +742,8 @@ new class extends Component
             <a href="{{ route('vocabulary.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">My Words</a>
             ·
             <a href="{{ route('speaking.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">Speaking Recall</a>
+            ·
+            <a href="{{ route('notebook.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">Notebook</a>
         </p>
     @endunless
 </div>

@@ -6,6 +6,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\AiFeedbackCard;
+use App\Services\LearnerFeedback;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
@@ -47,7 +48,7 @@ new class extends Component
     /** Real duration (Groq/Whisper's own, not estimated) — null if unavailable. */
     public ?float $durationSeconds = null;
 
-    /** @var array{strength: string, expression: string, correction: string, severity?: string}|null */
+    /** @var array<string, mixed>|null A LearnerFeedback::review() result (or an older saved shape). */
     public ?array $feedback = null;
 
     public bool $completed = false;
@@ -160,7 +161,7 @@ new class extends Component
     }
 
     /**
-     * Same 3-part feedback shape as Writing/AI Feedback #1, but the
+     * The shared sentence-by-sentence feedback (see LearnerFeedback), but the
      * judgment criteria are specific to describing a scene rather than
      * narrating a personal routine — present continuous for what's
      * happening right now, "there is/are", prepositions of place. Silent
@@ -178,23 +179,22 @@ new class extends Component
                 return;
             }
 
-            $vocabularyWords = $this->run->selectedVocabularyWords();
-            $card = app(AiFeedbackCard::class);
-            $vocabularyContext = $card->vocabularyContext($vocabularyWords);
+            $vocabularyContext = app(AiFeedbackCard::class)->vocabularyContext($this->run->selectedVocabularyWords());
+            $length = $this->durationSeconds
+                ? ' They spoke for '.(int) round($this->durationSeconds).' seconds ('.$this->wordCount().' words).'
+                : '';
 
-            $data = $card->generate(
-                [['role' => 'user', 'text' => "Transcript of the learner describing a picture: \"{$this->transcript}\""]],
-                systemPrompt: 'You are an encouraging English speaking coach. '.ucfirst($this->run->learner->levelDescription())
-                    .' just described a picture out loud — a real IELTS/CEFR-style "describe what you see" task, '
-                    .'not personal storytelling. Judge whether they described the SCENE itself: what is happening '
-                    .'(present continuous — "a woman is pouring coffee"), where things are (prepositions of place), '
-                    .'what is present ("there is/are").'.$vocabularyContext.' Reply with ONLY valid JSON, no markdown '
-                    .'fences: {"strength": "one specific thing they described well, one sentence", "expression": '
-                    .'"one good word or phrase they actually used", "correction": "one grammar or vocabulary '
-                    .'mistake to fix, one sentence, phrased kindly — prefer a present-continuous or preposition-of-'
-                    .'place slip if there is one", "severity": "minor or major — how serious this grammar/'
-                    .'vocabulary issue is"}',
-                requiredKeys: ['strength', 'expression', 'correction'],
+            $data = app(LearnerFeedback::class)->review(
+                $this->run->learner,
+                $this->transcript,
+                situation: 'the learner describing a picture out loud. Every sentence is theirs.',
+                source: 'picture_description',
+                spoken: true,
+                extraGuidance: 'This is a real IELTS/CEFR-style "describe what you see" task, not personal '
+                    .'storytelling. Judge whether they described the SCENE itself: what is happening (present '
+                    .'continuous — "a woman is pouring coffee"), where things are (prepositions of place), what is '
+                    .'present ("there is/are"); a present-continuous or preposition-of-place slip is the first '
+                    .'thing to fix.'.$length.$vocabularyContext,
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
 
@@ -202,7 +202,7 @@ new class extends Component
 
             // Same signal TracksCheckAttempts feeds from every AI-checked
             // sentence step — see MissionRun::aiToneGuidance().
-            if (($data['severity'] ?? null) === 'major') {
+            if ($data['severity'] === 'major') {
                 $this->run->recordStruggleSignal();
             }
         } catch (Throwable) {
@@ -269,40 +269,7 @@ new class extends Component
             @endif
 
             @if ($feedback)
-                @php $severity = $feedback['severity'] ?? null; @endphp
-                <div class="space-y-3">
-                    <div class="rounded-xl border-l-4 border-success bg-success/5 p-3 dark:border-success-dark dark:bg-success-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-success uppercase dark:text-success-dark">
-                            @svg('heroicon-o-check-circle', 'h-4 w-4')
-                            One thing you described well
-                        </p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
-                    </div>
-                    <div class="rounded-xl border-l-4 border-accent bg-accent/5 p-3 dark:border-accent-dark dark:bg-accent-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-accent uppercase dark:text-accent-dark">
-                            @svg('heroicon-o-book-open', 'h-4 w-4')
-                            A good expression you used
-                        </p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
-                    </div>
-                    @if ($severity === 'major')
-                        <div class="rounded-xl border-l-4 border-danger bg-danger-soft p-3">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-danger-ink uppercase">
-                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                                One thing to improve
-                            </p>
-                            <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
-                        </div>
-                    @else
-                        <div class="rounded-xl border-l-4 border-warning bg-warning-soft p-3">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-warning-ink uppercase">
-                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                                One thing to improve
-                            </p>
-                            <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
-                        </div>
-                    @endif
-                </div>
+                <x-learner-feedback :feedback="$feedback" />
             @endif
 
             @unless ($readOnly)

@@ -5,6 +5,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\AiFeedbackCard;
+use App\Services\LearnerFeedback;
 use App\Services\PexelsClient;
 use Livewire\Component;
 
@@ -19,12 +20,12 @@ new class extends Component
 
     public string $text = '';
 
-    /** @var array{strength: string, expression: string, correction: string}|null */
+    /** @var array<string, mixed>|null A LearnerFeedback::review() result (or an older saved shape). */
     public ?array $feedback = null;
 
     /**
      * True once Continue has saved the essay — the step then shows AI
-     * feedback on the writing (same 3-part pattern as AI Feedback #1)
+     * feedback on the writing (<x-learner-feedback>)
      * before the learner dismisses it with proceed() below, instead of
      * jumping away immediately. Progress is already saved by then; a
      * failed feedback call never blocks it, see generateFeedback().
@@ -41,7 +42,7 @@ new class extends Component
 
         $data = json_decode($this->run->latestEvidence('writing_feedback')?->content_ref ?? '{}', true);
 
-        if (isset($data['strength'], $data['expression'], $data['correction'])) {
+        if (is_array($data) && $data !== []) {
             $this->feedback = $data;
         }
     }
@@ -108,9 +109,9 @@ new class extends Component
     }
 
     /**
-     * Same 3-part pattern as AI Feedback #1 (one strength, one good
-     * expression, one kind correction) — 'writing' itself was the only
-     * free-text step nobody ever actually read with AI. Stored as its
+     * The shared sentence-by-sentence feedback (see LearnerFeedback) —
+     * 'writing' itself was the only free-text step nobody ever actually
+     * read with AI. Stored as its
      * OWN phase ('writing_feedback'), deliberately not a real step key in
      * any mission, so it's just extra data alongside the essay Evidence —
      * never affects step progression, and Error Log's gatherLearnerText()
@@ -121,19 +122,14 @@ new class extends Component
     private function generateFeedback(): void
     {
         try {
-            $vocabularyWords = $this->run->selectedVocabularyWords();
-            $card = app(AiFeedbackCard::class);
-            $vocabularyContext = $card->vocabularyContext($vocabularyWords);
+            $vocabularyContext = app(AiFeedbackCard::class)->vocabularyContext($this->run->selectedVocabularyWords());
 
-            $data = $card->generate(
-                [['role' => 'user', 'text' => $this->text]],
-                systemPrompt: 'You are an encouraging English teacher reviewing a short piece of writing by '
-                    .$this->run->learner->levelDescription().'. '.$vocabularyContext.' '
-                    .'Reply with ONLY valid JSON, no markdown fences, no extra text, in exactly this shape: '
-                    .'{"strength": "one specific thing they did well, one sentence", '
-                    .'"expression": "one good word or phrase they actually used", '
-                    .'"correction": "one grammar or vocabulary mistake to fix, one sentence, phrased kindly"}',
-                requiredKeys: ['strength', 'expression', 'correction'],
+            $data = app(LearnerFeedback::class)->review(
+                $this->run->learner,
+                $this->text,
+                situation: 'a short piece of writing the learner wrote for this mission. Every sentence is theirs.',
+                source: 'writing',
+                extraGuidance: trim($vocabularyContext),
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
 
@@ -190,20 +186,7 @@ new class extends Component
             </div>
 
             @if ($feedback)
-                <div class="space-y-2">
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">One thing you did well</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
-                    </div>
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">A good expression you used</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
-                    </div>
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-xs font-semibold text-warning-ink uppercase">One thing to improve</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
-                    </div>
-                </div>
+                <x-learner-feedback :feedback="$feedback" />
             @endif
 
             @unless ($readOnly)

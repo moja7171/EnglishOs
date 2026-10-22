@@ -420,6 +420,7 @@ new class extends Component
                 .'Judge ONLY "Me"\'s lines under LATEST SESSION; lines under EARLIER and the other person\'s lines '
                 .'are context only. This is informal chatting, so lowercase, short forms like "u" or relaxed '
                 .'punctuation are fine.',
+            source: 'friends_chat',
         );
     }
 
