@@ -60,6 +60,7 @@ class User extends Authenticatable
             'last_study_reminder_1_on' => 'date',
             'last_study_reminder_2_on' => 'date',
             'last_streak_warning_on' => 'date',
+            'finish_line_told_on' => 'date',
         ];
     }
 

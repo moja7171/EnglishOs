@@ -40,6 +40,10 @@ Schedule::call(fn () => Artisan::call('pair:send-streak-warnings'))
     ->name('pair:send-streak-warnings')
     ->everyMinute()
     ->withoutOverlapping();
+Schedule::call(fn () => Artisan::call('finish-line:send-shifts'))
+    ->name('finish-line:send-shifts')
+    ->everyMinute()
+    ->withoutOverlapping();
 
 Schedule::call(fn () => Artisan::call('ai:relay-sync-local-url'))
     ->name('ai:relay-sync-local-url')

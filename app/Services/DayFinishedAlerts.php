@@ -26,7 +26,7 @@ class DayFinishedAlerts
         $run = $evidence->missionRun;
         $learner = $run?->learner;
 
-        if (! $learner || ! $this->completedItsDay($evidence)) {
+        if (! $learner || ! $evidence->completesItsDay()) {
             return;
         }
 
@@ -42,21 +42,5 @@ class DayFinishedAlerts
                 $friend->notify(new FriendFinishedDay($learner));
             }
         }
-    }
-
-    private function completedItsDay(Evidence $evidence): bool
-    {
-        $isFirstAnswer = Evidence::where('mission_run_id', $evidence->mission_run_id)
-            ->where('phase', $evidence->phase)
-            ->count() === 1;
-
-        if (! $isFirstAnswer) {
-            return false;
-        }
-
-        $day = collect($evidence->missionRun->dayProgress())
-            ->first(fn (array $day) => in_array($evidence->phase, $day['stepKeys'], true));
-
-        return $day !== null && $day['done'];
     }
 }
