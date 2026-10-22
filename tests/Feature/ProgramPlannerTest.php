@@ -203,7 +203,7 @@ class ProgramPlannerTest extends TestCase
         $this->assertSame(-8, $plan['daysDelta']);
     }
 
-    public function test_the_missions_page_shows_today_and_the_program_day(): void
+    public function test_the_missions_page_shows_the_mission_its_day_and_today(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
@@ -211,9 +211,53 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Day 1 of 96')
-            ->assertSee('Today · Day 1 of My Daily Life')
-            ->assertSee('Vocabulary Builder');
+            ->assertSee('M01 · My Daily Life')
+            ->assertSee('Day 1 of 2')
+            ->assertSee('Today · Foundation')
+            ->assertSee('Vocabulary Builder')
+            ->assertDontSee('Day 1 of 96');
+    }
+
+    public function test_the_progress_page_shows_the_program_day_and_how_far_behind_the_calendar(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->finishDayOne($run, now()->subDay());
+        $learner->forceFill(['program_started_at' => now()->subDays(9)])->save();
+        $this->actingAs($learner);
+
+        Livewire::test('progress.index')
+            ->assertSee('Day 2 of 96')
+            ->assertSee('8 days behind');
+    }
+
+    public function test_todays_time_counts_the_steps_and_pi_then_shows_what_is_left(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $this->actingAs($learner);
+
+        // Mission Brief 5 + Vocabulary Builder 15 + Pi 10.
+        Livewire::test('missions.overview')
+            ->assertSee('~30 min')
+            ->assertDontSee('left');
+
+        $this->record($run, 'mission_brief');
+
+        Livewire::test('missions.overview')->assertSee('~25 min left');
+    }
+
+    public function test_the_main_button_sits_above_the_list_and_steps_ahead_are_not_links(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSeeInOrder(['Continue', 'Mission Brief', 'Vocabulary Builder'])
+            ->assertSeeHtml('href="'.route('missions.show', [$mission, 'mission_brief']).'"')
+            ->assertDontSeeHtml('href="'.route('missions.show', [$mission, 'vocabulary_builder']).'"');
     }
 
     public function test_a_day_finished_today_stays_as_todays_day_with_the_next_one_offered(): void
@@ -270,10 +314,13 @@ class ProgramPlannerTest extends TestCase
         $this->finishDayOne($run);
         $this->actingAs($learner);
 
+        // Day 2: Grammar 12 + Final Challenge 10 + Pi 10.
         Livewire::test('missions.overview')
-            ->assertSee('Today · Day 1 of My Daily Life')
-            ->assertSee('Day 1 done')
-            ->assertSee('Keep going — Day 2')
+            ->assertSee('Today · Foundation')
+            ->assertSee('Steps done — one more: Pi')
+            ->assertSee('Tomorrow · Day 2 · ~32 min')
+            ->assertSeeHtml('href="'.route('missions.show', [$run->mission, 'grammar_in_context']).'"')
+            ->assertDontSee('Day 1 done')
             ->assertDontSee('Continue');
     }
 
@@ -285,9 +332,9 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Today · Day 2 of My Daily Life')
+            ->assertSee('Today · Build')
             ->assertSee('Continue')
-            ->assertDontSee('Keep going');
+            ->assertDontSee('Tomorrow');
     }
 
     public function test_the_main_button_starts_the_day_with_daily_review_when_items_are_due(): void
@@ -311,11 +358,11 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeInOrder(['Day 1 done', 'Voice practice with Pi', 'Keep going — Day 2'])
+            ->assertSeeInOrder(['Steps done — one more: Pi', 'Tomorrow · Day 2', 'Voice practice with Pi'])
             ->assertSeeHtml('href="'.route('pi.practice').'"');
     }
 
-    public function test_once_pi_is_done_too_the_next_day_is_the_only_button(): void
+    public function test_once_pi_is_done_too_the_day_is_done_with_only_the_tomorrow_link(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
@@ -324,10 +371,12 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         $html = Livewire::test('missions.overview')
+            ->assertSee('Day 1 done — nice work.')
             ->assertDontSee('Voice practice with Pi')
+            ->assertDontSee('Steps done')
             ->html();
 
-        $this->assertSame(1, substr_count($html, 'Keep going — Day 2'));
+        $this->assertSame(1, substr_count($html, 'Tomorrow · Day 2'));
     }
 
     public function test_a_step_that_finishes_its_day_sends_the_learner_home(): void

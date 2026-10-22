@@ -322,8 +322,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         $this->get(route('home'))
-            ->assertSeeInOrder(["Today's steps", 'Voice practice · Grammar'])
-            ->assertSee('Last 10 minutes of your day');
+            ->assertSeeInOrder(['Continue', 'Build step', 'Voice practice · Grammar']);
     }
 
     public function test_the_voice_practice_rows_circle_ticks_it_without_leaving_home(): void
@@ -334,7 +333,6 @@ class PiPracticePageTest extends TestCase
         Livewire::test('missions.overview')
             ->assertSeeHtml('wire:click="markPracticed"')
             ->call('markPracticed')
-            ->assertSee('Practiced today')
             ->assertDontSeeHtml('wire:click="markPracticed"');
 
         $this->assertTrue($learner->hasPracticedWithPiToday());
@@ -348,8 +346,7 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('home'))
             ->assertSee('Voice practice · Grammar')
-            ->assertSee('Practiced today')
-            ->assertDontSee('Last 10 minutes of your day');
+            ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
     public function test_a_finished_programme_with_nothing_done_today_has_no_voice_practice_row(): void

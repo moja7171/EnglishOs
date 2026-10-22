@@ -2,14 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\AudioListen;
 use App\Models\Evidence;
 use App\Models\GrammarPoint;
 use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
-use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -109,7 +107,7 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Fresh start');
     }
 
-    public function test_the_today_reminder_shows_with_an_active_streak_not_yet_logged_today(): void
+    public function test_the_streak_flame_is_greyed_out_until_today_is_logged(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
@@ -118,10 +116,12 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Practice today to keep your');
+            ->assertSeeHtml('title="1-day streak"')
+            ->assertSeeHtml('opacity-50 grayscale')
+            ->assertDontSee('Practice today to keep your');
     }
 
-    public function test_no_today_reminder_once_todays_activity_is_already_logged(): void
+    public function test_the_streak_flame_lights_up_once_todays_activity_is_logged(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
@@ -131,16 +131,17 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Practice today to keep your');
+            ->assertSeeHtml('title="2-day streak"')
+            ->assertDontSeeHtml('opacity-50 grayscale');
     }
 
-    public function test_no_today_reminder_with_no_streak_to_protect(): void
+    public function test_no_streak_in_the_header_with_no_streak_to_show(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Practice today to keep your');
+            ->assertDontSeeHtml('-day streak"');
     }
 
     public function test_a_due_grammar_point_counts_toward_the_daily_review_nudge(): void
@@ -157,10 +158,10 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('1 item ready for Daily Review');
+            ->assertSee('Daily Review · 1 item');
     }
 
-    public function test_the_course_progress_bar_shows_mission_1_of_24_for_a_new_learner(): void
+    public function test_the_header_shows_mission_1_of_24_for_a_new_learner(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
@@ -169,15 +170,18 @@ class MissionsOverviewTest extends TestCase
             ->assertSee('Mission 1 of 24');
     }
 
-    public function test_the_course_progress_bar_reflects_the_furthest_mission_reached(): void
+    public function test_the_header_shows_the_mission_the_learner_is_in_and_its_day(): void
     {
         $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission());
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
         MissionRun::findOrStart($learner, $this->makeSecondMission());
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Mission 2 of 24');
+            ->assertSee('M02 · My Neighborhood')
+            ->assertSee('Mission 2 of 24')
+            ->assertSee('Day 1 of 1')
+            ->assertDontSee('Day 2 of 96');
     }
 
     private function makeSecondMission(): Mission
@@ -201,7 +205,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Next · M02');
+            ->assertSee('Next: M02');
     }
 
     public function test_a_mission_unlocks_once_its_predecessor_is_complete(): void
@@ -216,7 +220,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Next · M02')
+            ->assertDontSee('Next: M02')
             ->assertSeeHtml(route('missions.show', $second));
     }
 
@@ -232,7 +236,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Next · M02');
+            ->assertDontSee('Next: M02');
     }
 
     public function test_a_mission_stays_gated_when_its_predecessor_needs_retry_evidence(): void
@@ -247,7 +251,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Next · M02');
+            ->assertSee('Next: M02');
     }
 
     public function test_progress_already_made_on_a_gated_mission_is_never_locked_out(): void
@@ -264,28 +268,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('Next · M02');
-    }
-
-    public function test_the_next_mission_card_shows_its_cached_cover_image(): void
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission());
-        $this->makeMission('M02');
-        $this->actingAs($learner);
-
-        // Reads back the exact asset Mission Brief itself would have
-        // cached under "M02-brief" — never triggers a fresh Pexels fetch.
-        $this->mock(PexelsClient::class, function ($mock) {
-            $mock->shouldReceive('cachedImageUrl')
-                ->with('M02-brief')
-                ->once()
-                ->andReturn('http://localhost/storage/vocabulary-images/m02-brief.jpg');
-            $mock->shouldReceive('imageUrlFor')->andReturn(null);
-        });
-
-        Livewire::test('missions.overview')
-            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m02-brief.jpg');
+            ->assertDontSee('Next: M02');
     }
 
     public function test_home_shows_the_next_mission_and_one_line_for_the_rest(): void
@@ -293,15 +276,26 @@ class MissionsOverviewTest extends TestCase
         $learner = User::factory()->create();
         $first = $this->makeMission();
         MissionRun::findOrStart($learner, $first);
-        $this->makeMission('M02');
+        $second = $this->makeMission('M02');
         $this->actingAs($learner);
 
         // M02 is the next (gated) one; M03–M24 are the 22 after it.
         Livewire::test('missions.overview')
-            ->assertSee('Next · M02')
-            ->assertSee('22 more missions')
+            ->assertSee('Next: M02 My Daily Life')
+            ->assertSee('22 more · Roadmap')
+            ->assertSeeHtml('href="'.route('missions.show', [$second, 'overview']).'"')
             ->assertSeeHtml('href="'.route('progress.index').'#path"')
             ->assertDontSee($first->outcome);
+    }
+
+    public function test_only_one_suggestion_shows_below_today(): void
+    {
+        $this->actingAs(User::factory()->create(['pi_onboarded_at' => null]));
+
+        Livewire::test('missions.overview')
+            ->assertSee('Find your level')
+            ->assertDontSee('How voice practice works')
+            ->assertDontSee('Practice with a friend');
     }
 
     public function test_the_today_box_shows_one_listening_row_not_the_picks_themselves(): void
@@ -318,17 +312,6 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSeeHtml('target="_blank"');
     }
 
-    public function test_the_today_box_row_says_how_many_listens_were_logged_today(): void
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission());
-        ListeningLog::factory()->for($learner, 'learner')->create();
-        AudioListen::factory()->count(2)->create(['learner_id' => $learner->id]);
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')->assertSee('Listened today')->assertSee('2×');
-    }
-
     public function test_the_today_box_keeps_listening_out_of_the_days_order(): void
     {
         $learner = User::factory()->create();
@@ -336,8 +319,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Anytime · one is enough')
-            ->assertSeeInOrder(["Today's steps", 'in order', 'Continue', 'Extra listening']);
+            ->assertSeeInOrder(['Continue', 'Mission Brief', 'Extra listening · anytime']);
     }
 
     public function test_the_listening_rows_circle_ticks_it_without_leaving_home(): void
@@ -349,9 +331,7 @@ class MissionsOverviewTest extends TestCase
         Livewire::test('missions.overview')
             ->assertSeeHtml('wire:click="markListened"')
             ->assertSeeHtml('href="'.route('listening.show').'"')
-            ->assertDontSee('Listened today')
             ->call('markListened')
-            ->assertSee('Listened today')
             ->assertDontSeeHtml('wire:click="markListened"');
 
         $this->assertTrue($learner->hasListenedToday());
@@ -364,8 +344,8 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Listened today')
-            ->assertDontSee('Anytime · one is enough');
+            ->assertSee('Extra listening')
+            ->assertDontSeeHtml('wire:click="markListened"');
     }
 
     public function test_a_tick_from_yesterday_does_not_mark_today_as_listened(): void
@@ -375,8 +355,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Anytime · one is enough')
-            ->assertDontSee('Listened today');
+            ->assertSeeHtml('wire:click="markListened"');
     }
 
     public function test_another_learners_tick_does_not_mark_today_as_listened(): void
@@ -385,8 +364,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('missions.overview')
-            ->assertSee('Anytime · one is enough')
-            ->assertDontSee('Listened today');
+            ->assertSeeHtml('wire:click="markListened"');
     }
 
     public function test_the_today_box_previews_day_1_picks_before_any_run_exists(): void
@@ -428,24 +406,5 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')->assertDontSee('Extra listening');
-    }
-
-    public function test_no_thumbnail_without_a_cached_cover_image(): void
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission());
-        $this->makeMission('M02');
-        $this->actingAs($learner);
-
-        $this->mock(PexelsClient::class, function ($mock) {
-            $mock->shouldReceive('cachedImageUrl')->with('M02-brief')->once()->andReturn(null);
-            // The other 23 roadmap slots are all unbuilt here — their own
-            // "coming soon" placeholder image must also stay absent, or
-            // this test's <img>-free assertion would be testing the
-            // wrong thing.
-            $mock->shouldReceive('imageUrlFor')->andReturn(null);
-        });
-
-        Livewire::test('missions.overview')->assertDontSeeHtml('<img');
     }
 }

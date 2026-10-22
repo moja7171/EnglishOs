@@ -25,6 +25,8 @@ class PiSetupTest extends TestCase
     public function test_a_learner_who_has_not_seen_the_guide_reaches_home_with_a_one_line_offer(): void
     {
         $learner = User::factory()->create(['pi_onboarded_at' => null]);
+        // Home shows one suggestion at a time and finding your level comes first.
+        $learner->placementTests()->create(['level' => 'A2', 'recognition_level' => 'A2', 'detail' => []]);
 
         $this->actingAs($learner)->get('/')
             ->assertOk()

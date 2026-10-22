@@ -4,6 +4,7 @@ use App\Models\ErrorLogItem;
 use App\Models\ErrorPatternReview;
 use App\Models\Mission;
 use App\Models\User;
+use App\Services\ProgramPlanner;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -170,6 +171,27 @@ new class extends Component
     }
 
     /**
+     * Where the learner is in the 96 program days and how that compares to
+     * the calendar — shown in the header here, not on home, so home stays
+     * one line of "where am I" (see ProgramPlanner).
+     *
+     * @return array{programDay: int, totalDays: int, daysDelta: int, started: bool, finished: bool}
+     */
+    #[Computed]
+    public function program(): array
+    {
+        $plan = app(ProgramPlanner::class)->plan(auth()->user());
+
+        return [
+            'programDay' => $plan['programDay'],
+            'totalDays' => $plan['totalDays'],
+            'daysDelta' => $plan['daysDelta'],
+            'started' => $plan['started'],
+            'finished' => $plan['today']['kind'] === 'finished',
+        ];
+    }
+
+    /**
      * The Path tab: all 24 missions with where the learner stands on
      * each — see User::missionJourney().
      *
@@ -247,6 +269,22 @@ new class extends Component
         </span>
         <div class="min-w-0">
             <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">My Progress</h1>
+            @php $program = $this->program; $delta = $program['daysDelta']; @endphp
+            <p class="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
+                Day {{ $program['programDay'] }} of {{ $program['totalDays'] }}
+                @if ($program['started'] && ! $program['finished'])
+                    <span @class([
+                        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                        'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $delta >= 0,
+                        'bg-warning-soft text-warning-ink' => $delta < 0,
+                    ])>
+                        @if ($delta > 0) {{ $delta }} {{ Str::plural('day', $delta) }} ahead
+                        @elseif ($delta === 0) On track
+                        @else {{ abs($delta) }} {{ Str::plural('day', abs($delta)) }} behind
+                        @endif
+                    </span>
+                @endif
+            </p>
             @php $missionsDone = collect($this->journey)->where('state', 'done')->count(); @endphp
             <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
                 <span class="inline-flex items-center gap-1.5">
