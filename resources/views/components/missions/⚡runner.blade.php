@@ -171,6 +171,15 @@ new class extends Component
     }
 
     /**
+     * Whether a finished day offers "Practice with a friend" — only for
+     * someone with a mutual friend to practise with.
+     */
+    public function getHasPracticeFriendProperty(): bool
+    {
+        return ! $this->missionLocked && auth()->user()->mutualFriends()->isNotEmpty();
+    }
+
+    /**
      * Where the learner actually is — day number, day label and step label
      * of the current step — for the "you are here" cue shown while they're
      * looking at a step ahead of it.
@@ -406,6 +415,7 @@ new class extends Component
         <div class="stagger-children relative pl-11">
             <div class="absolute top-5 bottom-5 left-[18px] w-0.5 bg-line dark:bg-line-dark"></div>
 
+            @php $hasPracticeFriend = $this->hasPracticeFriend; @endphp
             @foreach ($run->dayProgress() as $index => $day)
                 @php
                     if ($this->missionLocked) {
@@ -468,6 +478,12 @@ new class extends Component
                             </span>
                         @endif
                     </{{ $entryStep ? 'a' : 'div' }}>
+
+                    @if ($day['done'] && $hasPracticeFriend)
+                        <a href="{{ route('pair-practice.index', ['day' => $mission->code.'-'.($index + 1)]) }}" wire:navigate class="mt-1.5 ms-1 inline-flex items-center gap-1.5 text-xs font-semibold text-ink-soft hover:text-accent-ink dark:text-ink-soft-dark dark:hover:text-accent-ink-dark">
+                            @svg('heroicon-o-user-group', 'h-3.5 w-3.5') Practice this day with a friend
+                        </a>
+                    @endif
                 </div>
             @endforeach
         </div>

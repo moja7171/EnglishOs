@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
 
 /**
  * One Pair Practice round: two friends, each on their own phone (side by
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * — the speaker sees only the prompt and answers out loud, the judge sees
  * the answer and scores it.
  */
-#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'mission_code', 'day_number', 'meet_link', 'joined_at', 'ended_by_id', 'deck', 'results', 'stage', 'stage_ends_at', 'score_a', 'score_b', 'finished_at'])]
+#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'mission_code', 'day_number', 'days', 'meet_link', 'joined_at', 'ended_by_id', 'deck', 'results', 'stage', 'stage_ends_at', 'score_a', 'score_b', 'finished_at'])]
 class PairPracticeSession extends Model
 {
     use HasFactory;
@@ -71,6 +72,7 @@ class PairPracticeSession extends Model
     protected function casts(): array
     {
         return [
+            'days' => 'array',
             'deck' => 'array',
             'results' => 'array',
             'joined_at' => 'datetime',
@@ -142,25 +144,6 @@ class PairPracticeSession extends Model
                 ->orWhere('created_at', '>', now()->subMinutes(self::INVITE_MINUTES)));
     }
 
-    /**
-     * An Android intent that opens a Google Meet link in the Meet app, and
-     * in the browser when the app isn't installed — a plain link from the
-     * installed web app opens Meet's website instead. Null for any other
-     * call link.
-     */
-    public static function meetAppIntent(string $url): ?string
-    {
-        $parts = parse_url($url);
-
-        if (($parts['scheme'] ?? null) !== 'https' || ($parts['host'] ?? null) !== 'meet.google.com') {
-            return null;
-        }
-
-        $path = ($parts['path'] ?? '').(isset($parts['query']) ? '?'.$parts['query'] : '');
-
-        return 'intent://meet.google.com'.$path.'#Intent;scheme=https;package=com.google.android.apps.tachyon;S.browser_fallback_url='.rawurlencode($url).';end';
-    }
-
     public function isAccessibleBy(User $user): bool
     {
         return $user->id === $this->user_a_id || $user->id === $this->user_b_id;
@@ -217,11 +200,21 @@ class PairPracticeSession extends Model
 
     /**
      * Who answers the current card. Roles swap on every card across all
-     * three stages, so the count of answered cards decides the turn.
+     * three stages, so the count of answered cards decides the turn — but
+     * a sentence from a player's own Error Log is always theirs to answer.
      */
     public function speaker(): User
     {
-        return $this->players()[count($this->results ?? []) % 2];
+        $players = $this->players();
+        $owner = $this->currentCard()['owner_id'] ?? null;
+
+        foreach ($players as $player) {
+            if ($player->id === $owner) {
+                return $player;
+            }
+        }
+
+        return $players[count($this->results ?? []) % 2];
     }
 
     /**
@@ -229,7 +222,48 @@ class PairPracticeSession extends Model
      */
     public function judge(): User
     {
-        return $this->players()[(count($this->results ?? []) + 1) % 2];
+        return $this->partnerFor($this->speaker());
+    }
+
+    /**
+     * The days the round draws from, for a header: "M05 · Day 2", or the
+     * chosen ones ("M01 · Days 1–3 + M02 · Day 1").
+     */
+    public function daysLabel(): string
+    {
+        return self::describeDays($this->days ?? [$this->mission_code.'-'.$this->day_number]);
+    }
+
+    /**
+     * Day keys ("M01-2") as a short label, consecutive days joined into a
+     * range: ["M01-1", "M01-2", "M01-3", "M02-2"] → "M01 · Days 1–3 + M02 · Day 2".
+     *
+     * @param  list<string>  $keys
+     */
+    public static function describeDays(array $keys): string
+    {
+        return collect($keys)
+            ->map(fn (string $key) => explode('-', $key, 2))
+            ->groupBy(0)
+            ->map(function (Collection $days, string $code) {
+                $numbers = $days->map(fn (array $parts) => (int) $parts[1])->unique()->sort()->values();
+                $ranges = [];
+
+                foreach ($numbers as $number) {
+                    $last = array_key_last($ranges);
+
+                    if ($last !== null && $ranges[$last][1] === $number - 1) {
+                        $ranges[$last][1] = $number;
+                    } else {
+                        $ranges[] = [$number, $number];
+                    }
+                }
+
+                $parts = collect($ranges)->map(fn (array $range) => $range[0] === $range[1] ? (string) $range[0] : $range[0].'–'.$range[1]);
+
+                return $code.' · '.($numbers->count() === 1 ? 'Day ' : 'Days ').$parts->implode(', ');
+            })
+            ->implode(' + ');
     }
 
     /**
@@ -253,9 +287,11 @@ class PairPracticeSession extends Model
     /**
      * Scores the current card for its speaker and moves on; the stage ends
      * early when its cards run out. $correct is null for speaking cards,
-     * which earn one point per target word the asker heard.
+     * which earn one point per target word the asker heard ($heard).
+     *
+     * @param  list<string>  $heard
      */
-    public function record(int $points, ?bool $correct): void
+    public function record(int $points, ?bool $correct, array $heard = []): void
     {
         if ($this->isFinished() || $this->currentCard() === null) {
             return;
@@ -270,6 +306,8 @@ class PairPracticeSession extends Model
             'speaker_id' => $speaker->id,
             'points' => $points,
             'correct' => $correct,
+            'heard' => $correct === null ? array_values($heard) : null,
+            'at' => now()->getTimestamp(),
         ]];
 
         if ($speaker->id === $this->user_a_id) {
@@ -311,8 +349,9 @@ class PairPracticeSession extends Model
     }
 
     /**
-     * Ends the round and saves every word a player could not say into that
-     * player's own My Words, so it comes back in their review.
+     * Ends the round and saves what each player got wrong for their own
+     * review: words they could not say and target words they did not use
+     * into My Words, sentences they could not fix into their Error Log.
      */
     public function finish(): void
     {
@@ -337,6 +376,32 @@ class PairPracticeSession extends Model
                         'next_review_at' => now()->addDay(),
                     ],
                 );
+            }
+
+            foreach ($this->unusedWordsFor($player) as $word) {
+                $card = collect($this->deck[self::STAGE_VOCABULARY] ?? [])->first(fn (array $card) => mb_strtolower($card['answer']) === mb_strtolower($word));
+
+                $player->vocabularyWords()->firstOrCreate(
+                    ['word' => $word],
+                    [
+                        'meaning' => $card['meaning'] ?? null,
+                        'meaning_fa' => $card['prompt'] ?? Mission::where('code', $this->mission_code)->first()?->persianMeaningFor($word),
+                        'pos' => $card['pos'] ?? null,
+                        'example' => $card['example'] ?? null,
+                        'next_review_at' => now()->addDay(),
+                    ],
+                );
+            }
+
+            foreach ($this->missedSentencesFor($player) as $card) {
+                $run = $player->missionRuns()->whereRelation('mission', 'code', $card['mission'] ?? $this->mission_code)->first();
+
+                if ($run) {
+                    ErrorLogItem::firstOrCreate(
+                        ['mission_run_id' => $run->id, 'error' => $card['prompt']],
+                        ['correction' => $card['answer']],
+                    );
+                }
             }
         }
     }
@@ -385,17 +450,53 @@ class PairPracticeSession extends Model
     }
 
     /**
+     * The grammar sentences $user had to fix and got wrong.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function missedSentencesFor(User $user): array
+    {
+        return $this->missedCardsFor($user, self::STAGE_GRAMMAR);
+    }
+
+    /**
+     * Speaking target words $user's partner did not tick while $user
+     * answered, each once.
+     *
+     * @return list<string>
+     */
+    public function unusedWordsFor(User $user): array
+    {
+        return collect($this->results ?? [])
+            ->filter(fn (array $result) => $result['stage'] === self::STAGE_SPEAKING
+                && $result['speaker_id'] === $user->id
+                && is_array($result['heard'] ?? null))
+            ->flatMap(fn (array $result) => array_diff($this->deck[self::STAGE_SPEAKING][$result['card']]['words'] ?? [], $result['heard']))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * The vocabulary cards $user had to say and got wrong.
      *
      * @return list<array<string, mixed>>
      */
     public function missedWordsFor(User $user): array
     {
+        return $this->missedCardsFor($user, self::STAGE_VOCABULARY);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function missedCardsFor(User $user, string $stage): array
+    {
         return collect($this->results ?? [])
-            ->filter(fn (array $result) => $result['stage'] === self::STAGE_VOCABULARY
+            ->filter(fn (array $result) => $result['stage'] === $stage
                 && $result['speaker_id'] === $user->id
                 && $result['correct'] === false)
-            ->map(fn (array $result) => $this->deck[self::STAGE_VOCABULARY][$result['card']] ?? null)
+            ->map(fn (array $result) => $this->deck[$stage][$result['card']] ?? null)
             ->filter()
             ->values()
             ->all();
