@@ -74,6 +74,14 @@ class MissionRun extends Model
     }
 
     /**
+     * @return HasMany<StepDraft, $this>
+     */
+    public function stepDrafts(): HasMany
+    {
+        return $this->hasMany(StepDraft::class);
+    }
+
+    /**
      * @return HasMany<ErrorLogItem, $this>
      */
     public function errorLogItems(): HasMany

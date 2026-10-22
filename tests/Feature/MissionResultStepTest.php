@@ -1353,4 +1353,28 @@ class MissionResultStepTest extends TestCase
         Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
             ->assertDontSee('Speaking Recall');
     }
+
+    public function test_ratings_and_the_ai_result_come_back_after_leaving_the_step(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'complete',
+            'reason' => 'You clearly improved and met the mission outcome.',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
+            ->call('getResult');
+
+        $returned = Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->assertSet('status', 'complete')
+            ->assertSet('reason', 'You clearly improved and met the mission outcome.');
+
+        $this->assertEquals(['before' => 2, 'after' => 4], $returned->get('scores')['Speaking']);
+
+        $returned->call('finish');
+        $this->assertDatabaseCount('step_drafts', 0);
+    }
 }

@@ -733,4 +733,13 @@ class VocabularyBuilderStepTest extends TestCase
 
         $this->assertSame(1, $run->fresh()->struggle_signal_count);
     }
+
+    public function test_a_learner_who_leaves_after_starting_practice_comes_back_to_practice(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->stepComponent($run)->call('startPractice');
+
+        $this->stepComponent($run)->assertSet('practiceStarted', true);
+    }
 }

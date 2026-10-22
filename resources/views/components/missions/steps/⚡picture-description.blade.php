@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
@@ -9,6 +10,7 @@ use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -22,6 +24,7 @@ use Livewire\WithFileUploads;
  */
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
     use WithFileUploads;
@@ -30,7 +33,12 @@ new class extends Component
 
     public bool $readOnly = false;
 
+    /** Only the upload slot — see updatedRecording(). */
     public ?UploadedFile $recording = null;
+
+    /** The kept recording's path on the public disk, until the step is saved. */
+    #[Locked]
+    public ?string $recordingPath = null;
 
     public ?string $savedAudioUrl = null;
 
@@ -47,6 +55,8 @@ new class extends Component
     public function mount(): void
     {
         if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
             return;
         }
 
@@ -83,13 +93,47 @@ new class extends Component
         return app(PexelsClient::class)->imageUrlFor($this->run->mission->code.'-picture-description', $query, 'landscape');
     }
 
-    public function save(): void
+    protected function draftPhase(): string
+    {
+        return 'picture_description';
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['recordingPath'];
+    }
+
+    /**
+     * The take is stored (and kept in the step's draft) the moment its
+     * upload finishes, so leaving before Continue never loses it; a new
+     * take replaces the old one, file included.
+     */
+    public function updatedRecording(): void
     {
         $this->validate([
             'recording' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
         ]);
 
-        $path = $this->recording->store('missions/'.strtolower($this->run->mission->code).'/evidence', 'public');
+        $this->recordingPath = $this->keepDraftRecording($this->recording, $this->recordingPath);
+        $this->recording = null;
+
+        $this->keepStepDraft();
+    }
+
+    public function recordingUrl(): ?string
+    {
+        return $this->recordingPath === null ? null : Storage::disk('public')->url($this->recordingPath);
+    }
+
+    public function save(): void
+    {
+        if ($this->recordingPath === null) {
+            $this->addError('recording', 'Record your answer first.');
+
+            return;
+        }
+
+        $path = $this->recordingPath;
 
         $this->transcribeAndReview();
 
@@ -111,6 +155,7 @@ new class extends Component
             'content_ref' => Storage::disk('public')->url($path),
         ]);
 
+        $this->forgetStepDraft();
         $this->completed = true;
     }
 
@@ -124,7 +169,7 @@ new class extends Component
     private function transcribeAndReview(): void
     {
         try {
-            $result = app(GroqClient::class)->transcribeWithDuration($this->recording->getRealPath());
+            $result = app(GroqClient::class)->transcribeWithDuration(Storage::disk('public')->path($this->recordingPath));
             $this->transcript = trim($result['text']);
             $this->durationSeconds = $result['duration'];
             $this->recordGroqCall();
@@ -341,7 +386,7 @@ new class extends Component
                 </div>
             @else
                 <div class="mt-3 card-sunken p-4">
-                    <x-voice-recorder field="recording" :file="$recording" file-name="picture-description.webm" />
+                    <x-voice-recorder field="recording" :file="$this->recordingUrl()" file-name="picture-description.webm" />
                 </div>
 
                 @error('recording')
@@ -357,7 +402,7 @@ new class extends Component
                         on-click="$wire.save()"
                         wire-target="save"
                         loading-label="Listening and preparing your feedback…"
-                        ready-when="{{ $recording ? 'true' : 'false' }}"
+                        ready-when="{{ $recordingPath ? 'true' : 'false' }}"
                         hint="Record your description to continue"
                     />
                 </div>

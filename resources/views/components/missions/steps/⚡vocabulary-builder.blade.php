@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
@@ -26,6 +27,7 @@ use Livewire\Component;
  */
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
@@ -73,6 +75,8 @@ new class extends Component
         $this->examples = array_fill(0, count($this->words()), '');
 
         if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
             return;
         }
 
@@ -244,9 +248,22 @@ new class extends Component
             ->all();
     }
 
+    protected function draftPhase(): string
+    {
+        return $this->stepKey;
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['practiceStarted'];
+    }
+
+    /** Kept in the step's draft, so a learner who leaves comes back to practice, not the story. */
     public function startPractice(): void
     {
         $this->practiceStarted = true;
+
+        $this->keepStepDraft();
     }
 
     public function checkOne(int $index): void
@@ -387,6 +404,7 @@ new class extends Component
             ]),
         ]);
 
+        $this->forgetStepDraft();
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
 
         $this->completed = true;

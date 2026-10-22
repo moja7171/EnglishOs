@@ -24,11 +24,14 @@ use Illuminate\Support\Str;
  * Every prompt is self-contained — the learner's level, the rules, the
  * plan and the material all travel in it — because Pi keeps a single
  * running conversation (no separate chats per role) and a voice session
- * may start fresh. The rules keep a session short and specific: no greeting
- * or small talk (a voice session otherwise opens with "how are you?"),
- * 1-2 short sentences per turn, one very short fix per turn, numbered
- * rounds so it ends after about 10 minutes, and a fixed wrap-up. The AI
- * can't track time, so the length is set in rounds, not minutes.
+ * may start fresh. The AI plays a warm, encouraging buddy, but the rules
+ * keep a session short and specific: one cheerful opening line and no
+ * small talk (a voice session otherwise opens with "how are you?"), 1-2
+ * short sentences per turn, one very short fix per turn, numbered rounds
+ * so it ends after about 10 minutes, and a fixed wrap-up. The AI can't
+ * track time, so the length is set in rounds, not minutes. The control
+ * words count only when said alone — "next" or "again" inside an answer
+ * must not skip or repeat a round.
  */
 class PiPrompts
 {
@@ -197,17 +200,19 @@ class PiPrompts
             ->implode("\n");
 
         return "I'm an English learner at {$level} level. This is a 10-minute voice practice.\n\n"
+            ."Be my warm, fun English buddy — friendly, casual, and happy to help me. Use simple, everyday words.\n\n"
             ."Rules for you:\n"
-            ."- Don't greet me and no small talk. Start right away.\n"
-            ."- Speak in 1-2 short, simple sentences per turn. No long explanations.\n"
-            ."- If I make a mistake, say the correct sentence, then the reason in 8 words or less. Or give one short tip. Only one fix per turn.\n"
+            ."- Start with one short, cheerful line (like \"Hey! Ready? Let's go!\"), then begin. Don't ask how I am. No small talk.\n"
+            ."- Keep every turn short: 1-2 simple sentences. No long explanations.\n"
+            ."- After each answer, cheer me on in a few real words (\"Nice!\", \"Love that!\").\n"
+            ."- If I make a mistake, say something kind first, then the correct sentence and the reason in 8 words or less. Only one fix per turn.\n"
             ."- Say the round number each time, like \"Round 1 of {$session['rounds']}\".\n"
-            ."- My control words: {$controlWords}.\n"
-            ."- After the last round, stop. Give me my {$session['fixes']} most useful fixes, each with a very short reason, and 1 thing I did well. Then only ask: \"More?\"\n\n"
+            ."- My control words count only when I say one alone, as my whole turn: {$controlWords}.\n"
+            ."- After the last round, stop. Give me my {$session['fixes']} most useful fixes, each with a very short reason, and 1 thing I did well. End with one short line to keep me going. Then only ask: \"More?\"\n\n"
             ."Today: {$dayTitle} — \"{$missionTitle}\".\n"
             .$steps."\n"
             .($session['material'] !== '' ? "\n".$session['material']."\n" : '')
-            ."\nStart now: tell me this plan in one short sentence, then begin round 1.";
+            ."\nStart now: say your cheerful line, tell me the plan in one short sentence, then begin round 1.";
     }
 
     /**
@@ -256,7 +261,7 @@ class PiPrompts
             ],
             'steps' => [
                 "Before round 1, give me one short example sentence with \"{$focus}\".",
-                "In rounds 1 to 5, ask me one real question about my life that needs \"{$focus}\". Wait for my answer, react in a few words, then fix or move on.",
+                "In rounds 1 to 5, ask me one real question about my life that needs \"{$focus}\". Wait for my answer, cheer me on in a few words, then fix or move on.",
             ],
             'material' => '',
         ];
@@ -289,7 +294,7 @@ class PiPrompts
             'steps' => [
                 "We have a casual chat about \"{$title}\"."
                     .($mission?->outcome ? ' My goal: '.Str::finish($mission->outcome, '.') : ''),
-                'In rounds 1, 2, 4 and 5, ask me one question. Wait for my answer, react in a few words, then fix or move on.',
+                'In rounds 1, 2, 4 and 5, ask me one question. Wait for my answer, cheer me on in a few words, then fix or move on.',
                 'In rounds 3 and 6, I ask you a question instead. Answer in 1-2 sentences.',
             ],
             'material' => $material,
@@ -331,7 +336,7 @@ class PiPrompts
                 $stories === []
                     ? "In round 1, I tell you in my own words what I learned about \"{$title}\". Just listen — no fixing while I talk."
                     : 'In round 1, I pick one story below and retell it in my own words. Just listen — no fixing while I talk.',
-                'In rounds 2 and 3, ask me one follow-up question about it. Wait for my answer, react in a few words.',
+                'In rounds 2 and 3, ask me one follow-up question about it. Wait for my answer, cheer me on in a few words.',
             ],
             'material' => $stories === []
                 ? ''

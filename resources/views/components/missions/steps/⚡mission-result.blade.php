@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\ErrorLogItem;
@@ -18,6 +19,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
 
@@ -143,20 +145,24 @@ new class extends Component
             $this->flashbackMissionCode = $flashback->missionRun->mission->code;
         }
 
-        if ($this->readOnly) {
-            $data = json_decode($this->run->latestEvidence('mission_result')?->content_ref ?? '{}', true);
-            $this->status = $data['status'] ?? null;
-            $this->reason = $data['reason'] ?? null;
-            $this->weakStep = $data['weak_step'] ?? null;
-            $this->afterScore = $data['topic_comfort_after'] ?? null;
+        if (! $this->readOnly) {
+            $this->restoreStepDraft();
 
-            foreach ($this->run->selfAssessments as $assessment) {
-                $this->scores[$assessment->skill] = ['before' => $assessment->before, 'after' => $assessment->after];
-            }
+            return;
+        }
 
-            if ($reflection = $this->run->reflection) {
-                $this->reflection = $reflection->answers;
-            }
+        $data = json_decode($this->run->latestEvidence('mission_result')?->content_ref ?? '{}', true);
+        $this->status = $data['status'] ?? null;
+        $this->reason = $data['reason'] ?? null;
+        $this->weakStep = $data['weak_step'] ?? null;
+        $this->afterScore = $data['topic_comfort_after'] ?? null;
+
+        foreach ($this->run->selfAssessments as $assessment) {
+            $this->scores[$assessment->skill] = ['before' => $assessment->before, 'after' => $assessment->after];
+        }
+
+        if ($reflection = $this->run->reflection) {
+            $this->reflection = $reflection->answers;
         }
     }
 
@@ -192,9 +198,31 @@ new class extends Component
         };
     }
 
+    protected function draftPhase(): string
+    {
+        return 'mission_result';
+    }
+
+    protected function draftedProperties(): array
+    {
+        return ['scores', 'reflection', 'status', 'reason', 'weakStep', 'evaluationUnavailable', 'milestoneJustReached', 'afterScore', 'speakingPromptsToTrack', 'trackedSpeakingPrompts'];
+    }
+
+    public function updatedScores(): void
+    {
+        $this->keepStepDraft();
+    }
+
+    public function updatedAfterScore(): void
+    {
+        $this->keepStepDraft();
+    }
+
     public function selectReflectionOption(string $key, string $option): void
     {
         $this->reflection[$key] = $option;
+
+        $this->keepStepDraft();
     }
 
     /**
@@ -319,6 +347,8 @@ new class extends Component
         }
 
         $this->trackedSpeakingPrompts = true;
+
+        $this->keepStepDraft();
     }
 
     public function getResult(): void
@@ -391,6 +421,8 @@ new class extends Component
                 $this->run->learner->notify(new StreakMilestoneReached($this->milestoneJustReached));
             }
             $this->speakingPromptsToTrack = array_fill(0, count($this->speakingPromptCandidates()), true);
+
+            $this->keepStepDraft();
         } catch (Throwable $e) {
             $this->error = AiFailure::message($e, "Couldn't get your result from the AI Instructor");
         } finally {
@@ -484,6 +516,7 @@ new class extends Component
 
         $this->run->update(['status' => $this->status, 'completed_at' => now()]);
 
+        $this->forgetStepDraft();
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect(route('missions.show', $this->run->mission), navigate: true);
     }
@@ -540,12 +573,12 @@ new class extends Component
                         <span class="w-24">{{ $skill }}</span>
                         <span class="flex items-center gap-2">
                             <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Before</span>
-                            <select wire:model="scores.{{ $skill }}.before" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
+                            <select wire:model.live="scores.{{ $skill }}.before" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
                                 <option value="">–</option>
                                 @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
                             </select>
                             <span class="text-xs text-ink-faint dark:text-ink-faint-dark">After</span>
-                            <select wire:model="scores.{{ $skill }}.after" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
+                            <select wire:model.live="scores.{{ $skill }}.after" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
                                 <option value="">–</option>
                                 @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
                             </select>

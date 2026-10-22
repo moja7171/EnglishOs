@@ -239,4 +239,26 @@ class StorySequenceStepTest extends TestCase
             ->assertSee('Clear sequencing.')
             ->assertDontSee('Continue');
     }
+
+    public function test_a_recording_is_kept_when_the_learner_leaves_before_saving(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+
+        Livewire::test('missions.steps.story-sequence', ['run' => $run])
+            ->set('recording', UploadedFile::fake()->create('take.webm', 400, 'audio/webm'));
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('First she wakes up.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['strength' => 'Clear.', 'expression' => 'Then', 'correction' => 'None.'])));
+
+        $returned = Livewire::test('missions.steps.story-sequence', ['run' => $run]);
+        $keptPath = $returned->get('recordingPath');
+        Storage::disk('public')->assertExists($keptPath);
+
+        $returned->call('save')->assertSet('completed', true);
+
+        $this->assertSame(Storage::disk('public')->url($keptPath), Evidence::where('type', Evidence::TYPE_AUDIO)->value('content_ref'));
+        $this->assertDatabaseCount('step_drafts', 0);
+    }
 }

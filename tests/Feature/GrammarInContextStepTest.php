@@ -911,4 +911,14 @@ class GrammarInContextStepTest extends TestCase
 
         $this->assertGreaterThanOrEqual(4, $checked);
     }
+
+    public function test_a_learner_who_leaves_after_starting_practice_comes_back_to_practice(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])->call('startPractice');
+
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertSet('practiceStarted', true);
+    }
 }

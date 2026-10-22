@@ -325,4 +325,29 @@ class MissionBriefStepTest extends TestCase
             ->assertSee('Not comfortable at all')
             ->assertSee('Very comfortable');
     }
+
+    public function test_the_score_and_warm_up_recording_come_back_after_leaving_the_step(): void
+    {
+        Storage::fake('public');
+
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->set('score', 4)
+            ->set('warmUpRecording', UploadedFile::fake()->create('warmup.webm', 500, 'audio/webm'));
+
+        $returned = Livewire::test('missions.steps.mission-brief', ['run' => $run])
+            ->assertSet('score', 4);
+
+        Storage::disk('public')->assertExists($returned->get('warmUpRecordingPath'));
+        $this->assertDatabaseCount('evidences', 0);
+    }
 }

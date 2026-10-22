@@ -260,7 +260,7 @@ new class extends Component
 
         <div class="space-y-1 text-xs text-ink-faint dark:text-ink-faint-dark">
             <p>
-                Say these any time:
+                Say one on its own, any time:
                 @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)
                     <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $word }}</span> ({{ $meaning }}){{ $loop->last ? '.' : ',' }}
                 @endforeach
