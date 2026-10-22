@@ -35,6 +35,22 @@ new class extends Component
 
     public bool $passwordSaved = false;
 
+    /**
+     * What the learner typed into each provider's key box, keyed by
+     * provider ('gemini' / 'groq') — cleared once saved.
+     *
+     * @var array{gemini: string, groq: string}
+     */
+    public array $aiKeyInput = ['gemini' => '', 'groq' => ''];
+
+    /**
+     * The last check's result per provider: 'ok', 'rejected', or
+     * 'unknown' (the check itself couldn't reach the provider).
+     *
+     * @var array<string, string>
+     */
+    public array $aiKeyStatus = [];
+
     public function mount(): void
     {
         $user = auth()->user();
@@ -170,7 +186,7 @@ new class extends Component
      * invisible. A model skipped as "retired" means the configured list is
      * stale. Shown in the "AI Relay" tab.
      *
-     * @return array<string, array{rows: list<array<string, mixed>>, available: int}>
+     * @return array<string, array{rows: list<array<string, mixed>>, available: int, todayCalls: int}>
      */
     #[Computed]
     public function aiChains(): array
@@ -189,6 +205,7 @@ new class extends Component
         return array_map(fn (array $rows) => [
             'rows' => $rows,
             'available' => count(array_filter($rows, fn (array $row) => $row['available'])),
+            'todayCalls' => array_sum(array_map(fn (array $row) => $row['today']['ok'], $rows)),
         ], $rowsByTitle);
     }
 
@@ -211,6 +228,96 @@ new class extends Component
         Artisan::call('ai:relay-use', ['target' => $target]);
 
         $this->redirect(route('profile'), navigate: false);
+    }
+
+    /**
+     * Checks the typed key with the provider before saving it — a key the
+     * provider rejects is never saved. When the check itself can't reach
+     * the provider, the key is saved anyway (a wrong one only costs a
+     * silent fallback to the app's key).
+     */
+    public function saveAiKey(string $provider): void
+    {
+        $column = $this->aiKeyColumn($provider);
+        $key = trim($this->aiKeyInput[$provider] ?? '');
+
+        $this->resetErrorBag("aiKeyInput.{$provider}");
+
+        if ($key === '' || strlen($key) > 200 || preg_match('/\s/', $key)) {
+            $this->addError("aiKeyInput.{$provider}", 'Paste the whole key, with no spaces.');
+
+            return;
+        }
+
+        $works = $this->checkAiKey($provider, $key);
+
+        if ($works === false) {
+            $this->aiKeyStatus[$provider] = 'rejected';
+            $this->addError("aiKeyInput.{$provider}", "This key didn't work. Check it and try again.");
+
+            return;
+        }
+
+        auth()->user()->forceFill([$column => $key])->save();
+
+        $this->aiKeyInput[$provider] = '';
+        $this->aiKeyStatus[$provider] = $works ? 'ok' : 'unknown';
+    }
+
+    public function testAiKey(string $provider): void
+    {
+        $key = $this->savedAiKey($provider);
+
+        if ($key === null) {
+            return;
+        }
+
+        $works = $this->checkAiKey($provider, $key);
+
+        $this->aiKeyStatus[$provider] = match ($works) {
+            true => 'ok',
+            false => 'rejected',
+            null => 'unknown',
+        };
+    }
+
+    public function removeAiKey(string $provider): void
+    {
+        auth()->user()->forceFill([$this->aiKeyColumn($provider) => null])->save();
+
+        unset($this->aiKeyStatus[$provider]);
+    }
+
+    /**
+     * The saved key's last four characters, for "•••• abcd" — null when no
+     * key is saved.
+     */
+    public function savedAiKeyEnding(string $provider): ?string
+    {
+        $key = $this->savedAiKey($provider);
+
+        return $key === null ? null : substr($key, -4);
+    }
+
+    private function savedAiKey(string $provider): ?string
+    {
+        $key = rescue(fn () => auth()->user()->{$this->aiKeyColumn($provider)}, report: false);
+
+        return filled($key) ? $key : null;
+    }
+
+    private function checkAiKey(string $provider, string $key): ?bool
+    {
+        return $provider === 'gemini' ? GeminiClient::keyWorks($key) : GroqClient::keyWorks($key);
+    }
+
+    private function aiKeyColumn(string $provider): string
+    {
+        return match ($provider) {
+            'gemini' => 'gemini_api_key',
+            'groq' => 'groq_api_key',
+            default => abort(404),
+        };
     }
 
     public function updatePassword(): void
@@ -294,7 +401,7 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6" x-data="{ activeTab: ['avatar', 'basic-info', 'privacy', 'reminders', 'password', 'ai-relay'].includes(new URLSearchParams(window.location.search).get('tab')) ? new URLSearchParams(window.location.search).get('tab') : 'avatar' }">
+<div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6" x-data="{ activeTab: ['avatar', 'basic-info', 'privacy', 'reminders', 'password', 'ai-keys', 'ai-relay'].includes(new URLSearchParams(window.location.search).get('tab')) ? new URLSearchParams(window.location.search).get('tab') : 'avatar' }">
     <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
@@ -318,6 +425,7 @@ new class extends Component
             'privacy' => 'Privacy',
             'reminders' => 'Reminders',
             'password' => 'Password',
+            'ai-keys' => 'AI keys',
             ...(auth()->user()->is_admin ? ['ai-relay' => 'AI Relay'] : []),
         ]"
     />
@@ -657,6 +765,77 @@ new class extends Component
         </div>
     </form>
 
+    {{-- AI keys (optional, the learner's own) --}}
+    <div x-show="activeTab === 'ai-keys'" x-cloak class="space-y-4 card p-4">
+        <div>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Your own AI keys</p>
+            <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Optional. Your key is used first; if it fails, the app's key takes over.</p>
+        </div>
+
+        @foreach ([
+            'gemini' => ['label' => 'Gemini', 'help' => 'aistudio.google.com/apikey'],
+            'groq' => ['label' => 'Groq', 'help' => 'console.groq.com/keys'],
+        ] as $provider => $info)
+            @php
+                $ending = $this->savedAiKeyEnding($provider);
+                $status = $aiKeyStatus[$provider] ?? null;
+            @endphp
+            <div class="space-y-2 rounded-lg border border-line p-3 dark:border-line-dark" wire:key="ai-key-{{ $provider }}">
+                <div class="flex items-center justify-between gap-2">
+                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $info['label'] }}</p>
+                    @if ($status === 'ok')
+                        <span class="inline-flex items-center gap-1 rounded-full bg-success-soft px-2 py-0.5 text-xs font-semibold text-success-ink dark:bg-success-soft-dark dark:text-success-ink-dark">@svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Works</span>
+                    @elseif ($status === 'rejected')
+                        <span class="inline-flex items-center gap-1 rounded-full bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger-ink">@svg('heroicon-o-x-circle', 'h-3.5 w-3.5') Doesn't work</span>
+                    @elseif ($status === 'unknown')
+                        <span class="rounded-full bg-warning-soft px-2 py-0.5 text-xs font-semibold text-warning-ink">Couldn't check now</span>
+                    @endif
+                </div>
+
+                @if ($ending)
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-sm text-ink-soft dark:text-ink-soft-dark">•••• {{ $ending }}</span>
+                        <button
+                            type="button"
+                            wire:click="testAiKey('{{ $provider }}')"
+                            wire:loading.attr="disabled"
+                            wire:target="testAiKey('{{ $provider }}')"
+                            class="cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        >
+                            <span wire:loading.remove wire:target="testAiKey('{{ $provider }}')">Test</span>
+                            <span wire:loading wire:target="testAiKey('{{ $provider }}')">Testing…</span>
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="removeAiKey('{{ $provider }}')"
+                            wire:confirm="Remove your {{ $info['label'] }} key?"
+                            class="cursor-pointer rounded-full px-3 py-1 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft"
+                        >Remove</button>
+                    </div>
+                @else
+                    <form wire:submit="saveAiKey('{{ $provider }}')" class="space-y-2">
+                        <x-password-input wire-model="aiKeyInput.{{ $provider }}" autocomplete="off" placeholder="Paste your key" />
+                        @error("aiKeyInput.{$provider}")
+                            <p class="text-sm text-danger-ink">{{ $message }}</p>
+                        @enderror
+                        <div class="flex items-center justify-between gap-2">
+                            <a href="https://{{ $info['help'] }}" target="_blank" rel="noopener" class="text-xs text-accent underline dark:text-accent-dark">Get a key: {{ $info['help'] }}</a>
+                            <button
+                                type="submit"
+                                wire:loading.attr="disabled"
+                                wire:target="saveAiKey('{{ $provider }}')"
+                                class="shrink-0 cursor-pointer rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
+                            >
+                                <span wire:loading.remove wire:target="saveAiKey('{{ $provider }}')">Save</span>
+                                <span wire:loading wire:target="saveAiKey('{{ $provider }}')">Checking…</span>
+                            </button>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        @endforeach
+    </div>
+
     {{-- AI Relay (admin-only) --}}
     @if (auth()->user()->is_admin)
         @php
@@ -710,7 +889,7 @@ new class extends Component
             @foreach ($this->aiChains as $title => $chain)
                 <div class="space-y-2">
                     <div class="flex items-center justify-between gap-2">
-                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $title }}</p>
+                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $title }} <span class="font-normal normal-case">· {{ $chain['todayCalls'] }} calls today</span></p>
                         @if ($chain['available'] === 0)
                             <span class="rounded-full bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger-ink">Every model is down</span>
                         @elseif ($chain['available'] === 1 && count($chain['rows']) > 1)

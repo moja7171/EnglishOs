@@ -130,6 +130,10 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('review');
     })->name('review.index');
 
+    Route::get('/notebook', function () {
+        return view('notebook');
+    })->name('notebook.index');
+
     Route::get('/friends', function () {
         return view('friends');
     })->name('friends.index');

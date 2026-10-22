@@ -5,7 +5,7 @@ use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\AiFeedbackCard;
+use App\Services\LearnerFeedback;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
@@ -47,7 +47,7 @@ new class extends Component
 
     public ?string $transcript = null;
 
-    /** @var array{strength: string, expression: string, correction: string, severity?: string}|null */
+    /** @var array<string, mixed>|null A LearnerFeedback::review() result (or an older saved shape). */
     public ?array $feedback = null;
 
     public bool $completed = false;
@@ -181,7 +181,7 @@ new class extends Component
     }
 
     /**
-     * Same 3-part feedback shape as every other speaking/writing step, but
+     * The shared sentence-by-sentence feedback (see LearnerFeedback), but
      * grounded in the picture captions (the actual story, author-side only
      * — never shown to the learner) and judging sequencing language + the
      * mission's narration tense (see narration()), the two things this
@@ -206,19 +206,17 @@ new class extends Component
                 : '';
             $narration = $this->narration();
 
-            $data = app(AiFeedbackCard::class)->generate(
-                [['role' => 'user', 'text' => "Transcript of the learner narrating the picture sequence: \"{$this->transcript}\""]],
-                systemPrompt: 'You are an encouraging English speaking coach. '.ucfirst($this->run->learner->levelDescription())
-                    .' just narrated a sequence of pictures showing this real order of events: "'.$captions.'". '
+            $data = app(LearnerFeedback::class)->review(
+                $this->run->learner,
+                $this->transcript,
+                situation: 'the learner narrating a sequence of pictures out loud. Every sentence is theirs.',
+                source: 'story_sequence',
+                spoken: true,
+                extraGuidance: 'The pictures show this real order of events: "'.$captions.'". '
                     .'This is '.$narration['kind'].', so it should be told in '.strtoupper($narration['tense'])
                     .' ("'.$narration['example'].'"), not '.$narration['not'].'.'.$sequencingContext.' Judge whether '
-                    .'they covered the events in order and used sequencing words. Reply with ONLY valid JSON, no '
-                    .'markdown fences: {"strength": "one specific thing they did well, one sentence", "expression": '
-                    .'"one good sequencing word or phrase they actually used", "correction": "one grammar or '
-                    .'vocabulary mistake to fix, one sentence, phrased kindly — prefer a tense slip (e.g. '
-                    .$narration['not'].' instead of '.strtolower($narration['tense']).') if there is one", '
-                    .'"severity": "minor or major — how serious this grammar/vocabulary issue is"}',
-                requiredKeys: ['strength', 'expression', 'correction'],
+                    .'they covered the events in order and used sequencing words; a tense slip (e.g. '
+                    .$narration['not'].' instead of '.strtolower($narration['tense']).') is the first thing to fix.',
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
             );
 
@@ -228,7 +226,7 @@ new class extends Component
             // sentence step — see MissionRun::aiToneGuidance(). Was missing
             // here (this step had no 'severity' key at all), which made it
             // invisible to mid-run tone adaptation.
-            if (($data['severity'] ?? null) === 'major') {
+            if ($data['severity'] === 'major') {
                 $this->run->recordStruggleSignal();
             }
         } catch (Throwable) {
@@ -271,40 +269,7 @@ new class extends Component
             @endif
 
             @if ($feedback)
-                @php $severity = $feedback['severity'] ?? null; @endphp
-                <div class="space-y-3">
-                    <div class="rounded-xl border-l-4 border-success bg-success/5 p-3 dark:border-success-dark dark:bg-success-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-success uppercase dark:text-success-dark">
-                            @svg('heroicon-o-check-circle', 'h-4 w-4')
-                            One thing you did well
-                        </p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['strength'] }}</p>
-                    </div>
-                    <div class="rounded-xl border-l-4 border-accent bg-accent/5 p-3 dark:border-accent-dark dark:bg-accent-dark/10">
-                        <p class="flex items-center gap-1.5 text-xs font-semibold text-accent uppercase dark:text-accent-dark">
-                            @svg('heroicon-o-book-open', 'h-4 w-4')
-                            A good sequencing word you used
-                        </p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['expression'] }}</p>
-                    </div>
-                    @if ($severity === 'major')
-                        <div class="rounded-xl border-l-4 border-danger bg-danger-soft p-3">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-danger-ink uppercase">
-                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                                One thing to improve
-                            </p>
-                            <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
-                        </div>
-                    @else
-                        <div class="rounded-xl border-l-4 border-warning bg-warning-soft p-3">
-                            <p class="flex items-center gap-1.5 text-xs font-semibold text-warning-ink uppercase">
-                                @svg('heroicon-o-exclamation-triangle', 'h-4 w-4')
-                                One thing to improve
-                            </p>
-                            <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $feedback['correction'] }}</p>
-                        </div>
-                    @endif
-                </div>
+                <x-learner-feedback :feedback="$feedback" />
             @endif
 
             @unless ($readOnly)

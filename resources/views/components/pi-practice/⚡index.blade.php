@@ -70,8 +70,9 @@ new class extends Component
     }
 
     /**
-     * Pi keeps a written transcript of a voice chat; the learner copies it
-     * and pastes it here. Speaker names may or may not come along, so the
+     * Pi sends the learner's own words in one "My words:" message (see
+     * PiPrompts), which the learner copies and pastes here; a whole copied
+     * chat still works. Speaker names may or may not come along, so the
      * AI is told how to tell the two sides apart.
      */
     public function checkPastedChat(): void
@@ -81,9 +82,11 @@ new class extends Component
         $this->requestConversationFeedback(
             $this->pastedChat,
             situation: 'a voice conversation the learner had with an AI speaking partner (such as Pi), copied from '
-                .'the app and pasted in. Speaker names may be missing — the AI\'s turns are usually longer and '
-                .'ask questions or give corrections; judge ONLY the learner\'s own turns. It was spoken and then '
-                .'transcribed, so ignore punctuation, capital letters and filler words.',
+                .'the app and pasted in. It may be a "My words:" list where each "Me:" line is the learner\'s exact '
+                .'words and "Q:" is the AI\'s question, or a whole chat. Speaker names may be missing — the AI\'s turns are usually longer and '
+                .'ask questions or give corrections; judge ONLY the learner\'s own turns. Ignore filler words.',
+            source: 'pi',
+            spoken: true,
         );
     }
 
@@ -286,7 +289,7 @@ new class extends Component
             id="pasted-chat"
             wire:model="pastedChat"
             rows="3"
-            placeholder="Copy the chat text from Pi and paste it here"
+            placeholder="Copy Pi's last message and paste it here"
             class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
         ></textarea>
         @error('pastedChat')

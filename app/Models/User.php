@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
 #[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'gemini_api_key', 'groq_api_key'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -61,6 +61,8 @@ class User extends Authenticatable
             'last_study_reminder_2_on' => 'date',
             'last_streak_warning_on' => 'date',
             'finish_line_told_on' => 'date',
+            'gemini_api_key' => 'encrypted',
+            'groq_api_key' => 'encrypted',
         ];
     }
 
@@ -347,6 +349,16 @@ class User extends Authenticatable
     }
 
     /**
+     * The learner's two notebooks (mistakes + tips), see FeedbackNotebook.
+     *
+     * @return HasMany<NotebookEntry, $this>
+     */
+    public function notebookEntries(): HasMany
+    {
+        return $this->hasMany(NotebookEntry::class, 'learner_id');
+    }
+
+    /**
      * @return HasMany<GrammarPoint, $this>
      */
     public function grammarPoints(): HasMany
@@ -435,10 +447,11 @@ class User extends Authenticatable
     }
 
     /**
-     * The four spaced-repetition systems Daily Review mixes, keyed by the
-     * type name its queue and the Today row use.
+     * The spaced-repetition systems Daily Review mixes, keyed by the type
+     * name its queue and the Today row use. Notebook lines marked learned
+     * are left out.
      *
-     * @return array<string, HasMany<VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint, $this>>
+     * @return array<string, HasMany<VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint|NotebookEntry, $this>>
      */
     private function reviewSources(): array
     {
@@ -447,6 +460,7 @@ class User extends Authenticatable
             'speaking' => $this->speakingPrompts(),
             'error' => $this->errorPatternReviews(),
             'grammar' => $this->grammarPoints(),
+            'note' => $this->notebookEntries()->whereNull('learned_at'),
         ];
     }
 
@@ -527,7 +541,8 @@ class User extends Authenticatable
     /**
      * What the Today box's review row needs: how many of today's items are
      * left, how many were already reviewed today, and what kinds the
-     * remaining ones are (error patterns fold into grammar).
+     * remaining ones are (error patterns and notebook lines fold into
+     * grammar).
      *
      * @return array{remaining: int, reviewedToday: int, breakdown: array{word: int, grammar: int, speaking: int}}
      */
@@ -541,7 +556,7 @@ class User extends Authenticatable
             'reviewedToday' => $this->reviewedTodayCount(),
             'breakdown' => [
                 'word' => $counts->get('word', 0),
-                'grammar' => $counts->get('grammar', 0) + $counts->get('error', 0),
+                'grammar' => $counts->get('grammar', 0) + $counts->get('error', 0) + $counts->get('note', 0),
                 'speaking' => $counts->get('speaking', 0),
             ],
         ];

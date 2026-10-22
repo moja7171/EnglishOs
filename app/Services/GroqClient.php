@@ -30,9 +30,16 @@ class GroqClient
 
     private readonly AiModelChain $chain;
 
-    public function __construct(?string $apiKey = null, ?string $whisperModel = null, ?string $fallbackModel = null)
+    /**
+     * The signed-in learner's own key (see AppServiceProvider), tried
+     * before the app's key. Empty means "use the app's key".
+     */
+    private readonly string $personalKey;
+
+    public function __construct(?string $apiKey = null, ?string $whisperModel = null, ?string $fallbackModel = null, ?string $personalKey = null)
     {
         $this->apiKey = $apiKey ?? (string) config('services.groq.key');
+        $this->personalKey = trim((string) $personalKey);
         $this->chain = new AiModelChain;
 
         $this->pinnedChain = ($whisperModel !== null || $fallbackModel !== null)
@@ -181,7 +188,7 @@ class GroqClient
      */
     private function request(string $audioPath, bool $verbose = false, bool $segments = false, ?string $granularity = null): array
     {
-        if ($this->apiKey === '') {
+        if ($this->apiKey === '' && $this->personalKey === '') {
             throw new RuntimeException('GROQ_API_KEY is not set.');
         }
 
@@ -207,16 +214,38 @@ class GroqClient
         // Conversation steps, partner sessions, friends conversation, Sage
         // voice). The big upload is read once into a string above, so the
         // same bytes are safe to resend to the next model.
+        $limits = [
+            'max_attempts' => (int) config('services.groq.max_attempts', 3),
+            'budget' => (int) config('services.groq.total_budget', 25),
+            'attempt_timeout' => (int) config('services.groq.attempt_timeout', 12),
+        ];
+
+        // The learner's own key first, the app's key as the silent
+        // fallback — same rules as GeminiClient::chat().
+        if ($this->personalKey !== '') {
+            try {
+                return $this->chain->walk(
+                    provider: self::PROVIDER,
+                    logLabel: 'GroqClient (personal key)',
+                    chain: $this->configuredChain(),
+                    attempt: fn (array $entry, int $timeout) => $this->attempt($this->personalKey, $entry['model'], $payload, $fileBody, $filename, $timeout),
+                    limits: GeminiClient::personalKeyLimits($limits),
+                    tracked: false,
+                    logContext: ['audio_bytes' => strlen($fileBody)],
+                );
+            } catch (Throwable $e) {
+                if ($this->apiKey === '') {
+                    throw $e;
+                }
+            }
+        }
+
         return $this->chain->walk(
             provider: self::PROVIDER,
             logLabel: 'GroqClient',
             chain: $this->configuredChain(),
-            attempt: fn (array $entry, int $timeout) => $this->attempt($entry['model'], $payload, $fileBody, $filename, $timeout),
-            limits: [
-                'max_attempts' => (int) config('services.groq.max_attempts', 3),
-                'budget' => (int) config('services.groq.total_budget', 25),
-                'attempt_timeout' => (int) config('services.groq.attempt_timeout', 12),
-            ],
+            attempt: fn (array $entry, int $timeout) => $this->attempt($this->apiKey, $entry['model'], $payload, $fileBody, $filename, $timeout),
+            limits: $limits,
             tracked: $this->pinnedChain === null,
             // The upload size is what failed on the Iranian host's network
             // path for big bodies, so it is part of every failure line.
@@ -251,13 +280,37 @@ class GroqClient
     }
 
     /**
+     * Whether Groq accepts this key: true when it can list models, false
+     * when Groq rejects the key itself (401/403), null when the check
+     * couldn't tell (network, relay, 5xx). Costs no quota.
+     */
+    public static function keyWorks(string $key): ?bool
+    {
+        $client = new self(apiKey: $key);
+        $url = 'https://api.groq.com/openai/v1/models';
+
+        try {
+            $response = $client->withOutboundProxy(Http::withToken($key)->timeout(10), $url)
+                ->get($client->outboundUrl($url));
+        } catch (Throwable) {
+            return null;
+        }
+
+        return match (true) {
+            $response->successful() => true,
+            in_array($response->status(), [400, 401, 403], true) => false,
+            default => null,
+        };
+    }
+
+    /**
      * One full timeout+retry attempt against a single Whisper model. Left
      * to throw on failure — request() decides whether that's the end of
      * the road or a cue to try the fallback model.
      *
      * @return array{text: string, duration: float, segments: array, words: array}
      */
-    private function attempt(string $model, array $payload, string $fileBody, string $filename, int $timeoutSeconds): array
+    private function attempt(string $apiKey, string $model, array $payload, string $fileBody, string $filename, int $timeoutSeconds): array
     {
         $payload['model'] = $model;
 
@@ -265,7 +318,7 @@ class GroqClient
         $url = 'https://api.groq.com/openai/v1/audio/transcriptions';
 
         $response = $this->withOutboundProxy(
-            Http::withToken($this->apiKey)
+            Http::withToken($apiKey)
                 ->timeout($timeoutSeconds)
                 ->retry(1, 500, throw: false),
             $url,

@@ -242,16 +242,7 @@ class PiPracticePageTest extends TestCase
                 ->once()
                 ->withArgs(fn ($messages, $systemPrompt) => $messages[0]['text'] === $chat
                     && str_contains($systemPrompt, 'judge ONLY the learner\'s own turns'))
-                ->andReturn(json_encode([
-                    'strength' => 'جمله‌ات کامل بود.',
-                    'expression' => 'ice cream',
-                    'correction' => [
-                        'original' => 'I go to the park',
-                        'corrected' => 'I went to the park',
-                        'why' => 'برای گذشته فعل گذشته لازم است.',
-                        'suggestion' => 'دو جمله درباره دیروز بگو.',
-                    ],
-                ]));
+                ->andReturn($this->learnerFeedbackReply(['sentences' => [['original' => 'I go to the park with my sister.', 'status' => 'fix', 'corrected' => 'I went to the park with my sister.', 'why' => 'برای گذشته فعل گذشته لازم است.', 'pattern' => 'past simple']]]));
         });
 
         Livewire::test('pi-practice.index')

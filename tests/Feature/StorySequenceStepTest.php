@@ -97,18 +97,14 @@ class StorySequenceStepTest extends TestCase
             $mock->shouldReceive('transcribe')->once()->andReturn('First she wakes up. Then she has breakfast.');
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                'strength' => 'Good use of Present Simple throughout.',
-                'expression' => 'Then',
-                'correction' => 'Try "After that" for extra variety.',
-            ]));
+            $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply());
         });
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
             ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
             ->call('save')
             ->assertSet('completed', true)
-            ->assertSee('Good use of Present Simple throughout.')
+            ->assertSee('I work in a hospital.')
             ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
@@ -132,7 +128,7 @@ class StorySequenceStepTest extends TestCase
             $mock->shouldReceive('chat')->once()
                 ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'told in PRESENT SIMPLE')
                     && str_contains($systemPrompt, 'not past tense'))
-                ->andReturn(json_encode(['strength' => 'Good.', 'expression' => 'First', 'correction' => 'None.']));
+                ->andReturn($this->learnerFeedbackReply());
         });
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
@@ -163,7 +159,7 @@ class StorySequenceStepTest extends TestCase
                 ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'told in PAST SIMPLE')
                     && str_contains($systemPrompt, 'not present tense')
                     && ! str_contains($systemPrompt, 'PRESENT SIMPLE'))
-                ->andReturn(json_encode(['strength' => 'Good.', 'expression' => 'First', 'correction' => 'None.']));
+                ->andReturn($this->learnerFeedbackReply());
         });
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
@@ -250,7 +246,7 @@ class StorySequenceStepTest extends TestCase
             ->set('recording', UploadedFile::fake()->create('take.webm', 400, 'audio/webm'));
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('First she wakes up.'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['strength' => 'Clear.', 'expression' => 'Then', 'correction' => 'None.'])));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply()));
 
         $returned = Livewire::test('missions.steps.story-sequence', ['run' => $run]);
         $keptPath = $returned->get('recordingPath');

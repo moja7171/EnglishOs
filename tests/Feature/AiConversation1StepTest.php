@@ -242,16 +242,9 @@ class AiConversation1StepTest extends TestCase
                 'Do you always wake up at the same time?',
                 json_encode(['severity' => 'none', 'hint' => '']),
                 'How do you get to work?',
-                json_encode([
-                    'strength' => 'نقطه قوت تو این بود که واضح جواب دادی.',
-                    'expression' => 'از عبارت wake up درست استفاده کردی.',
-                    'correction' => [
-                        'original' => 'I wake up at seven.',
-                        'corrected' => 'I usually wake up at seven.',
-                        'why' => 'برای توصیف عادت‌های روزمره باید از قید تکرار استفاده کنی.',
-                        'suggestion' => 'برای تمرین بیشتر، چند جمله با usually بنویس.',
-                    ],
-                    'severity' => 'minor',
+                $this->learnerFeedbackReply([
+                    'sentences' => [['original' => 'I wake up at seven.', 'status' => 'fix', 'corrected' => 'I usually wake up at seven.', 'why' => 'برای عادت‌ها قید تکرار بیاور.', 'pattern' => 'adverbs of frequency']],
+                    'positives' => ['نقطه قوت تو این بود که واضح جواب دادی.'],
                 ]),
             );
         });
@@ -271,8 +264,8 @@ class AiConversation1StepTest extends TestCase
             ->assertSet('completed', true)
             ->assertSee('Talk It Out complete')
             ->assertSee('How do you get to work?')
-            ->assertSet('fbStrength', 'نقطه قوت تو این بود که واضح جواب دادی.')
-            ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.');
+            ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
+            ->assertSee('I usually wake up at seven.');
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_TEXT]);
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_AUDIO]);
@@ -281,7 +274,7 @@ class AiConversation1StepTest extends TestCase
         $content = json_decode($textEvidence->content_ref, true);
         $this->assertCount(2, $content['turns']);
         $this->assertSame('I usually wake up at seven and have breakfast.', $content['transcript']);
-        $this->assertSame('I wake up at seven.', $content['feedback']['correction']['original']);
+        $this->assertSame('I wake up at seven.', $content['feedback']['sentences'][0]['original']);
 
         $this->assertDatabaseCount('ai_feedbacks', 1);
         $this->assertSame($textEvidence->id, AIFeedback::first()->evidence_id);
@@ -375,7 +368,7 @@ class AiConversation1StepTest extends TestCase
             $mock->shouldReceive('chat')->andReturn(
                 json_encode(['severity' => 'none', 'hint' => '']),
                 'Every day?',
-                json_encode(['strength' => 'x', 'expression' => 'y', 'correction' => ['original' => 'a', 'corrected' => 'b', 'why' => 'c', 'suggestion' => 'd'], 'severity' => 'major']),
+                $this->learnerFeedbackReply(['severity' => 'major']),
             );
         });
 
@@ -405,7 +398,7 @@ class AiConversation1StepTest extends TestCase
         $component->set('audioFile', UploadedFile::fake()->create('answer1.webm', 100, 'audio/webm'))
             ->call('submitAnswer')
             ->assertSet('completed', true)
-            ->assertSet('fbStrength', null);
+            ->assertSet('feedback', null);
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_TEXT]);
         $this->assertDatabaseCount('ai_feedbacks', 0);

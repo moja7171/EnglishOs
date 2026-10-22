@@ -84,12 +84,7 @@ class PictureDescriptionStepTest extends TestCase
                 ->andReturn(['text' => 'There is a family eating breakfast together.', 'duration' => 24.5]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                'strength' => 'You described the scene clearly.',
-                'expression' => 'there is a family',
-                'correction' => 'Try "is pouring" instead of "pour" for something happening right now.',
-                'severity' => 'minor',
-            ]));
+            $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply(['severity' => 'minor']));
         });
 
         Livewire::test('missions.steps.picture-description', ['run' => $run])
@@ -97,7 +92,7 @@ class PictureDescriptionStepTest extends TestCase
             ->call('save')
             ->assertSet('completed', true)
             ->assertSet('durationSeconds', 24.5)
-            ->assertSee('You described the scene clearly.')
+            ->assertSee('I work in a hospital.')
             ->assertSee('25s') // rounded from the real 24.5s Whisper duration
             ->assertSee('7 words') // real word count of the transcript
             ->call('proceed')
@@ -123,12 +118,7 @@ class PictureDescriptionStepTest extends TestCase
                 ->andReturn(['text' => 'A woman pour coffee.', 'duration' => 5.0]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                'strength' => 'You named the people in the scene.',
-                'expression' => 'a woman',
-                'correction' => 'Use "is pouring", not "pour", for something happening right now.',
-                'severity' => 'major',
-            ]));
+            $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply(['severity' => 'major']));
         });
 
         Livewire::test('missions.steps.picture-description', ['run' => $run])
@@ -334,7 +324,7 @@ class PictureDescriptionStepTest extends TestCase
             ->set('recording', UploadedFile::fake()->create('take.webm', 400, 'audio/webm'));
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribeWithDuration')->once()->andReturn(['text' => 'There is a family.', 'duration' => 10.0]));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['strength' => 'Clear.', 'expression' => 'there is', 'correction' => 'None.', 'severity' => 'minor'])));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply(['severity' => 'minor'])));
 
         $returned = Livewire::test('missions.steps.picture-description', ['run' => $run]);
         $keptPath = $returned->get('recordingPath');

@@ -37,9 +37,16 @@ class GeminiClient
 
     private readonly AiModelChain $chain;
 
-    public function __construct(?string $apiKey = null, ?string $model = null, ?string $fallbackModel = null)
+    /**
+     * The signed-in learner's own key (see AppServiceProvider), tried
+     * before the app's key. Null or empty means "use the app's key".
+     */
+    private readonly string $personalKey;
+
+    public function __construct(?string $apiKey = null, ?string $model = null, ?string $fallbackModel = null, ?string $personalKey = null)
     {
         $this->apiKey = $apiKey ?? (string) config('services.gemini.key');
+        $this->personalKey = trim((string) $personalKey);
         $this->chain = new AiModelChain;
 
         $this->pinnedChain = ($model !== null || $fallbackModel !== null)
@@ -63,6 +70,10 @@ class GeminiClient
      * services.gemini.max_attempts and total_budget settings so a learner
      * never waits long on a hard outage.
      *
+     * When the learner saved their own key, it is walked first; any
+     * failure there (wrong key, quota gone, outage) falls back silently to
+     * the app's key.
+     *
      * @param  array<int, array{role: string, text: string}>  $messages  Chat history, oldest first. role is 'user' or 'model'.
      * @param  int|null  $maxOutputTokens  A hard cap on reply length, e.g. for a chat persona that
      *                                     must stay short (see ⚡ask-instructor's Sage prompt) — prompt wording alone doesn't
@@ -72,7 +83,7 @@ class GeminiClient
      */
     public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null, string $profile = self::PROFILE_CHAT): string
     {
-        if ($this->apiKey === '') {
+        if ($this->apiKey === '' && $this->personalKey === '') {
             throw new RuntimeException('GEMINI_API_KEY is not set.');
         }
 
@@ -91,20 +102,85 @@ class GeminiClient
             $payload['generationConfig'] = ['maxOutputTokens' => $maxOutputTokens];
         }
 
+        $limits = [
+            'max_attempts' => (int) config('services.gemini.max_attempts', 3),
+            'budget' => (int) config('services.gemini.total_budget', 20),
+            'attempt_timeout' => (int) config('services.gemini.attempt_timeout', 10),
+        ];
+
+        if ($this->personalKey !== '') {
+            try {
+                return $this->chain->walk(
+                    provider: self::PROVIDER,
+                    logLabel: 'GeminiClient (personal key)',
+                    chain: $this->configuredChain($profile),
+                    attempt: fn (array $entry, int $timeout) => $this->attempt($this->personalKey, $entry, $payload, $timeout),
+                    limits: self::personalKeyLimits($limits),
+                    tracked: false,
+                    logContext: ['profile' => $profile],
+                );
+            } catch (Throwable $e) {
+                if ($this->apiKey === '') {
+                    throw $e;
+                }
+            }
+        }
+
         return $this->chain->walk(
             provider: self::PROVIDER,
             logLabel: 'GeminiClient',
             chain: $this->configuredChain($profile),
-            attempt: fn (array $entry, int $timeout) => $this->attempt($entry, $payload, $timeout),
-            limits: [
-                'max_attempts' => (int) config('services.gemini.max_attempts', 3),
-                'budget' => (int) config('services.gemini.total_budget', 20),
-                'attempt_timeout' => (int) config('services.gemini.attempt_timeout', 10),
-            ],
+            attempt: fn (array $entry, int $timeout) => $this->attempt($this->apiKey, $entry, $payload, $timeout),
+            limits: $limits,
             tracked: $this->pinnedChain === null,
             logContext: ['profile' => $profile],
             chainName: "Gemini {$profile}",
         );
+    }
+
+    /**
+     * A learner's own key gets a shorter walk than the app's: when it is
+     * out of quota or wrong, the app's key still has to answer in time.
+     * Its failures never touch the shared "unavailable" memory or the
+     * admin counters (tracked: false) — one learner's empty quota says
+     * nothing about the app's.
+     *
+     * @param  array{max_attempts: int, budget: int, attempt_timeout: int}  $limits
+     * @return array{max_attempts: int, budget: int, attempt_timeout: int}
+     */
+    public static function personalKeyLimits(array $limits): array
+    {
+        return [
+            'max_attempts' => min(2, $limits['max_attempts']),
+            'budget' => max(1, intdiv($limits['budget'], 2)),
+            'attempt_timeout' => $limits['attempt_timeout'],
+        ];
+    }
+
+    /**
+     * Whether Google accepts this key: true when it can list models,
+     * false when Google rejects the key itself (400/401/403), null when
+     * the check couldn't tell (network, relay, 5xx). Costs no quota.
+     */
+    public static function keyWorks(string $key): ?bool
+    {
+        $client = new self(apiKey: $key);
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models?pageSize=1';
+
+        try {
+            $response = $client->withOutboundProxy(
+                Http::withHeaders(['x-goog-api-key' => $key])->timeout(10),
+                $url,
+            )->get($client->outboundUrl($url));
+        } catch (Throwable) {
+            return null;
+        }
+
+        return match (true) {
+            $response->successful() => true,
+            in_array($response->status(), [400, 401, 403], true) => false,
+            default => null,
+        };
     }
 
     /**
@@ -162,7 +238,7 @@ class GeminiClient
      *
      * @param  array{model: string, thinking_level: ?string}  $entry
      */
-    private function attempt(array $entry, array $payload, int $timeoutSeconds): string
+    private function attempt(string $apiKey, array $entry, array $payload, int $timeoutSeconds): string
     {
         if ($entry['thinking_level'] !== null) {
             $payload['generationConfig']['thinkingConfig'] = ['thinkingLevel' => $entry['thinking_level']];
@@ -172,7 +248,7 @@ class GeminiClient
 
         // 1 attempt per model: the next model in the chain IS the retry.
         $response = $this->withOutboundProxy(
-            Http::withHeaders(['x-goog-api-key' => $this->apiKey])
+            Http::withHeaders(['x-goog-api-key' => $apiKey])
                 ->timeout($timeoutSeconds)
                 ->retry(1, 500, throw: false),
             $url,

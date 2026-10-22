@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Synthesizers\PreviewMissionRunSynth;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -17,7 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Every AI call made for a signed-in learner tries their own key
+        // first when they saved one (Profile → AI keys), then the app's. A
+        // key that no longer decrypts (APP_KEY rotated) just means "none".
+        $this->app->bind(GeminiClient::class, fn () => new GeminiClient(personalKey: rescue(fn () => Auth::user()?->gemini_api_key, report: false)));
+        $this->app->bind(GroqClient::class, fn () => new GroqClient(personalKey: rescue(fn () => Auth::user()?->groq_api_key, report: false)));
     }
 
     /**

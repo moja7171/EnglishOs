@@ -343,7 +343,9 @@ new class extends Component
             $answers->implode("\n\n"),
             situation: 'spoken answers the learner recorded alone to a few questions about people they know, '
                 .'turned into text by speech recognition. Judge ONLY the "My answer" parts; the questions are '
-                .'context. Ignore punctuation, capital letters, filler words and small speech-recognition glitches.',
+                .'context. Ignore filler words and small speech-recognition glitches.',
+            source: 'partner_speaking',
+            spoken: true,
             onCallSucceeded: fn () => $this->recordGeminiCall(),
         );
     }
