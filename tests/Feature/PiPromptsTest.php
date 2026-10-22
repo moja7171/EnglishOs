@@ -51,6 +51,9 @@ class PiPromptsTest extends TestCase
             $this->assertStringContainsString('reason in 8 words or less', $task['prompt']);
             $this->assertMatchesRegularExpression('/Round 1 of \d+/', $task['prompt']);
             $this->assertStringContainsString('"why?" = explain a bit more', $task['prompt']);
+            $this->assertStringContainsString('"transcript" = get all my words in one message', $task['prompt']);
+            $this->assertStringContainsString('My transcript: ONE message, never split.', $task['prompt']);
+            $this->assertStringContainsString('do NOT fix my mistakes', $task['prompt']);
             $this->assertStringEndsWith('tell me the plan in one short sentence, then begin round 1.', $task['prompt']);
             $this->assertCount(3, $task['plan']);
         }

@@ -32,6 +32,10 @@ use Illuminate\Support\Str;
  * track time, so the length is set in rounds, not minutes. The control
  * words count only when said alone — "next" or "again" inside an answer
  * must not skip or repeat a round.
+ *
+ * Pi can't copy a whole chat at once, so the AI also sends the learner's
+ * own words, uncorrected, in one message — at the wrap-up and whenever
+ * the learner says "transcript" — for them to paste back for feedback.
  */
 class PiPrompts
 {
@@ -91,6 +95,7 @@ class PiPrompts
         'why?' => 'explain a bit more',
         'stop' => 'end the session now',
         'more' => 'keep going after the end',
+        'transcript' => 'get all my words in one message',
     ];
 
     /**
@@ -208,7 +213,8 @@ class PiPrompts
             ."- If I make a mistake, say something kind first, then the correct sentence and the reason in 8 words or less. Only one fix per turn.\n"
             ."- Say the round number each time, like \"Round 1 of {$session['rounds']}\".\n"
             ."- My control words count only when I say one alone, as my whole turn: {$controlWords}.\n"
-            ."- After the last round, stop. Give me my {$session['fixes']} most useful fixes, each with a very short reason, and 1 thing I did well. End with one short line to keep me going. Then only ask: \"More?\"\n\n"
+            ."- After the last round, stop. Give me my {$session['fixes']} most useful fixes, each with a very short reason, and 1 thing I did well. End with one short line to keep me going. Then, in the same message, add my transcript and only ask: \"More?\"\n"
+            ."- My transcript: ONE message, never split. Write \"My words:\", then one line per round: \"Round 1 — Q: (your question, 6 words max) / Me: (everything I said)\". Copy my words exactly — do NOT fix my mistakes. Send it after the last round and whenever I say \"transcript\".\n\n"
             ."Today: {$dayTitle} — \"{$missionTitle}\".\n"
             .$steps."\n"
             .($session['material'] !== '' ? "\n".$session['material']."\n" : '')
