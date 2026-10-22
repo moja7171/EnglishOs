@@ -49,6 +49,7 @@
                 :segments="$this->listeningSegments()"
                 :shadow-lines="$readOnly ? [] : $shadowLines"
                 :shadow-timestamps="$readOnly ? [] : $shadowTimestamps"
+                :resume-key="$readOnly || $preview ? null : $this->draftPrefix().'position'"
             />
         </div>
     </div>
@@ -75,7 +76,7 @@
                     <div class="mt-2" wire:key="{{ $this->phaseKey() }}-shadow-recorder-{{ $index }}">
                         <x-voice-recorder
                             field="shadowRecordings.{{ $index }}"
-                            :file="$shadowRecordings[$index] ?? null"
+                            :file="$draftShadowUrls[$index] ?? null"
                             file-name="{{ $this->phaseKey() }}-shadow-{{ $index }}.webm"
                             on-recorded="checkShadowLine"
                             :on-recorded-param="$index"

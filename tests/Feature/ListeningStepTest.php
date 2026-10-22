@@ -179,6 +179,16 @@ class ListeningStepTest extends TestCase
             ->assertSet('gapFillFeedback.0.severity', 'minor');
     }
 
+    public function test_a_gap_pick_is_checked_as_soon_as_it_is_set(): void
+    {
+        $run = $this->makeRun();
+
+        // How a pick restored from the browser's draft arrives: no separate check call.
+        Livewire::test('missions.steps.listening', ['run' => $run])
+            ->set('gapFillSelections.0', 'morning person')
+            ->assertSet('gapFillFeedback.0.severity', 'minor');
+    }
+
     public function test_gap_fill_must_be_all_correct_before_saving(): void
     {
         $run = $this->makeRun();

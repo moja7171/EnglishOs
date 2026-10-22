@@ -351,6 +351,7 @@ new class extends Component
                                         :segments="$this->localSegments[$level] ?? []"
                                         :listen="['mission_code' => $missionCode, 'source' => AudioListen::SOURCE_LISTENING_PICK, 'day_number' => $day, 'pick_key' => $pickKey, 'chip' => false]"
                                         onListened="$wire.markListened()"
+                                        :resume-key="'eos-resume:'.$missionCode.':'.$pickKey"
                                     />
                                 </div>
                             </template>

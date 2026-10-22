@@ -11,6 +11,7 @@ use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use RuntimeException;
 use Tests\TestCase;
@@ -307,5 +308,22 @@ class DailyListenStepTest extends TestCase
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])->assertDontSeeHtml('<img');
+    }
+
+    public function test_a_checked_line_comes_back_with_its_verdict_after_leaving_the_step(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I usually get up.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'minor', 'hint' => 'Say "early" too.'])));
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 0);
+
+        // The learner left; the step opens fresh, with no new AI call.
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSee('Say "early" too.')
+            ->assertSet('draftShadowUrls', fn (array $urls) => array_keys($urls) === [0]);
     }
 }

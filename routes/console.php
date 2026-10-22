@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ShadowDraft;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -15,6 +16,9 @@ Artisan::command('inspire', function () {
  */
 Schedule::call(fn () => Artisan::call('notifications:prune-read'))
     ->name('notifications:prune-read')
+    ->daily();
+Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [ShadowDraft::class]]))
+    ->name('shadow-drafts:prune')
     ->daily();
 Schedule::call(fn () => Artisan::call('review:send-reminders'))
     ->name('review:send-reminders')
