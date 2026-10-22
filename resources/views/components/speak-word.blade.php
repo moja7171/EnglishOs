@@ -27,7 +27,7 @@
         x-on:click.stop.prevent="window.eosVoice?.speak($el.dataset.text)"
         data-text="{{ $word }}"
         title="Hear it"
-        class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-accent-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-accent-ink-dark {{ $size === 'sm' ? 'p-0.5' : 'p-1' }}"
+        class="relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-accent-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-accent-ink-dark {{ $size === 'sm' ? 'p-0.5' : 'p-1' }}"
     >
         <span class="sr-only">Hear “{{ $word }}”</span>
         @svg('heroicon-o-speaker-wave', $size === 'sm' ? 'h-3 w-3' : 'h-4 w-4')
