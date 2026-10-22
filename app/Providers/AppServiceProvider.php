@@ -4,9 +4,12 @@ namespace App\Providers;
 
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Synthesizers\PreviewMissionRunSynth;
+use App\Models\MissionRun;
+use App\Services\AiUsage;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -41,6 +44,29 @@ class AppServiceProvider extends ServiceProvider
 
         Livewire::propertySynthesizer(PreviewMissionRunSynth::class);
         $this->refuseActionsOnPreviewedSteps();
+        $this->rememberMissionStepForAiUsage();
+    }
+
+    /**
+     * An action on a mission step component (anything holding a
+     * MissionRun in $run) remembers which run and step it is, so the AI
+     * requests it makes are logged against that step (see AiUsage). The
+     * step key is the component's own when it has one; otherwise AiUsage
+     * falls back to the run's current step.
+     */
+    private function rememberMissionStepForAiUsage(): void
+    {
+        on('call', function ($component) {
+            $run = property_exists($component, 'run') && isset($component->run) ? $component->run : null;
+
+            if (! $run instanceof MissionRun) {
+                return;
+            }
+
+            $stepKey = property_exists($component, 'stepKey') && isset($component->stepKey) && is_string($component->stepKey) ? $component->stepKey : null;
+
+            Context::addHidden(AiUsage::STEP_CONTEXT, ['run_id' => $run->id, 'step_key' => $stepKey]);
+        });
     }
 
     /**

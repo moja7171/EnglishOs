@@ -134,6 +134,18 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('notebook');
     })->name('notebook.index');
 
+    // Admins only (404 for everyone else): usage, learners who need a
+    // look, step analytics, and one learner's full picture.
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', function () {
+            return view('admin');
+        })->name('index');
+
+        Route::get('/users/{user}', function (User $user) {
+            return view('admin-user', compact('user'));
+        })->name('users.show');
+    });
+
     Route::get('/friends', function () {
         return view('friends');
     })->name('friends.index');

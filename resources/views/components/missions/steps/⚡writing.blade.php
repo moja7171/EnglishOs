@@ -186,7 +186,12 @@ new class extends Component
             </div>
 
             @if ($feedback)
-                <x-learner-feedback :feedback="$feedback" />
+                <x-learner-feedback :feedback="$feedback">
+                    <x-slot:more>
+                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you wrote</p>
+                        <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
+                    </x-slot:more>
+                </x-learner-feedback>
             @endif
 
             @unless ($readOnly)

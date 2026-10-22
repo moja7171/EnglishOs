@@ -224,7 +224,7 @@ class AiConversation1StepTest extends TestCase
     // Interview round (unchanged AI Conversation #1 behavior)
     // -----------------------------------------------------------------
 
-    public function test_each_answer_is_transcribed_and_gets_one_ai_followup_then_finishes_with_feedback(): void
+    public function test_each_answer_is_transcribed_and_gets_a_one_line_check_then_finishes_with_feedback_per_answer(): void
     {
         Storage::fake('local');
         Storage::fake('public');
@@ -239,11 +239,11 @@ class AiConversation1StepTest extends TestCase
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->andReturn(
                 json_encode(['severity' => 'none', 'hint' => '']),
-                'Do you always wake up at the same time?',
+                json_encode(['status' => 'fix', 'original' => 'I wake up at seven', 'corrected' => 'I usually wake up at seven', 'why' => 'برای عادت قید تکرار بیاور.']),
                 json_encode(['severity' => 'none', 'hint' => '']),
-                'How do you get to work?',
+                json_encode(['status' => 'ok', 'original' => null, 'corrected' => null, 'why' => 'جوابت کامل بود.']),
                 $this->learnerFeedbackReply([
-                    'sentences' => [['original' => 'I wake up at seven.', 'status' => 'fix', 'corrected' => 'I usually wake up at seven.', 'why' => 'برای عادت‌ها قید تکرار بیاور.', 'pattern' => 'adverbs of frequency']],
+                    'sentences' => [['original' => 'I wake up at seven.', 'status' => 'fix', 'corrected' => 'I usually wake up at seven.', 'why' => 'برای عادت‌ها قید تکرار بیاور.', 'pattern' => 'adverbs of frequency', 'answer' => 2]],
                     'positives' => ['نقطه قوت تو این بود که واضح جواب دادی.'],
                 ]),
             );
@@ -256,16 +256,19 @@ class AiConversation1StepTest extends TestCase
         $component->assertSet('round', 1);
         $this->assertCount(1, $component->get('turns'));
         $this->assertSame('I wake up at seven.', $component->get('turns')[0]['answer']);
-        $this->assertSame('Do you always wake up at the same time?', $component->get('turns')[0]['followup']);
+        $this->assertSame('I usually wake up at seven', $component->get('turns')[0]['check']['corrected']);
+        $component->assertSee('برای عادت قید تکرار بیاور.');
 
         $component
             ->set('audioFile', UploadedFile::fake()->create('answer2.webm', 100, 'audio/webm'))
             ->call('submitAnswer')
             ->assertSet('completed', true)
             ->assertSee('Talk It Out complete')
-            ->assertSee('How do you get to work?')
+            ->assertSee('Warm-up')
+            ->assertSee('I have breakfast and go to work.')
             ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
-            ->assertSee('I usually wake up at seven.');
+            ->assertSee('I usually wake up at seven.')
+            ->assertSee('1 اشتباه');
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_TEXT]);
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'ai_conversation_1', 'type' => Evidence::TYPE_AUDIO]);
@@ -425,7 +428,7 @@ class AiConversation1StepTest extends TestCase
             ->assertSet('error', null)
             ->assertSet('notice', fn ($notice) => str_contains($notice, "couldn't check it just now"))
             ->assertSet('turns.0.answer', 'I wake up at seven.')
-            ->assertSet('turns.0.followup', '');
+            ->assertSet('turns.0.check', null);
     }
 
     public function test_a_failed_ai_call_shows_an_error_without_losing_progress(): void
@@ -572,7 +575,7 @@ class AiConversation1StepTest extends TestCase
 
         $component
             ->assertSeeHtml('wire:target="submitAnswer"')
-            ->assertSee('Transcribing and thinking of a follow-up…');
+            ->assertSee('Transcribing and checking your answer…');
     }
 
     // -----------------------------------------------------------------
@@ -626,9 +629,11 @@ class AiConversation1StepTest extends TestCase
             ->assertSet('transcript', 'I usually wake up at seven and have breakfast.')
             ->assertSet('completed', true)
             ->assertSeeHtml('http://localhost/storage/missions/m01/evidence/speaking.webm')
-            ->assertSee('خیلی روان صحبت کردی.')
             ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
-            ->assertSee('Every day?') // the final follow-up must still be visible
+            ->assertSee('Warm-up')
+            ->assertSee('Breakfast.') // every answer has its own card
+            ->assertDontSee('خیلی روان صحبت کردی.') // the warm-up reflection no longer repeats in the recap
+            ->assertDontSee('Every day?') // nor the old follow-up questions
             ->assertDontSeeHtml('data-text=')
             ->assertDontSeeHtml('field="warmUpAudioFile"');
     }

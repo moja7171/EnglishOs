@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\EnsureSessionNotExpired;
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\TouchLastSeen;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,8 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // learner's own timezone; it holds nothing sensitive, so skip encryption.
         $middleware->encryptCookies(except: ['eos_tz']);
 
+        $middleware->web(append: [TouchLastSeen::class]);
+
         $middleware->alias([
             'session.absolute_timeout' => EnsureSessionNotExpired::class,
+            'admin' => EnsureUserIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

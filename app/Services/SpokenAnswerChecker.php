@@ -50,6 +50,47 @@ class SpokenAnswerChecker
     }
 
     /**
+     * The one line shown right under an interview answer (Talk It Out),
+     * in place of a follow-up question: either "fine" with a few words of
+     * praise, or the single most useful fix — the learner's words, the
+     * corrected version, and why, in Persian. Never a question back.
+     *
+     * @return array{status: string, original: ?string, corrected: ?string, why: string}
+     *
+     * @throws RuntimeException when the reply isn't the expected JSON.
+     */
+    public function quickCorrection(string $prompt, string $transcript, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "Question: \"{$prompt}\"\nLearner's spoken answer (automatic transcript): \"{$transcript}\""]],
+            systemPrompt: 'You are a warm English speaking coach helping '.$learnerDescription.'. Look at this spoken '
+                .'answer. If there is one clear grammar or word-choice mistake, pick the most useful one. The '
+                .'transcript is automatic speech-to-text: ignore punctuation, capital letters and anything that '
+                .'looks like a mishearing. Reply with ONLY valid JSON, no markdown fences: {"status": "ok" or "fix", '
+                .'"original": "for fix: the learner\'s words that are wrong, in English; else null", "corrected": '
+                .'"for fix: the corrected words, in English; else null", "why": "one short line in simple Persian — '
+                .'for fix the reason, for ok one specific thing they did well"}. Inside the Persian, keep English '
+                .'words in Latin letters inside «». Never ask a question.',
+            profile: GeminiClient::PROFILE_JUDGE,
+        );
+
+        $data = json_decode(preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($raw)), true);
+
+        if (! is_array($data) || ! in_array($data['status'] ?? null, ['ok', 'fix'], true) || ! is_string($data['why'] ?? null)) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        $isFix = $data['status'] === 'fix' && filled($data['original'] ?? null) && filled($data['corrected'] ?? null);
+
+        return [
+            'status' => $isFix ? 'fix' : 'ok',
+            'original' => $isFix ? trim($data['original']) : null,
+            'corrected' => $isFix ? trim($data['corrected']) : null,
+            'why' => trim($data['why']),
+        ];
+    }
+
+    /**
      * One short, warm line of feedback on a spoken answer in Daily
      * Review — never a grade and never gating anything. Names the single
      * most useful correction when there is a clear one, otherwise

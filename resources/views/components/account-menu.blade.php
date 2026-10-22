@@ -67,6 +67,11 @@
         <a href="{{ route('pi.setup') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
             @svg('heroicon-o-chat-bubble-left-right', 'h-5 w-5') Voice practice guide
         </a>
+        @if ($user->is_admin)
+            <a href="{{ route('admin.index') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
+                @svg('heroicon-o-chart-bar', 'h-5 w-5') Admin
+            </a>
+        @endif
 
         <div class="my-1 border-t border-line dark:border-line-dark"></div>
 

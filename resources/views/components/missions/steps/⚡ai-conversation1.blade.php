@@ -73,7 +73,7 @@ new class extends Component
 
     public int $round = 0;
 
-    /** @var array<int, array{question: string, answer: string, followup: string}> */
+    /** @var array<int, array{question: string, answer: string, check?: array{status: string, original: ?string, corrected: ?string, why: string}|null, followup?: string}> 'check' since the follow-up question was dropped; older turns have 'followup'. */
     public array $turns = [];
 
     public ?UploadedFile $audioFile = null;
@@ -118,7 +118,10 @@ new class extends Component
             return;
         }
 
-        $data = json_decode($this->run->latestEvidence('ai_conversation_1')?->content_ref ?? '{}', true);
+        // The step saves a text row and an audio row in the same second, so
+        // "latest" alone can pick the recording; the transcript is the text one.
+        $textEvidence = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_TEXT)->latest()->first();
+        $data = json_decode($textEvidence?->content_ref ?? '{}', true);
 
         $this->transcript = $data['transcript'] ?? null;
         $this->segments = $data['segments'] ?? [];
@@ -319,25 +322,23 @@ new class extends Component
 
             unset($this->offTopicHint[$round], $this->exampleAnswer[$round]);
 
+            // One line under the answer — a fix or a few words of praise —
+            // in place of the old follow-up question nobody answered.
             try {
-                $followup = trim(app(GeminiClient::class)->chat(
-                    [['role' => 'user', 'text' => "Interview question: \"{$this->currentQuestion}\"\nLearner's answer: \"{$answer}\""]],
-                    systemPrompt: 'You are a friendly English conversation partner interviewing '
-                        .$this->run->learner->levelDescription().' about their daily '
-                        ."life. Given the question you asked and the learner's transcribed spoken answer, reply with exactly "
-                        .'ONE short, natural follow-up question (max 15 words) that shows you listened — no preamble, no '
-                        .'quotation marks, just the question.'
-                        .$this->run->aiToneGuidance()
-                ));
+                $check = app(SpokenAnswerChecker::class)->quickCorrection(
+                    $this->currentQuestion,
+                    $answer,
+                    $this->run->learner->levelDescription(),
+                );
                 $this->recordGeminiCall();
             } catch (Throwable) {
-                $followup = '';
+                $check = null;
             }
 
             $this->turns[] = [
                 'question' => $this->currentQuestion,
                 'answer' => $answer,
-                'followup' => $followup,
+                'check' => $check,
             ];
 
             $this->round++;
@@ -444,18 +445,15 @@ new class extends Component
     private function generateFeedback(): void
     {
         try {
-            $transcript = collect($this->turns)
-                ->map(fn ($t) => "Q: {$t['question']}\nA: {$t['answer']}")
-                ->implode("\n\n");
-
             $this->feedback = app(LearnerFeedback::class)->review(
                 $this->run->learner,
-                $transcript,
-                situation: 'a short spoken interview: each Q is the interviewer, each A is the learner\'s spoken '
-                    .'answer. Judge ONLY the A lines.',
+                '',
+                situation: 'a short speaking task: a free warm-up talk, then a spoken interview. Each Question is '
+                    .'the interviewer; judge ONLY the learner\'s lines.',
                 source: 'ai_conversation_1',
                 spoken: true,
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
+                answers: $this->answers(),
             );
 
             if ($this->feedback['severity'] === 'major') {
@@ -464,6 +462,22 @@ new class extends Component
         } catch (Throwable) {
             // Silent by design — see method docblock.
         }
+    }
+
+    /**
+     * The warm-up talk and each interview answer, in order — what the
+     * feedback is given on and what the recap shows one card for.
+     *
+     * @return list<array{question: ?string, text: string}>
+     */
+    public function answers(): array
+    {
+        $warmUp = filled($this->transcript) ? [['question' => 'Warm-up', 'text' => $this->transcript]] : [];
+
+        return array_merge($warmUp, array_map(
+            fn (array $turn) => ['question' => $turn['question'], 'text' => $turn['answer']],
+            array_values(array_filter($this->turns, fn (array $turn) => filled($turn['answer'] ?? null))),
+        ));
     }
 
     public function proceed(): void
@@ -492,65 +506,34 @@ new class extends Component
     <x-hook :text="$conversation['hook'] ?? null" />
 
     @if ($completed)
-        <div class="space-y-4 card p-4">
+        <div class="space-y-4">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
                     @svg('heroicon-o-check-circle', 'h-4 w-4')
                     Talk It Out complete
                 </p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Nicely done — take a look back below before you move on.</p>
+                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's how each answer went.</p>
             </div>
 
-            @if ($warmUpAudioUrl)
-                <div>
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
-                    <div class="mt-1"><x-audio-player :url="$warmUpAudioUrl" /></div>
-                </div>
-            @endif
+            <x-learner-feedback :feedback="$feedback" :answers="$this->answers()">
+                <x-slot:more>
+                    @if ($warmUpAudioUrl)
+                        <div>
+                            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
+                            <div class="mt-1"><x-audio-player :url="$warmUpAudioUrl" /></div>
+                        </div>
+                    @endif
 
-            @if ($reflection)
-                <div class="space-y-2 card-sunken p-3" dir="rtl">
-                    <p class="text-sm text-ink dark:text-ink-dark">{{ $reflection['highlight'] }}</p>
-                    <p class="flex items-start gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
-                        @svg('heroicon-o-light-bulb', 'h-4 w-4 shrink-0 mt-0.5')
-                        {{ $reflection['tip'] }}
-                    </p>
-                </div>
-            @endif
-
-            @if ($transcript)
-                <div>
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
-                    <x-confidence-transcript :segments="$segments" :fallback="$transcript" class="mt-1" />
-                </div>
-            @endif
-
-            @if (count($turns))
-                <div>
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">The conversation</p>
-                    <div class="mt-2 space-y-3">
-                        @foreach ($turns as $turn)
-                            <x-conversation-turn :prompt="$turn['question']" :answer="$turn['answer']" :followup="$turn['followup']" />
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if ($feedback)
-                <div class="space-y-3">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Feedback on your conversation</p>
-                    <x-learner-feedback :feedback="$feedback" />
-                </div>
-            @endif
-
-            @if (count($this->questions))
-                <div>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Want more practice? Ask each other all of these questions for real.</p>
-                    <div class="mt-1.5">
-                        <x-practice-session-with-friend :mission="$run->mission" step-key="ai_conversation_1" />
-                    </div>
-                </div>
-            @endif
+                    @if (count($this->questions))
+                        <div>
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Want more practice? Ask each other all of these questions for real.</p>
+                            <div class="mt-1.5">
+                                <x-practice-session-with-friend :mission="$run->mission" step-key="ai_conversation_1" />
+                            </div>
+                        </div>
+                    @endif
+                </x-slot:more>
+            </x-learner-feedback>
 
             @unless ($readOnly)
                 <button
@@ -645,7 +628,7 @@ new class extends Component
         </x-progress-bar>
 
         <div>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud — one follow-up after each.</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud.</p>
         </div>
 
         <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some when you answer" />
@@ -667,7 +650,7 @@ new class extends Component
         @if (count($turns))
             <div class="space-y-3">
                 @foreach ($turns as $turn)
-                    <x-conversation-turn :prompt="$turn['question']" :answer="$turn['answer']" :followup="$turn['followup']" />
+                    <x-conversation-turn :prompt="$turn['question']" :answer="$turn['answer']" :check="$turn['check'] ?? null" :followup="$turn['followup'] ?? null" />
                 @endforeach
             </div>
         @endif
@@ -693,7 +676,7 @@ new class extends Component
                     />
                 </div>
 
-                <x-ai-thinking wire:loading wire:target="submitAnswer" label="Transcribing and thinking of a follow-up…" class="mt-3" />
+                <x-ai-thinking wire:loading wire:target="submitAnswer" label="Transcribing and checking your answer…" class="mt-3" />
 
                 @if ($exampleAnswer[$round] ?? null)
                     <div class="mt-2 rounded-xl card-accent px-3 py-2">

@@ -236,10 +236,10 @@ new class extends Component
                 @endif
             </div>
 
-            {{-- Magazine-style recap: the image up top, the transcript as a
-                 speech-bubble callout overlapping its bottom edge, feedback
-                 cards below — reuses AI Feedback #1's report-card visual
-                 language (icons, severity tint) rather than a third style. --}}
+            {{-- The image up top, then the shared feedback card; the
+                 transcript itself sits under its "More" (the sentences that
+                 need work are already shown in the feedback). Without
+                 feedback, the transcript shows as a speech bubble instead. --}}
             @if ($imageUrl = $this->imageUrl())
                 <div class="rounded-2xl p-1.5" style="background-image: var(--mood-texture); background-size: var(--mood-texture-size);">
                     <img src="{{ $imageUrl }}" alt="A picture to describe" class="h-44 w-full rounded-xl object-cover">
@@ -250,7 +250,7 @@ new class extends Component
                 <p class="mx-3 text-sm text-ink-soft dark:text-ink-soft-dark">Your recording was saved, but feedback isn't available this time. You can still move on.</p>
             @endif
 
-            @if ($transcript)
+            @if ($transcript && ! $feedback)
                 <div class="relative {{ $imageUrl ?? null ? '-mt-8' : '' }} mx-3 rounded-2xl rounded-tl-sm border border-line bg-surface p-3 shadow-md dark:border-line-dark dark:bg-surface-dark">
                     <p class="text-[10px] font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
@@ -269,7 +269,17 @@ new class extends Component
             @endif
 
             @if ($feedback)
-                <x-learner-feedback :feedback="$feedback" />
+                <x-learner-feedback :feedback="$feedback">
+                    @if ($transcript)
+                        <x-slot:more>
+                            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                            <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+                                @if ($durationSeconds) {{ (int) round($durationSeconds) }}s · @endif{{ $this->wordCount() }} words
+                            </p>
+                        </x-slot:more>
+                    @endif
+                </x-learner-feedback>
             @endif
 
             @unless ($readOnly)

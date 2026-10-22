@@ -17,6 +17,11 @@ class AiFailure
      */
     public static function message(Throwable $e, string $what): string
     {
+        // The admin's daily cap for this learner, not a failure to report.
+        if ($e instanceof AiLimitReached) {
+            return "{$what} — you've used today's AI checks. Try again tomorrow.";
+        }
+
         report($e);
 
         return "{$what} — please try again in a moment.";

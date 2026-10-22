@@ -261,15 +261,20 @@ new class extends Component
                 @endif
             </div>
 
-            @if ($transcript)
+            @if ($feedback)
+                <x-learner-feedback :feedback="$feedback">
+                    @if ($transcript)
+                        <x-slot:more>
+                            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                            <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+                        </x-slot:more>
+                    @endif
+                </x-learner-feedback>
+            @elseif ($transcript)
                 <div>
                     <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
                 </div>
-            @endif
-
-            @if ($feedback)
-                <x-learner-feedback :feedback="$feedback" />
             @endif
 
             @unless ($readOnly)
