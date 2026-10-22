@@ -1,8 +1,10 @@
 {{-- The body of a GivesConversationFeedback result: title row with
-     refresh + close, then <x-learner-feedback> (or the error). The
-     caller owns the wrapper — a sheet over the chat, an inline card on a
-     page. `action` is the Livewire method that (re)asks for feedback. --}}
-@props(['feedback' => null, 'error' => null, 'action'])
+     refresh + close, then <x-learner-feedback> (or the error). The caller
+     owns the wrapper — a sheet over the chat, an inline card on a page.
+     `action` is the Livewire method that (re)asks for feedback; optional
+     `answers` show one card per answer, and the default slot goes under
+     "More". --}}
+@props(['feedback' => null, 'error' => null, 'action', 'answers' => []])
 
 <div class="space-y-3">
     <div class="flex items-center justify-between gap-2">
@@ -33,7 +35,11 @@
     </div>
 
     @if ($feedback)
-        <x-learner-feedback :feedback="$feedback" />
+        <x-learner-feedback :feedback="$feedback" :answers="$answers">
+            @if ($slot->isNotEmpty())
+                <x-slot:more>{{ $slot }}</x-slot:more>
+            @endif
+        </x-learner-feedback>
     @else
         <p class="text-sm text-danger-ink">{{ $error }}</p>
     @endif

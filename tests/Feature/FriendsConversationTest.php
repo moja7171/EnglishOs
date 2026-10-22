@@ -837,8 +837,8 @@ class FriendsConversationTest extends TestCase
 
         Livewire::test('friends.conversation', ['other' => $bob])
             ->call('generateFeedback')
-            ->assertSee('Nothing to fix')
-            ->assertDontSee('Something to fix');
+            ->assertSee('✓ بدون اشتباه')
+            ->assertDontSee('1 اشتباه');
     }
 
     public function test_ai_feedback_only_looks_at_the_most_recent_messages(): void

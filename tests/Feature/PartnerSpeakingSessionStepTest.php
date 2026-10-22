@@ -182,7 +182,7 @@ class PartnerSpeakingSessionStepTest extends TestCase
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
                 ->once()
-                ->withArgs(fn ($messages) => str_contains($messages[0]['text'], "Your Friends\nQuestions: Who is your closest friend? / How did you meet?\nMy answer: We meet at university.")
+                ->withArgs(fn ($messages) => str_contains($messages[0]['text'], "ANSWER 1\nQuestion: Your Friends: Who is your closest friend? / How did you meet?\nLearner: We meet at university.")
                     && str_contains($messages[0]['text'], 'Deeper'))
                 ->andReturn($this->learnerFeedbackReply(['sentences' => [['original' => 'We meet at university.', 'status' => 'fix', 'corrected' => 'We met at university.', 'why' => 'برای گذشته از met استفاده کن.', 'pattern' => 'past simple']]]));
         });

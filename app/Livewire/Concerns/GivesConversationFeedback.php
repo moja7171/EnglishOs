@@ -46,8 +46,10 @@ trait GivesConversationFeedback
      * @param  bool  $spoken  True when the learner's lines were spoken and transcribed.
      * @param  Closure|null  $onCallSucceeded  Passed through to AiFeedbackCard::generate() — where a mission
      *                                         step hooks TracksAiUsage::recordGeminiCall().
+     * @param  list<array{question: ?string, text: string}>  $answers  Separate answers, in place of $conversation
+     *                                                                 (see LearnerFeedback::review()).
      */
-    protected function requestConversationFeedback(string $conversation, string $situation, string $source, bool $spoken = false, ?Closure $onCallSucceeded = null): void
+    protected function requestConversationFeedback(string $conversation, string $situation, string $source, bool $spoken = false, ?Closure $onCallSucceeded = null, array $answers = []): void
     {
         $this->feedbackError = null;
 
@@ -71,6 +73,7 @@ trait GivesConversationFeedback
                 source: $source,
                 spoken: $spoken,
                 onCallSucceeded: $onCallSucceeded,
+                answers: $answers,
             );
         } catch (AiLimitReached) {
             $this->feedback = null;

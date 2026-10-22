@@ -99,13 +99,25 @@ class LearnerFeedback
      *                        pronunciation is never judged, very short answers are worth a mention.
      * @param  string  $extraGuidance  Task-specific judging notes (the tense to use, the sequencing words, ...).
      * @param  string  $source  Where it came from, for the notebook (see FeedbackNotebook::SOURCES).
-     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, saved?: array{mistakes: int, tips: int}}
+     * @param  list<array{question: ?string, text: string}>  $answers  When the learner gave separate answers (an
+     *                                                                 interview), pass them here instead of $text:
+     *                                                                 each sentence then says which answer it is from,
+     *                                                                 so <x-learner-feedback> can show it under it.
+     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, saved?: array{mistakes: int, tips: int}}
      */
-    public function review(User $learner, string $text, string $situation, string $source, bool $spoken = false, string $extraGuidance = '', ?Closure $onCallSucceeded = null): array
+    public function review(User $learner, string $text, string $situation, string $source, bool $spoken = false, string $extraGuidance = '', ?Closure $onCallSucceeded = null, array $answers = []): array
     {
+        if ($answers !== []) {
+            $text = collect($answers)
+                ->map(fn (array $answer, int $index) => 'ANSWER '.($index + 1)
+                    .(filled($answer['question'] ?? null) ? "\nQuestion: {$answer['question']}" : '')
+                    ."\nLearner: {$answer['text']}")
+                ->implode("\n\n");
+        }
+
         $data = $this->card->generate(
             [['role' => 'user', 'text' => $text]],
-            systemPrompt: $this->systemPrompt($learner->levelDescription(), $situation, $spoken, $extraGuidance),
+            systemPrompt: $this->systemPrompt($learner->levelDescription(), $situation, $spoken, $extraGuidance, $answers !== []),
             requiredKeys: ['summary', 'sentences', 'positives', 'negatives'],
             onCallSucceeded: $onCallSucceeded,
         );
@@ -123,7 +135,7 @@ class LearnerFeedback
      * capping every list.
      *
      * @param  array<string, mixed>  $data
-     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, saved?: array{mistakes: int, tips: int}}
+     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, saved?: array{mistakes: int, tips: int}}
      */
     public static function normalize(array $data): array
     {
@@ -148,6 +160,7 @@ class LearnerFeedback
                     'corrected' => $status === 'ok' ? null : $corrected,
                     'why' => $status === 'ok' ? null : (self::text($s['why'] ?? null) ?: null),
                     'pattern' => $status === 'fix' ? (self::text($s['pattern'] ?? null) ?: null) : null,
+                    'answer' => is_numeric($s['answer'] ?? null) && (int) $s['answer'] > 0 ? (int) $s['answer'] : null,
                 ];
             })
             ->take(self::MAX_SENTENCES)
@@ -190,7 +203,7 @@ class LearnerFeedback
 
     /**
      * @param  array<string, mixed>  $data
-     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string}
+     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string}
      */
     private static function fromLegacy(array $data): array
     {
@@ -205,6 +218,7 @@ class LearnerFeedback
                 'corrected' => self::text($correction['corrected']),
                 'why' => self::text($correction['why'] ?? null) ?: null,
                 'pattern' => null,
+                'answer' => null,
             ];
             $negatives = self::points([$correction['suggestion'] ?? null]);
         } elseif (is_string($correction)) {
@@ -240,7 +254,7 @@ class LearnerFeedback
         return is_string($value) ? trim($value) : '';
     }
 
-    private function systemPrompt(string $learnerDescription, string $situation, bool $spoken, string $extraGuidance): string
+    private function systemPrompt(string $learnerDescription, string $situation, bool $spoken, string $extraGuidance, bool $numberedAnswers = false): string
     {
         $techniques = collect(self::TECHNIQUES)
             ->map(fn (array $t, string $key) => "\"{$key}\" ({$t['name']}: use when {$t['when']}; e.g. \"{$t['example']}\")")
@@ -254,6 +268,7 @@ class LearnerFeedback
                     .'pronunciation. If the answers are very short or stop half-way, say so in "negatives". '
                 : '')
             .($extraGuidance !== '' ? $extraGuidance.' ' : '')
+            .($numberedAnswers ? 'The learner\'s words come as numbered ANSWERs; only the "Learner" lines are theirs. ' : '')
             .'Go through the learner\'s sentences in order (at most '.self::MAX_SENTENCES.'; in a longer text keep '
             .'the ones that teach the most). Mark each one "ok" (correct and natural), "better" (correct, but a '
             .'native speaker would say it more naturally) or "fix" (a real grammar or vocabulary error). Never '
@@ -267,7 +282,8 @@ class LearnerFeedback
             .'"status": "ok, better or fix", '
             .'"corrected": "for better/fix: the natural or fixed English version; null when ok", '
             .'"why": "for better/fix: one short line in Persian; null when ok", '
-            .'"pattern": "for fix only: 2-5 English words naming the rule, e.g. present perfect with for; else null"}], '
+            .'"pattern": "for fix only: 2-5 English words naming the rule, e.g. present perfect with for; else null"'
+            .($numberedAnswers ? ', "answer": the ANSWER number this sentence is from' : '').'}], '
             .'"positives": ["one short line in Persian", "... at most '.self::MAX_POINTS.'"], '
             .'"negatives": ["one short line in Persian", "... at most '.self::MAX_POINTS.', empty when nothing"], '
             .'"techniques": [{"key": "a key from the list", "tip": "one short line in Persian: why it helps here", '

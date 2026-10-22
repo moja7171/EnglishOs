@@ -325,14 +325,9 @@ new class extends Component
      */
     public function checkSoloAnswers(): void
     {
-        $answers = collect($this->roundGroups())
-            ->map(fn (array $group, int $index) => filled($this->soloTranscripts[$index] ?? null)
-                ? ($group['label'] ?? 'Round '.($index + 1))."\nQuestions: ".implode(' / ', $group['questions'] ?? [])
-                    ."\nMy answer: ".$this->soloTranscripts[$index]
-                : null)
-            ->filter();
+        $answers = $this->soloAnswers();
 
-        if ($answers->isEmpty()) {
+        if ($answers === []) {
             $this->feedback = null;
             $this->feedbackError = 'Your answers could not be turned into text, so there is nothing to check.';
 
@@ -340,14 +335,36 @@ new class extends Component
         }
 
         $this->requestConversationFeedback(
-            $answers->implode("\n\n"),
+            '',
             situation: 'spoken answers the learner recorded alone to a few questions about people they know, '
-                .'turned into text by speech recognition. Judge ONLY the "My answer" parts; the questions are '
-                .'context. Ignore filler words and small speech-recognition glitches.',
+                .'turned into text by speech recognition. The questions are context. Ignore filler words and small '
+                .'speech-recognition glitches.',
             source: 'partner_speaking',
             spoken: true,
             onCallSucceeded: fn () => $this->recordGeminiCall(),
+            answers: $answers,
         );
+    }
+
+    /**
+     * Each round the learner recorded, with its questions — rounds whose
+     * transcription failed are left out. What the feedback is given on and
+     * what it shows one card for.
+     *
+     * @return list<array{question: ?string, text: string}>
+     */
+    public function soloAnswers(): array
+    {
+        return collect($this->roundGroups())
+            ->map(fn (array $group, int $index) => filled($this->soloTranscripts[$index] ?? null)
+                ? [
+                    'question' => ($group['label'] ?? 'Round '.($index + 1)).': '.implode(' / ', $group['questions'] ?? []),
+                    'text' => $this->soloTranscripts[$index],
+                ]
+                : null)
+            ->filter()
+            ->values()
+            ->all();
     }
 
     public function proceed(): void
@@ -394,7 +411,7 @@ new class extends Component
                         You went through every question with a practice partner.
                     @endif
                 </p>
-            @else
+            @elseif (! $feedback)
                 <div class="space-y-3">
                     @foreach ($roundGroups as $index => $group)
                         <div class="rounded-xl border border-line p-3 dark:border-line-dark">
@@ -415,7 +432,16 @@ new class extends Component
             @if ($mode === 'solo' && ! $preview && collect($soloTranscripts)->filter()->isNotEmpty())
                 @if ($feedback || $feedbackError)
                     <div wire:loading.class="opacity-60" wire:target="checkSoloAnswers" class="border-t border-line pt-3 dark:border-line-dark">
-                        <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="checkSoloAnswers" />
+                        <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="checkSoloAnswers" :answers="$this->soloAnswers()">
+                            @foreach ($roundGroups as $index => $group)
+                                @if ($url = $savedSoloAudioUrls[$index] ?? null)
+                                    <div>
+                                        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">{{ $group['label'] ?? 'Round '.($index + 1) }}</p>
+                                        <div class="mt-1"><x-audio-player :url="$url" /></div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </x-conversation-feedback>
                     </div>
                 @else
                     <button

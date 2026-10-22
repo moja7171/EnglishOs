@@ -7,36 +7,23 @@ use Tests\TestCase;
 
 class ConfidenceTranscriptComponentTest extends TestCase
 {
-    public function test_high_confidence_segments_get_no_color_class(): void
-    {
-        $segments = [['text' => 'This part was clear.', 'confidence' => 'high']];
-
-        $html = Blade::render('<x-confidence-transcript :segments="$segments" />', ['segments' => $segments]);
-
-        $this->assertStringContainsString('This part was clear.', $html);
-        $this->assertStringNotContainsString('text-warning-ink', $html);
-        $this->assertStringNotContainsString('text-danger-ink', $html);
-    }
-
-    public function test_medium_and_low_confidence_segments_get_their_own_color(): void
+    /**
+     * Learners read the old amber/red "Whisper wasn't sure" colors as
+     * mistakes, so every segment is now plain text, with no caption.
+     */
+    public function test_unsure_segments_are_joined_as_plain_text_with_no_colors_or_caption(): void
     {
         $segments = [
+            ['text' => 'Clear bit.', 'confidence' => 'high'],
             ['text' => 'Mumbled bit.', 'confidence' => 'medium'],
             ['text' => 'Unclear bit.', 'confidence' => 'low'],
         ];
 
         $html = Blade::render('<x-confidence-transcript :segments="$segments" />', ['segments' => $segments]);
 
-        $this->assertStringContainsString('text-warning-ink', $html);
-        $this->assertStringContainsString('text-danger-ink', $html);
-    }
-
-    public function test_a_fully_high_confidence_transcript_has_no_explanatory_caption(): void
-    {
-        $segments = [['text' => 'Everything was clear.', 'confidence' => 'high']];
-
-        $html = Blade::render('<x-confidence-transcript :segments="$segments" />', ['segments' => $segments]);
-
+        $this->assertStringContainsString('Clear bit. Mumbled bit. Unclear bit.', $html);
+        $this->assertStringNotContainsString('text-warning-ink', $html);
+        $this->assertStringNotContainsString('text-danger-ink', $html);
         $this->assertStringNotContainsString('might be worth saying again', $html);
     }
 

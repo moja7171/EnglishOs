@@ -30,6 +30,23 @@ class LearnerFeedbackTest extends TestCase
         $this->assertSame(['mistakes' => 1, 'tips' => 1], $feedback['saved']);
     }
 
+    public function test_separate_answers_are_numbered_for_the_ai_and_each_sentence_keeps_its_answer(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
+            ->withArgs(fn ($messages, $systemPrompt) => str_contains($messages[0]['text'], "ANSWER 2\nQuestion: How did you meet?\nLearner: We meet at school.")
+                && str_contains($systemPrompt, '"answer": the ANSWER number'))
+            ->andReturn($this->learnerFeedbackReply(['sentences' => [
+                ['original' => 'We meet at school.', 'status' => 'fix', 'corrected' => 'We met at school.', 'why' => 'گذشته.', 'pattern' => 'past simple', 'answer' => 2],
+            ]])));
+
+        $feedback = app(LearnerFeedback::class)->review(User::factory()->create(), '', 'spoken answers.', 'partner_speaking', answers: [
+            ['question' => 'Who is your friend?', 'text' => 'Sara is my friend.'],
+            ['question' => 'How did you meet?', 'text' => 'We meet at school.'],
+        ]);
+
+        $this->assertSame(2, $feedback['sentences'][0]['answer']);
+    }
+
     public function test_a_reply_without_the_required_parts_throws_so_the_caller_can_fail_softly(): void
     {
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['summary' => 'خوب بود.'])));
