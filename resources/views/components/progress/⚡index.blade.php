@@ -4,6 +4,7 @@ use App\Models\ErrorLogItem;
 use App\Models\ErrorPatternReview;
 use App\Models\Mission;
 use App\Models\User;
+use App\Services\FinishLine;
 use App\Services\ProgramPlanner;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -175,19 +176,27 @@ new class extends Component
      * the calendar — shown in the header here, not on home, so home stays
      * one line of "where am I" (see ProgramPlanner).
      *
-     * @return array{programDay: int, totalDays: int, daysDelta: int, started: bool, finished: bool}
+     * The finish line is FinishLine's two dates in one Persian line —
+     * the same words the finish date alerts use.
+     *
+     * @return array{programDay: int, totalDays: int, daysDelta: int, started: bool, finished: bool, finishLine: ?string}
      */
     #[Computed]
     public function program(): array
     {
-        $plan = app(ProgramPlanner::class)->plan(auth()->user());
+        $learner = auth()->user();
+        $plan = app(ProgramPlanner::class)->plan($learner);
+        $finished = $plan['today']['kind'] === 'finished';
+        $finishLine = app(FinishLine::class);
+        $forecast = $finished ? null : $finishLine->forecast($learner);
 
         return [
             'programDay' => $plan['programDay'],
             'totalDays' => $plan['totalDays'],
             'daysDelta' => $plan['daysDelta'],
             'started' => $plan['started'],
-            'finished' => $plan['today']['kind'] === 'finished',
+            'finished' => $finished,
+            'finishLine' => $forecast === null ? null : $finishLine->datesLine($forecast),
         ];
     }
 
@@ -285,6 +294,9 @@ new class extends Component
                     </span>
                 @endif
             </p>
+            @if ($program['finishLine'])
+                <p dir="rtl" class="mt-1 w-fit text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">🏁 {{ $program['finishLine'] }}</p>
+            @endif
             @php $missionsDone = collect($this->journey)->where('state', 'done')->count(); @endphp
             <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
                 <span class="inline-flex items-center gap-1.5">
