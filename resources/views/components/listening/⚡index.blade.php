@@ -250,6 +250,8 @@ new class extends Component
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Grammar in this mission: <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $this->mission['grammar'] }}</span></p>
     </section>
 
+    <x-done-toggle :done="$this->listenedToday" action="markListened" label="I listened" done-label="Listened today" />
+
     <section class="space-y-3" aria-label="Listening picks">
         @foreach ($this->picks as $level => $pick)
             <article class="card space-y-2.5 p-4" wire:key="pick-{{ $missionCode }}-{{ $day }}-{{ $level }}">
@@ -357,22 +359,6 @@ new class extends Component
                 </div>
             </article>
         @endforeach
-    </section>
-
-    <section class="flex flex-wrap items-center gap-3 rounded-xl px-1">
-        @if ($this->listenedToday)
-            <span class="inline-flex items-center gap-1 rounded-full bg-success-soft px-4 py-2 text-sm font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
-                @svg('heroicon-s-check', 'h-4 w-4') Listened today
-            </span>
-        @else
-            <button
-                type="button"
-                wire:click="markListened"
-                wire:loading.attr="disabled"
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-            >I listened @svg('heroicon-s-check', 'h-4 w-4')</button>
-            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak. Listening to a pick here all the way through ticks it for you.</span>
-        @endif
     </section>
 
     <p class="border-t border-line pt-4 text-sm text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">

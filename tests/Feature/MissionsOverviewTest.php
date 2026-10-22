@@ -340,15 +340,21 @@ class MissionsOverviewTest extends TestCase
             ->assertSeeInOrder(["Today's steps", 'in order', 'Continue', 'Extra listening']);
     }
 
-    public function test_the_today_box_has_no_i_listened_button_only_a_link_to_the_page(): void
+    public function test_the_listening_rows_circle_ticks_it_without_leaving_home(): void
     {
         $learner = User::factory()->create();
         MissionRun::findOrStart($learner, $this->makeMission());
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertDontSee('I listened')
-            ->assertSeeHtml('href="'.route('listening.show').'"');
+            ->assertSeeHtml('wire:click="markListened"')
+            ->assertSeeHtml('href="'.route('listening.show').'"')
+            ->assertDontSee('Listened today')
+            ->call('markListened')
+            ->assertSee('Listened today')
+            ->assertDontSeeHtml('wire:click="markListened"');
+
+        $this->assertTrue($learner->hasListenedToday());
     }
 
     public function test_the_today_box_reflects_a_tick_made_today(): void

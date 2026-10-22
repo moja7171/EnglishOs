@@ -278,21 +278,7 @@ new class extends Component
         </p>
     </section>
 
-    <section class="flex flex-wrap items-center gap-3 rounded-xl px-1">
-        @if ($this->practicedToday)
-            <span class="inline-flex items-center gap-1 rounded-full bg-success-soft px-4 py-2 text-sm font-semibold text-success dark:bg-success-soft-dark dark:text-success-dark">
-                @svg('heroicon-s-check', 'h-4 w-4') Practiced today
-            </span>
-        @else
-            <button
-                type="button"
-                wire:click="markPracticed"
-                wire:loading.attr="disabled"
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-            >I practiced @svg('heroicon-s-check', 'h-4 w-4')</button>
-            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Counts toward your streak</span>
-        @endif
-    </section>
+    <x-done-toggle :done="$this->practicedToday" action="markPracticed" label="I practiced" done-label="Practiced today" :ask-after-pi="true" />
 
     <section class="card space-y-3 p-4" aria-label="Feedback on your chat">
         <label for="pasted-chat" class="block text-sm font-semibold text-ink dark:text-ink-dark">Feedback on your chat</label>
