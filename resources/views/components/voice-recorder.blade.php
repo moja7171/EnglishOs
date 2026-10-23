@@ -211,25 +211,86 @@
             this.previewPlaying = false;
             if (this.state === 'review') this.state = 'idle';
         },
+        // Whatever goes wrong on the way, the take comes back to review so
+        // one tap on Send retries it — a weak connection must never eat a
+        // recording.
+        handBackTake() {
+            this.uploading = false;
+            this.processing = false;
+            this.state = this.pendingFile ? 'review' : 'idle';
+            this.error = 'Not sent. Check your connection and tap Send again.';
+        },
         sendRecording() {
             if (!this.pendingFile) return;
             this.$refs.preview.pause();
             this.error = null;
             this.uploading = true;
             this.state = 'idle';
+            // Livewire only reports a failed upload after one more
+            // successful round-trip (_uploadErrored), and on a weak
+            // connection that round-trip fails too: the error callback
+            // never fired, the spinner turned forever and the take sat
+            // hidden with no Send left. So every Livewire request of the
+            // upload is watched here, plus a stall timer for an upload
+            // that just hangs (progress events re-arm it).
+            let settled = false;
+            let stallTimer = null;
+            const stopWatching = this.$wire.$intercept(({ action, onError, onFailure }) => {
+                if (!['_startUpload', '_finishUpload', '_uploadErrored'].includes(action.name)) return;
+                onError(({ response, preventDefault }) => {
+                    if (response.status !== 419) preventDefault();
+                    window.eosConnectionNotice?.skip();
+                    failed();
+                });
+                onFailure(() => { window.eosConnectionNotice?.skip(); failed(); });
+            });
+            const settle = () => {
+                settled = true;
+                clearTimeout(stallTimer);
+                stopWatching();
+            };
+            const failed = () => {
+                if (settled) return;
+                settle();
+                // Empties Livewire's queue for this field (and aborts a
+                // hung request): a stuck entry there blocks every later
+                // upload of the same field, so a retry would never start.
+                this.$wire.cancelUpload('{{ $field }}');
+                this.handBackTake();
+            };
+            const armStallTimer = () => {
+                clearTimeout(stallTimer);
+                stallTimer = setTimeout(failed, 45000);
+            };
+            armStallTimer();
             this.$wire.upload('{{ $field }}', this.pendingFile,
                 () => {
+                    if (settled) return;
+                    settle();
                     this.uploading = false;
-                    this.discardTake();
                     {{ $onUploaded }}
                     @if ($onRecorded)
                         this.processing = true;
                         this.$wire.call('{{ $onRecorded }}'@if($onRecordedParam !== null), {{ Illuminate\Support\Js::from($onRecordedParam) }}@endif)
+                            .then(() => this.discardTake())
+                            .catch((failure) => {
+                                // A validation answer (422) means the server
+                                // did handle the take. No answer, or a host
+                                // error page, means it never did: keep it.
+                                if (failure?.status === 422) {
+                                    this.discardTake();
+                                    return;
+                                }
+                                window.eosConnectionNotice?.skip();
+                                this.handBackTake();
+                            })
                             .finally(() => { this.processing = false; {{ $onProcessed }} });
+                    @else
+                        this.discardTake();
                     @endif
                 },
-                // Keeps the take, so one tap on Send retries it.
-                () => { this.uploading = false; this.state = 'review'; this.error = 'Upload failed. Please try again.'; }
+                failed,
+                armStallTimer
             );
         },
         fileName: {{ Illuminate\Support\Js::from($fileName) }},

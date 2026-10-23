@@ -463,6 +463,7 @@ document.addEventListener('livewire:init', () => {
     Livewire.on('clear-draft', ({ prefix }) => window.eosDraft.clearPrefix(prefix));
 
     window.eosProgress.attach();
+    window.eosConnectionNotice.attach();
 
     // Livewire's morph copies every attribute of the freshly-rendered
     // server HTML onto the live element — x-cloak included, because
@@ -562,6 +563,69 @@ window.eosProgress = {
         el.style.width = '100%';
         el.style.opacity = '0';
         this.hideTimer = setTimeout(() => { el.style.width = '0'; }, 500);
+    },
+};
+
+/**
+ * When the shared host is overloaded (LiteSpeed answers 502/503/504) or
+ * the learner's connection drops mid-request, Livewire's default is to
+ * paint the server's raw error page over the whole app in a modal — on a
+ * phone with a weak signal that was a full-screen "503 Service
+ * Unavailable" with nothing to do but close it, and a dropped connection
+ * showed nothing at all. Instead: one short line at the top that fades by
+ * itself. A widget with its own inline message for the same failure (the
+ * voice recorder) calls skip() so the learner isn't told twice. Every
+ * other status (419 page expired, a 500's debug page locally) keeps
+ * Livewire's own handling.
+ */
+window.eosConnectionNotice = {
+    element: null,
+    pendingTimer: null,
+    hideTimer: null,
+
+    attach() {
+        if (typeof Livewire === 'undefined' || !Livewire.interceptRequest) return;
+
+        Livewire.interceptRequest(({ onError, onFailure }) => {
+            onError(({ response, preventDefault }) => {
+                if (![502, 503, 504].includes(response.status)) return;
+                preventDefault();
+                this.queue();
+            });
+            onFailure(() => this.queue());
+        });
+    },
+
+    // Deferred a tick: Livewire runs a component's own handlers for the
+    // same failure right after this one, and they may still call skip().
+    queue() {
+        clearTimeout(this.pendingTimer);
+        this.pendingTimer = setTimeout(() => this.show(), 0);
+    },
+
+    skip() {
+        clearTimeout(this.pendingTimer);
+    },
+
+    show() {
+        // isConnected: a wire:navigate page swap replaces <body>.
+        if (!this.element || !this.element.isConnected) {
+            const el = document.createElement('div');
+            el.setAttribute('role', 'status');
+            el.style.cssText = [
+                'position:fixed', 'top:12px', 'left:50%', 'transform:translateX(-50%)',
+                'max-width:calc(100% - 32px)', 'padding:8px 16px', 'border-radius:9999px',
+                'background:var(--color-ink, #1d1b3a)', 'color:var(--color-ground, #f6f5fb)',
+                'font-size:14px', 'z-index:10001', 'pointer-events:none',
+                'opacity:0', 'transition:opacity 200ms ease-in',
+            ].join(';');
+            el.textContent = 'Connection problem. Please try again.';
+            document.body.appendChild(el);
+            this.element = el;
+        }
+        clearTimeout(this.hideTimer);
+        this.element.style.opacity = '1';
+        this.hideTimer = setTimeout(() => { this.element.style.opacity = '0'; }, 4000);
     },
 };
 
