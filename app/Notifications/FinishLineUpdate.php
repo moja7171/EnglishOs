@@ -18,7 +18,7 @@ class FinishLineUpdate extends Notification
     public function __construct(private readonly string $message) {}
 
     /**
-     * @return array{icon: string, title: string, url: string}
+     * @return array{icon: string, title: string, url: string, topic: string}
      */
     public function toArray(object $notifiable): array
     {
@@ -26,7 +26,13 @@ class FinishLineUpdate extends Notification
             'icon' => 'heroicon-s-flag',
             'title' => $this->message,
             'url' => route('progress.index'),
+            'topic' => 'finish-line',
         ];
+    }
+
+    protected function countsTowardDailyLimit(): bool
+    {
+        return true;
     }
 
     protected function webPushTag(): ?string

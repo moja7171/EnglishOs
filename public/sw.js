@@ -54,25 +54,36 @@ self.addEventListener('push', (event) => {
         data: payload.data || {},
     };
 
-    event.waitUntil(self.registration.showNotification(payload.title || 'English OS', options));
+    const unread = options.data.unread;
+    const badge = typeof unread === 'number' && 'setAppBadge' in self.navigator
+        ? self.navigator.setAppBadge(unread).catch(() => {})
+        : Promise.resolve();
+
+    event.waitUntil(Promise.all([self.registration.showNotification(payload.title || 'English OS', options), badge]));
 });
 
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     // Only ever open a page on our own origin, whatever the payload says.
-    const requested = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin);
-    const target = requested.origin === self.location.origin ? requested.href : self.location.origin + '/';
+    const data = event.notification.data || {};
+    const requested = new URL(data.url || '/', self.location.origin);
+    const target = new URL(requested.origin === self.location.origin ? requested.href : self.location.origin + '/');
+
+    // The page marks this alert's bell row read (MarkNotificationRead).
+    if (data.id) {
+        target.searchParams.set('notification', data.id);
+    }
 
     event.waitUntil(
         self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
             const open = windows.find((client) => 'focus' in client);
 
             if (open) {
-                return open.focus().then((client) => ('navigate' in client ? client.navigate(target) : client));
+                return open.focus().then((client) => ('navigate' in client ? client.navigate(target.href) : client));
             }
 
-            return self.clients.openWindow(target);
+            return self.clients.openWindow(target.href);
         })
     );
 });

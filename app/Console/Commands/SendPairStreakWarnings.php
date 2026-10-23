@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Warns a learner at 20:00 their time that the pair streak with a friend
- * breaks tonight because they haven't finished today's mission day — one
+ * breaks tonight because today doesn't keep their streak yet (see StreakRing) — one
  * alert a day, about the friend with the longest pair streak. Scheduled
  * every minute in routes/console.php.
  */
@@ -60,7 +60,7 @@ class SendPairStreakWarnings extends Command
 
         $friends = $user->mutualFriends();
 
-        if ($friends->isEmpty() || $reminders->finishedToday($user) || ! $reminders->hasRoomToday($user)) {
+        if ($friends->isEmpty() || $user->wasActiveToday() || ! $reminders->hasRoomToday($user)) {
             return false;
         }
 

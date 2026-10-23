@@ -21,7 +21,7 @@ class AiChainDegraded extends Notification
     ) {}
 
     /**
-     * @return array{icon: string, title: string, url: string}
+     * @return array{icon: string, title: string, url: string, topic: string}
      */
     public function toArray(object $notifiable): array
     {
@@ -31,12 +31,13 @@ class AiChainDegraded extends Notification
                 ? "AI models: every {$this->chainName} model is down right now."
                 : "AI models: {$this->chainName} is down to its last model ({$this->lastModel}).",
             'url' => route('profile'),
+            'topic' => 'ai-chain',
         ];
     }
 
     protected function webPushTag(): ?string
     {
-        return 'ai-chain-'.md5($this->chainName);
+        return 'ai-chain';
     }
 
     /**

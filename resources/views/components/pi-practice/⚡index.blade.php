@@ -78,8 +78,9 @@ new class extends Component
      * Pi sends the learner's own words in one "My words:" message (see
      * PiPrompts), which the learner copies and pastes here; a whole copied
      * chat still works. Speaker names may or may not come along, so the
-     * AI is told how to tell the two sides apart. A good result is kept
-     * for the day on screen (see PiChatFeedback).
+     * AI is told how to tell the two sides apart, and it judges against
+     * the day's own goal (see PiPrompts::dayTask()). A good result is
+     * kept for the day on screen (see PiChatFeedback).
      */
     public function checkPastedChat(): void
     {
@@ -89,10 +90,11 @@ new class extends Component
             $this->pastedChat,
             situation: 'a voice conversation the learner had with an AI speaking partner (such as Pi), copied from '
                 .'the app and pasted in. It may be a "My words:" list where each "Me:" line is the learner\'s exact '
-                .'words and "Q:" is the AI\'s question, or a whole chat. Speaker names may be missing — the AI\'s turns are usually longer and '
+                .'words and "Q:" is the AI\'s question (or "Line:" the line to repeat), or a whole chat. Speaker names may be missing — the AI\'s turns are usually longer and '
                 .'ask questions or give corrections; judge ONLY the learner\'s own turns. Ignore filler words.',
             source: 'pi',
-            spoken: true,
+            spoken: ! $this->task['isPronunciationDrill'],
+            extraGuidance: $this->task['feedback'],
         );
 
         if ($this->feedback !== null) {
@@ -167,7 +169,7 @@ new class extends Component
     }
 
     /**
-     * @return array{title: string, goal: string, plan: list<string>, prompt: string}
+     * @return array{title: string, goal: string, plan: list<string>, prompt: string, feedback: string, isPronunciationDrill: bool}
      */
     #[Computed]
     public function task(): array

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\DirectMessage;
 use App\Models\Evidence;
 use App\Models\FriendBlock;
@@ -225,6 +226,7 @@ class FriendsIndexTest extends TestCase
                 'type' => Evidence::TYPE_SCORE,
                 'content_ref' => '3',
             ]);
+            DayActivity::factory()->create(['learner_id' => $user->id]); // a 2nd activity keeps today
         }
 
         $this->actingAs($me);

@@ -36,6 +36,9 @@ use Illuminate\Support\Str;
  * Pi can't copy a whole chat at once, so the AI also sends the learner's
  * own words, uncorrected, in one message — at the wrap-up and whenever
  * the learner says "transcript" — for them to paste back for feedback.
+ * That feedback is judged against the day's own goal (see dayTask()'s
+ * `feedback`): a pronunciation drill is checked line against line, never
+ * for grammar the learner only repeated.
  */
 class PiPrompts
 {
@@ -110,11 +113,18 @@ class PiPrompts
      */
     private const MAX_CONVERSATION_HINTS = 4;
 
+    /** One transcript line on the days the AI asks and the learner answers. */
+    private const QUESTION_TRANSCRIPT = 'Round 1 — Q: (your question, 6 words max) / Me: (everything I said)';
+
     /**
      * The practice for one day (1-4) of one mission, with everything the
      * practice page shows about it.
      *
-     * @return array{title: string, goal: string, plan: list<string>, prompt: string}
+     * `feedback` is the judging note for the pasted-back transcript (see
+     * LearnerFeedback::review()'s $extraGuidance), and `isPronunciationDrill`
+     * says the learner only repeated given lines.
+     *
+     * @return array{title: string, goal: string, plan: list<string>, prompt: string, feedback: string, isPronunciationDrill: bool}
      */
     public function dayTask(User $learner, string $missionCode, int $dayNumber): array
     {
@@ -137,6 +147,8 @@ class PiPrompts
             'goal' => $day['goal'],
             'plan' => $session['plan'],
             'prompt' => $this->prompt($learner, $day['title'], $title, $session),
+            'feedback' => $session['feedback'],
+            'isPronunciationDrill' => $dayNumber === 1,
         ];
     }
 
@@ -192,7 +204,7 @@ class PiPrompts
      * The shared head (level, rules) and tail (start now) wrapped around a
      * day's own plan and material.
      *
-     * @param  array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}  $session
+     * @param  array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string, transcript: string, feedback: string}  $session
      */
     private function prompt(User $learner, string $dayTitle, string $missionTitle, array $session): string
     {
@@ -214,7 +226,7 @@ class PiPrompts
             ."- Say the round number each time, like \"Round 1 of {$session['rounds']}\".\n"
             ."- My control words count only when I say one alone, as my whole turn: {$controlWords}.\n"
             ."- After the last round, stop. Give me my {$session['fixes']} most useful fixes, each with a very short reason, and 1 thing I did well. End with one short line to keep me going. Then, in the same message, add my transcript and only ask: \"More?\"\n"
-            ."- My transcript: ONE message, never split. Write \"My words:\", then one line per round: \"Round 1 — Q: (your question, 6 words max) / Me: (everything I said)\". Copy my words exactly — do NOT fix my mistakes. Send it after the last round and whenever I say \"transcript\".\n\n"
+            ."- My transcript: ONE message, never split. Write \"My words:\", then one line per round: \"{$session['transcript']}\". Copy my words exactly — do NOT fix my mistakes. Send it after the last round and whenever I say \"transcript\".\n\n"
             ."Today: {$dayTitle} — \"{$missionTitle}\".\n"
             .$steps."\n"
             .($session['material'] !== '' ? "\n".$session['material']."\n" : '')
@@ -222,12 +234,18 @@ class PiPrompts
     }
 
     /**
+     * The transcript keeps each line whole ("Line:", not a 6-word "Q:"), so
+     * the feedback can compare what was heard with what was meant.
+     *
      * @param  list<string>  $lines
-     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string, transcript: string, feedback: string}
      */
     private function pronunciationSession(string $title, array $lines): array
     {
         $count = $lines === [] ? self::MAX_PRONUNCIATION_LINES : count($lines);
+        $targets = $lines === []
+            ? 'The target lines are the "Line:" parts of the transcript.'
+            : 'The target lines: '.collect($lines)->map(fn (string $line) => "\"{$line}\"")->implode(' ').' (the "Line:" parts of the transcript say the same).';
 
         return [
             'rounds' => $count + 1,
@@ -247,11 +265,20 @@ class PiPrompts
             'material' => $lines === []
                 ? ''
                 : "Lines:\n".collect($lines)->map(fn (string $line, int $index) => ($index + 1).'. '.$line)->implode("\n"),
+            'transcript' => 'Round 1 — Line: (the whole line you said) / Me: (everything I said)',
+            'feedback' => 'TODAY\'S TASK is a repeat-after-me PRONUNCIATION drill: the learner only repeated given lines, '
+                .'so NEVER judge their grammar or vocabulary and never praise or fault "the grammar". '.$targets.' '
+                .'The learner\'s lines were written down by speech-to-text, so a word that is missing, changed or '
+                .'misheard compared with the target line most likely did not come through clearly. Mark a learner line '
+                .'"ok" when it matches its target (ignore punctuation and capitals), else "fix" with "corrected" = the '
+                .'target line, "why" = which word(s) did not come through and one short Persian tip on how to say that '
+                .'sound, "pattern" = the sound in 2-5 English words (e.g. th sound, final -ed). Summary, positives and '
+                .'negatives are only about clarity and the sounds. No techniques. better_version: null.',
         ];
     }
 
     /**
-     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string, transcript: string, feedback: string}
      */
     private function grammarSession(string $focus, string $title): array
     {
@@ -270,11 +297,15 @@ class PiPrompts
                 "In rounds 1 to 5, ask me one real question about my life that needs \"{$focus}\". Wait for my answer, cheer me on in a few words, then fix or move on.",
             ],
             'material' => '',
+            'transcript' => self::QUESTION_TRANSCRIPT,
+            'feedback' => "TODAY'S TASK is GRAMMAR practice: each answer should use \"{$focus}\". Judge mainly that: an answer "
+                ."that needs \"{$focus}\" and avoids it or gets it wrong is a \"fix\" whose pattern names it. The summary "
+                .'says in one line how well the learner used it. Mention other mistakes only when they block understanding.',
         ];
     }
 
     /**
-     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string, transcript: string, feedback: string}
      */
     private function conversationSession(?Mission $mission, string $title): array
     {
@@ -304,6 +335,12 @@ class PiPrompts
                 'In rounds 3 and 6, I ask you a question instead. Answer in 1-2 sentences.',
             ],
             'material' => $material,
+            'transcript' => self::QUESTION_TRANSCRIPT,
+            'feedback' => "TODAY'S TASK is a CONVERSATION about \"{$title}\": the learner answers in full and asks 2 questions "
+                .'of their own (rounds 3 and 6). Judge that first: did they ask their 2 questions (else the "ask_back" '
+                .'technique), were the answers long enough (else "extend")'
+                .($phrases !== [] ? ', and which of these phrases they used (positives) or missed (negatives): '.implode(', ', $phrases) : '')
+                .'. The summary is about how well they kept the chat going.',
         ];
     }
 
@@ -324,7 +361,7 @@ class PiPrompts
     }
 
     /**
-     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string}
+     * @return array{rounds: int, fixes: int, plan: list<string>, steps: list<string>, material: string, transcript: string, feedback: string}
      */
     private function retellSession(?Mission $mission, string $title): array
     {
@@ -347,6 +384,11 @@ class PiPrompts
             'material' => $stories === []
                 ? ''
                 : "Stories:\n".collect($stories)->map(fn (string $story) => "- {$story}")->implode("\n"),
+            'transcript' => self::QUESTION_TRANSCRIPT,
+            'feedback' => "TODAY'S TASK is a RETELL of one story from \"{$title}\""
+                .($stories === [] ? '' : ' ('.implode(' / ', $stories).')')
+                .'. Judge that first: past tenses, a clear order (else the "sequence" technique) and whether the main '
+                .'points of the story were told — name a missing one in negatives. The summary is about the retell.',
         ];
     }
 }

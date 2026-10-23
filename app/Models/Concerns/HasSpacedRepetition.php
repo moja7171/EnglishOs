@@ -2,6 +2,8 @@
 
 namespace App\Models\Concerns;
 
+use App\Services\StreakRing;
+
 /**
  * The SM-2 spaced-repetition algorithm (SuperMemo, 1987) — first built
  * for VocabularyWord, pulled out here so any future review-driven
@@ -103,7 +105,8 @@ trait HasSpacedRepetition
      * the schedule. A typical review flow maps its own grading modes onto
      * this same scale — e.g. a self-assessment tap (Again/Good/Easy →
      * 1/4/5) — see VocabularyWord's My Words flow for the reference
-     * implementation.
+     * implementation. Every review may finish today's review, a slice of
+     * the streak ring (see StreakRing::recordReview()).
      */
     public function review(int $quality): void
     {
@@ -115,6 +118,10 @@ trait HasSpacedRepetition
         $this->last_reviewed_at = now();
         $this->next_review_at = now()->addDays($this->interval_days);
         $this->save();
+
+        if ($this->learner) {
+            app(StreakRing::class)->recordReview($this->learner);
+        }
     }
 
     /**

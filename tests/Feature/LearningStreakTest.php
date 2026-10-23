@@ -11,6 +11,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
+/**
+ * The streak on the old rule, which still holds for every day before a
+ * learner's streak ring started (see StreakRingTest for the ring itself).
+ */
 class LearningStreakTest extends TestCase
 {
     use RefreshDatabase;
@@ -46,7 +50,7 @@ class LearningStreakTest extends TestCase
 
     public function test_a_learner_with_no_evidence_has_no_streak(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         $this->assertSame(0, $learner->currentStreak());
         $this->assertSame(0, $learner->longestStreak());
@@ -54,7 +58,7 @@ class LearningStreakTest extends TestCase
 
     public function test_evidence_recorded_today_gives_a_streak_of_one(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -65,7 +69,7 @@ class LearningStreakTest extends TestCase
 
     public function test_consecutive_active_days_count_up_the_streak(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -77,7 +81,7 @@ class LearningStreakTest extends TestCase
 
     public function test_multiple_evidence_rows_on_the_same_day_only_count_once(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -89,7 +93,7 @@ class LearningStreakTest extends TestCase
 
     public function test_a_single_skipped_day_is_forgiven_and_does_not_break_the_streak(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         // Active today and 2 days ago, but NOT yesterday — one day off.
@@ -102,7 +106,7 @@ class LearningStreakTest extends TestCase
 
     public function test_two_or_more_skipped_days_in_a_row_breaks_the_streak(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -114,7 +118,7 @@ class LearningStreakTest extends TestCase
 
     public function test_the_streak_resets_to_zero_once_more_than_a_day_has_passed_since_the_last_activity(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->subDays(3)->toDateString());
@@ -125,7 +129,7 @@ class LearningStreakTest extends TestCase
 
     public function test_being_active_yesterday_but_not_yet_today_keeps_the_streak_alive(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->subDay()->toDateString());
@@ -136,7 +140,7 @@ class LearningStreakTest extends TestCase
 
     public function test_longest_streak_remembers_a_past_run_even_after_it_has_ended(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         // A 4-day streak two weeks ago, long since broken...
@@ -154,7 +158,7 @@ class LearningStreakTest extends TestCase
 
     public function test_streaks_across_different_missions_still_combine_into_one_learner_streak(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         $missionOne = $this->makeMission();
         $missionTwo = Mission::create([
@@ -175,8 +179,8 @@ class LearningStreakTest extends TestCase
 
     public function test_one_learners_streak_never_counts_another_learners_evidence(): void
     {
-        $learner = User::factory()->create();
-        $otherLearner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
+        $otherLearner = User::factory()->beforeStreakRing()->create();
         $mission = $this->makeMission();
 
         $this->recordEvidenceOn(MissionRun::findOrStart($otherLearner, $mission), now()->toDateString());
@@ -188,7 +192,7 @@ class LearningStreakTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2024-01-10 12:00:00')); // a Wednesday
 
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -205,7 +209,7 @@ class LearningStreakTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2024-01-10 12:00:00')); // a Wednesday
 
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         $calendar = collect($learner->activityCalendar(weeks: 1))->keyBy('date');
 
@@ -217,7 +221,7 @@ class LearningStreakTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2024-01-10 12:00:00')); // Wednesday, week starts Sunday Jan 7
 
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, '2024-01-10'); // this week
@@ -227,42 +231,9 @@ class LearningStreakTest extends TestCase
         $this->assertSame(2, $learner->activeDaysThisWeek());
     }
 
-    public function test_just_benefited_from_grace_is_true_right_after_a_forgiven_gap(): void
-    {
-        $learner = User::factory()->create();
-        $run = MissionRun::findOrStart($learner, $this->makeMission());
-
-        $this->recordEvidenceOn($run, now()->toDateString());
-        $this->recordEvidenceOn($run, now()->subDays(2)->toDateString()); // yesterday skipped
-
-        $this->assertTrue($learner->justBenefitedFromGrace());
-    }
-
-    public function test_just_benefited_from_grace_is_false_with_no_gap(): void
-    {
-        $learner = User::factory()->create();
-        $run = MissionRun::findOrStart($learner, $this->makeMission());
-
-        $this->recordEvidenceOn($run, now()->toDateString());
-        $this->recordEvidenceOn($run, now()->subDay()->toDateString());
-
-        $this->assertFalse($learner->justBenefitedFromGrace());
-    }
-
-    public function test_just_benefited_from_grace_is_false_when_nothing_happened_today(): void
-    {
-        $learner = User::factory()->create();
-        $run = MissionRun::findOrStart($learner, $this->makeMission());
-
-        $this->recordEvidenceOn($run, now()->subDay()->toDateString());
-        $this->recordEvidenceOn($run, now()->subDays(3)->toDateString());
-
-        $this->assertFalse($learner->justBenefitedFromGrace());
-    }
-
     public function test_just_lost_streak_is_true_after_the_streak_actually_breaks(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->subDays(10)->toDateString());
@@ -275,14 +246,14 @@ class LearningStreakTest extends TestCase
 
     public function test_just_lost_streak_is_false_with_no_history(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         $this->assertFalse($learner->justLostStreak());
     }
 
     public function test_just_lost_streak_is_false_while_the_streak_is_still_alive(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -292,7 +263,7 @@ class LearningStreakTest extends TestCase
 
     public function test_streak_milestone_just_reached_returns_7_at_a_7_day_streak(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         for ($i = 0; $i < 7; $i++) {
@@ -306,7 +277,7 @@ class LearningStreakTest extends TestCase
 
     public function test_streak_milestone_just_reached_is_null_below_the_first_milestone(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -316,7 +287,7 @@ class LearningStreakTest extends TestCase
 
     public function test_a_milestone_is_never_celebrated_twice(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         for ($i = 0; $i < 7; $i++) {
@@ -330,7 +301,7 @@ class LearningStreakTest extends TestCase
 
     public function test_reaching_a_higher_milestone_celebrates_the_higher_one_directly(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         for ($i = 0; $i < 30; $i++) {
@@ -343,10 +314,10 @@ class LearningStreakTest extends TestCase
 
     public function test_mutual_friends_active_today_count_only_counts_real_mutual_active_friends(): void
     {
-        $learner = User::factory()->create();
-        $friendActive = User::factory()->create();
-        $friendInactive = User::factory()->create();
-        $notMutual = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
+        $friendActive = User::factory()->beforeStreakRing()->create();
+        $friendInactive = User::factory()->beforeStreakRing()->create();
+        $notMutual = User::factory()->beforeStreakRing()->create();
 
         $learner->follow($friendActive);
         $friendActive->acceptFollowRequest($learner);
@@ -364,14 +335,14 @@ class LearningStreakTest extends TestCase
 
     public function test_latest_in_progress_mission_run_is_null_with_no_runs(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         $this->assertNull($learner->latestInProgressMissionRun());
     }
 
     public function test_latest_in_progress_mission_run_finds_the_one_still_in_progress(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->assertSame($run->id, $learner->latestInProgressMissionRun()->id);
@@ -379,7 +350,7 @@ class LearningStreakTest extends TestCase
 
     public function test_latest_in_progress_mission_run_excludes_completed_runs(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $mission = $this->makeMission();
         $run = MissionRun::findOrStart($learner, $mission);
         $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
@@ -389,7 +360,7 @@ class LearningStreakTest extends TestCase
 
     public function test_missions_completed_this_week_only_counts_recent_completions(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $mission = $this->makeMission();
 
         $thisWeek = MissionRun::findOrStart($learner, $mission);
@@ -400,7 +371,7 @@ class LearningStreakTest extends TestCase
 
     public function test_missions_completed_this_week_excludes_older_completions(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $mission = $this->makeMission();
 
         $lastMonth = MissionRun::findOrStart($learner, $mission);
@@ -411,7 +382,7 @@ class LearningStreakTest extends TestCase
 
     public function test_activity_for_month_marks_the_learners_real_active_days(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $mission = $this->makeMission();
         $run = MissionRun::findOrStart($learner, $mission);
         $this->recordEvidenceOn($run, '2026-03-10');
@@ -427,7 +398,7 @@ class LearningStreakTest extends TestCase
 
     public function test_activity_for_month_pads_the_grid_to_full_weeks(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         $days = $learner->activityForMonth(2026, 3);
 
@@ -440,7 +411,7 @@ class LearningStreakTest extends TestCase
 
     public function test_next_streak_milestone_is_the_lowest_tier_not_yet_reached(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $mission = $this->makeMission();
         $run = MissionRun::findOrStart($learner, $mission);
 
@@ -455,7 +426,7 @@ class LearningStreakTest extends TestCase
 
     public function test_next_streak_milestone_is_null_once_every_tier_is_earned(): void
     {
-        $learner = User::factory()->create(['celebrated_streak_milestone' => 100]);
+        $learner = User::factory()->beforeStreakRing()->create(['celebrated_streak_milestone' => 100]);
         $mission = $this->makeMission();
         $run = MissionRun::findOrStart($learner, $mission);
 
@@ -469,7 +440,7 @@ class LearningStreakTest extends TestCase
 
     public function test_a_listening_tick_alone_gives_a_streak_of_one(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
 
@@ -479,7 +450,7 @@ class LearningStreakTest extends TestCase
 
     public function test_listening_and_evidence_on_the_same_day_count_as_one_active_day(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->toDateString());
@@ -491,7 +462,7 @@ class LearningStreakTest extends TestCase
 
     public function test_listening_ticks_join_evidence_days_into_one_streak(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
         $this->recordEvidenceOn($run, now()->subDays(2)->toDateString());
@@ -504,7 +475,7 @@ class LearningStreakTest extends TestCase
     public function test_listening_days_count_toward_the_weekly_goal(): void
     {
         $this->travelTo(now()->startOfWeek(Carbon::SUNDAY)->addDays(3));
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
         ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->subDay()->toDateString()]);
@@ -514,7 +485,7 @@ class LearningStreakTest extends TestCase
 
     public function test_another_learners_listening_never_counts(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         ListeningLog::factory()->create(['listened_on' => now()->toDateString()]);
 
@@ -523,14 +494,14 @@ class LearningStreakTest extends TestCase
 
     public function test_current_mission_number_defaults_to_1_with_no_runs_yet(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
 
         $this->assertSame(1, $learner->currentMissionNumber());
     }
 
     public function test_current_mission_number_is_the_highest_mission_reached(): void
     {
-        $learner = User::factory()->create();
+        $learner = User::factory()->beforeStreakRing()->create();
         MissionRun::findOrStart($learner, $this->makeMission());
         MissionRun::findOrStart($learner, Mission::create([
             'code' => 'M03',

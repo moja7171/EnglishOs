@@ -287,12 +287,10 @@ new class extends Component
             $stageProgress = $session->cardsInStage() > 0 ? $session->positionInStage() / $session->cardsInStage() : 0;
             $stageElapsed = $session->stage_ends_at ? PairPracticeSession::STAGE_SECONDS[$stage] - now()->diffInSeconds($session->stage_ends_at, false) : 0;
             $lastResult = collect($session->results ?? [])->last();
-            $flashCard = $lastResult
-                && $lastResult['correct'] !== null
-                && $lastResult['speaker_id'] === $me->id
-                && now()->getTimestamp() - ($lastResult['at'] ?? 0) <= 5
-                    ? ($session->deck[$lastResult['stage']][$lastResult['card']] ?? null)
-                    : null;
+            $revealCard = $lastResult && now()->getTimestamp() - ($lastResult['at'] ?? 0) <= PairPracticeSession::REVEAL_WINDOW_SECONDS
+                ? ($session->deck[$lastResult['stage']][$lastResult['card']] ?? null)
+                : null;
+            $revealDelayMs = $revealCard && $lastResult['stage'] !== $stage ? PairPracticeSession::REVEAL_MILLISECONDS : 0;
         @endphp
 
         <header class="space-y-2">
@@ -337,12 +335,12 @@ new class extends Component
             </div>
         </header>
 
-        @if ($stageElapsed < 2)
-            {{-- A short "Part 2 of 3" card as each stage opens. --}}
+        @if ($stageElapsed < 2 + $revealDelayMs / 1000)
+            {{-- A short "Part 2 of 3" card as each stage opens — after the last card's result. --}}
             <div
                 wire:key="intro-{{ $stage }}"
-                x-data="{ show: true }"
-                x-init="setTimeout(() => show = false, {{ max(0, (int) ((2 - $stageElapsed) * 1000)) }})"
+                x-data="{ show: @js($revealDelayMs === 0) }"
+                x-init="setTimeout(() => show = true, {{ max(0, $revealDelayMs - (int) ($stageElapsed * 1000)) }}); setTimeout(() => show = false, {{ max(0, (int) ((2 - $stageElapsed) * 1000) + $revealDelayMs) }})"
                 x-show="show"
                 x-transition.opacity.duration.300ms
                 class="fixed inset-0 z-[60] flex items-center justify-center bg-ground/95 p-6 dark:bg-ground-dark/95"
@@ -355,27 +353,49 @@ new class extends Component
             </div>
         @endif
 
-        @if ($flashCard)
-            {{-- The speaker sees how the judge scored their answer. --}}
-            <div
-                wire:key="flash-{{ $answered }}"
-                x-data="{ show: true }"
-                x-init="setTimeout(() => show = false, 2200)"
-                x-show="show"
-                x-transition.opacity.duration.300ms
-                x-on:click="show = false"
-                class="fixed inset-x-4 top-1/3 z-[55] mx-auto max-w-md rounded-2xl p-5 text-center shadow-2xl {{ $lastResult['correct'] ? 'bg-success-soft dark:bg-success-soft-dark' : 'bg-warning-soft dark:bg-surface-dark' }}"
-            >
-                @if ($lastResult['correct'])
-                    <p class="text-3xl font-extrabold text-success dark:text-success-dark">✓</p>
-                @else
-                    <p class="text-sm font-semibold text-warning-ink dark:text-ink-soft-dark">Not yet — it's</p>
-                @endif
-                <p class="mt-1 font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $flashCard['answer'] }}</p>
-            </div>
-        @endif
-
         @if ($card)
+            {{--
+                The card just scored stays on both phones for a moment — the
+                speaker sees the answer and how it went, the judge that it was
+                saved — before the next card and the swapped roles appear.
+            --}}
+            <div
+                wire:key="round-{{ $answered }}"
+                x-data="{ revealing: false }"
+                x-init="revealing = @js((bool) $revealCard); if (revealing) setTimeout(() => revealing = false, {{ PairPracticeSession::REVEAL_MILLISECONDS }})"
+                class="space-y-4"
+            >
+            @if ($revealCard)
+                @php
+                    $wasSpeaking = $lastResult['correct'] === null;
+                    $wentWell = $wasSpeaking ? $lastResult['points'] > 0 : $lastResult['correct'];
+                    $wasMyAnswer = $lastResult['speaker_id'] === $me->id;
+                @endphp
+                <button
+                    type="button"
+                    x-show="revealing"
+                    x-on:click="revealing = false"
+                    class="block w-full cursor-pointer rounded-2xl border-2 p-6 text-center {{ $wentWell ? 'border-success bg-success-soft dark:border-success-dark dark:bg-success-soft-dark' : 'border-warning bg-warning-soft dark:border-line-dark dark:bg-surface-dark' }}"
+                >
+                    @if ($wasSpeaking)
+                        <p class="text-3xl font-extrabold text-ink dark:text-ink-dark">🎯 +{{ $lastResult['points'] }}</p>
+                        @if (($lastResult['heard'] ?? []) !== [])
+                            <p class="mt-2 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">{{ implode(' · ', $lastResult['heard']) }}</p>
+                        @endif
+                    @else
+                        @if ($wentWell)
+                            <p class="animate-badge-pop text-4xl font-extrabold text-success dark:text-success-dark">✓</p>
+                        @else
+                            <p class="text-sm font-semibold text-warning-ink dark:text-ink-soft-dark">{{ $wasMyAnswer ? 'Not yet — it\'s' : 'Not yet — the answer' }}</p>
+                        @endif
+                        <p class="mt-2 font-display text-2xl font-bold text-ink dark:text-ink-dark">{{ $revealCard['answer'] }}</p>
+                    @endif
+                    <p class="mt-4 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                        {{ $wasMyAnswer ? '' : 'Saved · ' }}🔄 {{ $isJudge ? 'Next: you listen' : 'Next: your turn' }}
+                    </p>
+                </button>
+            @endif
+            <div x-show="! revealing" class="space-y-4">
             <div wire:key="card-{{ $answered }}" class="animate-review-card-in overflow-hidden rounded-2xl border border-line bg-surface dark:border-line-dark dark:bg-surface-dark">
                 @if ($isJudge)
                     <div class="flex items-center gap-2 bg-surface-sunken px-5 py-3 dark:bg-surface-sunken-dark">
@@ -457,6 +477,8 @@ new class extends Component
             @endif
 
             <p class="text-center text-[11px] text-ink-faint dark:text-ink-faint-dark">{{ $card['source'] ?? '' }}</p>
+            </div>
+            </div>
         @endif
 
         <div x-data="{ confirming: false }" x-on:keydown.escape.window="confirming = false">

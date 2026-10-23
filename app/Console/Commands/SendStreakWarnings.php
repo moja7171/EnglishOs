@@ -6,11 +6,13 @@ use App\Console\Commands\Concerns\SendsScheduledPush;
 use App\Models\User;
 use App\Notifications\StreakWarning;
 use App\Services\Reminders;
+use App\Services\StreakRing;
 use Illuminate\Console\Command;
 
 /**
- * Warns learners at 20:00 their own time that their streak breaks unless they
- * do something today. Scheduled every minute in routes/console.php.
+ * Tells learners at 20:00 their own time how many activities still keep
+ * their streak today — only when today's ring is short of it. Scheduled
+ * every minute in routes/console.php.
  */
 class SendStreakWarnings extends Command
 {
@@ -65,7 +67,9 @@ class SendStreakWarnings extends Command
             return false;
         }
 
-        $this->sendPush($user, new StreakWarning($streak, $reminders->whatsWaiting($user)), 'Streak warning');
+        $left = StreakRing::SLICES_TO_KEEP - $user->streakRing()['todaySlices'];
+
+        $this->sendPush($user, new StreakWarning($streak, $reminders->quickestNext($user), $left), 'Streak warning');
         $reminders->countSent($user);
 
         return true;

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\Mission;
@@ -207,6 +208,7 @@ class UserVocabularyAndProgressTest extends TestCase
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => '3',
         ]);
+        DayActivity::factory()->create(['learner_id' => $learner->id]); // a 2nd activity keeps today
 
         $this->actingAs($learner);
 

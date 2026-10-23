@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\Mission;
@@ -391,6 +392,7 @@ class MissionResultStepTest extends TestCase
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => '3',
         ]);
+        DayActivity::factory()->create(['learner_id' => $run->learner_id]); // a 2nd activity keeps today
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'complete',
@@ -443,6 +445,7 @@ class MissionResultStepTest extends TestCase
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => '3',
         ]); // today, completes the 7-day streak
+        DayActivity::factory()->create(['learner_id' => $run->learner_id]); // a 2nd activity keeps today
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'complete',
@@ -485,6 +488,7 @@ class MissionResultStepTest extends TestCase
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => '3',
         ]); // today, completes the 7-day streak
+        DayActivity::factory()->create(['learner_id' => $run->learner_id]); // a 2nd activity keeps today
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'needs_review',
@@ -524,6 +528,7 @@ class MissionResultStepTest extends TestCase
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => '3',
         ]); // today, completes the 7-day streak
+        DayActivity::factory()->create(['learner_id' => $run->learner_id]); // a 2nd activity keeps today
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'complete',
@@ -562,6 +567,7 @@ class MissionResultStepTest extends TestCase
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => '3',
         ]); // today, completes the 7-day streak
+        DayActivity::factory()->create(['learner_id' => $run->learner_id]); // a 2nd activity keeps today
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'complete',

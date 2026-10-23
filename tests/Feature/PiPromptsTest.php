@@ -72,6 +72,41 @@ class PiPromptsTest extends TestCase
         $this->assertStringNotContainsString('**', $task['prompt']);
     }
 
+    public function test_pronunciation_day_keeps_each_line_whole_in_the_transcript_and_is_judged_on_sounds_not_grammar(): void
+    {
+        $this->makeMission([
+            ['key' => 'daily_listen', 'shadow_lines' => ['**Otherwise** I\'m **very grumpy**.']],
+        ]);
+
+        $task = $this->task(1);
+
+        $this->assertStringContainsString('Round 1 — Line: (the whole line you said) / Me: (everything I said)', $task['prompt']);
+        $this->assertTrue($task['isPronunciationDrill']);
+        $this->assertStringContainsString('PRONUNCIATION drill', $task['feedback']);
+        $this->assertStringContainsString('NEVER judge their grammar', $task['feedback']);
+        $this->assertStringContainsString('"Otherwise I\'m very grumpy."', $task['feedback']);
+    }
+
+    public function test_the_other_days_are_judged_against_their_own_goal(): void
+    {
+        $this->makeMission([
+            ['key' => 'listening', 'target_phrases' => [['phrase' => 'oversleep']], 'topic_summary' => 'Neil talks about mornings.'],
+        ], [
+            ['key' => 'grammar_in_context', 'focus' => 'Present Simple'],
+        ]);
+
+        $grammar = $this->task(2);
+        $conversation = $this->task(3);
+        $retell = $this->task(4);
+
+        $this->assertStringContainsString('Round 1 — Q:', $grammar['prompt']);
+        $this->assertFalse($grammar['isPronunciationDrill']);
+        $this->assertStringContainsString('GRAMMAR practice: each answer should use "Present Simple"', $grammar['feedback']);
+        $this->assertStringContainsString('CONVERSATION about "My Daily Life"', $conversation['feedback']);
+        $this->assertStringContainsString('oversleep', $conversation['feedback']);
+        $this->assertStringContainsString('RETELL of one story from "My Daily Life" (Neil talks about mornings.)', $retell['feedback']);
+    }
+
     public function test_pronunciation_day_falls_back_to_the_example_sentences_of_the_new_words(): void
     {
         $this->makeMission([

@@ -72,8 +72,8 @@ class SendFinishLineShifts extends Command
             return false;
         }
 
+        // FinishLineUpdate counts itself towards today's limit.
         $alerts->tell($user, $message, $forecast);
-        $reminders->countSent($user);
 
         return true;
     }

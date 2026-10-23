@@ -24,4 +24,9 @@ class StreakMilestoneReached extends Notification
             'url' => route('progress.index'),
         ];
     }
+
+    protected function countsTowardDailyLimit(): bool
+    {
+        return true;
+    }
 }

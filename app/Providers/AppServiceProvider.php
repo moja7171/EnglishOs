@@ -5,9 +5,12 @@ namespace App\Providers;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Synthesizers\PreviewMissionRunSynth;
 use App\Models\MissionRun;
+use App\Notifications\Channels\BellChannel;
 use App\Services\AiUsage;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\StreakRing;
+use Illuminate\Notifications\Channels\DatabaseChannel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Schema;
@@ -28,6 +31,13 @@ class AppServiceProvider extends ServiceProvider
         // key that no longer decrypts (APP_KEY rotated) just means "none".
         $this->app->bind(GeminiClient::class, fn () => new GeminiClient(personalKey: rescue(fn () => Auth::user()?->gemini_api_key, report: false)));
         $this->app->bind(GroqClient::class, fn () => new GroqClient(personalKey: rescue(fn () => Auth::user()?->groq_api_key, report: false)));
+
+        // Every 'database' (bell) notification goes through BellChannel, so
+        // one with a topic replaces its earlier row instead of stacking.
+        $this->app->bind(DatabaseChannel::class, BellChannel::class);
+
+        // Works the streak out once per learner per request (see StreakRing).
+        $this->app->singleton(StreakRing::class);
     }
 
     /**
