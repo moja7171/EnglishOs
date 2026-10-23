@@ -358,7 +358,7 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeInOrder(['Steps done — one more: Pi', 'Tomorrow · Day 2', 'Voice practice with Pi'])
+            ->assertSeeInOrder(['Steps done — one more: Pi', 'Tomorrow · Day 2', 'Voice practice'])
             ->assertSeeHtml('href="'.route('pi.practice').'"');
     }
 
@@ -372,7 +372,7 @@ class ProgramPlannerTest extends TestCase
 
         $html = Livewire::test('missions.overview')
             ->assertSee('Day 1 done — nice work.')
-            ->assertDontSee('Voice practice with Pi')
+            ->assertDontSeeHtml('>Voice practice <svg')
             ->assertDontSee('Steps done')
             ->html();
 

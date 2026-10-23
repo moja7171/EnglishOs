@@ -401,11 +401,11 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
-            ->assertSee('Listening picks for this mission')
+            ->assertSee('Anytime · one is enough.')
             ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"');
     }
 
-    public function test_a_finished_mission_still_links_to_its_listening_picks(): void
+    public function test_a_finished_mission_offers_every_day_of_its_extra_practice(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission();
@@ -419,8 +419,9 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission])
             ->assertSee('My Daily Life — done')
-            ->assertSee('Listening picks for this mission')
-            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"');
+            ->assertSee('Practice again')
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 4]).'"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 4]).'"');
     }
 
     public function test_the_within_day_checklist_shows_real_step_labels_not_just_numbers(): void

@@ -64,7 +64,7 @@ new class extends Component
 
         auth()->user()->recordListeningToday($this->missionCode, $this->day);
 
-        unset($this->listenedToday);
+        unset($this->listenedToday, $this->listenedDays, $this->missionDays);
     }
 
     #[Computed]
@@ -148,50 +148,55 @@ new class extends Component
     }
 
     /**
-     * The four days of the mission on screen, for the quick day switcher
-     * under the title — the fast way back through a finished mission's
-     * picks without hunting in the 24-mission path.
+     * The days of the mission on screen with at least one pick heard.
      *
-     * @return list<array{number: int, state: string, viewing: bool}>
+     * @return list<int>
      */
     #[Computed]
-    public function missionDays(): array
+    public function listenedDays(): array
     {
-        return collect($this->path)->firstWhere('code', $this->missionCode)['days'] ?? [];
+        return auth()->user()->listenedDaysOf($this->missionCode);
     }
 
     /**
-     * Every mission with its 4 days, each marked past / today / future
-     * against the learner's own position, plus which one is on screen.
-     *
-     * @return list<array{code: string, title: string, days: list<array{number: int, state: string, viewing: bool}>}>
+     * @return list<array{code: string, title: string}>
      */
     #[Computed]
-    public function path(): array
+    public function reachedMissions(): array
+    {
+        return app(ListeningPicks::class)->missionsReachedBy($this->currentIndex);
+    }
+
+    /**
+     * The four days of the mission on screen, for the quick day switcher
+     * under the title, each marked past / today / future against the
+     * learner's own position, plus which one is on screen and whether it
+     * was listened to. Another mission is one tap away in the picker.
+     *
+     * @return list<array{number: int, state: string, viewing: bool, done: bool}>
+     */
+    #[Computed]
+    public function missionDays(): array
     {
         $picks = app(ListeningPicks::class);
         $viewing = $picks->indexOf($this->missionCode, $this->day);
         $hasToday = $this->currentDay !== null;
 
-        return collect(Mission::roadmapCatalog())
-            ->map(fn (array $mission, string $code) => [
-                'code' => $code,
-                'title' => $mission['title'],
-                'days' => collect(range(1, 4))->map(function (int $number) use ($picks, $code, $viewing, $hasToday) {
-                    $index = $picks->indexOf($code, $number);
+        return collect(range(1, 4))
+            ->map(function (int $number) use ($picks, $viewing, $hasToday) {
+                $index = $picks->indexOf($this->missionCode, $number);
 
-                    return [
-                        'number' => $number,
-                        'state' => match (true) {
-                            $hasToday && $index === $this->currentIndex => 'today',
-                            $index <= $this->currentIndex => 'past',
-                            default => 'future',
-                        },
-                        'viewing' => $index === $viewing,
-                    ];
-                })->all(),
-            ])
-            ->values()
+                return [
+                    'number' => $number,
+                    'state' => match (true) {
+                        $hasToday && $index === $this->currentIndex => 'today',
+                        $index <= $this->currentIndex => 'past',
+                        default => 'future',
+                    },
+                    'viewing' => $index === $viewing,
+                    'done' => in_array($number, $this->listenedDays, true),
+                ];
+            })
             ->all();
     }
 };
@@ -207,8 +212,8 @@ new class extends Component
                 @svg('heroicon-o-speaker-wave', 'h-5 w-5')
             </span>
             <div>
-                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->isToday ? 'Extra listening' : 'Listening' }}</h1>
-                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }} of 4</p>
+                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Listening</h1>
+                <x-mission-picker :missions="$this->reachedMissions" :mission-code="$missionCode" route-name="listening.show" :today-code="$this->currentDay['missionCode'] ?? null">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }} of 4</x-mission-picker>
             </div>
         </div>
         <nav class="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Days of {{ $missionCode }}">
@@ -233,7 +238,13 @@ new class extends Component
                             'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
                             'border-line text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
                         ])
-                    >Day {{ $dayInfo['number'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}</a>
+                    >
+                        Day {{ $dayInfo['number'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}
+                        @if ($dayInfo['done'])
+                            @svg('heroicon-s-check-circle', 'ms-1 h-3.5 w-3.5 text-success dark:text-success-dark')
+                            <span class="sr-only">, done</span>
+                        @endif
+                    </a>
                 @endif
             @endforeach
         </nav>
@@ -250,7 +261,14 @@ new class extends Component
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Grammar in this mission: <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $this->mission['grammar'] }}</span></p>
     </section>
 
-    <x-done-toggle :done="$this->listenedToday" action="markListened" label="I listened" done-label="Listened today" />
+    {{-- The one-tap tick is today's (it is what the streak counts). An
+         earlier day shows only its own state: the picks' own counters
+         below are what file a listen under it. --}}
+    @if ($this->isToday)
+        <x-done-toggle :done="$this->listenedToday" action="markListened" label="I listened" done-label="Listened today" />
+    @elseif (in_array($day, $this->listenedDays, true))
+        <x-done-toggle :done="true" action="markListened" label="I listened" done-label="Listened" />
+    @endif
 
     <section class="space-y-3" aria-label="Listening picks">
         @foreach ($this->picks as $level => $pick)
@@ -365,57 +383,4 @@ new class extends Component
     <p class="border-t border-line pt-4 text-sm text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">
         Don't stop for every unfamiliar word. If you need help, turn on English subtitles only.
     </p>
-
-    <details class="card" @if (! $this->isToday) open @endif>
-        <summary class="cursor-pointer list-none space-y-2 p-4">
-            <div class="flex items-center justify-between gap-2 text-sm font-bold text-ink dark:text-ink-dark">
-                <span>96-day path</span>
-                <span class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">Day {{ $this->currentIndex + 1 }} of {{ \App\Services\ProgramPlanner::TOTAL_DAYS }}</span>
-            </div>
-            <x-progress-bar>
-                <div
-                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                    style="width: {{ ($this->currentIndex + 1) / \App\Services\ProgramPlanner::TOTAL_DAYS * 100 }}%"
-                ></div>
-            </x-progress-bar>
-        </summary>
-        <div class="grid grid-cols-2 gap-2.5 px-4 pb-4 sm:grid-cols-3">
-            @foreach ($this->path as $mission)
-                <div class="card-sunken space-y-1.5 p-2.5" wire:key="path-{{ $mission['code'] }}">
-                    <p class="flex items-baseline gap-1.5 text-xs">
-                        <span class="font-bold text-ink dark:text-ink-dark">{{ $mission['code'] }}</span>
-                        <span class="truncate text-ink-soft dark:text-ink-soft-dark">{{ $mission['title'] }}</span>
-                    </p>
-                    <div class="flex gap-1.5">
-                        @foreach ($mission['days'] as $dayInfo)
-                            @php
-                                $dayClasses = [
-                                    'inline-flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold',
-                                    'ring-2 ring-ink ring-offset-2 ring-offset-surface-sunken dark:ring-ink-dark dark:ring-offset-surface-sunken-dark' => $dayInfo['viewing'],
-                                ];
-                            @endphp
-                            @if ($dayInfo['state'] === 'future')
-                                <span
-                                    @class([...$dayClasses, 'cursor-not-allowed border-dashed border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark'])
-                                    title="Not reached yet"
-                                    aria-label="{{ $mission['code'] }} day {{ $dayInfo['number'] }}, not reached yet"
-                                >{{ $dayInfo['number'] }}</span>
-                            @else
-                                <a
-                                    href="{{ route('listening.show', [$mission['code'], $dayInfo['number']]) }}"
-                                    wire:navigate
-                                    aria-label="{{ $mission['code'] }} day {{ $dayInfo['number'] }}{{ $dayInfo['state'] === 'today' ? ', today' : '' }}"
-                                    @class([
-                                        ...$dayClasses,
-                                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $dayInfo['state'] === 'today',
-                                        'border-transparent bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $dayInfo['state'] === 'past',
-                                    ])
-                                >{{ $dayInfo['number'] }}</a>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </details>
 </div>

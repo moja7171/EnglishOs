@@ -9,6 +9,7 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -75,7 +76,7 @@ class ListeningPageTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $this->get(route('listening.show'))
-            ->assertSee('Extra listening')
+            ->assertSee('Listening')
             ->assertSee('Pick one — that\'s enough.', false)
             ->assertSee('M01 · My Daily Life · Day 1 of 4')
             ->assertSeeInOrder(['Routines', 'Describing Your Day: Mornings', "Why you need a good night's sleep"])
@@ -132,14 +133,60 @@ class ListeningPageTest extends TestCase
         $this->get('/listening/M01/5')->assertNotFound();
     }
 
-    public function test_the_path_marks_past_today_and_not_yet_reached_days(): void
+    /**
+     * M01 finished, M02 started: today is M02 · Day 1.
+     */
+    private function learnerOnM02(): User
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
+        MissionRun::findOrStart($learner, $this->makeMission('M02'));
+
+        return $learner;
+    }
+
+    public function test_a_learner_on_a_later_mission_can_pick_an_earlier_one_which_opens_on_its_day_1(): void
+    {
+        $this->actingAs($this->learnerOnM02());
+
+        $this->get(route('listening.show'))
+            ->assertSee('M02 · People &amp; Relationships · Day 1 of 4', false)
+            ->assertSeeHtml('aria-label="Missions"')
+            ->assertSeeInOrder(['People &amp; Relationships', 'today', 'My Daily Life'], false)
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"')
+            ->assertDontSeeHtml('href="'.route('listening.show', ['M03', 1]).'"');
+    }
+
+    public function test_a_learner_still_on_the_first_mission_has_no_mission_to_pick(): void
     {
         $this->actingAs($this->learnerOnDay2());
 
-        $this->get(route('listening.show'))
-            ->assertSeeHtml('aria-label="M01 day 1"')
-            ->assertSeeHtml('aria-label="M01 day 2, today"')
-            ->assertSeeHtml('aria-label="M01 day 3, not reached yet"');
+        $this->get(route('listening.show'))->assertDontSeeHtml('aria-label="Missions"');
+    }
+
+    public function test_an_earlier_day_has_no_daily_tick_and_does_not_borrow_todays(): void
+    {
+        $learner = $this->learnerOnDay2();
+        ListeningLog::factory()->for($learner, 'learner')->create(['day_number' => 2]);
+        $this->actingAs($learner);
+
+        $response = $this->get(route('listening.show', ['M01', 1]));
+
+        $response
+            ->assertDontSee('Listened today')
+            ->assertDontSeeHtml('wire:click="markListened"');
+        $this->assertStringNotContainsString(', done', Str::between($response->getContent(), 'aria-label="Days of M01"', 'Day 2 · today'));
+    }
+
+    public function test_an_earlier_day_with_a_pick_heard_shows_as_listened(): void
+    {
+        $learner = $this->learnerOnDay2();
+        AudioListen::factory()->pick(1)->create(['learner_id' => $learner->id]);
+        $this->actingAs($learner);
+
+        $this->get(route('listening.show', ['M01', 1]))
+            ->assertDontSee('Listened today')
+            ->assertSeeInOrder(['Day 1', '<span class="sr-only">, done</span>', 'Day 2 · today'], false);
     }
 
     public function test_a_learner_who_finished_every_mission_can_open_any_day(): void
@@ -159,7 +206,8 @@ class ListeningPageTest extends TestCase
 
         Livewire::test('listening.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
             ->call('markListened')
-            ->assertSee('Listened today')
+            ->assertSee('Listened')
+            ->assertDontSee('Listened today')
             ->assertDontSee('Counts toward your streak');
 
         $this->assertDatabaseHas('listening_logs', [
