@@ -469,8 +469,8 @@ class User extends Authenticatable
 
     /**
      * The spaced-repetition systems Daily Review mixes, keyed by the type
-     * name its queue and the Today row use. Notebook lines marked learned
-     * are left out.
+     * name its queue and the Today row use. Notebook lines are only the
+     * ones Daily Review may show (see NotebookEntry::scopeInReview()).
      *
      * @return array<string, HasMany<VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint|NotebookEntry, $this>>
      */
@@ -481,7 +481,7 @@ class User extends Authenticatable
             'speaking' => $this->speakingPrompts(),
             'error' => $this->errorPatternReviews(),
             'grammar' => $this->grammarPoints(),
-            'note' => $this->notebookEntries()->whereNull('learned_at'),
+            'note' => $this->notebookEntries()->inReview(),
         ];
     }
 
@@ -511,7 +511,9 @@ class User extends Authenticatable
     {
         $dayStart = $this->localDayStart();
 
-        return collect($this->reviewSources())
+        // Every notebook line, so one that became learned by this very
+        // review still counts as reviewed today.
+        return collect(['note' => $this->notebookEntries()] + $this->reviewSources())
             ->sum(fn (HasMany $relation) => $relation->where('last_reviewed_at', '>=', $dayStart)->count());
     }
 
@@ -521,8 +523,21 @@ class User extends Authenticatable
     }
 
     /**
+     * How many notebook lines today's review still has room for — see
+     * NotebookEntry::DAILY_REVIEW_SLOTS.
+     */
+    private function notebookReviewAllowance(): int
+    {
+        $reviewedToday = $this->notebookEntries()->where('last_reviewed_at', '>=', $this->localDayStart())->count();
+
+        return max(0, NotebookEntry::DAILY_REVIEW_SLOTS - $reviewedToday);
+    }
+
+    /**
      * Today's review: the most overdue due items across every review
-     * system, up to what is left of the daily limit. Shrinks as items get
+     * system, up to what is left of the daily limit — of them at most
+     * NotebookEntry::DAILY_REVIEW_SLOTS notebook lines, the most repeated
+     * mistakes first; slots they leave go to the rest. Shrinks as items get
      * reviewed (a reviewed item leaves the due set while the allowance
      * drops by one), so the same eight stay "today's eight" all day.
      *
@@ -539,6 +554,10 @@ class User extends Authenticatable
         return collect($this->reviewSources())
             ->flatMap(fn (HasMany $relation, string $type) => $relation
                 ->where('next_review_at', '<=', now())
+                ->when($type === 'note', fn ($notes) => $notes
+                    ->orderByDesc('times_seen')
+                    ->orderBy('next_review_at')
+                    ->limit($this->notebookReviewAllowance()))
                 ->get(['id', 'next_review_at'])
                 ->map(fn ($item) => ['type' => $type, 'id' => $item->id, 'dueAt' => $item->next_review_at->getTimestamp()]))
             ->sortBy([['dueAt', 'asc'], ['type', 'asc'], ['id', 'asc']])
@@ -553,7 +572,10 @@ class User extends Authenticatable
      */
     public function dailyReviewCount(): int
     {
-        $due = $this->dueReviewCount();
+        $due = collect($this->reviewSources())
+            ->sum(fn (HasMany $relation, string $type) => $type === 'note'
+                ? min($relation->where('next_review_at', '<=', now())->count(), $this->notebookReviewAllowance())
+                : $relation->where('next_review_at', '<=', now())->count());
 
         return $due === 0 ? 0 : min($due, $this->dailyReviewAllowance());
     }

@@ -89,6 +89,46 @@ class LearnerFeedback
         ],
     ];
 
+    /**
+     * The fixed list a "fix" sentence's pattern is picked from, so the same
+     * mistake in new words lands on the same notebook line (see
+     * FeedbackNotebook) — the AI's own free wording almost never repeated.
+     * Key => the name shown in the notebook.
+     *
+     * @var array<string, string>
+     */
+    public const MISTAKE_CATEGORIES = [
+        'present_simple' => 'Present simple',
+        'present_continuous' => 'Present continuous',
+        'past_simple' => 'Past simple',
+        'past_continuous' => 'Past continuous',
+        'present_perfect' => 'Present perfect (for / since)',
+        'future' => 'Future (will / going to)',
+        'conditionals' => 'If sentences',
+        'passive' => 'Passive',
+        'reported_speech' => 'Reported speech',
+        'modals' => 'Can / should / must',
+        'verb_form' => 'Verb form (go / went / gone)',
+        'ing_or_to' => '-ing or to + verb',
+        'subject_verb' => 'He goes, not he go',
+        'missing_word' => 'Missing word (is / am / it)',
+        'word_order' => 'Word order',
+        'questions' => 'Questions',
+        'negatives' => 'Negatives',
+        'articles' => 'a / an / the',
+        'prepositions' => 'Prepositions (in / on / at)',
+        'plurals' => 'Plurals and countable nouns',
+        'pronouns' => 'Pronouns (he / him / his)',
+        'comparatives' => 'Comparing (bigger / the biggest)',
+        'adjective_adverb' => 'Adjective or adverb',
+        'there_is' => 'There is / there are',
+        'linking_words' => 'Linking words (because / but / so)',
+        'word_choice' => 'Word choice',
+        'persian_style' => 'Persian word order or phrase',
+        'spelling' => 'Spelling',
+        'pronunciation' => 'Pronunciation',
+    ];
+
     public function __construct(private readonly AiFeedbackCard $card) {}
 
     /**
@@ -162,7 +202,7 @@ class LearnerFeedback
                     'status' => $status,
                     'corrected' => $status === 'ok' ? null : $corrected,
                     'why' => $status === 'ok' ? null : (self::text($s['why'] ?? null) ?: null),
-                    'pattern' => $status === 'fix' ? (self::text($s['pattern'] ?? null) ?: null) : null,
+                    'pattern' => $status === 'fix' && isset(self::MISTAKE_CATEGORIES[$s['pattern'] ?? '']) ? $s['pattern'] : null,
                     'answer' => is_numeric($s['answer'] ?? null) && (int) $s['answer'] > 0 ? (int) $s['answer'] : null,
                 ];
             })
@@ -289,7 +329,8 @@ class LearnerFeedback
             .'"status": "ok, better or fix", '
             .'"corrected": "for better/fix: the natural or fixed English version; null when ok", '
             .'"why": "for better/fix: one short line in Persian; null when ok", '
-            .'"pattern": "for fix only: 2-5 English words naming the rule, e.g. present perfect with for; else null"'
+            .'"pattern": "for fix only: the ONE key from this list that names the mistake: '
+            .implode(', ', array_keys(self::MISTAKE_CATEGORIES)).'; else null"'
             .($numberedAnswers ? ', "answer": the ANSWER number this sentence is from' : '').'}], '
             .'"positives": ["one short line in Persian", "... at most '.self::MAX_POINTS.'"], '
             .'"negatives": ["one short line in Persian", "... at most '.self::MAX_POINTS.', empty when nothing"], '

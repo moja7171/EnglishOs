@@ -272,7 +272,7 @@ class PiPrompts
                 .'misheard compared with the target line most likely did not come through clearly. Mark a learner line '
                 .'"ok" when it matches its target (ignore punctuation and capitals), else "fix" with "corrected" = the '
                 .'target line, "why" = which word(s) did not come through and one short Persian tip on how to say that '
-                .'sound, "pattern" = the sound in 2-5 English words (e.g. th sound, final -ed). Summary, positives and '
+                .'sound, "pattern" = "pronunciation". Summary, positives and '
                 .'negatives are only about clarity and the sounds. No techniques. better_version: null.',
         ];
     }
