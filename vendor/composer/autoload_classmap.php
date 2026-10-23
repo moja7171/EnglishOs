@@ -122,6 +122,7 @@ return array(
     'App\\Services\\LearnerFeedback' => $baseDir . '/app/Services/LearnerFeedback.php',
     'App\\Services\\ListeningPicks' => $baseDir . '/app/Services/ListeningPicks.php',
     'App\\Services\\MediaHost' => $baseDir . '/app/Services/MediaHost.php',
+    'App\\Services\\MissionGrid' => $baseDir . '/app/Services/MissionGrid.php',
     'App\\Services\\MyMemoryClient' => $baseDir . '/app/Services/MyMemoryClient.php',
     'App\\Services\\PairPractice' => $baseDir . '/app/Services/PairPractice.php',
     'App\\Services\\PersianGlossary' => $baseDir . '/app/Services/PersianGlossary.php',

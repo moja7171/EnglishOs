@@ -664,6 +664,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\LearnerFeedback' => __DIR__ . '/../..' . '/app/Services/LearnerFeedback.php',
         'App\\Services\\ListeningPicks' => __DIR__ . '/../..' . '/app/Services/ListeningPicks.php',
         'App\\Services\\MediaHost' => __DIR__ . '/../..' . '/app/Services/MediaHost.php',
+        'App\\Services\\MissionGrid' => __DIR__ . '/../..' . '/app/Services/MissionGrid.php',
         'App\\Services\\MyMemoryClient' => __DIR__ . '/../..' . '/app/Services/MyMemoryClient.php',
         'App\\Services\\PairPractice' => __DIR__ . '/../..' . '/app/Services/PairPractice.php',
         'App\\Services\\PersianGlossary' => __DIR__ . '/../..' . '/app/Services/PersianGlossary.php',
