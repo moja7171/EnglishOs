@@ -94,17 +94,16 @@ class ListeningLocalPicksTest extends TestCase
         $this->get('/listening/audio/M01/lee-fixture.mp3')->assertNotFound();
     }
 
-    public function test_the_page_offers_to_listen_here_with_the_text_and_keeps_the_original_link(): void
+    public function test_the_page_plays_a_pick_here_with_the_text_keeps_the_original_link_and_ticks_on_a_real_listen(): void
     {
         $this->actingAs(User::factory()->create());
 
         $this->get(route('listening.show'))
-            ->assertSee('Listen here')
-            ->assertSee('Plays here')
+            ->assertSeeHtml('aria-label="Play"')
             ->assertSeeHtml('src="'.route('listening.audio', ['M01', 'lee-fixture']).'"')
             ->assertSeeInOrder(['Alex', 'First fixture line.', 'Sam', 'Second fixture line.'])
             ->assertSee('Original page')
-            ->assertSeeHtml('window.eosListenTracker(audio, () => { $wire.markListened() }, 0.9);')
+            ->assertSeeHtml('window.eosListenTracker(audio, () => { $wire.heardPick(0) }, 0.9);')
             ->assertSeeHtml('href="https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240607"');
     }
 
@@ -114,7 +113,7 @@ class ListeningLocalPicksTest extends TestCase
 
         $html = $this->get(route('listening.show'))->getContent();
 
-        $this->assertSame(1, substr_count($html, 'Listen here</span>'), 'only the one fixture pick has a player');
+        $this->assertSame(1, substr_count($html, 'aria-label="Play"'), 'only the one fixture pick has a player');
         $this->assertStringContainsString('href="https://learningenglish.voanews.com/a/describing-your-day-mornings/6241274.html"', $html);
     }
 }

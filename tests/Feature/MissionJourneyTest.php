@@ -49,47 +49,37 @@ class MissionJourneyTest extends TestCase
         ]);
     }
 
-    public function test_the_path_shows_finished_current_and_locked_missions_as_cards(): void
+    public function test_a_finished_missions_photo_on_the_missions_page_opens_its_recap(): void
     {
         $learner = User::factory()->create();
         $first = $this->makeMission('M01');
         $this->finish(MissionRun::findOrStart($learner, $first));
-        $second = $this->makeMission('M02');
-        $this->makeMission('M03');
+        $this->makeMission('M02');
         $this->actingAs($learner);
 
-        $component = Livewire::test('progress.index');
-
-        $component
+        $this->get(route('missions.index'))
             ->assertSeeHtml('href="'.route('progress.mission', $first).'"')
-            ->assertSeeHtml('href="'.route('missions.show', [$second, 'mission_brief']).'"')
-            ->assertSee("You're here", false)
-            ->assertSeeHtml('aria-label="M03 · Day 1, not reached yet"')
-            ->assertSee('Debate &amp; Discussion', false);
+            ->assertSee("You're here", false);
     }
 
-    public function test_a_needs_review_run_counts_as_done_on_the_path(): void
+    public function test_a_needs_review_run_counts_as_finished_on_the_missions_page(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission('M01');
         $this->finish(MissionRun::findOrStart($learner, $mission), MissionRun::STATUS_NEEDS_REVIEW);
         $this->actingAs($learner);
 
-        Livewire::test('progress.index')
+        $this->get(route('missions.index'))
             ->assertSeeHtml('href="'.route('progress.mission', $mission).'"');
     }
 
-    public function test_the_mission_in_progress_shows_which_day_the_learner_is_on(): void
+    public function test_the_progress_page_has_no_path_tab(): void
     {
-        $learner = User::factory()->create();
-        $run = MissionRun::findOrStart($learner, $this->makeMission('M01'));
-        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_SCORE, 'content_ref' => '3']);
-        $this->actingAs($learner);
+        $this->actingAs(User::factory()->create());
 
         Livewire::test('progress.index')
-            ->assertSee("You're here", false)
-            ->assertSeeHtml('aria-label="M01 · Day 1, today, done"')
-            ->assertSeeHtml('aria-label="M01 · Day 2, not reached yet"');
+            ->assertSee('Overview')
+            ->assertDontSeeHtml("setTab('path')");
     }
 
     public function test_the_summary_line_counts_missions_done_and_listens(): void

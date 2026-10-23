@@ -44,31 +44,30 @@ class TopNavTest extends TestCase
         $this->get(route('home'))->assertSee('>3<', false);
     }
 
-    public function test_the_bottom_nav_has_five_tabs_with_listening_and_daily_talk(): void
+    public function test_the_bottom_nav_has_four_tabs_with_missions_and_notebook(): void
     {
         $this->actingAs(User::factory()->create());
 
         $this->get(route('review.index'))
             ->assertSee('aria-label="Primary"', false)
-            ->assertSee('grid-cols-5', false)
+            ->assertSee('grid-cols-4', false)
             ->assertSeeInOrder([
                 'href="'.route('home').'"',
-                'href="'.route('listening.show').'"',
-                'href="'.route('pi.practice').'"',
+                'href="'.route('missions.index').'"',
                 'href="'.route('review.index').'"',
-                'href="'.route('progress.index').'"',
-            ], false)
-            ->assertSee('Daily talk');
+                'href="'.route('notebook.index').'"',
+            ], false);
     }
 
     public function test_the_nav_pill_sits_under_the_current_tab_and_hides_on_other_pages(): void
     {
         $this->actingAs(User::factory()->create());
 
+        $this->get(route('missions.index'))->assertSee('style="translate: 100% 0"', false);
         $this->get(route('listening.show'))->assertSee('style="translate: 100% 0"', false);
-        $this->get(route('pi.practice'))->assertSee('style="translate: 200% 0"', false);
-        $this->get(route('review.index'))->assertSee('style="translate: 300% 0"', false);
-        $this->get(route('progress.index'))->assertSee('style="translate: 400% 0"', false);
+        $this->get(route('pi.practice'))->assertSee('style="translate: 100% 0"', false);
+        $this->get(route('review.index'))->assertSee('style="translate: 200% 0"', false);
+        $this->get(route('notebook.index'))->assertSee('style="translate: 300% 0"', false);
 
         $this->get(route('friends.index'))->assertSee('motion-reduce:transition-none opacity-0', false);
     }
@@ -87,14 +86,15 @@ class TopNavTest extends TestCase
             ->assertDontSee('aria-label="Primary"', false);
     }
 
-    public function test_the_account_menu_holds_only_notebook_friends_and_profile(): void
+    public function test_the_account_menu_holds_only_progress_friends_and_profile(): void
     {
         $this->actingAs(User::factory()->create());
 
         $menu = (string) $this->blade('<x-account-menu />');
 
         $this->assertSame(3, substr_count($menu, '<a '));
-        $this->assertStringContainsString('href="'.route('notebook.index').'"', $menu);
+        $this->assertStringContainsString('href="'.route('progress.index').'"', $menu);
+        $this->assertStringContainsString('Day 1 of 96', $menu);
         $this->assertStringContainsString('href="'.route('friends.index').'"', $menu);
         $this->assertStringContainsString('href="'.route('profile').'"', $menu);
         $this->assertStringNotContainsString('Sign out', $menu);
