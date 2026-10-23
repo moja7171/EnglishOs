@@ -115,6 +115,7 @@ return array(
     'App\\Services\\FeedbackNotebook' => $baseDir . '/app/Services/FeedbackNotebook.php',
     'App\\Services\\FinishLine' => $baseDir . '/app/Services/FinishLine.php',
     'App\\Services\\FinishLineAlerts' => $baseDir . '/app/Services/FinishLineAlerts.php',
+    'App\\Services\\FixChecker' => $baseDir . '/app/Services/FixChecker.php',
     'App\\Services\\GeminiClient' => $baseDir . '/app/Services/GeminiClient.php',
     'App\\Services\\GeminiWordDefiner' => $baseDir . '/app/Services/GeminiWordDefiner.php',
     'App\\Services\\GroqClient' => $baseDir . '/app/Services/GroqClient.php',

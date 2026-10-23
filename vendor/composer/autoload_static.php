@@ -657,6 +657,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\FeedbackNotebook' => __DIR__ . '/../..' . '/app/Services/FeedbackNotebook.php',
         'App\\Services\\FinishLine' => __DIR__ . '/../..' . '/app/Services/FinishLine.php',
         'App\\Services\\FinishLineAlerts' => __DIR__ . '/../..' . '/app/Services/FinishLineAlerts.php',
+        'App\\Services\\FixChecker' => __DIR__ . '/../..' . '/app/Services/FixChecker.php',
         'App\\Services\\GeminiClient' => __DIR__ . '/../..' . '/app/Services/GeminiClient.php',
         'App\\Services\\GeminiWordDefiner' => __DIR__ . '/../..' . '/app/Services/GeminiWordDefiner.php',
         'App\\Services\\GroqClient' => __DIR__ . '/../..' . '/app/Services/GroqClient.php',
