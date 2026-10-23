@@ -1,4 +1,4 @@
-@props(['missions', 'missionCode', 'day', 'routeName', 'reachedDay'])
+@props(['missions', 'missionCode', 'day', 'routeName' => null, 'reachedDay', 'triggerClass' => 'mt-0.5 inline-flex cursor-pointer items-center gap-1 text-start text-sm text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'])
 
 {{-- The line under a practice page's title (/listening, /pi) — "M02 ·
      People & Relationships · Day 1 of 4" — doubling as the way to any day
@@ -7,11 +7,14 @@
      to the learner's current mission. Each mission is a row of four day
      circles, ticked by the page's own practice; a day not reached yet is
      dashed, and a mission not reached yet is faded with a lock. The day
-     the page opens on by itself links to the page's bare URL.
+     the page opens on by itself links to the page's bare URL. A page whose
+     days don't open at a "{code}/{day}" route (home) gives each reached
+     day its own url instead, null for one that doesn't open.
 
-     @param list<array{code: string, title: string, reached: bool, current: bool, days: list<array{number: int, state: string, done: bool}>}> $missions
+     @param list<array{code: string, title: string, reached: bool, current: bool, days: list<array{number: int, state: string, done: bool, url?: ?string}>}> $missions
      @param int $day the day on screen
-     @param string $routeName listening.show or pi.practice
+     @param string|null $routeName listening.show or pi.practice; null when every day carries its url
+     @param string $triggerClass the classes of the line that opens the map
      @param int $reachedDay the furthest day reached, 1-96 --}}
 <div
     class="relative"
@@ -38,7 +41,7 @@
         x-on:click="open = ! open; if (open) { $nextTick(() => scrollToCurrent()) }"
         aria-haspopup="menu"
         x-bind:aria-expanded="open"
-        class="mt-0.5 inline-flex cursor-pointer items-center gap-1 text-start text-sm text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
+        class="{{ $triggerClass }}"
     >
         <span>{{ $slot }}</span>
         @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0')
@@ -76,15 +79,21 @@
                                 $circle = 'inline-flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-semibold';
                                 $label = "{$mission['code']} · Day {$missionDay['number']}";
                                 $viewing = $mission['code'] === $missionCode && $missionDay['number'] === $day;
+                                $href = match (true) {
+                                    $missionDay['state'] === 'future' => null,
+                                    array_key_exists('url', $missionDay) => $missionDay['url'],
+                                    $missionDay['state'] === 'today' => route($routeName),
+                                    default => route($routeName, [$mission['code'], $missionDay['number']]),
+                                };
                             @endphp
-                            @if ($missionDay['state'] === 'future')
+                            @if ($href === null)
                                 <span
                                     class="{{ $circle }} border-dashed border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark"
                                     aria-label="{{ $label }}, not reached yet"
                                 >{{ $missionDay['number'] }}</span>
                             @else
                                 <a
-                                    href="{{ $missionDay['state'] === 'today' ? route($routeName) : route($routeName, [$mission['code'], $missionDay['number']]) }}"
+                                    href="{{ $href }}"
                                     wire:navigate
                                     role="menuitem"
                                     x-on:click="open = false"
