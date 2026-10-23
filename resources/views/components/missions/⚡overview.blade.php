@@ -94,23 +94,6 @@ new class extends Component
     }
 
     /**
-     * The circle on the Pi row: the same "I practiced" tick as on /pi,
-     * filed under the day the row points at.
-     */
-    public function markPracticed(): void
-    {
-        $practice = $this->piPractice;
-
-        if ($practice === null) {
-            return;
-        }
-
-        auth()->user()->recordPiPracticeToday($practice['missionCode'], $practice['dayNumber']);
-
-        unset($this->piPractice, $this->piLeft, $this->nextAction, $this->dayTime);
-    }
-
-    /**
      * Today's Daily Review for the Today box's review row — words,
      * speaking, and grammar combined into one finishable batch (see
      * User::dailyReviewItems()). Null when there is nothing to do AND

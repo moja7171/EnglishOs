@@ -214,15 +214,37 @@ class PiPracticePageTest extends TestCase
             ->assertSeeHtml('aria-label="Day 3, not reached yet"');
     }
 
-    public function test_ticking_i_practiced_files_the_tick_under_the_day_on_screen(): void
+    /**
+     * The AI's verdict on whether the pasted chat really is the day's practice.
+     */
+    private function mockPracticeVerdict(bool $practiceDone): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
+            ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, '"practice_done"'))
+            ->andReturn($this->learnerFeedbackReply(['practice_done' => $practiceDone])));
+    }
+
+    private const A_PRACTICE_CHAT = "My words:\nRound 1 — Q: What did you do? / Me: I went to the park yesterday.";
+
+    public function test_the_page_has_no_i_practiced_button_to_tick_by_hand(): void
+    {
+        $this->actingAs($this->learnerWhoFinishedDay1());
+
+        $this->get(route('pi.practice'))
+            ->assertSee('Ticks itself after Feedback.')
+            ->assertDontSeeHtml('wire:click="markPracticed"');
+    }
+
+    public function test_feedback_that_sees_the_practice_done_ticks_it_under_the_day_on_screen(): void
     {
         $learner = $this->learnerWhoFinishedDay1();
         $this->actingAs($learner);
+        $this->mockPracticeVerdict(true);
 
         Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
-            ->call('markPracticed')
-            ->assertSee('Practiced today')
-            ->assertDontSee('Counts toward your streak');
+            ->set('pastedChat', self::A_PRACTICE_CHAT)
+            ->call('checkPastedChat')
+            ->assertSee('Practiced today');
 
         $this->assertDatabaseHas('pi_practice_logs', [
             'learner_id' => $learner->id,
@@ -230,6 +252,21 @@ class PiPracticePageTest extends TestCase
             'mission_code' => 'M01',
             'day_number' => 1,
         ]);
+    }
+
+    public function test_feedback_on_a_chat_that_is_not_the_days_practice_does_not_tick_it(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1();
+        $this->actingAs($learner);
+        $this->mockPracticeVerdict(false);
+
+        Livewire::test('pi-practice.index')
+            ->set('pastedChat', self::A_PRACTICE_CHAT)
+            ->call('checkPastedChat')
+            ->assertSee('I work in a hospital.')
+            ->assertSee('Not counted');
+
+        $this->assertFalse($learner->hasPracticedWithPiToday());
     }
 
     public function test_a_pasted_pi_chat_gets_feedback_on_the_learners_own_turns(): void
@@ -346,14 +383,16 @@ class PiPracticePageTest extends TestCase
             ->assertHasErrors(['pastedChat' => 'min']);
     }
 
-    public function test_ticking_i_practiced_twice_on_the_same_day_keeps_a_single_row(): void
+    public function test_a_practice_seen_twice_on_the_same_day_keeps_a_single_row(): void
     {
         $learner = $this->learnerWhoFinishedDay1();
         $this->actingAs($learner);
+        $this->mockPracticeVerdict(true);
 
         Livewire::test('pi-practice.index')
-            ->call('markPracticed')
-            ->call('markPracticed');
+            ->set('pastedChat', self::A_PRACTICE_CHAT)
+            ->call('checkPastedChat')
+            ->call('checkPastedChat');
 
         $this->assertSame(1, $learner->piPracticeLogs()->count());
     }
@@ -363,10 +402,11 @@ class PiPracticePageTest extends TestCase
         $learner = User::factory()->create();
         ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->toDateString()]);
         $this->actingAs($learner);
+        $this->mockPracticeVerdict(true);
 
-        $this->get(route('pi.practice'))->assertSee('I practiced');
-
-        Livewire::test('pi-practice.index')->call('markPracticed');
+        Livewire::test('pi-practice.index')
+            ->set('pastedChat', self::A_PRACTICE_CHAT)
+            ->call('checkPastedChat');
 
         $this->assertTrue($learner->hasListenedToday());
         $this->assertTrue($learner->hasPracticedWithPiToday());
@@ -401,17 +441,13 @@ class PiPracticePageTest extends TestCase
             ->assertSeeInOrder(['Continue', 'Build step', 'Voice practice · Grammar']);
     }
 
-    public function test_the_voice_practice_rows_circle_ticks_it_without_leaving_home(): void
+    public function test_the_voice_practice_rows_circle_on_home_cannot_tick_it_by_hand(): void
     {
-        $learner = $this->learnerWhoFinishedDay1(yesterday: true);
-        $this->actingAs($learner);
+        $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         Livewire::test('missions.overview')
-            ->assertSeeHtml('wire:click="markPracticed"')
-            ->call('markPracticed')
+            ->assertSee('Voice practice · Grammar')
             ->assertDontSeeHtml('wire:click="markPracticed"');
-
-        $this->assertTrue($learner->hasPracticedWithPiToday());
     }
 
     public function test_the_today_box_row_shows_the_done_state_after_practicing(): void

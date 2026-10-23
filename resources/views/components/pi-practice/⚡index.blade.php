@@ -16,8 +16,8 @@ new class extends Component
     use GivesConversationFeedback;
 
     /**
-     * Locked: these decide which day's practice is shown AND which day an
-     * "I practiced" tick is filed under, so the browser must never be able
+     * Locked: these decide which day's practice is shown AND which day the
+     * practice tick is filed under, so the browser must never be able
      * to rewrite them after mount() has checked them.
      */
     #[Locked]
@@ -59,28 +59,18 @@ new class extends Component
     }
 
     /**
-     * The learner's "I practiced" tick — counts today toward the streak
-     * (see User::activeDates()), filed under the day on screen. The day
-     * is re-checked here, not trusted from mount().
-     */
-    public function markPracticed(): void
-    {
-        if (app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) > $this->currentIndex) {
-            return;
-        }
-
-        auth()->user()->recordPiPracticeToday($this->missionCode, $this->day);
-
-        unset($this->practicedToday);
-    }
-
-    /**
      * Pi sends the learner's own words in one "My words:" message (see
      * PiPrompts), which the learner copies and pastes here; a whole copied
      * chat still works. Speaker names may or may not come along, so the
      * AI is told how to tell the two sides apart, and it judges against
      * the day's own goal (see PiPrompts::dayTask()). A good result is
      * kept for the day on screen (see PiChatFeedback).
+     *
+     * This is also the only way the practice gets ticked: there is no
+     * "I practiced" button, the AI says whether the chat really did the
+     * day's plan, and only then is today counted toward the streak (see
+     * User::activeDates()), filed under the day on screen. The day is
+     * re-checked here, not trusted from mount().
      */
     public function checkPastedChat(): void
     {
@@ -95,13 +85,23 @@ new class extends Component
             source: 'pi',
             spoken: ! $this->task['isPronunciationDrill'],
             extraGuidance: $this->task['feedback'],
+            practiceTask: implode('; ', $this->task['plan']),
         );
 
-        if ($this->feedback !== null) {
-            auth()->user()->piChatFeedback()->updateOrCreate(
-                ['mission_code' => $this->missionCode, 'day_number' => $this->day],
-                ['chat' => $this->pastedChat, 'feedback' => $this->feedback],
-            );
+        if ($this->feedback === null) {
+            return;
+        }
+
+        auth()->user()->piChatFeedback()->updateOrCreate(
+            ['mission_code' => $this->missionCode, 'day_number' => $this->day],
+            ['chat' => $this->pastedChat, 'feedback' => $this->feedback],
+        );
+
+        if (($this->feedback['practice_done'] ?? false) === true
+            && app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) <= $this->currentIndex) {
+            auth()->user()->recordPiPracticeToday($this->missionCode, $this->day);
+
+            unset($this->practicedToday);
         }
     }
 
@@ -223,7 +223,7 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
+<div class="mx-auto max-w-2xl space-y-6 p-6" x-data="{ showInfo: false }">
     <header class="border-b border-line pb-4 dark:border-line-dark">
         <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
             @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Missions
@@ -232,15 +232,25 @@ new class extends Component
             <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">
                 @svg('heroicon-o-microphone', 'h-5 w-5')
             </span>
-            <div>
+            <div class="min-w-0 flex-1">
                 <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->isToday ? 'Voice practice today' : 'Voice practice' }}</h1>
                 <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</p>
             </div>
+            <button
+                type="button"
+                x-on:click="showInfo = ! showInfo"
+                x-bind:aria-expanded="showInfo"
+                aria-controls="pi-practice-info"
+                aria-label="How it works"
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+            >
+                @svg('heroicon-o-information-circle', 'h-6 w-6')
+            </button>
         </div>
         <nav class="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Days of {{ $missionCode }}">
             @foreach ($this->missionDays as $dayInfo)
                 @php
-                    $pill = 'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold';
+                    $pill = 'inline-flex items-center rounded-full border px-3 py-1 text-xs';
                 @endphp
                 @if ($dayInfo['state'] === 'future')
                     <span
@@ -264,65 +274,61 @@ new class extends Component
             @endforeach
         </nav>
         @if (! $this->isToday)
-            <a href="{{ route('pi.practice') }}" wire:navigate class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">
+            <a href="{{ route('pi.practice') }}" wire:navigate class="mt-3 inline-flex items-center gap-1 text-xs text-accent-ink underline dark:text-accent-ink-dark">
                 Back to today ({{ $this->target['missionCode'] }} · Day {{ $this->target['dayNumber'] }})
             </a>
         @endif
     </header>
 
-    <section class="space-y-1">
-        <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $this->task['title'] }} · about 10 minutes, voice only</p>
-        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $this->task['goal'] }}</p>
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">The last thing of your day, after the mission steps. It is never a step and never blocks anything.</p>
-    </section>
-
-    <section class="card space-y-2 p-4" aria-label="Today's plan">
-        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Today's plan</p>
-        <ol class="list-decimal space-y-1 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
-            @foreach ($this->task['plan'] as $planStep)
-                <li>{{ $planStep }}</li>
-            @endforeach
-        </ol>
-    </section>
-
-    <section class="card space-y-3 p-4" aria-label="How to practice">
-        <ol class="list-decimal space-y-1.5 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
+    {{-- How-to and tips stay behind the ⓘ in the header, so the page itself
+         is just the plan, the prompt and the feedback. --}}
+    <section id="pi-practice-info" x-show="showInfo" x-cloak x-transition class="card space-y-3 p-4 text-sm text-ink-soft dark:text-ink-soft-dark" aria-label="How it works">
+        <p>{{ $this->task['goal'] }}</p>
+        <ol class="list-decimal space-y-1.5 ps-5">
             <li>
                 Open the voice AI app you like best —
-                <a href="https://pi.ai" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Pi</a>,
-                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Gemini Live</a>,
+                <a href="https://pi.ai" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }" class="text-accent-ink underline dark:text-accent-ink-dark">Pi</a>,
+                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="text-accent-ink underline dark:text-accent-ink-dark">Gemini Live</a>,
                 or any other one you already use.
             </li>
             <li>Turn on voice mode first.</li>
-            <li>Copy the prompt below, send it, and talk out loud.</li>
+            <li>Copy the prompt, send it, and talk out loud.</li>
         </ol>
-
-        <x-pi-practice-card :task="$this->task" :rows="6" />
-
         <div class="space-y-1 text-xs text-ink-faint dark:text-ink-faint-dark">
             <p>
                 Say one on its own, any time:
                 @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)
-                    <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $word }}</span> ({{ $meaning }}){{ $loop->last ? '.' : ',' }}
+                    <span class="text-ink-soft dark:text-ink-soft-dark">{{ $word }}</span> ({{ $meaning }}){{ $loop->last ? '.' : ',' }}
                 @endforeach
             </p>
-            <p>Talking too much? Say <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">"Shorter, please."</span></p>
+            <p>Talking too much? Say <span class="text-ink-soft dark:text-ink-soft-dark">"Shorter, please."</span></p>
+            @if ($day === 4)
+                <p>Afterwards, save the fixes you want to remember in My Words.</p>
+            @endif
+            <p>The last thing of your day, after the mission steps. It is never a step and never blocks anything.</p>
+            <p>
+                First time?
+                <a href="{{ route('pi.setup') }}" wire:navigate class="underline">How voice practice works</a>
+            </p>
         </div>
-
-        @if ($day === 4)
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Afterwards, save the fixes you want to remember in My Words.</p>
-        @endif
-
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-            First time?
-            <a href="{{ route('pi.setup') }}" wire:navigate class="font-semibold underline">How voice practice works</a>
-        </p>
     </section>
 
-    <x-done-toggle :done="$this->practicedToday" action="markPracticed" label="I practiced" done-label="Practiced today" :ask-after-pi="true" />
+    <details class="card group p-4">
+        <summary class="flex cursor-pointer list-none items-center gap-2 text-sm text-ink dark:text-ink-dark">
+            <span class="min-w-0 flex-1">Today's plan · {{ $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</span>
+            @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
+        </summary>
+        <ol class="mt-3 list-decimal space-y-1 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
+            @foreach ($this->task['plan'] as $planStep)
+                <li>{{ $planStep }}</li>
+            @endforeach
+        </ol>
+    </details>
+
+    <x-pi-practice-card :task="$this->task" :rows="6" />
 
     <section class="card space-y-3 p-4" aria-label="Feedback on your chat">
-        <label for="pasted-chat" class="block text-sm font-semibold text-ink dark:text-ink-dark">Feedback on your chat</label>
+        <label for="pasted-chat" class="block text-sm text-ink dark:text-ink-dark">Feedback on your chat</label>
         <textarea
             id="pasted-chat"
             wire:model="pastedChat"
@@ -351,4 +357,21 @@ new class extends Component
             </div>
         @endif
     </section>
+
+    {{-- Never a button: the feedback above ticks it once the AI sees the
+         day's plan really done (see checkPastedChat()). --}}
+    @if ($this->practicedToday)
+        <div class="flex items-center gap-3 rounded-2xl bg-success-soft px-4 py-3.5 text-sm text-success dark:bg-success-soft-dark dark:text-success-dark">
+            <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
+            Practiced today
+        </div>
+    @else
+        <div class="flex items-center gap-3 rounded-2xl border-2 border-dashed border-line px-4 py-3.5 dark:border-line-dark">
+            <span class="inline-flex h-7 w-7 shrink-0 rounded-full border-2 border-line dark:border-line-dark"></span>
+            <span class="min-w-0 flex-1">
+                <span class="block text-sm text-ink-soft dark:text-ink-soft-dark">I practiced</span>
+                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? "Not counted — this doesn't look like today's practice." : 'Ticks itself after Feedback.' }}</span>
+            </span>
+        </div>
+    @endif
 </div>

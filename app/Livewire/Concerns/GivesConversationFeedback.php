@@ -49,8 +49,10 @@ trait GivesConversationFeedback
      *                                         step hooks TracksAiUsage::recordGeminiCall().
      * @param  list<array{question: ?string, text: string}>  $answers  Separate answers, in place of $conversation
      *                                                                 (see LearnerFeedback::review()).
+     * @param  string  $practiceTask  Asks the AI whether this was a real practice of the task too
+     *                                (see LearnerFeedback::review()).
      */
-    protected function requestConversationFeedback(string $conversation, string $situation, string $source, bool $spoken = false, ?Closure $onCallSucceeded = null, array $answers = [], string $extraGuidance = ''): void
+    protected function requestConversationFeedback(string $conversation, string $situation, string $source, bool $spoken = false, ?Closure $onCallSucceeded = null, array $answers = [], string $extraGuidance = '', string $practiceTask = ''): void
     {
         $this->feedbackError = null;
 
@@ -76,6 +78,7 @@ trait GivesConversationFeedback
                 extraGuidance: $extraGuidance,
                 onCallSucceeded: $onCallSucceeded,
                 answers: $answers,
+                practiceTask: $practiceTask,
             );
         } catch (AiLimitReached) {
             $this->feedback = null;

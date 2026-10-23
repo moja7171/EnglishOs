@@ -14,7 +14,7 @@ use App\Models\User;
  * finishing Day 4 closes the whole mission, so the practice of the day just
  * finished would never be shown at the very moment it is meant for. This
  * class covers that: a day the learner finished earlier today, and hasn't
- * ticked "I practiced" for yet, stays the target until they tick (or the
+ * had the practice ticked for yet, stays the target until it is (or the
  * calendar day ends). Only that one day carries over — nothing piles up
  * into a backlog.
  */
