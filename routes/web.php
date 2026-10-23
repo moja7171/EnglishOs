@@ -15,6 +15,7 @@ use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
 use App\Notifications\PartnerSessionStarted;
+use App\Services\MissionGrid;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +46,14 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/pi-setup', function () {
         return view('pi-setup');
     })->name('pi.setup');
+
+    // All 24 missions as photo cards (App\Services\MissionGrid). ?for=listening
+    // or ?for=talk opens each day on that page instead of in the mission.
+    Route::get('/missions', function (MissionGrid $grid) {
+        $context = in_array(request()->query('for'), ['listening', 'talk'], true) ? request()->query('for') : 'home';
+
+        return view('missions', ['context' => $context, 'grid' => $grid->for(auth()->user(), $context)]);
+    })->name('missions.index');
 
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
         return view('mission-runner', compact('mission', 'step'));

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\AudioListen;
 use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
@@ -202,25 +201,6 @@ class PiPracticePageTest extends TestCase
 
         $this->get('/pi/M25/1')->assertNotFound();
         $this->get('/pi/M01/5')->assertNotFound();
-    }
-
-    public function test_the_mission_map_opens_any_reached_day_and_ticks_daily_talk_days_only(): void
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
-        MissionRun::findOrStart($learner, $this->makeMission('M02'));
-        PiChatFeedback::factory()->for($learner, 'learner')->create(['chat' => '', 'day_number' => 2, 'feedback' => ['practice_done' => true]]);
-        AudioListen::factory()->pick(3)->create(['learner_id' => $learner->id, 'mission_code' => 'M01']);
-        $this->actingAs($learner);
-
-        $this->get(route('pi.practice'))
-            ->assertSee('M02 · People &amp; Relationships · Day 1 of 4', false)
-            ->assertSeeHtml('aria-label="Missions"')
-            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 4]).'"')
-            ->assertSeeHtml('aria-label="M01 · Day 2, done"')
-            ->assertSeeHtml('aria-label="M01 · Day 3"')
-            ->assertSeeHtml('aria-label="M03 · Day 1, not reached yet"')
-            ->assertDontSeeHtml('href="'.route('pi.practice', ['M03', 1]).'"');
     }
 
     public function test_an_earlier_day_shows_its_own_plan_and_tick_not_todays(): void
@@ -553,5 +533,13 @@ class PiPracticePageTest extends TestCase
         $this->get(route('missions.show', [Mission::first(), 'overview']))
             ->assertSee('10 minutes of talking with a voice AI.')
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"');
+    }
+
+    public function test_the_missions_button_opens_the_missions_page_for_daily_talk(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('pi.practice'))
+            ->assertSeeHtml('href="'.route('missions.index', ['for' => 'talk']).'"');
     }
 }

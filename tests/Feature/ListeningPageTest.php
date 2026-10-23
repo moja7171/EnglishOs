@@ -7,7 +7,6 @@ use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
-use App\Models\PiPracticeLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -137,53 +136,6 @@ class ListeningPageTest extends TestCase
     /**
      * M01 finished, M02 started: today is M02 · Day 1.
      */
-    private function learnerOnM02(): User
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
-        MissionRun::findOrStart($learner, $this->makeMission('M02'));
-
-        return $learner;
-    }
-
-    public function test_the_mission_map_opens_any_reached_day_in_one_tap_and_locks_the_rest(): void
-    {
-        $this->actingAs($this->learnerOnM02());
-
-        $this->get(route('listening.show'))
-            ->assertSee('M02 · People &amp; Relationships · Day 1 of 4', false)
-            ->assertSeeHtml('aria-label="Missions"')
-            ->assertSee('Day 5 of 96')
-            ->assertSeeInOrder(['My Daily Life', 'People &amp; Relationships', 'Debate &amp; Discussion'], false)
-            ->assertSeeHtml('href="'.route('listening.show', ['M01', 3]).'"')
-            ->assertSeeHtml('aria-label="M02 · Day 1, today"')
-            ->assertSeeHtml('aria-label="M02 · Day 2, not reached yet"')
-            ->assertSeeHtml('aria-label="M03 · Day 1, not reached yet"')
-            ->assertDontSeeHtml('href="'.route('listening.show', ['M03', 1]).'"');
-    }
-
-    public function test_a_learner_still_on_the_first_mission_already_sees_the_whole_path(): void
-    {
-        $this->actingAs($this->learnerOnDay2());
-
-        $this->get(route('listening.show'))
-            ->assertSeeHtml('aria-label="Missions"')
-            ->assertSee('Day 2 of 96')
-            ->assertSeeHtml('aria-label="M24 · Day 4, not reached yet"');
-    }
-
-    public function test_the_mission_map_ticks_listening_days_only(): void
-    {
-        $learner = $this->learnerOnM02();
-        AudioListen::factory()->pick(2)->create(['learner_id' => $learner->id, 'mission_code' => 'M01']);
-        PiPracticeLog::factory()->for($learner, 'learner')->create(['mission_code' => 'M01', 'day_number' => 3]);
-        $this->actingAs($learner);
-
-        $this->get(route('listening.show'))
-            ->assertSeeHtml('aria-label="M01 · Day 2, done"')
-            ->assertSeeHtml('aria-label="M01 · Day 3"');
-    }
-
     public function test_an_earlier_day_has_no_daily_tick_and_does_not_borrow_todays(): void
     {
         $learner = $this->learnerOnDay2();
@@ -303,5 +255,13 @@ class ListeningPageTest extends TestCase
         $this->expectException(CannotUpdateLockedPropertyException::class);
 
         Livewire::test('listening.index')->set('day', 4);
+    }
+
+    public function test_the_missions_button_opens_the_missions_page_for_listening(): void
+    {
+        $this->actingAs($this->learnerOnDay2());
+
+        $this->get(route('listening.show'))
+            ->assertSeeHtml('href="'.route('missions.index', ['for' => 'listening']).'"');
     }
 }
