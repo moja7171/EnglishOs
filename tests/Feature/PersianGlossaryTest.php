@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\PersianGloss;
+use App\Models\PhraseForm;
 use App\Services\PersianGlossary;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -80,5 +81,25 @@ class PersianGlossaryTest extends TestCase
     public function test_it_returns_nothing_for_a_word_it_does_not_have(): void
     {
         $this->assertSame([], app(PersianGlossary::class)->senses('qzxvbnm'));
+    }
+
+    public function test_a_form_of_a_phrasal_verb_gets_the_persian_of_the_whole_phrase_not_of_its_verb(): void
+    {
+        PersianGloss::factory()->create(['word' => 'give', 'pos' => 'verb', 'words' => ['دادن']]);
+        PersianGloss::factory()->create(['word' => 'give up', 'pos' => 'verb', 'words' => ['دست کشیدن']]);
+
+        $senses = app(PersianGlossary::class)->senses('gave up', [
+            ['pos' => 'verb', 'definitions' => [['definition' => 'simple past of give up', 'example' => null]]],
+        ]);
+
+        $this->assertSame([['pos' => 'verb', 'words' => 'دست کشیدن']], $senses);
+    }
+
+    public function test_a_phrase_is_found_under_its_base_form(): void
+    {
+        PhraseForm::create(['form' => 'looking forward to', 'phrase' => 'look forward to']);
+        PersianGloss::factory()->create(['word' => 'look forward to', 'pos' => 'verb', 'words' => ['مشتاق بودن']]);
+
+        $this->assertSame([['pos' => 'verb', 'words' => 'مشتاق بودن']], app(PersianGlossary::class)->senses('looking forward to'));
     }
 }

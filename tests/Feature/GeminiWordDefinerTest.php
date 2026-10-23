@@ -93,4 +93,19 @@ class GeminiWordDefinerTest extends TestCase
 
         app(GeminiWordDefiner::class)->persianMeanings('sleep', []);
     }
+
+    public function test_it_translates_a_phrase_as_it_is_meant_in_its_sentence(): void
+    {
+        $this->fakeGemini('{"translation_fa": "به مغازه رفت"}');
+
+        $this->assertSame('به مغازه رفت', app(GeminiWordDefiner::class)->translatePhrase('went to the shop', 'She went to the shop.'));
+        Http::assertSent(fn ($request) => $request['contents'][0]['parts'][0]['text'] === "Phrase: went to the shop\nSentence: She went to the shop.");
+    }
+
+    public function test_a_phrase_translation_that_is_not_persian_is_dropped(): void
+    {
+        $this->fakeGemini('{"translation_fa": "went to the shop"}');
+
+        $this->assertNull(app(GeminiWordDefiner::class)->translatePhrase('went to the shop'));
+    }
 }

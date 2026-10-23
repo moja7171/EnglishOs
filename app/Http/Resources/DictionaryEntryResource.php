@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * What the tap-a-word sheet reads for one word.
+ * What the tap-a-word sheet reads for one word or phrase.
  *
  * @mixin DictionaryEntry
  */
@@ -32,6 +32,9 @@ class DictionaryEntryResource extends JsonResource
                 $this->isKnownToDictionary() => 'ok',
                 default => 'unknown',
             },
+            // A phrase the dictionary does not list: the sheet shows only
+            // its Persian, with nothing to add to My Words.
+            'translation_only' => $this->isTranslationOnly(),
             'translation_fa' => $this->translation_fa,
             'persian_senses' => $this->persian_senses,
             'persian_source' => $this->persian_source,

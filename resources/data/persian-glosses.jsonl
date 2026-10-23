@@ -1,4 +1,8 @@
 {"w": "a", "pos": "noun", "fa": ["آ", "ای"]}
+{"w": "a cappella", "pos": "adverb", "fa": ["بیساز"]}
+{"w": "a fortiori", "pos": "adverb", "fa": ["به طریق اولی"]}
+{"w": "a little", "pos": "adverb", "fa": ["خرده", "کمی", "یک کم", "یک کمی", "یه کمی"]}
+{"w": "a lot", "pos": "adverb", "fa": ["زیاد", "خیلی زیاد"]}
 {"w": "aardwolf", "pos": "noun", "fa": ["گرگ خاکی"]}
 {"w": "aback", "pos": "adverb", "fa": ["جاخوردن", "یکه خوردن", "غافلگیرشدن"]}
 {"w": "abacus", "pos": "noun", "fa": ["تخت حساب", "تخت و میل", "چرتکه"]}
@@ -81,6 +85,7 @@
 {"w": "accommodation", "pos": "noun", "fa": ["محل اقامت", "منزل", "مسکن", "اقامتگاه", "تطابق"]}
 {"w": "accompany", "pos": "verb", "fa": ["همراهی کردن", "همنوازی کردن"]}
 {"w": "accomplice", "pos": "noun", "fa": ["شریک جرم", "همدست", "شریک"]}
+{"w": "according to", "pos": "preposition", "fa": ["طبق"]}
 {"w": "accordingly", "pos": "adverb", "fa": ["طبیعتا"]}
 {"w": "accordion", "pos": "noun", "fa": ["آکاردئون"]}
 {"w": "account", "pos": "noun", "fa": ["حساب"]}
@@ -227,12 +232,14 @@
 {"w": "afsharid", "pos": "noun", "fa": ["افشاری"]}
 {"w": "after", "pos": "adverb", "fa": ["پس از"]}
 {"w": "after", "pos": "preposition", "fa": ["پس از", "بعد از", "بعد", "در پی"]}
+{"w": "after you", "pos": "phrase", "fa": ["بفرمایید"]}
 {"w": "afterburner", "pos": "noun", "fa": ["افتر برنر", "پسسوز"]}
 {"w": "afternoon", "pos": "noun", "fa": ["بعد از ظهر"]}
 {"w": "aftershock", "pos": "noun", "fa": ["پسلرزه"]}
 {"w": "aftertaste", "pos": "noun", "fa": ["پسطعم"]}
 {"w": "afterwards", "pos": "adverb", "fa": ["بعد", "بعدا", "سپس"]}
 {"w": "again", "pos": "adverb", "fa": ["دگربار", "دوباره", "باز", "از نو"]}
+{"w": "again and again", "pos": "adverb", "fa": ["چندین و چندبار"]}
 {"w": "against", "pos": "preposition", "fa": ["ضد", "علیه"]}
 {"w": "agar", "pos": "noun", "fa": ["آگار"]}
 {"w": "agate", "pos": "noun", "fa": ["عقیق"]}
@@ -327,6 +334,8 @@
 {"w": "alkyne", "pos": "noun", "fa": ["آلکین"]}
 {"w": "all", "pos": "adverb", "fa": ["همه"]}
 {"w": "all", "pos": "determiner", "fa": ["همه", "سراسر", "تمام"]}
+{"w": "all rights reserved", "pos": "phrase", "fa": ["همهی حقوق محفوظ است"]}
+{"w": "allahu akbar", "pos": "interjection", "fa": ["الله اکبر"]}
 {"w": "allegiance", "pos": "noun", "fa": ["تعهد", "وفاداری"]}
 {"w": "allegory", "pos": "noun", "fa": ["تمثیل"]}
 {"w": "allergy", "pos": "noun", "fa": ["آلرژی", "حساسیت"]}
@@ -445,6 +454,7 @@
 {"w": "anchovy", "pos": "noun", "fa": ["آنچوی", "آنچووی"]}
 {"w": "ancient", "pos": "adjective", "fa": ["باستان", "قدیم", "کهن", "باستانی"]}
 {"w": "and", "pos": "conjunction", "fa": ["و"]}
+{"w": "and so forth", "pos": "phrase", "fa": ["و الخ", "و غیره"]}
 {"w": "android", "pos": "noun", "fa": ["اندروید"]}
 {"w": "anecdote", "pos": "noun", "fa": ["لطیفه"]}
 {"w": "anemia", "pos": "noun", "fa": ["کمخونی"]}
@@ -483,6 +493,7 @@
 {"w": "annihilate", "pos": "verb", "fa": ["نابود کردن", "از بین بردن"]}
 {"w": "annihilation", "pos": "noun", "fa": ["نابودی"]}
 {"w": "anniversary", "pos": "noun", "fa": ["سالگرد", "سالروز", "سالگرد ازدواج"]}
+{"w": "anno hegirae", "pos": "adverb", "fa": ["هجری قمری", "ه.ق"]}
 {"w": "annotate", "pos": "verb", "fa": ["فرانوشتن"]}
 {"w": "annotation", "pos": "noun", "fa": ["فرانوشت", "فرانوشتن", "فرانویسش"]}
 {"w": "announce", "pos": "verb", "fa": ["اعلام کردن", "علنیدن"]}
@@ -555,6 +566,7 @@
 {"w": "anyway", "pos": "adverb", "fa": ["در هر حال"]}
 {"w": "aorta", "pos": "noun", "fa": ["آئورت", "رگ جان"]}
 {"w": "apadana", "pos": "noun", "fa": ["آپادانا"]}
+{"w": "apart from", "pos": "preposition", "fa": ["جدا از"]}
 {"w": "apartment", "pos": "noun", "fa": ["آپارتمان"]}
 {"w": "apastron", "pos": "noun", "fa": ["اپاستار"]}
 {"w": "apatheism", "pos": "noun", "fa": ["خدانامهمدانی"]}
@@ -661,6 +673,9 @@
 {"w": "archon", "pos": "noun", "fa": ["ارخون", "ارکنت"]}
 {"w": "arduous", "pos": "adjective", "fa": ["صعبالعبور", "دشوارگذر"]}
 {"w": "arduously", "pos": "adverb", "fa": ["با مشقت"]}
+{"w": "are you married", "pos": "phrase", "fa": ["آیا ازدواج کردهای؟", "آیا شما متأهل هستید؟", "آیا ازدواج کردهاید؟"]}
+{"w": "are you ok", "pos": "phrase", "fa": ["حالت خوبه؟", "حالتان خوب است؟"]}
+{"w": "are you religious", "pos": "phrase", "fa": ["مذهبی هستی؟", "مذهبی هستید؟"]}
 {"w": "area", "pos": "noun", "fa": ["مساحت", "منطقه", "ناحیه"]}
 {"w": "arena", "pos": "noun", "fa": ["آرنا", "سالن"]}
 {"w": "areola", "pos": "noun", "fa": ["هاله"]}
@@ -728,6 +743,17 @@
 {"w": "aryan", "pos": "noun", "fa": ["آریایی", "آریان"]}
 {"w": "as", "pos": "adverb", "fa": ["به"]}
 {"w": "as", "pos": "preposition", "fa": ["به عنوان"]}
+{"w": "as a result", "pos": "phrase", "fa": ["در نتیجه"]}
+{"w": "as a result of", "pos": "preposition", "fa": ["در نتیجه"]}
+{"w": "as if", "pos": "conjunction", "fa": ["انگار", "مثل اینکه"]}
+{"w": "as it is", "pos": "adverb", "fa": ["آنگونه که هست"]}
+{"w": "as much as possible", "pos": "adverb", "fa": ["تا جای امکان", "حتیالامکان", "حتیالمقدور"]}
+{"w": "as soon as", "pos": "conjunction", "fa": ["همین که", "به محض"]}
+{"w": "as soon as possible", "pos": "adverb", "fa": ["هرچه زودتر"]}
+{"w": "as the saying goes", "pos": "phrase", "fa": ["به قول معروف"]}
+{"w": "as though", "pos": "conjunction", "fa": ["انگار", "مثل اینکه"]}
+{"w": "as usual", "pos": "adverb", "fa": ["طبق معمول"]}
+{"w": "as you know", "pos": "adverb", "fa": ["همانطور که میدانید"]}
 {"w": "asafoetida", "pos": "noun", "fa": ["انگدان", "انگژد", "رافه", "هنگ"]}
 {"w": "asarabacca", "pos": "noun", "fa": ["اسارون"]}
 {"w": "asbestos", "pos": "noun", "fa": ["پنبه نسوز", "آزبست"]}
@@ -748,6 +774,8 @@
 {"w": "asian", "pos": "noun", "fa": ["آسیایی", "آسیائی"]}
 {"w": "asinine", "pos": "adjective", "fa": ["احمقانه"]}
 {"w": "ask", "pos": "verb", "fa": ["پرسیدن", "سؤال کردن", "درخواستن"]}
+{"w": "ask after", "pos": "verb", "fa": ["سراغ گرفتن"]}
+{"w": "ask for", "pos": "verb", "fa": ["درخواست کردن"]}
 {"w": "asleep", "pos": "adjective", "fa": ["خوابیده"]}
 {"w": "asparagus", "pos": "noun", "fa": ["مارچوبه", "مارگیاه", "سپارک"]}
 {"w": "aspartame", "pos": "noun", "fa": ["آسپارتام"]}
@@ -803,6 +831,12 @@
 {"w": "asymmetrical", "pos": "adjective", "fa": ["نامتقارن"]}
 {"w": "asymptomatic", "pos": "adjective", "fa": ["بدون علامت"]}
 {"w": "at", "pos": "preposition", "fa": ["در"]}
+{"w": "at all", "pos": "adverb", "fa": ["اصلا"]}
+{"w": "at all costs", "pos": "adverb", "fa": ["به هر قیمتی که شده", "به هر قیمتی"]}
+{"w": "at ease", "pos": "interjection", "fa": ["راحت باش!"]}
+{"w": "at home", "pos": "phrase", "fa": ["منزل", "در منزل"]}
+{"w": "at least", "pos": "phrase", "fa": ["اقلا", "حداقل", "دستکم"]}
+{"w": "at work", "pos": "phrase", "fa": ["سر کار"]}
 {"w": "atabeg", "pos": "noun", "fa": ["اتابک", "اتابیک"]}
 {"w": "atari", "pos": "noun", "fa": ["آتاری"]}
 {"w": "ataxia", "pos": "noun", "fa": ["آتاکسی"]}
@@ -1106,6 +1140,11 @@
 {"w": "bayonet", "pos": "noun", "fa": ["سرنیزه"]}
 {"w": "bazaar", "pos": "noun", "fa": ["بازار"]}
 {"w": "be", "pos": "verb", "fa": ["بودن", "تشریف داشتن", "هست"]}
+{"w": "be able to", "pos": "verb", "fa": ["توانستن"]}
+{"w": "be born", "pos": "verb", "fa": ["به دنیا آمدن", "زایاندن", "زایانیدن", "متولد شدن", "پا به جهان گذاشتن"]}
+{"w": "be called", "pos": "verb", "fa": ["گفته شدن"]}
+{"w": "be careful", "pos": "interjection", "fa": ["بپا"]}
+{"w": "be silent", "pos": "verb", "fa": ["خاموش شدن", "ساکت شدن"]}
 {"w": "beach", "pos": "noun", "fa": ["ساحل", "پلاژ"]}
 {"w": "bead", "pos": "noun", "fa": ["مهره", "منجوق", "بلژی"]}
 {"w": "beak", "pos": "noun", "fa": ["نوک", "منقار", "کلب"]}
@@ -1125,6 +1164,7 @@
 {"w": "beauty", "pos": "noun", "fa": ["زیبایی", "جمال", "حسن"]}
 {"w": "beaver", "pos": "noun", "fa": ["سگ آبی", "بیدستر"]}
 {"w": "because", "pos": "conjunction", "fa": ["زیرا", "چونکه", "چون", "بدلیل", "برای اینکه"]}
+{"w": "because of", "pos": "preposition", "fa": ["به خاطر"]}
 {"w": "beckon", "pos": "verb", "fa": ["اشارت کردن"]}
 {"w": "become", "pos": "verb", "fa": ["شدن"]}
 {"w": "bed", "pos": "noun", "fa": ["بستر", "رختخواب", "تختخواب", "تخت"]}
@@ -1283,6 +1323,7 @@
 {"w": "bismuth", "pos": "noun", "fa": ["بیسموت"]}
 {"w": "bison", "pos": "noun", "fa": ["بایسن"]}
 {"w": "bissextile", "pos": "adjective", "fa": ["کبیسه", "اندرهلی"]}
+{"w": "bit by bit", "pos": "adverb", "fa": ["کمکم"]}
 {"w": "bitch", "pos": "noun", "fa": ["مادهسگ", "لاج", "سلیطه", "پتیاره", "دریده"]}
 {"w": "bitch", "pos": "verb", "fa": ["نق زدن", "غر زدن"]}
 {"w": "bite", "pos": "verb", "fa": ["گاز زدن", "به دندان گرفتن", "گزیدن", "گاز گرفتن", "نیش زدن"]}
@@ -1316,6 +1357,7 @@
 {"w": "bleen", "pos": "adjective", "fa": ["و آبز"]}
 {"w": "blender", "pos": "noun", "fa": ["مخلوطکن"]}
 {"w": "bless", "pos": "verb", "fa": ["برکت دادن"]}
+{"w": "bless you", "pos": "interjection", "fa": ["عافیت باشه", "الحمد لله"]}
 {"w": "blessing", "pos": "noun", "fa": ["موهبت", "برکت", "نعمت"]}
 {"w": "blind", "pos": "adjective", "fa": ["کور", "نابینا", "مکفوفالبصر"]}
 {"w": "blind", "pos": "noun", "fa": ["پرده کرکره"]}
@@ -1385,6 +1427,7 @@
 {"w": "bomber", "pos": "noun", "fa": ["بمبافکن"]}
 {"w": "bombing", "pos": "noun", "fa": ["بمباران"]}
 {"w": "bombshell", "pos": "noun", "fa": ["خمپاره"]}
+{"w": "bon voyage", "pos": "interjection", "fa": ["سفر بخیر", "به سلامت"]}
 {"w": "bonapartism", "pos": "noun", "fa": ["بناپارتیسم"]}
 {"w": "bondsman", "pos": "noun", "fa": ["بنده"]}
 {"w": "bone", "pos": "noun", "fa": ["استخوان", "استخون", "عظم"]}
@@ -1490,6 +1533,7 @@
 {"w": "breadcrust", "pos": "noun", "fa": ["پوسته"]}
 {"w": "breadwinner", "pos": "noun", "fa": ["نانآور"]}
 {"w": "break", "pos": "verb", "fa": ["خرد کردن", "شکستن", "خراب کردن"]}
+{"w": "break down", "pos": "verb", "fa": ["از کار افتادن"]}
 {"w": "breakdown", "pos": "noun", "fa": ["ریز اقلام"]}
 {"w": "breakfast", "pos": "noun", "fa": ["صبحانه", "ناشتا", "چاشت"]}
 {"w": "breast", "pos": "noun", "fa": ["پستان", "سینه", "قفسه سینه", "بر"]}
@@ -1523,6 +1567,7 @@
 {"w": "brilliant", "pos": "noun", "fa": ["برلیان"]}
 {"w": "brine", "pos": "noun", "fa": ["آب نمک"]}
 {"w": "bring", "pos": "verb", "fa": ["آوردن"]}
+{"w": "bring up", "pos": "verb", "fa": ["مطرح کردن"]}
 {"w": "bringer", "pos": "noun", "fa": ["آورنده"]}
 {"w": "british", "pos": "adjective", "fa": ["بریتانیایی"]}
 {"w": "british", "pos": "noun", "fa": ["بریتانیایی"]}
@@ -1653,6 +1698,14 @@
 {"w": "buzzard", "pos": "noun", "fa": ["سارگپه"]}
 {"w": "buzzer", "pos": "noun", "fa": ["شماطه"]}
 {"w": "by", "pos": "preposition", "fa": ["تا"]}
+{"w": "by and large", "pos": "adverb", "fa": ["کلا"]}
+{"w": "by chance", "pos": "phrase", "fa": ["اتفاقا"]}
+{"w": "by god", "pos": "adverb", "fa": ["وٱلله"]}
+{"w": "by god", "pos": "interjection", "fa": ["والله"]}
+{"w": "by heart", "pos": "phrase", "fa": ["از بر", "از حفظ"]}
+{"w": "by no means", "pos": "phrase", "fa": ["به هیچ وجه"]}
+{"w": "by the way", "pos": "phrase", "fa": ["راستی"]}
+{"w": "by virtue of", "pos": "preposition", "fa": ["به سبب"]}
 {"w": "by-election", "pos": "noun", "fa": ["انتخابات میاندورهای"]}
 {"w": "bye-bye", "pos": "interjection", "fa": ["خداحافظ", "بای بای"]}
 {"w": "bylaw", "pos": "noun", "fa": ["آییننامه"]}
@@ -1694,6 +1747,8 @@
 {"w": "caliphate", "pos": "noun", "fa": ["خلافت"]}
 {"w": "call", "pos": "noun", "fa": ["تماس", "زنگ", "دیدار", "زیارت"]}
 {"w": "call", "pos": "verb", "fa": ["صدا زدن", "تلفن کردن", "زنگ زدن", "زنگیدن", "خواندن"]}
+{"w": "call an ambulance", "pos": "phrase", "fa": ["آمبولانس خبر کن"]}
+{"w": "call the police", "pos": "phrase", "fa": ["به پلیس زنگ بزن"]}
 {"w": "callback", "pos": "noun", "fa": ["مهیال", "فراهمال"]}
 {"w": "calligrapher", "pos": "noun", "fa": ["خوشنویس", "خطاط"]}
 {"w": "calligraphic", "pos": "adjective", "fa": ["خوشنویسیشده"]}
@@ -1718,6 +1773,10 @@
 {"w": "campus", "pos": "noun", "fa": ["پردیس"]}
 {"w": "can", "pos": "noun", "fa": ["قوطی"]}
 {"w": "can", "pos": "verb", "fa": ["توانستن", "قادر بودن", "امکان داشتن"]}
+{"w": "can i come in", "pos": "phrase", "fa": ["میتوانم داخل بیایم؟", "میتونم بیام تو؟"]}
+{"w": "can i help you", "pos": "phrase", "fa": ["چطور میتونم کمکتون کنم؟"]}
+{"w": "can i smoke", "pos": "phrase", "fa": ["میتوانم سیگار بکشم؟"]}
+{"w": "can you help me", "pos": "phrase", "fa": ["میشه کمکم کنید؟"]}
 {"w": "canaanite", "pos": "noun", "fa": ["کنعانی"]}
 {"w": "canadian", "pos": "adjective", "fa": ["کانادایی"]}
 {"w": "canadian", "pos": "noun", "fa": ["کانادایی"]}
@@ -1817,6 +1876,8 @@
 {"w": "carriageway", "pos": "noun", "fa": ["باند عبور", "سوارهرو"]}
 {"w": "carrot", "pos": "noun", "fa": ["هویج", "گزر", "زردک"]}
 {"w": "carry", "pos": "verb", "fa": ["بردن"]}
+{"w": "carry on", "pos": "verb", "fa": ["ادامه دادن"]}
+{"w": "carry out", "pos": "verb", "fa": ["انجامیدن", "انجام شدن"]}
 {"w": "cart", "pos": "noun", "fa": ["گاری", "ارابه"]}
 {"w": "cartel", "pos": "noun", "fa": ["کارتل"]}
 {"w": "cartesian", "pos": "adjective", "fa": ["دکارتی"]}
@@ -1839,6 +1900,7 @@
 {"w": "caspian", "pos": "noun", "fa": ["کاسپی"]}
 {"w": "cassette", "pos": "noun", "fa": ["کاست"]}
 {"w": "cassock", "pos": "noun", "fa": ["قبا"]}
+{"w": "cast aspersions", "pos": "verb", "fa": ["هتک حرمت"]}
 {"w": "caste", "pos": "noun", "fa": ["کاست", "طبقه", "ذات", "نسل"]}
 {"w": "castella", "pos": "noun", "fa": ["کاستلا"]}
 {"w": "castellan", "pos": "noun", "fa": ["حاکم قلعه"]}
@@ -1857,6 +1919,7 @@
 {"w": "cataract", "pos": "noun", "fa": ["آبمروارید"]}
 {"w": "catastrophe", "pos": "noun", "fa": ["فاجعه", "فجایع", "مصیبت", "آفت"]}
 {"w": "catch", "pos": "verb", "fa": ["گرفتن"]}
+{"w": "catch a cold", "pos": "verb", "fa": ["سرما خوردن", "چاییدن"]}
 {"w": "category", "pos": "noun", "fa": ["رده", "رسته", "کتگوری", "طبقه", "دسته"]}
 {"w": "catering", "pos": "noun", "fa": ["کیترینگ"]}
 {"w": "caterpillar", "pos": "noun", "fa": ["کرم صدپا"]}
@@ -2023,6 +2086,7 @@
 {"w": "chick", "pos": "noun", "fa": ["جوجه"]}
 {"w": "chickadee", "pos": "noun", "fa": ["چرخریسک"]}
 {"w": "chicken", "pos": "noun", "fa": ["مرغ خانگی", "ماک", "مرغ", "جوجه"]}
+{"w": "chicken out", "pos": "verb", "fa": ["جا زدن"]}
 {"w": "chickpea", "pos": "noun", "fa": ["نخود", "نخودچی"]}
 {"w": "chicory", "pos": "noun", "fa": ["کاسنی"]}
 {"w": "chide", "pos": "verb", "fa": ["شخولیدن", "سرکوفت زدن"]}
@@ -2035,10 +2099,12 @@
 {"w": "chili", "pos": "noun", "fa": ["فلفل قرمز"]}
 {"w": "chiliarch", "pos": "noun", "fa": ["هزاربد"]}
 {"w": "chill", "pos": "verb", "fa": ["چاییدن"]}
+{"w": "chime in", "pos": "verb", "fa": ["پابرهنه وسط بحث پریدن"]}
 {"w": "chimera", "pos": "noun", "fa": ["شترگاوپلنگ", "آمیژه"]}
 {"w": "chimney", "pos": "noun", "fa": ["دودکش"]}
 {"w": "chimpanzee", "pos": "noun", "fa": ["شمپانزه"]}
 {"w": "chin", "pos": "noun", "fa": ["چانه", "چکن", "زنخ", "زنخدان"]}
+{"w": "chin up", "pos": "phrase", "fa": ["خوشحال باش"]}
 {"w": "china", "pos": "noun", "fa": ["چینی"]}
 {"w": "chinatown", "pos": "noun", "fa": ["محله چینیها"]}
 {"w": "chinese", "pos": "adjective", "fa": ["چینی"]}
@@ -2169,6 +2235,7 @@
 {"w": "clinical", "pos": "adjective", "fa": ["کلینیکی", "بالینی"]}
 {"w": "clipboard", "pos": "noun", "fa": ["کلیپ بورد"]}
 {"w": "clique", "pos": "noun", "fa": ["گروهک", "کلیک"]}
+{"w": "clit", "pos": "verb", "fa": ["چوچول بازی"]}
 {"w": "clitic", "pos": "noun", "fa": ["واژهبست"]}
 {"w": "clitoris", "pos": "noun", "fa": ["چوچوله", "بظر"]}
 {"w": "cloak", "pos": "noun", "fa": ["قبا", "یلمه", "فرچی", "فرغل"]}
@@ -2306,6 +2373,10 @@
 {"w": "combust", "pos": "verb", "fa": ["آتش گرفتن", "بسوزم"]}
 {"w": "combustion", "pos": "noun", "fa": ["سوختن"]}
 {"w": "come", "pos": "verb", "fa": ["آمدن", "رسیدن"]}
+{"w": "come back", "pos": "verb", "fa": ["برگشتن"]}
+{"w": "come into the world", "pos": "verb", "fa": ["به دنیا آمدن"]}
+{"w": "come on", "pos": "interjection", "fa": ["د بیا", "یالا", "آهان د", "بجنب"]}
+{"w": "come to", "pos": "verb", "fa": ["شدن"]}
 {"w": "comeback", "pos": "noun", "fa": ["کامبک"]}
 {"w": "comedian", "pos": "noun", "fa": ["کمدین"]}
 {"w": "comedy", "pos": "noun", "fa": ["کمدی"]}
@@ -2332,6 +2403,7 @@
 {"w": "commission", "pos": "noun", "fa": ["کمیسیون"]}
 {"w": "commissioner", "pos": "noun", "fa": ["کمیسر"]}
 {"w": "commit", "pos": "verb", "fa": ["سپردن", "زندانی کردن", "دربند کردن", "مرتکب شدن", "بد انجامیدن"]}
+{"w": "commit suicide", "pos": "verb", "fa": ["خودکشی کردن"]}
 {"w": "committee", "pos": "noun", "fa": ["کمیته", "هیئت", "کمیسیون"]}
 {"w": "commodity", "pos": "noun", "fa": ["متاع", "مال", "کالا", "جنس", "اجناس"]}
 {"w": "common", "pos": "adjective", "fa": ["رایج", "شایع", "معمول", "معمولی"]}
@@ -2648,6 +2720,7 @@
 {"w": "cousin", "pos": "noun", "fa": ["پسرعمو", "دخترعمو", "پسرعمه", "دخترعمه", "پسردائی"]}
 {"w": "covalent", "pos": "adjective", "fa": ["کووالانت"]}
 {"w": "cover", "pos": "noun", "fa": ["پوشش", "رو پوشانی", "جلد"]}
+{"w": "cover up", "pos": "verb", "fa": ["سرپوش گذاشتن"]}
 {"w": "coverslip", "pos": "noun", "fa": ["لامل"]}
 {"w": "covetous", "pos": "adjective", "fa": ["حریص"]}
 {"w": "covetousness", "pos": "noun", "fa": ["حرص"]}
@@ -2829,6 +2902,7 @@
 {"w": "customize", "pos": "verb", "fa": ["سفاریستن"]}
 {"w": "customs", "pos": "noun", "fa": ["گمرک"]}
 {"w": "cut", "pos": "verb", "fa": ["بریدن"]}
+{"w": "cut out", "pos": "verb", "fa": ["قطع شدن"]}
 {"w": "cute", "pos": "adjective", "fa": ["ناز", "ملوس"]}
 {"w": "cutie", "pos": "noun", "fa": ["موش"]}
 {"w": "cutlet", "pos": "noun", "fa": ["کتلت"]}
@@ -2917,6 +2991,9 @@
 {"w": "dawn", "pos": "noun", "fa": ["سپیده", "پرگاس"]}
 {"w": "dawn", "pos": "verb", "fa": ["سپیدهدم", "پگاه"]}
 {"w": "day", "pos": "noun", "fa": ["روز", "یوم", "شبانهروز"]}
+{"w": "day after tomorrow", "pos": "adverb", "fa": ["پسفردا"]}
+{"w": "day and night", "pos": "adverb", "fa": ["شب و روز", "روز و شب", "شبانهروز"]}
+{"w": "day before yesterday", "pos": "adverb", "fa": ["پریروز"]}
 {"w": "daybreak", "pos": "noun", "fa": ["سحر", "پگاه"]}
 {"w": "daycare", "pos": "noun", "fa": ["مهد کودک"]}
 {"w": "dazzling", "pos": "adjective", "fa": ["درخشان"]}
@@ -3151,6 +3228,7 @@
 {"w": "didactic", "pos": "adjective", "fa": ["تعلیمی", "آموزشی"]}
 {"w": "die", "pos": "noun", "fa": ["طاس"]}
 {"w": "die", "pos": "verb", "fa": ["مردن"]}
+{"w": "die down", "pos": "verb", "fa": ["فروکش کردن"]}
 {"w": "diencephalon", "pos": "noun", "fa": ["مغز میانجی"]}
 {"w": "diesel", "pos": "noun", "fa": ["گازوئیل", "دیزل"]}
 {"w": "diet", "pos": "noun", "fa": ["رژیم", "رژیم غذایی"]}
@@ -3175,6 +3253,7 @@
 {"w": "dinar", "pos": "noun", "fa": ["دینار"]}
 {"w": "dinner", "pos": "noun", "fa": ["شام"]}
 {"w": "dinosaur", "pos": "noun", "fa": ["دایناسور"]}
+{"w": "dinosaur", "pos": "verb", "fa": ["دایناسور"]}
 {"w": "diode", "pos": "noun", "fa": ["دیود"]}
 {"w": "diorama", "pos": "noun", "fa": ["شهر فرنگ"]}
 {"w": "diphtheria", "pos": "noun", "fa": ["دیفتری"]}
@@ -3264,6 +3343,7 @@
 {"w": "diversity", "pos": "noun", "fa": ["تنوع"]}
 {"w": "diverticulum", "pos": "noun", "fa": ["واراهه"]}
 {"w": "divide", "pos": "verb", "fa": ["قسمیدن", "بخشیدن", "جداییدن", "سواییدن"]}
+{"w": "divide and rule", "pos": "verb", "fa": ["تفرقه بینداز و حکومت کن"]}
 {"w": "dividend", "pos": "noun", "fa": ["مقسوم", "بخش", "بخشیده", "سود سهام"]}
 {"w": "division", "pos": "noun", "fa": ["تقسیم", "بخش", "لشکر", "فرقه"]}
 {"w": "divisor", "pos": "noun", "fa": ["مقسوم علیه", "بخشیاب"]}
@@ -3274,6 +3354,14 @@
 {"w": "dizzy", "pos": "adjective", "fa": ["گیج"]}
 {"w": "dna", "pos": "noun", "fa": ["دیانای"]}
 {"w": "do", "pos": "verb", "fa": ["آیا", "کردن"]}
+{"w": "do away with", "pos": "verb", "fa": ["منسوخ کردن"]}
+{"w": "do i know you", "pos": "phrase", "fa": ["شما را میشناسم؟", "میشناسمت؟"]}
+{"w": "do not enter", "pos": "phrase", "fa": ["وارد نشوید"]}
+{"w": "do you have children", "pos": "phrase", "fa": ["آیا شما بچه دارید؟", "بچه داری؟", "آیا فرزند دارید؟"]}
+{"w": "do you love me", "pos": "phrase", "fa": ["آیا مرا دوست داری؟", "دوست داری؟"]}
+{"w": "do you need help", "pos": "phrase", "fa": ["به کمک احتیاج دارید؟", "به کمک احتیاج داری؟", "کمک میخوای؟"]}
+{"w": "do you speak english", "pos": "phrase", "fa": ["انگلیسی بلدید؟", "شما انگلیسی بلدید؟", "شما انگلیسی حرف میزنید؟", "فارسی بلدید؟", "شما فارسی بلدید؟"]}
+{"w": "do you understand", "pos": "phrase", "fa": ["میفهمید؟", "میفهمی؟", "متوجه میشوید؟", "متوجه میشین؟", "متوجه میشوی؟"]}
 {"w": "dobermann", "pos": "noun", "fa": ["دوبرمن", "دوبرمن پینچر"]}
 {"w": "doctor", "pos": "noun", "fa": ["دکتر"]}
 {"w": "doctorate", "pos": "noun", "fa": ["دکتری", "دکترا"]}
@@ -3288,6 +3376,7 @@
 {"w": "dogbane", "pos": "noun", "fa": ["شاهدانه هندی"]}
 {"w": "doge", "pos": "noun", "fa": ["دوجه"]}
 {"w": "doggy", "pos": "noun", "fa": ["هاپو"]}
+{"w": "doggy style", "pos": "adverb", "fa": ["اض پوشت ب ژلو گوضشتن"]}
 {"w": "dogmatic", "pos": "adjective", "fa": ["جزمی"]}
 {"w": "dogsitter", "pos": "noun", "fa": ["سگگردان"]}
 {"w": "doll", "pos": "noun", "fa": ["عروسک"]}
@@ -3325,6 +3414,7 @@
 {"w": "dovetail", "pos": "noun", "fa": ["اتصال دمچلچلهای"]}
 {"w": "down", "pos": "adverb", "fa": ["پایین"]}
 {"w": "down", "pos": "noun", "fa": ["میدان"]}
+{"w": "down with", "pos": "interjection", "fa": ["مرگ بر"]}
 {"w": "download", "pos": "noun", "fa": ["دانلود", "بارگیری"]}
 {"w": "downspout", "pos": "noun", "fa": ["ناودان"]}
 {"w": "downstairs", "pos": "adverb", "fa": ["طبقه پایین"]}
@@ -3468,6 +3558,7 @@
 {"w": "eastern", "pos": "adjective", "fa": ["شرقی", "مشرقی"]}
 {"w": "easy", "pos": "adjective", "fa": ["آسان", "راحت"]}
 {"w": "eat", "pos": "verb", "fa": ["خواردن", "خوردن"]}
+{"w": "eat pussy", "pos": "verb", "fa": ["کس خوری"]}
 {"w": "eavesdrop", "pos": "verb", "fa": ["فالگوش ایستادن", "شنود", "استراق سمع کردن"]}
 {"w": "eavesdropping", "pos": "noun", "fa": ["استراق سمع"]}
 {"w": "ebb", "pos": "noun", "fa": ["جزر"]}
@@ -3514,6 +3605,7 @@
 {"w": "effigy", "pos": "noun", "fa": ["آدمک"]}
 {"w": "effort", "pos": "noun", "fa": ["تلاش", "سعی", "جهد", "کوشش"]}
 {"w": "egg", "pos": "noun", "fa": ["تخم", "تخم مرغ"]}
+{"w": "egg on", "pos": "verb", "fa": ["تحریک کردن"]}
 {"w": "eggcup", "pos": "noun", "fa": ["تخممرغدان"]}
 {"w": "eggnog", "pos": "noun", "fa": ["اگناگ"]}
 {"w": "eggplant", "pos": "noun", "fa": ["بادنجان", "بادنگان", "باتنگان"]}
@@ -3526,6 +3618,7 @@
 {"w": "egyptologist", "pos": "noun", "fa": ["مصرشناس"]}
 {"w": "egyptology", "pos": "noun", "fa": ["مصرشناسی"]}
 {"w": "eh", "pos": "interjection", "fa": ["نه؟", "ها"]}
+{"w": "eid mubarak", "pos": "phrase", "fa": ["عید مبارک"]}
 {"w": "eigenvalue", "pos": "noun", "fa": ["مقدار ویژه"]}
 {"w": "eight", "pos": "numeral", "fa": ["هشت"]}
 {"w": "eighteen", "pos": "numeral", "fa": ["هجده", "هیجده"]}
@@ -3622,6 +3715,7 @@
 {"w": "empty", "pos": "verb", "fa": ["خالی کردن"]}
 {"w": "emptyhanded", "pos": "adjective", "fa": ["دست خالی"]}
 {"w": "en", "pos": "noun", "fa": ["ان"]}
+{"w": "en route", "pos": "phrase", "fa": ["در راه", "تو راه"]}
 {"w": "enable", "pos": "verb", "fa": ["فعال کردن", "کناییدن"]}
 {"w": "enamel", "pos": "noun", "fa": ["مینا"]}
 {"w": "enamored", "pos": "adjective", "fa": ["آلفته", "شیدا", "عاشق"]}
@@ -3797,6 +3891,7 @@
 {"w": "evapotranspiration", "pos": "noun", "fa": ["تبخیر-تعرق"]}
 {"w": "even", "pos": "adjective", "fa": ["جفت"]}
 {"w": "even", "pos": "adverb", "fa": ["حتی", "هنوز"]}
+{"w": "even though", "pos": "conjunction", "fa": ["با این که"]}
 {"w": "evening", "pos": "noun", "fa": ["شام", "شامگاه", "عصر"]}
 {"w": "event", "pos": "noun", "fa": ["رویداد", "واقعه", "حادثه", "رخداد", "ماجرا"]}
 {"w": "ever", "pos": "adverb", "fa": ["همیشه"]}
@@ -3814,6 +3909,7 @@
 {"w": "ewe", "pos": "noun", "fa": ["میش"]}
 {"w": "ewer", "pos": "noun", "fa": ["سبو", "کلیزه"]}
 {"w": "ex", "pos": "noun", "fa": ["ایکس"]}
+{"w": "ex gratia", "pos": "adverb", "fa": ["بلاعوض", "بیبازگشت"]}
 {"w": "ex-boyfriend", "pos": "noun", "fa": ["دوستپسر قبلی"]}
 {"w": "exact", "pos": "adjective", "fa": ["دقیق"]}
 {"w": "exaggerate", "pos": "verb", "fa": ["گزاف گفتن", "اغراق کردن"]}
@@ -3923,6 +4019,7 @@
 {"w": "fabric", "pos": "noun", "fa": ["پارچه", "قماش"]}
 {"w": "facade", "pos": "noun", "fa": ["نما"]}
 {"w": "face", "pos": "noun", "fa": ["صورت", "روی", "رخ", "چهره", "دیم"]}
+{"w": "face to face", "pos": "adverb", "fa": ["رو به رو"]}
 {"w": "facet", "pos": "noun", "fa": ["تراش", "وجه", "سطح", "سطوح", "جنبه"]}
 {"w": "facilitate", "pos": "verb", "fa": ["تسهیل کردن"]}
 {"w": "facility", "pos": "noun", "fa": ["سهولت"]}
@@ -3947,6 +4044,12 @@
 {"w": "falcon", "pos": "noun", "fa": ["شاهین"]}
 {"w": "falconry", "pos": "noun", "fa": ["بازداری"]}
 {"w": "fall", "pos": "verb", "fa": ["افتادن", "شدن"]}
+{"w": "fall asleep", "pos": "verb", "fa": ["به خواب رفتن", "خوابش بردن"]}
+{"w": "fall down", "pos": "verb", "fa": ["زمین خوردن"]}
+{"w": "fall ill", "pos": "verb", "fa": ["بیمار شدن"]}
+{"w": "fall in love", "pos": "verb", "fa": ["عاشق شدن"]}
+{"w": "fall pregnant", "pos": "verb", "fa": ["باردار شدن"]}
+{"w": "fall short", "pos": "verb", "fa": ["کم آوردن"]}
 {"w": "fallow", "pos": "noun", "fa": ["آیش"]}
 {"w": "falooda", "pos": "noun", "fa": ["فالوده"]}
 {"w": "false", "pos": "adjective", "fa": ["غلط"]}
@@ -4095,6 +4198,8 @@
 {"w": "figure", "pos": "noun", "fa": ["دیسه", "صورت", "تصویر", "شکل"]}
 {"w": "file", "pos": "noun", "fa": ["پرونده", "دوسیه", "فایل", "سوهان"]}
 {"w": "filigree", "pos": "noun", "fa": ["تارکشی"]}
+{"w": "fill out", "pos": "verb", "fa": ["پر کردن"]}
+{"w": "fill up", "pos": "verb", "fa": ["پر کردن"]}
 {"w": "fillet", "pos": "noun", "fa": ["فیله"]}
 {"w": "filling", "pos": "noun", "fa": ["پر کردن"]}
 {"w": "film", "pos": "noun", "fa": ["توژ", "فیلم"]}
@@ -4122,6 +4227,7 @@
 {"w": "fiqh", "pos": "noun", "fa": ["فقه"]}
 {"w": "fir", "pos": "noun", "fa": ["نراد"]}
 {"w": "fire", "pos": "noun", "fa": ["آتش", "آذر", "آتشسوزی", "حریق", "بخاری"]}
+{"w": "fire at will", "pos": "phrase", "fa": ["آتش به اختیار!"]}
 {"w": "fire-worshipper", "pos": "noun", "fa": ["آتشپرست"]}
 {"w": "firearm", "pos": "noun", "fa": ["سلاح گرم", "اسلحه گرم", "تفنگ"]}
 {"w": "fireball", "pos": "noun", "fa": ["آذرگوی", "آتشگوی"]}
@@ -4166,6 +4272,7 @@
 {"w": "flame", "pos": "noun", "fa": ["شعله", "الو", "علو"]}
 {"w": "flamethrower", "pos": "noun", "fa": ["شعلهافکن"]}
 {"w": "flamingo", "pos": "noun", "fa": ["قاز سرخ", "فلامینگو", "مرغ آتشی"]}
+{"w": "flare up", "pos": "verb", "fa": ["الو گرفتن"]}
 {"w": "flash", "pos": "noun", "fa": ["فلاش", "برق"]}
 {"w": "flash", "pos": "verb", "fa": ["تکزنگ زدن"]}
 {"w": "flashback", "pos": "noun", "fa": ["فلاشبک"]}
@@ -4216,6 +4323,7 @@
 {"w": "flute", "pos": "noun", "fa": ["فلوت"]}
 {"w": "fly", "pos": "noun", "fa": ["دوبالان", "مگس"]}
 {"w": "fly", "pos": "verb", "fa": ["پرواز کردن", "پریدن"]}
+{"w": "fly off the handle", "pos": "verb", "fa": ["از کوره دررفتن"]}
 {"w": "flyer", "pos": "noun", "fa": ["تراکت", "فلایر", "ورقه"]}
 {"w": "flywheel", "pos": "noun", "fa": ["چرخ لنگر"]}
 {"w": "foal", "pos": "noun", "fa": ["کره"]}
@@ -4244,6 +4352,13 @@
 {"w": "footwear", "pos": "noun", "fa": ["پاافزار"]}
 {"w": "for", "pos": "conjunction", "fa": ["برای", "برای اینکه"]}
 {"w": "for", "pos": "preposition", "fa": ["برای"]}
+{"w": "for example", "pos": "phrase", "fa": ["مثلا"]}
+{"w": "for free", "pos": "phrase", "fa": ["مفت"]}
+{"w": "for god's sake", "pos": "interjection", "fa": ["محض رضای خدا"]}
+{"w": "for now", "pos": "phrase", "fa": ["فعلا"]}
+{"w": "for sale", "pos": "phrase", "fa": ["فروشی"]}
+{"w": "for the sake of", "pos": "phrase", "fa": ["بخاطر", "به جهت", "برای"]}
+{"w": "for your information", "pos": "phrase", "fa": ["جهت اطلاع"]}
 {"w": "forbid", "pos": "verb", "fa": ["منع کردن", "غیر مجاز کردن", "بازداشتن", "پنامیدن"]}
 {"w": "forbidden", "pos": "adjective", "fa": ["ممنوعه", "ممنوع"]}
 {"w": "force", "pos": "noun", "fa": ["نیرو"]}
@@ -4269,6 +4384,7 @@
 {"w": "forge", "pos": "noun", "fa": ["آهنگرخانه"]}
 {"w": "forged", "pos": "adjective", "fa": ["ساختگی"]}
 {"w": "forget", "pos": "verb", "fa": ["فراموش کردن", "از یاد بردن"]}
+{"w": "forget it", "pos": "phrase", "fa": ["بگذریم"]}
 {"w": "forgive", "pos": "verb", "fa": ["بخشیدن"]}
 {"w": "forgiveness", "pos": "noun", "fa": ["بخشش", "گذشت", "معافی"]}
 {"w": "fork", "pos": "noun", "fa": ["چنگال", "پنجه"]}
@@ -4343,6 +4459,7 @@
 {"w": "freezer", "pos": "noun", "fa": ["فریزر", "یخزن"]}
 {"w": "french", "pos": "adjective", "fa": ["فرانسوی"]}
 {"w": "french", "pos": "noun", "fa": ["فرانسویان"]}
+{"w": "french kiss", "pos": "verb", "fa": ["لب گرفتن"]}
 {"w": "frenchman", "pos": "noun", "fa": ["فرانسوی"]}
 {"w": "frenchwoman", "pos": "noun", "fa": ["فرانسوی"]}
 {"w": "frequency", "pos": "noun", "fa": ["بسامد", "فرکانس"]}
@@ -4362,6 +4479,8 @@
 {"w": "fritter", "pos": "noun", "fa": ["بنیه"]}
 {"w": "frog", "pos": "noun", "fa": ["وک", "بقه قورباغه", "قورباغه", "بک", "غوک"]}
 {"w": "from", "pos": "preposition", "fa": ["از", "ز"]}
+{"w": "from scratch", "pos": "phrase", "fa": ["از اول"]}
+{"w": "from time to time", "pos": "phrase", "fa": ["گهگاه", "گاه به گاه", "هر از گاهی", "هر چند وقت یک بار"]}
 {"w": "frond", "pos": "noun", "fa": ["برگشاخه"]}
 {"w": "front", "pos": "noun", "fa": ["جلو", "جبهه", "فرونت", "محاذ"]}
 {"w": "frontier", "pos": "noun", "fa": ["مرز", "سرحد"]}
@@ -4379,6 +4498,7 @@
 {"w": "fuchsia", "pos": "noun", "fa": ["فوشیا", "گل آویز", "فوکسیه", "سرخابی سیر"]}
 {"w": "fuck", "pos": "interjection", "fa": ["فاک"]}
 {"w": "fuck", "pos": "verb", "fa": ["گائیدن"]}
+{"w": "fuck off", "pos": "interjection", "fa": ["برو گمشو"]}
 {"w": "fuckable", "pos": "adjective", "fa": ["گاییدنی", "کردنی"]}
 {"w": "fucker", "pos": "noun", "fa": ["گاینده", "بکن", "سیخزن"]}
 {"w": "fudge", "pos": "noun", "fa": ["اریس"]}
@@ -4439,6 +4559,7 @@
 {"w": "gambling", "pos": "noun", "fa": ["قمار"]}
 {"w": "gamboge", "pos": "noun", "fa": ["ملماز"]}
 {"w": "game", "pos": "noun", "fa": ["بازی"]}
+{"w": "game over", "pos": "phrase", "fa": ["بازی تمام شد"]}
 {"w": "gamer", "pos": "noun", "fa": ["گیمر"]}
 {"w": "gamete", "pos": "noun", "fa": ["زامه"]}
 {"w": "gamma", "pos": "noun", "fa": ["گاما"]}
@@ -4540,6 +4661,15 @@
 {"w": "gerund", "pos": "noun", "fa": ["اسم مصدر"]}
 {"w": "gesture", "pos": "noun", "fa": ["ژست", "اشاره"]}
 {"w": "get", "pos": "verb", "fa": ["بدست آوردن", "گرفتن"]}
+{"w": "get back", "pos": "verb", "fa": ["پس گرفتن"]}
+{"w": "get lost", "pos": "interjection", "fa": ["گم شو"]}
+{"w": "get lost", "pos": "verb", "fa": ["گم شدن"]}
+{"w": "get out", "pos": "interjection", "fa": ["برو بابا"]}
+{"w": "get out of here", "pos": "interjection", "fa": ["برو گم شو", "برو بابا"]}
+{"w": "get to know", "pos": "verb", "fa": ["آشنا شدن"]}
+{"w": "get up", "pos": "verb", "fa": ["بیدار شدن", "پا شدن"]}
+{"w": "get used", "pos": "verb", "fa": ["عادت کردن", "خو گرفتن", "خو کردن"]}
+{"w": "get well soon", "pos": "phrase", "fa": ["ان شاء الله زودتر خوب شوید"]}
 {"w": "geyser", "pos": "noun", "fa": ["آبفشان"]}
 {"w": "ghazal", "pos": "noun", "fa": ["غزل"]}
 {"w": "ghazi", "pos": "noun", "fa": ["غازی"]}
@@ -4574,6 +4704,11 @@
 {"w": "girl", "pos": "noun", "fa": ["دختر", "زن", "بانو", "کلفت", "کنیز"]}
 {"w": "girlfriend", "pos": "noun", "fa": ["دوستدختر"]}
 {"w": "give", "pos": "verb", "fa": ["دادن"]}
+{"w": "give a shit", "pos": "verb", "fa": ["اهمیت دادن"]}
+{"w": "give away", "pos": "verb", "fa": ["سوتی دادن"]}
+{"w": "give back", "pos": "verb", "fa": ["برگرداندن", "پس دادن"]}
+{"w": "give birth", "pos": "verb", "fa": ["زاییدن", "به دنیا آوردن", "زادن"]}
+{"w": "give me", "pos": "verb", "fa": ["بده به من"]}
 {"w": "gizzard", "pos": "noun", "fa": ["سنگدان"]}
 {"w": "glacier", "pos": "noun", "fa": ["یخسار", "پیریخ"]}
 {"w": "glaciology", "pos": "noun", "fa": ["یخچالشناسی"]}
@@ -4621,6 +4756,10 @@
 {"w": "gnosticism", "pos": "noun", "fa": ["گنوستیسیزم", "غنوصی"]}
 {"w": "go", "pos": "noun", "fa": ["گو"]}
 {"w": "go", "pos": "verb", "fa": ["رفتن", "شدن"]}
+{"w": "go after", "pos": "verb", "fa": ["دنبال کردن", "تعقیب کردن"]}
+{"w": "go down", "pos": "verb", "fa": ["فرود آمدن"]}
+{"w": "go out", "pos": "verb", "fa": ["خارج شدن"]}
+{"w": "go up", "pos": "verb", "fa": ["بالا رفتن"]}
 {"w": "goad", "pos": "noun", "fa": ["سک"]}
 {"w": "goal", "pos": "noun", "fa": ["هدف", "مقصد", "نشان", "گل"]}
 {"w": "goal", "pos": "verb", "fa": ["گل کردن"]}
@@ -4630,6 +4769,9 @@
 {"w": "goatgrass", "pos": "noun", "fa": ["گندمنیا"]}
 {"w": "goatherd", "pos": "noun", "fa": ["بزبان"]}
 {"w": "god", "pos": "noun", "fa": ["خدا", "یزدان", "ایزد", "بغ", "اله"]}
+{"w": "god forbid", "pos": "interjection", "fa": ["خداینکرده", "خدا نکنه"]}
+{"w": "god knows", "pos": "phrase", "fa": ["خدا میداند", "الله اعلم"]}
+{"w": "god willing", "pos": "interjection", "fa": ["انشاءٱلله", "اگر خدا بخواد", "ایشالا", "اگه خدا بخواد"]}
 {"w": "goddess", "pos": "noun", "fa": ["الهه", "ایزدبانو"]}
 {"w": "godfather", "pos": "noun", "fa": ["پدرخوانده"]}
 {"w": "godmother", "pos": "noun", "fa": ["مادرخوانده", "مادرندر"]}
@@ -4646,6 +4788,13 @@
 {"w": "gonorrhea", "pos": "noun", "fa": ["سوزاک", "گنوره"]}
 {"w": "good", "pos": "adjective", "fa": ["خوب", "نیک"]}
 {"w": "good", "pos": "noun", "fa": ["خیر", "نیکی"]}
+{"w": "good afternoon", "pos": "phrase", "fa": ["عصر بخیر", "ظهر بخیر", "سلام علیکم"]}
+{"w": "good day", "pos": "interjection", "fa": ["روز بخیر", "وقت بخیر", "روز خوش"]}
+{"w": "good evening", "pos": "interjection", "fa": ["عصر بخیر", "شب بخیر"]}
+{"w": "good luck", "pos": "interjection", "fa": ["موفق باشید", "موفق باشی"]}
+{"w": "good morning", "pos": "interjection", "fa": ["بامداد خوش", "صبح بخیر"]}
+{"w": "good night", "pos": "phrase", "fa": ["شب بخیر", "شب خوش"]}
+{"w": "good riddance", "pos": "interjection", "fa": ["به سلامت"]}
 {"w": "good-looking", "pos": "adjective", "fa": ["خوشچهره", "خوشقیافه"]}
 {"w": "goodbye", "pos": "interjection", "fa": ["خداحافظ", "بدرود", "خدانگهدار"]}
 {"w": "goods", "pos": "noun", "fa": ["کالا", "مال", "متاع", "جنس", "اجناس"]}
@@ -4661,6 +4810,7 @@
 {"w": "gospel", "pos": "noun", "fa": ["انجیل"]}
 {"w": "gossip", "pos": "noun", "fa": ["سخنچینی", "غیبت"]}
 {"w": "gossiper", "pos": "noun", "fa": ["سخنچین"]}
+{"w": "got it", "pos": "interjection", "fa": ["متوجه شدید؟", "فهمیدید؟", "فهمیدم"]}
 {"w": "gotcha", "pos": "interjection", "fa": ["گیرت آوردم"]}
 {"w": "gouge", "pos": "noun", "fa": ["جبر"]}
 {"w": "goulash", "pos": "noun", "fa": ["گویاش"]}
@@ -4706,6 +4856,7 @@
 {"w": "grass", "pos": "noun", "fa": ["سبزه", "علف", "چمن", "واش", "فرزد"]}
 {"w": "grasshopper", "pos": "noun", "fa": ["ملخ"]}
 {"w": "grassland", "pos": "noun", "fa": ["علفزار", "واشزار", "چمنزار"]}
+{"w": "grate", "pos": "verb", "fa": ["رنده کردن"]}
 {"w": "grateful", "pos": "adjective", "fa": ["ممنون", "متشکر", "شاکر", "سپاسگزار"]}
 {"w": "grater", "pos": "noun", "fa": ["رنده"]}
 {"w": "gratin", "pos": "noun", "fa": ["گراتن"]}
@@ -4763,6 +4914,7 @@
 {"w": "group", "pos": "noun", "fa": ["گروه", "مجموعه"]}
 {"w": "group", "pos": "verb", "fa": ["گروهیدن", "گروهادن"]}
 {"w": "grow", "pos": "verb", "fa": ["رشد کردن", "رستن", "روییدن", "رویاندن"]}
+{"w": "grow up", "pos": "verb", "fa": ["بالیدن", "رشدادن"]}
 {"w": "growth", "pos": "noun", "fa": ["رشد", "وخشش", "رویش"]}
 {"w": "grumble", "pos": "verb", "fa": ["ژکیدن"]}
 {"w": "gryffindor", "pos": "noun", "fa": ["گریفیندور"]}
@@ -4870,6 +5022,7 @@
 {"w": "hamza", "pos": "noun", "fa": ["همزه"]}
 {"w": "hamzated", "pos": "adjective", "fa": ["مهموز", "همزهدار"]}
 {"w": "hand", "pos": "noun", "fa": ["دست", "دس", "عقربک", "عقربه", "زبردستی"]}
+{"w": "hand over", "pos": "verb", "fa": ["از دست دادن", "واگذاشتن", "واسپردن", "رساندن"]}
 {"w": "handbag", "pos": "noun", "fa": ["کیف دستی", "کیف"]}
 {"w": "handbarrow", "pos": "noun", "fa": ["زنبه"]}
 {"w": "handbrake", "pos": "noun", "fa": ["ترمز دستی"]}
@@ -4889,6 +5042,7 @@
 {"w": "handwriting", "pos": "noun", "fa": ["دستنویسی", "دستخط"]}
 {"w": "handy", "pos": "adjective", "fa": ["سودمند", "بهدردبخور", "در دسترس", "دم دست", "ماهر"]}
 {"w": "hang", "pos": "verb", "fa": ["آویزان شدن", "آویزان بودن", "آویزان کردن", "آویختن", "دار زدن"]}
+{"w": "hang up", "pos": "verb", "fa": ["قطع کردن"]}
 {"w": "hangar", "pos": "noun", "fa": ["هنگار"]}
 {"w": "hanger-on", "pos": "noun", "fa": ["سوری"]}
 {"w": "hanging", "pos": "noun", "fa": ["اعدام کردن", "دار زدن"]}
@@ -4900,6 +5054,9 @@
 {"w": "happen", "pos": "verb", "fa": ["روی دادن", "اتفاق افتادن", "واقع شدن", "پیشامد کردن"]}
 {"w": "happiness", "pos": "noun", "fa": ["خوشبختی", "شادی", "سعادت"]}
 {"w": "happy", "pos": "adjective", "fa": ["شاد", "خوش", "خوشحال", "خرم", "خرسند"]}
+{"w": "happy birthday", "pos": "interjection", "fa": ["تولدت مبارک", "زادروزت فرخنده باد", "زادروزتان خجسته باد"]}
+{"w": "happy new year", "pos": "phrase", "fa": ["سال نو مبارک باد", "سال نو مبارک", "سال نو خجسته باد"]}
+{"w": "happy ramadan", "pos": "phrase", "fa": ["رمضان مبارک"]}
 {"w": "haptic", "pos": "adjective", "fa": ["لامسهای"]}
 {"w": "haptophyte", "pos": "noun", "fa": ["بندگیاه"]}
 {"w": "harakat", "pos": "noun", "fa": ["حرکات", "حرکت"]}
@@ -4948,6 +5105,11 @@
 {"w": "haulm", "pos": "noun", "fa": ["کلور", "کلش"]}
 {"w": "haunt", "pos": "noun", "fa": ["پاتوق"]}
 {"w": "have", "pos": "verb", "fa": ["داشتن"]}
+{"w": "have a seat", "pos": "verb", "fa": ["نشستن", "بفرمایید بنشینید", "بفرمایید"]}
+{"w": "have a word", "pos": "verb", "fa": ["چند کلمه حرف زدن"]}
+{"w": "have fun", "pos": "interjection", "fa": ["خوش بگذره"]}
+{"w": "have sex", "pos": "verb", "fa": ["همبستر شدن"]}
+{"w": "have to", "pos": "verb", "fa": ["باید"]}
 {"w": "haveli", "pos": "noun", "fa": ["حویلی"]}
 {"w": "hawfinch", "pos": "noun", "fa": ["سهره نوکبزرگ"]}
 {"w": "hawk", "pos": "noun", "fa": ["باز", "شاهین", "قوش"]}
@@ -4958,8 +5120,10 @@
 {"w": "hazel", "pos": "adjective", "fa": ["عسلى"]}
 {"w": "hazelnut", "pos": "noun", "fa": ["فندق"]}
 {"w": "he", "pos": "pronoun", "fa": ["او", "وی"]}
+{"w": "he's unconscious", "pos": "phrase", "fa": ["بیهوش است", "بیهوشه"]}
 {"w": "head", "pos": "noun", "fa": ["سر", "رئیس", "فراز", "نوک", "رهبر"]}
 {"w": "head", "pos": "verb", "fa": ["اداره کردن"]}
+{"w": "head to toe", "pos": "adverb", "fa": ["سراپا"]}
 {"w": "headache", "pos": "noun", "fa": ["سردرد"]}
 {"w": "headband", "pos": "noun", "fa": ["تل"]}
 {"w": "heading", "pos": "noun", "fa": ["عنوان"]}
@@ -5048,6 +5212,8 @@
 {"w": "herbivore", "pos": "noun", "fa": ["گیاهخوار"]}
 {"w": "herd", "pos": "noun", "fa": ["گله", "رمه", "فسیله"]}
 {"w": "here", "pos": "adverb", "fa": ["اینجا", "ایدر", "باینجا"]}
+{"w": "here and there", "pos": "adverb", "fa": ["جابجا"]}
+{"w": "here you are", "pos": "phrase", "fa": ["بفرمایید"]}
 {"w": "heresy", "pos": "noun", "fa": ["بدعت", "هرطقه"]}
 {"w": "heretic", "pos": "noun", "fa": ["زندیک", "زندیق"]}
 {"w": "herewith", "pos": "adverb", "fa": ["بدین وسیله"]}
@@ -5220,6 +5386,13 @@
 {"w": "hovel", "pos": "noun", "fa": ["کپر"]}
 {"w": "hovercraft", "pos": "noun", "fa": ["هواناو"]}
 {"w": "how", "pos": "adverb", "fa": ["چقدر", "چگونه", "چطور", "چجور", "چطوری"]}
+{"w": "how are you", "pos": "phrase", "fa": ["حالت چطوره؟", "چطوری؟", "حال شما چطوره؟", "حالتان چطوره؟", "حال شما چطور است؟"]}
+{"w": "how come", "pos": "adverb", "fa": ["چرا"]}
+{"w": "how do you do", "pos": "phrase", "fa": ["از آشنایی شما خوشوقتم"]}
+{"w": "how many stops until", "pos": "phrase", "fa": ["چند ایستگاه مانده تا [فلان] ایستگاه؟"]}
+{"w": "how old are you", "pos": "phrase", "fa": ["چند سالت است؟", "چند سال داری؟", "چند سالته؟", "شما چند سال دارید؟", "شما چند سالتون است؟"]}
+{"w": "how should i know", "pos": "phrase", "fa": ["از کجا بدانم؟"]}
+{"w": "how's the weather", "pos": "phrase", "fa": ["هوا چطوره؟"]}
 {"w": "howdah", "pos": "noun", "fa": ["کجاوه"]}
 {"w": "hryvnia", "pos": "noun", "fa": ["گریونا"]}
 {"w": "hub", "pos": "noun", "fa": ["ستونک", "توپی"]}
@@ -5309,7 +5482,67 @@
 {"w": "hysteria", "pos": "noun", "fa": ["هیستری"]}
 {"w": "i", "pos": "noun", "fa": ["آی"]}
 {"w": "i", "pos": "pronoun", "fa": ["من"]}
+{"w": "i am a doctor", "pos": "phrase", "fa": ["من پزشک هستم"]}
+{"w": "i am english", "pos": "phrase", "fa": ["من انگلیسی هستم"]}
+{"w": "i can't swim", "pos": "phrase", "fa": ["نمیتوانم شنا کنم"]}
+{"w": "i don't eat meat", "pos": "phrase", "fa": ["من گوشت نمیخورم"]}
+{"w": "i don't eat pork", "pos": "phrase", "fa": ["من گوشت خوک نمیخورم"]}
+{"w": "i don't know", "pos": "interjection", "fa": ["من نمیدانم", "نمیدانم", "نمیدونم"]}
+{"w": "i don't speak english", "pos": "phrase", "fa": ["انگلیسی بلد نیستم", "انگلیسی نمیتونم حرف بزنم", "فارسی بلد نیستم", "فارسی نمیتونم حرف بزنم"]}
+{"w": "i don't think so", "pos": "phrase", "fa": ["فکر نکنم", "اینطور فکر نمیکنم"]}
+{"w": "i don't understand", "pos": "phrase", "fa": ["نمیفهمم", "متوجه نمیشوم", "متوجه نیستم"]}
+{"w": "i hate you", "pos": "phrase", "fa": ["از تو نفرت دارم", "از تو متنفرم"]}
+{"w": "i have a cold", "pos": "phrase", "fa": ["سرما خوردم"]}
+{"w": "i have a headache", "pos": "phrase", "fa": ["سردرد دارم"]}
+{"w": "i have a question", "pos": "phrase", "fa": ["یک سؤال دارم", "یک پرسش دارم"]}
+{"w": "i have a toothache", "pos": "phrase", "fa": ["دنداندرد دارم", "دندوندرد دارم"]}
+{"w": "i have cancer", "pos": "phrase", "fa": ["من سرطان دارم"]}
+{"w": "i have diabetes", "pos": "phrase", "fa": ["من دیابت دارم"]}
+{"w": "i have no money", "pos": "phrase", "fa": ["پول ندارم", "من پول ندارم"]}
+{"w": "i know", "pos": "phrase", "fa": ["من میدانم", "میدانم", "میدونم"]}
+{"w": "i like reading", "pos": "phrase", "fa": ["کتاب خواندن را دوست دارم", "دوست دارم کتاب بخوانم"]}
+{"w": "i like you", "pos": "phrase", "fa": ["دوستت دارم", "من تو را دوست دارم"]}
+{"w": "i live in melbourne", "pos": "phrase", "fa": ["در ملبورن زندگی میکنم"]}
+{"w": "i lost my glasses", "pos": "phrase", "fa": ["عینکم را گم کردم"]}
+{"w": "i lost my keys", "pos": "phrase", "fa": ["کلیدهایم را گم کردم"]}
+{"w": "i lost my wallet", "pos": "phrase", "fa": ["کیف پولم را گم کردم"]}
+{"w": "i love you", "pos": "phrase", "fa": ["دوستت دارم", "دل میباله ترا", "عاشقتم"]}
+{"w": "i miss you", "pos": "phrase", "fa": ["دلم برات تنگ شده", "دلم برای شما تنگ شده است"]}
+{"w": "i must go", "pos": "phrase", "fa": ["باید بروم", "باید برم"]}
+{"w": "i need a doctor", "pos": "phrase", "fa": ["دکتر میخواهم"]}
+{"w": "i need a guide", "pos": "phrase", "fa": ["راهنما لازم دارم"]}
+{"w": "i need an interpreter", "pos": "phrase", "fa": ["ترگمان میخواهم", "به مترجم نیاز دارم"]}
+{"w": "i need to vomit", "pos": "phrase", "fa": ["باید بالا بیارم"]}
+{"w": "i think so", "pos": "phrase", "fa": ["فکر میکنم"]}
+{"w": "i want to know", "pos": "phrase", "fa": ["میخواهم بدانم", "میخوام بدونم"]}
+{"w": "i wish", "pos": "phrase", "fa": ["کاش", "کاشکی", "ای کاش"]}
+{"w": "i'm a catholic", "pos": "phrase", "fa": ["من کاتولیکم"]}
+{"w": "i'm a christian", "pos": "phrase", "fa": ["مسیحی هستم", "من مسیحیام"]}
+{"w": "i'm a guy", "pos": "phrase", "fa": ["من پسرم"]}
+{"w": "i'm a muslim", "pos": "phrase", "fa": ["مسلمانم", "مسلمان هستم", "من مسلمانم"]}
+{"w": "i'm blind", "pos": "phrase", "fa": ["کورم", "کور هستم", "من نابینا هستم"]}
+{"w": "i'm deaf", "pos": "phrase", "fa": ["کر هستم"]}
+{"w": "i'm divorced", "pos": "phrase", "fa": ["طلاقگرفته هستم"]}
+{"w": "i'm dying", "pos": "phrase", "fa": ["دارم میمیرم"]}
+{"w": "i'm fine", "pos": "phrase", "fa": ["خوبم"]}
+{"w": "i'm gay", "pos": "phrase", "fa": ["گی هستم"]}
+{"w": "i'm hot", "pos": "phrase", "fa": ["گرممه"]}
+{"w": "i'm hungry", "pos": "phrase", "fa": ["گرسنه هستم", "گرسنهام", "گشنمه"]}
+{"w": "i'm jewish", "pos": "phrase", "fa": ["یهودی هستم"]}
+{"w": "i'm lost", "pos": "phrase", "fa": ["من گم شدم", "گم شدم"]}
+{"w": "i'm married", "pos": "phrase", "fa": ["من متأهل هستم", "من متأهلم", "من ازدواجکردهام"]}
+{"w": "i'm mute", "pos": "phrase", "fa": ["لال هستم"]}
+{"w": "i'm not religious", "pos": "phrase", "fa": ["مذهبی نیستم", "دیندار نیستم"]}
+{"w": "i'm sick", "pos": "phrase", "fa": ["بیمارم", "مریضم"]}
+{"w": "i'm single", "pos": "phrase", "fa": ["من مجردم", "من مجرد هستم"]}
+{"w": "i'm sorry", "pos": "phrase", "fa": ["متأسفم", "ببخشید"]}
+{"w": "i'm thirsty", "pos": "phrase", "fa": ["تشنه هستم", "تشنهام", "تشنمه"]}
+{"w": "i'm tired", "pos": "phrase", "fa": ["خستهام", "من خسته هستم"]}
+{"w": "i'm twenty years old", "pos": "phrase", "fa": ["من بیست سالم است", "من بیست سالمه"]}
 {"w": "i'tikaf", "pos": "noun", "fa": ["اعتکاف"]}
+{"w": "i've been raped", "pos": "phrase", "fa": ["به من تجاوز شده"]}
+{"w": "i've been robbed", "pos": "phrase", "fa": ["از من دزدی شده"]}
+{"w": "i've been shot", "pos": "phrase", "fa": ["تیر خوردم"]}
 {"w": "ibadi", "pos": "adjective", "fa": ["اباضی"]}
 {"w": "ibadi", "pos": "noun", "fa": ["اباضی"]}
 {"w": "ibadism", "pos": "noun", "fa": ["اباضیه"]}
@@ -5346,6 +5579,9 @@
 {"w": "idolatry", "pos": "noun", "fa": ["بتپرستی"]}
 {"w": "ietsism", "pos": "noun", "fa": ["ایدهگرایی"]}
 {"w": "if", "pos": "conjunction", "fa": ["اگر", "چنانچه", "که آیا"]}
+{"w": "if and only if", "pos": "conjunction", "fa": ["اگر و فقط اگر"]}
+{"w": "if need be", "pos": "adverb", "fa": ["اگر لازم شد"]}
+{"w": "if only", "pos": "conjunction", "fa": ["کاش"]}
 {"w": "ifrit", "pos": "noun", "fa": ["عفریت"]}
 {"w": "iftar", "pos": "noun", "fa": ["افطار"]}
 {"w": "ignorance", "pos": "noun", "fa": ["جهل", "جهالت", "نادانی"]}
@@ -5424,6 +5660,26 @@
 {"w": "impulse", "pos": "noun", "fa": ["تکانه"]}
 {"w": "in", "pos": "adverb", "fa": ["تو", "درون"]}
 {"w": "in", "pos": "preposition", "fa": ["در", "اندر", "تو", "درون", "از"]}
+{"w": "in addition", "pos": "adverb", "fa": ["همچنین", "بهعلاوه"]}
+{"w": "in any case", "pos": "phrase", "fa": ["به هر حال", "علیایحال"]}
+{"w": "in case of", "pos": "preposition", "fa": ["در صورتی که", "در صورت"]}
+{"w": "in charge", "pos": "phrase", "fa": ["مسئول"]}
+{"w": "in detail", "pos": "phrase", "fa": ["با جزئیات", "دقیقا", "مفصلا"]}
+{"w": "in fact", "pos": "phrase", "fa": ["در حقیقت", "در واقع"]}
+{"w": "in front of", "pos": "preposition", "fa": ["جلوی"]}
+{"w": "in layman's terms", "pos": "phrase", "fa": ["در اصطلاح عامیانه"]}
+{"w": "in need", "pos": "phrase", "fa": ["نیازمند", "فقیر"]}
+{"w": "in order to", "pos": "conjunction", "fa": ["به منظور", "تا", "که"]}
+{"w": "in other words", "pos": "phrase", "fa": ["به عبارت دیگر"]}
+{"w": "in person", "pos": "phrase", "fa": ["شخصا"]}
+{"w": "in return", "pos": "phrase", "fa": ["در ازا", "در عوض"]}
+{"w": "in short", "pos": "phrase", "fa": ["خلاصه", "به اختصار"]}
+{"w": "in spite of", "pos": "preposition", "fa": ["با وجود", "با اینکه", "علی رغم"]}
+{"w": "in the end", "pos": "phrase", "fa": ["در نهایت"]}
+{"w": "in the long run", "pos": "phrase", "fa": ["در بلندمدت", "در درازمدت"]}
+{"w": "in the name of", "pos": "preposition", "fa": ["به", "به نام", "به اسم"]}
+{"w": "in the short term", "pos": "phrase", "fa": ["در کوتاهمدت"]}
+{"w": "in total", "pos": "phrase", "fa": ["جمعا"]}
 {"w": "in-line", "pos": "adjective", "fa": ["این لاین - قرار داشتن در یک خط یا ردیف"]}
 {"w": "inauspicious", "pos": "adjective", "fa": ["شوم"]}
 {"w": "inbox", "pos": "noun", "fa": ["صندوق ورودی"]}
@@ -5474,6 +5730,7 @@
 {"w": "indonesian", "pos": "adjective", "fa": ["اندونزیایی"]}
 {"w": "indonesian", "pos": "noun", "fa": ["اندونزیایی"]}
 {"w": "indri", "pos": "noun", "fa": ["ایندری"]}
+{"w": "induce", "pos": "verb", "fa": ["القا کردن"]}
 {"w": "indulgence", "pos": "noun", "fa": ["افراط"]}
 {"w": "industrial", "pos": "adjective", "fa": ["صنعتی"]}
 {"w": "industrialist", "pos": "noun", "fa": ["صنعتگر"]}
@@ -5547,12 +5804,14 @@
 {"w": "inside", "pos": "preposition", "fa": ["اندرون"]}
 {"w": "insipid", "pos": "adjective", "fa": ["ویشیل", "بیمزه"]}
 {"w": "insist", "pos": "verb", "fa": ["اصرار کردن", "پافشاری کردن"]}
+{"w": "insofar as", "pos": "conjunction", "fa": ["تاآنجاکه"]}
 {"w": "insomnia", "pos": "noun", "fa": ["بیخوابی"]}
 {"w": "inspector", "pos": "noun", "fa": ["مفتش", "بازرس", "ناظر"]}
 {"w": "inspiration", "pos": "noun", "fa": ["الهام"]}
 {"w": "instability", "pos": "noun", "fa": ["ناپایداری"]}
 {"w": "install", "pos": "verb", "fa": ["نصبیدن"]}
 {"w": "installation", "pos": "noun", "fa": ["نصب کردن"]}
+{"w": "instead of", "pos": "preposition", "fa": ["به جای"]}
 {"w": "instinct", "pos": "noun", "fa": ["غریزه"]}
 {"w": "institute", "pos": "noun", "fa": ["انستیتو"]}
 {"w": "institution", "pos": "noun", "fa": ["سازمان", "مؤسسه", "اداره", "رسم"]}
@@ -5672,6 +5931,8 @@
 {"w": "irradiate", "pos": "verb", "fa": ["پرتو زدن"]}
 {"w": "irredentism", "pos": "noun", "fa": ["بازپیوندخواهی"]}
 {"w": "irrigation", "pos": "noun", "fa": ["آبیاری"]}
+{"w": "is there a problem", "pos": "phrase", "fa": ["آیا مشکلی وجود دارد؟"]}
+{"w": "is this seat taken", "pos": "phrase", "fa": ["این صندلی خالیه؟ / جای کسی نیست؟"]}
 {"w": "ischemia", "pos": "noun", "fa": ["ایسکمی"]}
 {"w": "isfahani", "pos": "adjective", "fa": ["اصفهانی"]}
 {"w": "isfahani", "pos": "noun", "fa": ["اصفهانی"]}
@@ -5685,6 +5946,7 @@
 {"w": "island", "pos": "noun", "fa": ["جزیره", "گنگ"]}
 {"w": "ismaili", "pos": "adjective", "fa": ["اسماعیلی"]}
 {"w": "isn't", "pos": "verb", "fa": ["نیست"]}
+{"w": "isn't it so", "pos": "phrase", "fa": ["مگر نه"]}
 {"w": "isogloss", "pos": "noun", "fa": ["مرز همگویی"]}
 {"w": "isolated", "pos": "adjective", "fa": ["ایزوله"]}
 {"w": "isolation", "pos": "noun", "fa": ["انزوا"]}
@@ -5698,6 +5960,12 @@
 {"w": "isthmus", "pos": "noun", "fa": ["برزخ"]}
 {"w": "istighfar", "pos": "noun", "fa": ["استغفار"]}
 {"w": "it", "pos": "pronoun", "fa": ["او", "این", "او را"]}
+{"w": "it depends", "pos": "phrase", "fa": ["بستگی دارد"]}
+{"w": "it was delicious", "pos": "phrase", "fa": ["خوشمزه بود"]}
+{"w": "it's cold outside", "pos": "phrase", "fa": ["بیرون سرد است", "بیرون سرده"]}
+{"w": "it's raining", "pos": "phrase", "fa": ["باران میآید", "باران میبارد", "بارون میآد"]}
+{"w": "it's snowing", "pos": "phrase", "fa": ["داره برف میاد"]}
+{"w": "it's too expensive", "pos": "phrase", "fa": ["خیلی گران است"]}
 {"w": "italian", "pos": "adjective", "fa": ["ایتالیایی"]}
 {"w": "italian", "pos": "noun", "fa": ["ایتالیایی"]}
 {"w": "itch", "pos": "noun", "fa": ["خارش"]}
@@ -5798,6 +6066,7 @@
 {"w": "jury", "pos": "noun", "fa": ["هیئت منصفه", "ژوری"]}
 {"w": "just", "pos": "adjective", "fa": ["عادل", "دادگر", "دادگری"]}
 {"w": "just", "pos": "adverb", "fa": ["جخت"]}
+{"w": "just now", "pos": "adverb", "fa": ["هماکنون", "هماینک", "اینک"]}
 {"w": "justice", "pos": "noun", "fa": ["داد", "عدل", "عدالت", "قاضی"]}
 {"w": "justification", "pos": "noun", "fa": ["توجیه", "بهانه"]}
 {"w": "justify", "pos": "verb", "fa": ["توجیه کردن"]}
@@ -5845,6 +6114,7 @@
 {"w": "kazakh", "pos": "noun", "fa": ["قزاق", "کزاخ", "قزاقی", "کزاخی", "زبان قزاقی"]}
 {"w": "kebab", "pos": "noun", "fa": ["کباب"]}
 {"w": "keel", "pos": "noun", "fa": ["شاهتیر"]}
+{"w": "keep the change", "pos": "phrase", "fa": ["بقیه اش مال خودت!"]}
 {"w": "keeper", "pos": "noun", "fa": ["نگهبان", "پاسبان"]}
 {"w": "keffiyeh", "pos": "noun", "fa": ["چفیه", "دستمال یزدی"]}
 {"w": "kefir", "pos": "noun", "fa": ["کفیر", "دوغ کفیر"]}
@@ -5897,6 +6167,7 @@
 {"w": "khwarazmshah", "pos": "noun", "fa": ["خوارزمشاه"]}
 {"w": "kick", "pos": "noun", "fa": ["لگد"]}
 {"w": "kick", "pos": "verb", "fa": ["لگد زدن"]}
+{"w": "kick the bucket", "pos": "verb", "fa": ["ریق رحمت را سر کشیدن"]}
 {"w": "kid", "pos": "noun", "fa": ["بچه", "بزغاله", "هیرک"]}
 {"w": "kiddo", "pos": "noun", "fa": ["ناناز، گوگولی،هانی،قند عسلم"]}
 {"w": "kidnap", "pos": "verb", "fa": ["آدمربای کردن"]}
@@ -5931,6 +6202,7 @@
 {"w": "kismet", "pos": "noun", "fa": ["تقدیر", "قسمت"]}
 {"w": "kiss", "pos": "noun", "fa": ["بوسه", "بوس", "ماچ"]}
 {"w": "kiss", "pos": "verb", "fa": ["بوسیدن", "ماچ کردن", "لب گرفتن"]}
+{"w": "kiss me", "pos": "phrase", "fa": ["مرا ببوس", "منو ببوس"]}
 {"w": "kissing", "pos": "noun", "fa": ["بوسی"]}
 {"w": "kitchen", "pos": "noun", "fa": ["آشپزخانه", "مطبخ"]}
 {"w": "kite", "pos": "noun", "fa": ["خات", "غلیواج", "زغن", "کورکور", "موشگیر"]}
@@ -6063,6 +6335,8 @@
 {"w": "last", "pos": "adjective", "fa": ["آخر", "گذشته"]}
 {"w": "last", "pos": "noun", "fa": ["قالب کفش", "تولبره", "خهل"]}
 {"w": "last", "pos": "verb", "fa": ["طول کشیدن"]}
+{"w": "last night", "pos": "adverb", "fa": ["دیشب"]}
+{"w": "last year", "pos": "adverb", "fa": ["پارسال"]}
 {"w": "latch", "pos": "noun", "fa": ["کلون"]}
 {"w": "late", "pos": "adjective", "fa": ["دیر"]}
 {"w": "late", "pos": "adverb", "fa": ["دیر"]}
@@ -6119,6 +6393,7 @@
 {"w": "leather", "pos": "noun", "fa": ["چرم"]}
 {"w": "leave", "pos": "noun", "fa": ["مرخصی"]}
 {"w": "leave", "pos": "verb", "fa": ["رفتن"]}
+{"w": "leave me alone", "pos": "phrase", "fa": ["تنهایم بگذارید"]}
 {"w": "leaven", "pos": "noun", "fa": ["مایه", "برازده"]}
 {"w": "leaven", "pos": "verb", "fa": ["وراوردن"]}
 {"w": "leblebi", "pos": "noun", "fa": ["نخودچی"]}
@@ -6168,6 +6443,8 @@
 {"w": "lesson", "pos": "noun", "fa": ["آموزه", "درس", "تکلیف", "پند"]}
 {"w": "lesson", "pos": "verb", "fa": ["آموزانیدن"]}
 {"w": "let", "pos": "verb", "fa": ["گذاشتن", "اجازه دادن"]}
+{"w": "let alone", "pos": "conjunction", "fa": ["چه برسه"]}
+{"w": "let's go", "pos": "phrase", "fa": ["بیا بریم", "بجنب", "د برو", "یالا", "ای بابا"]}
 {"w": "lethargy", "pos": "noun", "fa": ["لتارژی"]}
 {"w": "letter", "pos": "noun", "fa": ["حرف", "نویسه", "وات", "نامه", "مکتوب"]}
 {"w": "letterbox", "pos": "noun", "fa": ["صندوق پست"]}
@@ -6205,6 +6482,7 @@
 {"w": "lid", "pos": "noun", "fa": ["سر", "در", "سرپوش", "درپوش"]}
 {"w": "lie", "pos": "noun", "fa": ["دروغ"]}
 {"w": "lie", "pos": "verb", "fa": ["دراز کشیدن", "دروغ گفتن"]}
+{"w": "lie down", "pos": "verb", "fa": ["خوابیدن", "لمیدن", "دراز کشیدن"]}
 {"w": "lieutenant", "pos": "noun", "fa": ["ستوان"]}
 {"w": "life", "pos": "noun", "fa": ["زندگی", "زنده", "حیات", "زیست", "زندگانی"]}
 {"w": "lift", "pos": "noun", "fa": ["لفت", "آسانسور", "بالابر"]}
@@ -6280,6 +6558,7 @@
 {"w": "little-used", "pos": "adjective", "fa": ["قلیلالاستعمال"]}
 {"w": "live", "pos": "adjective", "fa": ["زنده"]}
 {"w": "live", "pos": "verb", "fa": ["زندگی کردن", "زنده گی کردن", "زیستن"]}
+{"w": "live up", "pos": "verb", "fa": ["برآورده کردن"]}
 {"w": "liver", "pos": "noun", "fa": ["جگر", "جگری", "جگرگون"]}
 {"w": "lizard", "pos": "noun", "fa": ["مارمولک", "سوسمار"]}
 {"w": "llama", "pos": "noun", "fa": ["شتر بیکوهان", "لاما"]}
@@ -6308,6 +6587,7 @@
 {"w": "loess", "pos": "noun", "fa": ["بادرفت"]}
 {"w": "log", "pos": "noun", "fa": ["کنده", "روینگار"]}
 {"w": "log", "pos": "verb", "fa": ["روینگاشتن"]}
+{"w": "log out", "pos": "verb", "fa": ["خارج شدن"]}
 {"w": "loggerhead", "pos": "noun", "fa": ["مگسگیر دمحنایی"]}
 {"w": "logic", "pos": "noun", "fa": ["منطق"]}
 {"w": "logical", "pos": "adjective", "fa": ["منطقی"]}
@@ -6325,10 +6605,19 @@
 {"w": "lonely", "pos": "adjective", "fa": ["تنها", "بیکس"]}
 {"w": "long", "pos": "adjective", "fa": ["دراز", "طولانی", "دیرند", "دیر زمان"]}
 {"w": "long", "pos": "adverb", "fa": ["طولانی"]}
+{"w": "long live", "pos": "verb", "fa": ["زنده باد", "جاوید"]}
+{"w": "long live the revolution", "pos": "phrase", "fa": ["زنده باد انقلاب"]}
+{"w": "long story short", "pos": "adverb", "fa": ["خلاصه ، القصه ، آخر سر اینکه"]}
+{"w": "long time no see", "pos": "interjection", "fa": ["مشتاق دیدار"]}
 {"w": "long-suffering", "pos": "adjective", "fa": ["صبور"]}
 {"w": "longing", "pos": "noun", "fa": ["سودا"]}
 {"w": "loofah", "pos": "noun", "fa": ["پیلگوش", "لیف"]}
 {"w": "look", "pos": "verb", "fa": ["سیل کردن", "نگاه کردن", "نگریستن", "به نظر آمدن", "به نظر رسیدن"]}
+{"w": "look at", "pos": "verb", "fa": ["دیدن"]}
+{"w": "look for", "pos": "verb", "fa": ["جستجو کردن", "جستن"]}
+{"w": "look forward to", "pos": "verb", "fa": ["مشتاق بودن"]}
+{"w": "look like", "pos": "verb", "fa": ["به ... شباهت داشتن"]}
+{"w": "look out", "pos": "verb", "fa": ["مواظب بودن"]}
 {"w": "lookalike", "pos": "noun", "fa": ["همشکل"]}
 {"w": "loom", "pos": "noun", "fa": ["جولایی"]}
 {"w": "loop", "pos": "noun", "fa": ["حلقه"]}
@@ -6446,6 +6735,11 @@
 {"w": "majordomo", "pos": "noun", "fa": ["خوانسالار"]}
 {"w": "majority", "pos": "noun", "fa": ["اکثریت", "اکثریت ساده"]}
 {"w": "make", "pos": "verb", "fa": ["ساختن", "تولید کردن", "ایجاد کردن", "تشکیل دادن"]}
+{"w": "make a living", "pos": "verb", "fa": ["امرار معاش کردن"]}
+{"w": "make love", "pos": "verb", "fa": ["عشق ورزیدن"]}
+{"w": "make sense", "pos": "verb", "fa": ["قابل فهم"]}
+{"w": "make up", "pos": "verb", "fa": ["تشکیل دادن", "جبران کردن"]}
+{"w": "make yourself at home", "pos": "phrase", "fa": ["خونه خودته", "خونه خودتونه"]}
 {"w": "makeup", "pos": "noun", "fa": ["آرایش", "گریم", "ماکیاژ"]}
 {"w": "maktab", "pos": "noun", "fa": ["مکتب"]}
 {"w": "malachite", "pos": "noun", "fa": ["مالاکیت", "دهنج"]}
@@ -6515,6 +6809,7 @@
 {"w": "manuscript", "pos": "adjective", "fa": ["دستنوشته", "دستنویس", "نسخه خطی", "مخطوطه"]}
 {"w": "manuscript", "pos": "noun", "fa": ["دستنوشته", "نسخه خطی"]}
 {"w": "many", "pos": "determiner", "fa": ["زیاد", "چندین", "بسیار", "خیلی"]}
+{"w": "many thanks", "pos": "interjection", "fa": ["تشکر فراوان"]}
 {"w": "maoism", "pos": "noun", "fa": ["مائوئیسم", "مائوگرایی"]}
 {"w": "maoist", "pos": "adjective", "fa": ["مائوگرا"]}
 {"w": "maoist", "pos": "noun", "fa": ["مائوگرا"]}
@@ -6553,6 +6848,7 @@
 {"w": "married", "pos": "adjective", "fa": ["متأهل", "عروسیکرده", "ازدواجکرده", "شوهردار", "زن دار"]}
 {"w": "marrow", "pos": "noun", "fa": ["مغز"]}
 {"w": "marry", "pos": "verb", "fa": ["ازدواج کردن", "عروسی کردن", "شوهر کردن"]}
+{"w": "marry me", "pos": "phrase", "fa": ["باهام ازدواج کن"]}
 {"w": "marsh", "pos": "noun", "fa": ["مانداب", "مرداب", "هور"]}
 {"w": "marshmallow", "pos": "noun", "fa": ["مارشمالو", "پفنبات"]}
 {"w": "marten", "pos": "noun", "fa": ["سمور", "خز"]}
@@ -6625,8 +6921,10 @@
 {"w": "mazdean", "pos": "adjective", "fa": ["مزدایی"]}
 {"w": "mazdean", "pos": "noun", "fa": ["مزدایی"]}
 {"w": "maze", "pos": "noun", "fa": ["هزارتو", "هزارخم", "لابیرنت"]}
+{"w": "mazel tov", "pos": "interjection", "fa": ["مزل طوب", "مزل طوو"]}
 {"w": "mazut", "pos": "noun", "fa": ["مازوت", "نفت کوره"]}
 {"w": "me", "pos": "pronoun", "fa": ["مرا", "منو"]}
+{"w": "me too", "pos": "phrase", "fa": ["من هم همینطور"]}
 {"w": "mead", "pos": "noun", "fa": ["مل"]}
 {"w": "meadow", "pos": "noun", "fa": ["چمن", "چمنزار", "مرغزار", "علفزار", "راود"]}
 {"w": "meal", "pos": "noun", "fa": ["غذا"]}
@@ -6710,6 +7008,7 @@
 {"w": "mermaid", "pos": "noun", "fa": ["پری دریایی"]}
 {"w": "merman", "pos": "noun", "fa": ["دریامرد"]}
 {"w": "merry", "pos": "adjective", "fa": ["شادکام", "سرمست", "شاد", "تند"]}
+{"w": "merry christmas", "pos": "phrase", "fa": ["میلاد مسیح مبارک باد", "کریسمس مبارک"]}
 {"w": "mesh", "pos": "noun", "fa": ["توری"]}
 {"w": "mesmerize", "pos": "verb", "fa": ["میخکوب کردن"]}
 {"w": "message", "pos": "noun", "fa": ["پیغام", "پیام", "رساله", "خبر", "اخبار"]}
@@ -6723,6 +7022,7 @@
 {"w": "metalloid", "pos": "noun", "fa": ["شبهفلز"]}
 {"w": "metamorphosis", "pos": "noun", "fa": ["دگردیسی"]}
 {"w": "metaphor", "pos": "noun", "fa": ["استعاره", "مجاز"]}
+{"w": "mete out", "pos": "verb", "fa": ["سهم دادن", "بخش کردن"]}
 {"w": "meteor", "pos": "noun", "fa": ["شهاب", "شخانه", "نیزک"]}
 {"w": "meteorite", "pos": "noun", "fa": ["شهابسنگ", "سنگ آسمانی"]}
 {"w": "meteoroid", "pos": "noun", "fa": ["شهابوار", "نیزک"]}
@@ -6950,6 +7250,7 @@
 {"w": "morality", "pos": "noun", "fa": ["اخلاق"]}
 {"w": "more", "pos": "adverb", "fa": ["بیشتر", "-تر"]}
 {"w": "more", "pos": "determiner", "fa": ["بیشتر"]}
+{"w": "more often than not", "pos": "adverb", "fa": ["اکثر اوقات اکثرا معمولا علیالقاعده"]}
 {"w": "morel", "pos": "noun", "fa": ["غوشنه"]}
 {"w": "moreover", "pos": "adverb", "fa": ["به علاوه", "علاوه بر این", "افزون بر این"]}
 {"w": "morgue", "pos": "noun", "fa": ["مردهشویخانه", "مردهخانه", "سردخانه"]}
@@ -7046,6 +7347,7 @@
 {"w": "multiplication", "pos": "noun", "fa": ["ضرب", "بسشماری"]}
 {"w": "multiply", "pos": "verb", "fa": ["ضرب کردن"]}
 {"w": "mum", "pos": "noun", "fa": ["مادر", "مامان", "ننه"]}
+{"w": "mum's the word", "pos": "phrase", "fa": ["شتر دیدی ندیدی"]}
 {"w": "mummify", "pos": "verb", "fa": ["مومیایی کردن", "مومیایی شدن"]}
 {"w": "mummy", "pos": "noun", "fa": ["مومیا", "مامان"]}
 {"w": "mumps", "pos": "noun", "fa": ["اوریون"]}
@@ -7094,6 +7396,7 @@
 {"w": "mutter", "pos": "verb", "fa": ["زمزمه کردن"]}
 {"w": "muzzle", "pos": "noun", "fa": ["پوزه", "پوزهبند"]}
 {"w": "my", "pos": "determiner", "fa": ["م", "من"]}
+{"w": "my name is", "pos": "phrase", "fa": ["اسم من ... است", "اسمم ...ه"]}
 {"w": "myocarditis", "pos": "noun", "fa": ["میوکاردیت"]}
 {"w": "myriad", "pos": "noun", "fa": ["بیور"]}
 {"w": "myrmecophily", "pos": "noun", "fa": ["مورچهدوستی"]}
@@ -7243,6 +7546,7 @@
 {"w": "newspaper", "pos": "noun", "fa": ["روزنامه", "جریده", "اخبار", "کاغذ روزنامه"]}
 {"w": "newt", "pos": "verb", "fa": ["سمندرک"]}
 {"w": "next", "pos": "adjective", "fa": ["سپس", "پس از این", "دیگر", "آینده"]}
+{"w": "next to", "pos": "preposition", "fa": ["کنار", "پهلوی"]}
 {"w": "ney", "pos": "noun", "fa": ["نی"]}
 {"w": "ngo", "pos": "noun", "fa": ["سمن"]}
 {"w": "nice", "pos": "adjective", "fa": ["دلپذیر", "ناز", "پسندیده", "خوشمزه", "خوشبو"]}
@@ -7275,6 +7579,7 @@
 {"w": "ninjutsu", "pos": "noun", "fa": ["نینجوتسو"]}
 {"w": "nintendo", "pos": "noun", "fa": ["نینتندو"]}
 {"w": "ninth", "pos": "adjective", "fa": ["نهم"]}
+{"w": "nip in the bud", "pos": "verb", "fa": ["در نطفه خفه کردن"]}
 {"w": "nipple", "pos": "noun", "fa": ["نوک پستان", "سرپستان", "حلمه", "داره"]}
 {"w": "niqab", "pos": "noun", "fa": ["نقاب", "روبنده"]}
 {"w": "nisba", "pos": "noun", "fa": ["نسبه"]}
@@ -7288,6 +7593,12 @@
 {"w": "nizamiyya", "pos": "noun", "fa": ["نظامیه"]}
 {"w": "no", "pos": "determiner", "fa": ["هیچ", "ممنوع است"]}
 {"w": "no", "pos": "noun", "fa": ["نه"]}
+{"w": "no entry", "pos": "phrase", "fa": ["ورود ممنوع"]}
+{"w": "no idea", "pos": "interjection", "fa": ["نظری ندارم"]}
+{"w": "no longer", "pos": "adverb", "fa": ["دیگر"]}
+{"w": "no problem", "pos": "interjection", "fa": ["مشکلی نیست", "اشکالی نداره", "خواهش میکنم"]}
+{"w": "no smoking", "pos": "phrase", "fa": ["سیگار کشیدن ممنوع است"]}
+{"w": "no way", "pos": "interjection", "fa": ["نه بابا"]}
 {"w": "noble", "pos": "adjective", "fa": ["شریف", "نجیب", "اصیل", "عظیم"]}
 {"w": "noble", "pos": "noun", "fa": ["نجیبزاده"]}
 {"w": "nock", "pos": "noun", "fa": ["سوفار"]}
@@ -7337,6 +7648,9 @@
 {"w": "nosy", "pos": "adjective", "fa": ["فضول"]}
 {"w": "not", "pos": "adverb", "fa": ["نه"]}
 {"w": "not", "pos": "conjunction", "fa": ["نه"]}
+{"w": "not at all", "pos": "adverb", "fa": ["اصلا", "به هیچ وجه", "حاشا و کلا"]}
+{"w": "not at all", "pos": "interjection", "fa": ["قابل نداشت", "خواهش میکنم"]}
+{"w": "not yet", "pos": "adverb", "fa": ["هنوز نه"]}
 {"w": "note", "pos": "noun", "fa": ["نت", "یادداشت"]}
 {"w": "notebook", "pos": "noun", "fa": ["دفترچه", "دفتر", "رایانه کیفی", "لپتاپ"]}
 {"w": "nothing", "pos": "pronoun", "fa": ["هیچ", "هیچچیز"]}
@@ -7436,6 +7750,7 @@
 {"w": "odometer", "pos": "noun", "fa": ["کیلومترشمار", "اودومتر"]}
 {"w": "odor", "pos": "noun", "fa": ["بو"]}
 {"w": "oesophagus", "pos": "noun", "fa": ["مری"]}
+{"w": "of course", "pos": "adverb", "fa": ["البته"]}
 {"w": "offend", "pos": "verb", "fa": ["آسیب زدن", "تخطی", "خطا کردن"]}
 {"w": "offender", "pos": "noun", "fa": ["مقصر", "تقصیرکار", "خاطی", "قانونشکن"]}
 {"w": "offensive", "pos": "noun", "fa": ["هجوم", "حمله"]}
@@ -7454,6 +7769,8 @@
 {"w": "ogonek", "pos": "noun", "fa": ["اگنک"]}
 {"w": "ogre", "pos": "noun", "fa": ["غول پیکر", "غول"]}
 {"w": "oh", "pos": "interjection", "fa": ["اه", "آه", "ای"]}
+{"w": "oh dear", "pos": "interjection", "fa": ["!ای وای"]}
+{"w": "oh my god", "pos": "interjection", "fa": ["وای خدای من", "ای خدا"]}
 {"w": "oil", "pos": "noun", "fa": ["تیل", "روغن", "نفت", "تیل خاک"]}
 {"w": "oilcan", "pos": "noun", "fa": ["روغندان"]}
 {"w": "oily", "pos": "adjective", "fa": ["روغنی"]}
@@ -7485,11 +7802,25 @@
 {"w": "on", "pos": "adjective", "fa": ["روشن", "فعال"]}
 {"w": "on", "pos": "adverb", "fa": ["روشن"]}
 {"w": "on", "pos": "preposition", "fa": ["روی", "بر", "سوار", "در", "اندر"]}
+{"w": "on credit", "pos": "phrase", "fa": ["نسیه"]}
+{"w": "on foot", "pos": "phrase", "fa": ["پیاده"]}
+{"w": "on ice", "pos": "phrase", "fa": ["روی یخ"]}
+{"w": "on purpose", "pos": "phrase", "fa": ["عمدا", "از قصد", "دانسته"]}
+{"w": "on the one hand", "pos": "phrase", "fa": ["از یک سو"]}
+{"w": "on the other hand", "pos": "phrase", "fa": ["از طرف دیگر", "از سویی دیگر"]}
+{"w": "on the verge of", "pos": "preposition", "fa": ["در آستانه"]}
+{"w": "on the way", "pos": "phrase", "fa": ["در راه"]}
+{"w": "on the whole", "pos": "phrase", "fa": ["به طور کلی"]}
 {"w": "once", "pos": "adverb", "fa": ["یکبار"]}
+{"w": "once again", "pos": "adverb", "fa": ["یک بار دیگر"]}
+{"w": "once upon a time", "pos": "adverb", "fa": ["یکی بود یکی نبود", "روزی روزگاری", "روزی از روزها"]}
 {"w": "one", "pos": "determiner", "fa": ["یک", "ی", "هر", "تنها", "واحد"]}
 {"w": "one", "pos": "noun", "fa": ["یک", "واحد"]}
 {"w": "one", "pos": "numeral", "fa": ["یک", "١"]}
 {"w": "one", "pos": "pronoun", "fa": ["ه", "آدم", "یکی", "کسی"]}
+{"w": "one by one", "pos": "adverb", "fa": ["یکی یکی", "یکبهیک"]}
+{"w": "one day", "pos": "adverb", "fa": ["یک روز", "یکروز"]}
+{"w": "one hundred percent", "pos": "adverb", "fa": ["صددرصد"]}
 {"w": "one-eyed", "pos": "adjective", "fa": ["یکچشم"]}
 {"w": "oneself", "pos": "pronoun", "fa": ["خود", "نفس"]}
 {"w": "onion", "pos": "noun", "fa": ["پیاز", "سوخ"]}
@@ -7506,6 +7837,7 @@
 {"w": "open", "pos": "adjective", "fa": ["باز"]}
 {"w": "open", "pos": "noun", "fa": ["اوپن"]}
 {"w": "open", "pos": "verb", "fa": ["گشودن", "باز کردن", "باز شدن"]}
+{"w": "open sesame", "pos": "phrase", "fa": ["سسمی باز شو"]}
 {"w": "opener", "pos": "noun", "fa": ["باز کننده"]}
 {"w": "opera", "pos": "noun", "fa": ["اپرا"]}
 {"w": "operation", "pos": "noun", "fa": ["جراحی", "عمل", "عملیات"]}
@@ -7533,6 +7865,7 @@
 {"w": "option", "pos": "noun", "fa": ["گزینه", "انتخاب", "اختیار"]}
 {"w": "optional", "pos": "adjective", "fa": ["اختیاری"]}
 {"w": "or", "pos": "conjunction", "fa": ["یا"]}
+{"w": "or else", "pos": "conjunction", "fa": ["وگرنه"]}
 {"w": "oral", "pos": "adjective", "fa": ["دهانی", "شفاهی"]}
 {"w": "orange", "pos": "adjective", "fa": ["نارنجی"]}
 {"w": "orange", "pos": "noun", "fa": ["مالته", "نارنج", "پرتقال", "نارنجی"]}
@@ -7615,6 +7948,7 @@
 {"w": "oven", "pos": "noun", "fa": ["تنور"]}
 {"w": "ovenbird", "pos": "noun", "fa": ["مرغ تنورساز"]}
 {"w": "over", "pos": "interjection", "fa": ["تمام"]}
+{"w": "over my dead body", "pos": "phrase", "fa": ["مگر از روی جسد من رد بشی"]}
 {"w": "overcoat", "pos": "noun", "fa": ["پالتو"]}
 {"w": "overcome", "pos": "verb", "fa": ["چیرادن"]}
 {"w": "overexpression", "pos": "noun", "fa": ["بیشبیان"]}
@@ -7782,6 +8116,8 @@
 {"w": "pasha", "pos": "noun", "fa": ["پاشا"]}
 {"w": "pashtun", "pos": "noun", "fa": ["پشتون"]}
 {"w": "pass", "pos": "verb", "fa": ["گذشتن", "درگذشتن", "سپری شدن"]}
+{"w": "pass away", "pos": "verb", "fa": ["فوت کردن"]}
+{"w": "pass off as", "pos": "verb", "fa": ["جا زدن"]}
 {"w": "passenger", "pos": "noun", "fa": ["مسافر"]}
 {"w": "passer-by", "pos": "noun", "fa": ["رهگذر"]}
 {"w": "passion", "pos": "noun", "fa": ["شوق", "شغف", "شور", "مصائب"]}
@@ -7834,6 +8170,8 @@
 {"w": "pea", "pos": "noun", "fa": ["نخود", "نخود سبز", "نخود فرنگی"]}
 {"w": "pea-pheasant", "pos": "noun", "fa": ["قرقاول طاووسی"]}
 {"w": "peace", "pos": "noun", "fa": ["آشتی", "صلح", "آرامش"]}
+{"w": "peace be upon her", "pos": "interjection", "fa": ["علیها السلام"]}
+{"w": "peace be upon him", "pos": "interjection", "fa": ["علیه السلام"]}
 {"w": "peacekeeping", "pos": "noun", "fa": ["صلحبانی"]}
 {"w": "peacemaker", "pos": "noun", "fa": ["مصلح", "صلحدهنده"]}
 {"w": "peacetime", "pos": "noun", "fa": ["زمان صلح"]}
@@ -7892,6 +8230,7 @@
 {"w": "peppermint", "pos": "noun", "fa": ["پونه"]}
 {"w": "pepperwort", "pos": "noun", "fa": ["ازمک"]}
 {"w": "per", "pos": "preposition", "fa": ["برای هر", "در هر"]}
+{"w": "per se", "pos": "adverb", "fa": ["به خودی خود", "فینفسه"]}
 {"w": "percale", "pos": "noun", "fa": ["پرگاله"]}
 {"w": "perceive", "pos": "verb", "fa": ["درک کردن"]}
 {"w": "percent", "pos": "noun", "fa": ["درصد", "فی صد"]}
@@ -8031,6 +8370,7 @@
 {"w": "pie", "pos": "noun", "fa": ["پای"]}
 {"w": "piebald", "pos": "adjective", "fa": ["ابلک", "ابلق", "پیسه"]}
 {"w": "piece", "pos": "noun", "fa": ["تکه", "پارچه", "قطعه", "مهره"]}
+{"w": "piece together", "pos": "verb", "fa": ["سر هم کردن"]}
 {"w": "pier", "pos": "noun", "fa": ["اسکله"]}
 {"w": "pig", "pos": "noun", "fa": ["خوک", "خوگ", "خنزیر"]}
 {"w": "pigeon", "pos": "noun", "fa": ["کبوتر"]}
@@ -8112,6 +8452,8 @@
 {"w": "platypus", "pos": "noun", "fa": ["نوکاردکی", "ارنی ترنگ"]}
 {"w": "play", "pos": "noun", "fa": ["بازی", "پیس", "نمایشنامه", "نمایش"]}
 {"w": "play", "pos": "verb", "fa": ["بازی کردن", "زدن", "نواختن"]}
+{"w": "play hooky", "pos": "verb", "fa": ["جیم زدن"]}
+{"w": "play truant", "pos": "verb", "fa": ["غیبت کردن"]}
 {"w": "playboy", "pos": "noun", "fa": ["عیاشی جوان", "پلیبوی"]}
 {"w": "player", "pos": "noun", "fa": ["بازیکن", "قمارباز", "پخشکننده", "دستگاه پخش", "پلیر"]}
 {"w": "playground", "pos": "noun", "fa": ["زمین بازی", "تفریحگاه", "محوطه بازی کودکان"]}
@@ -8119,8 +8461,17 @@
 {"w": "plaza", "pos": "noun", "fa": ["میدان"]}
 {"w": "plea", "pos": "noun", "fa": ["تقاضا", "دادخواست"]}
 {"w": "pleasant", "pos": "adjective", "fa": ["دلپذیر"]}
+{"w": "please", "pos": "adverb", "fa": ["لطفا", "خواهش میکنم", "بیزحمت", "مرحمت"]}
 {"w": "please", "pos": "interjection", "fa": ["لطفا", "خواهش میکنم", "بیزحمت", "مرحمت"]}
+{"w": "please help me", "pos": "phrase", "fa": ["لطفا به من کمک کنید", "لطفا به من کمک کن"]}
+{"w": "please repeat after me", "pos": "phrase", "fa": ["لطفا بعد از من تکرار کنید"]}
+{"w": "please say that again", "pos": "phrase", "fa": ["خواهش میکنم دوباره تکرار کنید", "لطفا دوباره بگو"]}
+{"w": "please sit down", "pos": "phrase", "fa": ["لطفا بنشین"]}
+{"w": "please speak more slowly", "pos": "phrase", "fa": ["لطفا آهستهتر حرف بزنید"]}
+{"w": "please turn left", "pos": "phrase", "fa": ["لطفا به چپ بپیچین"]}
+{"w": "please turn right", "pos": "phrase", "fa": ["لطفا به راست بپیچین"]}
 {"w": "pleased", "pos": "adjective", "fa": ["خوشحال"]}
+{"w": "pleased to meet you", "pos": "phrase", "fa": ["از ملاقات شما خوشبختم", "از ملاقات شما خوشوقتم", "خوشبختم", "خوشوقتم", "از آشنایی شما خوشوقتم"]}
 {"w": "pleasure", "pos": "noun", "fa": ["کیف", "لذت", "خوشی", "عیش", "مزه"]}
 {"w": "pleb", "pos": "noun", "fa": ["عامی"]}
 {"w": "plebeian", "pos": "adjective", "fa": ["عامیانه", "عوامانه"]}
@@ -8264,6 +8615,7 @@
 {"w": "possibility", "pos": "noun", "fa": ["امکان", "احتمال"]}
 {"w": "possible", "pos": "adjective", "fa": ["ممکن"]}
 {"w": "post", "pos": "noun", "fa": ["ستون", "پست", "برید"]}
+{"w": "post mortem", "pos": "adverb", "fa": ["پس از مرگ"]}
 {"w": "postal", "pos": "adjective", "fa": ["پستی"]}
 {"w": "postcard", "pos": "noun", "fa": ["کارت پستال", "کارتپستال"]}
 {"w": "postcode", "pos": "noun", "fa": ["کد پستی"]}
@@ -8379,6 +8731,7 @@
 {"w": "printing", "pos": "noun", "fa": ["چاپ"]}
 {"w": "prion", "pos": "noun", "fa": ["پریون"]}
 {"w": "prior", "pos": "adjective", "fa": ["قبلی"]}
+{"w": "prior to", "pos": "preposition", "fa": ["پیش از"]}
 {"w": "priority", "pos": "noun", "fa": ["اولویت"]}
 {"w": "prism", "pos": "noun", "fa": ["منشور", "شوشه"]}
 {"w": "prison", "pos": "noun", "fa": ["زندان"]}
@@ -8388,6 +8741,7 @@
 {"w": "privatization", "pos": "noun", "fa": ["خصوصیسازی"]}
 {"w": "privy", "pos": "adjective", "fa": ["محرم"]}
 {"w": "prize", "pos": "noun", "fa": ["غنیمت", "جایزه", "انعام", "مکافات"]}
+{"w": "pro bono", "pos": "phrase", "fa": ["عامالمنفعه"]}
 {"w": "proactive", "pos": "adjective", "fa": ["پیش فعال"]}
 {"w": "problem", "pos": "noun", "fa": ["مشکل", "مسئله"]}
 {"w": "procedure", "pos": "noun", "fa": ["رویه", "روال", "روند"]}
@@ -8553,6 +8907,9 @@
 {"w": "push", "pos": "verb", "fa": ["هل دادن"]}
 {"w": "pussy", "pos": "noun", "fa": ["پیشی", "کس"]}
 {"w": "put", "pos": "verb", "fa": ["گذاشتن", "ماندن"]}
+{"w": "put down roots", "pos": "verb", "fa": ["ریشه دواندن"]}
+{"w": "put off", "pos": "verb", "fa": ["به تعویق انداختن"]}
+{"w": "put on", "pos": "verb", "fa": ["پوشیدن"]}
 {"w": "putschist", "pos": "noun", "fa": ["کودتاچی"]}
 {"w": "puttee", "pos": "noun", "fa": ["پتک"]}
 {"w": "putty", "pos": "noun", "fa": ["زاماسکه"]}
@@ -8984,6 +9341,8 @@
 {"w": "right", "pos": "adverb", "fa": ["راست", "به راست"]}
 {"w": "right", "pos": "interjection", "fa": ["درسته", "درست"]}
 {"w": "right", "pos": "noun", "fa": ["حق", "حقوق", "راستگرا", "راست"]}
+{"w": "right away", "pos": "adverb", "fa": ["فورا", "بلافاصله"]}
+{"w": "right now", "pos": "adverb", "fa": ["الان", "هماکنون", "در حال حاضر"]}
 {"w": "righteous", "pos": "adjective", "fa": ["درستکار"]}
 {"w": "rightist", "pos": "noun", "fa": ["راستگرا"]}
 {"w": "ring", "pos": "noun", "fa": ["حلقه", "چنبره", "انگشتر", "زنگ"]}
@@ -9097,6 +9456,7 @@
 {"w": "rump", "pos": "noun", "fa": ["سرین", "کپل", "لمبر"]}
 {"w": "run", "pos": "noun", "fa": ["دو"]}
 {"w": "run", "pos": "verb", "fa": ["دویدن", "اداره کردن"]}
+{"w": "run away", "pos": "verb", "fa": ["فرار کردن"]}
 {"w": "run-up", "pos": "noun", "fa": ["آستانه"]}
 {"w": "runner", "pos": "noun", "fa": ["دونده"]}
 {"w": "runoff", "pos": "noun", "fa": ["دور دوم"]}
@@ -9158,6 +9518,7 @@
 {"w": "sakia", "pos": "noun", "fa": ["دولاب"]}
 {"w": "sakura", "pos": "noun", "fa": ["ساکورا"]}
 {"w": "salaam", "pos": "interjection", "fa": ["سلام"]}
+{"w": "salaam alaikum", "pos": "interjection", "fa": ["سلام علیکم"]}
 {"w": "salad", "pos": "noun", "fa": ["سالاد"]}
 {"w": "salamander", "pos": "noun", "fa": ["سمندر"]}
 {"w": "salami", "pos": "noun", "fa": ["سالامی"]}
@@ -9246,6 +9607,7 @@
 {"w": "savage", "pos": "adjective", "fa": ["شرزه"]}
 {"w": "savanna", "pos": "noun", "fa": ["ساوانا", "گرمدشت"]}
 {"w": "save", "pos": "verb", "fa": ["نجات دادن", "ذخیره کردن", "پس انداز کردن"]}
+{"w": "save face", "pos": "verb", "fa": ["آبروداری کردن"]}
 {"w": "savin", "pos": "noun", "fa": ["ابهل"]}
 {"w": "savior", "pos": "noun", "fa": ["منجی"]}
 {"w": "savory", "pos": "noun", "fa": ["مرزه"]}
@@ -9367,6 +9729,8 @@
 {"w": "sedentism", "pos": "noun", "fa": ["یکجانشینی"]}
 {"w": "sedge", "pos": "noun", "fa": ["جگن"]}
 {"w": "see", "pos": "verb", "fa": ["دیدن", "فهمیدن"]}
+{"w": "see you", "pos": "phrase", "fa": ["میبینمت"]}
+{"w": "see you later", "pos": "phrase", "fa": ["بعدا میبینمت", "به امید دیدار"]}
 {"w": "seed", "pos": "noun", "fa": ["تخم", "بزر", "بذر", "دانه", "ویج"]}
 {"w": "seedling", "pos": "noun", "fa": ["خوید", "نهال"]}
 {"w": "seek", "pos": "verb", "fa": ["جستجو کردن", "جستن"]}
@@ -9410,6 +9774,7 @@
 {"w": "senate", "pos": "noun", "fa": ["سنا"]}
 {"w": "senator", "pos": "noun", "fa": ["سناتور"]}
 {"w": "send", "pos": "verb", "fa": ["فرستادن"]}
+{"w": "send back", "pos": "verb", "fa": ["برگرداندن"]}
 {"w": "sender", "pos": "noun", "fa": ["فرستنده"]}
 {"w": "senescence", "pos": "noun", "fa": ["پیری"]}
 {"w": "senior", "pos": "adjective", "fa": ["مهتر"]}
@@ -9452,6 +9817,7 @@
 {"w": "session", "pos": "noun", "fa": ["نشست", "همایش"]}
 {"w": "set", "pos": "noun", "fa": ["مجموعه"]}
 {"w": "set", "pos": "verb", "fa": ["نهادن", "گذاشتن"]}
+{"w": "set forth", "pos": "verb", "fa": ["آغاز کردن، ارائه کردن"]}
 {"w": "settler", "pos": "noun", "fa": ["آبادگر"]}
 {"w": "seven", "pos": "numeral", "fa": ["هفت"]}
 {"w": "seventeen", "pos": "numeral", "fa": ["هفده"]}
@@ -9486,6 +9852,7 @@
 {"w": "shaheed", "pos": "noun", "fa": ["شهید"]}
 {"w": "shahzada", "pos": "noun", "fa": ["شاهزاده"]}
 {"w": "shake", "pos": "verb", "fa": ["تکاندن"]}
+{"w": "shake hands", "pos": "verb", "fa": ["دست دادن"]}
 {"w": "shale", "pos": "noun", "fa": ["شیست"]}
 {"w": "shallow", "pos": "adjective", "fa": ["چاله", "تنک", "تخت"]}
 {"w": "shalom", "pos": "interjection", "fa": ["شالوم"]}
@@ -9613,6 +9980,8 @@
 {"w": "shurangiz", "pos": "noun", "fa": ["شورانگیز"]}
 {"w": "shuriken", "pos": "noun", "fa": ["شوریکن"]}
 {"w": "shut", "pos": "verb", "fa": ["بستن"]}
+{"w": "shut up", "pos": "interjection", "fa": ["خفه شو", "زر نزن"]}
+{"w": "shut up", "pos": "verb", "fa": ["خفه کردن", "خفه شدن"]}
 {"w": "shutter", "pos": "noun", "fa": ["شاتر"]}
 {"w": "shuttle", "pos": "noun", "fa": ["ماکو", "مکوک", "شاتل"]}
 {"w": "shuttlecock", "pos": "noun", "fa": ["توپ بدمینتون"]}
@@ -9627,6 +9996,7 @@
 {"w": "sideboard", "pos": "noun", "fa": ["بوفه"]}
 {"w": "sideburns", "pos": "noun", "fa": ["خط ریش"]}
 {"w": "sidewalk", "pos": "noun", "fa": ["پیادهرو"]}
+{"w": "sieg heil", "pos": "interjection", "fa": ["درود بر پیروزی"]}
 {"w": "siege", "pos": "noun", "fa": ["محاصره"]}
 {"w": "sieve", "pos": "noun", "fa": ["الک", "پرویزن", "غربال", "سرند", "بیزه"]}
 {"w": "sift", "pos": "verb", "fa": ["بیختن"]}
@@ -9671,6 +10041,7 @@
 {"w": "sin", "pos": "verb", "fa": ["گناه ورزیدن"]}
 {"w": "since", "pos": "conjunction", "fa": ["از زمانی که", "از آنجایی که"]}
 {"w": "since", "pos": "preposition", "fa": ["از"]}
+{"w": "since when", "pos": "adverb", "fa": ["از کی؟", "از کی تا حالا"]}
 {"w": "sincere", "pos": "adjective", "fa": ["صادق", "صمیمی"]}
 {"w": "sindhi", "pos": "adjective", "fa": ["سندی"]}
 {"w": "sine", "pos": "noun", "fa": ["جیب", "سینوس"]}
@@ -9695,6 +10066,7 @@
 {"w": "sister", "pos": "noun", "fa": ["خواهر", "همشیره", "اخت"]}
 {"w": "sister-in-law", "pos": "noun", "fa": ["خیازنه", "خیاشنه"]}
 {"w": "sit", "pos": "verb", "fa": ["نشستن"]}
+{"w": "sit down", "pos": "verb", "fa": ["نشستن"]}
 {"w": "sit-in", "pos": "noun", "fa": ["تحصن"]}
 {"w": "sitar", "pos": "noun", "fa": ["سهتار"]}
 {"w": "site", "pos": "noun", "fa": ["جایگاه", "گاه", "محل", "جا", "پایگاه"]}
@@ -9852,6 +10224,9 @@
 {"w": "snug", "pos": "adjective", "fa": ["دنج"]}
 {"w": "so", "pos": "conjunction", "fa": ["پس"]}
 {"w": "so", "pos": "interjection", "fa": ["پس", "باری"]}
+{"w": "so as to", "pos": "conjunction", "fa": ["که"]}
+{"w": "so far", "pos": "adverb", "fa": ["تاکنون"]}
+{"w": "so that", "pos": "conjunction", "fa": ["تا", "که"]}
 {"w": "so-and-so", "pos": "noun", "fa": ["فلان", "بهمان", "باستار"]}
 {"w": "so-called", "pos": "adjective", "fa": ["به اصطلاح", "کذایی"]}
 {"w": "soaked", "pos": "adjective", "fa": ["خیسیده"]}
@@ -10112,6 +10487,7 @@
 {"w": "stamp", "pos": "noun", "fa": ["استامپ", "مهر", "تاپه"]}
 {"w": "stampede", "pos": "noun", "fa": ["پاسپار"]}
 {"w": "stand", "pos": "verb", "fa": ["ایستادن", "وایسادن", "برخاستن", "پا شدن", "ایست"]}
+{"w": "stand up", "pos": "verb", "fa": ["خاستن", "وریسادن", "پیچاندن", "کاشتن"]}
 {"w": "stand-alone", "pos": "adjective", "fa": ["قائم به خود", "مستقل"]}
 {"w": "standard", "pos": "adjective", "fa": ["متعارف"]}
 {"w": "standard", "pos": "noun", "fa": ["استاندارد", "معیار", "شاخص", "درفش", "لوا"]}
@@ -10159,6 +10535,7 @@
 {"w": "stench", "pos": "noun", "fa": ["گند"]}
 {"w": "stencil", "pos": "noun", "fa": ["شابلون"]}
 {"w": "step", "pos": "noun", "fa": ["گام", "قدم"]}
+{"w": "step by step", "pos": "adverb", "fa": ["قدم به قدم", "گام به گام"]}
 {"w": "stepbrother", "pos": "noun", "fa": ["برادندر", "نابرادری"]}
 {"w": "stepdaughter", "pos": "noun", "fa": ["دختندر"]}
 {"w": "stepfather", "pos": "noun", "fa": ["ناپدری", "پدندر"]}
@@ -10211,6 +10588,7 @@
 {"w": "stool", "pos": "noun", "fa": ["چهارپایه", "چارپایه"]}
 {"w": "stop", "pos": "noun", "fa": ["ایستگاه"]}
 {"w": "stop", "pos": "verb", "fa": ["ایستادن", "بازایستادن", "نگه داشتن", "بازداشتن", "بستن"]}
+{"w": "stop the car", "pos": "phrase", "fa": ["ماشین را نگه دارید", "ماشینو نگه دار"]}
 {"w": "stopwatch", "pos": "verb", "fa": ["کرنومتر"]}
 {"w": "storage", "pos": "noun", "fa": ["حافظه"]}
 {"w": "store", "pos": "noun", "fa": ["ذخیره", "ستنج"]}
@@ -10310,10 +10688,12 @@
 {"w": "successor", "pos": "noun", "fa": ["وارث"]}
 {"w": "succinct", "pos": "adjective", "fa": ["مختصر و مفید", "موجز"]}
 {"w": "such", "pos": "determiner", "fa": ["چنین"]}
+{"w": "such is life", "pos": "phrase", "fa": ["زندگی همینه", "دنیا همینه دیگه", "زندگی همین است"]}
 {"w": "such-and-such", "pos": "noun", "fa": ["فلان و بهمان", "چنین و چنان"]}
 {"w": "suchlike", "pos": "adjective", "fa": ["چنین"]}
 {"w": "suck", "pos": "noun", "fa": ["مک", "میک"]}
 {"w": "suck", "pos": "verb", "fa": ["مکیدن"]}
+{"w": "suck off", "pos": "verb", "fa": ["کیر مکیدن"]}
 {"w": "sucker", "pos": "noun", "fa": ["مکنده"]}
 {"w": "sucrose", "pos": "noun", "fa": ["ساکارز"]}
 {"w": "suction", "pos": "noun", "fa": ["مکش"]}
@@ -10529,6 +10909,13 @@
 {"w": "tajwid", "pos": "noun", "fa": ["تجوید"]}
 {"w": "takbir", "pos": "noun", "fa": ["تکبیر"]}
 {"w": "take", "pos": "verb", "fa": ["گرفتن", "بردن", "برداشتن", "طول کشیدن"]}
+{"w": "take a dump", "pos": "verb", "fa": ["دستشویی رفتن", "قضای حاجت کردن", "به توالت رفتن", "ریدن", "مدفوع کردن"]}
+{"w": "take back", "pos": "verb", "fa": ["پس گرفتن", "برگشتن", "بازگشتن"]}
+{"w": "take care of", "pos": "verb", "fa": ["پرستاری کردن", "رسیدگی کردن"]}
+{"w": "take into account", "pos": "verb", "fa": ["به حساب آوردن", "در نظر گرفتن"]}
+{"w": "take it easy", "pos": "verb", "fa": ["بیخیال"]}
+{"w": "take part", "pos": "verb", "fa": ["شرکت کردن", "اشتراک کردن"]}
+{"w": "take pleasure", "pos": "verb", "fa": ["لذت بردن"]}
 {"w": "takhtrawan", "pos": "noun", "fa": ["تخت روان"]}
 {"w": "takya", "pos": "noun", "fa": ["تکیه", "تکیهخانه"]}
 {"w": "talaq", "pos": "noun", "fa": ["طلاق"]}
@@ -10714,13 +11101,24 @@
 {"w": "than", "pos": "preposition", "fa": ["از"]}
 {"w": "thanatology", "pos": "noun", "fa": ["مرگشناسی"]}
 {"w": "thank", "pos": "verb", "fa": ["سپاسگزاری کردن", "تشکر کردن"]}
+{"w": "thank god", "pos": "interjection", "fa": ["خدا را شکر", "خدا رو شکر", "الحمد لله"]}
+{"w": "thank you", "pos": "interjection", "fa": ["ممنونم", "متشکرم", "مرسی", "تشکر", "سپاسگزارم"]}
+{"w": "thank you very much", "pos": "interjection", "fa": ["خیلی ممنون", "خیلی متشکرم", "بسیار سپاسگزارم"]}
 {"w": "thankful", "pos": "adjective", "fa": ["سپاسگزار", "شاکر", "ممنون", "متشکر"]}
 {"w": "thanks", "pos": "interjection", "fa": ["ممنون", "سپاس", "مرسی", "تشکر"]}
+{"w": "thanks for your help", "pos": "phrase", "fa": ["برای کمک شما متشکرم"]}
 {"w": "that", "pos": "conjunction", "fa": ["که"]}
 {"w": "that", "pos": "determiner", "fa": ["آن"]}
 {"w": "that", "pos": "pronoun", "fa": ["آن", "اون", "که"]}
+{"w": "that is", "pos": "adverb", "fa": ["یعنی"]}
+{"w": "that's a relief", "pos": "phrase", "fa": ["آخیش راحت شدم"]}
+{"w": "that's it", "pos": "phrase", "fa": ["همین بود", "همین", "همین است"]}
 {"w": "thatch", "pos": "noun", "fa": ["گالی", "کلش"]}
 {"w": "thatch", "pos": "verb", "fa": ["گالیپوش کردن"]}
+{"w": "the die is cast", "pos": "phrase", "fa": ["تاسها پرتاب شدهاند"]}
+{"w": "the night before last", "pos": "adverb", "fa": ["پریشب"]}
+{"w": "the night is young", "pos": "phrase", "fa": ["سر شب است"]}
+{"w": "the other day", "pos": "adverb", "fa": ["اخیرا", "چند روز پیش", "به تازگی"]}
 {"w": "theater", "pos": "noun", "fa": ["تئاتر"]}
 {"w": "theft", "pos": "noun", "fa": ["دزدی", "سرقت"]}
 {"w": "their", "pos": "determiner", "fa": ["شان"]}
@@ -10736,6 +11134,8 @@
 {"w": "theory", "pos": "noun", "fa": ["نظریه", "تئوری"]}
 {"w": "therapy", "pos": "noun", "fa": ["درمان", "علاج"]}
 {"w": "there", "pos": "adverb", "fa": ["آنجا"]}
+{"w": "there are", "pos": "verb", "fa": ["هست"]}
+{"w": "there is", "pos": "verb", "fa": ["هست", "وجود دارد"]}
 {"w": "therefore", "pos": "adverb", "fa": ["بدلیل آن"]}
 {"w": "thermometer", "pos": "noun", "fa": ["دماسنج"]}
 {"w": "thermos", "pos": "noun", "fa": ["فلاسک"]}
@@ -10743,6 +11143,7 @@
 {"w": "thermostat", "pos": "noun", "fa": ["ترموستات"]}
 {"w": "these", "pos": "determiner", "fa": ["این"]}
 {"w": "these", "pos": "pronoun", "fa": ["اینها"]}
+{"w": "these days", "pos": "adverb", "fa": ["امروزه", "این روزها"]}
 {"w": "thesis", "pos": "noun", "fa": ["تز", "پایاننامه", "رساله"]}
 {"w": "they", "pos": "pronoun", "fa": ["ایشان", "آنها", "آنان", "او", "وی"]}
 {"w": "thiazole", "pos": "noun", "fa": ["تیازول"]}
@@ -10767,6 +11168,8 @@
 {"w": "thirty", "pos": "numeral", "fa": ["سی"]}
 {"w": "this", "pos": "determiner", "fa": ["این"]}
 {"w": "this", "pos": "pronoun", "fa": ["این"]}
+{"w": "this is a book", "pos": "phrase", "fa": ["این کتاب است", "این کتابه"]}
+{"w": "this year", "pos": "adverb", "fa": ["امسال"]}
 {"w": "thistle", "pos": "noun", "fa": ["کنگر"]}
 {"w": "thong", "pos": "noun", "fa": ["تسمه", "نیفه", "قیش"]}
 {"w": "thorite", "pos": "noun", "fa": ["توریت"]}
@@ -10795,6 +11198,8 @@
 {"w": "throng", "pos": "noun", "fa": ["جمعیت"]}
 {"w": "through", "pos": "preposition", "fa": ["از طریق"]}
 {"w": "throw", "pos": "verb", "fa": ["انداختن", "افگندن"]}
+{"w": "throw away", "pos": "verb", "fa": ["دور انداختن"]}
+{"w": "throw up", "pos": "verb", "fa": ["راست بودن", "راست ایستادن", "شق بودن"]}
 {"w": "thrower", "pos": "noun", "fa": ["پرتابنده", "افکننده"]}
 {"w": "thug", "pos": "noun", "fa": ["خلاف کار", "اوباش", "اراذل", "گانگستر"]}
 {"w": "thuluth", "pos": "noun", "fa": ["ثلث"]}
@@ -10811,6 +11216,7 @@
 {"w": "thyroid", "pos": "adjective", "fa": ["سپردیس", "تیروئید"]}
 {"w": "tiara", "pos": "noun", "fa": ["تیار"]}
 {"w": "tick", "pos": "noun", "fa": ["کنه", "تارو", "نارد", "کرنه"]}
+{"w": "tick off", "pos": "verb", "fa": ["برشمردن"]}
 {"w": "ticket", "pos": "noun", "fa": ["بلیت", "بلیط", "نامزدنامه"]}
 {"w": "tickle", "pos": "noun", "fa": ["غلغلک", "قلقلک", "خارش"]}
 {"w": "tickle", "pos": "verb", "fa": ["غلغلک دادن", "قلقلک دادن"]}
@@ -10826,6 +11232,8 @@
 {"w": "timber", "pos": "noun", "fa": ["الوار"]}
 {"w": "time", "pos": "noun", "fa": ["زمان", "وقت", "تایم", "دوران", "موقع"]}
 {"w": "time", "pos": "verb", "fa": ["زمان گرفتن"]}
+{"w": "time and again", "pos": "adverb", "fa": ["چندین و چندبار"]}
+{"w": "time flies", "pos": "phrase", "fa": ["زمان زود می گذرد"]}
 {"w": "timer", "pos": "noun", "fa": ["زمانسنج", "تایمر"]}
 {"w": "timestamp", "pos": "noun", "fa": ["برچسب زمان"]}
 {"w": "timetable", "pos": "noun", "fa": ["برنامه زمانی", "جدول زمانی", "جدول"]}
@@ -10884,6 +11292,7 @@
 {"w": "tomorrow", "pos": "noun", "fa": ["فردا"]}
 {"w": "ton", "pos": "noun", "fa": ["تن"]}
 {"w": "tone", "pos": "noun", "fa": ["پرده", "لحن", "تن"]}
+{"w": "tone down", "pos": "verb", "fa": ["کمتر کردن"]}
 {"w": "tongs", "pos": "noun", "fa": ["پلاس", "کلبتین"]}
 {"w": "tongue", "pos": "noun", "fa": ["زبان", "لسان"]}
 {"w": "tongueless", "pos": "adjective", "fa": ["بیزبان"]}
@@ -10916,6 +11325,7 @@
 {"w": "tortuous", "pos": "adjective", "fa": ["پیچاپیچ"]}
 {"w": "torture", "pos": "noun", "fa": ["شکنجه", "عذاب", "تعذیب"]}
 {"w": "torture", "pos": "verb", "fa": ["شکنجه دادن"]}
+{"w": "toss a coin", "pos": "verb", "fa": ["سکه افکندن"]}
 {"w": "total", "pos": "noun", "fa": ["کل"]}
 {"w": "totalitarian", "pos": "adjective", "fa": ["توتالیتر"]}
 {"w": "totalitarianism", "pos": "noun", "fa": ["تمامیتخواهی", "توتالیتاریسم"]}
@@ -11012,6 +11422,7 @@
 {"w": "tray", "pos": "noun", "fa": ["سینی"]}
 {"w": "tread", "pos": "noun", "fa": ["آج"]}
 {"w": "tread", "pos": "verb", "fa": ["پا گذاشتن", "لگد کردن"]}
+{"w": "tread lightly", "pos": "verb", "fa": ["کج دار و مریز"]}
 {"w": "treason", "pos": "noun", "fa": ["خیانت", "غداری"]}
 {"w": "treasure", "pos": "noun", "fa": ["گنجینه", "گنج"]}
 {"w": "treasurer", "pos": "noun", "fa": ["خزانهدار", "صندوقدار"]}
@@ -11125,6 +11536,7 @@
 {"w": "turmoil", "pos": "noun", "fa": ["هرج و مرج", "آشوب"]}
 {"w": "turn", "pos": "noun", "fa": ["گردش", "نوبت", "دور"]}
 {"w": "turn", "pos": "verb", "fa": ["گشتن", "چرخیدن"]}
+{"w": "turn on", "pos": "verb", "fa": ["روشن کردن"]}
 {"w": "turner", "pos": "noun", "fa": ["خراط"]}
 {"w": "turnip", "pos": "noun", "fa": ["شلغم"]}
 {"w": "turpentine", "pos": "noun", "fa": ["تربانتین"]}
@@ -11153,6 +11565,7 @@
 {"w": "twist", "pos": "verb", "fa": ["تافتن"]}
 {"w": "two", "pos": "noun", "fa": ["دو"]}
 {"w": "two", "pos": "numeral", "fa": ["دو", "۲", "اثنان"]}
+{"w": "two years ago", "pos": "adverb", "fa": ["پیارسال"]}
 {"w": "two-dimensional", "pos": "adjective", "fa": ["دوبعدی"]}
 {"w": "two-faced", "pos": "adjective", "fa": ["دورو"]}
 {"w": "twofold", "pos": "adjective", "fa": ["دوتا", "دوبرابر", "دوگانه", "دوبار"]}
@@ -11210,6 +11623,7 @@
 {"w": "uncountable", "pos": "adjective", "fa": ["بیشمار", "شمارشناپذیر"]}
 {"w": "uncultured", "pos": "adjective", "fa": ["بیفرهنگ"]}
 {"w": "under", "pos": "preposition", "fa": ["تحت", "زیر"]}
+{"w": "under control", "pos": "phrase", "fa": ["تحت کنترل"]}
 {"w": "undermine", "pos": "verb", "fa": ["تضعیف کردن"]}
 {"w": "underpants", "pos": "noun", "fa": ["زیرشلواری", "زیرتنبانی", "سلتراج"]}
 {"w": "underpass", "pos": "noun", "fa": ["زیرگذر"]}
@@ -11272,6 +11686,7 @@
 {"w": "upbringing", "pos": "noun", "fa": ["تربیت"]}
 {"w": "update", "pos": "noun", "fa": ["به روز رسانی", "بهروزرسانی"]}
 {"w": "update", "pos": "verb", "fa": ["بهروزرسانی"]}
+{"w": "updating", "pos": "verb", "fa": ["روزآمدسازی"]}
 {"w": "upland", "pos": "noun", "fa": ["سردسیر", "ییلاق", "تابستانگاه"]}
 {"w": "uplift", "pos": "verb", "fa": ["متعال ساختن"]}
 {"w": "upload", "pos": "noun", "fa": ["بارگذاری"]}
@@ -11352,6 +11767,7 @@
 {"w": "variety", "pos": "noun", "fa": ["اختلاف"]}
 {"w": "variolation", "pos": "noun", "fa": ["آبلهکوبی"]}
 {"w": "various", "pos": "adjective", "fa": ["مختلف"]}
+{"w": "variously", "pos": "adverb", "fa": ["بهطور متفاوت"]}
 {"w": "varnish", "pos": "noun", "fa": ["ورنی"]}
 {"w": "vascular", "pos": "adjective", "fa": ["آوندی", "رگی", "عروقی"]}
 {"w": "vasculature", "pos": "noun", "fa": ["آوندآرایی", "رگارایی"]}
@@ -11416,6 +11832,7 @@
 {"w": "viaduct", "pos": "noun", "fa": ["ویادوک"]}
 {"w": "vial", "pos": "noun", "fa": ["ویال"]}
 {"w": "vice", "pos": "noun", "fa": ["رذیلت"]}
+{"w": "vice versa", "pos": "adverb", "fa": ["برعکس", "بالعکس", "برخلاف"]}
 {"w": "victim", "pos": "noun", "fa": ["قربانی", "ضحیه"]}
 {"w": "victorious", "pos": "adjective", "fa": ["پیروز", "چیره"]}
 {"w": "victory", "pos": "noun", "fa": ["پیروزی", "غلبه", "نصر", "ظفر", "فتح"]}
@@ -11517,6 +11934,7 @@
 {"w": "wait", "pos": "verb", "fa": ["منتظر شدن", "منتظر بودن", "صبر کردن", "انتظار داشتن", "وایسادن"]}
 {"w": "waiter", "pos": "noun", "fa": ["پیشخدمت", "گارسون"]}
 {"w": "waitress", "pos": "noun", "fa": ["پیشخدمت"]}
+{"w": "wake up", "pos": "verb", "fa": ["بیدار شدن"]}
 {"w": "walima", "pos": "noun", "fa": ["ولیمه"]}
 {"w": "walk", "pos": "noun", "fa": ["پیادهروی", "گردش", "سیر"]}
 {"w": "walk", "pos": "verb", "fa": ["راه رفتن", "پیاده رفتن", "راه بردن"]}
@@ -11574,6 +11992,7 @@
 {"w": "watchlist", "pos": "noun", "fa": ["فهرست پیگیری"]}
 {"w": "watchman", "pos": "noun", "fa": ["نگهبان", "پاسدار"]}
 {"w": "water", "pos": "noun", "fa": ["آب", "او"]}
+{"w": "water down", "pos": "verb", "fa": ["رقیق کردن"]}
 {"w": "watercress", "pos": "noun", "fa": ["ترتیزک", "شاهی", "آبتره"]}
 {"w": "waterfall", "pos": "noun", "fa": ["آبشار", "فوران"]}
 {"w": "watermelon", "pos": "noun", "fa": ["هندوانه", "تربز", "خربز", "خربزه"]}
@@ -11638,6 +12057,7 @@
 {"w": "well", "pos": "adverb", "fa": ["خوب", "بخوبی"]}
 {"w": "well", "pos": "interjection", "fa": ["خب"]}
 {"w": "well", "pos": "noun", "fa": ["چاه"]}
+{"w": "well done", "pos": "interjection", "fa": ["آفرین", "شاباش"]}
 {"w": "well-being", "pos": "noun", "fa": ["بهبود"]}
 {"w": "well-meant", "pos": "adjective", "fa": ["خوش نیت"]}
 {"w": "well-rounded", "pos": "adjective", "fa": ["همهفنحریف"]}
@@ -11661,6 +12081,20 @@
 {"w": "wharf", "pos": "noun", "fa": ["اسکله", "بارانداز"]}
 {"w": "what", "pos": "determiner", "fa": ["چه"]}
 {"w": "what", "pos": "pronoun", "fa": ["چه", "چی", "آنچه", "که"]}
+{"w": "what a pity", "pos": "phrase", "fa": ["چه حیف", "حیف شد"]}
+{"w": "what are you doing", "pos": "phrase", "fa": ["چه کار میکنید؟", "چه کار میکنی؟"]}
+{"w": "what do you mean", "pos": "phrase", "fa": ["منظورت چیست؟"]}
+{"w": "what is that", "pos": "phrase", "fa": ["این چیه؟", "این چیست؟"]}
+{"w": "what is your name", "pos": "phrase", "fa": ["اسم شما چیست؟", "اسمت چیه؟"]}
+{"w": "what number", "pos": "adverb", "fa": ["چندمین"]}
+{"w": "what the hell", "pos": "phrase", "fa": ["چه مرگته؟", "چه مرضته؟"]}
+{"w": "what time is it", "pos": "phrase", "fa": ["ساعت چند است؟", "ساعت چنده؟"]}
+{"w": "what would you like", "pos": "phrase", "fa": ["چه میخواهید؟"]}
+{"w": "what's new", "pos": "phrase", "fa": ["چه خبر؟"]}
+{"w": "what's the matter", "pos": "phrase", "fa": ["چی شده؟"]}
+{"w": "what's up", "pos": "phrase", "fa": ["چه خبر؟"]}
+{"w": "what's your job", "pos": "phrase", "fa": ["شغل شما چیست؟", "شغلت چیست؟"]}
+{"w": "what's your phone number", "pos": "phrase", "fa": ["شماره تلفن شما چیست؟"]}
 {"w": "whataboutism", "pos": "noun", "fa": ["پسچهایسم"]}
 {"w": "wheat", "pos": "noun", "fa": ["گندم", "گندمی"]}
 {"w": "wheel", "pos": "noun", "fa": ["چرخ"]}
@@ -11670,12 +12104,18 @@
 {"w": "when", "pos": "adverb", "fa": ["کی"]}
 {"w": "when", "pos": "conjunction", "fa": ["وقتی", "وقتی که", "زمانی که", "در زمان", "به هنگام"]}
 {"w": "where", "pos": "adverb", "fa": ["کجا", "کو"]}
+{"w": "where are we", "pos": "phrase", "fa": ["کجاییم؟", "کجا هستیم؟"]}
+{"w": "where are you", "pos": "phrase", "fa": ["شما کجا هستید؟", "کجایین؟", "تو کجایی؟"]}
+{"w": "where are you from", "pos": "phrase", "fa": ["اهل کجایید؟", "اهل کجا هستید؟", "شما کجایی هستید؟"]}
+{"w": "where do you live", "pos": "phrase", "fa": ["کجا زندگی میکنید؟", "کجا زندگی میکنی؟"]}
+{"w": "where is the toilet", "pos": "phrase", "fa": ["دستشویی کجاست؟", "توالت کجاست؟"]}
 {"w": "wherefrom", "pos": "adverb", "fa": ["از آن"]}
 {"w": "whether", "pos": "conjunction", "fa": ["آیا"]}
 {"w": "whetstone", "pos": "noun", "fa": ["افسان", "فسان", "سان"]}
 {"w": "whey", "pos": "noun", "fa": ["آبپنیر", "پنیرآب"]}
 {"w": "which", "pos": "determiner", "fa": ["کدام", "کدوم", "که"]}
 {"w": "which", "pos": "pronoun", "fa": ["کدام", "که", "-ی که"]}
+{"w": "which line goes to", "pos": "phrase", "fa": ["کدام خط به ایستگاه [فلان] میرود؟"]}
 {"w": "while", "pos": "conjunction", "fa": ["هنگامی که", "مادامی که"]}
 {"w": "whim", "pos": "noun", "fa": ["ویر"]}
 {"w": "whimper", "pos": "noun", "fa": ["زنویه"]}
@@ -11696,12 +12136,14 @@
 {"w": "whiteboard", "pos": "noun", "fa": ["تخته سفید", "تختهسفید", "وایتبرد"]}
 {"w": "whitetop", "pos": "noun", "fa": ["برغست"]}
 {"w": "who", "pos": "pronoun", "fa": ["کی", "که"]}
+{"w": "who are you", "pos": "phrase", "fa": ["شما کی اید؟", "شما کی هستید؟", "تو کی ای؟ تو کی هستی؟"]}
 {"w": "whole", "pos": "adjective", "fa": ["تمام", "سراسر"]}
 {"w": "wholegrain", "pos": "noun", "fa": ["غله کامل", "غله سبوسدار"]}
 {"w": "wholesale", "pos": "noun", "fa": ["عمدهفروشی"]}
 {"w": "whore", "pos": "noun", "fa": ["جنده", "فاحشه"]}
 {"w": "whorl", "pos": "noun", "fa": ["پیچاپیچ"]}
 {"w": "why", "pos": "adverb", "fa": ["چرا", "برای چی", "برای چه"]}
+{"w": "why not", "pos": "adverb", "fa": ["چرا", "چرا که نه؟"]}
 {"w": "wi-fi", "pos": "noun", "fa": ["وای-فای"]}
 {"w": "wick", "pos": "noun", "fa": ["فتیله", "پلیته"]}
 {"w": "wicked", "pos": "adjective", "fa": ["شرور"]}
@@ -11720,6 +12162,7 @@
 {"w": "wildfire", "pos": "noun", "fa": ["آتشسوزی"]}
 {"w": "will", "pos": "noun", "fa": ["آرزو", "خواسته", "اختیار"]}
 {"w": "will", "pos": "verb", "fa": ["خواستن"]}
+{"w": "will you marry me", "pos": "phrase", "fa": ["آیا با من ازدواج میکنی؟"]}
 {"w": "willow", "pos": "noun", "fa": ["بید"]}
 {"w": "willpower", "pos": "noun", "fa": ["عزم راسخ"]}
 {"w": "wilt", "pos": "verb", "fa": ["پلاسیدن"]}
@@ -11745,6 +12188,7 @@
 {"w": "winter", "pos": "noun", "fa": ["زمستان"]}
 {"w": "wintry", "pos": "adjective", "fa": ["زمستانی"]}
 {"w": "wipe", "pos": "verb", "fa": ["پاک کردن", "ستردن"]}
+{"w": "wipe out", "pos": "verb", "fa": ["محویدن"]}
 {"w": "wire", "pos": "noun", "fa": ["سیم"]}
 {"w": "wisdom", "pos": "noun", "fa": ["خردمندی", "خرد", "حکمت"]}
 {"w": "wise", "pos": "adjective", "fa": ["دانا", "خردمند", "زنیر"]}
@@ -11765,6 +12209,7 @@
 {"w": "woad", "pos": "noun", "fa": ["وسمه", "کتم", "برگ نیل"]}
 {"w": "wobble", "pos": "noun", "fa": ["لمبر"]}
 {"w": "woe", "pos": "interjection", "fa": ["وای"]}
+{"w": "woe is me", "pos": "interjection", "fa": ["وای من"]}
 {"w": "wolf", "pos": "noun", "fa": ["گرگ"]}
 {"w": "wolverine", "pos": "noun", "fa": ["ولورین"]}
 {"w": "woman", "pos": "noun", "fa": ["زن", "خانم", "ضعیفه"]}
@@ -11814,6 +12259,7 @@
 {"w": "wounded", "pos": "adjective", "fa": ["مجروح"]}
 {"w": "wow", "pos": "interjection", "fa": ["وه", "به", "واه", "وا"]}
 {"w": "wrap", "pos": "verb", "fa": ["بستهبندی کردن", "پیچیدن"]}
+{"w": "wrap up", "pos": "verb", "fa": ["پوشاندن", "جمع کردن", "جمعبندی کردن"]}
 {"w": "wrath", "pos": "noun", "fa": ["غضب", "غیظ", "قهر", "طیش", "وروت"]}
 {"w": "wreath", "pos": "noun", "fa": ["حلقه", "بساک", "حلقه گل", "تاج گل"]}
 {"w": "wrecker", "pos": "noun", "fa": ["مخرب", "خرابکار"]}
@@ -11885,6 +12331,7 @@
 {"w": "yolk", "pos": "noun", "fa": ["زرده"]}
 {"w": "yoni", "pos": "noun", "fa": ["یونی"]}
 {"w": "you", "pos": "pronoun", "fa": ["شما را", "تو را", "ترا", "شما", "شماها"]}
+{"w": "you're welcome", "pos": "phrase", "fa": ["خواهش میکنم", "قابل نداشت", "قابلی نداشت", "قابلی ندارد", "قابل نداره"]}
 {"w": "young", "pos": "adjective", "fa": ["جوان", "بچه"]}
 {"w": "youngster", "pos": "noun", "fa": ["جوانک", "نوباوه"]}
 {"w": "your", "pos": "determiner", "fa": ["ت", "تو"]}

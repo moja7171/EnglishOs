@@ -8,7 +8,7 @@ use RuntimeException;
  * The dictionary's second opinion: asks Gemini for the meanings and the
  * Persian translation of one word when Wiktionary cannot be reached
  * or has no entry for the form that was tapped (a plural, "overslept",
- * "running"). Slower and quota-bound compared with the dictionary, so
+ * "running"), and for the Persian of a phrase it does not list. Slower and quota-bound compared with the dictionary, so
  * WordLookup only turns to it then, and caches what it says like any other
  * answer. Returns the same meanings shape as WiktionaryClient.
  */
@@ -64,14 +64,15 @@ class GeminiWordDefiner
 
         $raw = $this->gemini->chat(
             [['role' => 'user', 'text' => "Word: {$word}\n".($senses !== '' ? "English senses:\n{$senses}" : '')]],
-            systemPrompt: 'You translate English dictionary words into natural Persian for Persian-speaking English learners. '
-                .'The user sends one English word and, usually, its English senses grouped by part of speech. Reply with ONLY '
+            systemPrompt: 'You translate English dictionary words and phrases into natural Persian for Persian-speaking English learners. '
+                .'The user sends one English word or fixed phrase (a phrasal verb such as "give up", an idiom) and, usually, its '
+                .'English senses grouped by part of speech. Reply with ONLY '
                 .'valid JSON, no markdown fences, shaped exactly like: {"persian": [{"pos": "verb", "words": "..."}]}. '
                 .'Give one entry per part of speech listed (at most '.self::MAX_MEANINGS.'), most common first. "words" is '
                 .'one to three common Persian equivalents of the word in that part of speech, in Persian script, separated '
                 .'by "، " — the everyday words an educated speaker would use, not transliterations and not explanations. '
                 .'If the word is an inflected form (a plural, a past tense, an -ing form), translate the form as written. '
-                .'If the text is not an English word, reply {"persian": []}.',
+                .'If the text is not an English word or phrase, reply {"persian": []}.',
         );
 
         $data = json_decode($this->withoutCodeFence($raw), true);
@@ -90,6 +91,35 @@ class GeminiWordDefiner
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * The Persian of an English phrase the dictionary does not list ("went
+     * to the shop"), as it is meant in $sentence — the one line the sheet
+     * shows for it. null when Gemini says it is not English.
+     *
+     * @throws RuntimeException when Gemini cannot be reached or answers with something that is not the agreed JSON
+     */
+    public function translatePhrase(string $phrase, ?string $sentence = null): ?string
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "Phrase: {$phrase}".(filled($sentence) ? "\nSentence: {$sentence}" : '')]],
+            systemPrompt: 'You translate short English phrases into natural Persian for Persian-speaking English learners at A2-B1 level. '
+                .'The user sends a phrase and, usually, the sentence it comes from. Translate ONLY the phrase, with the meaning it '
+                .'has in that sentence, the way an educated Persian speaker would say it — not word by word, not a transliteration, '
+                .'no explanation. Reply with ONLY valid JSON, no markdown fences, shaped exactly like: {"translation_fa": "..."}. '
+                .'If the phrase is not English, reply {"translation_fa": null}.',
+        );
+
+        $data = json_decode($this->withoutCodeFence($raw), true);
+
+        if (! is_array($data) || ! array_key_exists('translation_fa', $data)) {
+            throw new RuntimeException('Unexpected phrase-translation format from Gemini.');
+        }
+
+        $translation = is_string($data['translation_fa']) ? trim($data['translation_fa']) : '';
+
+        return preg_match('/\p{Arabic}/u', $translation) === 1 ? mb_substr($translation, 0, 120) : null;
     }
 
     private function systemPrompt(): string
