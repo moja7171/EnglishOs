@@ -30,6 +30,8 @@ class DictionarySheetTest extends TestCase
             ->assertSee('keydown.escape.window.capture', false)
             ->assertSee('x-back-close=', false)
             ->assertSee('Other meanings (', false)
+            ->assertSee('pick(chip.index)', false)
+            ->assertSee('usePhrase()', false)
             ->assertSee(addcslashes(route('dictionary.persian'), '/'), false);
     }
 

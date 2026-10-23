@@ -463,6 +463,7 @@ document.addEventListener('livewire:init', () => {
     Livewire.on('clear-draft', ({ prefix }) => window.eosDraft.clearPrefix(prefix));
 
     window.eosProgress.attach();
+    window.eosConnectionNotice.attach();
 
     // Livewire's morph copies every attribute of the freshly-rendered
     // server HTML onto the live element — x-cloak included, because
@@ -562,6 +563,69 @@ window.eosProgress = {
         el.style.width = '100%';
         el.style.opacity = '0';
         this.hideTimer = setTimeout(() => { el.style.width = '0'; }, 500);
+    },
+};
+
+/**
+ * When the shared host is overloaded (LiteSpeed answers 502/503/504) or
+ * the learner's connection drops mid-request, Livewire's default is to
+ * paint the server's raw error page over the whole app in a modal — on a
+ * phone with a weak signal that was a full-screen "503 Service
+ * Unavailable" with nothing to do but close it, and a dropped connection
+ * showed nothing at all. Instead: one short line at the top that fades by
+ * itself. A widget with its own inline message for the same failure (the
+ * voice recorder) calls skip() so the learner isn't told twice. Every
+ * other status (419 page expired, a 500's debug page locally) keeps
+ * Livewire's own handling.
+ */
+window.eosConnectionNotice = {
+    element: null,
+    pendingTimer: null,
+    hideTimer: null,
+
+    attach() {
+        if (typeof Livewire === 'undefined' || !Livewire.interceptRequest) return;
+
+        Livewire.interceptRequest(({ onError, onFailure }) => {
+            onError(({ response, preventDefault }) => {
+                if (![502, 503, 504].includes(response.status)) return;
+                preventDefault();
+                this.queue();
+            });
+            onFailure(() => this.queue());
+        });
+    },
+
+    // Deferred a tick: Livewire runs a component's own handlers for the
+    // same failure right after this one, and they may still call skip().
+    queue() {
+        clearTimeout(this.pendingTimer);
+        this.pendingTimer = setTimeout(() => this.show(), 0);
+    },
+
+    skip() {
+        clearTimeout(this.pendingTimer);
+    },
+
+    show() {
+        // isConnected: a wire:navigate page swap replaces <body>.
+        if (!this.element || !this.element.isConnected) {
+            const el = document.createElement('div');
+            el.setAttribute('role', 'status');
+            el.style.cssText = [
+                'position:fixed', 'top:12px', 'left:50%', 'transform:translateX(-50%)',
+                'max-width:calc(100% - 32px)', 'padding:8px 16px', 'border-radius:9999px',
+                'background:var(--color-ink, #1d1b3a)', 'color:var(--color-ground, #f6f5fb)',
+                'font-size:14px', 'z-index:10001', 'pointer-events:none',
+                'opacity:0', 'transition:opacity 200ms ease-in',
+            ].join(';');
+            el.textContent = 'Connection problem. Please try again.';
+            document.body.appendChild(el);
+            this.element = el;
+        }
+        clearTimeout(this.hideTimer);
+        this.element.style.opacity = '1';
+        this.hideTimer = setTimeout(() => { this.element.style.opacity = '0'; }, 4000);
     },
 };
 
@@ -1173,10 +1237,17 @@ window.eosLookup = {
 
         if (!landedOnWord) return null;
 
-        return { word, sentence: this.sentenceAround(node, start), range };
+        const around = this.sentenceAround(node, start);
+
+        return { word, sentence: around.sentence, range, context: around.context };
     },
 
-    /** The sentence of the nearest block that holds the word at `start` in `node`. */
+    /**
+     * The sentence of the nearest block that holds the word at `start` in
+     * `node`, and its words with where each one sits in the block — so the
+     * sheet can let the learner widen the tapped word into a phrase and
+     * mark that phrase in the text (see rangeIn()).
+     */
     sentenceAround(node, start) {
         const block = node.parentElement.closest('p, li, blockquote, h1, h2, h3, h4') || node.parentElement;
         const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
@@ -1192,7 +1263,45 @@ window.eosLookup = {
         const tail = /[.!?…]["”’')\]]*(?=\s|$)/.exec(full.slice(index));
         const to = tail ? index + tail.index + tail[0].length : full.length;
 
-        return full.slice(from, to).replace(/\s+/g, ' ').trim().slice(0, 300);
+        const tokens = Array.from(full.slice(from, to).matchAll(/[A-Za-z]+(?:['’-][A-Za-z]+)*/g), (match) => ({
+            text: match[0],
+            start: from + match.index,
+            end: from + match.index + match[0].length,
+        }));
+        const tapped = tokens.findIndex((token) => token.start <= index && index < token.end);
+
+        return {
+            sentence: full.slice(from, to).replace(/\s+/g, ' ').trim().slice(0, 300),
+            context: tapped === -1 ? null : { block, tokens, index: tapped },
+        };
+    },
+
+    /** A range over the text of `block` from character `start` to `end`, across however many text nodes it holds. */
+    rangeIn(block, start, end) {
+        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+        const range = document.createRange();
+        let passed = 0;
+        let node;
+        let started = false;
+
+        while ((node = walker.nextNode())) {
+            const length = node.textContent.length;
+
+            if (!started && start < passed + length) {
+                range.setStart(node, start - passed);
+                started = true;
+            }
+
+            if (started && end <= passed + length) {
+                range.setEnd(node, end - passed);
+
+                return range;
+            }
+
+            passed += length;
+        }
+
+        return null;
     },
 
     open(detail) {
@@ -1232,6 +1341,12 @@ document.addEventListener('alpine:init', () => {
      * pauses whatever audio or video is playing and resumes it on close.
      * Late answers for a word the learner has already moved on from are
      * dropped (`ticket`).
+     *
+     * The words of the sentence around the tapped one show as chips: a tap
+     * on a neighbour widens the lookup to a phrase ("gave" + "up"), a tap on
+     * an end word of the phrase drops it again. When the tapped word is part
+     * of a phrasal verb or fixed phrase the dictionary knows, that phrase is
+     * offered ready-made (`suggestion`).
      */
     Alpine.data('dictionarySheet', (urls) => ({
         isOpen: false,
@@ -1240,6 +1355,13 @@ document.addEventListener('alpine:init', () => {
         word: '',
         sentence: '',
         entry: null,
+        block: null,
+        tokens: [],
+        anchor: 0,
+        from: 0,
+        to: 0,
+        suggestion: null,
+        lookupTimer: null,
         saved: false,
         saving: false,
         addFailed: false,
@@ -1274,6 +1396,31 @@ document.addEventListener('alpine:init', () => {
             return this.current?.example || this.sentence;
         },
 
+        /** The words being looked up: the chosen chips, or the tapped word when there are none. */
+        get selectedText() {
+            return this.tokens.length
+                ? this.tokens.slice(this.from, this.to + 1).map((token) => token.text).join(' ')
+                : this.word;
+        },
+
+        /** The chips on show: the chosen words and up to four on each side of them. */
+        get chips() {
+            const first = Math.max(0, this.from - 4);
+            const last = Math.min(this.tokens.length - 1, this.to + 4);
+
+            return this.tokens.slice(first, last + 1).map((token, offset) => ({ ...token, index: first + offset }));
+        },
+
+        /** The suggested phrase, unless it is the one already on show. */
+        get offeredPhrase() {
+            if (!this.suggestion) return null;
+
+            const from = this.anchor + this.suggestion.from;
+            const to = this.anchor + this.suggestion.to;
+
+            return from === this.from && to === this.to ? null : this.suggestion;
+        },
+
         /** The Persian lines to show: one per part of speech once Gemini has answered, else the quick translation. */
         get persianLines() {
             if (this.entry?.persian_senses?.length) {
@@ -1296,6 +1443,7 @@ document.addEventListener('alpine:init', () => {
             conjunction: 'حرف ربط',
             interjection: 'شبه‌جمله',
             determiner: 'حرف تعریف',
+            phrase: 'عبارت',
         },
 
         firstClause(text) {
@@ -1304,11 +1452,89 @@ document.addEventListener('alpine:init', () => {
             return head.length >= 12 ? head : text;
         },
 
-        async show({ word, sentence, range }) {
-            const ticket = ++this.ticket;
-
+        show({ word, sentence, range, context }) {
             this.word = word;
             this.sentence = sentence ?? '';
+            this.block = context?.block ?? null;
+            this.tokens = context?.tokens ?? [];
+            this.anchor = context?.index ?? 0;
+            this.from = this.anchor;
+            this.to = this.anchor;
+            this.suggestion = null;
+            this.isOpen = true;
+
+            this.pauseMedia();
+            this.lookup(range);
+        },
+
+        /**
+         * A tap on a chip: a word outside the phrase widens it up to that word
+         * (at most six words), an end word of the phrase drops off, and a
+         * word in its middle becomes the only word. Looked up after a short
+         * pause, so tapping a few chips in a row asks only once.
+         */
+        pick(index) {
+            if (index < this.from || index > this.to) {
+                const from = Math.min(this.from, index);
+                const to = Math.max(this.to, index);
+
+                if (to - from + 1 > 6) return;
+
+                this.from = from;
+                this.to = to;
+            } else if (this.from === this.to) {
+                return;
+            } else if (index === this.from) {
+                this.from++;
+            } else if (index === this.to) {
+                this.to--;
+            } else {
+                this.from = index;
+                this.to = index;
+            }
+
+            this.lookupSoon();
+        },
+
+        usePhrase() {
+            if (!this.suggestion) return;
+
+            this.from = this.anchor + this.suggestion.from;
+            this.to = this.anchor + this.suggestion.to;
+            this.lookup();
+        },
+
+        lookupSoon() {
+            this.ticket++;
+            this.loading = true;
+            this.entry = null;
+            this.markSelection();
+            clearTimeout(this.lookupTimer);
+            this.lookupTimer = setTimeout(() => this.lookup(), 350);
+        },
+
+        markSelection(range = null) {
+            if (!window.CSS?.highlights || !window.Highlight) return;
+
+            const marked = range ?? (this.block && this.tokens.length
+                ? window.eosLookup.rangeIn(this.block, this.tokens[this.from].start, this.tokens[this.to].end)
+                : null);
+
+            if (marked) CSS.highlights.set('eos-lookup', new Highlight(marked));
+        },
+
+        async lookup(range = null) {
+            clearTimeout(this.lookupTimer);
+
+            const ticket = ++this.ticket;
+            const single = this.from === this.to;
+            const params = new URLSearchParams({ word: this.selectedText, sentence: this.sentence });
+
+            if (single && this.tokens.length) {
+                params.set('before', this.tokens.slice(Math.max(0, this.from - 3), this.from).map((token) => token.text).join(' '));
+                params.set('after', this.tokens.slice(this.to + 1, this.to + 4).map((token) => token.text).join(' '));
+            }
+
             this.entry = null;
             this.saved = false;
             this.failed = false;
@@ -1316,15 +1542,10 @@ document.addEventListener('alpine:init', () => {
             this.chosen = 0;
             this.showOthers = false;
             this.loading = true;
-            this.isOpen = true;
-
-            this.pauseMedia();
-            if (range && window.CSS?.highlights && window.Highlight) {
-                CSS.highlights.set('eos-lookup', new Highlight(range));
-            }
+            this.markSelection(range);
 
             try {
-                const response = await fetch(`${urls.lookup}?word=${encodeURIComponent(word)}`, {
+                const response = await fetch(`${urls.lookup}?${params}`, {
                     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin',
                 });
@@ -1338,7 +1559,11 @@ document.addEventListener('alpine:init', () => {
                 this.saved = json.saved;
                 this.word = json.data.word;
 
-                if (json.data.english_status !== 'unavailable' && ! json.data.persian_senses) {
+                if (single && this.from === this.anchor) {
+                    this.suggestion = json.phrase ?? null;
+                }
+
+                if (json.data.english_status !== 'unavailable' && ! json.data.persian_senses && ! json.data.translation_only) {
                     this.improvePersian(ticket);
                 }
             } catch (error) {
@@ -1375,6 +1600,7 @@ document.addEventListener('alpine:init', () => {
         close() {
             this.isOpen = false;
             this.ticket++;
+            clearTimeout(this.lookupTimer);
             window.CSS?.highlights?.delete('eos-lookup');
             this.pausedMedia.forEach((media) => media.play().catch(() => {}));
             this.pausedMedia = [];

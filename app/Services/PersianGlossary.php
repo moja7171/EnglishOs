@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\PersianGloss;
+use App\Models\PhraseForm;
 use Illuminate\Support\Collection;
 
 /**
@@ -14,7 +15,8 @@ use Illuminate\Support\Collection;
  * A tapped word is often not a headword — "overslept", "running",
  * "colleagues" — so it is also tried as the word it is a form of: the one
  * Wiktionary's own definition names ("past tense of oversleep"), or else a
- * plain stripping of -s, -ed and -ing.
+ * plain stripping of -s, -ed and -ing. A phrase is tried as its base form
+ * instead ("gave up" as "give up", see PhraseForm).
  */
 class PersianGlossary
 {
@@ -25,7 +27,7 @@ class PersianGlossary
     /** Parts of speech with no English meaning to follow are listed in this order. */
     private const POS_ORDER = ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection', 'determiner', 'numeral'];
 
-    private const FORM_OF = '/\b(?:past tense|past participle|present participle|gerund|plural|third-person singular|simple past|comparative|superlative|alternative form|alternative spelling|misspelling)\b[^.;]*?\bof\s+([a-z][a-z\'-]*)/i';
+    private const FORM_OF = '/\b(?:past tense|past participle|present participle|gerund|plural|third-person singular|simple past|comparative|superlative|alternative form|alternative spelling|misspelling)\b[^.;]*?\bof\s+([a-z][a-z\'-]*%s)/i';
 
     /**
      * The Persian words for each part of speech the word can be, in the
@@ -56,13 +58,23 @@ class PersianGlossary
     private function candidates(string $word, array $meanings): array
     {
         $candidates = [$word];
+        $isPhrase = WordLookup::isPhrase($word);
+
+        // "simple past of give up" names as many words as the phrase has.
+        $formOf = sprintf(self::FORM_OF, $isPhrase ? '(?:\s[a-z][a-z\'-]*){0,'.substr_count($word, ' ').'}' : '');
 
         foreach ($meanings as $group) {
             foreach ($group['definitions'] as $definition) {
-                if (preg_match(self::FORM_OF, $definition['definition'], $found) === 1) {
+                if (preg_match($formOf, $definition['definition'], $found) === 1) {
                     $candidates[] = mb_strtolower($found[1]);
                 }
             }
+        }
+
+        if ($isPhrase) {
+            $candidates[] = PhraseForm::baseOf($word);
+
+            return array_values(array_unique(array_filter($candidates)));
         }
 
         if (str_ends_with($word, 'ies')) {

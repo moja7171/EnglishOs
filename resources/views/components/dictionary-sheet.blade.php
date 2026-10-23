@@ -4,7 +4,10 @@
     directive 'lookup' and Alpine.data('dictionarySheet') in
     resources/js/app.js). It shows the Persian and English meanings of the
     word and lets the learner keep the meaning that fits the sentence they
-    met it in by adding it to My Words.
+    met it in by adding it to My Words. The words around it show as chips,
+    so a tap on a neighbour widens it into a phrase ("gave up"), and a
+    phrasal verb the tapped word is part of is offered ready-made; a phrase
+    the dictionary does not list shows only its Persian.
 
     Lives in the layout, outside every Livewire component on purpose: a
     lookup is a plain fetch to route('dictionary.lookup'), so it never
@@ -49,7 +52,7 @@
 
         <div class="space-y-4 p-4 sm:p-5">
             <div class="flex items-start justify-between gap-3">
-                <p class="font-display min-w-0 text-2xl font-extrabold break-words text-ink dark:text-ink-dark" x-text="word"></p>
+                <p class="font-display min-w-0 text-2xl font-extrabold break-words text-ink dark:text-ink-dark" x-text="loading ? selectedText : word"></p>
 
                 <div class="flex shrink-0 items-center gap-1">
                     <button
@@ -73,6 +76,37 @@
                 </div>
             </div>
 
+            <div x-show="tokens.length > 1" x-cloak class="-mt-2 flex flex-wrap items-center gap-1.5" dir="ltr">
+                <span x-show="chips.length && chips[0].index > 0" class="text-sm text-ink-faint dark:text-ink-faint-dark" aria-hidden="true">…</span>
+                <template x-for="chip in chips" :key="chip.index">
+                    <button
+                        type="button"
+                        x-on:click="pick(chip.index)"
+                        x-text="chip.text"
+                        x-bind:aria-pressed="chip.index >= from && chip.index <= to"
+                        class="cursor-pointer rounded-full border px-2.5 py-1 text-sm transition-colors"
+                        x-bind:class="chip.index >= from && chip.index <= to
+                            ? 'border-accent bg-accent font-semibold text-white dark:border-accent-dark dark:bg-accent-dark'
+                            : 'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark'"
+                    ></button>
+                </template>
+                <span x-show="chips.length && chips[chips.length - 1].index < tokens.length - 1" class="text-sm text-ink-faint dark:text-ink-faint-dark" aria-hidden="true">…</span>
+            </div>
+
+            <button
+                type="button"
+                x-show="offeredPhrase"
+                x-cloak
+                x-on:click="usePhrase()"
+                class="flex w-full cursor-pointer items-center gap-2 rounded-xl border border-accent/40 bg-accent-soft px-3 py-2 text-left text-accent-ink transition-colors hover:border-accent dark:border-accent-dark/40 dark:bg-accent-soft-dark dark:text-accent-ink-dark"
+            >
+                @svg('heroicon-o-sparkles', 'h-4 w-4 shrink-0')
+                <span class="font-semibold" x-text="offeredPhrase?.phrase"></span>
+                <span x-show="offeredPhrase?.translation_fa" class="opacity-60" aria-hidden="true">·</span>
+                <span x-show="offeredPhrase?.translation_fa" class="font-fa min-w-0 truncate" dir="rtl" x-text="offeredPhrase?.translation_fa"></span>
+                <span class="ml-auto shrink-0">@svg('heroicon-o-chevron-right', 'h-4 w-4')</span>
+            </button>
+
             <div x-show="loading" x-cloak class="animate-pulse space-y-2" aria-live="polite">
                 <div class="h-6 w-1/3 rounded bg-surface-sunken dark:bg-surface-sunken-dark"></div>
                 <div class="h-4 w-full rounded bg-surface-sunken dark:bg-surface-sunken-dark"></div>
@@ -83,7 +117,7 @@
                 <p>The dictionary could not be reached. Check your connection and try again.</p>
                 <button
                     type="button"
-                    x-on:click="show({ word, sentence })"
+                    x-on:click="lookup()"
                     class="cursor-pointer rounded-full border border-danger-line px-3 py-1 text-xs font-semibold transition-colors hover:bg-white/60"
                 >Try again</button>
             </div>
@@ -111,17 +145,20 @@
                         <p class="text-base text-ink dark:text-ink-dark" x-text="current?.definition"></p>
                     </div>
 
-                    <p x-show="example" class="border-l-2 border-accent pl-3 text-sm text-ink-soft italic dark:border-accent-dark dark:text-ink-soft-dark" x-text="example"></p>
+                    <p x-show="example && ! entry.translation_only" class="border-l-2 border-accent pl-3 text-sm text-ink-soft italic dark:border-accent-dark dark:text-ink-soft-dark" x-text="example"></p>
 
                     <div x-show="entry.english_status === 'unavailable'" class="space-y-2 rounded-xl bg-warning-soft p-3 text-sm text-warning-ink" role="status">
                         <p>The English meaning could not be loaded right now.</p>
                         <button
                             type="button"
-                            x-on:click="show({ word, sentence })"
+                            x-on:click="lookup()"
                             class="cursor-pointer rounded-full border border-warning-line px-3 py-1 text-xs font-semibold transition-colors hover:bg-white/60"
                         >Try again</button>
                     </div>
-                    <p x-show="entry.english_status === 'unknown'" class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                    <p x-show="entry.translation_only && ! persianLines.length" class="text-sm text-ink-soft dark:text-ink-soft-dark">
+                        No translation right now. Try again in a moment.
+                    </p>
+                    <p x-show="entry.english_status === 'unknown' && ! entry.translation_only" class="text-sm text-ink-soft dark:text-ink-soft-dark">
                         The dictionary has no entry for this exact form. If it is a plural or a past form, tap the base word instead.
                     </p>
 
@@ -153,7 +190,7 @@
                 </div>
             </template>
 
-            <div x-show="entry" x-cloak class="space-y-2">
+            <div x-show="entry && ! entry.translation_only" x-cloak class="space-y-2">
                 <button
                     type="button"
                     x-on:click="add()"

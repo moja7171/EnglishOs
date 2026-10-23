@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\DictionaryEntry;
+use App\Models\PhraseForm;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -10,11 +11,16 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * What the tap-a-word sheet shows for one word: the English meanings
- * (WiktionaryClient) and the Persian ones — from the offline dictionary
- * (PersianGlossary) when it has the word, else MyMemoryClient and later
- * Gemini. Outside services are asked once per word for every learner and
- * the answer is kept in dictionary_entries.
+ * What the tap-a-word sheet shows for one word or phrase: the English
+ * meanings (WiktionaryClient) and the Persian ones — from the offline
+ * dictionary (PersianGlossary) when it has the word, else MyMemoryClient
+ * and later Gemini. Outside services are asked once per word for every
+ * learner and the answer is kept in dictionary_entries.
+ *
+ * A phrase is looked up under its base form ("gave up" as "give up", see
+ * PhraseForm). One the dictionary does not list ("went to the shop") is not
+ * a dictionary entry, so it only gets a Persian translation of the phrase
+ * as used in its sentence (Gemini, else MyMemory) and no English meanings.
  *
  * Fails soft in both directions: a source that cannot be reached leaves
  * its half of the entry empty rather than failing the lookup, and a gap
@@ -27,6 +33,11 @@ class WordLookup
     /** Longest word the sheet looks up — keeps a stray long selection out of the services. */
     private const MAX_LENGTH = 40;
 
+    /** Longest phrase the sheet looks up, in words and in letters. */
+    public const MAX_PHRASE_WORDS = 6;
+
+    private const MAX_PHRASE_LENGTH = 60;
+
     /** How long a missing Persian translation waits before the next tap asks again. */
     private const TRANSLATION_RETRY_SECONDS = 600;
 
@@ -38,11 +49,43 @@ class WordLookup
     ) {}
 
     /**
-     * The word as it is looked up and stored: lower-cased, without the
-     * punctuation or quotes around it. null for anything that is not one
-     * plain English word (a phrase, a number, text in another script).
+     * The word or phrase as it is looked up and stored: lower-cased, without
+     * the punctuation or quotes around it, its words one space apart. null
+     * for anything else (a number, text in another script, more than
+     * MAX_PHRASE_WORDS words).
      */
     public static function normalize(string $word): ?string
+    {
+        $words = preg_split('/\s+/u', trim($word), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if ($words === [] || count($words) > self::MAX_PHRASE_WORDS) {
+            return null;
+        }
+
+        $plain = [];
+
+        foreach ($words as $part) {
+            $part = self::normalizeWord($part);
+
+            if ($part === null) {
+                return null;
+            }
+
+            $plain[] = $part;
+        }
+
+        $phrase = implode(' ', $plain);
+
+        return count($plain) === 1 || mb_strlen($phrase) <= self::MAX_PHRASE_LENGTH ? $phrase : null;
+    }
+
+    /** Whether a normalized key is a phrase rather than one word. */
+    public static function isPhrase(string $key): bool
+    {
+        return str_contains($key, ' ');
+    }
+
+    private static function normalizeWord(string $word): ?string
     {
         $word = mb_strtolower(str_replace('’', "'", $word));
         $word = preg_replace('/^[^\p{L}]+|[^\p{L}]+$/u', '', $word) ?? '';
@@ -55,12 +98,13 @@ class WordLookup
     }
 
     /**
-     * null when $word is not a lookable word, or when neither source could
-     * be asked. Otherwise the entry — saved, except while the dictionary
-     * could not be reached (then it is only a transient one, so the next
-     * tap asks again).
+     * null when $word is not a lookable word or phrase, or when neither
+     * source could be asked. Otherwise the entry — saved, except while the
+     * dictionary could not be reached (then it is only a transient one, so
+     * the next tap asks again). $sentence is where the learner met it, read
+     * only to translate a phrase the dictionary does not list.
      */
-    public function lookup(string $word): ?DictionaryEntry
+    public function lookup(string $word, ?string $sentence = null): ?DictionaryEntry
     {
         $key = self::normalize($word);
 
@@ -68,10 +112,14 @@ class WordLookup
             return null;
         }
 
+        if (self::isPhrase($key)) {
+            $key = PhraseForm::baseOf($key) ?? $key;
+        }
+
         $entry = DictionaryEntry::where('word', $key)->first();
 
         if ($entry === null) {
-            return $this->fetchNew($key);
+            return $this->fetchNew($key, $sentence);
         }
 
         if ($entry->translation_fa === null && Cache::add("dictionary-entry-translation-retry:{$key}", true, self::TRANSLATION_RETRY_SECONDS)) {
@@ -98,7 +146,7 @@ class WordLookup
      */
     public function improvePersian(DictionaryEntry $entry): DictionaryEntry
     {
-        if (! $entry->exists || $entry->persian_senses !== null) {
+        if (! $entry->exists || $entry->persian_senses !== null || $entry->isTranslationOnly()) {
             return $entry;
         }
 
@@ -134,7 +182,7 @@ class WordLookup
      * Persian, MyMemory at the same time — a first tap on a word costs the
      * slower answer, not their sum.
      */
-    private function fetchNew(string $key): ?DictionaryEntry
+    private function fetchNew(string $key, ?string $sentence): ?DictionaryEntry
     {
         $early = $this->glossary->senses($key);
 
@@ -168,8 +216,9 @@ class WordLookup
         }
 
         // The dictionary is down, or it does not list this form: ask Gemini
-        // for the meanings (and a Persian word if nothing else had one).
-        $second = $definition === null ? $this->askGemini($key) : null;
+        // for the meanings (and a Persian word if nothing else had one). Not
+        // for a phrase — one the dictionary does not list is not an entry.
+        $second = $definition === null && ! self::isPhrase($key) ? $this->askGemini($key) : null;
 
         if ($second !== null) {
             $definition = ['phonetic' => null, 'audio_url' => null, 'meanings' => $second['meanings']];
@@ -182,6 +231,16 @@ class WordLookup
         // only found once they say it is the past tense of "oversleep".
         $senses = $this->glossary->senses($key, $definition['meanings'] ?? []);
 
+        $translationSource = 'mymemory';
+
+        if (self::isPhrase($key) && $dictionaryAnswered && $definition === null && $senses === []) {
+            $inSentence = $this->translatePhrase($key, $sentence);
+
+            if ($inSentence !== null) {
+                [$translation, $translationSource] = [$inSentence, 'gemini'];
+            }
+        }
+
         if (! $dictionaryAnswered && $translation === null && $senses === []) {
             return null;
         }
@@ -193,7 +252,7 @@ class WordLookup
             'meanings' => $definition['meanings'] ?? [],
             'translation_fa' => $senses !== [] ? $senses[0]['words'] : $translation,
             'persian_senses' => $senses ?: null,
-            'persian_source' => $senses !== [] ? 'wiktionary' : ($translation !== null ? 'mymemory' : null),
+            'persian_source' => $senses !== [] ? 'wiktionary' : ($translation !== null ? $translationSource : null),
         ];
 
         return $dictionaryAnswered
@@ -215,6 +274,21 @@ class WordLookup
         }
 
         return $answer['meanings'] === [] ? null : $answer;
+    }
+
+    /**
+     * The Persian of a phrase the dictionary does not list, as it is meant
+     * in the sentence it was met in.
+     */
+    private function translatePhrase(string $key, ?string $sentence): ?string
+    {
+        try {
+            return $this->gemini->translatePhrase($key, $sentence);
+        } catch (Throwable $exception) {
+            Log::warning("Gemini phrase translation failed for \"{$key}\": {$exception->getMessage()}");
+
+            return null;
+        }
     }
 
     private function translate(string $key): ?string

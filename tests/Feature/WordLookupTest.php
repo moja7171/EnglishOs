@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\DictionaryEntry;
 use App\Models\PersianGloss;
+use App\Models\PhraseForm;
 use App\Services\WordLookup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -42,7 +43,9 @@ class WordLookupTest extends TestCase
             'quotes around it' => ['“Morning”', 'morning'],
             'a curly apostrophe inside' => ['don’t', "don't"],
             'a hyphenated word' => ['well-known', 'well-known'],
-            'a phrase' => ['get up', null],
+            'a phrase' => ['Get  up!', 'get up'],
+            'a phrase with a number in it' => ['get 2 up', null],
+            'more than six words' => ['one two three four five six seven', null],
             'a number' => ['2026', null],
             'another script' => ['خواب', null],
             'nothing but punctuation' => ['...', null],
@@ -51,7 +54,7 @@ class WordLookupTest extends TestCase
     }
 
     #[DataProvider('wordsAsTyped')]
-    public function test_it_normalizes_only_a_single_plain_english_word(string $typed, ?string $expected): void
+    public function test_it_normalizes_only_a_plain_english_word_or_phrase(string $typed, ?string $expected): void
     {
         $this->assertSame($expected, WordLookup::normalize($typed));
     }
@@ -96,14 +99,74 @@ class WordLookupTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_a_phrase_is_not_looked_up(): void
+    public function test_a_form_of_a_phrasal_verb_is_looked_up_under_its_base_form(): void
     {
+        PhraseForm::create(['form' => 'gave up', 'phrase' => 'give up']);
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/api/rest_v1/page/definition/give%20up' => Http::response(['en' => [
+                ['partOfSpeech' => 'Verb', 'definitions' => [['definition' => 'To stop doing something.']]],
+            ]]),
+            'api.mymemory.translated.net/get*' => Http::response(['responseStatus' => 200, 'matches' => [
+                ['segment' => 'give up', 'translation' => 'تسلیم شدن', 'match' => 0.9],
+            ]]),
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('Gave up');
+
+        $this->assertSame('give up', $entry->word);
+        $this->assertSame('To stop doing something.', $entry->meanings[0]['definitions'][0]['definition']);
+        $this->assertSame('تسلیم شدن', $entry->translation_fa);
+        $this->assertFalse($entry->isTranslationOnly());
+    }
+
+    public function test_a_phrase_the_dictionary_does_not_list_gets_only_a_translation_from_its_sentence(): void
+    {
+        config(['services.gemini.key' => 'test-key', 'services.gemini.chat_models' => ['model-a']]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response(['status' => 404, 'type' => 'Internal error'], 404),
+            'api.mymemory.translated.net/get*' => Http::response(['responseStatus' => 200, 'matches' => []]),
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [['content' => ['parts' => [['text' => '{"translation_fa": "به مغازه رفت"}']]]]],
+            ]),
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('went to the shop', 'She went to the shop after work.');
+
+        $this->assertTrue($entry->isTranslationOnly());
+        $this->assertSame([], $entry->meanings);
+        $this->assertSame('به مغازه رفت', $entry->translation_fa);
+        $this->assertSame('gemini', $entry->persian_source);
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'generativelanguage')
+            && str_contains($request->body(), 'She went to the shop after work.'));
+    }
+
+    public function test_a_phrase_the_dictionary_does_not_list_falls_back_to_mymemory_when_gemini_is_down(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'en.wiktionary.org/*' => Http::response(['status' => 404, 'type' => 'Internal error'], 404),
+            'api.mymemory.translated.net/get*' => Http::response(['responseStatus' => 200, 'matches' => [
+                ['segment' => 'went to the shop', 'translation' => 'به فروشگاه رفت', 'match' => 0.8],
+            ]]),
+        ]);
+
+        $entry = app(WordLookup::class)->lookup('went to the shop');
+
+        $this->assertTrue($entry->isTranslationOnly());
+        $this->assertSame('به فروشگاه رفت', $entry->translation_fa);
+    }
+
+    public function test_a_phrase_the_dictionary_does_not_list_is_never_given_dictionary_meanings_by_gemini(): void
+    {
+        $entry = DictionaryEntry::factory()->unknownToDictionary()->create(['word' => 'went to the shop', 'translation_fa' => 'به مغازه رفت']);
         Http::preventStrayRequests();
         Http::fake();
 
-        $this->assertNull(app(WordLookup::class)->lookup('get up'));
+        $this->assertSame($entry->id, app(WordLookup::class)->improvePersian($entry)->id);
+        $this->assertNull($entry->fresh()->persian_senses);
         Http::assertNothingSent();
-        $this->assertDatabaseCount('dictionary_entries', 0);
     }
 
     public function test_a_word_the_dictionary_does_not_know_is_kept_as_unknown_with_its_translation(): void

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\DictionaryEntry;
+use App\Models\PhraseForm;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -82,13 +83,53 @@ class DictionaryLookupControllerTest extends TestCase
             ->assertJsonPath('saved', false);
     }
 
-    public function test_it_rejects_a_phrase_with_422(): void
+    public function test_it_rejects_what_is_not_a_word_or_a_short_phrase_with_422(): void
     {
         Http::preventStrayRequests();
+        $this->actingAs(User::factory()->create());
+
+        $this->getJson(route('dictionary.lookup', ['word' => '2026']))->assertStatus(422);
+        $this->getJson(route('dictionary.lookup', ['word' => 'one two three four five six seven']))->assertStatus(422);
+    }
+
+    public function test_it_offers_the_phrase_the_tapped_word_is_part_of(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'gave']);
+        DictionaryEntry::factory()->create(['word' => 'give up', 'translation_fa' => 'دست کشیدن']);
+        PhraseForm::create(['form' => 'gave up', 'phrase' => 'give up']);
 
         $this->actingAs(User::factory()->create())
-            ->getJson(route('dictionary.lookup', ['word' => 'get up']))
-            ->assertStatus(422);
+            ->getJson(route('dictionary.lookup', ['word' => 'gave', 'before' => 'She', 'after' => 'up smoking last']))
+            ->assertOk()
+            ->assertJsonPath('data.word', 'gave')
+            ->assertJsonPath('phrase', ['phrase' => 'give up', 'from' => 0, 'to' => 1, 'translation_fa' => 'دست کشیدن']);
+    }
+
+    public function test_a_phrase_is_answered_under_its_base_form_and_says_whether_it_is_saved(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'give up']);
+        PhraseForm::create(['form' => 'gave up', 'phrase' => 'give up']);
+        $learner = User::factory()->create();
+        VocabularyWord::create(['learner_id' => $learner->id, 'word' => 'give up', 'next_review_at' => now()]);
+
+        $this->actingAs($learner)
+            ->getJson(route('dictionary.lookup', ['word' => 'gave up']))
+            ->assertOk()
+            ->assertJsonPath('data.word', 'give up')
+            ->assertJsonPath('data.translation_only', false)
+            ->assertJsonPath('saved', true)
+            ->assertJsonPath('phrase', null);
+    }
+
+    public function test_a_phrase_the_dictionary_does_not_list_is_marked_translation_only(): void
+    {
+        DictionaryEntry::factory()->unknownToDictionary()->create(['word' => 'went to the shop', 'translation_fa' => 'به مغازه رفت']);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson(route('dictionary.lookup', ['word' => 'went to the shop']))
+            ->assertOk()
+            ->assertJsonPath('data.translation_only', true)
+            ->assertJsonPath('data.translation_fa', 'به مغازه رفت');
     }
 
     public function test_it_returns_503_when_neither_service_can_be_reached(): void

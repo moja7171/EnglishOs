@@ -89,11 +89,13 @@ class VocabularyWordControllerTest extends TestCase
         $this->assertSame('خواب', $learner->vocabularyWords()->sole()->meaning_fa);
     }
 
-    public function test_it_rejects_a_phrase(): void
+    public function test_it_rejects_a_phrase_the_dictionary_does_not_list(): void
     {
-        $this->actingAs(User::factory()->create())
-            ->postJson(route('vocabulary.store'), ['word' => 'get up'])
-            ->assertJsonValidationErrors('word');
+        DictionaryEntry::factory()->unknownToDictionary()->create(['word' => 'went to the shop', 'translation_fa' => 'به مغازه رفت']);
+        $this->actingAs(User::factory()->create());
+
+        $this->postJson(route('vocabulary.store'), ['word' => 'went to the shop'])->assertJsonValidationErrors('word');
+        $this->postJson(route('vocabulary.store'), ['word' => 'never looked up'])->assertJsonValidationErrors('word');
 
         $this->assertDatabaseCount('vocabulary_words', 0);
     }
@@ -103,5 +105,19 @@ class VocabularyWordControllerTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->postJson(route('vocabulary.store'), ['word' => 'sleep', 'example' => str_repeat('a', 501)])
             ->assertJsonValidationErrors('example');
+    }
+
+    public function test_it_adds_a_phrase_with_its_persian_meaning(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'give up', 'translation_fa' => 'دست کشیدن']);
+        $learner = User::factory()->create();
+
+        $this->actingAs($learner)
+            ->postJson(route('vocabulary.store'), ['word' => 'Give up', 'meaning' => 'To stop doing something.', 'pos' => 'verb'])
+            ->assertCreated();
+
+        $word = $learner->vocabularyWords()->sole();
+        $this->assertSame('give up', $word->word);
+        $this->assertSame('دست کشیدن', $word->meaning_fa);
     }
 }
