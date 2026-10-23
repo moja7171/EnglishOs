@@ -1,10 +1,9 @@
 @props(['mission', 'day' => 1])
 
-{{-- Entry point to a mission's own listening picks (/listening/M03/1). Shown
-     on the mission's day overview — opening the learner's day today — and on
-     its "done" card (day 1), so a learner can come back to a finished
-     mission's picks. The page itself decides how far the learner has got —
-     later days stay locked there. --}}
+{{-- Entry point to a mission's own listening picks (/listening/M03/1) on
+     its day overview, opening the learner's day today. The page itself
+     decides how far the learner has got — later days stay locked there. A
+     finished mission's "done" card has <x-practice-again> instead. --}}
 <a
     href="{{ route('listening.show', [$mission->code, $day]) }}"
     wire:navigate
@@ -14,7 +13,7 @@
         @svg('heroicon-o-speaker-wave', 'h-4 w-4')
     </span>
     <span class="flex-1">
-        <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Listening picks for this mission</span>
+        <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Listening</span>
         <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">Anytime · one is enough.</span>
     </span>
     @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')

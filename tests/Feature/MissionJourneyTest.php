@@ -4,8 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\AudioListen;
 use App\Models\Evidence;
+use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PiChatFeedback;
+use App\Models\PiPracticeLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -130,6 +133,33 @@ class MissionJourneyTest extends TestCase
             ->assertSee('بیدار شدن')
             ->assertSeeInOrder(['Warm-up', 'https://example.test/second-take.webm', 'Shadowing', 'https://example.test/shadow.webm'], false)
             ->assertDontSee('https://example.test/first-take.webm', false);
+    }
+
+    public function test_the_recap_opens_each_day_of_its_listening_and_voice_practice_with_done_days_marked(): void
+    {
+        $learner = User::factory()->create();
+        $mission = $this->makeMission('M01');
+        $this->finish(MissionRun::findOrStart($learner, $mission));
+        ListeningLog::factory()->for($learner, 'learner')->create(['listened_on' => now()->subDays(3)->toDateString(), 'day_number' => 1]);
+        AudioListen::factory()->pick(3)->create(['learner_id' => $learner->id]);
+        PiPracticeLog::factory()->for($learner, 'learner')->create(['practiced_on' => now()->subDays(3)->toDateString(), 'day_number' => 1]);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['day_number' => 2, 'feedback' => ['summary' => 'Done.', 'practice_done' => true]]);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['day_number' => 4, 'feedback' => ['summary' => 'Not it.', 'practice_done' => false]]);
+        $this->actingAs($learner);
+
+        $response = $this->get(route('progress.mission', $mission));
+
+        $response
+            ->assertSee('Practice again')
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 4]).'"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 4]).'"')
+            ->assertSeeHtml('aria-label="Listening, day 1, done"')
+            ->assertSeeHtml('aria-label="Listening, day 2"')
+            ->assertSeeHtml('aria-label="Listening, day 3, done"')
+            ->assertSeeHtml('aria-label="Voice practice, day 1, done"')
+            ->assertSeeHtml('aria-label="Voice practice, day 2, done"')
+            ->assertSeeHtml('aria-label="Voice practice, day 3"')
+            ->assertSeeHtml('aria-label="Voice practice, day 4"');
     }
 
     public function test_the_recap_is_not_found_for_a_mission_still_in_progress(): void

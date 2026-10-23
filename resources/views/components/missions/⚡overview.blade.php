@@ -149,7 +149,7 @@ new class extends Component
         }
 
         if ($this->piLeft) {
-            return ['label' => 'Voice practice with Pi', 'url' => route('pi.practice')];
+            return ['label' => 'Voice practice', 'url' => route('pi.practice')];
         }
 
         return null;

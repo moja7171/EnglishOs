@@ -54,8 +54,11 @@ new class extends Component
         $this->day = $target['dayNumber'];
 
         $saved = $this->savedChatFeedback();
-        $this->pastedChat = $saved->chat ?? '';
-        $this->feedback = $saved?->feedback;
+
+        if ($saved !== null && ! $saved->isClosed()) {
+            $this->pastedChat = $saved->chat;
+            $this->feedback = $saved->feedback;
+        }
     }
 
     /**
@@ -92,9 +95,12 @@ new class extends Component
             return;
         }
 
+        // A day once done stays done, even if a later paste isn't the practice.
+        $wasDone = $this->savedChatFeedback()?->isPracticeDone() ?? false;
+
         auth()->user()->piChatFeedback()->updateOrCreate(
             ['mission_code' => $this->missionCode, 'day_number' => $this->day],
-            ['chat' => $this->pastedChat, 'feedback' => $this->feedback],
+            ['chat' => $this->pastedChat, 'feedback' => $wasDone ? [...$this->feedback, 'practice_done' => true] : $this->feedback],
         );
 
         if (($this->feedback['practice_done'] ?? false) === true
@@ -103,14 +109,17 @@ new class extends Component
 
             unset($this->practicedToday);
         }
+
+        unset($this->practicedDays, $this->isPracticed, $this->missionDays);
     }
 
     /**
-     * Closing the card forgets the saved chat and feedback of this day.
+     * Closing the card forgets the saved chat and feedback of this day,
+     * but a done practice keeps its tick (see PiChatFeedback::close()).
      */
     public function dismissFeedback(): void
     {
-        $this->savedChatFeedback()?->delete();
+        $this->savedChatFeedback()?->close();
 
         $this->pastedChat = '';
         $this->feedback = null;
@@ -190,10 +199,40 @@ new class extends Component
     }
 
     /**
+     * The days of the mission on screen whose practice is done.
+     *
+     * @return list<int>
+     */
+    #[Computed]
+    public function practicedDays(): array
+    {
+        return auth()->user()->piPracticedDaysOf($this->missionCode);
+    }
+
+    /**
+     * The tick at the bottom: today's own (it is what the streak counts),
+     * or, on another day, that day's.
+     */
+    #[Computed]
+    public function isPracticed(): bool
+    {
+        return $this->isToday ? $this->practicedToday : in_array($this->day, $this->practicedDays, true);
+    }
+
+    /**
+     * @return list<array{code: string, title: string}>
+     */
+    #[Computed]
+    public function reachedMissions(): array
+    {
+        return app(ListeningPicks::class)->missionsReachedBy($this->currentIndex);
+    }
+
+    /**
      * The four days of the mission on screen, for the quick day switcher
      * under the title, each marked against the learner's own position.
      *
-     * @return list<array{number: int, title: string, state: string, viewing: bool}>
+     * @return list<array{number: int, title: string, state: string, viewing: bool, done: bool}>
      */
     #[Computed]
     public function missionDays(): array
@@ -215,6 +254,7 @@ new class extends Component
                         default => 'past',
                     },
                     'viewing' => $index === $viewing,
+                    'done' => in_array($number, $this->practicedDays, true),
                 ];
             })
             ->values()
@@ -233,8 +273,8 @@ new class extends Component
                 @svg('heroicon-o-microphone', 'h-5 w-5')
             </span>
             <div class="min-w-0 flex-1">
-                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $this->isToday ? 'Voice practice today' : 'Voice practice' }}</h1>
-                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</p>
+                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Voice practice</h1>
+                <x-mission-picker :missions="$this->reachedMissions" :mission-code="$missionCode" route-name="pi.practice" :today-code="$this->target['missionCode']">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</x-mission-picker>
             </div>
             <button
                 type="button"
@@ -269,7 +309,13 @@ new class extends Component
                             'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
                             'border-line text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
                         ])
-                    >Day {{ $dayInfo['number'] }} · {{ $dayInfo['title'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}</a>
+                    >
+                        Day {{ $dayInfo['number'] }} · {{ $dayInfo['title'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}
+                        @if ($dayInfo['done'])
+                            @svg('heroicon-s-check-circle', 'ms-1 h-3.5 w-3.5 text-success dark:text-success-dark')
+                            <span class="sr-only">, done</span>
+                        @endif
+                    </a>
                 @endif
             @endforeach
         </nav>
@@ -315,7 +361,7 @@ new class extends Component
 
     <details class="card group p-4">
         <summary class="flex cursor-pointer list-none items-center gap-2 text-sm text-ink dark:text-ink-dark">
-            <span class="min-w-0 flex-1">Today's plan · {{ $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</span>
+            <span class="min-w-0 flex-1">{{ $this->isToday ? "Today's plan" : "Day {$day} plan" }} · {{ $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</span>
             @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
         </summary>
         <ol class="mt-3 list-decimal space-y-1 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
@@ -360,17 +406,17 @@ new class extends Component
 
     {{-- Never a button: the feedback above ticks it once the AI sees the
          day's plan really done (see checkPastedChat()). --}}
-    @if ($this->practicedToday)
+    @if ($this->isPracticed)
         <div class="flex items-center gap-3 rounded-2xl bg-success-soft px-4 py-3.5 text-sm text-success dark:bg-success-soft-dark dark:text-success-dark">
             <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
-            Practiced today
+            {{ $this->isToday ? 'Practiced today' : 'Practiced' }}
         </div>
     @else
         <div class="flex items-center gap-3 rounded-2xl border-2 border-dashed border-line px-4 py-3.5 dark:border-line-dark">
             <span class="inline-flex h-7 w-7 shrink-0 rounded-full border-2 border-line dark:border-line-dark"></span>
             <span class="min-w-0 flex-1">
                 <span class="block text-sm text-ink-soft dark:text-ink-soft-dark">I practiced</span>
-                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? "Not counted — this doesn't look like today's practice." : 'Ticks itself after Feedback.' }}</span>
+                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? ($this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice.") : 'Ticks itself after Feedback.' }}</span>
             </span>
         </div>
     @endif

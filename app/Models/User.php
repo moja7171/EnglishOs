@@ -632,6 +632,48 @@ class User extends Authenticatable
     }
 
     /**
+     * The days of one mission the learner has listened to, for the ticks
+     * on its day buttons. The daily tick (listening_logs) keeps only one
+     * day per calendar date, so a pick heard or self-reported on that day
+     * counts too.
+     *
+     * @return list<int>
+     */
+    public function listenedDaysOf(string $missionCode): array
+    {
+        $fromPicks = $this->audioListens()
+            ->where('mission_code', $missionCode)
+            ->where('source', AudioListen::SOURCE_LISTENING_PICK)
+            ->whereNotNull('day_number')
+            ->pluck('day_number');
+
+        $fromTicks = $this->listeningLogs()->where('mission_code', $missionCode)->pluck('day_number');
+
+        return $fromPicks->merge($fromTicks)->map(fn ($day): int => (int) $day)->unique()->sort()->values()->all();
+    }
+
+    /**
+     * The days of one mission whose voice practice the learner has done,
+     * for the ticks on its day buttons. The daily tick (pi_practice_logs)
+     * keeps only one day per calendar date, so a saved chat whose feedback
+     * saw the practice done counts too.
+     *
+     * @return list<int>
+     */
+    public function piPracticedDaysOf(string $missionCode): array
+    {
+        $fromFeedback = $this->piChatFeedback()
+            ->where('mission_code', $missionCode)
+            ->get()
+            ->filter(fn (PiChatFeedback $saved): bool => $saved->isPracticeDone())
+            ->pluck('day_number');
+
+        $fromTicks = $this->piPracticeLogs()->where('mission_code', $missionCode)->pluck('day_number');
+
+        return $fromFeedback->merge($fromTicks)->map(fn ($day): int => (int) $day)->unique()->sort()->values()->all();
+    }
+
+    /**
      * @return HasMany<PlacementTest, $this>
      */
     public function placementTests(): HasMany

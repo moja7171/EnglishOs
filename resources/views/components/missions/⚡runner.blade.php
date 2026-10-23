@@ -618,7 +618,6 @@ new class extends Component
             <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->title }} — done</h2>
         </article>
 
-        <x-mission-listening-link :mission="$mission" />
-        <x-mission-pi-link :mission="$mission" />
+        <x-practice-again :mission-code="$mission->code" />
     @endif
 </div>

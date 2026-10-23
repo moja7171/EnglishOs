@@ -85,6 +85,8 @@ new class extends Component
         @endif
     </header>
 
+    <x-practice-again :mission-code="$mission->code" />
+
     @if ($this->grammarTitle)
         <section class="card p-4">
             <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Grammar</p>

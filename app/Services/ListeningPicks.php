@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Mission;
+
 /**
  * The daily listening picks: for every program day (24 missions × 4 days),
  * three episodes of rising difficulty that the learner can listen to
@@ -144,6 +146,23 @@ class ListeningPicks
     public function indexOf(string $missionCode, int $dayNumber): int
     {
         return ((int) substr($missionCode, 1) - 1) * 4 + ($dayNumber - 1);
+    }
+
+    /**
+     * The missions a learner at this program position can go back to (day
+     * 1 reached), newest first, for the mission picker on /listening and
+     * /pi.
+     *
+     * @return list<array{code: string, title: string}>
+     */
+    public function missionsReachedBy(int $index): array
+    {
+        return collect(Mission::roadmapCatalog())
+            ->filter(fn (array $mission, string $code): bool => $this->indexOf($code, 1) <= $index)
+            ->map(fn (array $mission, string $code): array => ['code' => $code, 'title' => $mission['title']])
+            ->reverse()
+            ->values()
+            ->all();
     }
 
     /**

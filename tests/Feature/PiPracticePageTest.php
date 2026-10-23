@@ -92,10 +92,10 @@ class PiPracticePageTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $this->get(route('pi.practice'))
-            ->assertSee('Voice practice today')
+            ->assertSee('Voice practice')
             ->assertSee('M01 · My Daily Life · Day 1 of 4')
             ->assertSee('Pronunciation')
-            ->assertSee("Today's plan", false)
+            ->assertSee("Today's plan")
             ->assertSee('Be my warm, fun English buddy');
     }
 
@@ -201,6 +201,44 @@ class PiPracticePageTest extends TestCase
 
         $this->get('/pi/M25/1')->assertNotFound();
         $this->get('/pi/M01/5')->assertNotFound();
+    }
+
+    public function test_a_learner_on_a_later_mission_can_pick_an_earlier_one_which_opens_on_its_day_1(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
+        MissionRun::findOrStart($learner, $this->makeMission('M02'));
+        $this->actingAs($learner);
+
+        $this->get(route('pi.practice'))
+            ->assertSee('M02 · People &amp; Relationships · Day 1 of 4', false)
+            ->assertSeeHtml('aria-label="Missions"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"')
+            ->assertDontSeeHtml('href="'.route('pi.practice', ['M03', 1]).'"');
+    }
+
+    public function test_an_earlier_day_shows_its_own_plan_and_tick_not_todays(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1(yesterday: true);
+        PiPracticeLog::factory()->for($learner, 'learner')->create(['day_number' => 2]);
+        $this->actingAs($learner);
+
+        $this->get(route('pi.practice', ['M01', 1]))
+            ->assertSee('Day 1 plan')
+            ->assertSee('I practiced')
+            ->assertDontSee('Practiced today');
+    }
+
+    public function test_an_earlier_day_done_before_shows_as_practiced_on_its_day_button(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1(yesterday: true);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['chat' => '', 'feedback' => ['practice_done' => true]]);
+        $this->actingAs($learner);
+
+        $this->get(route('pi.practice', ['M01', 1]))
+            ->assertSee('Practiced')
+            ->assertDontSee('Practiced today')
+            ->assertSeeInOrder(['Day 1 · Pronunciation', '<span class="sr-only">, done</span>', 'Day 2 · Grammar · today'], false);
     }
 
     public function test_the_day_switcher_marks_reached_and_not_yet_reached_days(): void
@@ -371,6 +409,39 @@ class PiPracticePageTest extends TestCase
         $this->assertDatabaseMissing('pi_chat_feedback', ['learner_id' => $learner->id]);
     }
 
+    public function test_closing_the_feedback_of_a_done_practice_keeps_the_days_tick_but_not_the_chat(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1();
+        $this->actingAs($learner);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['feedback' => ['summary' => 'Done.', 'practice_done' => true]]);
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->call('dismissFeedback')
+            ->assertSet('pastedChat', '')
+            ->assertSet('feedback', null);
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->assertSet('pastedChat', '')
+            ->assertSet('feedback', null);
+
+        $this->assertSame([1], $learner->piPracticedDaysOf('M01'));
+    }
+
+    public function test_a_later_paste_that_is_not_the_practice_keeps_a_done_day_done(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1();
+        $this->actingAs($learner);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['feedback' => ['summary' => 'Done.', 'practice_done' => true]]);
+        $this->mockPracticeVerdict(false);
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->set('pastedChat', self::A_PRACTICE_CHAT)
+            ->call('checkPastedChat')
+            ->assertSee('Not counted');
+
+        $this->assertSame([1], $learner->piPracticedDaysOf('M01'));
+    }
+
     public function test_a_too_short_paste_is_not_sent_for_feedback(): void
     {
         $this->actingAs(User::factory()->create());
@@ -474,7 +545,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('missions.show', [Mission::first(), 'overview']))
-            ->assertSee('Voice practice for this mission')
+            ->assertSee('10 minutes of talking with a voice AI.')
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"');
     }
 }
