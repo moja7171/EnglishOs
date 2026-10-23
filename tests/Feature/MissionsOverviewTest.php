@@ -296,7 +296,7 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSee('Find your level')
-            ->assertDontSee('How voice practice works')
+            ->assertDontSee('How Daily talk works')
             ->assertDontSee('Practice with a friend');
     }
 

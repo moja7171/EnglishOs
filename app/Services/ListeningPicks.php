@@ -149,18 +149,35 @@ class ListeningPicks
     }
 
     /**
-     * The missions a learner at this program position can go back to (day
-     * 1 reached), newest first, for the mission picker on /listening and
-     * /pi.
+     * All 24 missions in path order with their four days, for the mission
+     * map on /listening and /pi: each day is past, today or future against
+     * the learner's position, and done or not by that page's own ticks.
      *
-     * @return list<array{code: string, title: string}>
+     * @param  int  $reachedIndex  program position of the furthest day reached (0-95)
+     * @param  int|null  $todayIndex  the day the page opens on by itself, null when there is none
+     * @param  array<string, list<int>>  $doneDays  the done days, by mission code
+     * @return list<array{code: string, title: string, reached: bool, current: bool, days: list<array{number: int, state: string, done: bool}>}>
      */
-    public function missionsReachedBy(int $index): array
+    public function missionMap(int $reachedIndex, ?int $todayIndex, array $doneDays): array
     {
         return collect(Mission::roadmapCatalog())
-            ->filter(fn (array $mission, string $code): bool => $this->indexOf($code, 1) <= $index)
-            ->map(fn (array $mission, string $code): array => ['code' => $code, 'title' => $mission['title']])
-            ->reverse()
+            ->map(fn (array $mission, string $code): array => [
+                'code' => $code,
+                'title' => $mission['title'],
+                'reached' => $this->indexOf($code, 1) <= $reachedIndex,
+                'current' => intdiv($reachedIndex, 4) === intdiv($this->indexOf($code, 1), 4),
+                'days' => collect(range(1, 4))
+                    ->map(fn (int $number): array => [
+                        'number' => $number,
+                        'state' => match (true) {
+                            $this->indexOf($code, $number) > $reachedIndex => 'future',
+                            $this->indexOf($code, $number) === $todayIndex => 'today',
+                            default => 'past',
+                        },
+                        'done' => in_array($number, $doneDays[$code] ?? [], true),
+                    ])
+                    ->all(),
+            ])
             ->values()
             ->all();
     }

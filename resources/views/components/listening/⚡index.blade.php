@@ -64,7 +64,7 @@ new class extends Component
 
         auth()->user()->recordListeningToday($this->missionCode, $this->day);
 
-        unset($this->listenedToday, $this->listenedDays, $this->missionDays);
+        unset($this->listenedToday, $this->listenedDaysByMission, $this->listenedDays, $this->missionDays, $this->missionMap);
     }
 
     #[Computed]
@@ -148,6 +148,17 @@ new class extends Component
     }
 
     /**
+     * The days with at least one pick heard, by mission code.
+     *
+     * @return array<string, list<int>>
+     */
+    #[Computed]
+    public function listenedDaysByMission(): array
+    {
+        return auth()->user()->listenedDaysByMission();
+    }
+
+    /**
      * The days of the mission on screen with at least one pick heard.
      *
      * @return list<int>
@@ -155,16 +166,23 @@ new class extends Component
     #[Computed]
     public function listenedDays(): array
     {
-        return auth()->user()->listenedDaysOf($this->missionCode);
+        return $this->listenedDaysByMission[$this->missionCode] ?? [];
     }
 
     /**
-     * @return list<array{code: string, title: string}>
+     * @return list<array<string, mixed>> see ListeningPicks::missionMap()
      */
     #[Computed]
-    public function reachedMissions(): array
+    public function missionMap(): array
     {
-        return app(ListeningPicks::class)->missionsReachedBy($this->currentIndex);
+        $picks = app(ListeningPicks::class);
+        $current = $this->currentDay;
+
+        return $picks->missionMap(
+            $this->currentIndex,
+            $current === null ? null : $picks->indexOf($current['missionCode'], $current['dayNumber']),
+            $this->listenedDaysByMission,
+        );
     }
 
     /**
@@ -211,9 +229,9 @@ new class extends Component
             <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">
                 @svg('heroicon-o-speaker-wave', 'h-5 w-5')
             </span>
-            <div>
+            <div class="min-w-0 flex-1">
                 <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Listening</h1>
-                <x-mission-picker :missions="$this->reachedMissions" :mission-code="$missionCode" route-name="listening.show" :today-code="$this->currentDay['missionCode'] ?? null">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }} of 4</x-mission-picker>
+                <x-mission-picker :missions="$this->missionMap" :mission-code="$missionCode" :day="$day" route-name="listening.show" :reached-day="$this->currentIndex + 1">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }} of 4</x-mission-picker>
             </div>
         </div>
         <nav class="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Days of {{ $missionCode }}">

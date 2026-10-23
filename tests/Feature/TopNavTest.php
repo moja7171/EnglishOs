@@ -44,23 +44,31 @@ class TopNavTest extends TestCase
         $this->get(route('home'))->assertSee('>3<', false);
     }
 
-    public function test_the_bottom_nav_links_to_home_progress_and_review(): void
+    public function test_the_bottom_nav_has_five_tabs_with_listening_and_daily_talk(): void
     {
         $this->actingAs(User::factory()->create());
 
         $this->get(route('review.index'))
             ->assertSee('aria-label="Primary"', false)
-            ->assertSee('href="'.route('home').'"', false)
-            ->assertSee('href="'.route('progress.index').'"', false)
-            ->assertSee('href="'.route('review.index').'"', false);
+            ->assertSee('grid-cols-5', false)
+            ->assertSeeInOrder([
+                'href="'.route('home').'"',
+                'href="'.route('listening.show').'"',
+                'href="'.route('pi.practice').'"',
+                'href="'.route('review.index').'"',
+                'href="'.route('progress.index').'"',
+            ], false)
+            ->assertSee('Daily talk');
     }
 
     public function test_the_nav_pill_sits_under_the_current_tab_and_hides_on_other_pages(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('progress.index'))->assertSee('style="translate: 100% 0"', false);
-        $this->get(route('review.index'))->assertSee('style="translate: 200% 0"', false);
+        $this->get(route('listening.show'))->assertSee('style="translate: 100% 0"', false);
+        $this->get(route('pi.practice'))->assertSee('style="translate: 200% 0"', false);
+        $this->get(route('review.index'))->assertSee('style="translate: 300% 0"', false);
+        $this->get(route('progress.index'))->assertSee('style="translate: 400% 0"', false);
 
         $this->get(route('friends.index'))->assertSee('motion-reduce:transition-none opacity-0', false);
     }
@@ -79,16 +87,38 @@ class TopNavTest extends TestCase
             ->assertDontSee('aria-label="Primary"', false);
     }
 
-    public function test_the_account_menu_holds_friends_listening_and_the_secondary_links(): void
+    public function test_the_account_menu_holds_only_notebook_friends_and_profile(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('home'))
-            ->assertSee(route('friends.index'), false)
-            ->assertSee(route('listening.show'), false)
-            ->assertSee(route('profile'), false)
-            ->assertSee(route('learner.guide'), false)
-            ->assertSee(route('pi.setup'), false)
+        $menu = (string) $this->blade('<x-account-menu />');
+
+        $this->assertSame(3, substr_count($menu, '<a '));
+        $this->assertStringContainsString('href="'.route('notebook.index').'"', $menu);
+        $this->assertStringContainsString('href="'.route('friends.index').'"', $menu);
+        $this->assertStringContainsString('href="'.route('profile').'"', $menu);
+        $this->assertStringNotContainsString('Sign out', $menu);
+        $this->assertStringNotContainsString('dark mode', $menu);
+    }
+
+    public function test_the_account_menu_shows_admin_to_an_admin(): void
+    {
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        $this->blade('<x-account-menu />')->assertSee('href="'.route('admin.index').'"', false);
+    }
+
+    public function test_profile_and_settings_holds_the_guide_the_switches_and_sign_out(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('profile'))
+            ->assertOk()
+            ->assertSee('href="'.route('learner.guide').'"', false)
+            ->assertSee('aria-label="Dark mode"', false)
+            ->assertSee('aria-label="Sound effects"', false)
+            ->assertSee("localStorage.setItem('eosSoundEnabled', soundEnabled)", false)
+            ->assertSee('action="'.route('logout').'"', false)
             ->assertSee('Sign out');
     }
 

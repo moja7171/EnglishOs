@@ -6,8 +6,8 @@
      pasted chat there ticks it — so the circle here is never a button. --}}
 <x-today-row
     :href="route('pi.practice')"
-    :title="'Voice practice · '.$practice['title']"
-    label="Daily voice practice"
+    :title="'Daily talk · '.$practice['title']"
+    label="Daily talk"
     :minutes="\App\Services\PiPractice::MINUTES"
     :done="$practice['practicedToday']"
     :current="$current"

@@ -7,6 +7,7 @@ use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PiPracticeLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -145,23 +146,42 @@ class ListeningPageTest extends TestCase
         return $learner;
     }
 
-    public function test_a_learner_on_a_later_mission_can_pick_an_earlier_one_which_opens_on_its_day_1(): void
+    public function test_the_mission_map_opens_any_reached_day_in_one_tap_and_locks_the_rest(): void
     {
         $this->actingAs($this->learnerOnM02());
 
         $this->get(route('listening.show'))
             ->assertSee('M02 · People &amp; Relationships · Day 1 of 4', false)
             ->assertSeeHtml('aria-label="Missions"')
-            ->assertSeeInOrder(['People &amp; Relationships', 'today', 'My Daily Life'], false)
-            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"')
+            ->assertSee('Day 5 of 96')
+            ->assertSeeInOrder(['My Daily Life', 'People &amp; Relationships', 'Debate &amp; Discussion'], false)
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 3]).'"')
+            ->assertSeeHtml('aria-label="M02 · Day 1, today"')
+            ->assertSeeHtml('aria-label="M02 · Day 2, not reached yet"')
+            ->assertSeeHtml('aria-label="M03 · Day 1, not reached yet"')
             ->assertDontSeeHtml('href="'.route('listening.show', ['M03', 1]).'"');
     }
 
-    public function test_a_learner_still_on_the_first_mission_has_no_mission_to_pick(): void
+    public function test_a_learner_still_on_the_first_mission_already_sees_the_whole_path(): void
     {
         $this->actingAs($this->learnerOnDay2());
 
-        $this->get(route('listening.show'))->assertDontSeeHtml('aria-label="Missions"');
+        $this->get(route('listening.show'))
+            ->assertSeeHtml('aria-label="Missions"')
+            ->assertSee('Day 2 of 96')
+            ->assertSeeHtml('aria-label="M24 · Day 4, not reached yet"');
+    }
+
+    public function test_the_mission_map_ticks_listening_days_only(): void
+    {
+        $learner = $this->learnerOnM02();
+        AudioListen::factory()->pick(2)->create(['learner_id' => $learner->id, 'mission_code' => 'M01']);
+        PiPracticeLog::factory()->for($learner, 'learner')->create(['mission_code' => 'M01', 'day_number' => 3]);
+        $this->actingAs($learner);
+
+        $this->get(route('listening.show'))
+            ->assertSeeHtml('aria-label="M01 · Day 2, done"')
+            ->assertSeeHtml('aria-label="M01 · Day 3"');
     }
 
     public function test_an_earlier_day_has_no_daily_tick_and_does_not_borrow_todays(): void

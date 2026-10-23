@@ -149,7 +149,7 @@ new class extends Component
         }
 
         if ($this->piLeft) {
-            return ['label' => 'Voice practice', 'url' => route('pi.practice')];
+            return ['label' => 'Daily talk', 'url' => route('pi.practice')];
         }
 
         return null;
@@ -291,7 +291,7 @@ new class extends Component
         }
 
         if ($this->needsPiGuide) {
-            return ['label' => 'How voice practice works · 2 min', 'url' => route('pi.setup'), 'icon' => 'heroicon-o-microphone'];
+            return ['label' => 'How Daily talk works · 2 min', 'url' => route('pi.setup'), 'icon' => 'heroicon-o-microphone'];
         }
 
         if (auth()->user()->mutualFriends()->isNotEmpty()) {

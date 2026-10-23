@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -663,15 +664,26 @@ class User extends Authenticatable
      */
     public function listenedDaysOf(string $missionCode): array
     {
+        return $this->listenedDaysByMission()[$missionCode] ?? [];
+    }
+
+    /**
+     * listenedDaysOf() for every mission at once, for the mission map on
+     * /listening.
+     *
+     * @return array<string, list<int>> keyed by mission code
+     */
+    public function listenedDaysByMission(): array
+    {
         $fromPicks = $this->audioListens()
-            ->where('mission_code', $missionCode)
             ->where('source', AudioListen::SOURCE_LISTENING_PICK)
+            ->whereNotNull('mission_code')
             ->whereNotNull('day_number')
-            ->pluck('day_number');
+            ->get(['mission_code', 'day_number']);
 
-        $fromTicks = $this->listeningLogs()->where('mission_code', $missionCode)->pluck('day_number');
+        $fromTicks = $this->listeningLogs()->get(['mission_code', 'day_number']);
 
-        return $fromPicks->merge($fromTicks)->map(fn ($day): int => (int) $day)->unique()->sort()->values()->all();
+        return $this->daysByMission($fromPicks->concat($fromTicks));
     }
 
     /**
@@ -684,15 +696,36 @@ class User extends Authenticatable
      */
     public function piPracticedDaysOf(string $missionCode): array
     {
+        return $this->piPracticedDaysByMission()[$missionCode] ?? [];
+    }
+
+    /**
+     * piPracticedDaysOf() for every mission at once, for the mission map
+     * on /pi.
+     *
+     * @return array<string, list<int>> keyed by mission code
+     */
+    public function piPracticedDaysByMission(): array
+    {
         $fromFeedback = $this->piChatFeedback()
-            ->where('mission_code', $missionCode)
             ->get()
-            ->filter(fn (PiChatFeedback $saved): bool => $saved->isPracticeDone())
-            ->pluck('day_number');
+            ->filter(fn (PiChatFeedback $saved): bool => $saved->isPracticeDone());
 
-        $fromTicks = $this->piPracticeLogs()->where('mission_code', $missionCode)->pluck('day_number');
+        $fromTicks = $this->piPracticeLogs()->get(['mission_code', 'day_number']);
 
-        return $fromFeedback->merge($fromTicks)->map(fn ($day): int => (int) $day)->unique()->sort()->values()->all();
+        return $this->daysByMission($fromFeedback->concat($fromTicks));
+    }
+
+    /**
+     * @param  Collection<int, Model>  $rows  rows with mission_code and day_number
+     * @return array<string, list<int>>
+     */
+    private function daysByMission(Collection $rows): array
+    {
+        return $rows
+            ->groupBy('mission_code')
+            ->map(fn (Collection $days): array => $days->pluck('day_number')->map(fn ($day): int => (int) $day)->unique()->sort()->values()->all())
+            ->all();
     }
 
     /**

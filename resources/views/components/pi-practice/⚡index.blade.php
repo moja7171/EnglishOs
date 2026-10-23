@@ -110,7 +110,7 @@ new class extends Component
             unset($this->practicedToday);
         }
 
-        unset($this->practicedDays, $this->isPracticed, $this->missionDays);
+        unset($this->practicedDaysByMission, $this->practicedDays, $this->isPracticed, $this->missionDays, $this->missionMap);
     }
 
     /**
@@ -199,6 +199,17 @@ new class extends Component
     }
 
     /**
+     * The days whose practice is done, by mission code.
+     *
+     * @return array<string, list<int>>
+     */
+    #[Computed]
+    public function practicedDaysByMission(): array
+    {
+        return auth()->user()->piPracticedDaysByMission();
+    }
+
+    /**
      * The days of the mission on screen whose practice is done.
      *
      * @return list<int>
@@ -206,7 +217,7 @@ new class extends Component
     #[Computed]
     public function practicedDays(): array
     {
-        return auth()->user()->piPracticedDaysOf($this->missionCode);
+        return $this->practicedDaysByMission[$this->missionCode] ?? [];
     }
 
     /**
@@ -220,12 +231,18 @@ new class extends Component
     }
 
     /**
-     * @return list<array{code: string, title: string}>
+     * @return list<array<string, mixed>> see ListeningPicks::missionMap()
      */
     #[Computed]
-    public function reachedMissions(): array
+    public function missionMap(): array
     {
-        return app(ListeningPicks::class)->missionsReachedBy($this->currentIndex);
+        $picks = app(ListeningPicks::class);
+
+        return $picks->missionMap(
+            $this->currentIndex,
+            $picks->indexOf($this->target['missionCode'], $this->target['dayNumber']),
+            $this->practicedDaysByMission,
+        );
     }
 
     /**
@@ -273,8 +290,8 @@ new class extends Component
                 @svg('heroicon-o-microphone', 'h-5 w-5')
             </span>
             <div class="min-w-0 flex-1">
-                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Voice practice</h1>
-                <x-mission-picker :missions="$this->reachedMissions" :mission-code="$missionCode" route-name="pi.practice" :today-code="$this->target['missionCode']">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</x-mission-picker>
+                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Daily talk</h1>
+                <x-mission-picker :missions="$this->missionMap" :mission-code="$missionCode" :day="$day" route-name="pi.practice" :reached-day="$this->currentIndex + 1">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</x-mission-picker>
             </div>
             <button
                 type="button"
@@ -354,7 +371,7 @@ new class extends Component
             <p>The last thing of your day, after the mission steps. It is never a step and never blocks anything.</p>
             <p>
                 First time?
-                <a href="{{ route('pi.setup') }}" wire:navigate class="underline">How voice practice works</a>
+                <a href="{{ route('pi.setup') }}" wire:navigate class="underline">How Daily talk works</a>
             </p>
         </div>
     </section>

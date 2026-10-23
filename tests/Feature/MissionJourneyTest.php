@@ -156,10 +156,10 @@ class MissionJourneyTest extends TestCase
             ->assertSeeHtml('aria-label="Listening, day 1, done"')
             ->assertSeeHtml('aria-label="Listening, day 2"')
             ->assertSeeHtml('aria-label="Listening, day 3, done"')
-            ->assertSeeHtml('aria-label="Voice practice, day 1, done"')
-            ->assertSeeHtml('aria-label="Voice practice, day 2, done"')
-            ->assertSeeHtml('aria-label="Voice practice, day 3"')
-            ->assertSeeHtml('aria-label="Voice practice, day 4"');
+            ->assertSeeHtml('aria-label="Daily talk, day 1, done"')
+            ->assertSeeHtml('aria-label="Daily talk, day 2, done"')
+            ->assertSeeHtml('aria-label="Daily talk, day 3"')
+            ->assertSeeHtml('aria-label="Daily talk, day 4"');
     }
 
     public function test_the_recap_is_not_found_for_a_mission_still_in_progress(): void
