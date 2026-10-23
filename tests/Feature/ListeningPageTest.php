@@ -77,8 +77,8 @@ class ListeningPageTest extends TestCase
 
         $this->get(route('listening.show'))
             ->assertSee('Listening')
-            ->assertSee('Pick one — that\'s enough.', false)
-            ->assertSee('M01 · My Daily Life · Day 1 of 4')
+            ->assertSee('Pick one — one is enough.')
+            ->assertSee('M01 · My Daily Life · Day 1')
             ->assertSeeInOrder(['Routines', 'Describing Your Day: Mornings', "Why you need a good night's sleep"])
             ->assertSeeInOrder(['Lighter', 'Medium', 'Challenging']);
     }
@@ -107,7 +107,7 @@ class ListeningPageTest extends TestCase
 
         $this->get(route('listening.show', ['M01', 1]))
             ->assertSee('Listening')
-            ->assertSee('Day 1 of 4')
+            ->assertSee('M01 · My Daily Life · Day 1')
             ->assertSee('Back to today (M01 · Day 2)');
     }
 
@@ -171,37 +171,6 @@ class ListeningPageTest extends TestCase
             ->assertDontSee('Back to today');
     }
 
-    public function test_ticking_i_listened_files_the_tick_under_the_day_on_screen(): void
-    {
-        $learner = $this->learnerOnDay2();
-        $this->actingAs($learner);
-
-        Livewire::test('listening.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
-            ->call('markListened')
-            ->assertSee('Listened')
-            ->assertDontSee('Listened today')
-            ->assertDontSee('Counts toward your streak');
-
-        $this->assertDatabaseHas('listening_logs', [
-            'learner_id' => $learner->id,
-            'listened_on' => now()->toDateString(),
-            'mission_code' => 'M01',
-            'day_number' => 1,
-        ]);
-    }
-
-    public function test_ticking_i_listened_twice_on_the_same_day_keeps_a_single_row(): void
-    {
-        $learner = $this->learnerOnDay2();
-        $this->actingAs($learner);
-
-        Livewire::test('listening.index')
-            ->call('markListened')
-            ->call('markListened');
-
-        $this->assertSame(1, $learner->listeningLogs()->count());
-    }
-
     public function test_the_page_offers_a_switcher_for_the_four_days_of_the_mission_on_screen(): void
     {
         $this->actingAs($this->learnerOnDay2());
@@ -220,32 +189,8 @@ class ListeningPageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('listening.show'))
-            ->assertSee('Listened today')
-            ->assertDontSeeHtml('wire:click="markListened"');
-    }
-
-    public function test_each_of_the_three_picks_shows_its_own_listen_count(): void
-    {
-        $learner = User::factory()->create();
-        AudioListen::factory()->pick(1, 1)->count(2)->create(['learner_id' => $learner->id]);
-        $this->actingAs($learner);
-
-        $html = $this->get(route('listening.show'))->getContent();
-
-        $this->assertSame(3, substr_count($html, 'data-testid="listen-count"'));
-        $this->assertSame(1, substr_count($html, 'data-testid="listen-count">2<'));
-    }
-
-    public function test_telling_us_you_listened_to_a_pick_also_ticks_the_day(): void
-    {
-        $learner = User::factory()->create();
-        $this->actingAs($learner);
-
-        Livewire::test('listening.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
-            ->dispatch('listen-self-reported')
-            ->assertSee('Listened today');
-
-        $this->assertTrue($learner->hasListenedToday());
+            ->assertSee('Listened')
+            ->assertDontSee('I listened');
     }
 
     public function test_the_day_on_screen_cannot_be_rewritten_from_the_browser(): void
@@ -257,11 +202,81 @@ class ListeningPageTest extends TestCase
         Livewire::test('listening.index')->set('day', 4);
     }
 
-    public function test_the_missions_button_opens_the_missions_page_for_listening(): void
+    public function test_a_real_listen_files_the_pick_and_ticks_the_day_on_screen(): void
+    {
+        $learner = $this->learnerOnDay2();
+        $this->actingAs($learner);
+
+        Livewire::test('listening.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->call('heardPick', 1)
+            ->assertSee('Heard')
+            ->assertSee('Listened');
+
+        $this->assertDatabaseHas('audio_listens', [
+            'learner_id' => $learner->id,
+            'mission_code' => 'M01',
+            'source' => AudioListen::SOURCE_LISTENING_PICK,
+            'day_number' => 1,
+            'pick_key' => AudioListen::pickKey(1, 1),
+            'self_reported' => false,
+        ]);
+        $this->assertDatabaseHas('listening_logs', [
+            'learner_id' => $learner->id,
+            'listened_on' => now()->toDateString(),
+            'mission_code' => 'M01',
+            'day_number' => 1,
+        ]);
+    }
+
+    public function test_the_same_listen_reported_twice_within_a_minute_counts_once(): void
+    {
+        $learner = $this->learnerOnDay2();
+        $this->actingAs($learner);
+
+        Livewire::test('listening.index')
+            ->call('heardPick', 0)
+            ->call('heardPick', 0);
+
+        $this->assertSame(1, $learner->audioListens()->count());
+        $this->assertSame(1, $learner->listeningLogs()->count());
+    }
+
+    public function test_a_level_that_is_not_one_of_the_days_picks_files_nothing(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('listening.index')->call('heardPick', 7);
+
+        $this->assertSame(0, $learner->audioListens()->count());
+        $this->assertFalse($learner->hasListenedToday());
+    }
+
+    public function test_only_the_heard_pick_is_marked_heard(): void
+    {
+        $learner = User::factory()->create();
+        AudioListen::factory()->pick(1, 1)->create(['learner_id' => $learner->id]);
+        $this->actingAs($learner);
+
+        $html = $this->get(route('listening.show'))->getContent();
+
+        $this->assertSame(1, substr_count($html, '> Heard</span>'));
+    }
+
+    public function test_there_is_no_manual_tick(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('listening.show'))
+            ->assertDontSee('I listened')
+            ->assertDontSeeHtml('reportListen');
+    }
+
+    public function test_the_banner_leads_back_to_the_days_sheet_on_the_missions_page(): void
     {
         $this->actingAs($this->learnerOnDay2());
 
         $this->get(route('listening.show'))
-            ->assertSeeHtml('href="'.route('missions.index', ['for' => 'listening']).'"');
+            ->assertSeeHtml('href="'.route('missions.index', ['day' => 'M01-2']).'"');
     }
 }

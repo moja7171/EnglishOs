@@ -3,18 +3,18 @@
 use App\Models\AudioListen;
 use App\Models\Mission;
 use App\Services\ListeningPicks;
+use App\Services\MissionGrid;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
 {
     /**
-     * Locked: these decide which day's picks are shown AND which day an
-     * "I listened" tick is filed under, so the browser must never be able
-     * to rewrite them after mount() has checked them.
+     * Locked: these decide which day's picks are shown AND which day a
+     * listen is filed under, so the browser must never be able to rewrite
+     * them after mount() has checked them.
      */
     #[Locked]
     public string $missionCode = '';
@@ -50,21 +50,75 @@ new class extends Component
     }
 
     /**
-     * The learner's "I listened" tick — counts today toward the streak
-     * (see User::activeDates()), filed under the day on screen. The day
-     * is re-checked here, not trusted from mount(). Also what a pick's
-     * self-reported "I listened to this one" (listen-counter) counts as.
+     * A pick really heard: the player calls this once at least 90% of it
+     * has genuinely played (seeking ahead doesn't count — see
+     * eosListenTracker). There is no manual tick: one real listen to any
+     * of the three picks is the day's listening. It is filed as that
+     * pick's listen and as today's listening (what the streak counts, see
+     * User::activeDates()), under the day on screen, which is re-checked
+     * here, not trusted from mount(). A second call within a minute is the
+     * same listen, not another.
      */
-    #[On('listen-self-reported')]
-    public function markListened(): void
+    public function heardPick(int $level): void
     {
-        if (app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) > $this->currentIndex) {
+        if (! array_key_exists($level, $this->picks)
+            || app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) > $this->currentIndex) {
             return;
         }
 
-        auth()->user()->recordListeningToday($this->missionCode, $this->day);
+        $learner = auth()->user();
+        $pickKey = AudioListen::pickKey($this->day, $level);
+        $justHeard = $learner->audioListens()
+            ->where('mission_code', $this->missionCode)
+            ->where('source', AudioListen::SOURCE_LISTENING_PICK)
+            ->where('pick_key', $pickKey)
+            ->where('created_at', '>', now()->subMinute())
+            ->exists();
 
-        unset($this->listenedToday, $this->listenedDaysByMission, $this->listenedDays, $this->missionDays);
+        if (! $justHeard) {
+            $learner->audioListens()->create([
+                'mission_code' => $this->missionCode,
+                'source' => AudioListen::SOURCE_LISTENING_PICK,
+                'day_number' => $this->day,
+                'pick_key' => $pickKey,
+                'self_reported' => false,
+            ]);
+        }
+
+        $learner->recordListeningToday($this->missionCode, $this->day);
+
+        unset($this->listenedToday, $this->listenedDaysByMission, $this->listenedDays, $this->missionDays, $this->heardLevels);
+    }
+
+    /**
+     * The levels (0-2) of the day's picks heard at least once, for the
+     * "Heard" mark on their cards.
+     *
+     * @return list<int>
+     */
+    #[Computed]
+    public function heardLevels(): array
+    {
+        $heardKeys = auth()->user()->audioListens()
+            ->where('mission_code', $this->missionCode)
+            ->where('source', AudioListen::SOURCE_LISTENING_PICK)
+            ->whereIn('pick_key', collect(array_keys($this->picks))->map(fn (int $level) => AudioListen::pickKey($this->day, $level)))
+            ->pluck('pick_key')
+            ->all();
+
+        return collect(array_keys($this->picks))
+            ->filter(fn (int $level) => in_array(AudioListen::pickKey($this->day, $level), $heardKeys, true))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The mission's photo for the banner, the same as its Missions card.
+     */
+    #[Computed]
+    public function coverUrl(): ?string
+    {
+        return app(MissionGrid::class)->coverUrl($this->missionCode);
     }
 
     #[Computed]
@@ -173,7 +227,7 @@ new class extends Component
      * The four days of the mission on screen, for the quick day switcher
      * under the title, each marked past / today / future against the
      * learner's own position, plus which one is on screen and whether it
-     * was listened to. Another mission is one tap away in the picker.
+     * was listened to. Another mission is the Missions page.
      *
      * @return list<array{number: int, state: string, viewing: bool, done: bool}>
      */
@@ -204,21 +258,31 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
-    <header class="border-b border-line pb-4 dark:border-line-dark">
-        <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Home
-        </a>
-        <div class="mt-3 flex items-center gap-3">
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">
-                @svg('heroicon-o-speaker-wave', 'h-5 w-5')
-            </span>
-            <div class="min-w-0 flex-1">
-                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Listening</h1>
-                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }} of 4</p>
-            </div>
-            <x-missions-button for="listening" />
+@php
+    $listenedThisDay = $this->isToday ? $this->listenedToday : in_array($day, $this->listenedDays, true);
+@endphp
+<div class="mx-auto max-w-2xl space-y-5 p-6">
+    {{-- A slim banner with the mission's photo (the same as its Missions
+         card): the way back to this day's sheet on the Missions page, the
+         four days, and whether this day's listening is done. --}}
+    <header class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-4 text-white">
+        @if ($this->coverUrl)
+            <img src="{{ $this->coverUrl }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover">
+        @endif
+        <div class="absolute inset-0 -z-10 bg-linear-to-t from-black/75 via-black/40 to-black/20"></div>
+
+        <div class="flex items-center justify-between gap-2">
+            <a href="{{ route('missions.index', ['day' => $missionCode.'-'.$day]) }}" wire:navigate class="inline-flex min-w-0 items-center gap-1 text-xs font-semibold text-white/85 hover:text-white">
+                @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5 shrink-0')
+                <span class="truncate">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }}</span>
+            </a>
+            @if ($listenedThisDay)
+                <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success px-2 py-0.5 text-[11px] font-bold dark:bg-success-dark">@svg('heroicon-s-check', 'h-3 w-3') Listened</span>
+            @endif
         </div>
+        <h1 class="mt-6 flex items-center gap-2 font-display text-2xl font-extrabold">
+            @svg('heroicon-o-speaker-wave', 'h-6 w-6') Listening
+        </h1>
         <nav class="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Days of {{ $missionCode }}">
             @foreach ($this->missionDays as $dayInfo)
                 @php
@@ -226,7 +290,7 @@ new class extends Component
                 @endphp
                 @if ($dayInfo['state'] === 'future')
                     <span
-                        class="{{ $pill }} cursor-not-allowed border-dashed border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark"
+                        class="{{ $pill }} cursor-not-allowed border-dashed border-white/40 text-white/50"
                         title="Not reached yet"
                         aria-label="Day {{ $dayInfo['number'] }}, not reached yet"
                     >Day {{ $dayInfo['number'] }}</span>
@@ -237,9 +301,9 @@ new class extends Component
                         @if ($dayInfo['viewing']) aria-current="page" @endif
                         @class([
                             $pill,
-                            'border-ink bg-ink text-ground dark:border-ink-dark dark:bg-ink-dark dark:text-ground-dark' => $dayInfo['viewing'],
-                            'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
-                            'border-line text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
+                            'border-white bg-white text-ink' => $dayInfo['viewing'],
+                            'border-accent bg-accent/30 text-white' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
+                            'border-white/50 text-white hover:bg-white/15' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
                         ])
                     >
                         Day {{ $dayInfo['number'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}
@@ -251,139 +315,105 @@ new class extends Component
                 @endif
             @endforeach
         </nav>
-        @if (! $this->isToday && $this->currentDay)
-            <a href="{{ route('listening.show') }}" wire:navigate class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">
-                Back to today ({{ $this->currentDay['missionCode'] }} · Day {{ $this->currentDay['dayNumber'] }})
-            </a>
-        @endif
     </header>
 
-    <section class="space-y-1">
-        <p class="text-base font-semibold text-ink dark:text-ink-dark">Pick one — that's enough.</p>
-        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Lighter to more challenging.</p>
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Grammar in this mission: <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $this->mission['grammar'] }}</span></p>
-    </section>
-
-    {{-- The one-tap tick is today's (it is what the streak counts). An
-         earlier day shows only its own state: the picks' own counters
-         below are what file a listen under it. --}}
-    @if ($this->isToday)
-        <x-done-toggle :done="$this->listenedToday" action="markListened" label="I listened" done-label="Listened today" />
-    @elseif (in_array($day, $this->listenedDays, true))
-        <x-done-toggle :done="true" action="markListened" label="I listened" done-label="Listened" />
+    @if (! $this->isToday && $this->currentDay)
+        <a href="{{ route('listening.show') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">
+            Back to today ({{ $this->currentDay['missionCode'] }} · Day {{ $this->currentDay['dayNumber'] }})
+        </a>
     @endif
 
-    <section class="space-y-3" aria-label="Listening picks">
+    <p class="text-base font-semibold text-ink dark:text-ink-dark">Pick one — one is enough.</p>
+
+    {{-- One card per pick: level, title, source and length, a star on the
+         one with the day's grammar, and a round play button that opens the
+         player and its synced text inside the card — one card at a time.
+         The day ticks itself once a pick has really been heard (90% played
+         through, see heardPick()); there is no manual tick. --}}
+    <section x-data="{ playing: null }" class="space-y-3" aria-label="Listening picks">
         @foreach ($this->picks as $level => $pick)
-            <article class="card space-y-2.5 p-4" wire:key="pick-{{ $missionCode }}-{{ $day }}-{{ $level }}">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">{{ \App\Services\ListeningPicks::SOURCES[$pick['src']] ?? $pick['src'] }}</span>
-                    <span class="inline-flex items-center gap-2 text-xs text-ink-soft dark:text-ink-soft-dark">
-                        <span class="inline-flex h-4 items-end gap-0.5" role="img" aria-label="Difficulty: {{ \App\Services\ListeningPicks::LEVELS[$level] }}">
-                            @foreach ([2, 3, 4] as $bar => $height)
-                                <span @class([
-                                    'w-1 rounded-sm',
-                                    'h-2' => $height === 2,
-                                    'h-3' => $height === 3,
-                                    'h-4' => $height === 4,
-                                    'bg-accent dark:bg-accent-dark' => $bar <= $level,
-                                    'bg-line dark:bg-line-dark' => $bar > $level,
-                                ])></span>
-                            @endforeach
-                        </span>
-                        {{ \App\Services\ListeningPicks::LEVELS[$level] }}
-                    </span>
-                </div>
-
-                <h2 class="text-lg leading-snug font-bold text-ink dark:text-ink-dark">{{ $pick['title'] }}</h2>
-                @if ($pick['by'])
-                    <p class="-mt-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $pick['by'] }}</p>
-                @endif
-
-                <div class="flex flex-wrap gap-1.5">
-                    @if ($pick['min'])
-                        <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $pick['min'] }} min</span>
-                    @endif
-                    @if ($pick['grammar'])
-                        <span class="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Grammar of the day</span>
-                    @endif
-                    @if ($pick['local'])
-                        <span class="rounded-full bg-success-soft px-2.5 py-0.5 text-xs text-success dark:bg-success-soft-dark dark:text-success-dark">Plays here · text follows the audio</span>
-                    @elseif ($pick['tx'] === 'page')
-                        <span class="rounded-full bg-success-soft px-2.5 py-0.5 text-xs text-success dark:bg-success-soft-dark dark:text-success-dark">Full transcript</span>
-                    @endif
-                    @if ($pick['src'] === 'teded')
-                        <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">Video</span>
-                    @endif
-                    @if ($pick['apple'])
-                        <span class="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">Apple Podcasts · audio only</span>
-                    @endif
-                </div>
-
-                @php
-                    $pickKey = AudioListen::pickKey($day, $level);
-                @endphp
-
-                {{-- Every pick keeps its own count: heard here for an in-app
-                     pick, told by the learner for one that plays elsewhere. --}}
-                <livewire:listen-counter
-                    :mission-code="$missionCode"
-                    :source="AudioListen::SOURCE_LISTENING_PICK"
-                    :day-number="$day"
-                    :pick-key="$pickKey"
-                    :self-reportable="! $pick['local']"
-                    :key="'pick-counter-'.$missionCode.'-'.$pickKey"
-                />
-
-                <div x-data="{ open: false, loaded: false }" class="space-y-3">
-                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-0.5">
-                        @if ($pick['local'])
-                            <button
-                                type="button"
-                                x-on:click="open = ! open; loaded = true"
-                                x-bind:aria-expanded="open"
-                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                            >
-                                @svg('heroicon-s-play', 'h-4 w-4')
-                                <span x-text="open ? 'Hide player' : 'Listen here'">Listen here</span>
-                            </button>
-                            <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-accent-ink underline dark:text-accent-ink-dark">Original page</a>
-                        @else
-                            <a
-                                href="{{ $pick['url'] }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                            >Listen @svg('heroicon-o-arrow-top-right-on-square', 'h-4 w-4')</a>
-                        @endif
-                        @if ($pick['tx'] === 'link' && $pick['txUrl'])
-                            <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
+            @php $heard = in_array($level, $this->heardLevels, true); @endphp
+            <article
+                wire:key="pick-{{ $missionCode }}-{{ $day }}-{{ $level }}"
+                x-data="{ loaded: false }"
+                x-effect="if (playing === {{ $level }}) { loaded = true } else { $el.querySelectorAll('audio').forEach((audio) => audio.pause()) }"
+                @class(['card overflow-hidden', 'ring-1 ring-success/40 dark:ring-success-dark/40' => $heard])
+            >
+                <div class="flex items-center gap-3 p-4">
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
+                            <span class="inline-flex h-4 items-end gap-0.5" role="img" aria-label="Difficulty: {{ \App\Services\ListeningPicks::LEVELS[$level] }}">
+                                @foreach ([2, 3, 4] as $bar => $height)
+                                    <span @class([
+                                        'w-1 rounded-sm',
+                                        'h-2' => $height === 2,
+                                        'h-3' => $height === 3,
+                                        'h-4' => $height === 4,
+                                        'bg-accent dark:bg-accent-dark' => $bar <= $level,
+                                        'bg-line dark:bg-line-dark' => $bar > $level,
+                                    ])></span>
+                                @endforeach
+                            </span>
+                            {{ \App\Services\ListeningPicks::LEVELS[$level] }}
+                            @if ($pick['grammar'])
+                                <span class="text-warning-ink" title="Grammar of the day: {{ $this->mission['grammar'] }}" aria-label="Grammar of the day">★</span>
+                            @endif
+                            @if ($heard)
+                                <span class="inline-flex items-center gap-0.5 text-success dark:text-success-dark">@svg('heroicon-s-check-circle', 'h-3.5 w-3.5') Heard</span>
+                            @endif
+                        </div>
+                        <h2 class="mt-1 line-clamp-2 text-base leading-snug font-bold text-ink dark:text-ink-dark">{{ $pick['title'] }}</h2>
+                        <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">{{ \App\Services\ListeningPicks::SOURCES[$pick['src']] ?? $pick['src'] }}{{ $pick['min'] ? ' · '.$pick['min'].' min' : '' }}</p>
+                        @if (! $pick['local'] && $pick['tx'] === 'link' && $pick['txUrl'])
+                            <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="mt-1 inline-block text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
                         @endif
                     </div>
 
                     @if ($pick['local'])
-                        {{-- Built on the first click, so the page doesn't start downloading
-                             three audio files nobody asked for; hidden, not destroyed, after. --}}
-                        <div wire:ignore>
-                            <template x-if="loaded">
-                                <div x-show="open" x-cloak>
-                                    <x-audio-player
-                                        :url="$pick['local']['audioUrl']"
-                                        :segments="$this->localSegments[$level] ?? []"
-                                        :listen="['mission_code' => $missionCode, 'source' => AudioListen::SOURCE_LISTENING_PICK, 'day_number' => $day, 'pick_key' => $pickKey, 'chip' => false]"
-                                        onListened="$wire.markListened()"
-                                        :resume-key="'eos-resume:'.$missionCode.':'.$pickKey"
-                                    />
-                                </div>
-                            </template>
-                        </div>
+                        <button
+                            type="button"
+                            x-on:click="playing = playing === {{ $level }} ? null : {{ $level }}"
+                            x-bind:aria-expanded="playing === {{ $level }}"
+                            aria-label="Play"
+                            x-bind:aria-label="playing === {{ $level }} ? 'Close player' : 'Play'"
+                            class="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-sm transition-transform hover:scale-105 motion-reduce:transition-none dark:bg-accent-dark"
+                        >
+                            <span x-show="playing !== {{ $level }}">@svg('heroicon-s-play', 'ml-0.5 h-5 w-5')</span>
+                            <span x-show="playing === {{ $level }}" x-cloak>@svg('heroicon-s-x-mark', 'h-5 w-5')</span>
+                        </button>
+                    @else
+                        <a
+                            href="{{ $pick['url'] }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Listen on the original page"
+                            class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent text-white shadow-sm dark:bg-accent-dark"
+                        >@svg('heroicon-o-arrow-top-right-on-square', 'h-5 w-5')</a>
                     @endif
                 </div>
+
+                @if ($pick['local'])
+                    {{-- Built on the first open, so the page doesn't start
+                         downloading three audio files nobody asked for;
+                         hidden (and paused), not destroyed, after. --}}
+                    <div wire:ignore x-show="playing === {{ $level }}" x-cloak class="space-y-3 border-t border-line px-4 pt-3 pb-4 dark:border-line-dark">
+                        <template x-if="loaded">
+                            <x-audio-player
+                                :url="$pick['local']['audioUrl']"
+                                :segments="$this->localSegments[$level] ?? []"
+                                onListened="$wire.heardPick({{ $level }})"
+                                :resume-key="'eos-resume:'.$missionCode.':'.AudioListen::pickKey($day, $level)"
+                            />
+                        </template>
+                        <p class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold">
+                            <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="text-accent-ink underline dark:text-accent-ink-dark">Original page</a>
+                            @if ($pick['tx'] === 'link' && $pick['txUrl'])
+                                <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
+                            @endif
+                        </p>
+                    </div>
+                @endif
             </article>
         @endforeach
     </section>
-
-    <p class="border-t border-line pt-4 text-sm text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">
-        Don't stop for every unfamiliar word. If you need help, turn on English subtitles only.
-    </p>
 </div>

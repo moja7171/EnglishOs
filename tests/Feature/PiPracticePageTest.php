@@ -535,11 +535,12 @@ class PiPracticePageTest extends TestCase
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"');
     }
 
-    public function test_the_missions_button_opens_the_missions_page_for_daily_talk(): void
+    public function test_the_back_link_leads_to_the_days_sheet_on_the_missions_page(): void
     {
         $this->actingAs(User::factory()->create());
 
         $this->get(route('pi.practice'))
-            ->assertSeeHtml('href="'.route('missions.index', ['for' => 'talk']).'"');
+            ->assertSeeHtml('href="'.route('missions.index', ['day' => 'M01-1']).'"')
+            ->assertSee('M01 · Day 1');
     }
 }

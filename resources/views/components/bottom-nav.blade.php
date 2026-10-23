@@ -1,14 +1,17 @@
 {{--
-    The signed-in app's primary navigation: five fixed tabs at the bottom
+    The signed-in app's primary navigation: four fixed tabs at the bottom
     of the screen, where a thumb reaches (the app is used mostly on
     phones and tablets). Replaces the old crowded header, which carried
     Friends, Review, streak, theme, sound, notifications and the account
     menu all at once.
 
-    Home / Listening / Daily talk / Review / Progress are the places a
-    learner returns to every day. Everything secondary — Notebook,
-    Friends, profile — lives behind the avatar in the header, see
-    <x-account-menu>. Only Review carries a count, so the bar stays calm.
+    Home / Missions / Review / Notebook are the places a learner returns
+    to every day. Listening and Daily talk live inside the missions (each
+    day's sheet on the Missions page, and the Today box on Home), so the
+    Missions tab stays lit on their pages too. Everything secondary —
+    Progress, Friends, profile — lives behind the avatar in the header,
+    see <x-account-menu>. Only Review carries a count, so the bar stays
+    calm.
 
     It steps aside while the learner is typing (the on-screen keyboard
     would otherwise leave it floating above the keys, eating room) and
@@ -22,10 +25,9 @@
 
     $tabs = [
         ['label' => 'Home', 'route' => 'home', 'active' => request()->routeIs('home'), 'icon' => 'home'],
-        ['label' => 'Listening', 'route' => 'listening.show', 'active' => request()->routeIs('listening.*'), 'icon' => 'speaker-wave'],
-        ['label' => 'Daily talk', 'route' => 'pi.practice', 'active' => request()->routeIs('pi.practice'), 'icon' => 'microphone'],
+        ['label' => 'Missions', 'route' => 'missions.index', 'active' => request()->routeIs('missions.*', 'listening.*', 'pi.practice'), 'icon' => 'squares-2x2'],
         ['label' => 'Review', 'route' => 'review.index', 'active' => request()->routeIs('review.*'), 'icon' => 'bolt', 'badge' => $dueReviewCount],
-        ['label' => 'Progress', 'route' => 'progress.index', 'active' => request()->routeIs('progress.*'), 'icon' => 'chart-bar'],
+        ['label' => 'Notebook', 'route' => 'notebook.index', 'active' => request()->routeIs('notebook.*'), 'icon' => 'book-open'],
     ];
 
     // -1 on pages that belong to none of the tabs (Friends, Profile...).
@@ -73,13 +75,13 @@
     aria-label="Primary"
     class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 backdrop-blur dark:border-line-dark dark:bg-surface-dark/95"
 >
-    <div class="relative mx-auto grid max-w-2xl grid-cols-5">
+    <div class="relative mx-auto grid max-w-2xl grid-cols-4">
         {{-- The soft highlight behind the current tab. One element for all
              of them, so it can glide from tab to tab (see init() above). --}}
         <span
             x-ref="pill"
             aria-hidden="true"
-            class="pointer-events-none absolute inset-y-0 left-0 w-1/5 p-1.5 transition-[translate,opacity] duration-300 ease-out motion-reduce:transition-none {{ $activeIndex < 0 ? 'opacity-0' : '' }}"
+            class="pointer-events-none absolute inset-y-0 left-0 w-1/4 p-1.5 transition-[translate,opacity] duration-300 ease-out motion-reduce:transition-none {{ $activeIndex < 0 ? 'opacity-0' : '' }}"
             style="translate: {{ max($activeIndex, 0) * 100 }}% 0"
         >
             <span class="block h-full rounded-2xl bg-accent-soft dark:bg-accent-soft-dark"></span>

@@ -3,9 +3,9 @@
 use App\Models\ErrorLogItem;
 use App\Models\ErrorPatternReview;
 use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\FinishLine;
-use App\Services\MissionGrid;
 use App\Services\ProgramPlanner;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -202,16 +202,13 @@ new class extends Component
     }
 
     /**
-     * The Path tab: all 24 missions as photo cards, the same grid as the
-     * Missions page — see App\Services\MissionGrid ('progress': a
-     * finished mission's photo opens its recap).
-     *
-     * @return list<array<string, mixed>>
+     * Missions closed so far — complete, or sent back for review, the same
+     * runs the mission-to-mission gate counts as cleared.
      */
     #[Computed]
-    public function journey(): array
+    public function missionsDone(): int
     {
-        return app(MissionGrid::class)->for(auth()->user(), 'progress')['missions'];
+        return auth()->user()->missionRuns()->whereIn('status', [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW])->count();
     }
 
     #[Computed]
@@ -262,14 +259,14 @@ new class extends Component
 <div
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
     x-data="{
-        tab: ['path', 'overview', 'activity', 'growth'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'path',
+        tab: ['overview', 'activity', 'growth'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview',
         setTab(name) {
             this.tab = name;
             history.replaceState(history.state, '', '#' + name);
         },
     }"
 >
-    <a href="{{ route('home') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+    <a href="{{ route('missions.index') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
         All missions
     </a>
@@ -299,7 +296,7 @@ new class extends Component
             @if ($program['finishLine'])
                 <p dir="rtl" class="mt-1 w-fit text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">🏁 {{ $program['finishLine'] }}</p>
             @endif
-            @php $missionsDone = collect($this->journey)->where('done', true)->count(); @endphp
+            @php $missionsDone = $this->missionsDone; @endphp
             <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
                 <span class="inline-flex items-center gap-1.5">
                     @svg('heroicon-o-check-badge', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $missionsDone }} {{ Str::plural('mission', $missionsDone) }}
@@ -317,8 +314,8 @@ new class extends Component
         </div>
     </header>
 
-    <div role="tablist" aria-label="Progress sections" class="grid grid-cols-4 gap-1 card p-1">
-        @foreach (['path' => 'Path', 'overview' => 'Overview', 'activity' => 'Activity', 'growth' => 'Growth'] as $tabKey => $tabLabel)
+    <div role="tablist" aria-label="Progress sections" class="grid grid-cols-3 gap-1 card p-1">
+        @foreach (['overview' => 'Overview', 'activity' => 'Activity', 'growth' => 'Growth'] as $tabKey => $tabLabel)
             <button
                 type="button"
                 role="tab"
@@ -334,12 +331,6 @@ new class extends Component
                 @endif
             </button>
         @endforeach
-    </div>
-
-    {{-- Path — the whole road, M01 to M24, as photo cards: what's behind
-         (each opening its recap), where the learner is, and what's ahead. --}}
-    <div x-show="tab === 'path'" role="tabpanel">
-        <x-mission-grid :missions="$this->journey" />
     </div>
 
     {{-- Overview — only what's useful today: the streak, the week's goal,

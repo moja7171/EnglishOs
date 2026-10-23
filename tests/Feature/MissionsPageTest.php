@@ -6,7 +6,6 @@ use App\Models\AudioListen;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PiChatFeedback;
-use App\Models\PiPracticeLog;
 use App\Models\User;
 use App\Services\MissionGrid;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -43,68 +42,71 @@ class MissionsPageTest extends TestCase
         return $learner;
     }
 
-    public function test_from_home_a_day_opens_in_its_mission_and_the_open_mission_on_the_day_bar(): void
+    /**
+     * @return array<string, mixed>
+     */
+    private function day(User $learner, string $code, int $number): array
     {
-        $learner = $this->learnerOnM02();
-        $this->actingAs($learner);
-
-        $this->get(route('missions.index'))
-            ->assertSee('Day 5 of 96')
-            ->assertSeeHtml('aria-label="M01 · Day 1, done"')
-            ->assertSeeHtml('href="'.route('missions.show', ['M01', 'grammar_in_context']).'"')
-            ->assertSeeHtml('aria-label="M02 · Day 1, today"')
-            ->assertSee("You're here", false)
-            ->assertSeeHtml('aria-label="M02 · Day 2, not reached yet"')
-            ->assertSeeHtml('aria-label="M24 · Day 4, not reached yet"');
-        $this->assertSame(route('home'), $this->dayUrl($learner, 'home', 'M02', 1));
-    }
-
-    private function dayUrl(User $learner, string $context, string $code, int $day): ?string
-    {
-        return collect(app(MissionGrid::class)->for($learner, $context)['missions'])->firstWhere('code', $code)['days'][$day - 1]['url'];
-    }
-
-    public function test_from_listening_a_day_opens_its_listening_and_only_listens_tick_it(): void
-    {
-        $learner = $this->learnerOnM02();
-        AudioListen::factory()->pick(2)->create(['learner_id' => $learner->id, 'mission_code' => 'M01']);
-        PiPracticeLog::factory()->for($learner, 'learner')->create(['mission_code' => 'M01', 'day_number' => 3]);
-        $this->actingAs($learner);
-
-        $this->get(route('missions.index', ['for' => 'listening']))
-            ->assertSeeHtml('href="'.route('listening.show', ['M01', 3]).'"')
-            ->assertSeeHtml('aria-label="M01 · Day 2, done"')
-            ->assertSeeHtml('aria-label="M01 · Day 3"')
-            ->assertSeeHtml('aria-label="M03 · Day 1, not reached yet"')
-            ->assertDontSeeHtml('href="'.route('listening.show', ['M03', 1]).'"');
-        $this->assertSame(route('listening.show'), $this->dayUrl($learner, 'listening', 'M02', 1));
-    }
-
-    public function test_from_daily_talk_a_day_opens_its_practice_and_only_practice_ticks_it(): void
-    {
-        $learner = $this->learnerOnM02();
-        PiChatFeedback::factory()->for($learner, 'learner')->create(['chat' => '', 'day_number' => 2, 'feedback' => ['practice_done' => true]]);
-        AudioListen::factory()->pick(3)->create(['learner_id' => $learner->id, 'mission_code' => 'M01']);
-        $this->actingAs($learner);
-
-        $this->get(route('missions.index', ['for' => 'talk']))
-            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 4]).'"')
-            ->assertSeeHtml('aria-label="M01 · Day 2, done"')
-            ->assertSeeHtml('aria-label="M01 · Day 3"')
-            ->assertDontSeeHtml('href="'.route('pi.practice', ['M03', 1]).'"');
-    }
-
-    public function test_an_unknown_for_opens_the_days_as_from_home(): void
-    {
-        $this->actingAs($this->learnerOnM02());
-
-        $this->get(route('missions.index', ['for' => 'elsewhere']))
-            ->assertSeeHtml('href="'.route('missions.show', ['M01', 'grammar_in_context']).'"')
-            ->assertDontSeeHtml('href="'.route('listening.show', ['M01', 2]).'"');
+        return collect(app(MissionGrid::class)->for($learner)['missions'])->firstWhere('code', $code)['days'][$number - 1];
     }
 
     public function test_a_guest_is_sent_to_log_in(): void
     {
         $this->get(route('missions.index'))->assertRedirect(route('login'));
+    }
+
+    public function test_the_page_shows_every_mission_with_where_the_learner_is(): void
+    {
+        $this->actingAs($this->learnerOnM02());
+
+        $this->get(route('missions.index'))
+            ->assertSee('Day 5 of 96')
+            ->assertSee("You're here", false)
+            ->assertSeeHtml('aria-label="M01 · Day 1, 1 of 3 done"')
+            ->assertSeeHtml('aria-label="M02 · Day 1, today"')
+            ->assertSeeHtml('aria-label="M02 · Day 2, not reached yet"')
+            ->assertSeeHtml('aria-label="M24 · Day 4, not reached yet"');
+    }
+
+    public function test_each_day_opens_its_lesson_listening_and_daily_talk(): void
+    {
+        $learner = $this->learnerOnM02();
+
+        $finishedDay = $this->day($learner, 'M01', 2);
+        $this->assertSame(route('missions.show', ['M01', 'grammar_in_context']), $finishedDay['lessonUrl']);
+        $this->assertSame(route('listening.show', ['M01', 2]), $finishedDay['listeningUrl']);
+        $this->assertSame(route('pi.practice', ['M01', 2]), $finishedDay['talkUrl']);
+
+        $this->assertSame(route('home'), $this->day($learner, 'M02', 1)['lessonUrl']);
+        $this->assertNull($this->day($learner, 'M02', 2)['listeningUrl']);
+    }
+
+    public function test_each_part_of_a_day_is_ticked_by_its_own_practice(): void
+    {
+        $learner = $this->learnerOnM02();
+        AudioListen::factory()->pick(2)->create(['learner_id' => $learner->id, 'mission_code' => 'M01']);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['chat' => '', 'day_number' => 2, 'feedback' => ['practice_done' => true]]);
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['chat' => '', 'day_number' => 3, 'feedback' => ['practice_done' => true]]);
+
+        $dayTwo = $this->day($learner, 'M01', 2);
+        $dayThree = $this->day($learner, 'M01', 3);
+
+        $this->assertSame([true, true, true], [$dayTwo['lesson'], $dayTwo['listened'], $dayTwo['talked']]);
+        $this->assertSame([true, false, true], [$dayThree['lesson'], $dayThree['listened'], $dayThree['talked']]);
+
+        $this->actingAs($learner);
+        $this->get(route('missions.index'))
+            ->assertSeeHtml('aria-label="M01 · Day 2, done"')
+            ->assertSeeHtml('aria-label="M01 · Day 3, 2 of 3 done"');
+    }
+
+    public function test_a_day_from_the_query_opens_its_sheet(): void
+    {
+        $this->actingAs($this->learnerOnM02());
+
+        $this->get(route('missions.index', ['day' => 'M01-3']))
+            ->assertSeeHtml('x-init="show(');
+        $this->get(route('missions.index', ['day' => 'nonsense']))
+            ->assertDontSeeHtml('x-init="show(');
     }
 }

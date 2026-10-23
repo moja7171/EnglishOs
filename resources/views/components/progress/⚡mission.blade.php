@@ -9,8 +9,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 /**
- * One finished mission looked back on, opened from the Progress page's
- * Path tab: what it taught (its grammar), the words the learner picked,
+ * One finished mission looked back on, opened from its photo on the
+ * Missions page: what it taught (its grammar), the words the learner picked,
  * and their own voice from it. A mirror onto data the run already holds
  * — nothing is asked or recorded here. Revisiting the steps themselves
  * stays on the mission runner ("Open mission").
@@ -69,9 +69,9 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
-    <a href="{{ route('progress.index') }}#path" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+    <a href="{{ route('missions.index') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
         @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        My path
+        Missions
     </a>
 
     <header data-mood="{{ $mission->moodKey() }}" class="card p-4">

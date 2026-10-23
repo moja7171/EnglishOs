@@ -267,8 +267,10 @@ new class extends Component
 
 <div class="mx-auto max-w-2xl space-y-6 p-6" x-data="{ showInfo: false }">
     <header class="border-b border-line pb-4 dark:border-line-dark">
-        <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Home
+        {{-- Back to this day's sheet on the Missions page, where Daily talk
+             sits beside the day's Lesson and Listening. --}}
+        <a href="{{ route('missions.index', ['day' => $missionCode.'-'.$day]) }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') {{ $missionCode }} · Day {{ $day }}
         </a>
         <div class="mt-3 flex items-center gap-3">
             <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">
@@ -278,7 +280,6 @@ new class extends Component
                 <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Daily talk</h1>
                 <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</p>
             </div>
-            <x-missions-button for="talk" />
             <button
                 type="button"
                 x-on:click="showInfo = ! showInfo"

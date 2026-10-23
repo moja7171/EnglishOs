@@ -38,8 +38,8 @@ new class extends Component
      * next mission between missions. Null once all 24 missions are done.
      *
      * Shown inside the Today box as a single row linking to /listening,
-     * where the picks themselves and the "I listened" tick live; the box
-     * only reflects whether today's tick has been made.
+     * where the picks live; the row is ticked once one of them has really
+     * been heard (no manual tick anywhere).
      *
      * @return array{missionCode: string, dayNumber: int, listenedToday: bool}|null
      */
@@ -82,24 +82,6 @@ new class extends Component
             'title' => PiPrompts::DAYS[$target['dayNumber']]['title'],
             'practicedToday' => $learner->hasPracticedWithPiToday(),
         ];
-    }
-
-    /**
-     * The circle on the listening row: the same self-reported "I listened"
-     * tick as on /listening, filed under the day the row points at. The
-     * day comes from the server-side plan, never from the browser.
-     */
-    public function markListened(): void
-    {
-        $listening = $this->listening;
-
-        if ($listening === null) {
-            return;
-        }
-
-        auth()->user()->recordListeningToday($listening['missionCode'], $listening['dayNumber']);
-
-        unset($this->listening);
     }
 
     /**
@@ -232,7 +214,7 @@ new class extends Component
 
     /**
      * The top of home: the mission the learner is in (or about to start)
-     * as the headline (the Missions button beside it), and one line under
+     * as the headline, and one line under
      * it — "Mission N of 24" and the streak. The days are the day bar
      * below; the 100-day count, ahead/behind and memory freshness live on
      * the Progress page.
@@ -380,7 +362,7 @@ new class extends Component
     /**
      * What home shows below Today, as one line: the next mission still to
      * unlock and how many more come after it (locked or not built yet) —
-     * the full list lives on the Progress page's Path tab.
+     * the full list is the Missions tab.
      *
      * @return array{next: ?Mission, moreCount: int}
      */
@@ -440,15 +422,12 @@ new class extends Component
     @php $program = $this->program; $today = $program['today']; $headline = $this->headline; $streak = $this->streak; @endphp
 
     {{-- Where the learner is, in two lines: the mission as the headline,
-         with the Missions button beside it (any reached day of any mission
-         is one tap away there), then "Mission N of 24" and the streak, which opens the
-         Progress page (the 100-day count, ahead/behind and the rest). --}}
+         then "Mission N of 24" and the streak, which opens the Progress
+         page (the 100-day count, ahead/behind and the rest). Every other
+         mission and day is the Missions tab. --}}
     @php $viewedDay = $this->viewedDay; @endphp
     <header>
-        <div class="flex items-start justify-between gap-3">
-            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $headline['title'] }}</h1>
-            <x-missions-button class="mt-1" />
-        </div>
+        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $headline['title'] }}</h1>
         <a
             href="{{ route('progress.index') }}"
             wire:navigate
@@ -683,7 +662,7 @@ new class extends Component
     @endif
 
     {{-- One line for what comes after: the next mission opens as a
-         preview, the rest is on the Progress page's Path tab. --}}
+         preview, the rest is the Missions page. --}}
     @php $upcoming = $this->upcoming; $linkClass = 'transition-colors hover:text-ink-soft dark:hover:text-ink-soft-dark'; @endphp
     @if ($upcoming['next'] || $upcoming['moreCount'] > 0)
         <p class="flex flex-wrap items-center justify-center gap-x-1.5 px-4 py-2 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
@@ -692,8 +671,8 @@ new class extends Component
                 <a href="{{ route('missions.show', [$next, 'overview']) }}" wire:navigate class="{{ $linkClass }}">Next: {{ $next->code }} {{ $next->title }}</a>
                 <span aria-hidden="true">·</span>
             @endif
-            <a href="{{ route('progress.index') }}#path" wire:navigate class="inline-flex items-center gap-1 {{ $linkClass }}">
-                {{ $upcoming['moreCount'] > 0 ? $upcoming['moreCount'].' more'.($upcoming['next'] ? '' : ' '.Str::plural('mission', $upcoming['moreCount'])).' · ' : '' }}Roadmap @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
+            <a href="{{ route('missions.index') }}" wire:navigate class="inline-flex items-center gap-1 {{ $linkClass }}">
+                {{ $upcoming['moreCount'] > 0 ? $upcoming['moreCount'].' more'.($upcoming['next'] ? '' : ' '.Str::plural('mission', $upcoming['moreCount'])).' · ' : '' }}Missions @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
             </a>
         </p>
     @endif

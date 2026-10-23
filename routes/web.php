@@ -47,12 +47,13 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('pi-setup');
     })->name('pi.setup');
 
-    // All 24 missions as photo cards (App\Services\MissionGrid). ?for=listening
-    // or ?for=talk opens each day on that page instead of in the mission.
+    // All 24 missions as photo cards (App\Services\MissionGrid), a tab of
+    // the bottom nav. ?day=M03-2 opens that day's sheet (the way back from
+    // its Listening or Daily talk page).
     Route::get('/missions', function (MissionGrid $grid) {
-        $context = in_array(request()->query('for'), ['listening', 'talk'], true) ? request()->query('for') : 'home';
+        $openDay = preg_match('/^M(0[1-9]|1[0-9]|2[0-4])-[1-4]$/', (string) request()->query('day')) === 1 ? request()->query('day') : null;
 
-        return view('missions', ['context' => $context, 'grid' => $grid->for(auth()->user(), $context)]);
+        return view('missions', ['grid' => $grid->for(auth()->user()), 'openDay' => $openDay]);
     })->name('missions.index');
 
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
