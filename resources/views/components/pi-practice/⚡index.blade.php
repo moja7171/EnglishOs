@@ -110,7 +110,7 @@ new class extends Component
             unset($this->practicedToday);
         }
 
-        unset($this->practicedDaysByMission, $this->practicedDays, $this->isPracticed, $this->missionDays, $this->missionMap);
+        unset($this->practicedDaysByMission, $this->practicedDays, $this->isPracticed, $this->missionDays);
     }
 
     /**
@@ -231,21 +231,6 @@ new class extends Component
     }
 
     /**
-     * @return list<array<string, mixed>> see ListeningPicks::missionMap()
-     */
-    #[Computed]
-    public function missionMap(): array
-    {
-        $picks = app(ListeningPicks::class);
-
-        return $picks->missionMap(
-            $this->currentIndex,
-            $picks->indexOf($this->target['missionCode'], $this->target['dayNumber']),
-            $this->practicedDaysByMission,
-        );
-    }
-
-    /**
      * The four days of the mission on screen, for the quick day switcher
      * under the title, each marked against the learner's own position.
      *
@@ -283,7 +268,7 @@ new class extends Component
 <div class="mx-auto max-w-2xl space-y-6 p-6" x-data="{ showInfo: false }">
     <header class="border-b border-line pb-4 dark:border-line-dark">
         <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Missions
+            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Home
         </a>
         <div class="mt-3 flex items-center gap-3">
             <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">
@@ -291,8 +276,9 @@ new class extends Component
             </span>
             <div class="min-w-0 flex-1">
                 <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Daily talk</h1>
-                <x-mission-picker :missions="$this->missionMap" :mission-code="$missionCode" :day="$day" route-name="pi.practice" :reached-day="$this->currentIndex + 1">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</x-mission-picker>
+                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</p>
             </div>
+            <x-missions-button for="talk" />
             <button
                 type="button"
                 x-on:click="showInfo = ! showInfo"

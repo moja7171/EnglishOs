@@ -232,7 +232,7 @@ new class extends Component
 
     /**
      * The top of home: the mission the learner is in (or about to start)
-     * as the headline (a tap opens the mission map), and one line under
+     * as the headline (the Missions button beside it), and one line under
      * it — "Mission N of 24" and the streak. The days are the day bar
      * below; the 100-day count, ahead/behind and memory freshness live on
      * the Progress page.
@@ -311,51 +311,6 @@ new class extends Component
         $day = collect($this->missionDays)->firstWhere('number', $this->viewDay);
 
         return $day === null || $day['state'] === 'today' ? null : $day;
-    }
-
-    /**
-     * The map of all 24 missions behind the headline (see
-     * <x-mission-picker>), ticked by finished mission days. A day of the
-     * open mission opens on this page's day bar; a day of any other
-     * reached mission opens that day in the mission itself.
-     *
-     * @return list<array<string, mixed>> see ListeningPicks::missionMap()
-     */
-    #[Computed]
-    public function missionMap(): array
-    {
-        $picks = app(ListeningPicks::class);
-        $today = $this->program['today'];
-        $current = $picks->dayFor($today);
-        $currentIndex = $current === null ? ProgramPlanner::TOTAL_DAYS - 1 : $picks->indexOf($current['missionCode'], $current['dayNumber']);
-        $openCode = $today['kind'] === 'mission_day' ? $today['mission']->code : null;
-        $missions = Mission::all()->keyBy('code');
-
-        $doneDays = auth()->user()->missionRuns()->with('mission')->get()
-            ->mapWithKeys(fn (MissionRun $run) => [
-                $run->mission->code => in_array($run->status, [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW], true)
-                    ? range(1, count($run->mission->phases ?? []))
-                    : collect($run->dayProgress())->filter(fn (array $day) => $day['done'])->keys()->map(fn (int $index) => $index + 1)->all(),
-            ])
-            ->all();
-
-        return collect($picks->missionMap($currentIndex, $current === null ? null : $currentIndex, $doneDays))
-            ->map(fn (array $mission) => [
-                ...$mission,
-                'days' => collect($mission['days'])->map(fn (array $day) => $day + [
-                    'url' => match (true) {
-                        $mission['code'] === $openCode => route('home', $day['state'] === 'today' ? [] : ['day' => $day['number']]),
-                        $missions->has($mission['code']) => route('missions.show', [
-                            $missions[$mission['code']],
-                            collect($missions[$mission['code']]->phases[$day['number'] - 1]['steps'] ?? [])
-                                ->map(fn ($step) => is_array($step) ? $step['key'] : $step)
-                                ->first(),
-                        ]),
-                        default => null,
-                    },
-                ])->all(),
-            ])
-            ->all();
     }
 
     /**
@@ -485,18 +440,15 @@ new class extends Component
     @php $program = $this->program; $today = $program['today']; $headline = $this->headline; $streak = $this->streak; @endphp
 
     {{-- Where the learner is, in two lines: the mission as the headline,
-         which opens the map of all 24 missions (any reached day is one tap
-         away), then "Mission N of 24" and the streak, which opens the
+         with the Missions button beside it (any reached day of any mission
+         is one tap away there), then "Mission N of 24" and the streak, which opens the
          Progress page (the 100-day count, ahead/behind and the rest). --}}
     @php $viewedDay = $this->viewedDay; @endphp
     <header>
-        <x-mission-picker
-            :missions="$this->missionMap"
-            :mission-code="$today['mission']?->code ?? $today['nextMissionCode'] ?? ''"
-            :day="$viewedDay['number'] ?? $headline['dayNumber'] ?? 0"
-            :reached-day="collect($this->missionMap)->flatMap(fn ($mission) => $mission['days'])->where('state', '!=', 'future')->count()"
-            trigger-class="inline-flex max-w-full cursor-pointer items-center gap-1.5 text-start font-display text-2xl font-extrabold text-ink transition-opacity hover:opacity-80 dark:text-ink-dark"
-        >{{ $headline['title'] }}</x-mission-picker>
+        <div class="flex items-start justify-between gap-3">
+            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $headline['title'] }}</h1>
+            <x-missions-button class="mt-1" />
+        </div>
         <a
             href="{{ route('progress.index') }}"
             wire:navigate

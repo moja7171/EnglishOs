@@ -5,6 +5,7 @@ use App\Models\ErrorPatternReview;
 use App\Models\Mission;
 use App\Models\User;
 use App\Services\FinishLine;
+use App\Services\MissionGrid;
 use App\Services\ProgramPlanner;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -201,15 +202,16 @@ new class extends Component
     }
 
     /**
-     * The Path tab: all 24 missions with where the learner stands on
-     * each — see User::missionJourney().
+     * The Path tab: all 24 missions as photo cards, the same grid as the
+     * Missions page — see App\Services\MissionGrid ('progress': a
+     * finished mission's photo opens its recap).
      *
-     * @return list<array{code: string, title: string, mission: ?Mission, run: ?\App\Models\MissionRun, state: string, dayNumber: ?int}>
+     * @return list<array<string, mixed>>
      */
     #[Computed]
     public function journey(): array
     {
-        return auth()->user()->missionJourney();
+        return app(MissionGrid::class)->for(auth()->user(), 'progress')['missions'];
     }
 
     #[Computed]
@@ -297,7 +299,7 @@ new class extends Component
             @if ($program['finishLine'])
                 <p dir="rtl" class="mt-1 w-fit text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">🏁 {{ $program['finishLine'] }}</p>
             @endif
-            @php $missionsDone = collect($this->journey)->where('state', 'done')->count(); @endphp
+            @php $missionsDone = collect($this->journey)->where('done', true)->count(); @endphp
             <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
                 <span class="inline-flex items-center gap-1.5">
                     @svg('heroicon-o-check-badge', 'h-3.5 w-3.5 text-ink-faint dark:text-ink-faint-dark') {{ $missionsDone }} {{ Str::plural('mission', $missionsDone) }}
@@ -334,68 +336,10 @@ new class extends Component
         @endforeach
     </div>
 
-    {{-- Path — the whole road, M01 to M24: what's behind (each with the
-         one thing it taught), where the learner is, and what's ahead. --}}
-    <div x-show="tab === 'path'" role="tabpanel" class="card p-4">
-        <ol class="relative">
-            @foreach ($this->journey as $slot)
-                @php $isLast = $loop->last; @endphp
-                <li class="relative flex gap-3 {{ $isLast ? '' : 'pb-3' }}">
-                    @unless ($isLast)
-                        <span aria-hidden="true" @class([
-                            'absolute top-7 bottom-0 left-[13px] w-0.5',
-                            'bg-success dark:bg-success-dark' => $slot['state'] === 'done',
-                            'bg-line dark:bg-line-dark' => $slot['state'] !== 'done',
-                        ])></span>
-                    @endunless
-
-                    @if ($slot['state'] === 'done')
-                        <span class="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-3.5 w-3.5')</span>
-                    @elseif ($slot['state'] === 'current')
-                        <span class="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-white ring-4 ring-accent/20 dark:bg-accent-dark dark:ring-accent-dark/25">@svg('heroicon-s-play', 'h-3 w-3')</span>
-                    @else
-                        <span @class([
-                            'relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 bg-surface text-[10px] font-bold dark:bg-surface-dark',
-                            'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => $slot['state'] === 'open',
-                            'border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark' => $slot['state'] === 'locked',
-                        ])>{{ (int) substr($slot['code'], 1) }}</span>
-                    @endif
-
-                    @php
-                        $href = match ($slot['state']) {
-                            'done' => route('progress.mission', $slot['mission']),
-                            'current' => route('missions.show', $slot['mission']),
-                            'open' => route('missions.show', [$slot['mission'], 'overview']),
-                            default => null,
-                        };
-                    @endphp
-                    <div class="min-w-0 flex-1 pt-0.5">
-                        @if ($href)
-                            <a href="{{ $href }}" wire:navigate class="group flex items-center justify-between gap-2">
-                                <span class="min-w-0">
-                                    <span class="block text-sm font-semibold text-ink group-hover:text-accent-ink dark:text-ink-dark dark:group-hover:text-accent-ink-dark">
-                                        <span class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['code'] }}</span> {{ $slot['title'] }}
-                                    </span>
-                                    @if ($slot['state'] === 'done' && $slot['mission']->outcome)
-                                        <span class="mt-0.5 line-clamp-2 block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $slot['mission']->outcome }}</span>
-                                    @elseif ($slot['state'] === 'current')
-                                        <span class="mt-0.5 block text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">You're here{{ $slot['dayNumber'] ? ' · Day '.$slot['dayNumber'].' of '.count($slot['mission']->phases ?? []) : '' }}</span>
-                                    @elseif ($slot['state'] === 'open')
-                                        <span class="mt-0.5 block text-xs text-accent-ink dark:text-accent-ink-dark">Up next</span>
-                                    @endif
-                                </span>
-                                @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
-                            </a>
-                        @else
-                            <p class="flex items-center justify-between gap-2 text-sm text-ink-faint dark:text-ink-faint-dark">
-                                <span><span class="text-xs font-bold">{{ $slot['code'] }}</span> {{ $slot['title'] }}</span>
-                                @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
-                            </p>
-                        @endif
-                    </div>
-                </li>
-            @endforeach
-        </ol>
+    {{-- Path — the whole road, M01 to M24, as photo cards: what's behind
+         (each opening its recap), where the learner is, and what's ahead. --}}
+    <div x-show="tab === 'path'" role="tabpanel">
+        <x-mission-grid :missions="$this->journey" />
     </div>
 
     {{-- Overview — only what's useful today: the streak, the week's goal,

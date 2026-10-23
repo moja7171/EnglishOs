@@ -212,7 +212,7 @@ class ProgramPlannerTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSee('M01 · My Daily Life')
-            ->assertSee('Day 1 of 2')
+            ->assertSeeHtml('aria-label="Day 1, today"')
             ->assertSee('Today · Foundation')
             ->assertSee('Vocabulary Builder')
             ->assertDontSee('Day 1 of 96');

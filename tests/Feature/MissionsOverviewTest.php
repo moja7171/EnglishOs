@@ -262,21 +262,6 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Back to today');
     }
 
-    public function test_the_mission_map_opens_a_finished_mission_day_in_the_mission_and_the_open_mission_on_the_day_bar(): void
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
-        MissionRun::findOrStart($learner, $this->makeSecondMission());
-        $this->actingAs($learner);
-
-        $map = collect(Livewire::test('missions.overview')->instance()->missionMap)->keyBy('code');
-
-        $this->assertSame(route('missions.show', ['M01', 'mission_brief']), $map['M01']['days'][0]['url']);
-        $this->assertTrue($map['M01']['days'][0]['done']);
-        $this->assertSame(route('home'), $map['M02']['days'][0]['url']);
-        $this->assertSame('future', $map['M03']['days'][0]['state']);
-    }
-
     private function makeSecondMission(): Mission
     {
         return Mission::create([
@@ -499,5 +484,13 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')->assertDontSee('Extra listening');
+    }
+
+    public function test_the_missions_button_opens_the_missions_page(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('missions.overview')
+            ->assertSeeHtml('href="'.route('missions.index').'"');
     }
 }

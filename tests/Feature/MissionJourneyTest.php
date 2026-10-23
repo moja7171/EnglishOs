@@ -49,7 +49,7 @@ class MissionJourneyTest extends TestCase
         ]);
     }
 
-    public function test_the_path_shows_done_open_and_locked_missions(): void
+    public function test_the_path_shows_finished_current_and_locked_missions_as_cards(): void
     {
         $learner = User::factory()->create();
         $first = $this->makeMission('M01');
@@ -62,10 +62,9 @@ class MissionJourneyTest extends TestCase
 
         $component
             ->assertSeeHtml('href="'.route('progress.mission', $first).'"')
-            ->assertSee('I can do the M01 thing.')
-            ->assertSeeHtml('href="'.route('missions.show', [$second, 'overview']).'"')
-            ->assertSee('Up next')
-            ->assertDontSeeHtml('href="'.route('missions.show', [Mission::where('code', 'M03')->first(), 'overview']).'"')
+            ->assertSeeHtml('href="'.route('missions.show', [$second, 'mission_brief']).'"')
+            ->assertSee("You're here", false)
+            ->assertSeeHtml('aria-label="M03 · Day 1, not reached yet"')
             ->assertSee('Debate &amp; Discussion', false);
     }
 
@@ -88,7 +87,9 @@ class MissionJourneyTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('progress.index')
-            ->assertSee("You're here · Day 2 of 2", false);
+            ->assertSee("You're here", false)
+            ->assertSeeHtml('aria-label="M01 · Day 1, today, done"')
+            ->assertSeeHtml('aria-label="M01 · Day 2, not reached yet"');
     }
 
     public function test_the_summary_line_counts_missions_done_and_listens(): void

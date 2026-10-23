@@ -149,8 +149,8 @@ class ListeningPicks
     }
 
     /**
-     * All 24 missions in path order with their four days, for the mission
-     * map on /listening and /pi: each day is past, today or future against
+     * All 24 missions in path order with their four days, for the Missions
+     * page (see MissionGrid): each day is past, today or future against
      * the learner's position, and done or not by that page's own ticks.
      *
      * @param  int  $reachedIndex  program position of the furthest day reached (0-95)
