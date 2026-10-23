@@ -14,7 +14,7 @@
         @svg('heroicon-o-microphone', 'h-4 w-4')
     </span>
     <span class="flex-1">
-        <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Voice practice</span>
+        <span class="block text-sm font-semibold text-ink dark:text-ink-dark">Daily talk</span>
         <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">10 minutes of talking with a voice AI.</span>
     </span>
     @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')

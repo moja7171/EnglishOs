@@ -10,14 +10,14 @@ class AppLayoutSoundToggleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_sound_mute_toggle_appears_in_the_header_for_an_authenticated_learner(): void
+    public function test_the_sound_effects_switch_is_on_profile_and_settings(): void
     {
         $learner = User::factory()->create();
 
-        $response = $this->actingAs($learner)->get(route('home'));
+        $response = $this->actingAs($learner)->get(route('profile'));
 
         $response->assertOk();
         $response->assertSee('eosSoundEnabled', false);
-        $response->assertSee('Mute sound effects', false);
+        $response->assertSee('aria-label="Sound effects"', false);
     }
 }

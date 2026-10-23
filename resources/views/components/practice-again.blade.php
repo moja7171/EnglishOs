@@ -11,7 +11,7 @@
 
     $rows = [
         ['label' => 'Listening', 'icon' => 'speaker-wave', 'route' => 'listening.show', 'doneDays' => $user->listenedDaysOf($missionCode)],
-        ['label' => 'Voice practice', 'icon' => 'microphone', 'route' => 'pi.practice', 'doneDays' => $user->piPracticedDaysOf($missionCode)],
+        ['label' => 'Daily talk', 'icon' => 'microphone', 'route' => 'pi.practice', 'doneDays' => $user->piPracticedDaysOf($missionCode)],
     ];
 @endphp
 

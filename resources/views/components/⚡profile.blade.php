@@ -931,4 +931,57 @@ new class extends Component
             @endforeach
         </div>
     @endif
+
+    {{-- Under every tab: the app-wide switches, the guide and Sign out, which
+         used to crowd the avatar menu (see <x-account-menu>). The theme and
+         sound live in the browser (window.eosTheme, localStorage), not on
+         the account, so these are Alpine-only. --}}
+    <div
+        class="card divide-y divide-line dark:divide-line-dark"
+        x-data="{ dark: window.eosTheme.dark, soundEnabled: true }"
+        x-init="soundEnabled = (() => { try { return localStorage.getItem('eosSoundEnabled') !== 'false' } catch (e) { return true } })()"
+    >
+        <a href="{{ route('learner.guide') }}" wire:navigate class="flex items-center gap-3 p-4 text-sm font-semibold text-ink transition-colors hover:bg-surface-sunken dark:text-ink-dark dark:hover:bg-surface-sunken-dark">
+            @svg('heroicon-o-book-open', 'h-5 w-5 text-ink-faint dark:text-ink-faint-dark')
+            <span class="flex-1">Learner guide</span>
+            @svg('heroicon-o-chevron-right', 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
+        </a>
+        <div class="flex items-center gap-3 p-4">
+            @svg('heroicon-o-moon', 'h-5 w-5 text-ink-faint dark:text-ink-faint-dark')
+            <span class="flex-1 text-sm font-semibold text-ink dark:text-ink-dark">Dark mode</span>
+            <button
+                type="button"
+                role="switch"
+                aria-label="Dark mode"
+                x-bind:aria-checked="dark ? 'true' : 'false'"
+                x-on:click="dark = ! dark; window.eosTheme.set(dark)"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors"
+                x-bind:class="dark ? 'bg-accent dark:bg-accent-dark' : 'bg-surface-sunken dark:bg-surface-sunken-dark'"
+            >
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" x-bind:class="dark ? 'translate-x-6' : 'translate-x-1'"></span>
+            </button>
+        </div>
+        <div class="flex items-center gap-3 p-4">
+            @svg('heroicon-o-speaker-wave', 'h-5 w-5 text-ink-faint dark:text-ink-faint-dark')
+            <span class="flex-1 text-sm font-semibold text-ink dark:text-ink-dark">Sound effects</span>
+            <button
+                type="button"
+                role="switch"
+                aria-label="Sound effects"
+                x-bind:aria-checked="soundEnabled ? 'true' : 'false'"
+                x-on:click="soundEnabled = ! soundEnabled; try { localStorage.setItem('eosSoundEnabled', soundEnabled) } catch (e) {}"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors"
+                x-bind:class="soundEnabled ? 'bg-accent dark:bg-accent-dark' : 'bg-surface-sunken dark:bg-surface-sunken-dark'"
+            >
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" x-bind:class="soundEnabled ? 'translate-x-6' : 'translate-x-1'"></span>
+            </button>
+        </div>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button
+                type="submit"
+                class="flex w-full cursor-pointer items-center gap-3 p-4 text-left text-sm font-semibold text-ink-soft transition-colors hover:bg-danger-soft hover:text-danger-ink dark:text-ink-soft-dark"
+            >@svg('heroicon-o-arrow-right-start-on-rectangle', 'h-5 w-5') Sign out</button>
+        </form>
+    </div>
 </div>

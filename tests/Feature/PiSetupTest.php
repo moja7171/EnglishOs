@@ -30,7 +30,7 @@ class PiSetupTest extends TestCase
 
         $this->actingAs($learner)->get('/')
             ->assertOk()
-            ->assertSee('How voice practice works · 2 min');
+            ->assertSee('How Daily talk works · 2 min');
     }
 
     public function test_the_offer_is_gone_once_the_learner_has_been_through_the_guide(): void
@@ -39,7 +39,7 @@ class PiSetupTest extends TestCase
 
         $this->actingAs($learner)->get('/')
             ->assertOk()
-            ->assertDontSee('How voice practice works · 2 min');
+            ->assertDontSee('How Daily talk works · 2 min');
     }
 
     public function test_the_guide_explains_voice_mode_and_the_control_words(): void
@@ -48,7 +48,7 @@ class PiSetupTest extends TestCase
 
         $this->actingAs($learner)->get('/pi-setup')
             ->assertOk()
-            ->assertSee('How voice practice works')
+            ->assertSee('How Daily talk works')
             ->assertSee('turn on voice mode first')
             ->assertSee('slower');
     }
@@ -57,14 +57,14 @@ class PiSetupTest extends TestCase
     {
         $learner = User::factory()->create(['pi_onboarded_at' => now()]);
 
-        $this->actingAs($learner)->get('/pi-setup')->assertOk()->assertSee('How voice practice works');
+        $this->actingAs($learner)->get('/pi-setup')->assertOk()->assertSee('How Daily talk works');
     }
 
-    public function test_the_account_menu_links_to_pi_setup(): void
+    public function test_the_daily_talk_page_links_to_pi_setup(): void
     {
         $learner = User::factory()->create(['pi_onboarded_at' => now()]);
 
-        $this->actingAs($learner)->get('/')->assertSee(route('pi.setup'), false);
+        $this->actingAs($learner)->get(route('pi.practice'))->assertSee('href="'.route('pi.setup').'"', false);
     }
 
     public function test_finishing_setup_stamps_the_timestamp_and_unlocks_home(): void

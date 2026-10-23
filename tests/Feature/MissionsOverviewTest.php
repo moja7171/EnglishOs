@@ -182,8 +182,99 @@ class MissionsOverviewTest extends TestCase
         Livewire::test('missions.overview')
             ->assertSee('M02 · My Neighborhood')
             ->assertSee('Mission 2 of 24')
-            ->assertSee('Day 1 of 1')
             ->assertDontSee('Day 2 of 96');
+    }
+
+    private function makeThreeDayMission(): Mission
+    {
+        return Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                ['phase' => 'foundation', 'label' => 'Day 1', 'steps' => [['key' => 'mission_brief', 'label' => 'Brief']]],
+                ['phase' => 'build', 'label' => 'Build', 'steps' => [['key' => 'vocabulary', 'label' => 'Words']]],
+                ['phase' => 'perform', 'label' => 'Perform', 'steps' => [['key' => 'speaking', 'label' => 'Talk']]],
+            ],
+        ]);
+    }
+
+    private function startOnDayTwo(User $learner): MissionRun
+    {
+        $run = MissionRun::findOrStart($learner, $this->makeThreeDayMission());
+        $evidence = Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_SCORE, 'content_ref' => '3']);
+        $evidence->forceFill(['created_at' => now()->subDays(2)])->saveQuietly();
+
+        return $run;
+    }
+
+    public function test_the_day_bar_shows_every_day_of_the_open_mission(): void
+    {
+        $learner = User::factory()->create();
+        $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSeeHtml('aria-label="Day 1, done"')
+            ->assertSeeHtml('aria-label="Day 2, today"')
+            ->assertSeeHtml('aria-label="Day 3, not reached yet"');
+    }
+
+    public function test_tapping_a_past_day_lists_its_steps_to_review_and_back_to_today_returns(): void
+    {
+        $learner = User::factory()->create();
+        $run = $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->set('viewDay', 1)
+            ->assertSee('Done '.now()->subDays(2)->format('M j'))
+            ->assertSee('Back to today')
+            ->assertSeeHtml(route('missions.show', [$run->mission, 'mission_brief']))
+            ->set('viewDay', null)
+            ->assertDontSee('Back to today')
+            ->assertSee('Words');
+    }
+
+    public function test_a_day_ahead_lists_its_steps_without_links(): void
+    {
+        $learner = User::factory()->create();
+        $run = $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->set('viewDay', 3)
+            ->assertSee('Day 3 · Perform')
+            ->assertSee('Talk')
+            ->assertDontSeeHtml(route('missions.show', [$run->mission, 'speaking']));
+    }
+
+    public function test_a_day_number_outside_the_mission_shows_today(): void
+    {
+        $learner = User::factory()->create();
+        $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        Livewire::withQueryParams(['day' => 9])
+            ->test('missions.overview')
+            ->assertSee('Today · Build')
+            ->assertDontSee('Back to today');
+    }
+
+    public function test_the_mission_map_opens_a_finished_mission_day_in_the_mission_and_the_open_mission_on_the_day_bar(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
+        MissionRun::findOrStart($learner, $this->makeSecondMission());
+        $this->actingAs($learner);
+
+        $map = collect(Livewire::test('missions.overview')->instance()->missionMap)->keyBy('code');
+
+        $this->assertSame(route('missions.show', ['M01', 'mission_brief']), $map['M01']['days'][0]['url']);
+        $this->assertTrue($map['M01']['days'][0]['done']);
+        $this->assertSame(route('home'), $map['M02']['days'][0]['url']);
+        $this->assertSame('future', $map['M03']['days'][0]['state']);
     }
 
     private function makeSecondMission(): Mission
@@ -296,7 +387,7 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSee('Find your level')
-            ->assertDontSee('How voice practice works')
+            ->assertDontSee('How Daily talk works')
             ->assertDontSee('Practice with a friend');
     }
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AudioListen;
 use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
@@ -92,7 +93,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $this->get(route('pi.practice'))
-            ->assertSee('Voice practice')
+            ->assertSee('Daily talk')
             ->assertSee('M01 · My Daily Life · Day 1 of 4')
             ->assertSee('Pronunciation')
             ->assertSee("Today's plan")
@@ -176,7 +177,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('pi.practice', ['M01', 1]))
-            ->assertSee('Voice practice')
+            ->assertSee('Daily talk')
             ->assertSee('Day 1 of 4')
             ->assertSee('Back to today (M01 · Day 2)');
     }
@@ -203,17 +204,22 @@ class PiPracticePageTest extends TestCase
         $this->get('/pi/M01/5')->assertNotFound();
     }
 
-    public function test_a_learner_on_a_later_mission_can_pick_an_earlier_one_which_opens_on_its_day_1(): void
+    public function test_the_mission_map_opens_any_reached_day_and_ticks_daily_talk_days_only(): void
     {
         $learner = User::factory()->create();
         MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
         MissionRun::findOrStart($learner, $this->makeMission('M02'));
+        PiChatFeedback::factory()->for($learner, 'learner')->create(['chat' => '', 'day_number' => 2, 'feedback' => ['practice_done' => true]]);
+        AudioListen::factory()->pick(3)->create(['learner_id' => $learner->id, 'mission_code' => 'M01']);
         $this->actingAs($learner);
 
         $this->get(route('pi.practice'))
             ->assertSee('M02 · People &amp; Relationships · Day 1 of 4', false)
             ->assertSeeHtml('aria-label="Missions"')
-            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 4]).'"')
+            ->assertSeeHtml('aria-label="M01 · Day 2, done"')
+            ->assertSeeHtml('aria-label="M01 · Day 3"')
+            ->assertSeeHtml('aria-label="M03 · Day 1, not reached yet"')
             ->assertDontSeeHtml('href="'.route('pi.practice', ['M03', 1]).'"');
     }
 
@@ -509,7 +515,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         $this->get(route('home'))
-            ->assertSeeInOrder(['Continue', 'Build step', 'Voice practice · Grammar']);
+            ->assertSeeInOrder(['Continue', 'Build step', 'Daily talk · Grammar']);
     }
 
     public function test_the_voice_practice_rows_circle_on_home_cannot_tick_it_by_hand(): void
@@ -517,7 +523,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         Livewire::test('missions.overview')
-            ->assertSee('Voice practice · Grammar')
+            ->assertSee('Daily talk · Grammar')
             ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
@@ -528,7 +534,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('home'))
-            ->assertSee('Voice practice · Grammar')
+            ->assertSee('Daily talk · Grammar')
             ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
@@ -536,7 +542,7 @@ class PiPracticePageTest extends TestCase
     {
         $this->actingAs($this->finishedLearner());
 
-        $this->get(route('home'))->assertDontSee('Voice practice ·');
+        $this->get(route('home'))->assertDontSee('Daily talk ·');
     }
 
     public function test_a_mission_overview_links_to_its_voice_practice(): void

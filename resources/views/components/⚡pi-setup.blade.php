@@ -26,7 +26,7 @@ new class extends Component
 
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     <header class="border-b border-line pb-4 dark:border-line-dark">
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">How voice practice works</h1>
+        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">How Daily talk works</h1>
         <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
             Ten minutes a day of real speaking with a free voice AI app, at the end of your day. Nothing to set up.
         </p>
@@ -40,7 +40,7 @@ new class extends Component
                 or
                 <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="font-semibold text-accent-ink underline dark:text-accent-ink-dark">Gemini Live</a>.
             </li>
-            <li>Each day, open Voice practice here and copy the day's prompt.</li>
+            <li>Each day, open Daily talk here and copy the day's prompt.</li>
             <li>In the app, turn on voice mode first, then send the prompt.</li>
             <li>The AI tells you the plan, then you talk. About 10 minutes, then 2-3 short fixes.</li>
         </ol>
