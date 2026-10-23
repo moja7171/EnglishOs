@@ -58,4 +58,16 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * A learner the streak ring hasn't reached yet — every day still runs
+     * on the old rule (any one activity counts, one skipped day forgiven),
+     * as it did for everyone before the ring arrived (see StreakRing).
+     */
+    public function beforeStreakRing(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'streak_ring_since' => now()->addYears(10)->toDateString(),
+        ]);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\DayFinishedAlerts;
 use App\Services\FinishLineAlerts;
+use App\Services\StreakRing;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,14 +30,21 @@ class Evidence extends Model
     public const TYPE_SCORE = 'score';
 
     /**
-     * A new answer may finish its mission day, which tells the learner's
-     * friends (see DayFinishedAlerts) and the learner their finish date
-     * (see FinishLineAlerts). A failure there never blocks saving the
-     * learner's answer.
+     * A new answer is a slice of today's streak ring (see StreakRing), and
+     * may finish its mission day, which tells the learner's friends (see
+     * DayFinishedAlerts) and the learner their finish date (see
+     * FinishLineAlerts). A failure there never blocks saving the learner's
+     * answer.
      */
     protected static function booted(): void
     {
         static::created(function (Evidence $evidence): void {
+            try {
+                app(StreakRing::class)->recordStep($evidence);
+            } catch (Throwable $e) {
+                report($e);
+            }
+
             if (! $evidence->completesItsDay()) {
                 return;
             }

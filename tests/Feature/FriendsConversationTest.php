@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\DirectMessage;
 use App\Models\Evidence;
 use App\Models\FriendBlock;
@@ -169,6 +170,7 @@ class FriendsConversationTest extends TestCase
             'type' => Evidence::TYPE_SCORE,
             'content_ref' => '3',
         ]);
+        DayActivity::factory()->create(['learner_id' => $bob->id]); // a 2nd activity keeps today
 
         $this->actingAs($me);
 
@@ -283,6 +285,7 @@ class FriendsConversationTest extends TestCase
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => '{}',
         ]);
+        DayActivity::factory()->create(['learner_id' => $bob->id]); // a 2nd activity keeps today
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
 

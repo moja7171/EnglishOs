@@ -205,7 +205,7 @@ class ReviewReminderTest extends TestCase
         $payload = $notification->toWebPush($user, $notification)->toArray();
 
         $this->assertStringContainsString('۵ کلمه', $payload['body']);
-        $this->assertSame(['url' => route('review.index')], $payload['data']);
+        $this->assertSame(route('review.index'), $payload['data']['url']);
         $this->assertSame('review-reminder', $payload['tag']);
         $this->assertSame('مرور کلمه‌ها', $payload['title']);
     }

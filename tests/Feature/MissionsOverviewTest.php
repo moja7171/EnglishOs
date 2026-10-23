@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\Evidence;
 use App\Models\GrammarPoint;
 use App\Models\ListeningLog;
@@ -41,18 +42,18 @@ class MissionsOverviewTest extends TestCase
         $evidence->forceFill(['created_at' => now()->parse($date)->setTime(12, 0)])->saveQuietly();
     }
 
-    public function test_the_grace_banner_shows_right_after_a_forgiven_gap(): void
+    public function test_the_freeze_banner_shows_right_after_a_freeze_saved_yesterday(): void
     {
-        $learner = User::factory()->create();
-        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $learner = User::factory()->create(['streak_ring_since' => now()->subDays(5)->toDateString()]);
 
-        $this->recordEvidenceOn($run, now()->toDateString());
-        $this->recordEvidenceOn($run, now()->subDays(2)->toDateString());
+        foreach (['test:1', 'test:2'] as $activity) {
+            DayActivity::factory()->create(['learner_id' => $learner->id, 'on_date' => now()->subDays(2)->toDateString(), 'activity' => $activity]);
+        }
 
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('You missed a day, but your streak is safe!');
+            ->assertSee('A freeze saved your streak yesterday.');
     }
 
     public function test_no_grace_banner_with_a_clean_streak(): void
@@ -121,12 +122,13 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Practice today to keep your');
     }
 
-    public function test_the_streak_flame_lights_up_once_todays_activity_is_logged(): void
+    public function test_the_streak_flame_lights_up_once_today_keeps_the_streak(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
         $this->recordEvidenceOn($run, now()->subDay()->toDateString());
         $this->recordEvidenceOn($run, now()->toDateString());
+        DayActivity::factory()->create(['learner_id' => $learner->id]); // a 2nd activity keeps today
 
         $this->actingAs($learner);
 

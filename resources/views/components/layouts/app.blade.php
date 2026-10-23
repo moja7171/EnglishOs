@@ -3,11 +3,13 @@
      @param bool $focus Hides the bottom nav on full-attention screens (a
      mission, the placement test, a partner session, a chat thread) whose
      own actions sit at the bottom of the page. The header stays, and its
-     logo is always a way back home. --}}
+     logo is always a way back home. Those screens (all but the chat
+     thread) also hold new-alert banners back, see <x-notification-banner>. --}}
 @props(['focus' => false, 'fill' => false])
 
 @php
     $showNav = auth()->check() && ! $focus;
+    $noInterrupt = $focus && ! $fill;
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -89,7 +91,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-20' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
+<body @if ($noInterrupt) data-no-interrupt @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-20' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
     {{-- Deliberately bare: the logo mark on the left; notifications and the
          avatar (which opens <x-account-menu>) on the right. Navigation
          lives in <x-bottom-nav> and everything secondary in the avatar's
@@ -103,6 +105,7 @@
 
         @auth
             <div class="flex items-center gap-1.5">
+                <livewire:streak.ring />
                 <livewire:notifications.bell />
                 <x-account-menu />
             </div>
@@ -119,6 +122,7 @@
 
     @auth
         <x-dictionary-sheet />
+        <x-notification-banner />
     @endauth
 
     {{-- Custom install prompt: Chrome/Edge on Android removed their own

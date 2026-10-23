@@ -17,7 +17,7 @@ class PairBothFinished extends Notification
     public function __construct(private readonly User $friend) {}
 
     /**
-     * @return array{icon: string, title: string, url: string, sender_id: int}
+     * @return array{icon: string, title: string, url: string, sender_id: int, topic: string}
      */
     public function toArray(object $notifiable): array
     {
@@ -26,7 +26,13 @@ class PairBothFinished extends Notification
             'title' => "امروز تو و {$this->friend->name} هر دو تموم کردید؛ ۱۲ دقیقه با هم تمرین کنید؟",
             'url' => route('pair-practice.index'),
             'sender_id' => $this->friend->id,
+            'topic' => 'pair-both-finished',
         ];
+    }
+
+    protected function countsTowardDailyLimit(): bool
+    {
+        return true;
     }
 
     protected function webPushTag(): ?string

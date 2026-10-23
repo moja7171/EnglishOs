@@ -17,7 +17,7 @@ class PairPracticeNudge extends Notification
     public function __construct(private readonly User $sender) {}
 
     /**
-     * @return array{icon: string, title: string, url: string, sender_id: int}
+     * @return array{icon: string, title: string, url: string, sender_id: int, topic: string}
      */
     public function toArray(object $notifiable): array
     {
@@ -26,6 +26,7 @@ class PairPracticeNudge extends Notification
             'title' => "تلنگر از {$this->sender->name}: درس امروزت رو تموم کن تا با هم تمرین کنید",
             'url' => route('pair-practice.index'),
             'sender_id' => $this->sender->id,
+            'topic' => "pair-nudge-{$this->sender->id}",
         ];
     }
 

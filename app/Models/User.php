@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Notifications\DirectMessageReceived;
 use App\Notifications\FollowRequestAccepted;
 use App\Notifications\FollowRequestReceived;
+use App\Services\StreakRing;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -17,6 +18,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
@@ -61,6 +63,7 @@ class User extends Authenticatable
             'last_study_reminder_2_on' => 'date',
             'last_streak_warning_on' => 'date',
             'finish_line_told_on' => 'date',
+            'streak_ring_since' => 'date',
             'gemini_api_key' => 'encrypted',
             'groq_api_key' => 'encrypted',
             'last_seen_at' => 'datetime',
@@ -601,6 +604,8 @@ class User extends Authenticatable
      */
     public function recordListeningToday(string $missionCode, int $dayNumber): ListeningLog
     {
+        app(StreakRing::class)->record($this, 'listening');
+
         return $this->listeningLogs()->firstOrCreate(
             ['listened_on' => today()->toDateString()],
             ['mission_code' => $missionCode, 'day_number' => $dayNumber],
@@ -618,6 +623,8 @@ class User extends Authenticatable
      */
     public function recordPiPracticeToday(string $missionCode, int $dayNumber): PiPracticeLog
     {
+        app(StreakRing::class)->record($this, 'pi');
+
         return $this->piPracticeLogs()->firstOrCreate(
             ['practiced_on' => today()->toDateString()],
             ['mission_code' => $missionCode, 'day_number' => $dayNumber],
@@ -778,8 +785,9 @@ class User extends Authenticatable
 
     /**
      * The calendar dates (across every Mission, not just one) on which
-     * this learner recorded at least one real Evidence row — the unit the
-     * learning streak is built from. Deliberately keyed off real Evidence,
+     * this learner recorded at least one real Evidence row — "did anything
+     * at all" (last active, days away), and the streak's unit before the
+     * daily ring (see StreakRing). Deliberately keyed off real Evidence,
      * the same "did they actually do something" signal the rest of the
      * app already trusts (Article 4, Evidence Before Progress), not just
      * opening the app. No new counter column: computed fresh each time
@@ -838,64 +846,55 @@ class User extends Authenticatable
     }
 
     /**
-     * Whether the learner already did something that counts toward the
-     * streak on their own current day.
+     * Whether today already keeps the streak — enough slices of the daily
+     * ring (see StreakRing).
      */
     public function wasActiveToday(): bool
     {
-        return $this->activeDates()->first()?->equalTo($this->localToday()) ?? false;
+        return $this->streakRing()['keptToday'];
     }
 
     /**
-     * The learner's current streak of active days, forgiving a single
-     * skipped day (not two or more in a row) so a normal day off doesn't
-     * punish them — the app's motivation system stays encouraging rather
-     * than guilt-driven, in keeping with Article 12 (Independence): a
-     * streak here is a nudge to come back, not a dependency trap. 0 if
-     * they've missed 2+ days in a row, including never having started.
+     * The streak ring's numbers for this learner (see StreakRing::state()):
+     * slices today, freezes left, kept and frozen days.
+     *
+     * @return array{current: int, longest: int, last: int, keptToday: bool, todaySlices: int, freezes: int, frozenDates: list<string>, keptDates: list<string>, fullDaysToNextFreeze: int}
+     */
+    public function streakRing(): array
+    {
+        return app(StreakRing::class)->state($this);
+    }
+
+    /**
+     * The learner's current streak: days that each kept the ring (see
+     * StreakRing), with a missed day covered by a freeze 🧊 — still a
+     * nudge to come back, not a dependency trap (Article 12,
+     * Independence). Today counts once it is kept; until then the streak
+     * still stands from yesterday. 0 once it broke, or before it started.
      */
     public function currentStreak(): int
     {
-        $dates = $this->activeDates();
-
-        if ($dates->isEmpty() || abs($dates->first()->diffInDays($this->localToday())) > 2) {
-            return 0;
-        }
-
-        return $this->streakChains($dates)[0];
+        return $this->streakRing()['current'];
     }
 
     /**
-     * The length of a streak that breaks unless the learner is active today,
-     * or 0 when nothing is at risk: the last active day (in the learner's own
-     * timezone) is exactly two days ago, so being active yesterday or today
-     * would already have kept it, and one more skipped day ends it. The
-     * single-day grace in currentStreak() is why yesterday alone is not yet
-     * a risk.
+     * The length of a streak that is waiting on today, or 0 when today is
+     * already kept or there is no streak — what the evening reminder names.
      */
     public function streakAtRiskLength(): int
     {
-        $dates = $this->activeDates();
+        $ring = $this->streakRing();
 
-        if ($dates->isEmpty()) {
-            return 0;
-        }
-
-        return $dates->first()->equalTo($this->localToday()->subDays(2))
-            ? $this->streakChains($dates)[0]
-            : 0;
+        return $ring['keptToday'] ? 0 : $ring['current'];
     }
 
     /**
-     * The longest streak of active days this learner has ever had (same
-     * single-day-grace rule as currentStreak()), even if that streak has
-     * since ended — a lasting record of their best run, not just "now."
+     * The longest streak this learner has ever had, even if it has since
+     * ended — a lasting record of their best run, not just "now."
      */
     public function longestStreak(): int
     {
-        $chains = $this->streakChains($this->activeDates());
-
-        return $chains === [] ? 0 : max($chains);
+        return $this->streakRing()['longest'];
     }
 
     /**
@@ -904,57 +903,31 @@ class User extends Authenticatable
      */
     public function lastStreakLength(): int
     {
-        return $this->streakChains($this->activeDates())[0] ?? 0;
+        return $this->streakRing()['last'];
     }
 
     /**
-     * Splits a descending list of active dates into "chains" — runs of
-     * days that stay unbroken because any gap between consecutive active
-     * dates is at most 2 (i.e. at most one day skipped in between). A gap
-     * of 3+ days ends a chain and starts a new one. Each chain's length is
-     * the number of active days it contains (skipped days aren't counted,
-     * just forgiven).
+     * The days that count on the calendar: each one kept the streak
+     * (before the ring, any day with an activity).
      *
-     * @param  Collection<int, Carbon>  $dates  descending, as from activeDates()
-     * @return list<int> chain lengths, most recent chain first
+     * @return Collection<string, int> local dates as keys
      */
-    private function streakChains(Collection $dates): array
+    private function streakDayKeys(): Collection
     {
-        if ($dates->isEmpty()) {
-            return [];
-        }
-
-        $chains = [];
-        $chainLength = 1;
-        $previous = $dates->first();
-
-        foreach ($dates->skip(1) as $date) {
-            if (abs($previous->diffInDays($date)) <= 2) {
-                $chainLength++;
-            } else {
-                $chains[] = $chainLength;
-                $chainLength = 1;
-            }
-
-            $previous = $date;
-        }
-
-        $chains[] = $chainLength;
-
-        return $chains;
+        return collect($this->streakRing()['keptDates'])->flip();
     }
 
     /**
      * A fixed grid of the last N calendar weeks (Sunday-start, so it lines
      * up cleanly as columns of 7 in a CSS grid with grid-flow-col), each
-     * day flagged active/not from the same real-Evidence signal
-     * currentStreak() trusts. Powers Profile's "My progress" heatmap.
+     * day flagged active when it kept the streak (see streakDayKeys()).
+     * Powers Profile's "My progress" heatmap.
      *
      * @return list<array{date: string, label: string, active: bool, future: bool}>
      */
     public function activityCalendar(int $weeks = 12): array
     {
-        $active = $this->activeDates()->map(fn (Carbon $date) => $date->toDateString())->flip();
+        $active = $this->streakDayKeys();
         $today = $this->localToday();
         $start = $today->copy()->startOfWeek(Carbon::SUNDAY)->subWeeks($weeks - 1);
 
@@ -982,7 +955,7 @@ class User extends Authenticatable
      */
     public function activityForMonth(int $year, int $month): array
     {
-        $active = $this->activeDates()->map(fn (Carbon $date) => $date->toDateString())->flip();
+        $active = $this->streakDayKeys();
         $today = $this->localToday();
         $firstOfMonth = Carbon::create($year, $month, 1)->startOfDay();
         $gridStart = $firstOfMonth->copy()->startOfWeek(Carbon::SUNDAY);
@@ -1008,38 +981,28 @@ class User extends Authenticatable
 
     /**
      * How many days this calendar week (Sunday-start, same boundary as
-     * activityCalendar()) already have real activity — what
-     * weekly_goal_days is measured against.
+     * activityCalendar()) already kept the streak — what weekly_goal_days
+     * is measured against.
      */
     public function activeDaysThisWeek(): int
     {
         $startOfWeek = $this->localToday()->startOfWeek(Carbon::SUNDAY);
 
-        return $this->activeDates()->filter(fn (Carbon $date) => $date->gte($startOfWeek))->count();
+        return $this->streakDayKeys()->keys()->filter(fn (string $date) => $date >= $startOfWeek->toDateString())->count();
     }
 
     /**
-     * True right after today's activity was the thing that carried the
-     * streak across yesterday's gap — i.e. currentStreak()'s built-in
-     * one-day forgiveness (see streakChains()) just actually applied,
-     * rather than the learner having simply practiced every day. Lets the
-     * UI say so explicitly instead of the forgiveness being an invisible
-     * mechanic the learner never finds out about.
+     * True when yesterday was missed and a freeze 🧊 kept the streak — the
+     * UI says so instead of the freeze being used without a word.
      */
     public function justBenefitedFromGrace(): bool
     {
-        $dates = $this->activeDates();
-
-        if ($dates->count() < 2 || ! $dates->first()->equalTo($this->localToday())) {
-            return false;
-        }
-
-        return (int) abs($dates->first()->diffInDays($dates->get(1))) === 2;
+        return in_array($this->localToday()->subDay()->toDateString(), $this->streakRing()['frozenDates'], true);
     }
 
     /**
-     * True the moment a streak has actually broken (2+ days missed, not
-     * just the one-day grace) but there's a real best run on record worth
+     * True the moment a streak has actually broken (a missed day with no
+     * freeze left) but there's a real best run on record worth
      * pointing back to — the encouraging "let's beat your record" moment
      * instead of a silent reset to zero.
      */
@@ -1717,6 +1680,27 @@ class User extends Authenticatable
         $hour = now($this->reminderTimezone())->hour;
 
         return $hour >= self::QUIET_HOURS_START || $hour < self::QUIET_HOURS_END;
+    }
+
+    /**
+     * How long a check-in from an open app screen (the bell's poll, every
+     * 30 s while the tab is visible) keeps the learner counted as "in the
+     * app right now".
+     */
+    public const IN_APP_SECONDS = 45;
+
+    public function markInApp(): void
+    {
+        Cache::put('in-app:'.$this->id, true, self::IN_APP_SECONDS);
+    }
+
+    /**
+     * The app is open on screen — an alert shows as a banner there (see
+     * <livewire:notifications.bell>) instead of buzzing the phone too.
+     */
+    public function isInApp(): bool
+    {
+        return Cache::has('in-app:'.$this->id);
     }
 
     /**

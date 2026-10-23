@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\User;
+use App\Notifications\PairPracticeInvite;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
@@ -13,6 +15,51 @@ new class extends Component
      * @var list<string>
      */
     public array $freshIds = [];
+
+    /** How recent an unread alert must be to still pop up as a banner. */
+    public const BANNER_MINUTES = 15;
+
+    /**
+     * Runs as the page opens and on every poll: the learner counts as "in
+     * the app" (so new alerts skip the phone buzz, see User::isInApp()),
+     * and the unread alerts of the last BANNER_MINUTES go to
+     * <x-notification-banner>, which shows them one at a time and reports
+     * back each one it showed (markShown()). Until then they stay unread.
+     */
+    public function checkNew(): void
+    {
+        $user = auth()->user();
+        $user->markInApp();
+
+        $fresh = $user->unreadNotifications()
+            ->where('created_at', '>=', now()->subMinutes(self::BANNER_MINUTES))
+            ->reorder()
+            ->oldest()
+            ->limit(3)
+            ->get();
+
+        if ($fresh->isNotEmpty()) {
+            $this->dispatch('notification-banner', items: $fresh->map(fn ($notification) => [
+                'id' => $notification->id,
+                'title' => $notification->data['title'],
+                'url' => $notification->data['url'],
+                'icon' => svg($notification->data['icon'], 'h-4 w-4')->toHtml(),
+                'urgent' => $notification->type === PairPracticeInvite::class,
+            ])->values()->all());
+        }
+    }
+
+    /**
+     * A banner on screen is a read alert, the same "seeing it is reading
+     * it" rule as opening the list.
+     */
+    #[On('notification-shown')]
+    public function markShown(string $id): void
+    {
+        auth()->user()->unreadNotifications()->whereKey($id)->update(['read_at' => now()]);
+
+        unset($this->items, $this->unreadCount);
+    }
 
     #[Computed]
     public function items()
@@ -106,7 +153,10 @@ new class extends Component
 };
 ?>
 
-<div class="relative" x-data="{ open: false }" x-on:click.outside="open = false" wire:poll.30s.visible>
+<div class="relative" x-data="{ open: false }" x-on:click.outside="open = false" wire:init="checkNew" wire:poll.30s.visible="checkNew">
+    {{-- The app icon's number on the home screen follows the bell. --}}
+    <span wire:key="app-badge-{{ $this->unreadCount }}" x-data x-init="'setAppBadge' in navigator && ({{ $this->unreadCount }} ? navigator.setAppBadge({{ $this->unreadCount }}) : navigator.clearAppBadge()).catch(() => {})" hidden></span>
+
     <button
         type="button"
         x-on:click="open = !open"

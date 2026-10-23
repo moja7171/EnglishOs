@@ -253,6 +253,45 @@ class PiPracticePageTest extends TestCase
             ->assertSee('برای گذشته فعل گذشته لازم است.');
     }
 
+    public function test_a_pasted_pronunciation_drill_is_judged_on_the_lines_not_on_grammar(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1(yesterday: true);
+        $this->actingAs($learner);
+
+        $chat = "My words:\nRound 1 — Line: I always get up early. / Me: I always get a pearly.";
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
+            ->once()
+            ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'PRONUNCIATION drill')
+                && str_contains($systemPrompt, 'NEVER judge their grammar')
+                && ! str_contains($systemPrompt, 'never judge punctuation, capital letters or pronunciation'))
+            ->andReturn($this->learnerFeedbackReply()));
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
+            ->set('pastedChat', $chat)
+            ->call('checkPastedChat')
+            ->assertHasNoErrors();
+    }
+
+    public function test_a_pasted_chat_from_a_later_day_is_judged_against_that_days_goal(): void
+    {
+        $learner = $this->learnerWhoFinishedDay1(yesterday: true);
+        $this->actingAs($learner);
+
+        $chat = "My words:\nRound 1 — Q: What do you do on Sundays? / Me: I sleep in and I watch films.";
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
+            ->once()
+            ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'GRAMMAR practice')
+                && str_contains($systemPrompt, 'never judge punctuation, capital letters or pronunciation'))
+            ->andReturn($this->learnerFeedbackReply()));
+
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 2])
+            ->set('pastedChat', $chat)
+            ->call('checkPastedChat')
+            ->assertHasNoErrors();
+    }
+
     public function test_the_feedback_on_a_pasted_chat_is_still_there_when_the_learner_comes_back_to_that_day(): void
     {
         $learner = $this->learnerWhoFinishedDay1(yesterday: true);
@@ -334,11 +373,14 @@ class PiPracticePageTest extends TestCase
         $this->assertSame(1, $learner->listeningLogs()->count());
     }
 
-    public function test_the_practice_tick_alone_keeps_the_streak_alive(): void
+    public function test_the_practice_tick_and_the_listening_tick_together_keep_the_streak(): void
     {
         $learner = User::factory()->create();
-        PiPracticeLog::factory()->for($learner, 'learner')->create(['practiced_on' => now()->toDateString()]);
 
+        $learner->recordPiPracticeToday('M01', 1);
+        $this->assertSame(0, $learner->currentStreak());
+
+        $learner->recordListeningToday('M01', 1);
         $this->assertSame(1, $learner->currentStreak());
     }
 

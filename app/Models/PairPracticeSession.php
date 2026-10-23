@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\StreakRing;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -68,6 +69,18 @@ class PairPracticeSession extends Model
      * count: no history row, no score, and its day stays unpractised.
      */
     public const MIN_COUNTED_CARDS = 4;
+
+    /**
+     * How long both phones hold the card just scored, with its answer and
+     * how it went, before the next card (and the swapped roles) appear.
+     */
+    public const REVEAL_MILLISECONDS = 2500;
+
+    /**
+     * A phone that only hears about a score later than this (a slow poll)
+     * goes straight to the next card instead of replaying an old result.
+     */
+    public const REVEAL_WINDOW_SECONDS = 8;
 
     protected function casts(): array
     {
@@ -349,8 +362,8 @@ class PairPracticeSession extends Model
     }
 
     /**
-     * Ends the round and saves what each player got wrong for their own
-     * review: words they could not say and target words they did not use
+     * Ends the round — a slice of both players' streak rings once it
+     * counts — and saves what each player got wrong for their own review: words they could not say and target words they did not use
      * into My Words, sentences they could not fix into their Error Log.
      */
     public function finish(): void
@@ -363,6 +376,12 @@ class PairPracticeSession extends Model
         $this->stage_ends_at = null;
         $this->finished_at = now();
         $this->save();
+
+        if (count($this->results ?? []) >= self::MIN_COUNTED_CARDS) {
+            foreach ([$this->userA, $this->userB] as $player) {
+                app(StreakRing::class)->record($player, 'pair');
+            }
+        }
 
         foreach ([$this->userA, $this->userB] as $player) {
             foreach ($this->missedWordsFor($player) as $card) {

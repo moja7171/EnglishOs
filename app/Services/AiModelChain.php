@@ -161,9 +161,10 @@ class AiModelChain
 
     /**
      * Pushes a bell + phone alert to the admins once a chain is down to its
-     * last model, and again if it loses that one too. Throttled per chain
-     * and level so an outage alerts once, not on every failing request, and
-     * never lets a notification problem touch the learner's request.
+     * last model, and again if it loses that one too. Throttled per level
+     * across every chain — one outage usually hits several chains at once —
+     * so it alerts once, not per chain or per failing request, and never
+     * lets a notification problem touch the learner's request.
      *
      * @param  list<array{model: string}>  $chain
      */
@@ -182,7 +183,7 @@ class AiModelChain
 
         try {
             $level = $everyModelDown ? 'none' : 'last';
-            $key = 'ai-chain-alert:'.md5($provider.$chainName.implode(',', array_column($chain, 'model'))).":{$level}";
+            $key = "ai-chain-alert:{$level}";
 
             if (! Cache::add($key, true, now()->addHours(6))) {
                 return;

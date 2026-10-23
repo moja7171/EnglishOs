@@ -108,12 +108,13 @@ class PairPractice
     }
 
     /**
-     * Days in a row on which BOTH friends finished a mission day. Today
-     * still counts as open, so the chain runs up to today or yesterday.
+     * Days in a row on which BOTH friends kept their own streak (the same
+     * daily ring rule, see StreakRing). Today still counts as open, so the
+     * chain runs up to today or yesterday.
      */
     public function pairStreak(User $a, User $b): int
     {
-        $shared = $this->dayCompletionDates($a)->intersect($this->dayCompletionDates($b));
+        $shared = collect($a->streakRing()['keptDates'])->intersect($b->streakRing()['keptDates']);
         $day = $a->localToday();
 
         if (! $shared->contains($day->toDateString())) {
@@ -488,22 +489,5 @@ class PairPractice
         }
 
         return [...$cards, ...$talks->all()];
-    }
-
-    /**
-     * The local dates on which $user finished a mission day.
-     *
-     * @return Collection<int, string>
-     */
-    private function dayCompletionDates(User $user): Collection
-    {
-        $timezone = $user->reminderTimezone();
-
-        return $this->learnedDays($user)
-            ->pluck('completedAt')
-            ->filter()
-            ->map(fn (Carbon $completedAt) => $completedAt->copy()->setTimezone($timezone)->toDateString())
-            ->unique()
-            ->values();
     }
 }

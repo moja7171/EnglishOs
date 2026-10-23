@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\Mission;
@@ -397,6 +398,33 @@ class PairPracticeTest extends TestCase
         $this->assertSame(PairPracticeSession::STAGE_GRAMMAR, $session->stage);
     }
 
+    public function test_the_card_just_scored_stays_on_both_phones_with_its_answer_before_the_roles_swap(): void
+    {
+        $session = PairPracticeSession::factory()->create();
+        $session->deck = [...$session->deck, 'vocabulary' => [...$session->deck['vocabulary'], ['prompt' => 'رفت‌وآمد', 'answer' => 'commute', 'source' => 'M01 · Day 1']]];
+        $session->save();
+        [$speaker, $judge] = $session->players();
+
+        $this->actingAs($judge);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->call('judge', false, 0)
+            ->assertSee('Not yet — the answer')
+            ->assertSee('wake up')
+            ->assertSee('Saved · 🔄 Next: your turn');
+
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session->refresh()])
+            ->assertSee("Not yet — it's")
+            ->assertSee('wake up')
+            ->assertSee('🔄 Next: you listen');
+
+        $this->travel(PairPracticeSession::REVEAL_WINDOW_SECONDS + 1)->seconds();
+
+        Livewire::test('pair-practice.session', ['session' => $session->refresh()])
+            ->assertDontSee('wake up')
+            ->assertSee('commute');
+    }
+
     public function test_the_speaker_cannot_score_and_a_card_is_scored_only_once(): void
     {
         $session = PairPracticeSession::factory()->create();
@@ -494,24 +522,26 @@ class PairPracticeTest extends TestCase
         Livewire::test('pair-practice.index')->assertSee('Join '.$friend->name);
     }
 
-    public function test_the_pair_streak_counts_only_days_both_friends_finished(): void
+    public function test_the_pair_streak_counts_only_days_both_friends_kept_their_streak(): void
     {
-        $mission = $this->makeMission();
-        $me = User::factory()->create();
+        $me = User::factory()->create(['streak_ring_since' => now()->subDays(3)->toDateString()]);
         $friend = $this->makeMutualFriend($me);
+        $friend->forceFill(['streak_ring_since' => now()->subDays(3)->toDateString()])->save();
         $pairPractice = app(PairPractice::class);
+        $keep = function (User $user, int $daysAgo): void {
+            foreach (['test:1', 'test:2'] as $activity) {
+                DayActivity::factory()->create(['learner_id' => $user->id, 'on_date' => now()->subDays($daysAgo)->toDateString(), 'activity' => $activity]);
+            }
+        };
 
-        $this->travelTo(now()->subDay());
-        $this->finishDays($me, $mission, [1]);
-        $this->finishDays($friend, $mission, [1]);
-        $this->travelBack();
-
+        $keep($me, 1);
+        $keep($friend, 1);
         $this->assertSame(1, $pairPractice->pairStreak($me, $friend));
 
-        $this->finishDays($me, $mission, [2]);
+        $keep($me, 0);
         $this->assertSame(1, $pairPractice->pairStreak($me, $friend));
 
-        $this->finishDays($friend, $mission, [2]);
+        $keep($friend, 0);
         $this->assertSame(2, $pairPractice->pairStreak($me, $friend));
     }
 

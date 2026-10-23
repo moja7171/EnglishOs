@@ -145,7 +145,7 @@ class StudyReminderTest extends TestCase
         $this->assertSame('یادآور ساعت ۲۰:۳۰', $payload['title']);
         $this->assertStringContainsString('روز ۳ از M05: Listening', $payload['body']);
         $this->assertStringContainsString('۵ کلمه برای مرور', $payload['body']);
-        $this->assertSame(['url' => route('home')], $payload['data']);
+        $this->assertSame(route('home'), $payload['data']['url']);
     }
 
     public function test_without_anything_specific_waiting_the_alert_still_reads_in_persian(): void

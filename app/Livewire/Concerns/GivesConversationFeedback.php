@@ -44,12 +44,13 @@ trait GivesConversationFeedback
      *                             which lines are the learner's own (the only ones ever judged).
      * @param  string  $source  Where it came from, for the notebook (see FeedbackNotebook::SOURCES).
      * @param  bool  $spoken  True when the learner's lines were spoken and transcribed.
+     * @param  string  $extraGuidance  Task-specific judging notes (see LearnerFeedback::review()).
      * @param  Closure|null  $onCallSucceeded  Passed through to AiFeedbackCard::generate() — where a mission
      *                                         step hooks TracksAiUsage::recordGeminiCall().
      * @param  list<array{question: ?string, text: string}>  $answers  Separate answers, in place of $conversation
      *                                                                 (see LearnerFeedback::review()).
      */
-    protected function requestConversationFeedback(string $conversation, string $situation, string $source, bool $spoken = false, ?Closure $onCallSucceeded = null, array $answers = []): void
+    protected function requestConversationFeedback(string $conversation, string $situation, string $source, bool $spoken = false, ?Closure $onCallSucceeded = null, array $answers = [], string $extraGuidance = ''): void
     {
         $this->feedbackError = null;
 
@@ -72,6 +73,7 @@ trait GivesConversationFeedback
                 situation: $situation,
                 source: $source,
                 spoken: $spoken,
+                extraGuidance: $extraGuidance,
                 onCallSucceeded: $onCallSucceeded,
                 answers: $answers,
             );

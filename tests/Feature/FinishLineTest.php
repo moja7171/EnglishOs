@@ -215,13 +215,14 @@ class FinishLineTest extends TestCase
         $learner->forceFill(['program_started_at' => now()->subDays(3), 'finish_line_told_on' => '2027-01-22'])->save();
         Notification::fake();
         $this->travelTo(self::TEHRAN_LUNCH);
+        $sentBefore = app(Reminders::class)->sentToday($learner);
 
         $this->artisan('finish-line:send-shifts')->assertSuccessful();
 
         // 1 day in 4 → 95 left takes 380 days from today.
         $this->assertToldOnce($learner, 'خط پایان رفت ');
         $this->assertSame(now()->addDays(379)->toDateString(), $learner->fresh()->finish_line_told_on->toDateString());
-        $this->assertSame(1, app(Reminders::class)->sentToday($learner));
+        $this->assertSame($sentBefore + 1, app(Reminders::class)->sentToday($learner));
     }
 
     public function test_the_daily_check_tells_the_good_news_when_the_date_came_three_days_earlier(): void

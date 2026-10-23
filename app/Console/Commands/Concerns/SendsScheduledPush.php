@@ -12,8 +12,8 @@ use Throwable;
 
 /**
  * What every scheduled phone alert shares: reading a learner's chosen
- * "HH:MM" in their own timezone and sending through the push channel so a
- * refusal ends up in the log.
+ * "HH:MM" in their own timezone, keeping a bell row of it, and sending
+ * through the push channel so a refusal ends up in the log.
  */
 trait SendsScheduledPush
 {
@@ -53,14 +53,24 @@ trait SendsScheduledPush
     }
 
     /**
-     * Goes straight through the push channel (not notify()) to see whether
-     * the push service accepted it — a refusal is logged at error level, the
-     * only level production keeps, so an unreachable service shows up in the
-     * log instead of alerts silently never arriving. $label starts the log
-     * line ("Review reminder push was not accepted").
+     * The bell gets the alert first, under the id the push carries, so
+     * tapping the push marks it read; with the app open on screen the bell
+     * (and its banner) is all. The push goes straight through the push
+     * channel (not notify()) to see whether the push service accepted it —
+     * a refusal is logged at error level, the only level production keeps,
+     * so an unreachable service shows up in the log instead of alerts
+     * silently never arriving. $label starts the log line ("Review reminder
+     * push was not accepted").
      */
     protected function sendPush(User $user, Notification $notification, string $label): void
     {
+        $notification->id = (string) Str::uuid();
+        $user->notifyNow($notification, ['database']);
+
+        if ($user->isInApp()) {
+            return;
+        }
+
         try {
             $reports = app(WebPushChannel::class)->send($user, $notification);
         } catch (Throwable $e) {

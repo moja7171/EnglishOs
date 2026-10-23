@@ -19,10 +19,18 @@ class Reminders
     use WritesPersianNumbers;
 
     /**
-     * Most automatic reminders (study, streak, review, comeback, pair
-     * streak) one learner gets in a local day.
+     * Most automatic phone alerts one learner gets in a local day — the
+     * reminders (study, streak, review, comeback, pair streak) and the
+     * news about their own day (a friend finished, the finish line, a
+     * streak badge) together. Messages and invites from a person don't count.
      */
-    public const DAILY_LIMIT = 2;
+    public const DAILY_LIMIT = 3;
+
+    /**
+     * Places the news alerts leave free for the evening's reminder, the
+     * one that can still save the day.
+     */
+    public const KEPT_FOR_REMINDERS = 1;
 
     /**
      * After this many days without any activity the daily reminders stop;
@@ -65,6 +73,21 @@ class Reminders
     }
 
     /**
+     * The quickest thing that adds a slice to today's streak ring: today's
+     * review when words are due, else the next step that's waiting.
+     */
+    public function quickestNext(User $user): ?string
+    {
+        $due = $user->dailyReviewCount();
+
+        if ($due > 0) {
+            return "مرور {$this->persianNumber($due)} کلمه، حدود ۳ دقیقه";
+        }
+
+        return $this->whatsWaiting($user);
+    }
+
+    /**
      * The learner finished a mission day today (their own date) — nothing
      * left to remind them about. Read from each day's completion time, so
      * a mission's last day counts too.
@@ -97,9 +120,12 @@ class Reminders
         return ($this->daysAway($user) ?? 0) >= self::AWAY_DAYS;
     }
 
-    public function hasRoomToday(User $user): bool
+    /**
+     * @param  int  $keepFree  places to leave unused (see KEPT_FOR_REMINDERS)
+     */
+    public function hasRoomToday(User $user, int $keepFree = 0): bool
     {
-        return Cache::get($this->sentTodayKey($user), 0) < self::DAILY_LIMIT;
+        return Cache::get($this->sentTodayKey($user), 0) < self::DAILY_LIMIT - $keepFree;
     }
 
     public function sentToday(User $user): int

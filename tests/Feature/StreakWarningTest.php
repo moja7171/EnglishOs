@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
@@ -98,11 +99,24 @@ class StreakWarningTest extends TestCase
         $this->runCommand();
     }
 
-    public function test_no_warning_when_they_were_active_yesterday_or_today(): void
+    public function test_a_streak_kept_yesterday_is_still_warned_about_until_today_is_kept(): void
     {
         Carbon::setTestNow(self::TEHRAN_EVENING);
         $this->learner(['2026-10-02']);
-        $this->learner(['2026-10-03']);
+        $this->expectWarnings(1);
+
+        $this->runCommand();
+    }
+
+    public function test_no_warning_once_today_keeps_the_streak(): void
+    {
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        $user = $this->learner(['2026-10-02']);
+
+        foreach (['test:1', 'test:2'] as $activity) {
+            DayActivity::factory()->create(['learner_id' => $user->id, 'on_date' => '2026-10-03', 'activity' => $activity]);
+        }
+
         $this->expectWarnings(0);
 
         $this->runCommand();
@@ -113,17 +127,6 @@ class StreakWarningTest extends TestCase
         Carbon::setTestNow(self::TEHRAN_EVENING);
         $this->learner(['2026-09-30']);
         $this->learner([]);
-        $this->expectWarnings(0);
-
-        $this->runCommand();
-    }
-
-    public function test_activity_just_after_local_midnight_yesterday_counts_as_yesterday(): void
-    {
-        Carbon::setTestNow(self::TEHRAN_EVENING);
-        // 01:00 on 2 October in Tehran is still 1 October by the UTC clock.
-        $user = $this->learner([]);
-        $this->recordEvidenceAt($user, '2026-10-01 21:30:00');
         $this->expectWarnings(0);
 
         $this->runCommand();
@@ -165,8 +168,8 @@ class StreakWarningTest extends TestCase
 
         $payload = $notification->toWebPush($user, $notification)->toArray();
 
-        $this->assertStringContainsString('۱۲ روزه', $payload['body']);
-        $this->assertSame(['url' => route('home')], $payload['data']);
+        $this->assertStringContainsString('۲ کار دیگه تا حفظ زنجیرهٔ ۱۲ روزه‌ات', $payload['body']);
+        $this->assertSame(route('home'), $payload['data']['url']);
         $this->assertSame('streak-warning', $payload['tag']);
         $this->assertSame('زنجیره در خطر 🔥', $payload['title']);
     }

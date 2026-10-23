@@ -565,7 +565,7 @@ new class extends Component
 
     @if ($this->justBenefitedFromGrace)
         <p class="flex items-center gap-2 px-3.5 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
-            @svg('heroicon-s-fire', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark') You missed a day, but your streak is safe!
+            <span aria-hidden="true">🧊</span> A freeze saved your streak yesterday.
         </p>
     @elseif ($this->justLostStreak)
         <p class="flex items-center gap-2 px-3.5 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">

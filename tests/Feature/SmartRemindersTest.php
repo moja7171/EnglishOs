@@ -107,12 +107,14 @@ class SmartRemindersTest extends TestCase
         $this->assertSame('2026-10-03', $user->fresh()->last_study_reminder_1_on->toDateString());
     }
 
-    public function test_no_more_than_two_reminders_a_day(): void
+    public function test_no_more_than_three_automatic_alerts_a_day(): void
     {
         Carbon::setTestNow(self::TEHRAN_NOON);
         $user = $this->learner(['study_reminder_time_1' => '12:00']);
-        app(Reminders::class)->countSent($user);
-        app(Reminders::class)->countSent($user);
+
+        foreach (range(1, Reminders::DAILY_LIMIT) as $sent) {
+            app(Reminders::class)->countSent($user);
+        }
 
         $this->mock(WebPushChannel::class)->shouldReceive('send')->never();
 
