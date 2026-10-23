@@ -103,9 +103,12 @@ class LearnerFeedback
      *                                                                 interview), pass them here instead of $text:
      *                                                                 each sentence then says which answer it is from,
      *                                                                 so <x-learner-feedback> can show it under it.
-     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, saved?: array{mistakes: int, tips: int}}
+     * @param  string  $practiceTask  When given, the AI also says whether the text is a real practice of this
+     *                                task (the "practice_done" flag) — how a pasted Pi chat ticks the day's
+     *                                voice practice by itself.
+     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, practice_done?: bool, saved?: array{mistakes: int, tips: int}}
      */
-    public function review(User $learner, string $text, string $situation, string $source, bool $spoken = false, string $extraGuidance = '', ?Closure $onCallSucceeded = null, array $answers = []): array
+    public function review(User $learner, string $text, string $situation, string $source, bool $spoken = false, string $extraGuidance = '', ?Closure $onCallSucceeded = null, array $answers = [], string $practiceTask = ''): array
     {
         if ($answers !== []) {
             $text = collect($answers)
@@ -117,7 +120,7 @@ class LearnerFeedback
 
         $data = $this->card->generate(
             [['role' => 'user', 'text' => $text]],
-            systemPrompt: $this->systemPrompt($learner->levelDescription(), $situation, $spoken, $extraGuidance, $answers !== []),
+            systemPrompt: $this->systemPrompt($learner->levelDescription(), $situation, $spoken, $extraGuidance, $answers !== [], $practiceTask),
             requiredKeys: ['summary', 'sentences', 'positives', 'negatives'],
             onCallSucceeded: $onCallSucceeded,
         );
@@ -135,7 +138,7 @@ class LearnerFeedback
      * capping every list.
      *
      * @param  array<string, mixed>  $data
-     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, saved?: array{mistakes: int, tips: int}}
+     * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, practice_done?: bool, saved?: array{mistakes: int, tips: int}}
      */
     public static function normalize(array $data): array
     {
@@ -193,6 +196,10 @@ class LearnerFeedback
             'techniques' => $techniques,
             'better_version' => self::text($data['better_version'] ?? null) ?: null,
         ];
+
+        if (is_bool($data['practice_done'] ?? null)) {
+            $feedback['practice_done'] = $data['practice_done'];
+        }
 
         if (is_array($data['saved'] ?? null)) {
             $feedback['saved'] = ['mistakes' => (int) ($data['saved']['mistakes'] ?? 0), 'tips' => (int) ($data['saved']['tips'] ?? 0)];
@@ -254,7 +261,7 @@ class LearnerFeedback
         return is_string($value) ? trim($value) : '';
     }
 
-    private function systemPrompt(string $learnerDescription, string $situation, bool $spoken, string $extraGuidance, bool $numberedAnswers = false): string
+    private function systemPrompt(string $learnerDescription, string $situation, bool $spoken, string $extraGuidance, bool $numberedAnswers = false, string $practiceTask = ''): string
     {
         $techniques = collect(self::TECHNIQUES)
             ->map(fn (array $t, string $key) => "\"{$key}\" ({$t['name']}: use when {$t['when']}; e.g. \"{$t['example']}\")")
@@ -289,7 +296,13 @@ class LearnerFeedback
             .'"techniques": [{"key": "a key from the list", "tip": "one short line in Persian: why it helps here", '
             .'"example": "English, built from the learner\'s own sentence"}], '
             .'"better_version": "the learner\'s own text rewritten one level higher in English — same ideas, '
-            .'natural, at most 60 words"}. '
+            .'natural, at most 60 words"'
+            .($practiceTask !== ''
+                ? ', "practice_done": true only if this is a real chat with the AI partner in which the learner '
+                    .'did most of today\'s task ('.$practiceTask.'); false for a made-up, copied or too-short text, '
+                    .'or one about something else'
+                : '')
+            .'}. '
             .'Language: every field except the English sentences, corrections, examples and better_version is '
             .'simple, plain Persian. Inside Persian text, keep every English word or phrase in Latin letters '
             .'inside «», e.g. «since» — never spell English in Persian letters and never translate the learner\'s '
