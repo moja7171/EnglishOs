@@ -8,7 +8,8 @@ use Illuminate\Support\Str;
 
 /**
  * Writes a LearnerFeedback review into the learner's two notebooks — no
- * tap needed. Mistakes ("fix" sentences) are keyed by their rule, so the
+ * tap needed. Mistakes ("fix" sentences) are keyed by their category
+ * (LearnerFeedback::MISTAKE_CATEGORIES, else the fixed sentence), so the
  * same mistake made again bumps a counter instead of adding a line; tips
  * are the "better" phrase swaps and the suggested speaking techniques.
  * A new line is first due in Daily Review tomorrow, not right away — the

@@ -5,6 +5,7 @@ use App\Models\GrammarPoint;
 use App\Models\NotebookEntry;
 use App\Models\SpeakingPrompt;
 use App\Models\VocabularyWord;
+use App\Services\FixChecker;
 use App\Services\GroqClient;
 use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
@@ -36,10 +37,17 @@ new class extends Component
 
     /**
      * What the learner typed as the corrected sentence on a grammar
-     * pattern (error) card — compared with the saved correction once
-     * checked, see checkAttempt() and attemptIsCorrect().
+     * pattern (error) card or a notebook mistake — judged once, see
+     * checkAttempt().
      */
     public string $attempt = '';
+
+    /**
+     * Whether that attempt is a right fix — null until checked (or when
+     * the learner just looked). Kept, so a re-render never asks the AI
+     * again.
+     */
+    public ?bool $attemptCorrect = null;
 
     /**
      * One line of AI feedback on the current speaking recording — null
@@ -215,36 +223,23 @@ new class extends Component
     }
 
     /**
-     * Shows the fix after the learner wrote their own corrected sentence
-     * — an empty attempt does nothing, since "Show the fix" is the way to
-     * look without trying.
+     * Shows the fix after the learner wrote their own corrected sentence,
+     * judged by FixChecker (another right fix counts too) — an empty
+     * attempt does nothing, since "Show the fix" is the way to look
+     * without trying.
      */
     public function checkAttempt(): void
     {
-        if (trim($this->attempt) === '') {
+        $model = $this->currentItem['model'] ?? null;
+
+        if (trim($this->attempt) === '' || ! ($model instanceof NotebookEntry || $model instanceof ErrorPatternReview)) {
             return;
         }
 
+        $this->attemptCorrect = $model instanceof NotebookEntry
+            ? app(FixChecker::class)->accepts((string) $model->original, $this->attempt, $model->better)
+            : app(FixChecker::class)->accepts((string) $model->last_error, $this->attempt, (string) $model->last_correction);
         $this->revealed = true;
-    }
-
-    /**
-     * Whether the typed attempt matches the saved correction, ignoring
-     * case, spacing and the final full stop/!/? — the same leniency Error
-     * Log's own drills use. Only meaningful on a grammar pattern card or a
-     * notebook mistake.
-     */
-    public function attemptIsCorrect(): bool
-    {
-        $model = $this->currentItem['model'] ?? null;
-        $correction = $model instanceof NotebookEntry ? $model->better : ($model->last_correction ?? '');
-
-        return $this->normalizeSentence($this->attempt) === $this->normalizeSentence($correction);
-    }
-
-    private function normalizeSentence(string $text): string
-    {
-        return trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
     }
 
     /**
@@ -402,6 +397,7 @@ new class extends Component
         $this->recordedThisTurn = false;
         $this->feedback = null;
         $this->attempt = '';
+        $this->attemptCorrect = null;
         $this->revealed = false;
         $this->pickedOption = null;
         unset($this->grammarReview);
@@ -554,7 +550,7 @@ new class extends Component
                             >@svg('heroicon-o-eye', 'h-3.5 w-3.5') Just show the fix</button>
                         @else
                             @if (trim($attempt) !== '')
-                                @if ($this->attemptIsCorrect())
+                                @if ($attemptCorrect)
                                     <p class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
                                         @svg('heroicon-o-check-circle', 'h-4 w-4') Spot on!
                                     </p>
@@ -590,7 +586,7 @@ new class extends Component
                             >@svg('heroicon-o-eye', 'h-3.5 w-3.5') Just show the fix</button>
                         @else
                             @if (trim($attempt) !== '')
-                                @if ($this->attemptIsCorrect())
+                                @if ($attemptCorrect)
                                     <p class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
                                         @svg('heroicon-o-check-circle', 'h-4 w-4') Spot on!
                                     </p>
