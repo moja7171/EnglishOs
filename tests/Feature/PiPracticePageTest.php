@@ -534,16 +534,24 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('missions.show', [Mission::first(), 'overview']))
-            ->assertSee('10 minutes of talking with a voice AI.')
+            ->assertSeeHtml('aria-label="Day 1 Daily talk"')
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"');
     }
 
-    public function test_the_back_link_leads_to_the_days_sheet_on_the_missions_page(): void
+    public function test_the_back_link_leads_to_the_day_on_the_missions_page(): void
+    {
+        $this->actingAs($this->learnerWhoFinishedDay1());
+
+        $this->get(route('pi.practice'))
+            ->assertSeeHtml('href="'.route('missions.show', ['M01', 'overview', 'day' => 1]).'"')
+            ->assertSee('M01 · My Daily Life · Day 1');
+    }
+
+    public function test_the_back_link_of_a_mission_not_built_yet_is_the_missions_page(): void
     {
         $this->actingAs(User::factory()->create());
 
         $this->get(route('pi.practice'))
-            ->assertSeeHtml('href="'.route('missions.index', ['day' => 'M01-1']).'"')
-            ->assertSee('M01 · My Daily Life · Day 1');
+            ->assertSeeHtml('href="'.route('missions.index').'"');
     }
 }

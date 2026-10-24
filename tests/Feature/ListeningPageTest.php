@@ -272,11 +272,11 @@ class ListeningPageTest extends TestCase
             ->assertDontSeeHtml('reportListen');
     }
 
-    public function test_the_banner_leads_back_to_the_days_sheet_on_the_missions_page(): void
+    public function test_the_banner_leads_back_to_the_day_on_the_missions_page(): void
     {
         $this->actingAs($this->learnerOnDay2());
 
         $this->get(route('listening.show'))
-            ->assertSeeHtml('href="'.route('missions.index', ['day' => 'M01-2']).'"');
+            ->assertSeeHtml('href="'.route('missions.show', ['M01', 'overview', 'day' => 2]).'"');
     }
 }

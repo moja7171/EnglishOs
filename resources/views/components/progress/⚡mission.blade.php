@@ -9,11 +9,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 /**
- * One finished mission looked back on, opened from its photo on the
- * Missions page: what it taught (its grammar), the words the learner picked,
- * and their own voice from it. A mirror onto data the run already holds
- * — nothing is asked or recorded here. Revisiting the steps themselves
- * stays on the mission runner ("Open mission").
+ * One finished mission looked back on, under its four days on the
+ * mission's own page (the runner's overview): what it taught (its
+ * grammar), the words the learner picked, and their own voice from it. A
+ * mirror onto data the run already holds — nothing is asked or recorded
+ * here.
  */
 new class extends Component
 {
@@ -68,24 +68,16 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
-    {{-- The mission's photo banner, the same as its Missions card, with
-         when it was cleared. --}}
-    <x-mission-banner
-        :mission-code="$mission->code"
-        :title="$mission->title"
-        :back-href="route('missions.index')"
-        back-label="Missions"
-        :done-label="'Done'.($this->run->completed_at ? ' '.$this->run->completed_at->format('M j') : '')"
-    >
-        <p class="mt-0.5 text-sm text-white/80">{{ $mission->code }}{{ $mission->outcome ? ' · '.$mission->outcome : '' }}</p>
-    </x-mission-banner>
-
-    <x-practice-again :mission-code="$mission->code" />
-
+{{-- A finished mission looked back on, under its days on the mission's
+     own page (see the runner): its grammar, the learner's own words and
+     recordings, each folded. --}}
+<div class="space-y-2.5">
     @if ($this->grammarTitle)
-        <section class="card p-4">
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Grammar</p>
+        <details class="card group p-4">
+            <summary class="flex cursor-pointer list-none items-center gap-2">
+                <span class="min-w-0 flex-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Grammar</span>
+                @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
+            </summary>
             <div class="mt-1 flex flex-wrap items-center gap-2">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->grammarTitle }}</p>
                 @if ($this->grammarPoints->isNotEmpty())
@@ -99,12 +91,15 @@ new class extends Component
             @foreach ($this->grammarPoints->pluck('example_sentence')->filter()->unique() as $example)
                 <x-speak-word :word="$example" block top class="mt-2 text-sm text-ink-soft italic dark:text-ink-soft-dark" />
             @endforeach
-        </section>
+        </details>
     @endif
 
     @if (count($this->words))
-        <section class="card p-4">
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your words · {{ count($this->words) }}</p>
+        <details class="card group p-4">
+            <summary class="flex cursor-pointer list-none items-center gap-2">
+                <span class="min-w-0 flex-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your words · {{ count($this->words) }}</span>
+                @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
+            </summary>
             <ul class="mt-2 flex flex-wrap gap-1.5">
                 @foreach ($this->words as $word)
                     <li class="rounded-xl bg-accent-soft px-2.5 py-1 dark:bg-accent-soft-dark">
@@ -115,12 +110,15 @@ new class extends Component
                     </li>
                 @endforeach
             </ul>
-        </section>
+        </details>
     @endif
 
     @if (count($this->recordings))
-        <section class="card p-4">
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your voice</p>
+        <details class="card group p-4">
+            <summary class="flex cursor-pointer list-none items-center gap-2">
+                <span class="min-w-0 flex-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your voice · {{ count($this->recordings) }}</span>
+                @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
+            </summary>
             <ul class="mt-2 divide-y divide-line dark:divide-line-dark">
                 @foreach ($this->recordings as $recording)
                     <li class="space-y-1.5 py-2.5 first:pt-0 last:pb-0">
@@ -129,12 +127,6 @@ new class extends Component
                     </li>
                 @endforeach
             </ul>
-        </section>
+        </details>
     @endif
-
-    <a
-        href="{{ route('missions.show', [$mission, 'overview']) }}"
-        wire:navigate
-        class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-    >Open mission @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
 </div>

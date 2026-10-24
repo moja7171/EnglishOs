@@ -48,12 +48,14 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     })->name('pi.setup');
 
     // All 24 missions as photo cards (App\Services\MissionGrid), a tab of
-    // the bottom nav. ?day=M03-2 opens that day's sheet (the way back from
-    // its Listening or Daily talk page).
+    // the bottom nav. An old ?day=M03-2 link (that day's sheet, now gone)
+    // opens the mission's own page on that day instead.
     Route::get('/missions', function (MissionGrid $grid) {
-        $openDay = preg_match('/^M(0[1-9]|1[0-9]|2[0-4])-[1-4]$/', (string) request()->query('day')) === 1 ? request()->query('day') : null;
+        if (preg_match('/^(M(?:0[1-9]|1[0-9]|2[0-4]))-([1-4])$/', (string) request()->query('day'), $match) === 1) {
+            return redirect($grid->pageUrl($match[1], (int) $match[2]));
+        }
 
-        return view('missions', ['grid' => $grid->for(auth()->user()), 'openDay' => $openDay]);
+        return view('missions', ['grid' => $grid->for(auth()->user())]);
     })->name('missions.index');
 
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
@@ -68,11 +70,9 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('progress');
     })->name('progress.index');
 
-    // One finished mission looked back on: its grammar, the learner's own
-    // words and recordings. Only for a mission the learner has cleared —
-    // the component 404s otherwise, since only it loads the run.
+    // A finished mission's recap now lives on the mission's own page.
     Route::get('/progress/{mission:code}', function (Mission $mission) {
-        return view('progress-mission', compact('mission'));
+        return redirect()->route('missions.show', [$mission, 'overview']);
     })->name('progress.mission');
 
     // /program and /guide used to be two separate, divergent "how this
