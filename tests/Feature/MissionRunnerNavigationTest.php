@@ -350,6 +350,30 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSee('Listen'); // so the day's first part not done is its listening
     }
 
+    public function test_the_header_line_is_full_while_reviewing_the_last_step_of_a_finished_day(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        foreach (['mission_brief', 'vocabulary_builder_1', 'listening'] as $key) {
+            Evidence::create([
+                'mission_run_id' => $run->id,
+                'phase' => $key,
+                'type' => Evidence::TYPE_TEXT,
+                'content_ref' => 'done',
+            ]);
+        }
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'listening'])
+            ->assertSeeHtml('aria-label="Step 3 of 3"')
+            ->assertSeeHtml('style="width: 100%"');
+    }
+
     public function test_next_and_previous_never_cross_a_day_boundary(): void
     {
         $this->seed(MissionSeeder::class);
@@ -499,7 +523,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertDontSee('Mission Result');
     }
 
-    public function test_a_step_page_has_the_one_line_header_and_no_hero_while_the_overview_has_the_hero(): void
+    public function test_a_step_page_has_the_mission_and_step_header_and_no_hero_while_the_overview_has_the_hero(): void
     {
         $this->seed(MissionSeeder::class);
 
@@ -511,6 +535,7 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'mission_brief'])
             ->assertSeeHtml('data-step-header')
+            ->assertSee('M01 · My Daily Life')
             ->assertSee('Day 1 · Get Ready')
             ->assertSeeHtml('aria-label="Step 1 of 3"')
             ->assertSeeHtml('data-ask-instructor-trigger')

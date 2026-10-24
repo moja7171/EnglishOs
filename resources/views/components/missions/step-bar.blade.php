@@ -1,24 +1,44 @@
 {{--
-    The one-line header of a mission step, pinned to the top while the step
-    scrolls: back to the day overview, "Day N · Step name", the day's
-    progress dots and (when given) the ask-instructor icon. Tapping the name
-    or the dots opens the day's step list as a sheet (<x-menu-panel>), so the
-    step's own content starts right under this line instead of under a
-    checklist.
+    The header of a mission step, pinned to the top while the step scrolls:
+    back to the day overview, the mission ("M01 · My Daily Life") over
+    "Day N · Step name · 4/5 ▾", the ask-instructor icon (when given), and
+    a thin line along its bottom edge filling as the day's steps get done.
+    Tapping the name opens the day's step list as a sheet (<x-menu-panel>),
+    so the step's own content starts right under this header instead of
+    under a checklist. Once the page scrolls, the mission line folds away
+    and the header is one line again — the day and step stay in sight.
 
     It is opaque on purpose, and has no backdrop blur or transform: either
     would make the sheet's fixed positioning relative to this bar.
 
     @param string $backUrl Where the back arrow goes (the day overview).
+    @param string $missionCode The mission's code, e.g. "M01".
+    @param string $missionTitle The mission's title, e.g. "My Daily Life".
     @param int $dayNumber 1-based day the step belongs to.
     @param string $dayHeading That day's heading for the sheet, e.g. "Day 2 · Build".
     @param string $stepLabel The active step's name.
-    @param list<array{label: string, icon: string, url: string, state: 'done'|'active'|'ahead', here: bool, minutes: ?int}> $steps One entry per step of the day.
+    @param list<array{label: string, icon: string, url: string, state: 'done'|'active'|'ahead', finished: bool, here: bool, minutes: ?int}> $steps One entry per step of the day; finished also counts the open step once it's done.
     @param bool $askInstructor Shows the icon that opens <livewire:missions.ask-instructor>.
 --}}
-@props(['backUrl', 'dayNumber', 'dayHeading', 'stepLabel', 'steps', 'askInstructor' => false])
+@props(['backUrl', 'missionCode', 'missionTitle', 'dayNumber', 'dayHeading', 'stepLabel', 'steps', 'askInstructor' => false])
 
-<div class="sticky top-0 z-30 -mx-4 border-b border-line bg-ground px-2 py-1.5 sm:-mx-6 sm:px-4 dark:border-line-dark dark:bg-ground-dark" data-step-header>
+@php
+    $stepPosition = collect($steps)->search(fn (array $step): bool => $step['state'] === 'active') + 1;
+    $doneShare = count($steps) > 0 ? collect($steps)->where('finished', true)->count() / count($steps) * 100 : 0;
+@endphp
+
+<div
+    x-data="{
+        compact: false,
+        // Folds at 48px and unfolds only back near the top, so the header's
+        // own change in height can't flip it back and forth.
+        follow() { this.compact = this.compact ? window.scrollY > 8 : window.scrollY > 48 },
+    }"
+    x-init="follow()"
+    x-on:scroll.window.passive="follow()"
+    class="sticky top-0 z-30 -mx-4 bg-ground px-2 pt-1.5 pb-2 sm:-mx-6 sm:px-4 dark:bg-ground-dark"
+    data-step-header
+>
     <div class="flex items-center gap-1">
         <a
             href="{{ $backUrl }}"
@@ -32,18 +52,20 @@
                 type="button"
                 x-on:click="open = ! open"
                 aria-haspopup="menu"
-                class="flex w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-full px-2 py-1.5 text-left transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
+                class="flex w-full min-w-0 cursor-pointer items-center rounded-xl px-2 py-1 text-left transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
             >
-                <span class="min-w-0 flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">Day {{ $dayNumber }} · {{ $stepLabel }}</span>
-                <span class="flex shrink-0 items-center gap-1" aria-label="Step {{ collect($steps)->search(fn ($step) => $step['state'] === 'active') + 1 }} of {{ count($steps) }}">
-                    @foreach ($steps as $step)
-                        <span @class([
-                            'h-1.5 rounded-full',
-                            'w-4 bg-accent dark:bg-accent-dark' => $step['state'] === 'active',
-                            'w-1.5 bg-success dark:bg-success-dark' => $step['state'] === 'done',
-                            'w-1.5 bg-line dark:bg-line-dark' => $step['state'] === 'ahead',
-                        ])></span>
-                    @endforeach
+                <span class="min-w-0 flex-1">
+                    <span
+                        class="grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none"
+                        x-bind:class="compact ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr]'"
+                    >
+                        <span class="block min-h-0 truncate overflow-hidden text-xs font-semibold text-ink-faint dark:text-ink-faint-dark" data-step-header-mission>{{ $missionCode }} · {{ $missionTitle }}</span>
+                    </span>
+                    <span class="flex min-w-0 items-center gap-1.5">
+                        <span class="min-w-0 truncate text-sm font-bold text-ink dark:text-ink-dark">Day {{ $dayNumber }} · {{ $stepLabel }}</span>
+                        <span class="shrink-0 text-xs font-semibold text-ink-faint tabular-nums dark:text-ink-faint-dark" aria-label="Step {{ $stepPosition }} of {{ count($steps) }}">· {{ $stepPosition }}/{{ count($steps) }}</span>
+                        <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="open && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')</span>
+                    </span>
                 </span>
             </button>
 
@@ -95,5 +117,10 @@
                 class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark"
             >@svg('heroicon-o-sparkles', 'h-5 w-5')</button>
         @endif
+    </div>
+
+    {{-- The day's progress, as the header's bottom edge. --}}
+    <div class="absolute inset-x-0 bottom-0 h-[3px] bg-line dark:bg-line-dark" aria-hidden="true">
+        <div class="h-full rounded-r-full bg-accent transition-[width] duration-300 dark:bg-accent-dark" style="width: {{ round($doneShare, 1) }}%"></div>
     </div>
 </div>

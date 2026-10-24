@@ -163,7 +163,7 @@ class TopNavTest extends TestCase
         $this->get(route('home'))->assertDontSee('new in Friends');
     }
 
-    public function test_the_bottom_nav_is_hidden_inside_a_mission(): void
+    public function test_a_mission_keeps_the_bottom_nav_but_holds_new_alerts_back(): void
     {
         $mission = Mission::create([
             'code' => 'M01',
@@ -177,17 +177,20 @@ class TopNavTest extends TestCase
 
         $this->get(route('missions.show', $mission))
             ->assertOk()
-            ->assertDontSee('aria-label="Primary"', false);
+            ->assertSee('aria-label="Primary"', false)
+            ->assertSee('data-no-interrupt', false);
     }
 
-    public function test_the_bottom_nav_stays_out_of_the_placement_test_and_chat_threads(): void
+    public function test_the_bottom_nav_shows_in_the_placement_test_but_not_in_a_chat_thread(): void
     {
         $learner = User::factory()->create();
         $friend = User::factory()->create();
         $this->actingAs($learner);
 
-        $this->get(route('placement'))->assertOk()->assertDontSee('aria-label="Primary"', false);
-        $this->get(route('friends.conversation', $friend))->assertDontSee('aria-label="Primary"', false);
+        $this->get(route('placement'))->assertOk()->assertSee('aria-label="Primary"', false);
+        $this->get(route('friends.conversation', $friend))
+            ->assertDontSee('aria-label="Primary"', false)
+            ->assertDontSee('data-no-interrupt', false);
     }
 
     public function test_the_bottom_nav_hides_itself_while_typing_or_recording(): void

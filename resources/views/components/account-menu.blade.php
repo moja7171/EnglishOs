@@ -12,8 +12,8 @@
     unread-message and follow-request count rides on the avatar as a dot
     instead of being lost.
 
-    It lives in the header, not the bottom nav, so it stays reachable on
-    the focus screens (a mission, a chat) where the bottom nav is hidden.
+    It lives in the header, not the bottom nav, so it stays reachable in a
+    friend chat, the one page without the bottom nav.
 --}}
 @php
     $user = auth()->user();
