@@ -19,10 +19,10 @@ class LearningStreakTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function makeMission(): Mission
+    private function makeMission(string $code = 'M01'): Mission
     {
         return Mission::create([
-            'code' => 'M01',
+            'code' => $code,
             'title' => 'My Daily Life',
             'module' => 'Me',
             'outcome' => 'I can talk about my daily routine.',
@@ -333,29 +333,39 @@ class LearningStreakTest extends TestCase
         $this->assertSame(1, $learner->mutualFriendsActiveTodayCount());
     }
 
-    public function test_latest_in_progress_mission_run_is_null_with_no_runs(): void
+    public function test_current_in_progress_mission_run_is_null_with_no_runs(): void
     {
         $learner = User::factory()->beforeStreakRing()->create();
 
-        $this->assertNull($learner->latestInProgressMissionRun());
+        $this->assertNull($learner->currentInProgressMissionRun());
     }
 
-    public function test_latest_in_progress_mission_run_finds_the_one_still_in_progress(): void
+    public function test_current_in_progress_mission_run_finds_the_one_still_in_progress(): void
     {
         $learner = User::factory()->beforeStreakRing()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
 
-        $this->assertSame($run->id, $learner->latestInProgressMissionRun()->id);
+        $this->assertSame($run->id, $learner->currentInProgressMissionRun()->id);
     }
 
-    public function test_latest_in_progress_mission_run_excludes_completed_runs(): void
+    public function test_current_in_progress_mission_run_excludes_completed_runs(): void
     {
         $learner = User::factory()->beforeStreakRing()->create();
         $mission = $this->makeMission();
         $run = MissionRun::findOrStart($learner, $mission);
         $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()]);
 
-        $this->assertNull($learner->latestInProgressMissionRun());
+        $this->assertNull($learner->currentInProgressMissionRun());
+    }
+
+    public function test_current_in_progress_mission_run_is_the_earliest_mission_not_the_latest_opened(): void
+    {
+        $learner = User::factory()->beforeStreakRing()->create();
+        $first = MissionRun::findOrStart($learner, $this->makeMission('M01'));
+        $this->travel(1)->hours();
+        MissionRun::findOrStart($learner, $this->makeMission('M10'));
+
+        $this->assertSame($first->id, $learner->currentInProgressMissionRun()->id);
     }
 
     public function test_missions_completed_this_week_only_counts_recent_completions(): void

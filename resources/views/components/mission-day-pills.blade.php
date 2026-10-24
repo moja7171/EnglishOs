@@ -1,7 +1,8 @@
 {{--
-    The Day 1–4 switcher inside <x-mission-banner>: reached days link to
+    The Day 1–4 switcher inside <x-mission-banner>: every day links to
     the same page for that day, the one on screen is filled, today is
-    marked, a done day gets a ✓, and days not reached yet are dashed.
+    marked, a done day gets a ✓, and days not reached yet are dashed (they
+    open as a preview).
 
     @param string $missionCode
     @param string $routeName Takes [missionCode, day], e.g. "listening.show".
@@ -15,11 +16,18 @@
             $pill = 'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold';
         @endphp
         @if ($dayInfo['state'] === 'future')
-            <span
-                class="{{ $pill }} cursor-not-allowed border-dashed border-white/40 text-white/50"
-                title="Not reached yet"
+            <a
+                href="{{ route($routeName, [$missionCode, $dayInfo['number']]) }}"
+                wire:navigate
+                @if ($dayInfo['viewing']) aria-current="page" @endif
                 aria-label="Day {{ $dayInfo['number'] }}, not reached yet"
-            >Day {{ $dayInfo['number'] }}</span>
+                @class([
+                    $pill,
+                    'border-dashed',
+                    'border-white bg-white text-ink' => $dayInfo['viewing'],
+                    'border-white/50 text-white/70 hover:bg-white/15' => ! $dayInfo['viewing'],
+                ])
+            >Day {{ $dayInfo['number'] }}</a>
         @else
             <a
                 href="{{ route($routeName, [$missionCode, $dayInfo['number']]) }}"

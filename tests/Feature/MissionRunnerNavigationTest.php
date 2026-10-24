@@ -459,6 +459,25 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSeeHtml('wire:name="progress.mission"');
     }
 
+    public function test_a_locked_mission_still_opens_each_days_listening_and_daily_talk_as_a_preview(): void
+    {
+        $this->makeMission();
+        $locked = Mission::create([
+            'code' => 'M02',
+            'title' => 'Food',
+            'module' => 'Me',
+            'outcome' => 'I can talk about food.',
+            'phases' => [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('missions.runner', ['mission' => $locked])
+            ->assertSee("Preview only: this mission isn't unlocked yet", false)
+            ->assertSeeHtml('href="'.route('listening.show', ['M02', 1]).'"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M02', 1]).'"')
+            ->assertSeeInOrder(['Lesson', 'Preview', 'Listening', 'Preview', 'Daily talk', 'Preview']);
+    }
+
     public function test_the_within_day_checklist_shows_real_step_labels_not_just_numbers(): void
     {
         $this->seed(MissionSeeder::class);

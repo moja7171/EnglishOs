@@ -3,10 +3,16 @@
 namespace Tests\Feature;
 
 use App\Models\AiUsageLog;
+use App\Models\Evidence;
+use App\Models\Mission;
+use App\Models\MissionRun;
+use App\Models\StepDraft;
 use App\Models\User;
 use App\Notifications\AdminMessage;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -170,6 +176,51 @@ class AdminPageTest extends TestCase
             ->assertForbidden();
 
         $this->assertTrue($admin->fresh()->is_admin);
+    }
+
+    private function makeMission(string $code): Mission
+    {
+        return Mission::create([
+            'code' => $code,
+            'title' => 'Mission '.$code,
+            'module' => 'Me',
+            'outcome' => 'I can talk about it.',
+            'phases' => [['phase' => 'foundation', 'label' => 'Day 1', 'steps' => [['key' => 'mission_brief']]]],
+        ]);
+    }
+
+    public function test_an_admin_can_remove_a_learners_mission_with_its_answers_and_recordings(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('recordings/answer.webm', 'audio');
+        Storage::disk('public')->put('recordings/draft.webm', 'audio');
+        $learner = User::factory()->create();
+        $kept = MissionRun::findOrStart($learner, $this->makeMission('M01'));
+        $removed = MissionRun::findOrStart($learner, $this->makeMission('M10'));
+        Evidence::create(['mission_run_id' => $removed->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_AUDIO, 'content_ref' => '/storage/recordings/answer.webm']);
+        StepDraft::factory()->for($removed, 'missionRun')->create(['paths' => ['recordings/draft.webm']]);
+
+        Livewire::actingAs($this->admin())->test('admin.user', ['user' => $learner])
+            ->call('discardMissionRun', $removed->id)
+            ->assertSee('M10 removed.')
+            ->assertSee('Mission M01');
+
+        $this->assertModelMissing($removed);
+        $this->assertModelExists($kept);
+        $this->assertDatabaseMissing('evidences', ['mission_run_id' => $removed->id]);
+        Storage::disk('public')->assertMissing(['recordings/answer.webm', 'recordings/draft.webm']);
+    }
+
+    public function test_an_admin_cannot_remove_another_learners_mission_from_this_learners_page(): void
+    {
+        $learner = User::factory()->create();
+        $otherRun = MissionRun::findOrStart(User::factory()->create(), $this->makeMission('M01'));
+
+        $page = Livewire::actingAs($this->admin())->test('admin.user', ['user' => $learner]);
+
+        $this->assertThrows(fn () => $page->call('discardMissionRun', $otherRun->id), ModelNotFoundException::class);
+
+        $this->assertModelExists($otherRun);
     }
 
     public function test_the_learner_page_shows_their_picture(): void

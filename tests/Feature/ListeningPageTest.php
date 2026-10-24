@@ -111,18 +111,27 @@ class ListeningPageTest extends TestCase
             ->assertSee('Back to today (M01 · Day 2)');
     }
 
-    public function test_a_day_ahead_of_the_learner_is_sent_back_to_today(): void
+    public function test_a_day_ahead_of_the_learner_opens_as_a_preview_without_a_tick(): void
     {
         $this->actingAs($this->learnerOnDay2());
 
-        $this->get(route('listening.show', ['M01', 3]))->assertRedirect(route('listening.show'));
+        $this->get(route('listening.show', ['M01', 3]))
+            ->assertOk()
+            ->assertSee('Preview only')
+            ->assertSee('Pick one')
+            ->assertDontSeeHtml('$wire.heardPick(');
     }
 
-    public function test_a_brand_new_learner_cannot_jump_to_a_later_mission(): void
+    public function test_a_real_listen_on_a_day_ahead_is_not_filed(): void
     {
-        $this->actingAs(User::factory()->create());
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
 
-        $this->get(route('listening.show', ['M02', 1]))->assertRedirect(route('listening.show'));
+        Livewire::test('listening.index', ['requestedMission' => 'M02', 'requestedDay' => 1])
+            ->call('heardPick', 0)
+            ->assertDontSee('Listened');
+
+        $this->assertDatabaseMissing('audio_listens', ['learner_id' => $learner->id]);
     }
 
     public function test_unknown_missions_and_days_are_not_found(): void

@@ -51,7 +51,7 @@ new class extends Component
      */
     private function cardData(User $user): array
     {
-        $run = $user->latestInProgressMissionRun();
+        $run = $user->currentInProgressMissionRun();
 
         return [
             'user' => $user,

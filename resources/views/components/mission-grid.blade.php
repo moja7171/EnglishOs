@@ -6,7 +6,8 @@
      Listening, Daily talk — that fill as they are done (all three: a green
      tick, see <x-day-ring>); a tap opens the mission's page on that day.
      The current mission is ringed and scrolled into view, a finished one
-     ticked, one not reached yet greyed out with a lock.
+     ticked. Every built mission looks open, reached or not — its own page
+     holds the lock; only one not built yet is greyed out with a lock.
 
      @param list<array<string, mixed>> $missions see MissionGrid::for() --}}
 <div>
@@ -18,11 +19,11 @@
                 @class([
                     'relative aspect-square overflow-hidden rounded-2xl bg-linear-to-br from-hero to-hero-2',
                     'ring-2 ring-accent ring-offset-2 ring-offset-ground dark:ring-accent-dark dark:ring-offset-ground-dark' => $mission['current'],
-                    'opacity-60' => ! $mission['reached'],
+                    'opacity-60' => ! $mission['built'],
                 ])
             >
                 @if ($mission['coverUrl'])
-                    <img src="{{ $mission['coverUrl'] }}" alt="" loading="lazy" @class(['absolute inset-0 h-full w-full object-cover', 'grayscale' => ! $mission['reached']])>
+                    <img src="{{ $mission['coverUrl'] }}" alt="" loading="lazy" @class(['absolute inset-0 h-full w-full object-cover', 'grayscale' => ! $mission['built']])>
                 @endif
                 <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/25 to-transparent"></div>
 
@@ -38,7 +39,7 @@
                     @endif
                     @if ($mission['done'])
                         <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark" aria-label="Done">@svg('heroicon-s-check', 'h-3.5 w-3.5')</span>
-                    @elseif (! $mission['reached'])
+                    @elseif (! $mission['built'])
                         <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/40 text-white" aria-label="Locked">@svg('heroicon-s-lock-closed', 'h-3 w-3')</span>
                     @endif
                 </div>
@@ -64,7 +65,7 @@
                             @else
                                 <span
                                     class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-white/40 text-xs font-semibold text-white/50"
-                                    aria-label="{{ $label }}, not reached yet"
+                                    aria-label="{{ $label }}, not built yet"
                                 >{{ $day['number'] }}</span>
                             @endif
                         @endforeach

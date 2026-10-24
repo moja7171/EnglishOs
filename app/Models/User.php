@@ -278,14 +278,18 @@ class User extends Authenticatable
     /**
      * The mission this learner is actively working on right now, if any —
      * feeds the Friends Board's per-friend progress ring/journey map.
-     * "Latest" by started_at since a learner could in principle have more
-     * than one in_progress run across different missions.
+     * The earliest mission when more than one is in progress, the same
+     * one Home shows (see ProgramPlanner) — a later mission opened while
+     * admin skipped the locks never counts as where they are. Codes are
+     * zero-padded "M##", so they sort in roadmap order.
      */
-    public function latestInProgressMissionRun(): ?MissionRun
+    public function currentInProgressMissionRun(): ?MissionRun
     {
         return $this->missionRuns()
-            ->where('status', MissionRun::STATUS_IN_PROGRESS)
-            ->latest('started_at')
+            ->select('mission_runs.*')
+            ->join('missions', 'missions.id', '=', 'mission_runs.mission_id')
+            ->where('mission_runs.status', MissionRun::STATUS_IN_PROGRESS)
+            ->orderBy('missions.code')
             ->first();
     }
 

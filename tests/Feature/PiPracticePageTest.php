@@ -183,18 +183,30 @@ class PiPracticePageTest extends TestCase
             ->assertSee('Back to today (M01 · Day 2)');
     }
 
-    public function test_a_day_ahead_of_the_learner_is_sent_back_to_today(): void
+    public function test_a_day_ahead_of_the_learner_shows_its_plan_but_no_pi_button_or_feedback(): void
     {
         $this->actingAs($this->learnerWhoFinishedDay1());
 
-        $this->get(route('pi.practice', ['M01', 3]))->assertRedirect(route('pi.practice'));
+        $this->get(route('pi.practice', ['M01', 3]))
+            ->assertOk()
+            ->assertSee('Preview only')
+            ->assertSee('Day 3 plan')
+            ->assertDontSee('Copy &amp; open Pi', false)
+            ->assertDontSee('Get feedback');
     }
 
-    public function test_a_brand_new_learner_cannot_jump_to_a_later_mission(): void
+    public function test_a_chat_pasted_on_a_day_ahead_asks_no_ai_and_keeps_nothing(): void
     {
-        $this->actingAs(User::factory()->create());
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
-        $this->get(route('pi.practice', ['M02', 1]))->assertRedirect(route('pi.practice'));
+        Livewire::test('pi-practice.index', ['requestedMission' => 'M02', 'requestedDay' => 1])
+            ->set('pastedChat', self::A_PRACTICE_CHAT)
+            ->call('checkPastedChat');
+
+        $this->assertDatabaseMissing('pi_chat_feedback', ['learner_id' => $learner->id]);
+        $this->assertFalse($learner->hasPracticedWithPiToday());
     }
 
     public function test_unknown_missions_and_days_are_not_found(): void
