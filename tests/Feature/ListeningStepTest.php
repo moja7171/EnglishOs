@@ -108,6 +108,7 @@ class ListeningStepTest extends TestCase
 
     public function test_the_word_bank_lists_every_target_phrase(): void
     {
+        $this->markTestSkipped('Gap-fill hidden for now (GAP_FILL_HIDDEN).');
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.listening', ['run' => $run])
@@ -191,6 +192,7 @@ class ListeningStepTest extends TestCase
 
     public function test_gap_fill_must_be_all_correct_before_saving(): void
     {
+        $this->markTestSkipped('Gap-fill hidden for now (GAP_FILL_HIDDEN).');
         $run = $this->makeRun();
 
         $component = Livewire::test('missions.steps.listening', ['run' => $run]);
