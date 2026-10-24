@@ -209,57 +209,67 @@ class MissionsOverviewTest extends TestCase
         return $run;
     }
 
-    public function test_the_day_bar_shows_every_day_of_the_open_mission(): void
+    public function test_the_banner_rings_open_each_day_of_the_mission_on_its_page(): void
     {
         $learner = User::factory()->create();
-        $this->startOnDayTwo($learner);
+        $run = $this->startOnDayTwo($learner);
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeHtml('aria-label="Day 1, done"')
+            ->assertSeeHtml('data-mission-banner')
+            ->assertSeeHtml('aria-label="Day 1, 1 of 3 done"')
             ->assertSeeHtml('aria-label="Day 2, today"')
-            ->assertSeeHtml('aria-label="Day 3, not reached yet"');
+            ->assertSeeHtml('aria-label="Day 3, not reached yet"')
+            ->assertSeeHtml('href="'.route('missions.show', [$run->mission, 'overview', 'day' => 1]).'"')
+            ->assertSeeHtml('href="'.route('missions.show', [$run->mission, 'overview', 'day' => 3]).'"');
     }
 
-    public function test_tapping_a_past_day_lists_its_steps_to_review_and_back_to_today_returns(): void
+    public function test_the_banner_title_opens_the_missions_page_on_today(): void
     {
         $learner = User::factory()->create();
         $run = $this->startOnDayTwo($learner);
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->set('viewDay', 1)
-            ->assertSee('Done '.now()->subDays(2)->format('M j'))
-            ->assertSee('Back to today')
-            ->assertSeeHtml(route('missions.show', [$run->mission, 'mission_brief']))
-            ->set('viewDay', null)
-            ->assertDontSee('Back to today')
-            ->assertSee('Words');
+            ->assertSeeHtml('href="'.route('missions.show', [$run->mission, 'overview', 'day' => 2]).'"')
+            ->assertSeeHtml('href="'.route('progress.index').'"');
     }
 
-    public function test_a_day_ahead_lists_its_steps_without_links(): void
-    {
-        $learner = User::factory()->create();
-        $run = $this->startOnDayTwo($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->set('viewDay', 3)
-            ->assertSee('Day 3 · Perform')
-            ->assertSee('Talk')
-            ->assertDontSeeHtml(route('missions.show', [$run->mission, 'speaking']));
-    }
-
-    public function test_a_day_number_outside_the_mission_shows_today(): void
+    public function test_an_old_day_link_on_home_just_shows_today(): void
     {
         $learner = User::factory()->create();
         $this->startOnDayTwo($learner);
         $this->actingAs($learner);
 
-        Livewire::withQueryParams(['day' => 9])
+        Livewire::withQueryParams(['day' => 1])
             ->test('missions.overview')
             ->assertSee('Today · Build')
             ->assertDontSee('Back to today');
+    }
+
+    public function test_between_missions_the_banner_is_the_next_mission_without_days(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
+        $this->makeSecondMission();
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSeeHtml('data-mission-banner')
+            ->assertSee('M02 · My Neighborhood')
+            ->assertSee('Up next')
+            ->assertDontSeeHtml('aria-label="Days of');
+    }
+
+    public function test_a_next_mission_not_built_yet_keeps_the_plain_headline(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertDontSeeHtml('data-mission-banner')
+            ->assertSee('Mission 2 of 24');
     }
 
     private function makeSecondMission(): Mission

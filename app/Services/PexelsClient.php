@@ -89,6 +89,19 @@ class PexelsClient
     }
 
     /**
+     * Reads back a background clip already cached by videoUrlFor() (e.g.
+     * "M01-ambient") WITHOUT ever triggering a fresh Pexels search — for a
+     * page opened every day, like home, that must never wait on Pexels.
+     * Returns null on a cache miss.
+     */
+    public function cachedVideoUrl(string $identifier): ?string
+    {
+        $path = 'ambient-videos/'.Str::slug($identifier).'.mp4';
+
+        return Storage::disk('public')->exists($path) ? Storage::disk('public')->url($path) : null;
+    }
+
+    /**
      * @param  callable(): ?string  $resolveRemoteUrl
      */
     private function fetchAndCache(string $path, callable $resolveRemoteUrl): ?string

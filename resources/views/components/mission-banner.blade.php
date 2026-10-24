@@ -12,11 +12,13 @@
     @param string|null $backLabel
     @param string|null $icon Heroicons name shown before the title.
     @param string|null $doneLabel A green ✓ badge on the top right, e.g. "Listened".
+    @param string|null $titleHref Makes the title a link, e.g. to the mission's page.
+    @slot $top Top left instead of the way back, e.g. home's "Mission 3 of 24 · 🔥".
     @slot $actions Beside the title, e.g. an ⓘ button.
     @slot $media Extra background layer over the photo, e.g. an ambient video.
     @slot default Under the title: a subtitle line, day pills.
 --}}
-@props(['missionCode', 'title', 'backHref' => null, 'backLabel' => null, 'icon' => null, 'doneLabel' => null])
+@props(['missionCode', 'title', 'backHref' => null, 'backLabel' => null, 'icon' => null, 'doneLabel' => null, 'titleHref' => null])
 
 @php
     $coverUrl = app(\App\Services\MissionGrid::class)->coverUrl($missionCode);
@@ -32,14 +34,16 @@
     <div class="absolute inset-0 -z-10 bg-linear-to-t from-black/75 via-black/40 to-black/20"></div>
 
     <div class="flex min-h-5 items-center justify-between gap-2">
-        @if ($backHref)
+        @isset($top)
+            {{ $top }}
+        @elseif ($backHref)
             <a href="{{ $backHref }}" wire:navigate class="inline-flex min-w-0 items-center gap-1 text-xs font-semibold text-white/85 hover:text-white">
                 @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5 shrink-0')
                 <span class="truncate">{{ $backLabel }}</span>
             </a>
         @else
             <span class="truncate text-xs font-semibold text-white/85">{{ $backLabel }}</span>
-        @endif
+        @endisset
         @if ($doneLabel)
             <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success px-2 py-0.5 text-[11px] font-bold dark:bg-success-dark">@svg('heroicon-s-check', 'h-3 w-3') {{ $doneLabel }}</span>
         @endif
@@ -49,7 +53,14 @@
             @if ($icon)
                 @svg($icon, 'h-6 w-6 shrink-0')
             @endif
-            <span class="min-w-0">{{ $title }}</span>
+            @if ($titleHref)
+                <a href="{{ $titleHref }}" wire:navigate class="inline-flex min-w-0 items-center gap-1 hover:underline hover:underline-offset-4">
+                    <span class="min-w-0 truncate">{{ $title }}</span>
+                    @svg('heroicon-o-chevron-right', 'h-5 w-5 shrink-0 opacity-70')
+                </a>
+            @else
+                <span class="min-w-0">{{ $title }}</span>
+            @endif
         </h1>
         {{ $actions ?? '' }}
     </div>
