@@ -69,21 +69,17 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
-    <a href="{{ route('missions.index') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        Missions
-    </a>
-
-    <header data-mood="{{ $mission->moodKey() }}" class="card p-4">
-        <p class="inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
-            @svg('heroicon-s-check-circle', 'h-3.5 w-3.5')
-            {{ $mission->code }} · Done{{ $this->run->completed_at ? ' '.$this->run->completed_at->format('M j') : '' }}
-        </p>
-        <h1 class="mt-1 font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $mission->title }}</h1>
-        @if ($mission->outcome)
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $mission->outcome }}</p>
-        @endif
-    </header>
+    {{-- The mission's photo banner, the same as its Missions card, with
+         when it was cleared. --}}
+    <x-mission-banner
+        :mission-code="$mission->code"
+        :title="$mission->title"
+        :back-href="route('missions.index')"
+        back-label="Missions"
+        :done-label="'Done'.($this->run->completed_at ? ' '.$this->run->completed_at->format('M j') : '')"
+    >
+        <p class="mt-0.5 text-sm text-white/80">{{ $mission->code }}{{ $mission->outcome ? ' · '.$mission->outcome : '' }}</p>
+    </x-mission-banner>
 
     <x-practice-again :mission-code="$mission->code" />
 

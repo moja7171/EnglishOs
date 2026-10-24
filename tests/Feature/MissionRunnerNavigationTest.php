@@ -461,12 +461,13 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSeeHtml('aria-label="Step 1 of 3"')
             ->assertSeeHtml('data-ask-instructor-trigger')
             ->assertDontSee($mission->outcome)
-            ->assertDontSee('All missions');
+            ->assertDontSeeHtml('data-mission-banner');
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
             ->assertDontSeeHtml('data-step-header')
             ->assertSee($mission->outcome)
-            ->assertSee('All missions');
+            ->assertSeeHtml('data-mission-banner')
+            ->assertSeeHtml('href="'.route('missions.index').'"');
     }
 
     public function test_the_hero_panel_shows_an_ambient_video_when_the_mission_has_a_query(): void
@@ -486,6 +487,7 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs($learner);
 
         $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('cachedImageUrl')->andReturn(null);
             $mock->shouldReceive('videoUrlFor')
                 ->with('M01-ambient', 'quiet morning coffee sunrise')
                 ->once()
@@ -503,7 +505,10 @@ class MissionRunnerNavigationTest extends TestCase
         MissionRun::findOrStart($learner, $mission);
         $this->actingAs($learner);
 
-        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('videoUrlFor'));
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('cachedImageUrl')->andReturn(null);
+            $mock->shouldNotReceive('videoUrlFor');
+        });
 
         Livewire::test('missions.runner', ['mission' => $mission])->assertDontSeeHtml('<video');
     }

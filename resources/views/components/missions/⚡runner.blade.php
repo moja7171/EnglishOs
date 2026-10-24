@@ -377,30 +377,25 @@ new class extends Component
 
 <div class="mx-auto max-w-2xl {{ $isStepView ? 'space-y-4 px-4 pb-6 sm:px-6' : 'space-y-6 p-6' }}" data-mood="{{ $mission->moodKey() }}">
     @unless ($isStepView)
-        <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-            All missions
-        </a>
-
-        {{-- The hero banner only on the day overview — inside a step the
-             one-line header below says where the learner is, so the step's
-             own content starts at the top of the screen. --}}
-        <div class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-8 text-white sm:p-9">
+        {{-- The mission's photo banner only on the overview (the same as
+             Listening and Daily talk) — inside a step the one-line header
+             below says where the learner is, so the step's own content
+             starts at the top of the screen. The mission's ambient clip, if
+             it has one, plays over the photo. --}}
+        <x-mission-banner
+            :mission-code="$mission->code"
+            :title="$mission->title"
+            :back-href="route('missions.index')"
+            back-label="Missions"
+            :done-label="$run->status === \App\Models\MissionRun::STATUS_COMPLETE ? 'Done' : null"
+        >
             @if ($videoUrl = $this->heroVideoUrl())
-                <div class="absolute inset-0 -z-30 overflow-hidden">
-                    <x-ambient-video :url="$videoUrl" class="opacity-25" />
-                    <div class="absolute inset-0 bg-linear-to-br from-hero/95 to-hero-2/90"></div>
-                </div>
+                <x-slot:media>
+                    <x-ambient-video :url="$videoUrl" />
+                </x-slot:media>
             @endif
-            <div class="pointer-events-none absolute -top-24 -right-10 -z-10 h-72 w-72 rounded-full bg-dawn opacity-40 blur-3xl"></div>
-            <div class="pointer-events-none absolute -bottom-28 -left-10 -z-10 h-60 w-60 rounded-full bg-dusk opacity-30 blur-3xl"></div>
-            <p class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-white/70 uppercase">
-                <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
-                {{ $mission->code }}
-            </p>
-            <h1 class="mt-3 max-w-[16ch] font-display text-3xl font-semibold text-balance">{{ $mission->title }}</h1>
-            <p class="mt-2 max-w-[46ch] text-sm text-white/75">{{ $mission->outcome }}</p>
-        </div>
+            <p class="mt-0.5 text-sm text-white/80">{{ $mission->code }}{{ $mission->outcome ? ' · '.$mission->outcome : '' }}</p>
+        </x-mission-banner>
     @endunless
 
     @if ($this->showOverview && $this->currentStepKey !== null)
