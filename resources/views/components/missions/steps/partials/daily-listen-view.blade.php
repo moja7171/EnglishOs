@@ -55,14 +55,14 @@
     </div>
 
     {{-- Shadowing — small (this day's own 2 lines), mandatory, leniently
-         AI-graded (see DailyListenStep::checkShadowLine()). Never gated
+         AI-graded (see ChecksShadowLines::checkShadowLine()). Never gated
          on having played the audio — the recordings themselves are the
          evidence, and a player that won't play must not trap anyone. --}}
     <div class="space-y-3">
         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Shadow these lines</p>
 
         @foreach ($shadowLines as $index => $line)
-            @php $shadowKey = "shadow_{$index}"; $shadowFeedback = $feedback[$shadowKey] ?? null; @endphp
+            @php $shadowKey = "shadow_{$index}"; @endphp
             <div class="rounded-xl border border-line p-3 dark:border-line-dark">
                 <p x-lookup class="text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
 
@@ -82,21 +82,7 @@
                             :on-recorded-param="$index"
                         />
                     </div>
-                    <x-ai-thinking wire:loading wire:target="checkShadowLine({{ $index }})" class="mt-2" label="Listening to your recording…" />
-                    @if ($shadowFeedback)
-                        <p class="mt-2 text-xs {{ $shadowFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}">
-                            @if ($shadowFeedback['unchecked'] ?? false)
-                                @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Couldn't check this one just now — your recording is saved and it counts.
-                            @elseif ($shadowFeedback['severity'] === 'none')
-                                @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Nice — that counts.
-                            @else
-                                {{ $shadowFeedback['hint'] }}
-                            @endif
-                        </p>
-                    @endif
-                    @if ($checkErrors[$shadowKey] ?? null)
-                        <p class="mt-2 text-xs text-danger-ink">{{ $checkErrors[$shadowKey] }}</p>
-                    @endif
+                    <x-shadow-line-check :index="$index" :feedback="$feedback[$shadowKey] ?? null" :error="$checkErrors[$shadowKey] ?? null" />
                 @endif
             </div>
         @endforeach

@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * other spaced-repetition item until it is learned: marked by the learner,
  * or by itself after LEARNED_AFTER_STREAK good reviews in a row.
  */
-#[Fillable(['learner_id', 'kind', 'dedupe_key', 'label', 'original', 'better', 'note', 'source', 'times_seen', 'last_seen_at', 'learned_at', 'starred_at', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'kind', 'dedupe_key', 'label', 'original', 'better', 'note', 'source', 'times_seen', 'last_seen_at', 'learned_at', 'starred_at', 'practice_level', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class NotebookEntry extends Model
 {
     /** @use HasFactory<NotebookEntryFactory> */
@@ -47,11 +47,22 @@ class NotebookEntry extends Model
     public const LEARNED_AFTER_DAYS = 21;
 
     /**
+     * The practice ladder's rungs (see NotebookDrill): tap the wrong word,
+     * pick the fix from chips, then say it.
+     */
+    public const LEVEL_SPOT = 1;
+
+    public const LEVEL_PICK = 2;
+
+    public const LEVEL_SAY = 3;
+
+    /**
      * Explicit PHP-side defaults — same Postgres/Eloquent hydration gap
      * documented on VocabularyWord.
      */
     protected $attributes = [
         'times_seen' => 1,
+        'practice_level' => self::LEVEL_SPOT,
         'ease_factor' => 2.5,
         'interval_days' => 0,
         'repetitions' => 0,
@@ -123,6 +134,15 @@ class NotebookEntry extends Model
         if ($this->repetitions >= self::LEARNED_AFTER_STREAK && $this->interval_days >= self::LEARNED_AFTER_DAYS) {
             $this->update(['learned_at' => now()]);
         }
+    }
+
+    /**
+     * One rung up the practice ladder for a right answer, one down for a
+     * wrong one — in Daily Review and the notebook's own practice alike.
+     */
+    public function practised(bool $correct): void
+    {
+        $this->update(['practice_level' => max(self::LEVEL_SPOT, min(self::LEVEL_SAY, $this->practice_level + ($correct ? 1 : -1)))]);
     }
 
     /**

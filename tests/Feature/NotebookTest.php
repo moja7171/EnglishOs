@@ -7,10 +7,14 @@ use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Services\FeedbackNotebook;
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use App\Services\LearnerFeedback;
+use App\Services\NotebookDrill;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -142,44 +146,183 @@ class NotebookTest extends TestCase
         Livewire::test('notebook.index')->call('markLearned', $entry->id);
     }
 
-    public function test_a_due_mistake_is_reviewed_by_writing_the_fix(): void
+    private function dueMistake(User $learner, int $level, string $original = 'She go home.', string $better = 'She goes home.'): NotebookEntry
     {
-        $learner = User::factory()->create();
-        $entry = NotebookEntry::factory()->for($learner, 'learner')->create([
-            'original' => 'I am here since 3 years.',
-            'better' => "I've been here for 3 years.",
+        return NotebookEntry::factory()->for($learner, 'learner')->create([
+            'original' => $original,
+            'better' => $better,
+            'practice_level' => $level,
             'next_review_at' => now()->subMinute(),
         ]);
+    }
+
+    /**
+     * @param  list<string>  $options
+     */
+    private function optionIndex(array $options, string $text): int
+    {
+        return array_search($text, $options, true);
+    }
+
+    public function test_a_new_mistake_is_reviewed_by_tapping_the_wrong_word_and_climbs_a_rung(): void
+    {
+        $learner = User::factory()->create();
+        $entry = $this->dueMistake($learner, NotebookEntry::LEVEL_SPOT);
         $this->actingAs($learner);
 
         Livewire::test('review.index')
             ->assertSee('Your mistake')
-            ->assertSee('I am here since 3 years.')
-            ->set('attempt', "i've been here for 3 years")
-            ->call('checkAttempt')
+            ->assertSee('Tap the wrong word')
+            ->call('drillTap', 1)
             ->assertSee('Spot on!')
-            ->call('gradeSelf', 4);
+            ->call('drillNext');
+
+        $this->assertSame(1, $entry->fresh()->repetitions);
+        $this->assertSame(NotebookEntry::LEVEL_PICK, $entry->fresh()->practice_level);
+    }
+
+    public function test_the_second_rung_fills_the_gap_from_the_fix_and_the_learners_own_word(): void
+    {
+        $learner = User::factory()->create();
+        $entry = $this->dueMistake($learner, NotebookEntry::LEVEL_PICK);
+        $this->actingAs($learner);
+
+        $card = NotebookDrill::card($entry);
+        $this->assertSame(['mode' => 'pick', 'before' => 'She', 'after' => 'home.'], array_intersect_key($card, array_flip(['mode', 'before', 'after'])));
+        $this->assertEqualsCanonicalizing(['goes', 'go'], $card['options']);
+
+        Livewire::test('review.index')
+            ->assertSee('Fill the gap')
+            ->call('drillTap', $this->optionIndex($card['options'], 'goes'))
+            ->assertSee('Spot on!')
+            ->call('drillNext');
+
+        $this->assertSame(NotebookEntry::LEVEL_SAY, $entry->fresh()->practice_level);
+    }
+
+    public function test_a_wrong_answer_drops_a_rung_and_comes_back_once_this_session_without_a_second_grade(): void
+    {
+        $this->freezeSecond();
+        $learner = User::factory()->create();
+        $entry = $this->dueMistake($learner, NotebookEntry::LEVEL_PICK);
+        $wrongChip = $this->optionIndex(NotebookDrill::card($entry)['options'], 'go');
+        $this->actingAs($learner);
+
+        $review = Livewire::test('review.index')
+            ->call('drillTap', $wrongChip)
+            ->assertSee('Not quite')
+            ->call('drillNext');
+
+        $this->assertSame(NotebookEntry::LEVEL_SPOT, $entry->fresh()->practice_level);
+        $this->assertTrue($entry->fresh()->next_review_at->equalTo(now()->addDay()));
+
+        $review->assertSee('Tap the wrong word')
+            ->call('drillTap', 1)
+            ->call('drillNext')
+            ->assertSee('Session done!')
+            ->assertSee('1 item reviewed');
+
+        $this->assertSame(0, $entry->fresh()->repetitions);
+        $this->assertSame(NotebookEntry::LEVEL_PICK, $entry->fresh()->practice_level);
+    }
+
+    /**
+     * @return array<string, array{int, string, string, string}>
+     */
+    public static function cardsByRungAndFix(): array
+    {
+        return [
+            'a missing word cannot be tapped, so rung 1 is a choice' => [NotebookEntry::LEVEL_SPOT, 'I went to cinema.', 'I went to the cinema.', 'choose'],
+            'a missing word is a gap on rung 2' => [NotebookEntry::LEVEL_PICK, 'I went to cinema.', 'I went to the cinema.', 'pick'],
+            'a rewritten sentence is a choice' => [NotebookEntry::LEVEL_PICK, 'Yesterday me and my friend we go to park.', 'My friend and I went to the park yesterday.', 'choose'],
+            'rung 3 is always said' => [NotebookEntry::LEVEL_SAY, 'She go home.', 'She goes home.', 'say'],
+        ];
+    }
+
+    #[DataProvider('cardsByRungAndFix')]
+    public function test_the_card_follows_the_rung_and_the_size_of_the_fix(int $level, string $original, string $better, string $mode): void
+    {
+        $entry = $this->dueMistake(User::factory()->create(), $level, $original, $better);
+
+        $this->assertSame($mode, NotebookDrill::card($entry)['mode']);
+    }
+
+    public function test_a_missing_word_is_picked_from_the_word_and_no_word(): void
+    {
+        $entry = $this->dueMistake(User::factory()->create(), NotebookEntry::LEVEL_PICK, 'I went to cinema.', 'I went to the cinema.');
+
+        $this->assertEqualsCanonicalizing(['the', NotebookDrill::NO_WORD], NotebookDrill::card($entry)['options']);
+    }
+
+    public function test_the_last_rung_is_said_and_checked_from_the_transcript(): void
+    {
+        $learner = User::factory()->create();
+        $entry = $this->dueMistake($learner, NotebookEntry::LEVEL_SAY);
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn(' She goes home. '));
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSee('Say it right')
+            ->set('drillRecording', UploadedFile::fake()->create('notebook-say.webm', 8, 'audio/webm'))
+            ->call('drillHeardRecording')
+            ->assertSee('Spot on!')
+            ->call('drillNext');
 
         $this->assertSame(1, $entry->fresh()->repetitions);
     }
 
-    public function test_a_due_technique_tip_is_recalled_then_revealed(): void
+    public function test_an_empty_transcript_asks_to_say_it_again_instead_of_marking_it_wrong(): void
     {
         $learner = User::factory()->create();
-        NotebookEntry::factory()->tip()->for($learner, 'learner')->create([
+        $this->dueMistake($learner, NotebookEntry::LEVEL_SAY);
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn(''));
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->set('drillRecording', UploadedFile::fake()->create('notebook-say.webm', 8, 'audio/webm'))
+            ->call('drillHeardRecording')
+            ->assertSee("Couldn't hear that", false)
+            ->assertSet('drillCorrect', null);
+    }
+
+    public function test_a_due_technique_is_practised_by_choosing_the_sentence_that_uses_it(): void
+    {
+        $learner = User::factory()->create();
+        $entry = NotebookEntry::factory()->tip()->for($learner, 'learner')->create([
             'label' => 'ask_back',
             'dedupe_key' => 't:ask_back',
             'original' => null,
             'better' => 'What about you?',
             'next_review_at' => now()->subMinute(),
         ]);
+        $options = NotebookDrill::card($entry)['options'];
         $this->actingAs($learner);
+
+        $this->assertEqualsCanonicalizing(['What about you?', 'I like football.'], $options);
 
         Livewire::test('review.index')
             ->assertSee('Ask back')
-            ->assertDontSee('What about you?')
-            ->call('reveal')
-            ->assertSee('What about you?');
+            ->assertSee('Which one uses it?')
+            ->call('drillTap', $this->optionIndex($options, 'What about you?'))
+            ->assertSee('Spot on!')
+            ->assertSee('Listen, then say it out loud.');
+    }
+
+    public function test_a_starred_phrase_swap_asks_which_sounds_more_natural(): void
+    {
+        $learner = User::factory()->create();
+        NotebookEntry::factory()->tip()->for($learner, 'learner')->create([
+            'original' => 'My job is very hard.',
+            'better' => 'My job is really tough.',
+            'starred_at' => now(),
+            'next_review_at' => now()->subMinute(),
+        ]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSee('Which sounds more natural?')
+            ->assertSee('My job is very hard.')
+            ->assertSee('My job is really tough.');
     }
 
     public function test_a_mistake_without_a_known_category_is_kept_by_its_fixed_sentence(): void
@@ -278,7 +421,7 @@ class NotebookTest extends TestCase
             ->assertSee('Practice 4 now');
     }
 
-    public function test_practice_goes_through_the_most_repeated_mistakes_without_touching_their_schedule(): void
+    public function test_practice_moves_the_rung_not_the_schedule_and_a_wrong_line_comes_back_once(): void
     {
         $this->freezeSecond();
         $learner = User::factory()->create();
@@ -287,46 +430,73 @@ class NotebookTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('notebook.index')
-            ->call('startPractice')
+            ->call('startPractice', NotebookEntry::KIND_MISTAKE)
             ->assertSet('practiceIds', [$first->id, $second->id])
-            ->assertSee('She go home.')
-            ->set('practiceAttempt', 'she goes home')
-            ->call('checkPractice')
+            ->assertSeeInOrder(['Tap the wrong word', 'She', 'go', 'home.'])
+            ->call('drillTap', 1)
             ->assertSee('Spot on!')
-            ->call('nextPractice')
-            ->assertSee('I am agree.')
-            ->call('showPracticeFix')
-            ->assertSee('I agree.')
-            ->call('nextPractice')
+            ->call('drillNext')
+            ->assertSeeInOrder(['I', 'am', 'agree.'])
+            ->call('drillTap', 0)
+            ->assertSee('Not quite')
+            ->call('drillNext')
+            ->assertSet('practiceIds', [$first->id, $second->id, $second->id])
+            ->call('drillTap', 1)
+            ->call('drillNext')
             ->assertSee('1 / 2 right');
 
+        $this->assertSame(NotebookEntry::LEVEL_PICK, $first->fresh()->practice_level);
+        $this->assertSame(NotebookEntry::LEVEL_PICK, $second->fresh()->practice_level);
         $this->assertTrue($first->fresh()->next_review_at->equalTo(now()->addWeek()));
         $this->assertSame(0, $first->fresh()->repetitions);
+    }
+
+    public function test_tips_are_practised_from_their_own_tab_and_five_more_brings_new_ones(): void
+    {
+        $learner = User::factory()->create();
+        $tips = NotebookEntry::factory()->tip()->count(6)->for($learner, 'learner')->sequence(fn ($sequence) => ['times_seen' => 10 - $sequence->index])->create();
+        NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => 20]);
+        $this->actingAs($learner);
+
+        $page = Livewire::test('notebook.index')
+            ->call('startPractice', NotebookEntry::KIND_TIP)
+            ->assertSet('practiceIds', $tips->take(5)->pluck('id')->all())
+            ->assertSee('Which sounds more natural?');
+
+        foreach (range(1, 10) as $card) {
+            $page->call('drillShowFix')->call('drillNext');
+        }
+
+        $page->assertSee('1 more')
+            ->call('startPractice', NotebookEntry::KIND_TIP)
+            ->assertSet('practiceIds', [$tips->last()->id]);
     }
 
     public function test_a_different_right_fix_counts_when_the_ai_accepts_it(): void
     {
         $learner = User::factory()->create();
-        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'I am here since 3 years.', 'better' => "I've been here for 3 years.", 'next_review_at' => now()->subMinute()]);
+        $this->dueMistake($learner, NotebookEntry::LEVEL_SAY, 'I am here since 3 years.', "I've been here for 3 years.");
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('{"correct": true}'));
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->set('attempt', 'I have lived here for three years.')
-            ->call('checkAttempt')
+            ->set('drillTyping', true)
+            ->set('drillTyped', 'I have lived here for three years.')
+            ->call('drillCheckTyped')
             ->assertSee('Spot on!');
     }
 
     public function test_when_the_ai_fails_only_the_saved_fix_counts(): void
     {
         $learner = User::factory()->create();
-        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'I am here since 3 years.', 'better' => "I've been here for 3 years.", 'next_review_at' => now()->subMinute()]);
+        $this->dueMistake($learner, NotebookEntry::LEVEL_SAY, 'I am here since 3 years.', "I've been here for 3 years.");
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('down')));
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->set('attempt', 'I have lived here for three years.')
-            ->call('checkAttempt')
+            ->set('drillTyping', true)
+            ->set('drillTyped', 'I have lived here for three years.')
+            ->call('drillCheckTyped')
             ->assertDontSee('Spot on!')
             ->assertSee('You wrote: I have lived here for three years.');
     }

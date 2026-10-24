@@ -7,6 +7,8 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\ShadowDraft;
 use App\Models\User;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -301,5 +303,50 @@ class VideoShadowingStepTest extends TestCase
         $this->assertDatabaseCount('shadow_drafts', 1);
         $this->assertNotSame($firstPath, ShadowDraft::sole()->path);
         Storage::disk('public')->assertMissing($firstPath);
+    }
+
+    public function test_a_recorded_line_is_checked_by_the_ai_and_its_verdict_comes_back_after_leaving(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn("I don't feel like having cereal."));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
+
+        $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0)
+            ->call('checkShadowLine', 0)
+            ->assertSee('Nice — that counts.');
+
+        // The learner left; the step opens fresh, with no new AI call.
+        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
+            ->assertSee('Nice — that counts.');
+    }
+
+    public function test_a_line_the_ai_heard_as_a_different_sentence_does_not_count_until_retried(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('completely unrelated'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try that line again.'])));
+
+        $component = $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0, 1, 2)
+            ->call('checkShadowLine', 0)
+            ->assertSee('Try that line again.');
+
+        $this->assertSame(2, $component->instance()->shadowedCount());
+        $component->call('save')->assertHasErrors(['shadowRecordings']);
+        $this->assertDatabaseCount('evidences', 0);
+    }
+
+    public function test_an_unreachable_ai_still_counts_the_recorded_line(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRun();
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andThrow(new \RuntimeException('Whisper is down.')));
+
+        $component = $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0)
+            ->call('checkShadowLine', 0)
+            ->assertSee("Couldn't check this one just now", false);
+
+        $this->assertSame(1, $component->instance()->shadowedCount());
     }
 }

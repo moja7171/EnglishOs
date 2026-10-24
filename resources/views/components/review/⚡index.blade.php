@@ -1,13 +1,13 @@
 <?php
 
+use App\Livewire\Concerns\GivesQuickSpokenFeedback;
+use App\Livewire\Concerns\PractisesNotebookLines;
 use App\Models\ErrorPatternReview;
 use App\Models\GrammarPoint;
 use App\Models\NotebookEntry;
 use App\Models\SpeakingPrompt;
 use App\Models\VocabularyWord;
 use App\Services\FixChecker;
-use App\Services\GroqClient;
-use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -17,6 +17,8 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use GivesQuickSpokenFeedback;
+    use PractisesNotebookLines;
     use WithFileUploads;
 
     /**
@@ -37,8 +39,7 @@ new class extends Component
 
     /**
      * What the learner typed as the corrected sentence on a grammar
-     * pattern (error) card or a notebook mistake — judged once, see
-     * checkAttempt().
+     * pattern (error) card — judged once, see checkAttempt().
      */
     public string $attempt = '';
 
@@ -95,6 +96,16 @@ new class extends Component
      */
     public array $skippedKeys = [];
 
+    /**
+     * "note:id" keys of notebook lines answered wrong THIS session — each
+     * comes back once at the end of today's queue (see afterDrill()). Its
+     * review was already graded the first time; the second go only moves
+     * its practice rung.
+     *
+     * @var list<string>
+     */
+    public array $retryKeys = [];
+
     public function mount(): void
     {
         $this->shuffleSeed = Str::random(16);
@@ -119,6 +130,8 @@ new class extends Component
         // on every single one.
         $all = auth()->user()->dailyReviewItems()
             ->sortBy(fn (array $entry) => md5($this->shuffleSeed.$this->itemKey($entry['type'], $entry['id'])))
+            ->concat(collect($this->retryKeys)->map(fn (string $key) => ['type' => 'note', 'id' => (int) Str::after($key, ':')]))
+            ->unique(fn (array $entry) => $this->itemKey($entry['type'], $entry['id']))
             ->values();
 
         // Items skipped THIS session (see skip()) move to the back, in
@@ -223,7 +236,7 @@ new class extends Component
     }
 
     /**
-     * Shows the fix after the learner wrote their own corrected sentence,
+     * A grammar pattern card: shows the fix after the learner wrote their own corrected sentence,
      * judged by FixChecker (another right fix counts too) — an empty
      * attempt does nothing, since "Show the fix" is the way to look
      * without trying.
@@ -232,13 +245,11 @@ new class extends Component
     {
         $model = $this->currentItem['model'] ?? null;
 
-        if (trim($this->attempt) === '' || ! ($model instanceof NotebookEntry || $model instanceof ErrorPatternReview)) {
+        if (trim($this->attempt) === '' || ! $model instanceof ErrorPatternReview) {
             return;
         }
 
-        $this->attemptCorrect = $model instanceof NotebookEntry
-            ? app(FixChecker::class)->accepts((string) $model->original, $this->attempt, $model->better)
-            : app(FixChecker::class)->accepts((string) $model->last_error, $this->attempt, (string) $model->last_correction);
+        $this->attemptCorrect = app(FixChecker::class)->accepts((string) $model->last_error, $this->attempt, (string) $model->last_correction);
         $this->revealed = true;
     }
 
@@ -291,33 +302,10 @@ new class extends Component
         $path = $this->recording->store('speaking-recall/'.auth()->id(), 'public');
         $item['model']->update(['last_recording_url' => Storage::disk('public')->url($path)]);
 
-        $this->feedback = $this->feedbackOn($item['model']->prompt);
+        $this->feedback = $this->quickSpokenFeedback($this->recording, $item['model']->prompt);
 
         $this->recording = null;
         $this->recordedThisTurn = true;
-    }
-
-    /**
-     * Transcribes the fresh recording and asks the judge for one line of
-     * feedback. Any failure — transcription, a dead AI chain, an empty
-     * transcript — just means no feedback line: the self-grade buttons
-     * work exactly the same without it.
-     */
-    private function feedbackOn(string $prompt): ?string
-    {
-        try {
-            $transcript = trim(app(GroqClient::class)->transcribe($this->recording->getRealPath()));
-
-            if ($transcript === '') {
-                return null;
-            }
-
-            $feedback = app(SpokenAnswerChecker::class)->quickFeedback($prompt, $transcript, auth()->user()->levelDescription());
-
-            return $feedback !== '' ? $feedback : null;
-        } catch (\Throwable) {
-            return null;
-        }
     }
 
     /**
@@ -333,7 +321,7 @@ new class extends Component
     {
         $item = $this->currentItem;
 
-        if (! $item || $item['type'] === 'word') {
+        if (! $item || in_array($item['type'], ['word', 'note'], true)) {
             return;
         }
 
@@ -363,6 +351,36 @@ new class extends Component
         }
 
         $this->gradeCurrent($item['model'], $remembered ? $quality : 1);
+    }
+
+    protected function drillEntry(): ?NotebookEntry
+    {
+        $model = $this->currentItem['model'] ?? null;
+
+        return $model instanceof NotebookEntry ? $model : null;
+    }
+
+    /**
+     * A notebook line's first answer today is its review (right → Good,
+     * wrong → Again); a wrong one also comes back once at the end of this
+     * session, and that second go is not graded again.
+     */
+    protected function afterDrill(NotebookEntry $entry, bool $correct): void
+    {
+        $key = $this->itemKey('note', $entry->id);
+
+        if (in_array($key, $this->retryKeys, true)) {
+            $this->retryKeys = array_values(array_diff($this->retryKeys, [$key]));
+            $this->advance();
+
+            return;
+        }
+
+        if (! $correct) {
+            $this->retryKeys[] = $key;
+        }
+
+        $this->gradeCurrent($entry, $correct ? 4 : 1);
     }
 
     private function gradeCurrent(VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint|NotebookEntry $model, int $quality): void
@@ -400,6 +418,7 @@ new class extends Component
         $this->attemptCorrect = null;
         $this->revealed = false;
         $this->pickedOption = null;
+        $this->resetDrill();
         unset($this->grammarReview);
     }
 };
@@ -560,65 +579,8 @@ new class extends Component
                             @endif
                             <p class="text-sm text-success dark:text-success-dark">{{ $model->last_correction }}</p>
                         @endif
-                    @elseif ($type === 'note' && $model->isMistake())
-                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                            You said: <span class="text-danger-ink line-through decoration-danger">{{ $model->original }}</span>
-                        </p>
-                        @if (! $revealed)
-                            <form wire:submit="checkAttempt" class="flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    wire:model="attempt"
-                                    aria-label="Write the sentence correctly"
-                                    placeholder="Write it correctly…"
-                                    class="w-full rounded-lg border border-line bg-transparent px-2 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                                >
-                                <button
-                                    type="submit"
-                                    title="Check"
-                                    class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                                ><span class="sr-only">Check</span>@svg('heroicon-o-check', 'h-5 w-5')</button>
-                            </form>
-                            <button
-                                type="button"
-                                wire:click="reveal"
-                                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
-                            >@svg('heroicon-o-eye', 'h-3.5 w-3.5') Just show the fix</button>
-                        @else
-                            @if (trim($attempt) !== '')
-                                @if ($attemptCorrect)
-                                    <p class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
-                                        @svg('heroicon-o-check-circle', 'h-4 w-4') Spot on!
-                                    </p>
-                                @else
-                                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You wrote: {{ $attempt }}</p>
-                                @endif
-                            @endif
-                            <p class="text-sm text-success dark:text-success-dark">{{ $model->better }}</p>
-                            @if ($model->note)
-                                <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $model->note }}</p>
-                            @endif
-                        @endif
                     @elseif ($type === 'note')
-                        @if ($techniqueName = $model->techniqueName())
-                            <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $techniqueName }}</p>
-                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">How does it go?</p>
-                        @else
-                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You said: <span class="text-ink dark:text-ink-dark">{{ $model->original }}</span></p>
-                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">How would you say it more naturally?</p>
-                        @endif
-                        @if (! $revealed)
-                            <button
-                                type="button"
-                                wire:click="reveal"
-                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                            >@svg('heroicon-o-eye', 'h-4 w-4') Show</button>
-                        @else
-                            <p class="flex items-center gap-2 text-sm text-success dark:text-success-dark">{{ $model->better }} <x-speak-button :text="$model->better" /></p>
-                            @if ($model->note)
-                                <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $model->note }}</p>
-                            @endif
-                        @endif
+                        <x-notebook-drill :entry="$model" :answer="$drillAnswer" :correct="$drillCorrect" :typing="$drillTyping" :heard="$drillHeard" :missed-audio="$drillMissedAudio" :recording="$drillRecording" />
                     @elseif ($hasQuestion)
                         @php
                             $card = $grammarReview['card'];
@@ -704,7 +666,7 @@ new class extends Component
                         </p>
                     @endif
 
-                    @if (! $hasQuestion && ($type === 'speaking' ? $recordedThisTurn : $revealed))
+                    @if (! $hasQuestion && $type !== 'note' && ($type === 'speaking' ? $recordedThisTurn : $revealed))
                         <div>
                             <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
                                 @if ($type === 'speaking') How did that feel? @else Did you remember it? @endif

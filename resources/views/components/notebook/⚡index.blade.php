@@ -1,35 +1,49 @@
 <?php
 
+use App\Livewire\Concerns\PractisesNotebookLines;
 use App\Models\NotebookEntry;
-use App\Services\FixChecker;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use PractisesNotebookLines;
+    use WithFileUploads;
+
     /** Each tab shows this many lines in full; the rest fold to one line each. */
     public const TOP_LINES = 3;
 
     public const PRACTICE_SIZE = 5;
 
     /**
-     * The mistakes in the "Practice 5 now" round, in order — empty when no
-     * round is on. Practice never touches the review schedule: it is extra
-     * typing on the learner's own mistakes, not a review.
+     * The lines in the "Practice 5 now" round, in order — empty when no
+     * round is on. A line answered wrong comes back once at the end (past
+     * $practiceSize). Practice moves a line's rung (see
+     * PractisesNotebookLines) but never its review schedule.
      *
      * @var list<int>
      */
     public array $practiceIds = [];
 
+    /** How many lines the round started with — the rest are second goes. */
+    public int $practiceSize = 0;
+
     public int $practiceAt = 0;
 
     public int $practiceRight = 0;
 
-    public string $practiceAttempt = '';
+    /** NotebookEntry::KIND_MISTAKE or KIND_TIP — which tab the round is from. */
+    public string $practiceKind = NotebookEntry::KIND_MISTAKE;
 
-    /** Null until the current card is checked or its fix shown. */
-    public ?bool $practiceCorrect = null;
+    /**
+     * Every line practised on this visit, so "5 more" brings new ones.
+     *
+     * @var list<int>
+     */
+    public array $practisedIds = [];
 
     /**
      * Every line of both notebooks, the most often repeated first — a
@@ -99,70 +113,86 @@ new class extends Component
     }
 
     /**
-     * The most repeated mistakes the learner can retype (a line needs
-     * their own sentence to fix).
+     * The most repeated lines of one tab not yet practised on this visit.
      */
-    public function startPractice(): void
+    public function startPractice(string $kind = NotebookEntry::KIND_MISTAKE): void
     {
-        $this->practiceIds = auth()->user()->notebookEntries()
-            ->active()
-            ->where('kind', NotebookEntry::KIND_MISTAKE)
-            ->whereNotNull('original')
-            ->orderByDesc('times_seen')
-            ->orderByDesc('last_seen_at')
+        if (! in_array($kind, [NotebookEntry::KIND_MISTAKE, NotebookEntry::KIND_TIP], true)) {
+            return;
+        }
+
+        $this->practiceKind = $kind;
+        $this->practiceIds = $this->practicable($kind)
+            ->whereNotIn('id', $this->practisedIds)
             ->limit(self::PRACTICE_SIZE)
             ->pluck('id')
             ->all();
+        $this->practisedIds = [...$this->practisedIds, ...$this->practiceIds];
+        $this->practiceSize = count($this->practiceIds);
         $this->practiceAt = 0;
         $this->practiceRight = 0;
-        $this->resetPracticeCard();
+        $this->resetDrill();
+        unset($this->practiceEntry, $this->morePractice);
     }
 
-    public function checkPractice(): void
+    /**
+     * Lines of the round's tab still left for a "5 more".
+     */
+    #[Computed]
+    public function morePractice(): int
     {
-        $entry = $this->practiceEntry;
-
-        if (! $entry || $this->practiceCorrect !== null || trim($this->practiceAttempt) === '') {
-            return;
-        }
-
-        $this->practiceCorrect = app(FixChecker::class)->accepts((string) $entry->original, $this->practiceAttempt, $entry->better);
-
-        if ($this->practiceCorrect) {
-            $this->practiceRight++;
-        }
-    }
-
-    public function showPracticeFix(): void
-    {
-        if ($this->practiceEntry && $this->practiceCorrect === null) {
-            $this->practiceCorrect = false;
-        }
-    }
-
-    public function nextPractice(): void
-    {
-        if ($this->practiceCorrect === null) {
-            return;
-        }
-
-        $this->practiceAt++;
-        $this->resetPracticeCard();
+        return $this->practicable($this->practiceKind)->whereNotIn('id', $this->practisedIds)->count();
     }
 
     public function stopPractice(): void
     {
         $this->practiceIds = [];
+        $this->practiceSize = 0;
         $this->practiceAt = 0;
         $this->practiceRight = 0;
-        $this->resetPracticeCard();
+        $this->resetDrill();
+        unset($this->practiceEntry);
     }
 
-    private function resetPracticeCard(): void
+    protected function drillEntry(): ?NotebookEntry
     {
-        $this->practiceAttempt = '';
-        $this->practiceCorrect = null;
+        return $this->practiceEntry;
+    }
+
+    /**
+     * Only a first go counts toward "N / 5 right"; a wrong first go comes
+     * back once at the end of the round.
+     */
+    protected function afterDrill(NotebookEntry $entry, bool $correct): void
+    {
+        $isFirstGo = $this->practiceAt < $this->practiceSize;
+
+        if ($isFirstGo && $correct) {
+            $this->practiceRight++;
+        }
+
+        if ($isFirstGo && ! $correct) {
+            $this->practiceIds[] = $entry->id;
+        }
+
+        $this->practiceAt++;
         unset($this->practiceEntry);
+    }
+
+    /**
+     * A tab's active lines, the most repeated first. A mistake needs the
+     * learner's own sentence to practise.
+     *
+     * @return Builder<NotebookEntry>
+     */
+    private function practicable(string $kind): Builder
+    {
+        return auth()->user()->notebookEntries()->getQuery()
+            ->active()
+            ->where('kind', $kind)
+            ->when($kind === NotebookEntry::KIND_MISTAKE, fn (Builder $query) => $query->whereNotNull('original'))
+            ->orderByDesc('times_seen')
+            ->orderByDesc('last_seen_at');
     }
 };
 ?>
@@ -194,50 +224,15 @@ new class extends Component
     @if ($practising)
         @php $practiceEntry = $this->practiceEntry; @endphp
         @if ($practiceEntry)
-            <div wire:key="practice-{{ $practiceEntry->id }}">
-                <x-review-shell label="Practice" icon="heroicon-o-pencil" :position="$practiceAt + 1" :total="count($practiceIds)" :remaining="count($practiceIds) - $practiceAt - 1">
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                        You said: <span class="text-danger-ink line-through decoration-danger">{{ $practiceEntry->original }}</span>
-                    </p>
-                    @if ($practiceCorrect === null)
-                        <form wire:submit="checkPractice" class="flex items-center gap-2">
-                            <input
-                                type="text"
-                                wire:model="practiceAttempt"
-                                aria-label="Write the sentence correctly"
-                                placeholder="Write it correctly…"
-                                class="w-full rounded-lg border border-line bg-transparent px-2 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                            >
-                            <button
-                                type="submit"
-                                title="Check"
-                                class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                            ><span class="sr-only">Check</span>@svg('heroicon-o-check', 'h-5 w-5')</button>
-                        </form>
-                        <button
-                            type="button"
-                            wire:click="showPracticeFix"
-                            class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
-                        >@svg('heroicon-o-eye', 'h-3.5 w-3.5') Just show the fix</button>
-                    @else
-                        @if ($practiceCorrect)
-                            <p class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
-                                @svg('heroicon-o-check-circle', 'h-4 w-4') Spot on!
-                            </p>
-                        @elseif (trim($practiceAttempt) !== '')
-                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You wrote: {{ $practiceAttempt }}</p>
-                        @endif
-                        <p class="flex items-center gap-2 text-sm text-success dark:text-success-dark">{{ $practiceEntry->better }} <x-speak-button :text="$practiceEntry->better" /></p>
-                        @if ($practiceEntry->note)
-                            <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $practiceEntry->note }}</p>
-                        @endif
-                        <button
-                            type="button"
-                            wire:click="nextPractice"
-                            title="Next"
-                            class="flex w-full cursor-pointer items-center justify-center rounded-full bg-accent px-5 py-3 text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                        ><span class="sr-only">Next</span>@svg('heroicon-o-arrow-right', 'h-5 w-5')</button>
-                    @endif
+            <div wire:key="practice-{{ $practiceAt }}-{{ $practiceEntry->id }}">
+                <x-review-shell
+                    label="Practice"
+                    :icon="$practiceEntry->isMistake() ? 'heroicon-o-pencil' : 'heroicon-o-light-bulb'"
+                    :position="$practiceAt + 1"
+                    :total="count($practiceIds)"
+                    :remaining="count($practiceIds) - $practiceAt - 1"
+                >
+                    <x-notebook-drill :entry="$practiceEntry" :answer="$drillAnswer" :correct="$drillCorrect" :typing="$drillTyping" :heard="$drillHeard" :missed-audio="$drillMissedAudio" :recording="$drillRecording" />
                 </x-review-shell>
             </div>
             <div class="text-center">
@@ -250,12 +245,21 @@ new class extends Component
         @else
             <div class="flex flex-col items-center gap-3 card p-8 text-center">
                 @svg('heroicon-o-check-badge', 'h-8 w-8 text-success dark:text-success-dark')
-                <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $practiceRight }} / {{ count($practiceIds) }} right</p>
-                <button
-                    type="button"
-                    wire:click="stopPractice"
-                    class="inline-flex cursor-pointer items-center rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >Done</button>
+                <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $practiceRight }} / {{ $practiceSize }} right</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                    @if ($this->morePractice > 0)
+                        <button
+                            type="button"
+                            wire:click="startPractice('{{ $practiceKind }}')"
+                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-6 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        >@svg('heroicon-o-arrow-path', 'h-4 w-4') {{ min($this::PRACTICE_SIZE, $this->morePractice) }} more</button>
+                    @endif
+                    <button
+                        type="button"
+                        wire:click="stopPractice"
+                        class="inline-flex cursor-pointer items-center rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    >Done</button>
+                </div>
             </div>
         @endif
     @else
@@ -270,15 +274,15 @@ new class extends Component
         @foreach (['mistakes' => NotebookEntry::KIND_MISTAKE, 'tips' => NotebookEntry::KIND_TIP] as $tab => $kind)
             @php
                 [$active, $learned] = ($byKind->get($kind) ?? collect())->partition(fn (NotebookEntry $entry) => $entry->learned_at === null);
-                $canPractise = $tab === 'mistakes' && $active->whereNotNull('original')->isNotEmpty();
+                $practicable = $kind === NotebookEntry::KIND_MISTAKE ? $active->whereNotNull('original') : $active;
             @endphp
             <div x-show="notebookTab === '{{ $tab }}'" @if ($tab !== 'mistakes') x-cloak @endif class="space-y-3">
-                @if ($canPractise)
+                @if ($practicable->isNotEmpty())
                     <button
                         type="button"
-                        wire:click="startPractice"
+                        wire:click="startPractice('{{ $kind }}')"
                         class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >@svg('heroicon-o-pencil', 'h-4 w-4') Practice {{ min($this::PRACTICE_SIZE, $active->whereNotNull('original')->count()) }} now</button>
+                    >@svg('heroicon-o-pencil', 'h-4 w-4') Practice {{ min($this::PRACTICE_SIZE, $practicable->count()) }} now</button>
                 @endif
 
                 @forelse ($active->take($this::TOP_LINES) as $entry)
