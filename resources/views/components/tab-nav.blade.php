@@ -22,7 +22,7 @@
             type="button"
             x-on:click="{{ $tabVar }} = '{{ $key }}'"
             :class="{{ $tabVar }} === '{{ $key }}'
-                ? 'bg-surface text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark'
+                ? 'bg-surface text-ink shadow-sm dark:bg-accent-soft-dark dark:text-accent-ink-dark'
                 : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
             class="flex-1 cursor-pointer rounded-full px-2 py-1.5 text-center text-xs font-semibold whitespace-nowrap transition-colors sm:flex-none sm:px-3"
         >{{ $label }}</button>

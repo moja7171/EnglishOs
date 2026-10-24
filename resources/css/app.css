@@ -26,7 +26,7 @@
     --color-ground: #f6f5fb;
     --color-ground-dark: #0f0d21;
     --color-surface: #ffffff;
-    --color-surface-dark: #201e3e;
+    --color-surface-dark: #26234a;
     --color-surface-sunken: #efeef8;
     --color-surface-sunken-dark: #151331;
 
@@ -559,6 +559,13 @@ a[aria-busy='true'] {
         box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
     }
 
+    /* A card inside a card (a player or line inside a step) sinks a level,
+       so it doesn't read as the same flat surface as its parent. */
+    .dark .card .card {
+        background-color: var(--color-surface-sunken-dark);
+        box-shadow: none;
+    }
+
     .card-sunken {
         @apply rounded-2xl border border-line bg-surface-sunken dark:border-line-dark dark:bg-surface-sunken-dark;
     }
@@ -666,6 +673,19 @@ a[aria-busy='true'] {
         background-color: var(--color-surface-sunken-dark);
         background-image: radial-gradient(color-mix(in srgb, var(--color-ink-dark) 10%, transparent) 1px, transparent 1px);
     }
+}
+
+/* Inside a sunk card-in-a-card (see .dark .card .card) a sunken fill — a
+   seek-bar track, a counter pill — would vanish into its parent, so it
+   rises to the card color instead. Unlayered to beat the utility. */
+.dark .card .card .dark\:bg-surface-sunken-dark {
+    background-color: var(--color-surface-dark);
+}
+
+/* A disabled accent button (Continue before the step is done, ...) at half
+   opacity turns a muddy brown on the dark page; grey reads as "not yet". */
+.dark button:disabled.dark\:bg-accent-dark {
+    background-color: var(--color-line-dark);
 }
 
 /* Touch feel. The app is used on phones, where there is no hover — a press

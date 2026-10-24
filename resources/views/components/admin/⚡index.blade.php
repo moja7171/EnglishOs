@@ -72,7 +72,7 @@ new class extends Component
 @endphp
 
 <div class="mx-auto max-w-3xl space-y-6 p-4 sm:p-6" x-data="{ tab: $wire.entangle('tab').live }">
-    <header class="flex items-center gap-3 card p-4">
+    <header class="flex items-center gap-3">
         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
             @svg('heroicon-o-chart-bar', 'h-5 w-5')
         </span>

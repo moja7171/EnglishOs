@@ -24,7 +24,7 @@
     $coverUrl = app(\App\Services\MissionGrid::class)->coverUrl($missionCode);
 @endphp
 
-<header data-mission-banner {{ $attributes->class('relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-4 text-white') }}>
+<header data-mission-banner {{ $attributes->class('relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-4 text-white dark:ring-1 dark:ring-line-dark') }}>
     @if ($coverUrl)
         <img src="{{ $coverUrl }}" alt="" class="absolute inset-0 -z-30 h-full w-full object-cover">
     @endif
