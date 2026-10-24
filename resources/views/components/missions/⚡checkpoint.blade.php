@@ -138,13 +138,21 @@ new class extends Component
 
 <div class="mx-auto max-w-2xl space-y-6 p-6">
     @php $earlier = $this->earlier(); @endphp
+
+    {{-- The mission's photo banner, the same as Listening and Daily talk:
+         this is the moment the learner hears how far they've come. No way
+         back on it — the page's own Skip / Back to today does that. --}}
+    <x-mission-banner
+        :mission-code="$this->mission->code"
+        :title="$completed ? 'Then and now' : 'Answer it again'"
+        icon="heroicon-o-microphone"
+        :back-label="'Your voice, '.$this->mission->code.' in · '.$this->mission->title"
+    >
+        <p class="mt-0.5 text-sm text-white/80">{{ $completed ? 'Same question you answered before. Listen to both.' : 'Your first question again — then hear both.' }}</p>
+    </x-mission-banner>
+
     @if ($completed)
         <div class="space-y-5 card p-6">
-            <div class="text-center">
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Your voice, {{ $this->mission->code }} in</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Same question you answered before. Listen to both.</p>
-            </div>
-
             @if ($earlier?->audio_url)
                 <div class="grid gap-3 sm:grid-cols-2">
                     <div>
@@ -198,13 +206,7 @@ new class extends Component
         </div>
     @else
         <div x-data="{ recorded: false }">
-            <header class="border-b border-line pb-4 dark:border-line-dark">
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Your voice, {{ $this->mission->code }} in</p>
-                <h1 class="mt-0.5 font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Answer it again</h1>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Your first question again — then hear both.</p>
-            </header>
-
-            <div class="mt-4 card p-4">
+            <div class="card p-4">
                 @php $speaking = $this->test->speaking(); @endphp
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speak for about {{ $speaking['seconds'] }} seconds</p>
                 <p class="mt-1 text-lg font-semibold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>

@@ -3,7 +3,6 @@
 use App\Models\AudioListen;
 use App\Models\Mission;
 use App\Services\ListeningPicks;
-use App\Services\MissionGrid;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -110,15 +109,6 @@ new class extends Component
             ->filter(fn (int $level) => in_array(AudioListen::pickKey($this->day, $level), $heardKeys, true))
             ->values()
             ->all();
-    }
-
-    /**
-     * The mission's photo for the banner, the same as its Missions card.
-     */
-    #[Computed]
-    public function coverUrl(): ?string
-    {
-        return app(MissionGrid::class)->coverUrl($this->missionCode);
     }
 
     #[Computed]
@@ -262,60 +252,19 @@ new class extends Component
     $listenedThisDay = $this->isToday ? $this->listenedToday : in_array($day, $this->listenedDays, true);
 @endphp
 <div class="mx-auto max-w-2xl space-y-5 p-6">
-    {{-- A slim banner with the mission's photo (the same as its Missions
-         card): the way back to this day's sheet on the Missions page, the
-         four days, and whether this day's listening is done. --}}
-    <header class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-4 text-white">
-        @if ($this->coverUrl)
-            <img src="{{ $this->coverUrl }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover">
-        @endif
-        <div class="absolute inset-0 -z-10 bg-linear-to-t from-black/75 via-black/40 to-black/20"></div>
-
-        <div class="flex items-center justify-between gap-2">
-            <a href="{{ route('missions.index', ['day' => $missionCode.'-'.$day]) }}" wire:navigate class="inline-flex min-w-0 items-center gap-1 text-xs font-semibold text-white/85 hover:text-white">
-                @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5 shrink-0')
-                <span class="truncate">{{ $missionCode }} · {{ $this->mission['title'] }} · Day {{ $day }}</span>
-            </a>
-            @if ($listenedThisDay)
-                <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success px-2 py-0.5 text-[11px] font-bold dark:bg-success-dark">@svg('heroicon-s-check', 'h-3 w-3') Listened</span>
-            @endif
-        </div>
-        <h1 class="mt-6 flex items-center gap-2 font-display text-2xl font-extrabold">
-            @svg('heroicon-o-speaker-wave', 'h-6 w-6') Listening
-        </h1>
-        <nav class="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Days of {{ $missionCode }}">
-            @foreach ($this->missionDays as $dayInfo)
-                @php
-                    $pill = 'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold';
-                @endphp
-                @if ($dayInfo['state'] === 'future')
-                    <span
-                        class="{{ $pill }} cursor-not-allowed border-dashed border-white/40 text-white/50"
-                        title="Not reached yet"
-                        aria-label="Day {{ $dayInfo['number'] }}, not reached yet"
-                    >Day {{ $dayInfo['number'] }}</span>
-                @else
-                    <a
-                        href="{{ route('listening.show', [$missionCode, $dayInfo['number']]) }}"
-                        wire:navigate
-                        @if ($dayInfo['viewing']) aria-current="page" @endif
-                        @class([
-                            $pill,
-                            'border-white bg-white text-ink' => $dayInfo['viewing'],
-                            'border-accent bg-accent/30 text-white' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
-                            'border-white/50 text-white hover:bg-white/15' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
-                        ])
-                    >
-                        Day {{ $dayInfo['number'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}
-                        @if ($dayInfo['done'])
-                            @svg('heroicon-s-check-circle', 'ms-1 h-3.5 w-3.5 text-success dark:text-success-dark')
-                            <span class="sr-only">, done</span>
-                        @endif
-                    </a>
-                @endif
-            @endforeach
-        </nav>
-    </header>
+    {{-- The mission's photo banner: the way back to this day's sheet on
+         the Missions page, the four days, and whether this day's listening
+         is done. --}}
+    <x-mission-banner
+        :mission-code="$missionCode"
+        title="Listening"
+        icon="heroicon-o-speaker-wave"
+        :back-href="route('missions.index', ['day' => $missionCode.'-'.$day])"
+        :back-label="$missionCode.' · '.$this->mission['title'].' · Day '.$day"
+        :done-label="$listenedThisDay ? 'Listened' : null"
+    >
+        <x-mission-day-pills :mission-code="$missionCode" route-name="listening.show" :days="$this->missionDays" />
+    </x-mission-banner>
 
     @if (! $this->isToday && $this->currentDay)
         <a href="{{ route('listening.show') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">
