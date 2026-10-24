@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * other spaced-repetition item until it is learned: marked by the learner,
  * or by itself after LEARNED_AFTER_STREAK good reviews in a row.
  */
-#[Fillable(['learner_id', 'kind', 'dedupe_key', 'label', 'original', 'better', 'note', 'source', 'times_seen', 'last_seen_at', 'learned_at', 'starred_at', 'practice_level', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'kind', 'dedupe_key', 'label', 'original', 'better', 'note', 'source', 'times_seen', 'last_seen_at', 'learned_at', 'starred_at', 'practice_level', 'last_practised_at', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class NotebookEntry extends Model
 {
     /** @use HasFactory<NotebookEntryFactory> */
@@ -75,6 +75,7 @@ class NotebookEntry extends Model
             'last_seen_at' => 'datetime',
             'learned_at' => 'datetime',
             'starred_at' => 'datetime',
+            'last_practised_at' => 'datetime',
             'next_review_at' => 'datetime',
             'last_reviewed_at' => 'datetime',
         ];
@@ -142,7 +143,20 @@ class NotebookEntry extends Model
      */
     public function practised(bool $correct): void
     {
-        $this->update(['practice_level' => max(self::LEVEL_SPOT, min(self::LEVEL_SAY, $this->practice_level + ($correct ? 1 : -1)))]);
+        $this->update([
+            'practice_level' => max(self::LEVEL_SPOT, min(self::LEVEL_SAY, $this->practice_level + ($correct ? 1 : -1))),
+            'last_practised_at' => now(),
+        ]);
+    }
+
+    /**
+     * Saved or brought back by feedback since it was last practised —
+     * never practised counts too.
+     */
+    public function isUnpractised(): bool
+    {
+        return $this->learned_at === null
+            && ($this->last_practised_at === null || $this->last_seen_at?->greaterThan($this->last_practised_at));
     }
 
     /**
@@ -151,6 +165,19 @@ class NotebookEntry extends Model
     public function scopeActive(Builder $query): void
     {
         $query->whereNull('learned_at');
+    }
+
+    /**
+     * The lines isUnpractised() is true for — the dot on the Notebook tab.
+     *
+     * @param  Builder<NotebookEntry>  $query
+     */
+    public function scopeUnpractised(Builder $query): void
+    {
+        $query->whereNull('learned_at')
+            ->where(fn (Builder $query) => $query
+                ->whereNull('last_practised_at')
+                ->orWhereColumn('last_seen_at', '>', 'last_practised_at'));
     }
 
     /**

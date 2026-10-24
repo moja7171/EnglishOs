@@ -181,8 +181,9 @@ new class extends Component
     }
 
     /**
-     * A tab's active lines, the most repeated first. A mistake needs the
-     * learner's own sentence to practise.
+     * A tab's active lines: the ones not practised since feedback saved
+     * them first (they light the Notebook tab's dot), then the most
+     * repeated. A mistake needs the learner's own sentence to practise.
      *
      * @return Builder<NotebookEntry>
      */
@@ -192,6 +193,7 @@ new class extends Component
             ->active()
             ->where('kind', $kind)
             ->when($kind === NotebookEntry::KIND_MISTAKE, fn (Builder $query) => $query->whereNotNull('original'))
+            ->orderByRaw('case when last_practised_at is null or last_seen_at > last_practised_at then 0 else 1 end')
             ->orderByDesc('times_seen')
             ->orderByDesc('last_seen_at');
     }
@@ -276,6 +278,8 @@ new class extends Component
             @php
                 [$active, $learned] = ($byKind->get($kind) ?? collect())->partition(fn (NotebookEntry $entry) => $entry->learned_at === null);
                 $practicable = $kind === NotebookEntry::KIND_MISTAKE ? $active->whereNotNull('original') : $active;
+                $unpractised = $practicable->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
+                $practiseAgain = $unpractised === 0 && $practicable->contains(fn (NotebookEntry $entry) => $entry->last_practised_at?->isToday());
             @endphp
             <div x-show="notebookTab === '{{ $tab }}'" @if ($tab !== 'mistakes') x-cloak @endif class="space-y-3">
                 @if ($practicable->isNotEmpty())
@@ -283,7 +287,13 @@ new class extends Component
                         type="button"
                         wire:click="startPractice('{{ $kind }}')"
                         class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >@svg('heroicon-o-pencil', 'h-4 w-4') Practice {{ min($this::PRACTICE_SIZE, $practicable->count()) }} now</button>
+                    >
+                        @if ($practiseAgain)
+                            @svg('heroicon-o-check', 'h-4 w-4') Practice again
+                        @else
+                            @svg('heroicon-o-pencil', 'h-4 w-4') Practice {{ min($this::PRACTICE_SIZE, $unpractised ?: $practicable->count()) }} now
+                        @endif
+                    </button>
                 @endif
 
                 @forelse ($active->take($this::TOP_LINES) as $entry)

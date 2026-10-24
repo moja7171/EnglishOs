@@ -538,6 +538,45 @@ class NotebookTest extends TestCase
         $this->assertNotNull($kept->fresh()->starred_at);
     }
 
+    public function test_the_notebook_tab_has_a_dot_until_new_lines_are_practised_and_again_when_feedback_brings_one_back(): void
+    {
+        $learner = User::factory()->create();
+        $this->record($learner, [$this->fix('She go home.', 'She goes home.', 'third_person_s')]);
+        $this->actingAs($learner);
+
+        $this->get(route('home'))->assertSee('data-dot', false);
+
+        Livewire::test('notebook.index')
+            ->call('startPractice', NotebookEntry::KIND_MISTAKE)
+            ->call('drillTap', 1)
+            ->call('drillNext');
+
+        $this->get(route('home'))->assertDontSee('data-dot', false);
+
+        $this->travel(1)->minute();
+        $this->record($learner, [$this->fix('He go to work.', 'He goes to work.', 'third_person_s')]);
+
+        $this->get(route('home'))->assertSee('data-dot', false);
+    }
+
+    public function test_practice_takes_new_lines_before_more_repeated_ones_and_then_offers_practice_again(): void
+    {
+        $learner = User::factory()->create();
+        $practised = NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => 5, 'last_seen_at' => now()->subDays(2), 'last_practised_at' => now()->subDay()]);
+        $new = NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => 1, 'original' => 'She go home.', 'better' => 'She goes home.']);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')
+            ->assertSee('Practice 1 now')
+            ->call('startPractice', NotebookEntry::KIND_MISTAKE)
+            ->assertSet('practiceIds', [$new->id, $practised->id])
+            ->call('drillTap', 1)
+            ->call('drillNext')
+            ->call('stopPractice')
+            ->assertSee('Practice again')
+            ->assertDontSee('Practice 1 now');
+    }
+
     public function test_tips_are_practised_from_their_own_tab_and_five_more_brings_new_ones(): void
     {
         $learner = User::factory()->create();
