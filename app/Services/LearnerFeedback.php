@@ -31,61 +31,72 @@ class LearnerFeedback
 
     /**
      * The fixed list the AI picks from — never a technique of its own. Each
-     * has the situation that calls for it (for the prompt) and a stock
-     * example (shown when the AI's own example is missing).
+     * has the situation that calls for it (for the prompt), a stock
+     * example (shown when the AI's own example is missing) and the same
+     * kind of sentence without it (the wrong choice in NotebookDrill).
      *
-     * @var array<string, array{name: string, when: string, example: string}>
+     * @var array<string, array{name: string, when: string, example: string, without: string}>
      */
     public const TECHNIQUES = [
         'linking' => [
             'name' => 'Link your ideas',
             'when' => 'the sentences are short and separate',
             'example' => 'I was tired, so I stayed home.',
+            'without' => 'I was tired. I stayed home.',
         ],
         'buying_time' => [
             'name' => 'Buy time',
             'when' => 'the answer stops half-way or has long pauses (mostly spoken answers)',
             'example' => 'Well, let me think…',
+            'without' => "I don't know.",
         ],
         'reason_example' => [
             'name' => 'Give a reason and an example',
             'when' => 'an opinion is given with no reason or example',
             'example' => 'I like it because… For example…',
+            'without' => 'I like it.',
         ],
         'extend' => [
             'name' => 'Say a bit more',
             'when' => 'the answer is only yes/no or one short sentence',
             'example' => 'Yes, I do. Actually, I…',
+            'without' => 'Yes.',
         ],
         'ask_back' => [
             'name' => 'Ask back',
             'when' => 'in a chat, the learner never keeps the conversation going',
             'example' => 'What about you?',
+            'without' => 'I like football.',
         ],
         'chunks' => [
             'name' => 'Use English chunks, not Persian word order',
             'when' => 'a sentence is translated word by word from Persian',
             'example' => "I'm 25. (not: I have 25 years)",
+            'without' => 'I have 25 years.',
         ],
         'soften' => [
             'name' => 'Soften your opinion',
             'when' => 'an opinion sounds too blunt',
             'example' => "I'd say… / In my opinion…",
+            'without' => 'You are wrong.',
         ],
         'paraphrase' => [
             'name' => 'Talk around a missing word',
             'when' => 'a Persian word is used or the learner says they don\'t know the word',
             'example' => "It's a kind of… / the thing you use to…",
+            'without' => "I need a… I don't know.",
         ],
         'react' => [
             'name' => 'React to the other person',
             'when' => 'in a chat, the learner ignores what the other person just said',
             'example' => "Really? That's great!",
+            'without' => 'OK. Next question.',
         ],
         'sequence' => [
             'name' => 'Tell it in order',
             'when' => 'a past event or story is told with no clear order',
             'example' => 'First… then… in the end…',
+            'without' => 'I got up. I ate. I woke up late.',
         ],
     ];
 
