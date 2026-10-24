@@ -363,7 +363,8 @@ new class extends Component
     /**
      * A notebook line's first answer today is its review (right → Good,
      * wrong → Again); a wrong one also comes back once at the end of this
-     * session, and that second go is not graded again.
+     * session — only when another card comes first, never straight after
+     * itself — and that second go is not graded again.
      */
     protected function afterDrill(NotebookEntry $entry, bool $correct): void
     {
@@ -376,7 +377,7 @@ new class extends Component
             return;
         }
 
-        if (! $correct) {
+        if (! $correct && count($this->queue) > 1) {
             $this->retryKeys[] = $key;
         }
 

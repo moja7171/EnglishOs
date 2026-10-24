@@ -12,6 +12,10 @@ use Illuminate\Support\Str;
  * (LearnerFeedback::MISTAKE_CATEGORIES, else the fixed sentence), so the
  * same mistake made again bumps a counter instead of adding a line; tips
  * are the "better" phrase swaps and the suggested speaking techniques.
+ * One sentence of the learner's is one line: feedback asked again on the
+ * same text words its fix a little differently or files it under another
+ * category, and that refreshes the line instead of adding a twin — and a
+ * sentence already in the mistakes is not a tip as well.
  * A new line is first due in Daily Review tomorrow, not right away — the
  * learner has just read it.
  */
@@ -46,7 +50,7 @@ class FeedbackNotebook
                     'note' => $sentence['why'],
                 ], $source);
                 $mistakes++;
-            } elseif ($sentence['status'] === 'better') {
+            } elseif ($sentence['status'] === 'better' && ! $this->sameSentence($learner, NotebookEntry::KIND_MISTAKE, $sentence['original'])) {
                 $this->keep($learner, NotebookEntry::KIND_TIP, 'p:'.self::key($sentence['corrected']), [
                     'label' => null,
                     'original' => $sentence['original'],
@@ -83,7 +87,7 @@ class FeedbackNotebook
         $entry = NotebookEntry::query()
             ->where('learner_id', $learner->id)
             ->where('dedupe_key', $dedupeKey)
-            ->first();
+            ->first() ?? $this->sameSentence($learner, $kind, $content['original']);
 
         if (! $entry) {
             NotebookEntry::create($content + [
@@ -98,7 +102,9 @@ class FeedbackNotebook
             return;
         }
 
-        $isNewExample = $entry->original !== $content['original'] || $entry->better !== $content['better'];
+        $isNewExample = $content['original'] !== null
+            ? self::sentenceKey($entry->original) !== self::sentenceKey($content['original'])
+            : $entry->better !== $content['better'];
 
         if ($isNewExample) {
             $entry->times_seen++;
@@ -110,6 +116,36 @@ class FeedbackNotebook
         }
 
         $entry->fill($content + ['source' => $source, 'last_seen_at' => now()])->save();
+    }
+
+    /**
+     * The learner's line of this kind for the same sentence of theirs, if
+     * any.
+     */
+    private function sameSentence(User $learner, string $kind, ?string $original): ?NotebookEntry
+    {
+        if ($original === null) {
+            return null;
+        }
+
+        return NotebookEntry::query()
+            ->where('learner_id', $learner->id)
+            ->where('kind', $kind)
+            ->whereNotNull('original')
+            ->get()
+            ->first(fn (NotebookEntry $entry) => self::sentenceKey($entry->original) === self::sentenceKey($original));
+    }
+
+    /**
+     * A sentence of the learner's with every comma, full stop and quote
+     * dropped — a spoken answer comes back from Whisper punctuated a little
+     * differently each time, and it is still the same sentence.
+     */
+    public static function sentenceKey(?string $text): string
+    {
+        $words = preg_replace("/[^\p{L}\p{N}' ]+/u", ' ', str_replace('’', "'", mb_strtolower((string) $text)));
+
+        return trim(preg_replace('/\s+/', ' ', $words));
     }
 
     /**
