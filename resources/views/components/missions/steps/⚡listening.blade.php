@@ -33,6 +33,9 @@ new class extends Component
     /** Extra words added to the gap-fill word bank beyond the real answers. */
     private const GAP_FILL_DECOYS = 2;
 
+    /** The gap-fill is hidden for now (a pick showed "page expired" on the host), so it never blocks Continue. */
+    private const GAP_FILL_HIDDEN = true;
+
     public MissionRun $run;
 
     public bool $readOnly = false;
@@ -179,7 +182,7 @@ new class extends Component
     {
         $phrases = $this->targetPhrases();
 
-        if (! count($phrases)) {
+        if (self::GAP_FILL_HIDDEN || ! count($phrases)) {
             return true;
         }
 
@@ -416,10 +419,11 @@ new class extends Component
 
         {{-- Sub-step 2: second listen + gap-fill, answered by picking from a word bank. --}}
         <div x-show="activeSubstep === {{ $gapFillIndex }}" x-cloak>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening — fill the gaps</p>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen again and fill each gap.</p>
+            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening</p>
+            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen again.</p>
 
-            @if (count($targetPhrases))
+            {{-- Gap-fill hidden for now (see GAP_FILL_HIDDEN). --}}
+            @if (count($targetPhrases) && false)
                 <div class="mt-3 flex flex-wrap gap-1.5">
                     @foreach ($this->gapFillBankOrder as $bankPhrase)
                         <x-speak-word :word="$bankPhrase" size="sm" class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
