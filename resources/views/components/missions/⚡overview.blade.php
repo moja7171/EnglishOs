@@ -3,23 +3,15 @@
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Services\ListeningPicks;
+use App\Services\PexelsClient;
 use App\Services\PiPractice;
 use App\Services\PiPrompts;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Url;
 use Livewire\Component;
 
 new class extends Component
 {
-    /**
-     * The day of the open mission the Today box shows after a tap on the
-     * day bar; null is today — the default, and where "Back to today"
-     * goes. A number that isn't another day of the mission is today too.
-     */
-    #[Url(as: 'day')]
-    public ?int $viewDay = null;
-
     /**
      * The 100-day program's answer to "what do I do today" — the top of
      * this page. See App\Services\ProgramPlanner for the whole model
@@ -214,12 +206,12 @@ new class extends Component
 
     /**
      * The top of home: the mission the learner is in (or about to start)
-     * as the headline, and one line under
-     * it — "Mission N of 24" and the streak. The days are the day bar
-     * below; the 100-day count, ahead/behind and memory freshness live on
-     * the Progress page.
+     * as the headline — on its photo banner when it is built — and one
+     * line above it, "Mission N of 24" and the streak. The days are the
+     * rings on the banner; the 100-day count, ahead/behind and memory
+     * freshness live on the Progress page.
      *
-     * @return array{title: string, missionNumber: int, dayNumber: ?int}
+     * @return array{title: string, missionNumber: int, dayNumber: ?int, mission: ?Mission}
      */
     #[Computed]
     public function headline(): array
@@ -227,7 +219,7 @@ new class extends Component
         $today = $this->program['today'];
 
         if ($today['kind'] === 'finished') {
-            return ['title' => 'All 24 missions done', 'missionNumber' => Mission::TOTAL_ROADMAP_MISSIONS, 'dayNumber' => null];
+            return ['title' => 'All 24 missions done', 'missionNumber' => Mission::TOTAL_ROADMAP_MISSIONS, 'dayNumber' => null, 'mission' => null];
         }
 
         $mission = $today['kind'] === 'mission_day' ? $today['mission'] : $today['nextMission'];
@@ -237,15 +229,30 @@ new class extends Component
             'title' => $mission ? $mission->code.' · '.$mission->title : $code,
             'missionNumber' => (int) preg_replace('/\D/', '', $code),
             'dayNumber' => $today['kind'] === 'mission_day' ? $today['dayNumber'] : null,
+            'mission' => $mission,
         ];
     }
 
     /**
-     * The day bar under the headline: every day of the open mission, each
-     * past / today / future against the day Today shows, with the steps
-     * the box lists when the learner taps it. Empty outside a mission day.
+     * The banner's background clip, only if it is already cached (the
+     * mission's own page fetches it once) — home never waits on Pexels.
+     */
+    #[Computed]
+    public function bannerVideoUrl(): ?string
+    {
+        $mission = $this->headline['mission'];
+
+        return $mission ? app(PexelsClient::class)->cachedVideoUrl($mission->code.'-ambient') : null;
+    }
+
+    /**
+     * The days of the open mission as rings on the banner, each past /
+     * today / future against the day Today shows, with its three parts'
+     * ticks — Lesson, Listening, Daily talk, the same as on the Missions
+     * page — and a tap opening the mission's page on that day. Empty
+     * outside a mission day.
      *
-     * @return list<array{number: int, label: string, state: string, done: bool, completedAt: ?\Carbon\CarbonInterface, minutes: int, steps: list<array{key: string, label: string, minutes: int, done: bool}>}>
+     * @return list<array{number: int, state: string, lesson: bool, listened: bool, talked: bool, url: string}>
      */
     #[Computed]
     public function missionDays(): array
@@ -257,42 +264,23 @@ new class extends Component
         }
 
         $mission = $today['mission'];
-        $recorded = $today['run']->evidence()->pluck('phase')->all();
+        $listened = auth()->user()->listenedDaysOf($mission->code);
+        $talked = auth()->user()->piPracticedDaysOf($mission->code);
 
         return collect($today['run']->dayProgress())
             ->map(fn (array $day, int $index) => [
                 'number' => $index + 1,
-                'label' => $day['label'],
                 'state' => match (true) {
                     $index + 1 < $today['dayNumber'] => 'past',
                     $index + 1 === $today['dayNumber'] => 'today',
                     default => 'future',
                 },
-                'done' => $day['done'],
-                'completedAt' => $day['completedAt'],
-                'minutes' => $day['estimatedMinutes'],
-                'steps' => collect($day['stepKeys'])->map(fn (string $key) => [
-                    'key' => $key,
-                    'label' => $mission->stepLabel($key),
-                    'minutes' => $mission->stepDuration($key),
-                    'done' => in_array($key, $recorded, true),
-                ])->all(),
+                'lesson' => $day['done'],
+                'listened' => in_array($index + 1, $listened, true),
+                'talked' => in_array($index + 1, $talked, true),
+                'url' => route('missions.show', [$mission, 'overview', 'day' => $index + 1]),
             ])
             ->all();
-    }
-
-    /**
-     * The day tapped on the day bar, when it isn't today: the Today box
-     * then lists that day's steps instead. Null shows today.
-     *
-     * @return array<string, mixed>|null one entry of missionDays()
-     */
-    #[Computed]
-    public function viewedDay(): ?array
-    {
-        $day = collect($this->missionDays)->firstWhere('number', $this->viewDay);
-
-        return $day === null || $day['state'] === 'today' ? null : $day;
     }
 
     /**
@@ -421,84 +409,79 @@ new class extends Component
 <div class="stagger-children mx-auto max-w-2xl space-y-5 p-6">
     @php $program = $this->program; $today = $program['today']; $headline = $this->headline; $streak = $this->streak; @endphp
 
-    {{-- Where the learner is, in two lines: the mission as the headline,
-         then "Mission N of 24" and the streak, which opens the Progress
-         page (the 100-day count, ahead/behind and the rest). Every other
-         mission and day is the Missions tab. --}}
-    @php $viewedDay = $this->viewedDay; @endphp
-    <header>
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $headline['title'] }}</h1>
-        <a
-            href="{{ route('progress.index') }}"
-            wire:navigate
-            class="mt-1 inline-flex flex-wrap items-center gap-x-1.5 text-xs font-semibold text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
+    {{-- Where the learner is: "Mission N of 24" and the streak (which opens
+         the Progress page — the 100-day count, ahead/behind and the rest),
+         then the mission as the headline. A built mission sits on its photo
+         banner (its clip fading in once cached), the same as its own page:
+         the title opens that page, and each day's ring — Lesson, Listening,
+         Daily talk — opens it on that day. Between missions it is the next
+         one, without days; a plain headline when there is none to show. --}}
+    @php $streakLine = 'inline-flex flex-wrap items-center gap-x-1.5 text-xs font-semibold transition-colors'; @endphp
+    @if ($bannerMission = $headline['mission'])
+        <x-mission-banner
+            :mission-code="$bannerMission->code"
+            :title="$headline['title']"
+            :title-href="route('missions.show', [$bannerMission, 'overview', 'day' => $headline['dayNumber']])"
         >
-            <span>Mission {{ $headline['missionNumber'] }} of {{ \App\Models\Mission::TOTAL_ROADMAP_MISSIONS }}</span>
-            @if ($streak['days'] > 0)
-                <span aria-hidden="true">·</span>
-                <span @class(['inline-flex items-center gap-0.5', 'opacity-50 grayscale' => ! $streak['activeToday']]) title="{{ $streak['days'] }}-day streak">
-                    <x-streak-flame :streak="$streak['days']" animated /> {{ $streak['days'] }}
-                </span>
-            @endif
-            @svg('heroicon-o-chevron-right', 'h-3 w-3 text-ink-faint dark:text-ink-faint-dark')
-        </a>
-    </header>
-
-    {{-- The days of the open mission, one tap each: the Today box below
-         switches to that day's steps (see missionDays()). The pills look
-         like the day switcher on /listening and /pi. --}}
-    @if ($missionDays = $this->missionDays)
-        <nav class="-mt-2 grid auto-cols-fr grid-flow-col gap-1.5" aria-label="Days of {{ $today['mission']->code }}">
-            @foreach ($missionDays as $missionDay)
-                @php $viewing = $missionDay['number'] === ($viewedDay['number'] ?? $today['dayNumber']); @endphp
-                <button
-                    type="button"
-                    wire:key="day-bar-{{ $missionDay['number'] }}"
-                    wire:click="$set('viewDay', {{ $missionDay['state'] === 'today' ? 'null' : $missionDay['number'] }})"
-                    @if ($viewing) aria-current="true" @endif
-                    aria-label="Day {{ $missionDay['number'] }}{{ $missionDay['state'] === 'today' ? ', today' : '' }}{{ $missionDay['done'] ? ', done' : '' }}{{ $missionDay['state'] === 'future' ? ', not reached yet' : '' }}"
-                    @class([
-                        'inline-flex cursor-pointer items-center justify-center gap-1 rounded-full border py-1.5 text-xs font-semibold transition-colors',
-                        'border-ink bg-ink text-ground dark:border-ink-dark dark:bg-ink-dark dark:text-ground-dark' => $viewing,
-                        'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => ! $viewing && $missionDay['state'] === 'today',
-                        'border-line text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ! $viewing && $missionDay['state'] === 'past',
-                        'border-dashed border-line text-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark' => ! $viewing && $missionDay['state'] === 'future',
-                    ])
-                >
-                    @if ($missionDay['done'])
-                        @svg('heroicon-s-check-circle', 'h-3.5 w-3.5 text-success dark:text-success-dark')
+            <x-slot:top>
+                <a href="{{ route('progress.index') }}" wire:navigate class="{{ $streakLine }} text-white/85 hover:text-white">
+                    <span>Mission {{ $headline['missionNumber'] }} of {{ \App\Models\Mission::TOTAL_ROADMAP_MISSIONS }}</span>
+                    @if ($streak['days'] > 0)
+                        <span aria-hidden="true">·</span>
+                        <span @class(['inline-flex items-center gap-0.5', 'opacity-50 grayscale' => ! $streak['activeToday']]) title="{{ $streak['days'] }}-day streak">
+                            <x-streak-flame :streak="$streak['days']" animated /> {{ $streak['days'] }}
+                        </span>
                     @endif
-                    Day {{ $missionDay['number'] }}
-                </button>
-            @endforeach
-        </nav>
+                    @svg('heroicon-o-chevron-right', 'h-3 w-3 text-white/60')
+                </a>
+            </x-slot:top>
+            @if ($videoUrl = $this->bannerVideoUrl)
+                <x-slot:media>
+                    <x-ambient-video :url="$videoUrl" />
+                </x-slot:media>
+            @endif
+            @if ($missionDays = $this->missionDays)
+                <nav class="mt-3 flex gap-1.5" aria-label="Days of {{ $bannerMission->code }}">
+                    @foreach ($missionDays as $missionDay)
+                        @php $doneParts = collect([$missionDay['lesson'], $missionDay['listened'], $missionDay['talked']])->filter()->count(); @endphp
+                        <a
+                            href="{{ $missionDay['url'] }}"
+                            wire:navigate
+                            wire:key="day-ring-{{ $missionDay['number'] }}"
+                            @if ($missionDay['state'] === 'today') aria-current="true" @endif
+                            aria-label="Day {{ $missionDay['number'] }}{{ $missionDay['state'] === 'today' ? ', today' : '' }}{{ $doneParts === 3 ? ', done' : ($doneParts ? ", {$doneParts} of 3 done" : '') }}{{ $missionDay['state'] === 'future' ? ', not reached yet' : '' }}"
+                            @class([
+                                'inline-flex shrink-0 transition-transform hover:scale-110 motion-reduce:transition-none',
+                                'opacity-60' => $missionDay['state'] === 'future',
+                            ])
+                        >
+                            <x-day-ring :number="$missionDay['number']" :lesson="$missionDay['lesson']" :listened="$missionDay['listened']" :talked="$missionDay['talked']" :today="$missionDay['state'] === 'today'" on-photo />
+                        </a>
+                    @endforeach
+                </nav>
+            @else
+                <p class="mt-0.5 text-sm text-white/80">Up next</p>
+            @endif
+        </x-mission-banner>
+    @else
+        <header>
+            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $headline['title'] }}</h1>
+            <a href="{{ route('progress.index') }}" wire:navigate class="{{ $streakLine }} mt-1 text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark">
+                <span>Mission {{ $headline['missionNumber'] }} of {{ \App\Models\Mission::TOTAL_ROADMAP_MISSIONS }}</span>
+                @if ($streak['days'] > 0)
+                    <span aria-hidden="true">·</span>
+                    <span @class(['inline-flex items-center gap-0.5', 'opacity-50 grayscale' => ! $streak['activeToday']]) title="{{ $streak['days'] }}-day streak">
+                        <x-streak-flame :streak="$streak['days']" animated /> {{ $streak['days'] }}
+                    </span>
+                @endif
+                @svg('heroicon-o-chevron-right', 'h-3 w-3 text-ink-faint dark:text-ink-faint-dark')
+            </a>
+        </header>
     @endif
 
     {{-- Today — the one thing this page must answer (see ProgramPlanner). --}}
     <section class="rounded-2xl border-2 border-accent/40 bg-surface p-4 dark:border-accent-dark/40 dark:bg-surface-dark">
-        @if ($viewedDay)
-            {{-- Another day of the mission, from the day bar: a finished or
-                 skipped-past day opens step by step for review; a day still
-                 ahead is a look-only list, like the steps ahead of today. --}}
-            <div class="flex items-center justify-between gap-3">
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ \App\Models\Mission::dayHeading($viewedDay['number'], $viewedDay['label']) }}</p>
-                <span class="shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark">{{ $viewedDay['done'] ? 'Done '.$viewedDay['completedAt']->format('M j') : '~'.\App\Models\Mission::formatDuration($viewedDay['minutes']) }}</span>
-            </div>
-            <ul class="mt-3">
-                @foreach ($viewedDay['steps'] as $step)
-                    <x-today-row
-                        :href="$viewedDay['state'] === 'past' ? route('missions.show', [$today['mission'], $step['key']]) : null"
-                        :title="$step['label']"
-                        :minutes="$step['minutes']"
-                        :done="$step['done']"
-                    />
-                @endforeach
-            </ul>
-            <button type="button" wire:click="$set('viewDay', null)" class="mt-2 inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-accent-ink underline-offset-2 hover:underline dark:text-accent-ink-dark">
-                @svg('heroicon-o-chevron-left', 'h-3 w-3') Back to today
-            </button>
-
-        @elseif ($today['kind'] === 'mission_day')
+        @if ($today['kind'] === 'mission_day')
             @php $nextAction = $this->nextAction; $dayTime = $this->dayTime; $review = $this->review; $piPractice = $this->piPractice; @endphp
             <div class="flex items-center justify-between gap-3">
                 <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today{{ $today['dayLabel'] ? ' · '.$today['dayLabel'] : '' }}</p>
