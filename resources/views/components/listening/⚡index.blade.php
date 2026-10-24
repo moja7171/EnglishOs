@@ -22,27 +22,17 @@ new class extends Component
     public int $day = 1;
 
     /**
-     * No arguments = the learner's own current day. A specific day is
-     * allowed only if the learner has reached it: days ahead of their
-     * program position are sent back to today, same "nothing is skippable"
-     * idea as the rest of the app (but never a calendar lock).
+     * No arguments = the learner's own current day. Any other day opens
+     * too; one ahead of their program position is a preview (see
+     * isAhead()): the picks play, but nothing is ticked or kept.
      */
     public function mount(?string $requestedMission = null, ?int $requestedDay = null): void
     {
-        $picks = app(ListeningPicks::class);
-        $current = $picks->dayFor($this->program['today']);
+        $current = app(ListeningPicks::class)->dayFor($this->program['today']);
 
-        if ($requestedMission === null) {
-            $target = $current ?? ['missionCode' => 'M24', 'dayNumber' => 4];
-        } else {
-            $target = ['missionCode' => $requestedMission, 'dayNumber' => $requestedDay ?? 1];
-
-            if ($picks->indexOf($target['missionCode'], $target['dayNumber']) > $this->currentIndex) {
-                $this->redirectRoute('listening.show', navigate: true);
-
-                return;
-            }
-        }
+        $target = $requestedMission === null
+            ? $current ?? ['missionCode' => 'M24', 'dayNumber' => 4]
+            : ['missionCode' => $requestedMission, 'dayNumber' => $requestedDay ?? 1];
 
         $this->missionCode = $target['missionCode'];
         $this->day = $target['dayNumber'];
@@ -60,8 +50,7 @@ new class extends Component
      */
     public function heardPick(int $level): void
     {
-        if (! array_key_exists($level, $this->picks)
-            || app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) > $this->currentIndex) {
+        if (! array_key_exists($level, $this->picks) || $this->isAhead) {
             return;
         }
 
@@ -138,6 +127,16 @@ new class extends Component
         return $current === null
             ? ProgramPlanner::TOTAL_DAYS - 1
             : app(ListeningPicks::class)->indexOf($current['missionCode'], $current['dayNumber']);
+    }
+
+    /**
+     * A day the learner's program hasn't reached yet — look and listen,
+     * never ticked (heardPick() re-checks it).
+     */
+    #[Computed]
+    public function isAhead(): bool
+    {
+        return app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) > $this->currentIndex;
     }
 
     #[Computed]
@@ -272,6 +271,10 @@ new class extends Component
         </a>
     @endif
 
+    @if ($this->isAhead)
+        <x-preview-only-note />
+    @endif
+
     <p class="text-base font-semibold text-ink dark:text-ink-dark">Pick one — one is enough.</p>
 
     {{-- One card per pick: level, title, source and length, a star on the
@@ -350,8 +353,8 @@ new class extends Component
                             <x-audio-player
                                 :url="$pick['local']['audioUrl']"
                                 :segments="$this->localSegments[$level] ?? []"
-                                onListened="$wire.heardPick({{ $level }})"
-                                :resume-key="'eos-resume:'.$missionCode.':'.AudioListen::pickKey($day, $level)"
+                                :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.')'"
+                                :resume-key="$this->isAhead ? null : 'eos-resume:'.$missionCode.':'.AudioListen::pickKey($day, $level)"
                             />
                         </template>
                         <p class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold">

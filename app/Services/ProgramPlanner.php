@@ -95,9 +95,11 @@ class ProgramPlanner
 
         // An open run (in progress, or sent back for more evidence) always
         // wins: the learner is mid-mission, today is that mission's day.
+        // The earliest open mission, not the latest opened — a later one
+        // opened while admin skipped the locks must not pull Home ahead.
         $open = $runs
             ->filter(fn (MissionRun $run) => ! in_array($run->status, [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW], true))
-            ->sortByDesc('started_at')
+            ->sortBy(fn (MissionRun $run) => $run->mission->number())
             ->first();
 
         if ($open) {

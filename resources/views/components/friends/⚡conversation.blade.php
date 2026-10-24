@@ -110,7 +110,7 @@ new class extends Component
      */
     private function loadStarters(): void
     {
-        $run = auth()->user()->latestInProgressMissionRun();
+        $run = auth()->user()->currentInProgressMissionRun();
         $questions = $run ? $run->mission->conversationPrompts('ai_conversation_1') : [];
 
         if ($questions === []) {

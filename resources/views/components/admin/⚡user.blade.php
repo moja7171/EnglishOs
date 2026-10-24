@@ -1,11 +1,13 @@
 <?php
 
 use App\Models\AudioListen;
+use App\Models\MissionRun;
 use App\Models\User;
 use App\Notifications\AdminMessage;
 use App\Services\AdminInsights;
 use App\Services\FinishLine;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Number;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -80,6 +82,28 @@ new class extends Component
     }
 
     /**
+     * @return Collection<int, MissionRun>
+     */
+    #[Computed]
+    public function missionRuns(): Collection
+    {
+        return $this->user->missionRuns()->with('mission')->get()->sortBy(fn (MissionRun $run) => $run->mission->number())->values();
+    }
+
+    /**
+     * Undoes a mission the learner reached by skipping the locks as
+     * admin — see MissionRun::discard().
+     */
+    public function discardMissionRun(int $runId): void
+    {
+        $run = $this->user->missionRuns()->with('mission')->findOrFail($runId);
+        $run->discard();
+
+        $this->status = "{$run->mission->code} removed.";
+        unset($this->missionRuns, $this->detail);
+    }
+
+    /**
      * An admin can't remove their own admin access, so the app always
      * keeps at least the one who is using this page.
      */
@@ -140,6 +164,26 @@ new class extends Component
             <p><span class="{{ $label }}">Streak</span><br><span class="{{ $value }}">{{ $d['streak'] }} days</span> <span class="{{ $label }}">· best {{ $d['longestStreak'] }}</span></p>
             <p><span class="{{ $label }}">Practice time</span><br><span class="{{ $value }}">{{ $d['practiceMinutes'] }} min</span></p>
         </div>
+    </section>
+
+    <section class="space-y-2 card p-4">
+        <div>
+            <p class="{{ $sectionTitle }}">Missions opened</p>
+            <p class="mt-0.5 text-xs {{ $label }}">Remove one opened by skipping the locks. Its answers and recordings go too.</p>
+        </div>
+        @forelse ($this->missionRuns as $run)
+            <div wire:key="run-{{ $run->id }}" class="flex items-center justify-between gap-3 text-sm">
+                <p class="min-w-0 truncate"><span class="{{ $value }}">{{ $run->mission->code }}</span> <span class="{{ $label }}">· {{ $run->mission->title }} · {{ str_replace('_', ' ', $run->status) }}</span></p>
+                <button
+                    type="button"
+                    wire:click="discardMissionRun({{ $run->id }})"
+                    wire:confirm="Remove {{ $run->mission->code }} and everything {{ $user->name }} did in it?"
+                    class="shrink-0 cursor-pointer rounded-full px-3 py-1 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft"
+                >Remove</button>
+            </div>
+        @empty
+            <p class="text-sm {{ $label }}">None yet.</p>
+        @endforelse
     </section>
 
     <section class="space-y-2 card p-4">

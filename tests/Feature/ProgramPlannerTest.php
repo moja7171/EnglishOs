@@ -82,6 +82,19 @@ class ProgramPlannerTest extends TestCase
         $this->assertTrue($startedAt->equalTo($learner->fresh()->program_started_at));
     }
 
+    public function test_a_later_mission_opened_ahead_does_not_pull_today_past_the_earliest_open_one(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission('M01'));
+        $this->travel(1)->hours();
+        MissionRun::findOrStart($learner, $this->makeMission('M10', 'Shopping'));
+
+        $today = app(ProgramPlanner::class)->plan($learner)['today'];
+
+        $this->assertSame('mission_day', $today['kind']);
+        $this->assertSame('M01', $today['mission']->code);
+    }
+
     public function test_mid_mission_today_is_the_current_day_with_its_steps(): void
     {
         $learner = User::factory()->create();

@@ -85,14 +85,13 @@ new class extends Component
     /**
      * The mission's days for its page, each with its three parts — the
      * Lesson (this run's steps of the day), Listening and Daily talk — and
-     * their ticks, the same ones as on the Missions page. A day's
-     * Listening and Daily talk open once the learner's program has reached
-     * it (those pages send anything later back to today); its Lesson opens
-     * always: done to review, current to continue, later as a look-only
-     * preview. "Here" is the learner's day today, or else the run's
+     * their ticks, the same ones as on the Missions page. All three parts
+     * of every day open: done to review, current to continue, later as a
+     * look-only preview — a Lesson until its day unlocks, Listening and
+     * Daily talk until the learner's program reaches the day ('ahead'). "Here" is the learner's day today, or else the run's
      * current day.
      *
-     * @return list<array{number: int, heading: string, estimatedMinutes: int, completedAt: ?\Carbon\Carbon, lesson: bool, listened: bool, talked: bool, here: bool, preview: bool, started: bool, lessonUrl: ?string, listeningUrl: ?string, talkUrl: ?string, primary: ?string}>
+     * @return list<array{number: int, heading: string, estimatedMinutes: int, completedAt: ?\Carbon\Carbon, lesson: bool, listened: bool, talked: bool, here: bool, preview: bool, ahead: bool, started: bool, lessonUrl: ?string, listeningUrl: ?string, talkUrl: ?string, primary: ?string}>
      */
     public function getMissionDaysProperty(): array
     {
@@ -120,8 +119,8 @@ new class extends Component
                 ];
                 $urls = [
                     'lesson' => $entryStep ? route('missions.show', [$this->mission, $entryStep]) : null,
-                    'listening' => $reached ? route('listening.show', [$code, $number]) : null,
-                    'talk' => $reached ? route('pi.practice', [$code, $number]) : null,
+                    'listening' => route('listening.show', [$code, $number]),
+                    'talk' => route('pi.practice', [$code, $number]),
                 ];
 
                 return [
@@ -134,15 +133,16 @@ new class extends Component
                     'talked' => $parts['talk'],
                     'here' => $todayHere !== null ? $todayHere === $number : $current,
                     'preview' => $preview,
+                    'ahead' => ! $reached,
                     'started' => $day['startedAt'] !== null,
                     'lessonUrl' => $urls['lesson'],
                     'listeningUrl' => $urls['listening'],
                     'talkUrl' => $urls['talk'],
                     // The one filled button of the day: its first part not
-                    // done yet, in order — never a preview lesson.
+                    // done yet, in order — never a preview.
                     'primary' => collect($parts)
                         ->keys()
-                        ->first(fn (string $part) => ! $parts[$part] && $urls[$part] !== null && ! ($part === 'lesson' && $preview)),
+                        ->first(fn (string $part) => ! $parts[$part] && $urls[$part] !== null && ! ($part === 'lesson' ? $preview : ! $reached)),
                 ];
             })
             ->all();
@@ -513,8 +513,8 @@ new class extends Component
                         ['key' => 'lesson', 'done' => $day['lesson'], 'url' => $day['lessonUrl'], 'label' => 'Lesson', 'icon' => 'book-open',
                             'note' => $day['lesson'] ? 'Review' : ($day['preview'] ? 'Preview' : ($day['estimatedMinutes'] ? '~'.Mission::formatDuration($day['estimatedMinutes']) : null)),
                             'action' => $day['started'] ? 'Continue' : 'Start'],
-                        ['key' => 'listening', 'done' => $day['listened'], 'url' => $day['listeningUrl'], 'label' => 'Listening', 'icon' => 'speaker-wave', 'note' => null, 'action' => 'Listen'],
-                        ['key' => 'talk', 'done' => $day['talked'], 'url' => $day['talkUrl'], 'label' => 'Daily talk', 'icon' => 'microphone', 'note' => null, 'action' => 'Talk'],
+                        ['key' => 'listening', 'done' => $day['listened'], 'url' => $day['listeningUrl'], 'label' => 'Listening', 'icon' => 'speaker-wave', 'note' => $day['ahead'] ? 'Preview' : null, 'action' => 'Listen'],
+                        ['key' => 'talk', 'done' => $day['talked'], 'url' => $day['talkUrl'], 'label' => 'Daily talk', 'icon' => 'microphone', 'note' => $day['ahead'] ? 'Preview' : null, 'action' => 'Talk'],
                     ];
                     $doneParts = collect($parts)->where('done', true)->count();
                 @endphp

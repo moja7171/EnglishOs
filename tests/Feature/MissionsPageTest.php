@@ -64,22 +64,37 @@ class MissionsPageTest extends TestCase
             ->assertSee("You're here", false)
             ->assertSeeHtml('aria-label="M01 · Day 1, 1 of 3 done"')
             ->assertSeeHtml('aria-label="M02 · Day 1, today"')
-            ->assertSeeHtml('aria-label="M02 · Day 2, not reached yet"')
-            ->assertSeeHtml('aria-label="M24 · Day 4, not reached yet"');
+            ->assertSeeHtml('aria-label="M02 · Day 2"')
+            ->assertSeeHtml('aria-label="M24 · Day 4, not built yet"');
     }
 
-    public function test_each_reached_day_opens_its_missions_page_on_that_day(): void
+    public function test_each_day_of_a_built_mission_opens_its_missions_page_on_that_day(): void
     {
         $learner = $this->learnerOnM02();
 
         $this->assertSame(route('missions.show', ['M01', 'overview', 'day' => 2]), $this->day($learner, 'M01', 2)['url']);
         $this->assertSame(route('missions.show', ['M02', 'overview', 'day' => 1]), $this->day($learner, 'M02', 1)['url']);
-        $this->assertNull($this->day($learner, 'M02', 2)['url']);
+        $this->assertSame(route('missions.show', ['M02', 'overview', 'day' => 2]), $this->day($learner, 'M02', 2)['url']);
+        $this->assertNull($this->day($learner, 'M24', 1)['url']);
 
         $this->actingAs($learner);
         $this->get(route('missions.index'))
             ->assertSeeHtml('href="'.route('missions.show', ['M02', 'overview']).'"')
             ->assertDontSeeHtml('x-init="show(');
+    }
+
+    public function test_a_built_mission_not_reached_yet_looks_open_and_its_page_holds_the_lock(): void
+    {
+        $learner = $this->learnerOnM02();
+        $this->makeMission('M03');
+        $m03 = collect(app(MissionGrid::class)->for($learner)['missions'])->firstWhere('code', 'M03');
+
+        $this->assertFalse($m03['reached']);
+        $this->assertTrue($m03['built']);
+        $this->assertSame(route('missions.show', ['M03', 'overview']), $m03['url']);
+
+        $this->actingAs($learner)->get($m03['url'])->assertSee("Preview only: this mission isn't unlocked yet", false)
+            ->assertSee('you finish M02.');
     }
 
     public function test_each_part_of_a_day_is_ticked_by_its_own_practice(): void

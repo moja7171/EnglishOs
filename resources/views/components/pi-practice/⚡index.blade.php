@@ -31,24 +31,15 @@ new class extends Component
 
     /**
      * No arguments = the day the learner is pointed at (see PiPractice:
-     * the day they just finished, or their current day). A specific day is
-     * allowed only if the learner has reached it: days ahead of their
-     * program position are sent back to today, same "nothing is skippable"
-     * idea as the rest of the app (but never a calendar lock).
+     * the day they just finished, or their current day). Any other day
+     * opens too; one ahead of their program position is a preview (see
+     * isAhead()): its prompt and plan show, but it can't be done yet.
      */
     public function mount(?string $requestedMission = null, ?int $requestedDay = null): void
     {
-        if ($requestedMission === null) {
-            $target = $this->target;
-        } else {
-            $target = ['missionCode' => $requestedMission, 'dayNumber' => $requestedDay ?? 1];
-
-            if (app(ListeningPicks::class)->indexOf($target['missionCode'], $target['dayNumber']) > $this->currentIndex) {
-                $this->redirectRoute('pi.practice', navigate: true);
-
-                return;
-            }
-        }
+        $target = $requestedMission === null
+            ? $this->target
+            : ['missionCode' => $requestedMission, 'dayNumber' => $requestedDay ?? 1];
 
         $this->missionCode = $target['missionCode'];
         $this->day = $target['dayNumber'];
@@ -73,10 +64,15 @@ new class extends Component
      * "I practiced" button, the AI says whether the chat really did the
      * day's plan, and only then is today counted toward the streak (see
      * User::activeDates()), filed under the day on screen. The day is
-     * re-checked here, not trusted from mount().
+     * re-checked here, not trusted from mount(): a day ahead is refused
+     * before any AI is asked or anything is kept.
      */
     public function checkPastedChat(): void
     {
+        if ($this->isAhead) {
+            return;
+        }
+
         $this->validate(['pastedChat' => ['required', 'string', 'min:40', 'max:12000']], attributes: ['pastedChat' => 'chat']);
 
         $this->requestConversationFeedback(
@@ -103,8 +99,7 @@ new class extends Component
             ['chat' => $this->pastedChat, 'feedback' => $wasDone ? [...$this->feedback, 'practice_done' => true] : $this->feedback],
         );
 
-        if (($this->feedback['practice_done'] ?? false) === true
-            && app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) <= $this->currentIndex) {
+        if (($this->feedback['practice_done'] ?? false) === true) {
             auth()->user()->recordPiPracticeToday($this->missionCode, $this->day);
 
             unset($this->practicedToday);
@@ -169,6 +164,15 @@ new class extends Component
         return $current === null
             ? ProgramPlanner::TOTAL_DAYS - 1
             : $picks->indexOf($current['missionCode'], $current['dayNumber']);
+    }
+
+    /**
+     * A day the learner's program hasn't reached yet.
+     */
+    #[Computed]
+    public function isAhead(): bool
+    {
+        return app(ListeningPicks::class)->indexOf($this->missionCode, $this->day) > $this->currentIndex;
     }
 
     #[Computed]
@@ -302,6 +306,10 @@ new class extends Component
         </a>
     @endif
 
+    @if ($this->isAhead)
+        <x-preview-only-note />
+    @endif
+
     {{-- How-to and tips stay behind the ⓘ on the banner, so the page itself
          is just the two cards: talk, then feedback. --}}
     <section id="pi-practice-info" x-show="showInfo" x-cloak x-transition class="card space-y-3 p-4 text-sm text-ink-soft dark:text-ink-soft-dark" aria-label="How it works">
@@ -345,47 +353,49 @@ new class extends Component
         <h2 id="talk-heading" class="flex items-center gap-2.5 text-base font-bold text-ink dark:text-ink-dark">
             <span class="{{ $stepNumber }}">1</span> Talk with Pi
         </h2>
-        <x-pi-practice-card :task="$this->task" :plan-label="$this->isToday ? 'Today\'s plan' : 'Day '.$day.' plan'" />
+        <x-pi-practice-card :task="$this->task" :plan-label="$this->isToday ? 'Today\'s plan' : 'Day '.$day.' plan'" :preview="$this->isAhead" />
     </section>
 
-    {{-- 2. Pi's last message pasted back: the feedback, and the only way
-         the day gets its tick (see checkPastedChat()). --}}
-    <section class="card space-y-3 p-4" aria-labelledby="feedback-heading">
-        <h2 id="feedback-heading" class="flex items-center gap-2.5 text-base font-bold text-ink dark:text-ink-dark">
-            <span class="{{ $stepNumber }}">2</span>
-            <label for="pasted-chat">Get feedback</label>
-        </h2>
-        <textarea
-            id="pasted-chat"
-            wire:model="pastedChat"
-            rows="3"
-            placeholder="Paste Pi's last message here"
-            class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-        ></textarea>
-        @error('pastedChat')
-            <p class="text-xs text-danger-ink">{{ $message }}</p>
-        @enderror
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <button
-                type="button"
-                wire:click="checkPastedChat"
-                wire:loading.attr="disabled"
-                wire:target="checkPastedChat"
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
-            >
-                <span wire:loading.remove wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
-                <span wire:loading wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-                Feedback
-            </button>
-            @if (! $this->isPracticed)
-                <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? ($this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice.") : 'Ticks itself after Feedback.' }}</span>
-            @endif
-        </div>
-
-        @if ($feedback || $feedbackError)
-            <div wire:loading.class="opacity-60" wire:target="checkPastedChat" class="border-t border-line pt-3 dark:border-line-dark">
-                <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="checkPastedChat" />
+    @unless ($this->isAhead)
+        {{-- 2. Pi's last message pasted back: the feedback, and the only way
+             the day gets its tick (see checkPastedChat()). --}}
+        <section class="card space-y-3 p-4" aria-labelledby="feedback-heading">
+            <h2 id="feedback-heading" class="flex items-center gap-2.5 text-base font-bold text-ink dark:text-ink-dark">
+                <span class="{{ $stepNumber }}">2</span>
+                <label for="pasted-chat">Get feedback</label>
+            </h2>
+            <textarea
+                id="pasted-chat"
+                wire:model="pastedChat"
+                rows="3"
+                placeholder="Paste Pi's last message here"
+                class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
+            ></textarea>
+            @error('pastedChat')
+                <p class="text-xs text-danger-ink">{{ $message }}</p>
+            @enderror
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <button
+                    type="button"
+                    wire:click="checkPastedChat"
+                    wire:loading.attr="disabled"
+                    wire:target="checkPastedChat"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
+                >
+                    <span wire:loading.remove wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
+                    <span wire:loading wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
+                    Feedback
+                </button>
+                @if (! $this->isPracticed)
+                    <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? ($this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice.") : 'Ticks itself after Feedback.' }}</span>
+                @endif
             </div>
-        @endif
-    </section>
+
+            @if ($feedback || $feedbackError)
+                <div wire:loading.class="opacity-60" wire:target="checkPastedChat" class="border-t border-line pt-3 dark:border-line-dark">
+                    <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="checkPastedChat" />
+                </div>
+            @endif
+        </section>
+    @endunless
 </div>

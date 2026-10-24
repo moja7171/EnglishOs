@@ -14,8 +14,10 @@ use App\Models\User;
  * ListeningPicks::missionMap().
  *
  * A card opens the mission's own page (see pageUrl()), where every day's
- * three parts are one tap away; a reached day's circle opens it on that
- * day. A finished mission's page is its recap too.
+ * three parts are one tap away; a day's circle opens it on that day. Every
+ * built mission looks open here, reached or not — the lock is on its own
+ * page (see MissionRun::gatingMission()). A finished mission's page is
+ * its recap too.
  */
 class MissionGrid
 {
@@ -26,7 +28,7 @@ class MissionGrid
     ) {}
 
     /**
-     * @return array{reachedDay: int, missions: list<array{code: string, title: string, coverUrl: ?string, reached: bool, current: bool, done: bool, url: ?string, days: list<array{number: int, state: string, lesson: bool, listened: bool, talked: bool, url: ?string}>}>}
+     * @return array{reachedDay: int, missions: list<array{code: string, title: string, coverUrl: ?string, reached: bool, built: bool, current: bool, done: bool, url: ?string, days: list<array{number: int, state: string, lesson: bool, listened: bool, talked: bool, url: ?string}>}>}
      */
     public function for(User $learner): array
     {
@@ -55,7 +57,7 @@ class MissionGrid
                         'lesson' => $day['done'],
                         'listened' => in_array($day['number'], $listened[$code] ?? [], true),
                         'talked' => in_array($day['number'], $talked[$code] ?? [], true),
-                        'url' => $isSeeded && $day['state'] !== 'future' ? route('missions.show', [$code, 'overview', 'day' => $day['number']]) : null,
+                        'url' => $isSeeded ? route('missions.show', [$code, 'overview', 'day' => $day['number']]) : null,
                     ])
                     ->all();
                 $run = $runs->get($code);
@@ -66,6 +68,7 @@ class MissionGrid
                     'title' => $seeded->get($code)->title ?? $mission['title'],
                     'coverUrl' => $this->coverUrl($code),
                     'reached' => $mission['reached'],
+                    'built' => $isSeeded,
                     'current' => $mission['current'],
                     'done' => $finished,
                     'url' => $isSeeded ? route('missions.show', [$code, 'overview']) : null,

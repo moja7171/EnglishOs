@@ -10,21 +10,25 @@
 
     @param array{prompt: string, plan: list<string>}|null $task
     @param string $planLabel The plan fold's title, e.g. "Today's plan".
+    @param bool $preview A day not reached yet: the prompt and plan show,
+        nothing copies or opens Pi.
 --}}
-@props(['task', 'planLabel' => "Today's plan"])
+@props(['task', 'planLabel' => "Today's plan", 'preview' => false])
 
 @if ($task)
     <div x-data="{ copied: false, openedPi: false, copy() { navigator.clipboard.writeText($refs.prompt.value); this.copied = true; setTimeout(() => this.copied = false, 1500) } }">
         {{-- Copies, then tries Pi's Android app; a phone that can't open it
              stays on this page with the line below. --}}
-        <button
-            type="button"
-            x-on:click="copy(); openedPi = true; if (/Android/i.test(navigator.userAgent)) { window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }"
-            class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-base font-bold text-white shadow-sm transition-colors hover:opacity-90 dark:bg-accent-dark"
-        >
-            @svg('heroicon-s-microphone', 'h-5 w-5') Copy &amp; open Pi
-        </button>
-        <p x-show="openedPi" x-cloak class="mt-2 text-center text-xs text-success dark:text-success-dark">Prompt copied ✓ — open the Pi app and paste.</p>
+        @unless ($preview)
+            <button
+                type="button"
+                x-on:click="copy(); openedPi = true; if (/Android/i.test(navigator.userAgent)) { window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }"
+                class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-base font-bold text-white shadow-sm transition-colors hover:opacity-90 dark:bg-accent-dark"
+            >
+                @svg('heroicon-s-microphone', 'h-5 w-5') Copy &amp; open Pi
+            </button>
+            <p x-show="openedPi" x-cloak class="mt-2 text-center text-xs text-success dark:text-success-dark">Prompt copied ✓ — open the Pi app and paste.</p>
+        @endunless
 
         <div class="mt-3 divide-y divide-line border-t border-line text-sm dark:divide-line-dark dark:border-line-dark">
             <details class="group">
@@ -40,14 +44,16 @@
                         rows="6"
                         class="w-full resize-none rounded-lg border border-line bg-surface-sunken px-2 py-1.5 text-xs text-ink-soft dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-soft-dark"
                     >{{ $task['prompt'] }}</textarea>
-                    <button
-                        type="button"
-                        x-on:click="copy()"
-                        class="mt-2 cursor-pointer rounded-full border border-line px-3 py-1 text-xs text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                    >
-                        <span x-show="! copied">Copy prompt</span>
-                        <span x-show="copied" x-cloak>Copied!</span>
-                    </button>
+                    @unless ($preview)
+                        <button
+                            type="button"
+                            x-on:click="copy()"
+                            class="mt-2 cursor-pointer rounded-full border border-line px-3 py-1 text-xs text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                        >
+                            <span x-show="! copied">Copy prompt</span>
+                            <span x-show="copied" x-cloak>Copied!</span>
+                        </button>
+                    @endunless
                 </div>
             </details>
             <details class="group">

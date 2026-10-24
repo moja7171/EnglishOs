@@ -180,7 +180,7 @@ class AdminInsights
      */
     private function stuckReason(User $user, Collection $missions): ?string
     {
-        $run = $user->latestInProgressMissionRun();
+        $run = $user->currentInProgressMissionRun();
 
         if ($run === null) {
             return null;
@@ -267,7 +267,7 @@ class AdminInsights
      */
     public function userDetail(User $user): array
     {
-        $run = $user->latestInProgressMissionRun();
+        $run = $user->currentInProgressMissionRun();
         $stepKey = $run?->currentStepKey();
         $forecast = (new FinishLine)->forecast($user);
 

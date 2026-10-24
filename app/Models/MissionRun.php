@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Random\Engine\Mt19937;
 use Random\Randomizer;
 
@@ -126,7 +127,7 @@ class MissionRun extends Model
     /**
      * What fraction of this mission's steps have recorded Evidence —
      * feeds the Friends Board's per-friend progress ring (see
-     * User::latestInProgressMissionRun()). Content-free by design: this
+     * User::currentInProgressMissionRun()). Content-free by design: this
      * is a count, never a hint at what was actually answered.
      */
     public function progressPercent(): int
@@ -535,5 +536,29 @@ class MissionRun extends Model
         }
 
         return $run;
+    }
+
+    /**
+     * Removes this run as if the mission was never opened — for an admin
+     * to undo a mission reached by skipping the locks. Its answers, drafts
+     * and mistakes go with it (cascade); recordings are files, so they're
+     * deleted first. Words and grammar it added stay, just unlinked.
+     */
+    public function discard(): void
+    {
+        $disk = Storage::disk('public');
+
+        foreach ($this->evidence()->where('type', Evidence::TYPE_AUDIO)->pluck('content_ref') as $ref) {
+            $url = json_decode((string) $ref, true)['url'] ?? $ref;
+
+            if (is_string($url) && $url !== '') {
+                $disk->delete(str_contains($url, '/storage/') ? substr($url, strpos($url, '/storage/') + strlen('/storage/')) : ltrim($url, '/'));
+            }
+        }
+
+        $disk->delete($this->stepDrafts()->pluck('paths')->flatten()->filter()->all());
+        $disk->delete($this->shadowDrafts()->pluck('path')->filter()->all());
+
+        $this->delete();
     }
 }
