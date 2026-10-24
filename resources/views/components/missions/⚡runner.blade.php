@@ -30,6 +30,15 @@ new class extends Component
     public bool $retry = false;
 
     /**
+     * ?day=2 opens that day on the mission's page — the way in from its
+     * circle on the Missions page, and the way back from its steps, its
+     * Listening and its Daily talk. Only which day is unfolded; nothing
+     * else depends on it.
+     */
+    #[Url(as: 'day')]
+    public ?int $requestedDay = null;
+
+    /**
      * True while looking at a mission the learner hasn't unlocked yet:
      * every day and step of it is viewable, none is doable, and nothing is
      * recorded — $run is then a throwaway PreviewMissionRun, not a database
@@ -74,16 +83,95 @@ new class extends Component
     }
 
     /**
-     * The day of this mission the learner is on today — the same day the
-     * home Today box shows — for the mission's listening and Pi links, so
-     * they open today's practice; day 1 for any other mission, e.g. one
-     * already finished.
+     * The mission's days for its page, each with its three parts — the
+     * Lesson (this run's steps of the day), Listening and Daily talk — and
+     * their ticks, the same ones as on the Missions page. A day's
+     * Listening and Daily talk open once the learner's program has reached
+     * it (those pages send anything later back to today); its Lesson opens
+     * always: done to review, current to continue, later as a look-only
+     * preview. "Here" is the learner's day today, or else the run's
+     * current day.
+     *
+     * @return list<array{number: int, heading: string, estimatedMinutes: int, completedAt: ?\Carbon\Carbon, lesson: bool, listened: bool, talked: bool, here: bool, preview: bool, started: bool, lessonUrl: ?string, listeningUrl: ?string, talkUrl: ?string, primary: ?string}>
      */
-    public function getTodaysDayNumberProperty(): int
+    public function getMissionDaysProperty(): array
     {
-        $today = app(ListeningPicks::class)->dayFor(app(ProgramPlanner::class)->plan(auth()->user())['today']);
+        $learner = auth()->user();
+        $picks = app(ListeningPicks::class);
+        $today = $picks->dayFor(app(ProgramPlanner::class)->plan($learner)['today']);
+        $reachedIndex = $today === null ? ProgramPlanner::TOTAL_DAYS - 1 : $picks->indexOf($today['missionCode'], $today['dayNumber']);
+        $todayHere = ($today['missionCode'] ?? null) === $this->mission->code ? $today['dayNumber'] : null;
+        $listened = $learner->listenedDaysOf($this->mission->code);
+        $talked = $learner->piPracticedDaysOf($this->mission->code);
+        $code = $this->mission->code;
 
-        return ($today['missionCode'] ?? null) === $this->mission->code ? $today['dayNumber'] : 1;
+        return collect($this->run->dayProgress())
+            ->map(function (array $day, int $index) use ($picks, $reachedIndex, $todayHere, $listened, $talked, $code) {
+                $number = $index + 1;
+                $preview = $this->missionLocked || $day['locked'];
+                $current = $day['current'] && ! $this->missionLocked;
+                $entryStep = $current ? $this->currentStepKey : ($day['stepKeys'][0] ?? null);
+                $reached = ! $this->missionLocked && $number <= 4 && $picks->indexOf($code, $number) <= $reachedIndex;
+
+                $parts = [
+                    'lesson' => $day['done'],
+                    'listening' => in_array($number, $listened, true),
+                    'talk' => in_array($number, $talked, true),
+                ];
+                $urls = [
+                    'lesson' => $entryStep ? route('missions.show', [$this->mission, $entryStep]) : null,
+                    'listening' => $reached ? route('listening.show', [$code, $number]) : null,
+                    'talk' => $reached ? route('pi.practice', [$code, $number]) : null,
+                ];
+
+                return [
+                    'number' => $number,
+                    'heading' => Mission::dayHeading($number, $day['label']),
+                    'estimatedMinutes' => $day['estimatedMinutes'],
+                    'completedAt' => $day['completedAt'],
+                    'lesson' => $parts['lesson'],
+                    'listened' => $parts['listening'],
+                    'talked' => $parts['talk'],
+                    'here' => $todayHere !== null ? $todayHere === $number : $current,
+                    'preview' => $preview,
+                    'started' => $day['startedAt'] !== null,
+                    'lessonUrl' => $urls['lesson'],
+                    'listeningUrl' => $urls['listening'],
+                    'talkUrl' => $urls['talk'],
+                    // The one filled button of the day: its first part not
+                    // done yet, in order — never a preview lesson.
+                    'primary' => collect($parts)
+                        ->keys()
+                        ->first(fn (string $part) => ! $parts[$part] && $urls[$part] !== null && ! ($part === 'lesson' && $preview)),
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * The one day unfolded on the mission's page: the one asked for
+     * (?day=), else the learner's day here — none on a finished or
+     * not-yet-reached mission, whose days all stay folded.
+     */
+    public function getOpenDayNumberProperty(): ?int
+    {
+        $days = $this->missionDays;
+
+        if ($this->requestedDay !== null && $this->requestedDay >= 1 && $this->requestedDay <= count($days)) {
+            return $this->requestedDay;
+        }
+
+        return collect($days)->firstWhere('here', true)['number'] ?? null;
+    }
+
+    /**
+     * Cleared — the same bar the mission-to-mission gate and the Missions
+     * page use — so the page shows the recap under the days.
+     */
+    public function getIsFinishedProperty(): bool
+    {
+        return ! $this->missionLocked
+            && in_array($this->run->status, [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW], true);
     }
 
     public function getCurrentStepKeyProperty(): ?string
@@ -372,22 +460,22 @@ new class extends Component
 ?>
 
 @php
-    $isStepView = ! ($this->showOverview && $this->currentStepKey !== null) && $this->activeStepKey;
+    $isStepView = ! $this->showOverview && $this->activeStepKey;
 @endphp
 
 <div class="mx-auto max-w-2xl {{ $isStepView ? 'space-y-4 px-4 pb-6 sm:px-6' : 'space-y-6 p-6' }}" data-mood="{{ $mission->moodKey() }}">
     @unless ($isStepView)
-        {{-- The mission's photo banner only on the overview (the same as
+        {{-- The mission's photo banner only on its page (the same as
              Listening and Daily talk) — inside a step the one-line header
              below says where the learner is, so the step's own content
              starts at the top of the screen. The mission's ambient clip, if
-             it has one, plays over the photo. --}}
+             it has one, fades in over the photo. --}}
         <x-mission-banner
             :mission-code="$mission->code"
             :title="$mission->title"
             :back-href="route('missions.index')"
             back-label="Missions"
-            :done-label="$run->status === \App\Models\MissionRun::STATUS_COMPLETE ? 'Done' : null"
+            :done-label="$this->isFinished ? 'Done' : null"
         >
             @if ($videoUrl = $this->heroVideoUrl())
                 <x-slot:media>
@@ -398,96 +486,128 @@ new class extends Component
         </x-mission-banner>
     @endunless
 
-    @if ($this->showOverview && $this->currentStepKey !== null)
+    @if ($this->showOverview)
         @if ($this->missionLocked)
             <x-missions.locked-notice :gating-mission="$this->gatingMission" />
-        @else
-            <x-mission-listening-link :mission="$mission" :day="$this->todaysDayNumber" />
-            <x-mission-pi-link :mission="$mission" :day="$this->todaysDayNumber" />
         @endif
 
-        {{-- Mission overview, styled as a journey path --}}
-        <div class="stagger-children relative pl-11">
-            <div class="absolute top-5 bottom-5 left-[18px] w-0.5 bg-line dark:bg-line-dark"></div>
-
-            @php $hasPracticeFriend = $this->hasPracticeFriend; @endphp
-            @foreach ($run->dayProgress() as $index => $day)
+        {{-- The mission's page: its four days, each with its Lesson,
+             Listening and Daily talk and their ticks (the same as on the
+             Missions page). One day is unfolded — the one asked for, or the
+             learner's day — the rest fold to one line with its ring. A
+             day's first part not done yet is its one filled button. --}}
+        @php
+            $openDay = $this->openDayNumber;
+            $hasPracticeFriend = $this->hasPracticeFriend;
+            $partRow = 'flex min-h-11 items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold';
+        @endphp
+        <div
+            x-data="{ openDay: @js($openDay) }"
+            @if ($requestedDay && $openDay) x-init="$nextTick(() => document.getElementById('mission-day-{{ $openDay }}')?.scrollIntoView({ block: 'center' }))" @endif
+            class="space-y-2.5"
+        >
+            @foreach ($this->missionDays as $day)
                 @php
-                    if ($this->missionLocked) {
-                        $day['current'] = false;
-                        $day['locked'] = true;
-                    }
-
-                    $isPreviewDay = $day['locked'];
-                    // Every day opens: done days to review, the current day to
-                    // continue, later days as a look-only preview.
-                    $entryStep = $day['current'] ? $this->currentStepKey : $day['stepKeys'][0];
+                    $number = $day['number'];
+                    $parts = [
+                        ['key' => 'lesson', 'done' => $day['lesson'], 'url' => $day['lessonUrl'], 'label' => 'Lesson', 'icon' => 'book-open',
+                            'note' => $day['lesson'] ? 'Review' : ($day['preview'] ? 'Preview' : ($day['estimatedMinutes'] ? '~'.Mission::formatDuration($day['estimatedMinutes']) : null)),
+                            'action' => $day['started'] ? 'Continue' : 'Start'],
+                        ['key' => 'listening', 'done' => $day['listened'], 'url' => $day['listeningUrl'], 'label' => 'Listening', 'icon' => 'speaker-wave', 'note' => null, 'action' => 'Listen'],
+                        ['key' => 'talk', 'done' => $day['talked'], 'url' => $day['talkUrl'], 'label' => 'Daily talk', 'icon' => 'microphone', 'note' => null, 'action' => 'Talk'],
+                    ];
+                    $doneParts = collect($parts)->where('done', true)->count();
                 @endphp
-                <div class="relative mb-3.5">
-                    <div class="absolute top-3.5 -left-11 flex h-9 w-9 items-center justify-center rounded-full border-2 font-display text-sm font-semibold
-                        {{ $day['done']
-                            ? 'border-success bg-success text-white dark:border-success-dark dark:bg-success-dark'
-                            : ($day['current']
-                                ? 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark'
-                                : 'border-line bg-ground text-ink-faint dark:border-line-dark dark:bg-ground-dark dark:text-ink-faint-dark') }}">
-                        @if ($day['done'])
-                            @svg('heroicon-o-check', 'h-4 w-4')
-                        @elseif ($isPreviewDay)
-                            @svg('heroicon-o-eye', 'h-3.5 w-3.5')
-                        @else
-                            {{ $index + 1 }}
+                <section
+                    wire:key="mission-day-{{ $mission->code }}-{{ $number }}"
+                    id="mission-day-{{ $number }}"
+                    @class([
+                        'card overflow-hidden',
+                        'ring-2 ring-accent dark:ring-accent-dark' => $day['here'],
+                        'border-dashed' => $day['preview'],
+                    ])
+                >
+                    <button
+                        type="button"
+                        x-on:click="openDay = openDay === {{ $number }} ? null : {{ $number }}"
+                        x-bind:aria-expanded="openDay === {{ $number }}"
+                        aria-controls="mission-day-{{ $number }}-parts"
+                        class="flex w-full cursor-pointer items-center gap-3 p-3.5 text-left"
+                    >
+                        <x-day-ring :number="$number" :lesson="$day['lesson']" :listened="$day['listened']" :talked="$day['talked']" :today="$day['here']" />
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-sm font-bold text-ink dark:text-ink-dark">{{ $day['heading'] }}</span>
+                            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">
+                                @if ($doneParts === 3)
+                                    All done
+                                @elseif ($day['preview'])
+                                    Preview
+                                @else
+                                    {{ $doneParts }} of 3 done
+                                @endif
+                            </span>
+                        </span>
+                        @if ($day['here'])
+                            <span class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-white dark:bg-accent-dark">You are here</span>
+                        @endif
+                        <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="openDay === {{ $number }} && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-4 w-4')</span>
+                    </button>
+
+                    <div id="mission-day-{{ $number }}-parts" x-show="openDay === {{ $number }}" @if ($openDay !== $number) x-cloak @endif class="space-y-0.5 border-t border-line px-2 py-2 dark:border-line-dark">
+                        @foreach ($parts as $part)
+                            @php $isPrimary = $day['primary'] === $part['key']; @endphp
+                            <{{ $part['url'] ? 'a' : 'div' }}
+                                @if ($part['url']) href="{{ $part['url'] }}" wire:navigate @endif
+                                aria-label="Day {{ $number }} {{ $part['label'] }}{{ $part['done'] ? ', done' : '' }}"
+                                @class([
+                                    $partRow,
+                                    'text-ink transition-colors hover:bg-surface-sunken dark:text-ink-dark dark:hover:bg-surface-sunken-dark' => $part['url'],
+                                    'text-ink-faint dark:text-ink-faint-dark' => ! $part['url'],
+                                ])
+                            >
+                                <span @class([
+                                    'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
+                                    'bg-success text-white dark:bg-success-dark' => $part['done'],
+                                    'border-2 border-line text-transparent dark:border-line-dark' => ! $part['done'],
+                                ])>@svg('heroicon-s-check', 'h-3.5 w-3.5')</span>
+                                @svg('heroicon-o-'.$part['icon'], 'h-5 w-5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                                <span class="min-w-0 flex-1">
+                                    {{ $part['label'] }}
+                                    @if ($part['note'])
+                                        <span class="block text-xs font-normal text-ink-faint dark:text-ink-faint-dark">{{ $part['note'] }}</span>
+                                    @endif
+                                </span>
+                                @if ($isPrimary)
+                                    <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold text-white dark:bg-accent-dark">
+                                        {{ $part['action'] }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
+                                    </span>
+                                @elseif ($part['url'])
+                                    @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                                @endif
+                            </{{ $part['url'] ? 'a' : 'div' }}>
+                        @endforeach
+
+                        @if ($day['lesson'] && $hasPracticeFriend)
+                            <a href="{{ route('pair-practice.index', ['day' => $mission->code.'-'.$number]) }}" wire:navigate class="{{ $partRow }} text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+                                <span class="inline-flex h-6 w-6 shrink-0"></span>
+                                @svg('heroicon-o-user-group', 'h-5 w-5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                                <span class="min-w-0 flex-1 text-xs">Practice this day with a friend</span>
+                            </a>
                         @endif
                     </div>
-
-                    <{{ $entryStep ? 'a' : 'div' }}
-                        @if ($entryStep)
-                            href="{{ route('missions.show', [$mission, $entryStep]) }}"
-                            wire:navigate
-                        @endif
-                        class="block rounded-2xl border bg-surface p-4.5 dark:bg-surface-dark
-                        {{ $day['current'] ? 'border-accent dark:border-accent-dark' : 'border-line dark:border-line-dark' }}
-                        {{ $isPreviewDay ? 'border-dashed' : '' }}
-                        {{ $entryStep ? 'cursor-pointer transition-colors hover:border-accent dark:hover:border-accent-dark' : '' }}"
-                    >
-                        <div class="flex items-center justify-between gap-3">
-                            <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                                {{ \App\Models\Mission::dayHeading($index + 1, $day['label']) }}
-                            </p>
-                            @if ($day['current'])
-                                <span class="animate-badge-pop rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white dark:bg-accent-dark">You are here</span>
-                            @elseif ($day['done'])
-                                <span class="text-xs font-semibold text-success dark:text-success-dark">Completed {{ $day['completedAt']->format('M j') }}</span>
-                            @elseif ($day['startedAt'])
-                                <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Started {{ $day['startedAt']->format('M j') }}</span>
-                            @elseif ($day['estimatedMinutes'])
-                                <span class="shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark">~{{ Mission::formatDuration($day['estimatedMinutes']) }}</span>
-                            @endif
-                        </div>
-                        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                            {{ collect($day['stepKeys'])->map(fn ($k) => $mission->stepLabel($k))->implode(' · ') }}
-                        </p>
-
-                        @if ($entryStep)
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-accent-ink dark:text-accent-ink-dark">
-                                {{ $day['done'] ? 'Review' : ($isPreviewDay ? 'Preview' : 'Continue') }} @svg('heroicon-o-chevron-right', 'h-3 w-3')
-                            </span>
-                        @endif
-                    </{{ $entryStep ? 'a' : 'div' }}>
-
-                    @if ($day['done'] && $hasPracticeFriend)
-                        <a href="{{ route('pair-practice.index', ['day' => $mission->code.'-'.($index + 1)]) }}" wire:navigate class="mt-1.5 ms-1 inline-flex items-center gap-1.5 text-xs font-semibold text-ink-soft hover:text-accent-ink dark:text-ink-soft-dark dark:hover:text-accent-ink-dark">
-                            @svg('heroicon-o-user-group', 'h-3.5 w-3.5') Practice this day with a friend
-                        </a>
-                    @endif
-                </div>
+                </section>
             @endforeach
         </div>
+
+        @if ($this->isFinished)
+            <livewire:progress.mission :mission="$mission" :key="'recap-'.$mission->code" />
+        @endif
     @elseif ($this->activeStepKey)
         @php
             $daySteps = $this->activeDay['stepKeys'] ?? [];
         @endphp
         <x-missions.step-bar
-            :back-url="route('missions.show', [$mission, 'overview'])"
+            :back-url="route('missions.show', [$mission, 'overview', 'day' => $this->activeDayIndex + 1])"
             :day-number="$this->activeDayIndex + 1"
             :day-heading="\App\Models\Mission::dayHeading($this->activeDayIndex + 1, $this->activeDay['label'] ?? '')"
             :step-label="$mission->stepLabel($this->activeStepKey)"
@@ -595,7 +715,7 @@ new class extends Component
                 </a>
             @elseif ($this->isReviewing || $this->isPreviewing)
                 <a
-                    href="{{ route('missions.show', [$mission, 'overview']) }}"
+                    href="{{ route('missions.show', [$mission, 'overview', 'day' => $this->activeDayIndex + 1]) }}"
                     wire:navigate
                     class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
                 >
@@ -604,15 +724,5 @@ new class extends Component
                 </a>
             @endif
         </div>
-    @else
-        <article class="rounded-2xl border-2 border-ink p-5 dark:border-ink-dark">
-            <p class="text-xs font-semibold tracking-wide uppercase
-                {{ $run->status === 'complete' ? 'text-success dark:text-success-dark' : ($run->status === 'needs_review' ? 'text-warning-ink' : 'text-danger-ink') }}">
-                Mission {{ str($run->status)->replace('_', ' ')->title() }}
-            </p>
-            <h2 class="mt-1 font-display text-lg font-semibold">{{ $mission->title }} — done</h2>
-        </article>
-
-        <x-practice-again :mission-code="$mission->code" />
     @endif
 </div>

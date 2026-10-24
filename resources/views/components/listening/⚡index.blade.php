@@ -252,14 +252,14 @@ new class extends Component
     $listenedThisDay = $this->isToday ? $this->listenedToday : in_array($day, $this->listenedDays, true);
 @endphp
 <div class="mx-auto max-w-2xl space-y-5 p-6">
-    {{-- The mission's photo banner: the way back to this day's sheet on
-         the Missions page, the four days, and whether this day's listening
+    {{-- The mission's photo banner: the way back to this day on the
+         mission's page, the four days, and whether this day's listening
          is done. --}}
     <x-mission-banner
         :mission-code="$missionCode"
         title="Listening"
         icon="heroicon-o-speaker-wave"
-        :back-href="route('missions.index', ['day' => $missionCode.'-'.$day])"
+        :back-href="app(App\Services\MissionGrid::class)->pageUrl($missionCode, $day)"
         :back-label="$missionCode.' · '.$this->mission['title'].' · Day '.$day"
         :done-label="$listenedThisDay ? 'Listened' : null"
     >

@@ -68,17 +68,18 @@ class MissionsPageTest extends TestCase
             ->assertSeeHtml('aria-label="M24 · Day 4, not reached yet"');
     }
 
-    public function test_each_day_opens_its_lesson_listening_and_daily_talk(): void
+    public function test_each_reached_day_opens_its_missions_page_on_that_day(): void
     {
         $learner = $this->learnerOnM02();
 
-        $finishedDay = $this->day($learner, 'M01', 2);
-        $this->assertSame(route('missions.show', ['M01', 'grammar_in_context']), $finishedDay['lessonUrl']);
-        $this->assertSame(route('listening.show', ['M01', 2]), $finishedDay['listeningUrl']);
-        $this->assertSame(route('pi.practice', ['M01', 2]), $finishedDay['talkUrl']);
+        $this->assertSame(route('missions.show', ['M01', 'overview', 'day' => 2]), $this->day($learner, 'M01', 2)['url']);
+        $this->assertSame(route('missions.show', ['M02', 'overview', 'day' => 1]), $this->day($learner, 'M02', 1)['url']);
+        $this->assertNull($this->day($learner, 'M02', 2)['url']);
 
-        $this->assertSame(route('home'), $this->day($learner, 'M02', 1)['lessonUrl']);
-        $this->assertNull($this->day($learner, 'M02', 2)['listeningUrl']);
+        $this->actingAs($learner);
+        $this->get(route('missions.index'))
+            ->assertSeeHtml('href="'.route('missions.show', ['M02', 'overview']).'"')
+            ->assertDontSeeHtml('x-init="show(');
     }
 
     public function test_each_part_of_a_day_is_ticked_by_its_own_practice(): void
@@ -100,13 +101,14 @@ class MissionsPageTest extends TestCase
             ->assertSeeHtml('aria-label="M01 · Day 3, 2 of 3 done"');
     }
 
-    public function test_a_day_from_the_query_opens_its_sheet(): void
+    public function test_an_old_day_sheet_link_opens_the_missions_page_on_that_day(): void
     {
         $this->actingAs($this->learnerOnM02());
 
         $this->get(route('missions.index', ['day' => 'M01-3']))
-            ->assertSeeHtml('x-init="show(');
-        $this->get(route('missions.index', ['day' => 'nonsense']))
-            ->assertDontSeeHtml('x-init="show(');
+            ->assertRedirect(route('missions.show', ['M01', 'overview', 'day' => 3]));
+        $this->get(route('missions.index', ['day' => 'M09-1']))
+            ->assertRedirect(route('missions.index'));
+        $this->get(route('missions.index', ['day' => 'nonsense']))->assertOk();
     }
 }

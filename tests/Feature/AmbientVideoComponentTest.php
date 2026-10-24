@@ -11,11 +11,20 @@ class AmbientVideoComponentTest extends TestCase
     {
         $html = Blade::render('<x-ambient-video url="https://example.test/clip.mp4" />');
 
-        $this->assertStringContainsString('src="https://example.test/clip.mp4"', $html);
+        $this->assertStringContainsString('data-src="https://example.test/clip.mp4"', $html);
         $this->assertStringContainsString('muted', $html);
         $this->assertStringContainsString('loop', $html);
         $this->assertStringContainsString('autoplay', $html);
         $this->assertStringContainsString('aria-hidden="true"', $html);
+    }
+
+    public function test_it_renders_nothing_when_the_browser_asks_to_save_data(): void
+    {
+        $this->app['request']->headers->set('Save-Data', 'on');
+
+        $html = Blade::render('<x-ambient-video url="https://example.test/clip.mp4" />');
+
+        $this->assertStringNotContainsString('<video', $html);
     }
 
     public function test_it_renders_nothing_when_the_url_is_null(): void

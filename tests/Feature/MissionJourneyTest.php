@@ -49,7 +49,7 @@ class MissionJourneyTest extends TestCase
         ]);
     }
 
-    public function test_a_finished_missions_photo_on_the_missions_page_opens_its_recap(): void
+    public function test_a_finished_missions_photo_on_the_missions_page_opens_its_page(): void
     {
         $learner = User::factory()->create();
         $first = $this->makeMission('M01');
@@ -58,7 +58,7 @@ class MissionJourneyTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('missions.index'))
-            ->assertSeeHtml('href="'.route('progress.mission', $first).'"')
+            ->assertSeeHtml('href="'.route('missions.show', [$first, 'overview']).'"')
             ->assertSee("You're here", false);
     }
 
@@ -70,7 +70,7 @@ class MissionJourneyTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('missions.index'))
-            ->assertSeeHtml('href="'.route('progress.mission', $mission).'"');
+            ->assertSeeHtml('href="'.route('missions.show', [$mission, 'overview']).'"');
     }
 
     public function test_the_progress_page_has_no_path_tab(): void
@@ -116,7 +116,7 @@ class MissionJourneyTest extends TestCase
         $this->recordAudio($run, 'video_shadowing', json_encode(['line_index' => 0, 'url' => 'https://example.test/shadow.webm']));
         $this->actingAs($learner);
 
-        $response = $this->get(route('progress.mission', $mission));
+        $response = $this->get(route('missions.show', [$mission, 'overview']));
 
         $response
             ->assertSee('Present Simple + Adverbs of Frequency')
@@ -126,7 +126,7 @@ class MissionJourneyTest extends TestCase
             ->assertDontSee('https://example.test/first-take.webm', false);
     }
 
-    public function test_the_recap_opens_each_day_of_its_listening_and_voice_practice_with_done_days_marked(): void
+    public function test_a_finished_missions_page_opens_each_days_listening_and_daily_talk_with_done_ones_marked(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission('M01');
@@ -138,37 +138,41 @@ class MissionJourneyTest extends TestCase
         PiChatFeedback::factory()->for($learner, 'learner')->create(['day_number' => 4, 'feedback' => ['summary' => 'Not it.', 'practice_done' => false]]);
         $this->actingAs($learner);
 
-        $response = $this->get(route('progress.mission', $mission));
+        $response = $this->get(route('missions.show', [$mission, 'overview']));
 
         $response
-            ->assertSee('Practice again')
-            ->assertSeeHtml('href="'.route('listening.show', ['M01', 4]).'"')
-            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 4]).'"')
-            ->assertSeeHtml('aria-label="Listening, day 1, done"')
-            ->assertSeeHtml('aria-label="Listening, day 2"')
-            ->assertSeeHtml('aria-label="Listening, day 3, done"')
-            ->assertSeeHtml('aria-label="Daily talk, day 1, done"')
-            ->assertSeeHtml('aria-label="Daily talk, day 2, done"')
-            ->assertSeeHtml('aria-label="Daily talk, day 3"')
-            ->assertSeeHtml('aria-label="Daily talk, day 4"');
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 2]).'"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 2]).'"')
+            ->assertSeeHtml('aria-label="Day 1 Listening, done"')
+            ->assertSeeHtml('aria-label="Day 2 Listening"')
+            ->assertSeeHtml('aria-label="Day 1 Daily talk, done"')
+            ->assertSeeHtml('aria-label="Day 2 Daily talk, done"');
     }
 
-    public function test_the_recap_is_not_found_for_a_mission_still_in_progress(): void
+    public function test_an_old_recap_link_opens_the_missions_page(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('progress.mission', $this->makeMission('M01')))
+            ->assertRedirect(route('missions.show', ['M01', 'overview']));
+    }
+
+    public function test_no_recap_for_a_mission_still_in_progress(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission('M01');
         MissionRun::findOrStart($learner, $mission);
         $this->actingAs($learner);
 
-        $this->get(route('progress.mission', $mission))->assertNotFound();
+        $this->get(route('missions.show', [$mission, 'overview']))->assertDontSeeHtml('wire:name="progress.mission"');
     }
 
-    public function test_the_recap_is_not_found_for_a_mission_only_someone_else_finished(): void
+    public function test_no_recap_for_a_mission_only_someone_else_finished(): void
     {
         $mission = $this->makeMission('M01');
         $this->finish(MissionRun::findOrStart(User::factory()->create(), $mission));
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('progress.mission', $mission))->assertNotFound();
+        $this->get(route('missions.show', [$mission, 'overview']))->assertDontSeeHtml('wire:name="progress.mission"');
     }
 }

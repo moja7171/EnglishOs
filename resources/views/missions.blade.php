@@ -8,6 +8,6 @@
             </div>
         </header>
 
-        <x-mission-grid :missions="$grid['missions']" :open-day="$openDay" />
+        <x-mission-grid :missions="$grid['missions']" />
     </div>
 </x-layouts.app>

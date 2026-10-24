@@ -296,8 +296,10 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSee('Day 2')
             ->assertSee('Day 3')
             ->assertSee('Day 4')
-            ->assertSee('Continue') // Day 1's entry button, not started yet
-            ->assertDontSee('Completed');
+            ->assertSee('You are here')
+            ->assertSeeHtml('x-data="{ openDay: 1 }"')
+            ->assertSee('Start') // Day 1's lesson, not started yet, is the one filled button
+            ->assertDontSee('All done');
     }
 
     public function test_mid_day_bare_visit_skips_the_overview_and_goes_to_the_step(): void
@@ -343,8 +345,9 @@ class MissionRunnerNavigationTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $mission])
             ->assertSet('showOverview', true)
-            ->assertSee('Completed') // Day 1
-            ->assertSee('Review'); // Day 1's entry button now offers review
+            ->assertSeeHtml('aria-label="Day 1 Lesson, done"')
+            ->assertSee('Review') // Day 1's lesson now opens as a review
+            ->assertSee('Listen'); // so the day's first part not done is its listening
     }
 
     public function test_next_and_previous_never_cross_a_day_boundary(): void
@@ -393,7 +396,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSet('showOverview', true);
     }
 
-    public function test_the_day_overview_links_to_the_missions_listening_picks(): void
+    public function test_each_day_on_the_mission_page_opens_its_listening_and_daily_talk(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission();
@@ -401,11 +404,40 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
-            ->assertSee('Anytime · one is enough.')
-            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"');
+            ->assertSeeHtml('aria-label="Day 1 Listening"')
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"')
+            ->assertSeeHtml('aria-label="Day 1 Daily talk"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"');
     }
 
-    public function test_a_finished_mission_offers_every_day_of_its_extra_practice(): void
+    public function test_the_day_asked_for_is_the_one_unfolded(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        Livewire::withQueryParams(['day' => 3])
+            ->test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertSeeHtml('x-data="{ openDay: 3 }"');
+    }
+
+    public function test_a_steps_way_back_opens_the_mission_page_on_its_day(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'grammar_in_context'])
+            ->assertSeeHtml('href="'.route('missions.show', [$mission, 'overview', 'day' => 2]).'"');
+    }
+
+    public function test_a_finished_mission_shows_its_days_and_recap_not_an_empty_done_card(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission();
@@ -418,10 +450,13 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.runner', ['mission' => $mission])
-            ->assertSee('My Daily Life — done')
-            ->assertSee('Practice again')
-            ->assertSeeHtml('href="'.route('listening.show', ['M01', 4]).'"')
-            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 4]).'"');
+            ->assertDontSee('My Daily Life — done')
+            ->assertSee('Done')
+            ->assertSeeHtml('aria-label="Day 1 Lesson, done"')
+            ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"')
+            ->assertSeeHtml('x-data="{ openDay: null }"')
+            ->assertSeeHtml('wire:name="progress.mission"');
     }
 
     public function test_the_within_day_checklist_shows_real_step_labels_not_just_numbers(): void

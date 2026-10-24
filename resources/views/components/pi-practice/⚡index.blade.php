@@ -267,8 +267,8 @@ new class extends Component
 
 <div class="mx-auto max-w-2xl space-y-5 p-6" x-data="{ showInfo: false }">
     {{-- The mission's photo banner, the same as /listening: the way back
-         to this day's sheet on the Missions page (where Daily talk sits
-         beside the day's Lesson and Listening), the four days, and whether
+         to this day on the mission's page (where Daily talk sits beside
+         the day's Lesson and Listening), the four days, and whether
          this day's practice is done — never a button: the feedback below
          ticks it once the AI sees the day's plan really done (see
          checkPastedChat()). --}}
@@ -276,7 +276,7 @@ new class extends Component
         :mission-code="$missionCode"
         title="Daily talk"
         icon="heroicon-o-microphone"
-        :back-href="route('missions.index', ['day' => $missionCode.'-'.$day])"
+        :back-href="app(App\Services\MissionGrid::class)->pageUrl($missionCode, $day)"
         :back-label="$missionCode.' · '.$this->missionTitle.' · Day '.$day"
         :done-label="$this->isPracticed ? 'Practiced' : null"
     >
