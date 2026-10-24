@@ -161,7 +161,8 @@ new class extends Component
 
     /**
      * Only a first go counts toward "N / 5 right"; a wrong first go comes
-     * back once at the end of the round.
+     * back once at the end of the round — unless it was the last card, so
+     * the same card never shows twice in a row.
      */
     protected function afterDrill(NotebookEntry $entry, bool $correct): void
     {
@@ -171,7 +172,7 @@ new class extends Component
             $this->practiceRight++;
         }
 
-        if ($isFirstGo && ! $correct) {
+        if ($isFirstGo && ! $correct && $this->practiceAt < count($this->practiceIds) - 1) {
             $this->practiceIds[] = $entry->id;
         }
 

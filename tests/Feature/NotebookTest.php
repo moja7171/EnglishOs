@@ -200,7 +200,7 @@ class NotebookTest extends TestCase
         $this->assertSame(NotebookEntry::LEVEL_SAY, $entry->fresh()->practice_level);
     }
 
-    public function test_a_wrong_answer_drops_a_rung_and_comes_back_once_this_session_without_a_second_grade(): void
+    public function test_a_wrong_answer_drops_a_rung(): void
     {
         $this->freezeSecond();
         $learner = User::factory()->create();
@@ -208,22 +208,51 @@ class NotebookTest extends TestCase
         $wrongChip = $this->optionIndex(NotebookDrill::card($entry)['options'], 'go');
         $this->actingAs($learner);
 
-        $review = Livewire::test('review.index')
+        Livewire::test('review.index')
             ->call('drillTap', $wrongChip)
             ->assertSee('Not quite')
             ->call('drillNext');
 
         $this->assertSame(NotebookEntry::LEVEL_SPOT, $entry->fresh()->practice_level);
+        $this->assertSame(0, $entry->fresh()->repetitions);
         $this->assertTrue($entry->fresh()->next_review_at->equalTo(now()->addDay()));
+    }
 
-        $review->assertSee('Tap the wrong word')
-            ->call('drillTap', 1)
+    public function test_a_wrong_line_comes_back_after_the_next_card_and_is_not_graded_twice(): void
+    {
+        $learner = User::factory()->create();
+        $this->dueMistake($learner, NotebookEntry::LEVEL_SPOT);
+        $this->dueMistake($learner, NotebookEntry::LEVEL_SPOT, 'I am agree.', 'I agree.');
+        $this->actingAs($learner);
+
+        $review = Livewire::test('review.index');
+        $missed = $review->instance()->currentItem['model'];
+
+        $review->call('drillShowFix')->call('drillNext');
+        $this->assertNotSame($missed->id, $review->instance()->currentItem['model']->id);
+
+        $review->call('drillTap', 1)->call('drillNext');
+        $this->assertSame($missed->id, $review->instance()->currentItem['model']->id);
+
+        $review->call('drillTap', 1)
             ->call('drillNext')
             ->assertSee('Session done!')
-            ->assertSee('1 item reviewed');
+            ->assertSee('2 items reviewed');
 
-        $this->assertSame(0, $entry->fresh()->repetitions);
-        $this->assertSame(NotebookEntry::LEVEL_PICK, $entry->fresh()->practice_level);
+        $this->assertSame(0, $missed->fresh()->repetitions);
+        $this->assertSame(NotebookEntry::LEVEL_PICK, $missed->fresh()->practice_level);
+    }
+
+    public function test_the_last_card_answered_wrong_does_not_show_again_straight_away(): void
+    {
+        $learner = User::factory()->create();
+        $this->dueMistake($learner, NotebookEntry::LEVEL_SPOT);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->call('drillShowFix')
+            ->call('drillNext')
+            ->assertSee('Session done!');
     }
 
     /**
@@ -433,14 +462,14 @@ class NotebookTest extends TestCase
             ->call('startPractice', NotebookEntry::KIND_MISTAKE)
             ->assertSet('practiceIds', [$first->id, $second->id])
             ->assertSeeInOrder(['Tap the wrong word', 'She', 'go', 'home.'])
-            ->call('drillTap', 1)
-            ->assertSee('Spot on!')
-            ->call('drillNext')
-            ->assertSeeInOrder(['I', 'am', 'agree.'])
             ->call('drillTap', 0)
             ->assertSee('Not quite')
             ->call('drillNext')
-            ->assertSet('practiceIds', [$first->id, $second->id, $second->id])
+            ->assertSet('practiceIds', [$first->id, $second->id, $first->id])
+            ->assertSeeInOrder(['I', 'am', 'agree.'])
+            ->call('drillTap', 1)
+            ->assertSee('Spot on!')
+            ->call('drillNext')
             ->call('drillTap', 1)
             ->call('drillNext')
             ->assertSee('1 / 2 right');
@@ -449,6 +478,64 @@ class NotebookTest extends TestCase
         $this->assertSame(NotebookEntry::LEVEL_PICK, $second->fresh()->practice_level);
         $this->assertTrue($first->fresh()->next_review_at->equalTo(now()->addWeek()));
         $this->assertSame(0, $first->fresh()->repetitions);
+    }
+
+    public function test_the_rounds_last_card_answered_wrong_does_not_come_straight_back(): void
+    {
+        $learner = User::factory()->create();
+        $only = NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'She go home.', 'better' => 'She goes home.']);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')
+            ->call('startPractice', NotebookEntry::KIND_MISTAKE)
+            ->call('drillShowFix')
+            ->call('drillNext')
+            ->assertSet('practiceIds', [$only->id])
+            ->assertSee('0 / 1 right');
+    }
+
+    public function test_feedback_on_the_same_sentence_again_refreshes_its_line_instead_of_adding_a_twin(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->record($learner, [['original' => 'My job is very hard.', 'status' => 'better', 'corrected' => 'My job is really tough.', 'why' => null, 'pattern' => null]]);
+        $this->record($learner, [['original' => 'My job is very hard.', 'status' => 'better', 'corrected' => 'My job is quite tough.', 'why' => null, 'pattern' => null]]);
+        $this->record($learner, [$this->fix('I am here since 3 years.', "I've been here for 3 years.", 'present_perfect')]);
+        $this->record($learner, [$this->fix('I am here, since 3 years', 'I have been here for 3 years.', 'prepositions')]);
+
+        $tip = $learner->notebookEntries()->where('kind', NotebookEntry::KIND_TIP)->sole();
+        $mistake = $learner->notebookEntries()->where('kind', NotebookEntry::KIND_MISTAKE)->sole();
+        $this->assertSame('My job is quite tough.', $tip->better);
+        $this->assertSame(1, $tip->times_seen);
+        $this->assertSame('I have been here for 3 years.', $mistake->better);
+        $this->assertSame(1, $mistake->times_seen);
+    }
+
+    public function test_a_sentence_already_in_the_mistakes_is_not_saved_as_a_tip_too(): void
+    {
+        $learner = User::factory()->create();
+        $this->record($learner, [$this->fix('She go home.', 'She goes home.', 'third_person_s')]);
+
+        $saved = $this->record($learner, [['original' => 'She go home.', 'status' => 'better', 'corrected' => 'She heads home.', 'why' => null, 'pattern' => null]]);
+
+        $this->assertSame(['mistakes' => 0, 'tips' => 0], $saved);
+        $this->assertSame(0, $learner->notebookEntries()->where('kind', NotebookEntry::KIND_TIP)->count());
+    }
+
+    public function test_the_cleanup_merges_twins_of_one_sentence_and_drops_tips_already_in_the_mistakes(): void
+    {
+        $learner = User::factory()->create();
+        $kept = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['original' => 'My job is very hard.', 'times_seen' => 2, 'learned_at' => now()]);
+        NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['original' => 'my job is very hard', 'starred_at' => now()]);
+        $mistake = NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'She go home.']);
+        NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['original' => 'She go home.']);
+        $otherLearners = NotebookEntry::factory()->tip()->create(['original' => 'My job is very hard.']);
+
+        (require database_path('migrations/2026_10_24_055407_merge_duplicate_notebook_entries.php'))->up();
+
+        $this->assertEqualsCanonicalizing([$kept->id, $mistake->id, $otherLearners->id], NotebookEntry::query()->pluck('id')->all());
+        $this->assertNull($kept->fresh()->learned_at);
+        $this->assertNotNull($kept->fresh()->starred_at);
     }
 
     public function test_tips_are_practised_from_their_own_tab_and_five_more_brings_new_ones(): void
