@@ -14,6 +14,7 @@ use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -195,5 +196,58 @@ class AiUsageTest extends TestCase
         }
 
         $this->assertSame(1, AiUsageLog::query()->where('user_id', $me->id)->where('outcome', 'limited')->count());
+    }
+
+    /**
+     * A friends chat with one line of mine in it, ready for generateFeedback.
+     */
+    private function chatWithAFriend(User $me): Testable
+    {
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $bob->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hello!']);
+        $this->actingAs($me);
+
+        return Livewire::test('friends.conversation', ['other' => $bob]);
+    }
+
+    public function test_feedback_answered_by_the_learners_own_key_is_not_held_to_the_hourly_cap(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([self::GEMINI_URL => Http::response($this->geminiReply($this->learnerFeedbackReply()))]);
+        $me = User::factory()->create();
+        $me->forceFill(['gemini_api_key' => 'my-key'])->save();
+        $chat = $this->chatWithAFriend($me);
+
+        foreach (range(1, 11) as $attempt) {
+            $chat->call('generateFeedback')->assertSet('feedbackError', null);
+        }
+
+        Http::assertSent(fn (Request $request) => $request->header('x-goog-api-key') === ['my-key']);
+        Http::assertNotSent(fn (Request $request) => $request->header('x-goog-api-key') === ['app-key']);
+        $this->assertSame(0, AiUsageLog::query()->where('user_id', $me->id)->where('outcome', 'limited')->count());
+    }
+
+    public function test_past_the_hourly_cap_the_app_key_no_longer_answers_for_a_failing_own_key(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([self::GEMINI_URL => fn (Request $request) => $request->header('x-goog-api-key') === ['my-key']
+            ? Http::response(['error' => ['code' => 429, 'message' => 'No.']], 429)
+            : Http::response($this->geminiReply($this->learnerFeedbackReply()))]);
+        $me = User::factory()->create();
+        $me->forceFill(['gemini_api_key' => 'my-key'])->save();
+        $chat = $this->chatWithAFriend($me);
+
+        foreach (range(1, 10) as $attempt) {
+            $chat->call('generateFeedback')->assertSet('feedbackError', null);
+        }
+
+        $chat->call('generateFeedback')
+            ->assertSet('feedback', null)
+            ->assertSet('feedbackError', "Your AI key didn't answer — try again later.");
+
+        $this->assertSame(10, $me->aiUsageLogs()->where('key_source', 'app')->where('outcome', 'ok')->count());
+        $this->assertSame(1, $me->aiUsageLogs()->where('key_source', 'app')->where('outcome', 'blocked')->count());
     }
 }

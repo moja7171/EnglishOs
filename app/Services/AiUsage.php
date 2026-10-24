@@ -27,6 +27,24 @@ class AiUsage
     /** The hidden Context key holding ['run_id' => int, 'step_key' => ?string]. */
     public const STEP_CONTEXT = 'ai_usage_step';
 
+    /** The hidden Context key set while only the learner's own key may answer (see ownKeyOnly()). */
+    public const OWN_KEY_ONLY_CONTEXT = 'ai_usage_own_key_only';
+
+    /**
+     * Runs the call with the app's key held back: the learner's own key
+     * still answers, but a fallback to the app's key is refused like a
+     * used-up daily cap (AiLimitReached).
+     *
+     * @template TResult
+     *
+     * @param  Closure(): TResult  $call
+     * @return TResult
+     */
+    public function ownKeyOnly(Closure $call): mixed
+    {
+        return Context::scope($call, hidden: [self::OWN_KEY_ONLY_CONTEXT => true]);
+    }
+
     /**
      * Runs one walk of a provider's model chain on one key and logs how it
      * ended. The walk's exception is rethrown unchanged.
@@ -53,12 +71,19 @@ class AiUsage
 
     /**
      * Called right before a request on the app's key. Throws, and logs the
-     * refusal, once the signed-in learner has used up the admin's cap.
+     * refusal, once the signed-in learner has used up the admin's cap, or
+     * inside ownKeyOnly().
      *
      * @throws AiLimitReached
      */
     public function ensureAppKeyAllowed(string $provider, ?string $profile): void
     {
+        if (Context::getHidden(self::OWN_KEY_ONLY_CONTEXT) === true) {
+            $this->record($provider, $profile, AiUsageLog::KEY_APP, AiUsageLog::OUTCOME_BLOCKED);
+
+            throw new AiLimitReached('The app key is held back for this request.');
+        }
+
         $user = Auth::user();
 
         if (! $user instanceof User || $user->ai_daily_limit === null) {

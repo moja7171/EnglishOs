@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\GivesQuickSpokenFeedback;
 use App\Models\SpeakingPrompt;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -9,6 +10,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use GivesQuickSpokenFeedback;
     use WithFileUploads;
 
     public ?UploadedFile $recording = null;
@@ -21,6 +23,9 @@ new class extends Component
      * on advance() for the next due prompt.
      */
     public bool $recordedThisTurn = false;
+
+    /** One line of AI feedback on this turn's recording — null when there's none (see GivesQuickSpokenFeedback). */
+    public ?string $feedback = null;
 
     #[Computed]
     public function duePrompts()
@@ -60,6 +65,8 @@ new class extends Component
         $path = $this->recording->store('speaking-recall/'.auth()->id(), 'public');
         $prompt->update(['last_recording_url' => Storage::disk('public')->url($path)]);
 
+        $this->feedback = $this->quickSpokenFeedback($this->recording, $prompt->prompt);
+
         $this->recording = null;
         $this->recordedThisTurn = true;
     }
@@ -86,6 +93,7 @@ new class extends Component
     {
         $this->recording = null;
         $this->recordedThisTurn = false;
+        $this->feedback = null;
         unset($this->duePrompts, $this->currentPrompt);
     }
 };
@@ -147,6 +155,14 @@ new class extends Component
             <div wire:key="recorder-{{ $prompt->id }}">
                 <x-voice-recorder field="recording" :file="$recording" on-recorded="recorded" file-name="speaking-recall.webm" />
             </div>
+
+            <x-ai-thinking wire:loading wire:target="recorded" label="Listening to your answer…" />
+
+            @if ($recordedThisTurn && $feedback)
+                <p class="flex items-start gap-2 rounded-xl bg-accent-soft px-3 py-2 text-sm text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                    @svg('heroicon-o-sparkles', 'mt-0.5 h-4 w-4 shrink-0') {{ $feedback }}
+                </p>
+            @endif
 
             @if ($recordedThisTurn)
                 <div>

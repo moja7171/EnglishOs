@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\GivesQuickSpokenFeedback;
 use App\Livewire\Concerns\PractisesNotebookLines;
 use App\Models\ErrorPatternReview;
 use App\Models\GrammarPoint;
@@ -7,8 +8,6 @@ use App\Models\NotebookEntry;
 use App\Models\SpeakingPrompt;
 use App\Models\VocabularyWord;
 use App\Services\FixChecker;
-use App\Services\GroqClient;
-use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -18,6 +17,7 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use GivesQuickSpokenFeedback;
     use PractisesNotebookLines;
     use WithFileUploads;
 
@@ -302,33 +302,10 @@ new class extends Component
         $path = $this->recording->store('speaking-recall/'.auth()->id(), 'public');
         $item['model']->update(['last_recording_url' => Storage::disk('public')->url($path)]);
 
-        $this->feedback = $this->feedbackOn($item['model']->prompt);
+        $this->feedback = $this->quickSpokenFeedback($this->recording, $item['model']->prompt);
 
         $this->recording = null;
         $this->recordedThisTurn = true;
-    }
-
-    /**
-     * Transcribes the fresh recording and asks the judge for one line of
-     * feedback. Any failure — transcription, a dead AI chain, an empty
-     * transcript — just means no feedback line: the self-grade buttons
-     * work exactly the same without it.
-     */
-    private function feedbackOn(string $prompt): ?string
-    {
-        try {
-            $transcript = trim(app(GroqClient::class)->transcribe($this->recording->getRealPath()));
-
-            if ($transcript === '') {
-                return null;
-            }
-
-            $feedback = app(SpokenAnswerChecker::class)->quickFeedback($prompt, $transcript, auth()->user()->levelDescription());
-
-            return $feedback !== '' ? $feedback : null;
-        } catch (\Throwable) {
-            return null;
-        }
     }
 
     /**

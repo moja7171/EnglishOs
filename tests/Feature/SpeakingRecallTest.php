@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\SpeakingPrompt;
 use App\Models\User;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -22,6 +24,25 @@ class SpeakingRecallTest extends TestCase
             'mission_code' => 'M01',
             'next_review_at' => now()->subMinute(),
         ], $attributes));
+    }
+
+    /**
+     * Stands in for the Whisper + judge calls a recording triggers, so no
+     * test ever reaches a real AI. Null feedback means the transcription
+     * itself fails.
+     */
+    private function fakeSpeakingAi(?string $feedback = null): void
+    {
+        $this->mock(GroqClient::class, function ($mock) use ($feedback) {
+            $expectation = $mock->shouldReceive('transcribe');
+            $feedback === null
+                ? $expectation->andThrow(new \RuntimeException('Whisper is down.'))
+                : $expectation->andReturn('I wakes up at seven.');
+        });
+
+        if ($feedback !== null) {
+            $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn($feedback));
+        }
     }
 
     public function test_a_learner_with_no_tracked_prompts_sees_an_empty_state(): void
@@ -60,6 +81,7 @@ class SpeakingRecallTest extends TestCase
     public function test_recording_stores_the_file_and_unlocks_grading(): void
     {
         Storage::fake('public');
+        $this->fakeSpeakingAi();
         $learner = User::factory()->create();
         $this->makeDuePrompt($learner);
         $this->actingAs($learner);
@@ -78,6 +100,7 @@ class SpeakingRecallTest extends TestCase
     public function test_grading_after_recording_reviews_the_prompt_and_advances(): void
     {
         Storage::fake('public');
+        $this->fakeSpeakingAi();
         $learner = User::factory()->create();
         $prompt = $this->makeDuePrompt($learner, ['prompt' => 'What time do you usually wake up?', 'next_review_at' => now()->subMinutes(5)]);
         $this->makeDuePrompt($learner, ['prompt' => 'What do you do after work?', 'next_review_at' => now()->subMinute()]);
@@ -88,6 +111,41 @@ class SpeakingRecallTest extends TestCase
             ->call('recorded')
             ->call('gradeSelf', 5)
             ->assertSee('What do you do after work?');
+
+        $this->assertSame(1, $prompt->fresh()->repetitions);
+    }
+
+    public function test_a_recording_gets_one_line_of_ai_feedback_that_goes_away_with_the_prompt(): void
+    {
+        Storage::fake('public');
+        $this->fakeSpeakingAi('Say "I wake up at seven" instead of "I wakes up at seven".');
+        $learner = User::factory()->create();
+        $this->makeDuePrompt($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('speaking.index')
+            ->assertDontSee('I wake up at seven', false)
+            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
+            ->call('recorded')
+            ->assertSee('I wake up at seven', false)
+            ->call('gradeSelf', 4)
+            ->assertSet('feedback', null);
+    }
+
+    public function test_a_dead_ai_only_means_no_feedback_line_and_never_blocks_grading(): void
+    {
+        Storage::fake('public');
+        $this->fakeSpeakingAi();
+        $learner = User::factory()->create();
+        $prompt = $this->makeDuePrompt($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('speaking.index')
+            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
+            ->call('recorded')
+            ->assertSet('feedback', null)
+            ->assertSee('How did that feel?')
+            ->call('gradeSelf', 4);
 
         $this->assertSame(1, $prompt->fresh()->repetitions);
     }

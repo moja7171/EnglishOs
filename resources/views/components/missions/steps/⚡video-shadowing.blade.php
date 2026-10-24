@@ -1,7 +1,10 @@
 <?php
 
+use App\Livewire\Concerns\ChecksShadowLines;
 use App\Livewire\Concerns\KeepsShadowDrafts;
 use App\Livewire\Concerns\PreviewsStep;
+use App\Livewire\Concerns\TracksAiUsage;
+use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use Illuminate\Http\UploadedFile;
@@ -10,8 +13,11 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use ChecksShadowLines;
     use KeepsShadowDrafts;
     use PreviewsStep;
+    use TracksAiUsage;
+    use TracksCheckAttempts;
     use WithFileUploads;
 
     public MissionRun $run;
@@ -46,7 +52,7 @@ new class extends Component
     public function mount(): void
     {
         if (! $this->readOnly) {
-            $this->restoreShadowDrafts();
+            $this->restoreShadowDraftsWithFeedback();
 
             return;
         }
@@ -58,6 +64,14 @@ new class extends Component
                 $this->savedShadowUrls[$decoded['line_index']] = $decoded['url'];
             }
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function shadowLines(): array
+    {
+        return $this->run->mission->stepContent('video_shadowing')['shadow_lines'] ?? [];
     }
 
     /**
@@ -83,9 +97,16 @@ new class extends Component
         return $this->run->mission->stepContent('video_shadowing')['shadow_timestamps'] ?? [];
     }
 
+    /**
+     * Recorded lines, minus any the AI heard as a different sentence (see
+     * ChecksShadowLines) — a line not checked yet still counts.
+     */
     public function shadowedCount(): int
     {
-        return count($this->draftShadowUrls);
+        return collect($this->draftShadowUrls)
+            ->keys()
+            ->reject(fn (int $index) => ($this->feedback["shadow_{$index}"]['severity'] ?? null) === 'major')
+            ->count();
     }
 
     /** Exposed for the Blade template — a bare `self::CONST` isn't reachable there. */
@@ -282,8 +303,15 @@ new class extends Component
                                         @endif
                                     @else
                                         <div class="mt-2" wire:key="shadow-recorder-{{ $index }}">
-                                            <x-voice-recorder field="shadowRecordings.{{ $index }}" :file="$draftShadowUrls[$index] ?? null" file-name="video-shadow-{{ $index }}.webm" />
+                                            <x-voice-recorder
+                                                field="shadowRecordings.{{ $index }}"
+                                                :file="$draftShadowUrls[$index] ?? null"
+                                                file-name="video-shadow-{{ $index }}.webm"
+                                                on-recorded="checkShadowLine"
+                                                :on-recorded-param="$index"
+                                            />
                                         </div>
+                                        <x-shadow-line-check :index="$index" :feedback="$feedback['shadow_'.$index] ?? null" :error="$checkErrors['shadow_'.$index] ?? null" />
                                     @endif
                                 </div>
                             @endforeach
