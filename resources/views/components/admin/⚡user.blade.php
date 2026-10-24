@@ -135,7 +135,7 @@ new class extends Component
         All users
     </a>
 
-    <header class="flex items-center gap-3 card p-4">
+    <header class="flex items-center gap-3">
         <x-user-avatar :user="$user" class="h-11 w-11 text-sm" />
         <div class="min-w-0">
             <h1 class="flex items-center gap-2 truncate font-display text-2xl font-extrabold text-ink dark:text-ink-dark">

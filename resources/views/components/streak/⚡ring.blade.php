@@ -90,7 +90,7 @@ new class extends Component
                         'transition-colors duration-500',
                         'stroke-success dark:stroke-success-dark' => $isFull,
                         'stroke-accent dark:stroke-accent-dark' => ! $isFull && $index < $slices,
-                        'stroke-surface-sunken dark:stroke-surface-sunken-dark' => $index >= $slices,
+                        'stroke-surface-sunken dark:stroke-line-dark' => $index >= $slices,
                     ])
                 ></circle>
             @endforeach
