@@ -608,6 +608,8 @@ new class extends Component
         @endphp
         <x-missions.step-bar
             :back-url="route('missions.show', [$mission, 'overview', 'day' => $this->activeDayIndex + 1])"
+            :mission-code="$mission->code"
+            :mission-title="$mission->title"
             :day-number="$this->activeDayIndex + 1"
             :day-heading="\App\Models\Mission::dayHeading($this->activeDayIndex + 1, $this->activeDay['label'] ?? '')"
             :step-label="$mission->stepLabel($this->activeStepKey)"
@@ -619,6 +621,7 @@ new class extends Component
                 'state' => $key === $this->activeStepKey
                     ? 'active'
                     : ($key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true) ? 'done' : 'ahead'),
+                'finished' => $key !== $this->currentStepKey && in_array($key, $this->reachableStepKeys, true),
                 'here' => $key === $this->currentStepKey && $key !== $this->activeStepKey && ! $this->missionLocked,
                 'minutes' => $mission->stepDuration($key),
             ])->all()"

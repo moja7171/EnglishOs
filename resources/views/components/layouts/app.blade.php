@@ -1,15 +1,15 @@
 {{-- @param bool $fill Makes the page exactly one viewport tall (h-dvh) so a
      component below can pin a composer to the bottom (the friend chat).
-     @param bool $focus Hides the bottom nav on full-attention screens (a
-     mission, the placement test, a partner session, a chat thread) whose
-     own actions sit at the bottom of the page. The header stays, and its
-     logo is always a way back home. Those screens (all but the chat
-     thread) also hold new-alert banners back, see <x-notification-banner>. --}}
+     It is the one kind of page without the bottom nav, which would sit
+     on top of that composer.
+     @param bool $focus Marks a full-attention screen (a mission, the
+     placement test, a partner session): new-alert banners wait until the
+     learner leaves it, see <x-notification-banner>. The bottom nav stays,
+     so the other tabs are always one tap away. --}}
 @props(['focus' => false, 'fill' => false])
 
 @php
-    $showNav = auth()->check() && ! $focus;
-    $noInterrupt = $focus && ! $fill;
+    $showNav = auth()->check() && ! $fill;
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -91,7 +91,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body @if ($noInterrupt) data-no-interrupt @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-20' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
+<body @if ($focus) data-no-interrupt @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-20' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
     {{-- Deliberately bare: the logo mark on the left; notifications and the
          avatar (which opens <x-account-menu>) on the right. Navigation
          lives in <x-bottom-nav> and everything secondary in the avatar's
