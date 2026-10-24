@@ -11,7 +11,8 @@
     Missions tab stays lit on their pages too. Everything secondary —
     Progress, Friends, profile — lives behind the avatar in the header,
     see <x-account-menu>. Only Review carries a count, so the bar stays
-    calm.
+    calm; Notebook gets a dot while feedback has saved lines not practised
+    yet (they already count in Review's number once due).
 
     It steps aside while the learner is typing (the on-screen keyboard
     would otherwise leave it floating above the keys, eating room) and
@@ -22,12 +23,13 @@
     $user = auth()->user();
 
     $dueReviewCount = $user->dailyReviewCount();
+    $hasUnpractisedNotes = $user->notebookEntries()->unpractised()->exists();
 
     $tabs = [
         ['label' => 'Home', 'route' => 'home', 'active' => request()->routeIs('home'), 'icon' => 'home'],
         ['label' => 'Missions', 'route' => 'missions.index', 'active' => request()->routeIs('missions.*', 'listening.*', 'pi.practice'), 'icon' => 'squares-2x2'],
         ['label' => 'Review', 'route' => 'review.index', 'active' => request()->routeIs('review.*'), 'icon' => 'bolt', 'badge' => $dueReviewCount],
-        ['label' => 'Notebook', 'route' => 'notebook.index', 'active' => request()->routeIs('notebook.*'), 'icon' => 'book-open'],
+        ['label' => 'Notebook', 'route' => 'notebook.index', 'active' => request()->routeIs('notebook.*'), 'icon' => 'book-open', 'dot' => $hasUnpractisedNotes],
     ];
 
     // -1 on pages that belong to none of the tabs (Friends, Profile...).
@@ -97,6 +99,8 @@
                     @svg('heroicon-'.($tab['active'] ? 's' : 'o').'-'.$tab['icon'], 'h-6 w-6')
                     @if (! empty($tab['badge']))
                         <span class="absolute -top-1 -right-2.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark">{{ $tab['badge'] }}</span>
+                    @elseif (! empty($tab['dot']))
+                        <span data-dot class="absolute -top-0.5 -right-1 h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-surface dark:bg-accent-dark dark:ring-surface-dark"><span class="sr-only">New lines to practise</span></span>
                     @endif
                 </span>
                 {{ $tab['label'] }}
