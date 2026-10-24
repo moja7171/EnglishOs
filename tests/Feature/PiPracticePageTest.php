@@ -93,8 +93,10 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice'))
             ->assertSee('Daily talk')
-            ->assertSee('M01 · My Daily Life · Day 1 of 4')
-            ->assertSee('Pronunciation')
+            ->assertSee('M01 · My Daily Life · Day 1')
+            ->assertSee('Pronunciation · 10 min')
+            ->assertSee('Talk with Pi')
+            ->assertSee('Get feedback')
             ->assertSee("Today's plan")
             ->assertSee('Be my warm, fun English buddy');
     }
@@ -137,7 +139,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1());
 
         $this->get(route('pi.practice'))
-            ->assertSee('M01 · My Daily Life · Day 1 of 4')
+            ->assertSee('M01 · My Daily Life · Day 1')
             ->assertDontSee('Back to today');
     }
 
@@ -147,14 +149,14 @@ class PiPracticePageTest extends TestCase
         PiPracticeLog::factory()->for($learner, 'learner')->create(['practiced_on' => now()->toDateString()]);
         $this->actingAs($learner);
 
-        $this->get(route('pi.practice'))->assertSee('M01 · My Daily Life · Day 1 of 4');
+        $this->get(route('pi.practice'))->assertSee('M01 · My Daily Life · Day 1');
     }
 
     public function test_a_day_finished_before_today_does_not_carry_over(): void
     {
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
-        $this->get(route('pi.practice'))->assertSee('M01 · My Daily Life · Day 2 of 4');
+        $this->get(route('pi.practice'))->assertSee('M01 · My Daily Life · Day 2');
     }
 
     public function test_a_mission_finished_today_keeps_its_retell_day_as_the_target(): void
@@ -166,7 +168,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('pi.practice'))
-            ->assertSee('M01 · My Daily Life · Day 4 of 4')
+            ->assertSee('M01 · My Daily Life · Day 4')
             ->assertSee('Retell &amp; Fix', false);
     }
 
@@ -177,7 +179,7 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice', ['M01', 1]))
             ->assertSee('Daily talk')
-            ->assertSee('Day 1 of 4')
+            ->assertSee('M01 · My Daily Life · Day 1')
             ->assertSee('Back to today (M01 · Day 2)');
     }
 
@@ -211,8 +213,8 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice', ['M01', 1]))
             ->assertSee('Day 1 plan')
-            ->assertSee('I practiced')
-            ->assertDontSee('Practiced today');
+            ->assertSee('Ticks itself after Feedback.')
+            ->assertDontSeeHtml(' Practiced</span>');
     }
 
     public function test_an_earlier_day_done_before_shows_as_practiced_on_its_day_button(): void
@@ -222,9 +224,9 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('pi.practice', ['M01', 1]))
-            ->assertSee('Practiced')
-            ->assertDontSee('Practiced today')
-            ->assertSeeInOrder(['Day 1 · Pronunciation', '<span class="sr-only">, done</span>', 'Day 2 · Grammar · today'], false);
+            ->assertSeeHtml(' Practiced</span>')
+            ->assertDontSee('Ticks itself after Feedback.')
+            ->assertSeeInOrder(['title="Pronunciation"', '<span class="sr-only">, done</span>', 'Day 2 · today'], false);
     }
 
     public function test_the_day_switcher_marks_reached_and_not_yet_reached_days(): void
@@ -234,7 +236,7 @@ class PiPracticePageTest extends TestCase
         $this->get(route('pi.practice'))
             ->assertSeeHtml('aria-label="Days of M01"')
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"')
-            ->assertSee('Day 2 · Grammar · today')
+            ->assertSee('Day 2 · today')
             ->assertSeeHtml('aria-label="Day 3, not reached yet"');
     }
 
@@ -268,7 +270,8 @@ class PiPracticePageTest extends TestCase
         Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
             ->set('pastedChat', self::A_PRACTICE_CHAT)
             ->call('checkPastedChat')
-            ->assertSee('Practiced today');
+            ->assertSeeHtml(' Practiced</span>')
+            ->assertDontSee('Ticks itself after Feedback.');
 
         $this->assertDatabaseHas('pi_practice_logs', [
             'learner_id' => $learner->id,
@@ -541,6 +544,6 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice'))
             ->assertSeeHtml('href="'.route('missions.index', ['day' => 'M01-1']).'"')
-            ->assertSee('M01 · Day 1');
+            ->assertSee('M01 · My Daily Life · Day 1');
     }
 }

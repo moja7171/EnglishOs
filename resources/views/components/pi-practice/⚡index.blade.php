@@ -4,6 +4,7 @@ use App\Livewire\Concerns\GivesConversationFeedback;
 use App\Models\Mission;
 use App\Models\PiChatFeedback;
 use App\Services\ListeningPicks;
+use App\Services\MissionGrid;
 use App\Services\PiPractice;
 use App\Services\PiPrompts;
 use App\Services\ProgramPlanner;
@@ -186,6 +187,15 @@ new class extends Component
         return app(PiPrompts::class)->dayTask(auth()->user(), $this->missionCode, $this->day);
     }
 
+    /**
+     * The mission's photo for the banner, the same as its Missions card.
+     */
+    #[Computed]
+    public function coverUrl(): ?string
+    {
+        return app(MissionGrid::class)->coverUrl($this->missionCode);
+    }
+
     #[Computed]
     public function missionTitle(): string
     {
@@ -221,7 +231,7 @@ new class extends Component
     }
 
     /**
-     * The tick at the bottom: today's own (it is what the streak counts),
+     * The tick on the banner: today's own (it is what the streak counts),
      * or, on another day, that day's.
      */
     #[Computed]
@@ -265,56 +275,69 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6" x-data="{ showInfo: false }">
-    <header class="border-b border-line pb-4 dark:border-line-dark">
-        {{-- Back to this day's sheet on the Missions page, where Daily talk
-             sits beside the day's Lesson and Listening. --}}
-        <a href="{{ route('missions.index', ['day' => $missionCode.'-'.$day]) }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-            @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') {{ $missionCode }} · Day {{ $day }}
-        </a>
-        <div class="mt-3 flex items-center gap-3">
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">
-                @svg('heroicon-o-microphone', 'h-5 w-5')
-            </span>
-            <div class="min-w-0 flex-1">
-                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Daily talk</h1>
-                <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }} of 4</p>
-            </div>
+<div class="mx-auto max-w-2xl space-y-5 p-6" x-data="{ showInfo: false }">
+    {{-- A slim banner with the mission's photo, the same as /listening: the
+         way back to this day's sheet on the Missions page (where Daily talk
+         sits beside the day's Lesson and Listening), the four days, and
+         whether this day's practice is done. --}}
+    <header class="relative isolate overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2 p-4 text-white">
+        @if ($this->coverUrl)
+            <img src="{{ $this->coverUrl }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover">
+        @endif
+        <div class="absolute inset-0 -z-10 bg-linear-to-t from-black/75 via-black/40 to-black/20"></div>
+
+        <div class="flex items-center justify-between gap-2">
+            <a href="{{ route('missions.index', ['day' => $missionCode.'-'.$day]) }}" wire:navigate class="inline-flex min-w-0 items-center gap-1 text-xs font-semibold text-white/85 hover:text-white">
+                @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5 shrink-0')
+                <span class="truncate">{{ $missionCode }} · {{ $this->missionTitle }} · Day {{ $day }}</span>
+            </a>
+            {{-- Never a button: the feedback below ticks it once the AI sees
+                 the day's plan really done (see checkPastedChat()). --}}
+            @if ($this->isPracticed)
+                <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success px-2 py-0.5 text-[11px] font-bold dark:bg-success-dark">@svg('heroicon-s-check', 'h-3 w-3') Practiced</span>
+            @endif
+        </div>
+        <div class="mt-6 flex items-center gap-2">
+            <h1 class="flex min-w-0 flex-1 items-center gap-2 font-display text-2xl font-extrabold">
+                @svg('heroicon-o-microphone', 'h-6 w-6 shrink-0') Daily talk
+            </h1>
             <button
                 type="button"
                 x-on:click="showInfo = ! showInfo"
                 x-bind:aria-expanded="showInfo"
                 aria-controls="pi-practice-info"
                 aria-label="How it works"
-                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/85 transition-colors hover:bg-white/15 hover:text-white"
             >
                 @svg('heroicon-o-information-circle', 'h-6 w-6')
             </button>
         </div>
+        <p class="mt-0.5 text-sm text-white/80">{{ $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</p>
         <nav class="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Days of {{ $missionCode }}">
             @foreach ($this->missionDays as $dayInfo)
                 @php
-                    $pill = 'inline-flex items-center rounded-full border px-3 py-1 text-xs';
+                    $pill = 'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold';
                 @endphp
                 @if ($dayInfo['state'] === 'future')
                     <span
-                        class="{{ $pill }} cursor-not-allowed border-dashed border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark"
+                        class="{{ $pill }} cursor-not-allowed border-dashed border-white/40 text-white/50"
                         title="Not reached yet"
                         aria-label="Day {{ $dayInfo['number'] }}, not reached yet"
-                    >Day {{ $dayInfo['number'] }} · {{ $dayInfo['title'] }}</span>
+                    >Day {{ $dayInfo['number'] }}</span>
                 @else
                     <a
                         href="{{ route('pi.practice', [$missionCode, $dayInfo['number']]) }}"
                         wire:navigate
+                        title="{{ $dayInfo['title'] }}"
                         @if ($dayInfo['viewing']) aria-current="page" @endif
                         @class([
                             $pill,
-                            'border-ink bg-ink text-ground dark:border-ink-dark dark:bg-ink-dark dark:text-ground-dark' => $dayInfo['viewing'],
-                            'border-accent text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
-                            'border-line text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
+                            'border-white bg-white text-ink' => $dayInfo['viewing'],
+                            'border-accent bg-accent/30 text-white' => ! $dayInfo['viewing'] && $dayInfo['state'] === 'today',
+                            'border-white/50 text-white hover:bg-white/15' => ! $dayInfo['viewing'] && $dayInfo['state'] !== 'today',
                         ])
                     >
-                        Day {{ $dayInfo['number'] }} · {{ $dayInfo['title'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}
+                        Day {{ $dayInfo['number'] }}{{ $dayInfo['state'] === 'today' ? ' · today' : '' }}
                         @if ($dayInfo['done'])
                             @svg('heroicon-s-check-circle', 'ms-1 h-3.5 w-3.5 text-success dark:text-success-dark')
                             <span class="sr-only">, done</span>
@@ -323,15 +346,16 @@ new class extends Component
                 @endif
             @endforeach
         </nav>
-        @if (! $this->isToday)
-            <a href="{{ route('pi.practice') }}" wire:navigate class="mt-3 inline-flex items-center gap-1 text-xs text-accent-ink underline dark:text-accent-ink-dark">
-                Back to today ({{ $this->target['missionCode'] }} · Day {{ $this->target['dayNumber'] }})
-            </a>
-        @endif
     </header>
 
-    {{-- How-to and tips stay behind the ⓘ in the header, so the page itself
-         is just the plan, the prompt and the feedback. --}}
+    @if (! $this->isToday)
+        <a href="{{ route('pi.practice') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">
+            Back to today ({{ $this->target['missionCode'] }} · Day {{ $this->target['dayNumber'] }})
+        </a>
+    @endif
+
+    {{-- How-to and tips stay behind the ⓘ on the banner, so the page itself
+         is just the two cards: talk, then feedback. --}}
     <section id="pi-practice-info" x-show="showInfo" x-cloak x-transition class="card space-y-3 p-4 text-sm text-ink-soft dark:text-ink-soft-dark" aria-label="How it works">
         <p>{{ $this->task['goal'] }}</p>
         <ol class="list-decimal space-y-1.5 ps-5">
@@ -363,43 +387,52 @@ new class extends Component
         </div>
     </section>
 
-    <details class="card group p-4">
-        <summary class="flex cursor-pointer list-none items-center gap-2 text-sm text-ink dark:text-ink-dark">
-            <span class="min-w-0 flex-1">{{ $this->isToday ? "Today's plan" : "Day {$day} plan" }} · {{ $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</span>
-            @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
-        </summary>
-        <ol class="mt-3 list-decimal space-y-1 ps-5 text-sm text-ink-soft dark:text-ink-soft-dark">
-            @foreach ($this->task['plan'] as $planStep)
-                <li>{{ $planStep }}</li>
-            @endforeach
-        </ol>
-    </details>
+    @php
+        $stepNumber = 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark';
+    @endphp
 
-    <x-pi-practice-card :task="$this->task" :rows="6" />
+    {{-- 1. The talk itself, outside the app: one big button copies the
+         prompt and opens Pi; the prompt and the plan stay folded. --}}
+    <section class="card space-y-3 p-4" aria-labelledby="talk-heading">
+        <h2 id="talk-heading" class="flex items-center gap-2.5 text-base font-bold text-ink dark:text-ink-dark">
+            <span class="{{ $stepNumber }}">1</span> Talk with Pi
+        </h2>
+        <x-pi-practice-card :task="$this->task" :plan-label="$this->isToday ? 'Today\'s plan' : 'Day '.$day.' plan'" />
+    </section>
 
-    <section class="card space-y-3 p-4" aria-label="Feedback on your chat">
-        <label for="pasted-chat" class="block text-sm text-ink dark:text-ink-dark">Feedback on your chat</label>
+    {{-- 2. Pi's last message pasted back: the feedback, and the only way
+         the day gets its tick (see checkPastedChat()). --}}
+    <section class="card space-y-3 p-4" aria-labelledby="feedback-heading">
+        <h2 id="feedback-heading" class="flex items-center gap-2.5 text-base font-bold text-ink dark:text-ink-dark">
+            <span class="{{ $stepNumber }}">2</span>
+            <label for="pasted-chat">Get feedback</label>
+        </h2>
         <textarea
             id="pasted-chat"
             wire:model="pastedChat"
             rows="3"
-            placeholder="Copy Pi's last message and paste it here"
+            placeholder="Paste Pi's last message here"
             class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
         ></textarea>
         @error('pastedChat')
             <p class="text-xs text-danger-ink">{{ $message }}</p>
         @enderror
-        <button
-            type="button"
-            wire:click="checkPastedChat"
-            wire:loading.attr="disabled"
-            wire:target="checkPastedChat"
-            class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
-        >
-            <span wire:loading.remove wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
-            <span wire:loading wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-            Feedback
-        </button>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <button
+                type="button"
+                wire:click="checkPastedChat"
+                wire:loading.attr="disabled"
+                wire:target="checkPastedChat"
+                class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
+            >
+                <span wire:loading.remove wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
+                <span wire:loading wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
+                Feedback
+            </button>
+            @if (! $this->isPracticed)
+                <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? ($this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice.") : 'Ticks itself after Feedback.' }}</span>
+            @endif
+        </div>
 
         @if ($feedback || $feedbackError)
             <div wire:loading.class="opacity-60" wire:target="checkPastedChat" class="border-t border-line pt-3 dark:border-line-dark">
@@ -407,21 +440,4 @@ new class extends Component
             </div>
         @endif
     </section>
-
-    {{-- Never a button: the feedback above ticks it once the AI sees the
-         day's plan really done (see checkPastedChat()). --}}
-    @if ($this->isPracticed)
-        <div class="flex items-center gap-3 rounded-2xl bg-success-soft px-4 py-3.5 text-sm text-success dark:bg-success-soft-dark dark:text-success-dark">
-            <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
-            {{ $this->isToday ? 'Practiced today' : 'Practiced' }}
-        </div>
-    @else
-        <div class="flex items-center gap-3 rounded-2xl border-2 border-dashed border-line px-4 py-3.5 dark:border-line-dark">
-            <span class="inline-flex h-7 w-7 shrink-0 rounded-full border-2 border-line dark:border-line-dark"></span>
-            <span class="min-w-0 flex-1">
-                <span class="block text-sm text-ink-soft dark:text-ink-soft-dark">I practiced</span>
-                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? ($this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice.") : 'Ticks itself after Feedback.' }}</span>
-            </span>
-        </div>
-    @endif
 </div>
