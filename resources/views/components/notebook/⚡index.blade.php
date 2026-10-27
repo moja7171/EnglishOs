@@ -1,20 +1,26 @@
 <?php
 
 use App\Livewire\Concerns\PractisesNotebookLines;
+use App\Models\Mission;
 use App\Models\NotebookEntry;
+use App\Models\VocabularyWord;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+/**
+ * A6 + A10: one Notebook with three tabs — Mistakes, Tips and Words (My
+ * Words lives here now). A practice card on top of Mistakes/Tips, one
+ * uniform list (tap a line = a bottom sheet), practice full-screen in the
+ * review frame. Words is for finding a word and its meaning; it is
+ * practised in Daily Review.
+ */
 new class extends Component
 {
     use PractisesNotebookLines;
     use WithFileUploads;
-
-    /** Each tab shows this many lines in full; the rest fold to one line each. */
-    public const TOP_LINES = 3;
 
     public const PRACTICE_SIZE = 5;
 
@@ -61,12 +67,53 @@ new class extends Component
     }
 
     /**
-     * Lines Daily Review would show now, before its daily cap.
+     * Every saved word, newest mission first, with the mission it came
+     * from — the Words tab.
+     *
+     * @return Collection<int, VocabularyWord>
      */
     #[Computed]
-    public function waitingCount(): int
+    public function words(): Collection
     {
-        return auth()->user()->notebookEntries()->inReview()->where('next_review_at', '<=', now())->count();
+        return auth()->user()->vocabularyWords()
+            ->with('sourceMissionRun.mission')
+            ->orderByDesc('created_at')
+            ->orderBy('word')
+            ->get();
+    }
+
+    /**
+     * Authored Persian meanings by lowercased phrase — the fallback for a
+     * word saved before its own meaning_fa was stored.
+     *
+     * @return array<string, string>
+     */
+    #[Computed]
+    public function courseMeaningsFa(): array
+    {
+        return Mission::persianMeanings();
+    }
+
+    public function removeWord(int $wordId): void
+    {
+        auth()->user()->vocabularyWords()->findOrFail($wordId)->delete();
+
+        unset($this->words);
+    }
+
+    /** "Practice this one", from a line's sheet. */
+    public function practiceOne(int $entryId): void
+    {
+        $entry = auth()->user()->notebookEntries()->findOrFail($entryId);
+
+        $this->practiceKind = $entry->kind;
+        $this->practiceIds = [$entry->id];
+        $this->practisedIds = array_values(array_unique([...$this->practisedIds, $entry->id]));
+        $this->practiceSize = 1;
+        $this->practiceAt = 0;
+        $this->practiceRight = 0;
+        $this->resetDrill();
+        unset($this->practiceEntry, $this->morePractice);
     }
 
     #[Computed]
@@ -85,14 +132,14 @@ new class extends Component
     {
         auth()->user()->notebookEntries()->findOrFail($entryId)->update(['learned_at' => now()]);
 
-        unset($this->entries, $this->waitingCount);
+        unset($this->entries);
     }
 
     public function bringBack(int $entryId): void
     {
         auth()->user()->notebookEntries()->findOrFail($entryId)->update(['learned_at' => null, 'next_review_at' => now()]);
 
-        unset($this->entries, $this->waitingCount);
+        unset($this->entries);
     }
 
     /**
@@ -109,7 +156,7 @@ new class extends Component
 
         $entry->update(['starred_at' => $entry->starred_at ? null : now()]);
 
-        unset($this->entries, $this->waitingCount);
+        unset($this->entries);
     }
 
     /**
@@ -202,146 +249,196 @@ new class extends Component
 
 @php
     $byKind = $this->entries->groupBy('kind');
-    $practising = $practiceIds !== [];
+    $practiceEntry = $practiceIds !== [] ? $this->practiceEntry : null;
+    $roundDone = $practiceIds !== [] && ! $practiceEntry;
+    $tabs = ['mistakes' => NotebookEntry::KIND_MISTAKE, 'tips' => NotebookEntry::KIND_TIP];
+    $activeCount = fn (string $kind) => ($byKind->get($kind) ?? collect())->whereNull('learned_at')->count();
+    $pill = 'flex-1 cursor-pointer rounded-full py-2 text-center text-sm font-extrabold transition-colors';
 @endphp
 
-<div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6" x-data="{ notebookTab: 'mistakes' }">
-    <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        All missions
-    </a>
+@if ($practiceEntry)
+    {{-- Practice runs full-screen in the review frame: ✕ ends it. --}}
+    <div class="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-2xl flex-col gap-4 p-4 sm:p-6">
+        <x-lesson-header data-step-header close-click="$wire.stopPractice()" :progress="$practiceAt / max(count($practiceIds), 1)" :counter="($practiceAt + 1).'/'.count($practiceIds)" />
+        <div wire:key="practice-{{ $practiceAt }}-{{ $practiceEntry->id }}" class="animate-review-card-in flex flex-1 flex-col gap-4 rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
+            <x-notebook-drill :entry="$practiceEntry" :answer="$drillAnswer" :correct="$drillCorrect" :typing="$drillTyping" :heard="$drillHeard" :missed-audio="$drillMissedAudio" :recording="$drillRecording" />
+        </div>
+    </div>
+@else
+<div
+    class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
+    x-data="{ notebookTab: @js($practiceKind === NotebookEntry::KIND_TIP && $roundDone ? 'tips' : 'mistakes'), sheet: false, learned: false, search: '' }"
+>
+    <h1 class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Notebook</h1>
 
-    <header class="flex items-center gap-3">
-        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-            @svg('heroicon-o-book-open', 'h-5 w-5')
-        </span>
-        <div>
-            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Notebook</h1>
-            <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Saved from your feedback.</p>
-            @if ($this->waitingCount > 0)
-                <p class="mt-0.5 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">{{ $this->waitingCount }} waiting for review</p>
+    {{-- The practice card (or, after a round, today's score) for the open tab. --}}
+    @foreach ($tabs as $tab => $kind)
+        @php
+            $active = ($byKind->get($kind) ?? collect())->whereNull('learned_at');
+            $practicable = $kind === NotebookEntry::KIND_MISTAKE ? $active->whereNotNull('original') : $active;
+            $unpractised = $practicable->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
+            $roundSize = min($this::PRACTICE_SIZE, $unpractised ?: $practicable->count());
+            $practiseAgain = $unpractised === 0 && $practicable->contains(fn (NotebookEntry $entry) => $entry->last_practised_at?->isToday());
+        @endphp
+        <div x-show="notebookTab === '{{ $tab }}'" @if ($tab !== 'mistakes') x-cloak @endif>
+            @if ($roundDone && $practiceKind === $kind)
+                <div class="flex items-center justify-between gap-3 rounded-2xl bg-success-soft px-4 py-3 text-sm font-extrabold text-success dark:bg-success-soft-dark dark:text-success-dark">
+                    <span>✓ {{ $practiceRight }}/{{ $practiceSize }} right today</span>
+                    @if ($this->morePractice > 0)
+                        <button type="button" wire:click="startPractice('{{ $kind }}')" class="cursor-pointer text-accent-ink dark:text-accent-ink-dark">{{ min($this::PRACTICE_SIZE, $this->morePractice) }} more ›</button>
+                    @endif
+                </div>
+            @elseif ($practicable->isNotEmpty())
+                <div class="flex items-center gap-3 rounded-3xl bg-accent-soft p-3 dark:bg-accent-soft-dark">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">@svg('heroicon-o-pencil', 'h-5 w-5')</span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block text-base font-extrabold text-ink dark:text-ink-dark">{{ $practiseAgain ? '✓ Practice again' : 'Practice' }}</span>
+                        <span class="block text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $roundSize }} {{ Str::plural('line', $roundSize) }} · ~1 min</span>
+                    </span>
+                    <button type="button" wire:click="startPractice('{{ $kind }}')" class="cursor-pointer rounded-full bg-accent px-5 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">Start</button>
+                </div>
             @endif
         </div>
-    </header>
+    @endforeach
 
-    @if ($practising)
-        @php $practiceEntry = $this->practiceEntry; @endphp
-        @if ($practiceEntry)
-            <div wire:key="practice-{{ $practiceAt }}-{{ $practiceEntry->id }}">
-                <x-review-shell
-                    label="Practice"
-                    :icon="$practiceEntry->isMistake() ? 'heroicon-o-pencil' : 'heroicon-o-light-bulb'"
-                    :position="$practiceAt + 1"
-                    :total="count($practiceIds)"
-                    :remaining="count($practiceIds) - $practiceAt - 1"
-                >
-                    <x-notebook-drill :entry="$practiceEntry" :answer="$drillAnswer" :correct="$drillCorrect" :typing="$drillTyping" :heard="$drillHeard" :missed-audio="$drillMissedAudio" :recording="$drillRecording" />
-                </x-review-shell>
-            </div>
-            <div class="text-center">
-                <button
-                    type="button"
-                    wire:click="stopPractice"
-                    class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
-                >@svg('heroicon-o-x-mark', 'h-3.5 w-3.5') Stop</button>
-            </div>
-        @else
-            <div class="flex flex-col items-center gap-3 card p-8 text-center">
-                @svg('heroicon-o-check-badge', 'h-8 w-8 text-success dark:text-success-dark')
-                <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $practiceRight }} / {{ $practiceSize }} right</p>
-                <div class="flex flex-wrap justify-center gap-2">
-                    @if ($this->morePractice > 0)
-                        <button
-                            type="button"
-                            wire:click="startPractice('{{ $practiceKind }}')"
-                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-6 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >@svg('heroicon-o-arrow-path', 'h-4 w-4') {{ min($this::PRACTICE_SIZE, $this->morePractice) }} more</button>
-                    @endif
-                    <button
-                        type="button"
-                        wire:click="stopPractice"
-                        class="inline-flex cursor-pointer items-center rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >Done</button>
+    <div class="flex gap-1 rounded-full bg-surface-sunken p-1 dark:bg-surface-sunken-dark" role="tablist">
+        @foreach (['mistakes' => 'Mistakes', 'tips' => 'Tips', 'words' => 'Words'] as $tab => $label)
+            @php $count = $tab === 'words' ? $this->words->count() : $activeCount($tabs[$tab]); @endphp
+            <button
+                type="button"
+                role="tab"
+                x-on:click="notebookTab = '{{ $tab }}'; learned = false"
+                x-bind:aria-selected="notebookTab === '{{ $tab }}'"
+                class="{{ $pill }}"
+                x-bind:class="notebookTab === '{{ $tab }}' ? 'bg-surface text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
+            >{{ $label }} <span class="font-bold text-ink-faint dark:text-ink-faint-dark">{{ $count }}</span></button>
+        @endforeach
+    </div>
+
+    @foreach ($tabs as $tab => $kind)
+        @php [$active, $learnedEntries] = ($byKind->get($kind) ?? collect())->partition(fn (NotebookEntry $entry) => $entry->learned_at === null); @endphp
+        <div x-show="notebookTab === '{{ $tab }}'" @if ($tab !== 'mistakes') x-cloak @endif class="space-y-3">
+            @if ($active->isEmpty())
+                <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">{{ $tab === 'mistakes' ? 'No mistakes saved yet.' : 'No tips saved yet.' }}</p>
+            @else
+                <div class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
+                    @foreach ($active as $entry)
+                        <button type="button" wire:key="notebook-row-{{ $entry->id }}" x-on:click="sheet = 'n{{ $entry->id }}'" class="flex w-full cursor-pointer items-center gap-2.5 py-3 text-left">
+                            <span @class(['h-2 w-2 shrink-0 rounded-full', 'bg-accent dark:bg-accent-dark' => $entry->isUnpractised(), 'bg-transparent' => ! $entry->isUnpractised()])></span>
+                            <span class="min-w-0 flex-1">
+                                @if ($entry->original)
+                                    <span class="block truncate text-xs text-ink-faint line-through dark:text-ink-faint-dark">{{ $entry->original }}</span>
+                                @endif
+                                <span class="block truncate text-sm font-bold text-ink dark:text-ink-dark">{{ $entry->better }}</span>
+                            </span>
+                            @if ($entry->starred_at)
+                                @svg('heroicon-s-star', 'h-3.5 w-3.5 shrink-0 text-warning')
+                            @endif
+                            @if ($entry->times_seen > 1)
+                                <span class="shrink-0 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-extrabold text-warning-ink">{{ $entry->times_seen }}×</span>
+                            @endif
+                        </button>
+                    @endforeach
                 </div>
-            </div>
-        @endif
-    @else
-        <x-tab-nav
-            tab-var="notebookTab"
-            :tabs="[
-                'mistakes' => 'Mistakes ('.($byKind->get(NotebookEntry::KIND_MISTAKE)?->whereNull('learned_at')->count() ?? 0).')',
-                'tips' => 'Tips ('.($byKind->get(NotebookEntry::KIND_TIP)?->whereNull('learned_at')->count() ?? 0).')',
-            ]"
-        />
+            @endif
 
-        @foreach (['mistakes' => NotebookEntry::KIND_MISTAKE, 'tips' => NotebookEntry::KIND_TIP] as $tab => $kind)
-            @php
-                [$active, $learned] = ($byKind->get($kind) ?? collect())->partition(fn (NotebookEntry $entry) => $entry->learned_at === null);
-                $practicable = $kind === NotebookEntry::KIND_MISTAKE ? $active->whereNotNull('original') : $active;
-                $unpractised = $practicable->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
-                $practiseAgain = $unpractised === 0 && $practicable->contains(fn (NotebookEntry $entry) => $entry->last_practised_at?->isToday());
-            @endphp
-            <div x-show="notebookTab === '{{ $tab }}'" @if ($tab !== 'mistakes') x-cloak @endif class="space-y-3">
-                @if ($practicable->isNotEmpty())
-                    <button
-                        type="button"
-                        wire:click="startPractice('{{ $kind }}')"
-                        class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >
-                        @if ($practiseAgain)
-                            @svg('heroicon-o-check', 'h-4 w-4') Practice again
-                        @else
-                            @svg('heroicon-o-pencil', 'h-4 w-4') Practice {{ min($this::PRACTICE_SIZE, $unpractised ?: $practicable->count()) }} now
-                        @endif
-                    </button>
-                @endif
+            @if ($learnedEntries->isNotEmpty())
+                <button type="button" x-on:click="learned = ! learned" class="w-full cursor-pointer py-2 text-center text-sm font-extrabold text-ink-faint dark:text-ink-faint-dark">Learned ({{ $learnedEntries->count() }}) ›</button>
+                <div x-show="learned" x-cloak class="space-y-2 rounded-3xl bg-surface p-4 dark:bg-surface-dark">
+                    @foreach ($learnedEntries as $entry)
+                        <div wire:key="notebook-learned-{{ $entry->id }}" class="flex items-center justify-between gap-2">
+                            <p class="min-w-0 text-sm text-ink-faint dark:text-ink-faint-dark">{{ $entry->better }}</p>
+                            <button type="button" wire:click="bringBack({{ $entry->id }})" class="shrink-0 cursor-pointer text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Bring back</button>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endforeach
 
-                @forelse ($active->take($this::TOP_LINES) as $entry)
-                    <x-notebook-entry :entry="$entry" wire:key="notebook-{{ $entry->id }}" class="card p-4" />
-                @empty
-                    <div class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">
-                        {{ $tab === 'mistakes' ? 'No mistakes saved yet.' : 'No tips saved yet.' }}
-                    </div>
-                @endforelse
-
-                @if ($active->count() > $this::TOP_LINES)
-                    <div class="card divide-y divide-line px-4 dark:divide-line-dark">
-                        @foreach ($active->slice($this::TOP_LINES) as $entry)
-                            <details wire:key="notebook-row-{{ $entry->id }}" class="group py-3">
-                                <summary class="flex cursor-pointer list-none items-center gap-2 text-sm">
-                                    <span class="min-w-0 flex-1 truncate text-ink dark:text-ink-dark">{{ $entry->label !== null ? $entry->heading() : $entry->better }}</span>
-                                    @if ($entry->starred_at)
-                                        @svg('heroicon-s-star', 'h-3.5 w-3.5 shrink-0 text-warning')
-                                    @endif
-                                    @if ($entry->times_seen > 1)
-                                        <span class="shrink-0 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-semibold text-warning-ink">{{ $entry->times_seen }}×</span>
-                                    @endif
-                                    @svg('heroicon-o-chevron-down', 'h-4 w-4 shrink-0 text-ink-faint transition-transform group-open:rotate-180 dark:text-ink-faint-dark')
-                                </summary>
-                                <x-notebook-entry :entry="$entry" :show-heading="false" class="pt-2" />
-                            </details>
+    {{-- Words: find a word and its meaning, newest mission first. --}}
+    <div x-show="notebookTab === 'words'" x-cloak class="space-y-3">
+        @if ($this->words->isEmpty())
+            <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">Words from your lessons and the ones you tap in a text show up here.</p>
+        @else
+            <input type="search" x-model="search" placeholder="Search your words" aria-label="Search your words" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark">
+            @foreach ($this->words->groupBy(fn (VocabularyWord $word) => $word->sourceMissionRun?->mission?->code ?? '') as $code => $group)
+                @php
+                    $mission = $group->first()->sourceMissionRun?->mission;
+                    $groupWords = $group->map(fn (VocabularyWord $word) => mb_strtolower($word->word))->values()->all();
+                @endphp
+                <div x-show="! search || {{ \Illuminate\Support\Js::from($groupWords) }}.some(w => w.includes(search.toLowerCase()))">
+                    <p class="px-2 pb-1 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $mission ? $mission->code.' · '.$mission->title : 'Added by you' }}</p>
+                    <div class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
+                        @foreach ($group as $word)
+                            @php $meaningFa = $word->meaning_fa ?: ($this->courseMeaningsFa[mb_strtolower($word->word)] ?? null); @endphp
+                            <button type="button" wire:key="word-{{ $word->id }}" x-show="! search || {{ \Illuminate\Support\Js::from(mb_strtolower($word->word)) }}.includes(search.toLowerCase())" x-on:click="sheet = 'w{{ $word->id }}'" class="flex w-full cursor-pointer items-center gap-3 py-2.5 text-left">
+                                <span class="shrink-0 text-sm font-extrabold text-ink dark:text-ink-dark">{{ $word->word }}</span>
+                                <span dir="rtl" class="font-fa min-w-0 flex-1 truncate text-sm text-ink-soft dark:text-ink-soft-dark">{{ $meaningFa }}</span>
+                                <span class="flex shrink-0 gap-0.5" aria-hidden="true">
+                                    @for ($dot = 1; $dot <= 5; $dot++)
+                                        <span class="h-1 w-2 rounded-full {{ $dot <= $word->strengthLevel() ? 'bg-success dark:bg-success-dark' : 'bg-line dark:bg-line-dark' }}"></span>
+                                    @endfor
+                                </span>
+                            </button>
                         @endforeach
                     </div>
-                @endif
+                </div>
+            @endforeach
+        @endif
+    </div>
 
-                @if ($learned->isNotEmpty())
-                    <details class="card p-4">
-                        <summary class="cursor-pointer text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Learned ({{ $learned->count() }})</summary>
-                        <div class="mt-3 space-y-2">
-                            @foreach ($learned as $entry)
-                                <div wire:key="notebook-learned-{{ $entry->id }}" class="flex items-center justify-between gap-2">
-                                    <p class="min-w-0 text-sm text-ink-faint dark:text-ink-faint-dark">{{ $entry->better }}</p>
-                                    <button
-                                        type="button"
-                                        wire:click="bringBack({{ $entry->id }})"
-                                        class="shrink-0 cursor-pointer text-xs font-semibold text-accent-ink hover:underline dark:text-accent-ink-dark"
-                                    >Bring back</button>
-                                </div>
-                            @endforeach
-                        </div>
-                    </details>
+    {{-- One sheet; what it shows follows the tapped row. --}}
+    <x-bottom-sheet show="sheet" label="Details">
+        @foreach ($this->entries as $entry)
+            <div x-show="sheet === 'n{{ $entry->id }}'" wire:key="notebook-sheet-{{ $entry->id }}" class="flex flex-col gap-2">
+                <p class="text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
+                    {{ $entry->heading() }} · {{ \App\Services\FeedbackNotebook::SOURCES[$entry->source] ?? $entry->source }}@if ($entry->times_seen > 1) · {{ $entry->times_seen }}×@endif
+                </p>
+                @if ($entry->original)
+                    <p class="text-sm {{ $entry->isMistake() ? 'text-danger-ink line-through decoration-danger' : 'text-ink-soft dark:text-ink-soft-dark' }}">{{ $entry->original }}</p>
                 @endif
+                <p class="flex items-center gap-2 text-base font-extrabold text-success dark:text-success-dark">{{ $entry->better }} <x-speak-button :text="$entry->better" /></p>
+                @if ($entry->note)
+                    <p class="font-fa text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $entry->note }}</p>
+                @endif
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                    @if ($entry->learned_at === null)
+                        <button type="button" wire:click="markLearned({{ $entry->id }})" x-on:click="sheet = false" class="cursor-pointer rounded-2xl bg-surface-sunken py-3 text-sm font-extrabold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">✓ Learned</button>
+                    @endif
+                    @if ($entry->isPhraseSwap())
+                        <button type="button" wire:click="toggleStar({{ $entry->id }})" aria-pressed="{{ $entry->starred_at ? 'true' : 'false' }}" class="cursor-pointer rounded-2xl py-3 text-sm font-extrabold {{ $entry->starred_at ? 'bg-warning-soft text-warning-ink' : 'bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark' }}">{{ $entry->starred_at ? '★ In Review' : '☆ Review' }}</button>
+                    @elseif ($entry->learned_at === null && (! $entry->isMistake() || $entry->original))
+                        <button type="button" wire:click="practiceOne({{ $entry->id }})" class="cursor-pointer rounded-2xl bg-success py-3 text-sm font-extrabold text-white dark:bg-success-dark">✎ Practice</button>
+                    @endif
+                </div>
             </div>
         @endforeach
-    @endif
+        @foreach ($this->words as $word)
+            @php
+                $meaningFa = $word->meaning_fa ?: ($this->courseMeaningsFa[mb_strtolower($word->word)] ?? null);
+                $mission = $word->sourceMissionRun?->mission;
+            @endphp
+            <div x-show="sheet === 'w{{ $word->id }}'" wire:key="word-sheet-{{ $word->id }}" class="flex flex-col gap-2">
+                <x-speak-word :word="$word->word" class="font-display text-3xl font-semibold text-ink dark:text-ink-dark" />
+                @if (filled($word->pos) || $mission)
+                    <span class="w-fit rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ collect([$word->pos, $mission?->code])->filter()->implode(' · ') }}</span>
+                @endif
+                @if (filled($word->meaning))
+                    <p class="text-sm text-ink dark:text-ink-dark">{{ $word->meaning }}</p>
+                @endif
+                @if (filled($meaningFa))
+                    <p dir="rtl" class="font-fa text-base font-extrabold text-accent-ink dark:text-accent-ink-dark">{{ $meaningFa }}</p>
+                @endif
+                @if (filled($word->example))
+                    <p class="text-sm text-ink-soft italic dark:text-ink-soft-dark">{{ $word->highlightIn($word->example) }}</p>
+                @endif
+                <div class="mt-1 flex items-center justify-between text-sm font-bold">
+                    <span class="text-ink-faint dark:text-ink-faint-dark">{{ $word->strengthLabel() }}</span>
+                    <button type="button" wire:click="removeWord({{ $word->id }})" wire:confirm="Remove {{ $word->word }} from your words?" x-on:click="sheet = false" class="cursor-pointer text-danger-ink">Remove</button>
+                </div>
+            </div>
+        @endforeach
+    </x-bottom-sheet>
 </div>
+@endif
