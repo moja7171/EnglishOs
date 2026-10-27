@@ -97,8 +97,9 @@
          lives in <x-bottom-nav> and everything secondary in the avatar's
          sheet, so the top of the screen stays calm. Signed-out pages keep
          the full wordmark (it is the only branding on the login screen)
-         and the theme switch. --}}
-    <div class="mx-auto flex w-full max-w-2xl shrink-0 items-center justify-between gap-2 px-3 pt-4 text-xs text-ink-faint sm:px-6 dark:text-ink-faint-dark">
+         and the theme switch. A mission step hides it (see app.css), so
+         the step's own ✕ / progress header opens the screen like a lesson. --}}
+    <div data-app-topbar class="mx-auto flex w-full max-w-2xl shrink-0 items-center justify-between gap-2 px-3 pt-4 text-xs text-ink-faint sm:px-6 dark:text-ink-faint-dark">
         <a href="{{ route('home') }}" wire:navigate aria-label="English OS home" class="inline-flex w-fit min-w-0 transition-opacity hover:opacity-80">
             <x-logo icon-class="h-8 w-8" :with-text="! auth()->check()" text-class="text-sm sm:text-base" />
         </a>

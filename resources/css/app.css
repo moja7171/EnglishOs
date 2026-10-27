@@ -287,6 +287,13 @@
     display: none !important;
 }
 
+/* A mission step opens like a lesson in a learning app: its own ✕ /
+   progress header (<x-missions.step-bar>) is the top of the screen, so the
+   app's logo / bell / avatar bar steps aside while it is on the page. */
+body:has([data-step-header]) [data-app-topbar] {
+    display: none;
+}
+
 /* A gentle typing-dot pulse for AI "thinking" indicators — Tailwind's
    built-in animate-bounce arcs too high/hard for small dots. Scales/fades
    in place (no vertical translation) so a tight container never clips it. */

@@ -35,7 +35,7 @@
         if (ready) { justAppeared = true; setTimeout(() => (justAppeared = false), 900) }
     })"
     :class="justAppeared ? 'ring-2 ring-accent ring-offset-4 ring-offset-ground dark:ring-accent-dark dark:ring-offset-ground-dark' : 'ring-0'"
-    class="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-full transition-shadow duration-700"
+    class="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl transition-shadow duration-700"
 >
     {{ $slot }}
 

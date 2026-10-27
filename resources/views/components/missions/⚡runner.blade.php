@@ -352,14 +352,6 @@ new class extends Component
         return null;
     }
 
-    public function getPreviousStepKeyProperty(): ?string
-    {
-        $daySteps = $this->activeDay['stepKeys'] ?? [];
-        $index = array_search($this->activeStepKey, $daySteps, true);
-
-        return $index > 0 ? $daySteps[$index - 1] : null;
-    }
-
     public function getNextStepKeyProperty(): ?string
     {
         $daySteps = $this->activeDay['stepKeys'] ?? [];
@@ -655,7 +647,7 @@ new class extends Component
             </div>
         @endif
 
-        <div class="card p-5" data-step-card>
+        <div data-step-card>
             @if ($this->isReviewing)
                 <div class="mb-4 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
@@ -687,45 +679,21 @@ new class extends Component
             @endif
         </div>
 
+        {{-- A finished or previewed step has no Continue of its own, so the
+             same full-width spot walks on through the day instead. --}}
+        @if ($this->isReviewing || $this->isPreviewing)
+            <a
+                href="{{ $this->nextStepKey ? route('missions.show', [$mission, $this->nextStepKey]) : route('missions.show', [$mission, 'overview', 'day' => $this->activeDayIndex + 1]) }}"
+                wire:navigate
+                class="block w-full cursor-pointer rounded-2xl bg-ink py-3.5 text-center text-base font-bold text-ground transition-opacity hover:opacity-90 dark:bg-ink-dark dark:text-ground-dark"
+            >{{ $this->nextStepKey ? 'Next step' : 'Back to all days' }}</a>
+        @endif
+
         @unless ($this->isPreviewing)
             <div>
                 @livewire('missions.ask-instructor', ['run' => $run, 'stepKey' => $this->activeStepKey], key('ask-instructor-'.$run->id.'-'.$this->activeStepKey))
             </div>
         @endunless
 
-        <div class="flex items-center justify-between text-sm">
-            @if ($this->previousStepKey)
-                <a
-                    href="{{ route('missions.show', [$mission, $this->previousStepKey]) }}"
-                    wire:navigate
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >
-                    @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-                    Previous
-                </a>
-            @else
-                <span></span>
-            @endif
-
-            @if ($this->nextStepKey)
-                <a
-                    href="{{ route('missions.show', [$mission, $this->nextStepKey]) }}"
-                    wire:navigate
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
-                >
-                    Next
-                    @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
-                </a>
-            @elseif ($this->isReviewing || $this->isPreviewing)
-                <a
-                    href="{{ route('missions.show', [$mission, 'overview', 'day' => $this->activeDayIndex + 1]) }}"
-                    wire:navigate
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
-                >
-                    Back to all days
-                    @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
-                </a>
-            @endif
-        </div>
     @endif
 </div>

@@ -141,7 +141,7 @@ class MissionStepPreviewTest extends TestCase
 
         Livewire::test('missions.runner', ['mission' => $run->mission, 'step' => $daySteps[0]])
             ->assertSet('nextStepKey', $daySteps[1])
-            ->assertSet('previousStepKey', null);
+            ->assertSee('Next step');
 
         Livewire::test('missions.runner', ['mission' => $run->mission, 'step' => end($daySteps)])
             ->assertSet('nextStepKey', null)

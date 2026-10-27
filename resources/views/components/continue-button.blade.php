@@ -1,7 +1,8 @@
 @props(['onClick', 'wireTarget', 'loadingLabel' => 'Please wait…', 'readyWhen' => 'true', 'hint' => null])
 
 {{--
-    The Continue that ends a step. An ordinary in-page button that
+    The Continue that ends a step — full width and tall, like the main
+    button of a lesson in a learning app. An ordinary in-page button that
     scrolls with the content (it was pinned to the bottom of the viewport
     for a while — the learner found the strip behind it distracting as it
     tracked the scroll).
@@ -19,7 +20,7 @@
         x-bind:disabled="! ({{ $readyWhen }})"
         wire:loading.attr="disabled"
         wire:target="{{ $wireTarget }}"
-        class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
+        class="w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-line disabled:text-ink-faint disabled:shadow-none dark:bg-accent-dark dark:disabled:bg-line-dark dark:disabled:text-ink-faint-dark"
     >
         <span wire:loading.remove wire:target="{{ $wireTarget }}">Continue</span>
         <span wire:loading wire:target="{{ $wireTarget }}">{{ $loadingLabel }}</span>
