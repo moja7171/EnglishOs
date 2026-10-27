@@ -114,9 +114,8 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('checkpoint', compact('mission'));
     })->name('missions.checkpoint');
 
-    Route::get('/vocabulary', function () {
-        return view('vocabulary');
-    })->name('vocabulary.index');
+    // My Words is the Notebook's Words tab now (A10).
+    Route::get('/vocabulary', fn () => redirect()->route('notebook.index', ['tab' => 'words']))->name('vocabulary.index');
 
     // The tap-a-word sheet (<x-dictionary-sheet>): look a word up, and add
     // it to My Words. Plain JSON so neither re-renders the text being read.
@@ -132,9 +131,8 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         ->middleware('throttle:30,1')
         ->name('vocabulary.store');
 
-    Route::get('/speaking', function () {
-        return view('speaking');
-    })->name('speaking.index');
+    // Speaking Recall's questions come in Daily Review (A9).
+    Route::get('/speaking', fn () => redirect()->route('review.index'))->name('speaking.index');
 
     Route::get('/review', function () {
         return view('review');

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Mission;
 use App\Models\NotebookEntry;
 use App\Models\User;
 use App\Models\VocabularyWord;
@@ -653,5 +654,32 @@ class NotebookTest extends TestCase
             ->call('practiceOne', $entry->id)
             ->assertSet('practiceIds', [$entry->id])
             ->assertSee('1/1');
+    }
+
+    public function test_the_old_my_words_page_opens_the_notebooks_words_tab(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get('/vocabulary')->assertRedirect(route('notebook.index', ['tab' => 'words']));
+        $this->get(route('notebook.index', ['tab' => 'words']))->assertSee("notebookTab: 'words'", false);
+    }
+
+    public function test_a_word_without_its_own_persian_meaning_falls_back_to_the_courses(): void
+    {
+        Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [[
+                'key' => 'vocabulary_builder_1',
+                'words' => [['phrase' => 'Get Up', 'meaning' => 'to get out of bed', 'meaning_fa' => 'از خواب بلند شدن']],
+            ]]]],
+        ]);
+        $learner = User::factory()->create();
+        $learner->vocabularyWords()->create(['word' => 'get up', 'next_review_at' => now()->addWeek()]);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')->assertSee('از خواب بلند شدن');
     }
 }

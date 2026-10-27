@@ -267,7 +267,7 @@ new class extends Component
 @else
 <div
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
-    x-data="{ notebookTab: @js($practiceKind === NotebookEntry::KIND_TIP && $roundDone ? 'tips' : 'mistakes'), sheet: false, learned: false, search: '' }"
+    x-data="{ notebookTab: @js($practiceKind === NotebookEntry::KIND_TIP && $roundDone ? 'tips' : (in_array(request()->query('tab'), ['tips', 'words'], true) ? request()->query('tab') : 'mistakes')), sheet: false, learned: false, search: '' }"
 >
     <h1 class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Notebook</h1>
 

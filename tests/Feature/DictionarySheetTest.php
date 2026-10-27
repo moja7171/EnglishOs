@@ -77,7 +77,7 @@ class DictionarySheetTest extends TestCase
         ]);
         $this->actingAs($learner);
 
-        Livewire::test('vocabulary.index')
+        Livewire::test('notebook.index')
             ->assertSee('to travel to work')
             ->assertSee('رفت‌وآمد');
     }
