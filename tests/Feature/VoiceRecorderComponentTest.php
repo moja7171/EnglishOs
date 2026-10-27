@@ -25,6 +25,17 @@ class VoiceRecorderComponentTest extends TestCase
         $this->assertStringContainsString('Record a voice message', $html);
     }
 
+    public function test_the_big_style_is_a_72px_mic_with_a_soft_ring_not_a_3d_shadow(): void
+    {
+        $html = Blade::render('<x-voice-recorder field="audioFile" big />');
+
+        $this->assertStringContainsString('aria-label="Record"', $html);
+        $this->assertStringContainsString('mic-ring inline-flex h-18 w-18', $html);
+        $this->assertStringContainsString("state === 'recording' ? 'animate-mic-breathe' : 'mic-ring'", $html);
+        $this->assertStringNotContainsString('h-24 w-24', $html);
+        $this->assertStringNotContainsString('shadow-[0_5px_0', $html);
+    }
+
     public function test_both_styles_offer_a_way_to_cancel_a_recording_in_progress(): void
     {
         $default = Blade::render('<x-voice-recorder field="audioFile" />');

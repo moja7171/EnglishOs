@@ -517,7 +517,34 @@ a[aria-busy='true'] {
     animation: tab-pop 0.32s var(--ease-spring);
 }
 
+/* The lesson's big mic (<x-voice-recorder big>): a soft double ring of
+   its own colour instead of a 3D shadow, which breathes while recording. */
+.mic-ring {
+    box-shadow:
+        0 0 0 10px color-mix(in srgb, currentColor 16%, transparent),
+        0 0 0 20px color-mix(in srgb, currentColor 7%, transparent);
+}
+
+@keyframes mic-breathe {
+    0%,
+    100% {
+        box-shadow:
+            0 0 0 8px color-mix(in srgb, currentColor 18%, transparent),
+            0 0 0 16px color-mix(in srgb, currentColor 8%, transparent);
+    }
+    50% {
+        box-shadow:
+            0 0 0 13px color-mix(in srgb, currentColor 14%, transparent),
+            0 0 0 26px color-mix(in srgb, currentColor 5%, transparent);
+    }
+}
+
+.animate-mic-breathe {
+    animation: mic-breathe 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+    .animate-mic-breathe,
     .stagger-children > *,
     .animate-tab-pop,
     .animate-trophy-pop,

@@ -40,10 +40,11 @@
         labeled pill buttons. No level meter, no "Recording saved"
         text — meant for an auto-send flow (see $onRecorded) where the
         message appears in the thread immediately anyway.
-    @param bool $big The one-task lesson screen's recorder: a large round
-        mic in the middle of the screen (and a large stop while recording)
-        instead of the labeled pill buttons. Review and the saved take look
-        the same as always.
+    @param bool $big The one-task lesson screen's recorder: a 72px round
+        mic in the middle of the screen with a soft double ring (and a
+        72px stop whose ring breathes while recording) instead of the
+        labeled pill buttons. Review and the saved take look the same as
+        always.
 --}}
 @props(['field', 'file' => null, 'onRecorded' => null, 'onRecordedParam' => null, 'onUploaded' => null, 'onProcessed' => null, 'fileName' => 'recording.webm', 'compact' => false, 'big' => false])
 
@@ -435,8 +436,8 @@
                     x-on:click="startRecording"
                     :disabled="uploading || processing"
                     aria-label="Record"
-                    class="inline-flex h-24 w-24 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-[0_5px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-transform active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                >@svg('heroicon-s-microphone', 'h-10 w-10')</button>
+                    class="my-5 inline-flex cursor-pointer rounded-full text-accent transition-transform active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:text-accent-dark"
+                ><span class="mic-ring inline-flex h-18 w-18 items-center justify-center rounded-full bg-current">@svg('heroicon-s-microphone', 'h-8 w-8 text-white')</span></button>
                 <span x-show="!uploading && !processing" class="text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Tap to record</span>
             @else
                 <button
@@ -473,8 +474,8 @@
                         type="button"
                         x-on:click="stopRecording"
                         aria-label="Stop"
-                        class="inline-flex h-24 w-24 cursor-pointer items-center justify-center rounded-full bg-red-600 text-white shadow-[0_5px_0_#7f1d1d] transition-transform active:translate-y-1 active:shadow-none"
-                    >@svg('heroicon-s-stop', 'h-9 w-9')</button>
+                        class="my-5 inline-flex cursor-pointer rounded-full text-red-600 transition-transform active:scale-95"
+                    ><span x-bind:class="state === 'recording' ? 'animate-mic-breathe' : 'mic-ring'" class="inline-flex h-18 w-18 items-center justify-center rounded-full bg-current">@svg('heroicon-s-stop', 'h-8 w-8 text-white')</span></button>
                     <button
                         type="button"
                         x-on:click="state === 'recording' ? pauseRecording() : resumeRecording()"
