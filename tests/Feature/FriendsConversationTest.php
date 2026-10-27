@@ -8,6 +8,7 @@ use App\Models\Evidence;
 use App\Models\FriendBlock;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\DirectMessageReceived;
 use App\Services\GeminiClient;
@@ -108,7 +109,7 @@ class FriendsConversationTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.conversation', ['other' => $bob])
-            ->assertSeeHtml('showEmoji = !showEmoji')
+            ->assertSeeHtml('showEmoji = ! showEmoji')
             ->assertSee('😀')
             ->assertSeeHtml("\$wire.body = \$wire.body + '😀'");
     }
@@ -356,8 +357,7 @@ class FriendsConversationTest extends TestCase
             ->assertCount('starterQuestions', 3)
             ->assertSee('What time do you wake up?')
             ->assertSee('How do you get to work?')
-            ->assertSee('Task: interview')
-            ->assertSee('about Bob Smith');
+            ->assertSee('Ask Bob Smith, then write 2 sentences about them');
     }
 
     public function test_the_task_card_falls_back_to_generic_questions_without_a_mission_in_progress(): void
@@ -1228,5 +1228,56 @@ class FriendsConversationTest extends TestCase
         $relation = $unreadOnly ? $user->unreadNotifications() : $user->notifications();
 
         return $relation->where('type', DirectMessageReceived::class);
+    }
+
+    public function test_a_muted_friends_messages_do_not_notify(): void
+    {
+        Notification::fake();
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('toggleMute')
+            ->assertSee('Unmute');
+        $this->assertTrue($me->fresh()->hasMuted($bob));
+
+        $this->actingAs($bob);
+        Livewire::test('friends.conversation', ['other' => $me])
+            ->set('body', 'Hello there')
+            ->call('send');
+
+        Notification::assertNotSentTo($me, DirectMessageReceived::class);
+        $this->assertDatabaseHas('direct_messages', ['sender_id' => $bob->id, 'body' => 'Hello there']);
+    }
+
+    public function test_unfollowing_from_the_chat_menu_closes_the_chat(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->call('unfollow')
+            ->assertRedirect(route('friends.index'));
+
+        $this->assertFalse($me->fresh()->canMessageWith($bob));
+    }
+
+    public function test_the_header_strip_shows_how_often_the_two_practised_together(): void
+    {
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+        PairPracticeSession::factory()->create(['user_a_id' => $me->id, 'user_b_id' => $bob->id, 'started_by_id' => $me->id, 'stage' => PairPracticeSession::STAGE_DONE, 'finished_at' => now()]);
+
+        $this->actingAs($me);
+        Livewire::test('friends.conversation', ['other' => $bob])
+            ->assertSee('1 time together');
     }
 }

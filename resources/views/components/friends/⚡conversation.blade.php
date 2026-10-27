@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\DirectMessageReceived;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\PairPractice;
 use Carbon\CarbonInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -173,6 +174,10 @@ new class extends Component
      */
     private function notifyRecipient(DirectMessage $message): void
     {
+        if ($this->other->hasMuted(auth()->user())) {
+            return;
+        }
+
         $kind = $message->type === DirectMessage::TYPE_NUDGE ? DirectMessage::TYPE_NUDGE : DirectMessage::TYPE_MESSAGE;
 
         $existing = $this->other->unreadNotifications()
@@ -335,6 +340,57 @@ new class extends Component
         } catch (Throwable) {
             return $fallback;
         }
+    }
+
+    /**
+     * ⋯ › Mute / Unmute: their messages, nudges and activity alerts stop
+     * (or start again) notifying; the chat itself stays.
+     */
+    public function toggleMute(): void
+    {
+        auth()->user()->setMuted($this->other, ! $this->muted);
+
+        unset($this->muted);
+    }
+
+    #[Computed]
+    public function muted(): bool
+    {
+        return auth()->user()->hasMuted($this->other);
+    }
+
+    /**
+     * ⋯ › Unfollow: the chat closes until one of you follows again.
+     */
+    public function unfollow(): void
+    {
+        auth()->user()->unfollow($this->other);
+
+        $this->redirect(route('friends.index'), navigate: true);
+    }
+
+    /**
+     * The green strip under the header: how often the two practised
+     * together and where the friend is right now (mission · day · step) —
+     * kept for a few minutes, so the 5s poll doesn't redo it.
+     *
+     * @return array{times: int, daysInRow: int, daysSince: ?int, where: ?string}
+     */
+    #[Computed(persist: true, seconds: 300)]
+    public function pairStrip(): array
+    {
+        $run = $this->other->currentInProgressMissionRun();
+        $where = null;
+
+        if ($run) {
+            $step = $run->currentStepKey();
+            $day = collect($run->dayProgress())->search(fn (array $missionDay) => $missionDay['current']);
+            $where = $this->other->name.' is on '.$run->mission->code
+                .($day !== false ? ' · Day '.($day + 1) : '')
+                .($step ? ' · '.$run->mission->stepLabel($step) : '');
+        }
+
+        return app(PairPractice::class)->together(auth()->user(), $this->other) + ['where' => $where];
     }
 
     public function block(): void
@@ -568,8 +624,8 @@ new class extends Component
      the bottom — so with the phone keyboard open the input is never pushed
      below the fold. Report, feedback and the locked state all live inside
      this one frame instead of stacking below a fixed-height box. --}}
-<div class="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6" x-data="{ showEmoji: false, showIdeas: false }">
-    <div class="flex shrink-0 items-center gap-2 card p-2 pr-2.5">
+<div class="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6" x-data="{ showEmoji: false, showIdeas: false, showPlus: false }">
+    <div class="flex shrink-0 items-center gap-2 card p-2 pr-1.5">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
             @svg('heroicon-o-chevron-left', 'h-5 w-5')
         </a>
@@ -577,15 +633,26 @@ new class extends Component
         <div class="min-w-0 flex-1">
             <h1 class="truncate font-display text-base font-extrabold text-ink dark:text-ink-dark">{{ $other->name }}</h1>
             @if ($otherStreak)
-                <p class="inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                    @svg('heroicon-s-fire', 'h-3 w-3 text-accent-ink dark:text-accent-ink-dark')
-                    {{ $otherStreak }}-day streak
-                </p>
+                <p class="text-xs font-bold text-success dark:text-success-dark">🔥 {{ $otherStreak }}-day streak</p>
             @endif
         </div>
 
-        {{-- Same "⋯" pattern as the Friends cards: Report and Block live behind
-             one menu instead of two bare icons a thumb-width apart. --}}
+        @if ($this->canMessage)
+            <button
+                type="button"
+                wire:click="generateFeedback"
+                wire:loading.attr="disabled"
+                wire:target="generateFeedback"
+                title="Check my English"
+                aria-label="Check my English"
+                class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-accent-ink transition-colors hover:bg-accent-soft disabled:pointer-events-none disabled:opacity-50 dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark"
+            >
+                <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-s-sparkles', 'h-5 w-5')</span>
+                <span wire:loading wire:target="generateFeedback">@svg('heroicon-s-sparkles', 'h-5 w-5 animate-pulse')</span>
+            </button>
+        @endif
+
+        {{-- Everything about this friendship behind one ⋯. --}}
         <div class="relative" x-data="{ menu: false }" x-on:click.outside="menu = false" x-on:keydown.escape.window="menu = false">
             <button
                 type="button"
@@ -595,16 +662,14 @@ new class extends Component
                 class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
             >@svg('heroicon-o-ellipsis-horizontal', 'h-5 w-5')</button>
 
-            <div x-show="menu" x-cloak x-transition.origin.top.right.scale.95.opacity.duration.150ms role="menu" class="absolute right-0 z-30 mt-1 w-52 overflow-hidden rounded-xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark">
-                <button
-                    type="button"
-                    wire:click="startReport"
-                    x-on:click="menu = false"
-                    role="menuitem"
-                    class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >
-                    @svg('heroicon-o-flag', 'h-4 w-4')
-                    Report
+            <div x-show="menu" x-cloak x-transition.origin.top.right.scale.95.opacity.duration.150ms role="menu" class="absolute right-0 z-30 mt-1 w-52 overflow-hidden rounded-2xl border border-line bg-surface py-1 text-left shadow-lg dark:border-line-dark dark:bg-surface-dark">
+                <button type="button" wire:click="toggleMute" x-on:click="menu = false" role="menuitem" class="flex min-h-11 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+                    @svg($this->muted ? 'heroicon-o-bell' : 'heroicon-o-bell-slash', 'h-4 w-4')
+                    {{ $this->muted ? 'Unmute' : 'Mute' }}
+                </button>
+                <button type="button" wire:click="unfollow" wire:confirm="Unfollow {{ $other->name }}? You won't be able to message each other until you follow again." role="menuitem" class="flex min-h-11 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
+                    @svg('heroicon-o-user-minus', 'h-4 w-4')
+                    Unfollow
                 </button>
                 <button
                     type="button"
@@ -613,14 +678,32 @@ new class extends Component
                     wire:target="block"
                     wire:confirm="Block {{ $other->name }}? They won't be able to message you."
                     role="menuitem"
-                    class="flex min-h-10 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:opacity-50"
+                    class="flex min-h-11 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:pointer-events-none disabled:opacity-50"
                 >
                     @svg('heroicon-o-no-symbol', 'h-4 w-4')
                     Block
                 </button>
+                <button type="button" wire:click="startReport" x-on:click="menu = false" role="menuitem" class="flex min-h-11 w-full cursor-pointer items-center gap-3 px-4 py-2 text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft">
+                    @svg('heroicon-o-flag', 'h-4 w-4')
+                    Report
+                </button>
             </div>
         </div>
     </div>
+
+    @if ($this->canMessage)
+        {{-- How the two practise together, and where the friend is now. --}}
+        @php $strip = $this->pairStrip; @endphp
+        <div class="flex shrink-0 items-center gap-3 rounded-2xl bg-success-soft px-3 py-2 dark:bg-success-soft-dark">
+            <p class="min-w-0 flex-1 text-xs font-extrabold text-success dark:text-success-dark">
+                👫 {{ $strip['times'] > 0 ? $strip['times'].' '.Str::plural('time', $strip['times']).' together'.($strip['daysInRow'] > 1 ? ' · '.$strip['daysInRow'].' days in a row' : '') : 'Practice together' }}
+                @if ($strip['where'])
+                    <span class="block truncate font-bold text-ink-soft dark:text-ink-soft-dark">{{ $strip['where'] }}</span>
+                @endif
+            </p>
+            <a href="{{ route('pair-practice.index') }}" wire:navigate class="shrink-0 rounded-full bg-success px-3 py-1.5 text-xs font-extrabold text-white dark:bg-success-dark">Practice</a>
+        </div>
+    @endif
 
     @if ($reporting)
         <div class="shrink-0">
@@ -752,98 +835,23 @@ new class extends Component
                 You can't message {{ $other->name }} right now.
             </div>
         @else
-            {{-- Task card — a goal to chat about instead of a blank box. Tapping a
-                 question just drops it into the composer; nothing is sent. --}}
-            <div x-show="showIdeas" x-cloak x-transition.opacity.duration.150ms class="max-h-56 shrink-0 space-y-2 overflow-y-auto border-t border-line bg-accent-soft/40 px-3 py-3 dark:border-line-dark dark:bg-accent-soft-dark/40">
-                <div class="flex items-start justify-between gap-2">
-                    <div>
-                        <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Task: interview &amp; report</p>
-                        @if ($starterTitle)
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">From your mission “{{ $starterTitle }}”</p>
-                        @endif
-                    </div>
-                    <button type="button" x-on:click="showIdeas = false" aria-label="Close task" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-dark">@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
-                </div>
-                <p class="text-sm text-ink dark:text-ink-dark">1. Ask {{ $other->name }} two or three of these — tap one to put it in your message.</p>
-                <div class="flex flex-wrap gap-1.5">
+            {{-- Ideas: questions from the learner's mission to ask, then two
+                 sentences about the friend. A tap puts one in the box. --}}
+            <x-bottom-sheet show="showIdeas" label="Ideas">
+                <x-slot:title>Ask {{ $other->name }}, then write 2 sentences about them</x-slot:title>
+                <div class="flex flex-col gap-2">
                     @foreach ($starterQuestions as $question)
                         <button
                             type="button"
                             x-on:click="$wire.body = $wire.body ? $wire.body + ' ' + @js($question) : @js($question); showIdeas = false"
-                            class="cursor-pointer rounded-full border border-line bg-surface px-3 py-2 text-left text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                            class="cursor-pointer rounded-xl bg-surface-sunken px-3 py-2.5 text-left text-sm font-semibold text-ink transition-colors hover:bg-accent-soft dark:bg-surface-sunken-dark dark:text-ink-dark dark:hover:bg-accent-soft-dark"
                         >{{ $question }}</button>
                     @endforeach
                 </div>
-                <p class="text-sm text-ink dark:text-ink-dark">2. Then write two sentences <em>about {{ $other->name }}</em> — e.g. “{{ $other->name }} gets up at …”. Watch the <strong>-s</strong> on the verb!</p>
                 @if ($starterWords)
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Try using: {{ implode(' · ', $starterWords) }}</p>
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Try: {{ implode(' · ', $starterWords) }}</p>
                 @endif
-            </div>
-
-            {{-- Toolbar — the two actions that matter carry a visible label;
-                 attach stays an icon (it has an accessible name). Touch
-                 targets are 40px. --}}
-            <div class="flex shrink-0 flex-wrap items-center gap-1 border-t border-line bg-surface px-2 py-1.5 dark:border-line-dark dark:bg-surface-dark">
-                <button
-                    type="button"
-                    wire:click="draftNudge"
-                    wire:loading.attr="disabled"
-                    wire:target="draftNudge"
-                    x-bind:disabled="$wire.body.trim() !== ''"
-                    title="Write an encouragement nudge for you to review and send"
-                    class="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-accent-ink transition-colors hover:bg-accent-soft dark:text-accent-ink-dark dark:hover:bg-accent-soft-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    @svg('heroicon-s-fire', 'h-4 w-4')
-                    Nudge
-                </button>
-                @if ($draftIsNudge)
-                    <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Edit it if you like, then send</span>
-                @endif
-
-                <button
-                    type="button"
-                    x-on:click="showIdeas = ! showIdeas"
-                    x-bind:aria-expanded="showIdeas"
-                    class="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-                >
-                    @svg('heroicon-o-light-bulb', 'h-4 w-4')
-                    Ideas
-                </button>
-
-                <label title="Attach a file" class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors focus-within:ring-2 focus-within:ring-accent hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
-                    @svg('heroicon-o-paper-clip', 'h-4 w-4')
-                    <span class="sr-only">Attach a file</span>
-                    <input type="file" wire:model="attachment" class="sr-only">
-                </label>
-                <span wire:loading wire:target="attachment" class="text-xs text-ink-faint dark:text-ink-faint-dark">Uploading…</span>
-
-                @if ($attachment)
-                    <span class="max-w-32 truncate text-xs text-ink-faint dark:text-ink-faint-dark">{{ $attachment->getClientOriginalName() }}</span>
-                    <button
-                        type="button"
-                        wire:click="sendFile"
-                        wire:loading.attr="disabled"
-                        class="cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                    >Send file</button>
-                @endif
-
-                @error('attachment')
-                    <span class="text-xs text-danger-ink">{{ $message }}</span>
-                @enderror
-
-                <button
-                    type="button"
-                    wire:click="generateFeedback"
-                    wire:loading.attr="disabled"
-                    wire:target="generateFeedback"
-                    title="Check my English"
-                    aria-label="Check my English"
-                    class="ms-auto inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
-                >
-                    <span wire:loading.remove wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
-                    <span wire:loading wire:target="generateFeedback">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-                </button>
-            </div>
+            </x-bottom-sheet>
 
             {{-- A recording waits here until the learner has listened to it and
                  chosen to send it (or record again) — nothing is sent while
@@ -875,32 +883,56 @@ new class extends Component
                 </div>
             @endif
 
-            {{-- Composer — emoji picker, growing text box and the voice recorder
-                 in one bar. The box grows to ~5 lines; Enter sends on a
-                 keyboard, but on a touch screen Enter is a new line and the
-                 send button sends. --}}
+            @if ($attachment || $errors->has('attachment'))
+                <div class="flex shrink-0 items-center gap-2 border-t border-line bg-surface-sunken px-3 py-2 text-xs dark:border-line-dark dark:bg-surface-sunken-dark">
+                    @if ($attachment)
+                        @svg('heroicon-o-paper-clip', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                        <span class="min-w-0 flex-1 truncate text-ink-soft dark:text-ink-soft-dark">{{ $attachment->getClientOriginalName() }}</span>
+                        <button type="button" wire:click="sendFile" wire:loading.attr="disabled" class="cursor-pointer rounded-full bg-accent px-3 py-1.5 font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">Send file</button>
+                    @endif
+                    @error('attachment')
+                        <span class="text-danger-ink">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
+
+            {{-- One row like a messenger: ＋ (Nudge, Ideas, File), the box
+                 with 😊 inside, and the mic — which turns into send once
+                 something is typed. Enter sends on a keyboard; on a touch
+                 screen Enter is a new line. --}}
             <div class="relative flex shrink-0 items-end gap-1.5 border-t border-line bg-surface p-1.5 dark:border-line-dark dark:bg-surface-dark">
                 <button
                     type="button"
-                    x-on:click="showEmoji = !showEmoji"
-                    aria-label="Emoji"
-                    class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-                >@svg('heroicon-o-face-smile', 'h-5 w-5')</button>
-
-                <div
-                    x-show="showEmoji"
-                    x-cloak
-                    x-on:click.outside="showEmoji = false"
-                    x-transition.opacity.duration.150ms
-                    class="absolute bottom-full left-0 z-10 mb-2 grid w-64 grid-cols-8 gap-0.5 card p-2 shadow-lg"
+                    x-on:click="showPlus = ! showPlus"
+                    x-bind:aria-expanded="showPlus"
+                    aria-label="More"
+                    class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors"
+                    x-bind:class="showPlus ? 'bg-accent text-white dark:bg-accent-dark' : 'bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark'"
                 >
-                    @foreach ($this->emojis() as $emoji)
-                        <button
-                            type="button"
-                            x-on:click="$wire.body = $wire.body + '{{ $emoji }}'"
-                            class="cursor-pointer rounded-lg py-1 text-lg transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
-                        >{{ $emoji }}</button>
-                    @endforeach
+                    <span x-show="! showPlus">@svg('heroicon-o-plus', 'h-5 w-5')</span>
+                    <span x-show="showPlus" x-cloak>@svg('heroicon-o-x-mark', 'h-5 w-5')</span>
+                </button>
+
+                <div x-show="showPlus" x-cloak x-on:click.outside="showPlus = false" x-transition.opacity.duration.150ms class="absolute bottom-full left-1.5 z-20 mb-2 flex w-60 flex-col rounded-2xl border border-line bg-surface p-1.5 shadow-xl dark:border-line-dark dark:bg-surface-dark">
+                    <button
+                        type="button"
+                        wire:click="draftNudge"
+                        x-on:click="showPlus = false"
+                        x-bind:disabled="$wire.body.trim() !== ''"
+                        class="flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left hover:bg-surface-sunken disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-surface-sunken-dark"
+                    >
+                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-base dark:bg-accent-soft-dark" aria-hidden="true">🔥</span>
+                        <span class="text-sm font-extrabold text-ink dark:text-ink-dark">Nudge<span class="block text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">A short push to practice</span></span>
+                    </button>
+                    <button type="button" x-on:click="showPlus = false; showIdeas = true" class="flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
+                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-base dark:bg-accent-soft-dark" aria-hidden="true">💡</span>
+                        <span class="text-sm font-extrabold text-ink dark:text-ink-dark">Ideas<span class="block text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Questions from your mission</span></span>
+                    </button>
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
+                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-base dark:bg-accent-soft-dark" aria-hidden="true">📎</span>
+                        <span class="text-sm font-extrabold text-ink dark:text-ink-dark">File</span>
+                        <input type="file" wire:model="attachment" x-on:change="showPlus = false" class="sr-only">
+                    </label>
                 </div>
 
                 <form
@@ -915,19 +947,45 @@ new class extends Component
                     }"
                     x-init="$watch('$wire.body', () => $nextTick(() => resize())); $nextTick(() => resize())"
                 >
-                    <textarea
-                        x-ref="box"
-                        rows="1"
-                        wire:model="body"
-                        aria-label="Message {{ $other->name }}"
-                        placeholder="Message {{ $other->name }}…"
-                        x-on:focus="showEmoji = false"
-                        x-on:input="resize()"
-                        x-on:keydown.enter="if (! $event.shiftKey && ! window.matchMedia('(pointer: coarse)').matches) { $event.preventDefault(); $el.form.requestSubmit() }"
-                        class="max-h-32 min-w-0 flex-1 resize-none rounded-2xl border-0 bg-transparent px-2 py-2.5 text-sm leading-5 text-ink focus:outline-none dark:text-ink-dark"
-                    ></textarea>
+                    <div class="relative flex min-w-0 flex-1 items-end rounded-3xl bg-surface-sunken pr-1 dark:bg-surface-sunken-dark">
+                        <textarea
+                            x-ref="box"
+                            rows="1"
+                            wire:model="body"
+                            aria-label="Message {{ $other->name }}"
+                            placeholder="Message"
+                            x-on:focus="showEmoji = false; showPlus = false"
+                            x-on:input="resize()"
+                            x-on:keydown.enter="if (! $event.shiftKey && ! window.matchMedia('(pointer: coarse)').matches) { $event.preventDefault(); $el.form.requestSubmit() }"
+                            class="max-h-32 min-w-0 flex-1 resize-none border-0 bg-transparent px-3.5 py-2.5 text-sm leading-5 text-ink focus:ring-0 focus:outline-none dark:text-ink-dark"
+                        ></textarea>
+                        <button
+                            type="button"
+                            x-on:click="showEmoji = ! showEmoji"
+                            aria-label="Emoji"
+                            class="inline-flex h-10 w-9 shrink-0 cursor-pointer items-center justify-center text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark"
+                        >@svg('heroicon-o-face-smile', 'h-5 w-5')</button>
+
+                        <div
+                            x-show="showEmoji"
+                            x-cloak
+                            x-on:click.outside="showEmoji = false"
+                            x-transition.opacity.duration.150ms
+                            class="absolute right-0 bottom-full z-10 mb-2 grid w-64 grid-cols-8 gap-0.5 card p-2 shadow-lg"
+                        >
+                            @foreach ($this->emojis() as $emoji)
+                                <button
+                                    type="button"
+                                    x-on:click="$wire.body = $wire.body + '{{ $emoji }}'"
+                                    class="cursor-pointer rounded-lg py-1 text-lg transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark"
+                                >{{ $emoji }}</button>
+                            @endforeach
+                        </div>
+                    </div>
                     <button
                         type="submit"
+                        x-show="$wire.body.trim() !== ''"
+                        x-cloak
                         wire:loading.attr="disabled"
                         wire:target="send"
                         aria-label="Send"
@@ -936,7 +994,7 @@ new class extends Component
                     >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
                 </form>
 
-                <div wire:key="voice-recorder-{{ $other->id }}" class="shrink-0">
+                <div wire:key="voice-recorder-{{ $other->id }}" x-show="$wire.body.trim() === ''" class="shrink-0">
                     <x-voice-recorder field="voiceMessage" file-name="voice-message.webm" :compact="true" />
                 </div>
             </div>

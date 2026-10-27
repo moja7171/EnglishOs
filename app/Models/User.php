@@ -1454,6 +1454,30 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    /**
+     * Whether this learner muted $friend in their chat (⋯ › Mute): that
+     * friend's messages, nudges and activity alerts don't notify.
+     */
+    public function hasMuted(User $friend): bool
+    {
+        return Follow::query()
+            ->where('follower_id', $this->id)
+            ->where('followed_id', $friend->id)
+            ->whereNotNull('muted_at')
+            ->exists();
+    }
+
+    /**
+     * Mutes or unmutes $friend (see hasMuted()).
+     */
+    public function setMuted(User $friend, bool $muted): void
+    {
+        Follow::query()
+            ->where('follower_id', $this->id)
+            ->where('followed_id', $friend->id)
+            ->update(['muted_at' => $muted ? now() : null]);
+    }
+
     public function isFollowing(User $user): bool
     {
         return $this->following()->whereKey($user->id)->exists();
