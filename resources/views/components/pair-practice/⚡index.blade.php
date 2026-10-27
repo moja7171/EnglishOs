@@ -3,7 +3,6 @@
 use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\PairPracticeInvite;
-use App\Notifications\PairPracticeNudge;
 use App\Services\PairPractice;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
@@ -56,7 +55,7 @@ new class extends Component
                     ])
                     ->values()
                     ->all(),
-                'nudged' => Cache::has($this->nudgeKey($friend)),
+                'nudged' => Cache::has(PairPractice::nudgeKey($me, $friend)),
                 'open' => PairPracticeSession::forPair($me, $friend)->open()->latest()->first(),
             ];
         })->values()->all();
@@ -71,9 +70,7 @@ new class extends Component
 
         abort_unless(auth()->user()->canMessageWith($friend), 403);
 
-        if (Cache::add($this->nudgeKey($friend), true, now()->endOfDay())) {
-            $friend->notify(new PairPracticeNudge(auth()->user()));
-        }
+        app(PairPractice::class)->nudge(auth()->user(), $friend);
 
         unset($this->pairs);
     }
@@ -102,11 +99,6 @@ new class extends Component
         if ($session) {
             $this->redirectRoute('pair-practice.show', $session, navigate: true);
         }
-    }
-
-    private function nudgeKey(User $friend): string
-    {
-        return 'pair-nudge:'.auth()->id().':'.$friend->id.':'.now()->toDateString();
     }
 };
 ?>

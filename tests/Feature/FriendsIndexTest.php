@@ -9,7 +9,9 @@ use App\Models\FriendBlock;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Notifications\PairPracticeNudge;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -76,7 +78,7 @@ class FriendsIndexTest extends TestCase
         $this->actingAs($me);
 
         $component = Livewire::test('friends.index')
-            ->assertSee('Follow requests (2)')
+            ->assertSee('wants to be friends')
             ->call('acceptRequest', $bob->id)
             ->call('rejectRequest', $carol->id);
 
@@ -85,22 +87,7 @@ class FriendsIndexTest extends TestCase
         $this->assertFalse($carol->fresh()->hasPendingRequestTo($me));
         $this->assertFalse($me->fresh()->isFollowing($carol));
 
-        $component->assertDontSee('Follow requests');
-    }
-
-    public function test_blocking_someone_removes_them_from_the_following_list(): void
-    {
-        $me = User::factory()->create();
-        $bob = User::factory()->create(['name' => 'Bob']);
-        $me->follow($bob);
-
-        $this->actingAs($me);
-
-        Livewire::test('friends.index')
-            ->call('block', $bob->id)
-            ->assertDontSee('Bob');
-
-        $this->assertDatabaseHas('friend_blocks', ['blocker_id' => $me->id, 'blocked_id' => $bob->id]);
+        $component->assertDontSee('wants to be friends');
     }
 
     public function test_a_blocked_user_never_appears_in_search_either_direction(): void
@@ -117,92 +104,11 @@ class FriendsIndexTest extends TestCase
             ->assertDontSee('Bob Blocked');
     }
 
-    public function test_submitting_a_report_stores_category_details_and_the_last_message(): void
+    public function test_friends_who_practiced_today_get_a_ring_and_the_rest_a_nudge(): void
     {
         $me = User::factory()->create();
-        $bob = User::factory()->create(['name' => 'Bob']);
-        $me->follow($bob);
-        $bob->acceptFollowRequest($me);
-        DirectMessage::create(['sender_id' => $bob->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'an unkind message']);
-
-        $this->actingAs($me);
-
-        Livewire::test('friends.index')
-            ->call('startReport', $bob->id)
-            ->set('reportCategory.'.$bob->id, 'rude')
-            ->set('reportReason.'.$bob->id, 'Being rude in messages')
-            ->call('submitReport', $bob->id)
-            ->assertSee('Report sent')
-            ->assertSee('Also block Bob');
-
-        $this->assertDatabaseHas('friend_reports', [
-            'reporter_id' => $me->id,
-            'reported_id' => $bob->id,
-            'category' => 'rude',
-            'reason' => 'Being rude in messages',
-            'message_snapshot' => 'an unkind message',
-        ]);
-    }
-
-    public function test_report_is_a_no_op_without_a_category(): void
-    {
-        $me = User::factory()->create();
-        $bob = User::factory()->create();
-        $me->follow($bob);
-
-        $this->actingAs($me);
-
-        Livewire::test('friends.index')
-            ->call('startReport', $bob->id)
-            ->set('reportReason.'.$bob->id, 'only details')
-            ->call('submitReport', $bob->id);
-
-        $this->assertDatabaseCount('friend_reports', 0);
-    }
-
-    public function test_a_report_without_details_falls_back_to_the_category_label(): void
-    {
-        $me = User::factory()->create();
-        $bob = User::factory()->create();
-        $me->follow($bob);
-
-        $this->actingAs($me);
-
-        Livewire::test('friends.index')
-            ->call('startReport', $bob->id)
-            ->set('reportCategory.'.$bob->id, 'spam')
-            ->call('submitReport', $bob->id);
-
-        $this->assertDatabaseHas('friend_reports', ['reported_id' => $bob->id, 'category' => 'spam', 'reason' => 'Spam', 'message_snapshot' => null]);
-    }
-
-    public function test_the_report_form_offers_the_preset_reasons_and_the_confirmation_can_be_dismissed(): void
-    {
-        $me = User::factory()->create();
-        $bob = User::factory()->create();
-        $me->follow($bob);
-        $bob->acceptFollowRequest($me);
-
-        $this->actingAs($me);
-
-        Livewire::test('friends.index')
-            ->call('startReport', $bob->id)
-            ->assertSee('Rude or hurtful')
-            ->assertSee('Spam')
-            ->assertSee('Inappropriate')
-            ->assertSee('Something else')
-            ->set('reportCategory.'.$bob->id, 'other')
-            ->call('submitReport', $bob->id)
-            ->assertSee('Report sent')
-            ->call('dismissReportSent', $bob->id)
-            ->assertDontSee('Report sent');
-    }
-
-    public function test_the_active_today_banner_only_counts_real_mutual_friends(): void
-    {
-        $me = User::factory()->create();
-        $mutualActive = User::factory()->create();
-        $mutualInactive = User::factory()->create();
+        $mutualActive = User::factory()->create(['name' => 'Ann Active']);
+        $mutualInactive = User::factory()->create(['name' => 'Ivy Idle']);
         $oneWay = User::factory()->create();
 
         $me->follow($mutualActive);
@@ -232,10 +138,13 @@ class FriendsIndexTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.index')
-            ->assertSee('1 friend already practiced today');
+            ->assertSeeInOrder(['practiced today', $mutualActive->name, $mutualInactive->name])
+            ->assertSee('Not today')
+            ->assertSee('🔥 Nudge');
+        $this->assertSame(1, substr_count(Livewire::test('friends.index')->html(), 'practiced today</span>'));
     }
 
-    public function test_no_active_today_banner_when_no_mutual_friend_has_practiced(): void
+    public function test_no_ring_when_no_mutual_friend_has_practiced(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
@@ -245,22 +154,7 @@ class FriendsIndexTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.index')
-            ->assertDontSee('already practiced today');
-    }
-
-    public function test_unfollow_sits_behind_the_more_menu_with_a_confirmation_step(): void
-    {
-        $me = User::factory()->create();
-        $bob = User::factory()->create(['name' => 'Bob Smith']);
-        $me->follow($bob);
-        $bob->acceptFollowRequest($me);
-
-        $this->actingAs($me);
-
-        Livewire::test('friends.index')
-            ->assertSeeHtml('aria-label="More options for Bob Smith"')
-            ->assertSee('Unfollow Bob Smith?')
-            ->assertSee('be able to message each other until you follow again.');
+            ->assertDontSee('practiced today</span>', false);
     }
 
     public function test_friends_are_ordered_by_latest_message_with_preview_and_unread_count(): void
@@ -284,7 +178,7 @@ class FriendsIndexTest extends TestCase
         Livewire::test('friends.index')
             ->assertSeeInOrder(['Carol Recent', 'Bob Talker', 'Alice Quiet'])
             ->assertSee('second unread')
-            ->assertSee('No messages yet')
+            ->assertSee('Say hello')
             ->assertSeeHtml('title="2 unread"');
     }
 
@@ -299,8 +193,8 @@ class FriendsIndexTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.index')
-            ->assertSee('Waiting to follow you back (1)')
-            ->assertDontSee('Friends (')
+            ->assertSee('followed back yet')
+            ->assertSee('Waiting')
             ->assertDontSeeHtml(route('friends.conversation', $bob));
     }
 
@@ -320,7 +214,7 @@ class FriendsIndexTest extends TestCase
         $this->assertTrue($me->fresh()->canMessageWith($bob));
     }
 
-    public function test_unfollowing_from_the_menu_removes_the_friend(): void
+    public function test_unfollowing_removes_the_friend(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
@@ -333,5 +227,40 @@ class FriendsIndexTest extends TestCase
 
         $this->assertFalse($me->fresh()->isFollowing($bob));
         $this->assertFalse($me->fresh()->canMessageWith($bob));
+    }
+
+    public function test_a_friend_can_be_nudged_once_a_day(): void
+    {
+        Notification::fake();
+        $me = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->follow($bob);
+        $bob->acceptFollowRequest($me);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->call('nudge', $bob->id)
+            ->call('nudge', $bob->id)
+            ->assertSee('✓ Nudged');
+
+        Notification::assertSentToTimes($bob, PairPracticeNudge::class, 1);
+    }
+
+    public function test_add_friends_offers_follow_back_to_people_who_follow_you(): void
+    {
+        $me = User::factory()->create();
+        $kian = User::factory()->create(['name' => 'Kian Follower']);
+        $kian->follow($me);
+        $me->acceptFollowRequest($kian);
+        $me->unfollow($kian);
+
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSee('They follow you')
+            ->assertSee('Follow back')
+            ->call('follow', $kian->id)
+            ->assertDontSee('Follow back');
     }
 }

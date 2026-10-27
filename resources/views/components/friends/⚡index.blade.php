@@ -1,9 +1,10 @@
 <?php
 
 use App\Models\DirectMessage;
-use App\Models\FriendReport;
 use App\Models\User;
+use App\Services\PairPractice;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -11,30 +12,12 @@ new class extends Component
 {
     public string $search = '';
 
-    #[Computed]
-    public function friendsActiveTodayCount(): int
-    {
-        return auth()->user()->mutualFriendsActiveTodayCount();
-    }
-
-    /** @var array<int, string> keyed by user id — shows the report textarea for that row */
-    public array $reporting = [];
-
-    /** @var array<int, string> keyed by user id — the optional details typed for that row */
-    public array $reportReason = [];
-
-    /** @var array<int, string> keyed by user id — the chosen FriendReport::CATEGORIES key */
-    public array $reportCategory = [];
-
-    /** @var array<int, bool> keyed by user id — a report was just sent for that row */
-    public array $reportSent = [];
-
     public function follow(int $userId): void
     {
         $target = User::findOrFail($userId);
 
         auth()->user()->follow($target);
-        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->searchResults);
+        unset($this->following, $this->friends, $this->oneWayFollowing, $this->rows, $this->searchResults, $this->followBack);
     }
 
     public function unfollow(int $userId): void
@@ -42,7 +25,7 @@ new class extends Component
         $target = User::findOrFail($userId);
 
         auth()->user()->unfollow($target);
-        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->searchResults);
+        unset($this->following, $this->friends, $this->oneWayFollowing, $this->rows, $this->searchResults, $this->followBack);
     }
 
     public function acceptRequest(int $userId): void
@@ -50,7 +33,7 @@ new class extends Component
         $requester = User::findOrFail($userId);
 
         auth()->user()->acceptFollowRequest($requester);
-        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->followers, $this->pendingRequests, $this->searchResults);
+        unset($this->following, $this->friends, $this->oneWayFollowing, $this->rows, $this->followers, $this->pendingRequests, $this->searchResults, $this->followBack);
     }
 
     public function rejectRequest(int $userId): void
@@ -61,79 +44,24 @@ new class extends Component
         unset($this->pendingRequests, $this->searchResults);
     }
 
-    public function block(int $userId): void
-    {
-        $target = User::findOrFail($userId);
-
-        auth()->user()->block($target);
-
-        unset($this->following, $this->friends, $this->oneWayFollowing, $this->summaries, $this->followers, $this->pendingRequests, $this->searchResults);
-    }
-
-    public function startReport(int $userId): void
-    {
-        unset($this->reportSent[$userId]);
-        $this->reporting[$userId] = true;
-    }
-
-    public function cancelReport(int $userId): void
-    {
-        unset($this->reporting[$userId], $this->reportReason[$userId], $this->reportCategory[$userId]);
-    }
-
-    public function dismissReportSent(int $userId): void
-    {
-        unset($this->reportSent[$userId]);
-    }
-
     /**
-     * A category is required (it is what makes the report actionable); the
-     * details are optional. The reported person's latest real message is kept
-     * as the snapshot.
+     * The 🔥 Nudge on a friend who hasn't practised today (one a day, see
+     * PairPractice::nudge()).
      */
-    public function submitReport(int $userId): void
+    public function nudge(int $friendId): void
     {
-        $category = $this->reportCategory[$userId] ?? '';
+        $friend = User::findOrFail($friendId);
 
-        if (! array_key_exists($category, FriendReport::CATEGORIES)) {
-            return;
-        }
+        abort_unless(auth()->user()->canMessageWith($friend), 403);
 
-        $details = trim($this->reportReason[$userId] ?? '');
+        app(PairPractice::class)->nudge(auth()->user(), $friend);
 
-        FriendReport::create([
-            'reporter_id' => auth()->id(),
-            'reported_id' => $userId,
-            'category' => $category,
-            'reason' => $details !== '' ? mb_substr($details, 0, 1000) : FriendReport::CATEGORIES[$category],
-            'message_snapshot' => auth()->user()->lastMessageFrom(User::findOrFail($userId)),
-        ]);
-
-        unset($this->reporting[$userId], $this->reportReason[$userId], $this->reportCategory[$userId]);
-        $this->reportSent[$userId] = true;
-    }
-
-    /**
-     * High-level stats only — streak and missions completed, never the
-     * raw Evidence content (recordings, written text, error log) a
-     * follower has no business seeing. See User::currentStreak() and
-     * EOS-009 §8's "دوستان" catalog entry once this is documented.
-     *
-     * @return array{streak: int, missionsCompleted: int}
-     */
-    public function stats(User $user): array
-    {
-        return [
-            'streak' => $user->currentStreak(),
-            'missionsCompleted' => $user->missionsCompletedCount(),
-        ];
+        unset($this->rows);
     }
 
     /**
      * Every user with a block relationship with the current user, either
-     * direction — kept out of Following/Followers/search alike, so a
-     * block quietly removes both sides from each other's view everywhere
-     * in this component, not just from starting a new conversation.
+     * direction — kept out of every list and the search alike.
      *
      * @return Collection<int, int>
      */
@@ -188,8 +116,35 @@ new class extends Component
     }
 
     /**
+     * One chat row per friend: the last message, unread count, streak,
+     * whether they practised today and where they are (mission · step) —
+     * counts and positions only, never what they answered.
+     *
+     * @return list<array{friend: User, summary: ?array, unread: int, streak: int, active: bool, where: ?string, nudged: bool}>
+     */
+    #[Computed]
+    public function rows(): array
+    {
+        return $this->friends->map(function (User $friend) {
+            $summary = $this->summaries[$friend->id] ?? null;
+            $run = $friend->currentInProgressMissionRun();
+            $step = $run?->currentStepKey();
+
+            return [
+                'friend' => $friend,
+                'summary' => $summary,
+                'unread' => $summary['unread'] ?? 0,
+                'streak' => $friend->currentStreak(),
+                'active' => $friend->wasActiveToday(),
+                'where' => $run ? $run->mission->code.($step ? ' · '.$run->mission->stepLabel($step) : '') : null,
+                'nudged' => Cache::has(PairPractice::nudgeKey(auth()->user(), $friend)),
+            ];
+        })->all();
+    }
+
+    /**
      * People you follow who haven't followed back — no chat yet, so they sit
-     * apart from the inbox.
+     * faded under the chats.
      */
     #[Computed]
     public function oneWayFollowing()
@@ -205,7 +160,7 @@ new class extends Component
     public function preview(DirectMessage $message): string
     {
         $text = match ($message->type) {
-            DirectMessage::TYPE_AUDIO => 'Voice message',
+            DirectMessage::TYPE_AUDIO => '🎤 Voice message',
             DirectMessage::TYPE_FILE => $message->attachment_name ?? 'File',
             DirectMessage::TYPE_NUDGE => 'Nudge: '.$message->body,
             default => $message->body,
@@ -221,6 +176,17 @@ new class extends Component
             ->whereNotIn('users.id', $this->blockedUserIds())
             ->orderBy('name')
             ->get();
+    }
+
+    /**
+     * Followers you don't follow yet — "They follow you" on Add friends.
+     */
+    #[Computed]
+    public function followBack()
+    {
+        return $this->followers
+            ->reject(fn (User $follower) => auth()->user()->isFollowing($follower))
+            ->values();
     }
 
     #[Computed]
@@ -249,266 +215,181 @@ new class extends Component
 };
 ?>
 
-<div class="stagger-children mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-    <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        All missions
-    </a>
+@php
+    $pill = 'shrink-0 cursor-pointer rounded-full px-3 py-1.5 text-xs font-extrabold transition-colors disabled:pointer-events-none disabled:opacity-50';
+    $iconButton = 'inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors';
+    $hasAnyone = $this->friends->isNotEmpty() || $this->oneWayFollowing->isNotEmpty() || $this->pendingRequests->isNotEmpty();
+    $activeFirst = collect($this->rows)->sortByDesc('active')->values();
+@endphp
 
-    <header class="flex items-center gap-3">
-        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-            @svg('heroicon-s-user-group', 'h-5 w-5')
-        </span>
-        <div class="min-w-0 flex-1">
-            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>
-            <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">Send a follow request, accept the ones you get, and message anyone who follows you back.</p>
-        </div>
-        <a
-            href="{{ route('friends.board') }}"
-            wire:navigate
-            title="Friends Board — see everyone's progress"
-            class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-        >@svg('heroicon-o-chart-bar', 'h-4.5 w-4.5')</a>
-    </header>
+{{-- Like a messenger: who practised today on top, Practice together, the
+     requests, then one row per chat. ➕ swaps the page for Add friends
+     (search + "They follow you"); Mute, Unfollow, Block and Report live
+     in each chat's ⋯. --}}
+<div class="mx-auto max-w-2xl px-4 pt-3 pb-6 sm:px-6" x-data="{ adding: @js(trim($search) !== '') }" x-back-close="{ open: adding, close: () => adding = false }">
+    <div x-show="! adding" class="stagger-children space-y-4">
+        <header class="flex items-center gap-2">
+            <h1 class="flex-1 font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>
+            <a href="{{ route('friends.board') }}" wire:navigate aria-label="Friends Board" class="{{ $iconButton }} bg-surface text-ink-soft shadow-sm hover:text-ink dark:bg-surface-dark dark:text-ink-soft-dark">@svg('heroicon-o-trophy', 'h-5 w-5')</a>
+            <button type="button" x-on:click="adding = true; $nextTick(() => $refs.search.focus())" aria-label="Add friends" class="{{ $iconButton }} bg-accent text-white hover:opacity-90 dark:bg-accent-dark">@svg('heroicon-o-plus', 'h-5 w-5')</button>
+        </header>
 
-    <a href="{{ route('pair-practice.index') }}" wire:navigate class="flex items-center gap-2.5 card px-4 py-3 text-sm font-semibold text-ink transition-colors hover:border-accent dark:text-ink-dark dark:hover:border-accent-dark">
-        <span aria-hidden="true">👫</span>
-        <span class="flex-1">Practice together · 12 min</span>
-        @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
-    </a>
+        @if (! $hasAnyone)
+            <div class="flex flex-col items-center gap-3 px-6 pt-16 text-center">
+                <span class="text-5xl" aria-hidden="true">👋</span>
+                <p class="text-lg font-extrabold text-ink dark:text-ink-dark">Practice is better with a friend</p>
+                <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">Find a classmate by name.</p>
+                <button type="button" x-on:click="adding = true; $nextTick(() => $refs.search.focus())" class="mt-2 w-full cursor-pointer rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-sm hover:opacity-90 dark:bg-accent-dark">Add a friend</button>
+            </div>
+        @endif
 
-    @if ($this->friendsActiveTodayCount)
-        <p class="flex items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
-            @svg('heroicon-s-fire', 'h-3.5 w-3.5 text-accent-ink dark:text-accent-ink-dark')
-            {{ $this->friendsActiveTodayCount }} {{ Str::plural('friend', $this->friendsActiveTodayCount) }} already practiced today
-        </p>
-    @endif
+        @if ($activeFirst->isNotEmpty())
+            {{-- Who practised today: a green ring. --}}
+            <div class="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1" aria-label="Today">
+                @foreach ($activeFirst as $row)
+                    <a href="{{ route('friends.conversation', $row['friend']) }}" wire:navigate wire:key="today-{{ $row['friend']->id }}" class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
+                        <span @class(['relative rounded-full', 'ring-[2.5px] ring-success ring-offset-2 ring-offset-ground dark:ring-success-dark dark:ring-offset-ground-dark' => $row['active']])>
+                            <x-user-avatar :user="$row['friend']" class="h-12 w-12 text-sm" />
+                            @if ($row['active'])
+                                <span class="sr-only">practiced today</span>
+                            @endif
+                        </span>
+                        <span class="w-full truncate text-center">{{ $row['friend']->name }}</span>
+                    </a>
+                @endforeach
+            </div>
+        @endif
 
-    <div>
-        <div class="relative">
-            <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-ink-faint dark:text-ink-faint-dark">
-                @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
-            </span>
-            <input
-                type="text"
-                wire:model.live.debounce.300ms="search"
-                placeholder="Search by name…"
-                class="w-full rounded-full border border-line bg-surface py-2.5 pr-4 pl-10 text-sm text-ink shadow-sm transition-colors focus:border-accent focus:outline-none dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:focus:border-accent-dark"
-            >
-        </div>
+        @if ($this->friends->isNotEmpty())
+            <a href="{{ route('pair-practice.index') }}" wire:navigate class="flex items-center gap-2.5 rounded-2xl bg-accent px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-90 dark:bg-accent-dark">
+                <span aria-hidden="true">👫</span>
+                <span class="flex-1">Practice together</span>
+                <span class="text-xs font-bold text-white/85">12 min ›</span>
+            </a>
+        @endif
 
-        @if (trim($search) !== '')
-            <div class="mt-3 space-y-2">
-                @forelse ($this->searchResults as $user)
-                    <div class="flex items-center gap-3 card px-3.5 py-2.5 shadow-sm">
-                        <x-user-avatar :user="$user" class="h-9 w-9 text-xs" />
-                        <span class="flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $user->name }}</span>
-                        @if (auth()->user()->isFollowing($user))
-                            {{-- Two taps, like Unfollow in the "⋯" menu: the first arms the
-                                 button for a few seconds, the second actually unfollows. --}}
-                            <button
-                                type="button"
-                                x-data="{ armed: false, timer: null }"
-                                x-on:click="if (! armed) { armed = true; timer = setTimeout(() => armed = false, 3000) } else { clearTimeout(timer); $wire.unfollow({{ $user->id }}) }"
-                                wire:loading.attr="disabled"
-                                wire:target="unfollow({{ $user->id }})"
-                                x-bind:class="armed ? 'border-danger-line bg-danger-soft text-danger-ink' : 'border-line text-ink-soft hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark'"
-                                class="shrink-0 cursor-pointer rounded-full border px-3 py-1 text-xs font-semibold transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            ><span x-show="! armed">Following</span><span x-show="armed" x-cloak>Unfollow?</span></button>
-                        @elseif (auth()->user()->hasPendingRequestTo($user))
-                            <button
-                                type="button"
-                                wire:click="unfollow({{ $user->id }})"
-                                wire:loading.attr="disabled"
-                                wire:target="unfollow({{ $user->id }})"
-                                title="Cancel request"
-                                class="shrink-0 cursor-pointer rounded-full border border-dashed border-line px-3 py-1 text-xs font-semibold text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >Requested</button>
-                        @elseif (auth()->user()->hasPendingRequestFrom($user))
-                            <button
-                                type="button"
-                                wire:click="acceptRequest({{ $user->id }})"
-                                wire:loading.attr="disabled"
-                                wire:target="acceptRequest({{ $user->id }})"
-                                class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >Accept request</button>
-                        @else
-                            <button
-                                type="button"
-                                wire:click="follow({{ $user->id }})"
-                                wire:loading.attr="disabled"
-                                wire:target="follow({{ $user->id }})"
-                                class="shrink-0 cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >Follow</button>
-                        @endif
+        @foreach ($this->pendingRequests as $requester)
+            <div wire:key="request-{{ $requester->id }}" class="flex items-center gap-3 rounded-2xl bg-surface px-3 py-2.5 shadow-sm dark:bg-surface-dark">
+                <x-user-avatar :user="$requester" class="h-10 w-10 text-xs" />
+                <p class="min-w-0 flex-1 text-sm font-extrabold text-ink dark:text-ink-dark">
+                    <span class="block truncate">{{ $requester->name }}</span>
+                    <span class="block text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">wants to be friends</span>
+                </p>
+                <button type="button" wire:click="acceptRequest({{ $requester->id }})" wire:loading.attr="disabled" aria-label="Accept {{ $requester->name }}" class="{{ $iconButton }} h-9 w-9 bg-success text-white dark:bg-success-dark">@svg('heroicon-o-check', 'h-4 w-4')</button>
+                <button type="button" wire:click="rejectRequest({{ $requester->id }})" wire:loading.attr="disabled" aria-label="Reject {{ $requester->name }}" class="{{ $iconButton }} h-9 w-9 bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
+            </div>
+        @endforeach
+
+        @if ($this->rows || $this->oneWayFollowing->isNotEmpty())
+            <div class="-mx-2">
+                @foreach ($this->rows as $row)
+                    @php $friend = $row['friend']; @endphp
+                    {{-- The whole row opens the chat; only Nudge sits above it. --}}
+                    <div wire:key="friend-{{ $friend->id }}" class="relative flex items-center gap-3 rounded-2xl px-2 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
+                        <a href="{{ route('friends.conversation', $friend) }}" wire:navigate aria-label="Open chat with {{ $friend->name }}" class="absolute inset-0 rounded-2xl"></a>
+                        <span class="pointer-events-none relative shrink-0">
+                            <x-user-avatar :user="$friend" class="h-12 w-12 text-sm" />
+                            @if ($row['streak'] > 0)
+                                <span class="absolute -right-1 -bottom-1 rounded-full bg-surface px-1 text-[10px] font-extrabold text-accent-ink shadow-sm dark:bg-surface-dark dark:text-accent-ink-dark">🔥{{ $row['streak'] }}</span>
+                            @endif
+                        </span>
+                        <div class="pointer-events-none min-w-0 flex-1">
+                            <p class="flex items-baseline gap-1.5 truncate text-sm font-extrabold text-ink dark:text-ink-dark">
+                                {{ $friend->name }}
+                                @if ($row['active'])
+                                    <span class="truncate text-[11px] font-bold text-success dark:text-success-dark">● {{ $row['where'] ?? 'Practiced today' }}</span>
+                                @else
+                                    <span class="text-[11px] font-bold text-ink-faint dark:text-ink-faint-dark">Not today</span>
+                                @endif
+                            </p>
+                            <p class="mt-0.5 truncate text-xs {{ $row['unread'] ? 'font-bold text-ink dark:text-ink-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+                                {{ $row['summary'] ? $this->preview($row['summary']['last']) : 'Say hello 👋' }}
+                            </p>
+                        </div>
+                        <div class="relative flex shrink-0 flex-col items-end gap-1 text-[11px] font-bold text-ink-faint dark:text-ink-faint-dark">
+                            @if ($row['summary'])
+                                <span class="pointer-events-none tabular-nums">{{ $row['summary']['last']->created_at->diffForHumans(['short' => true, 'parts' => 1, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) }}</span>
+                            @endif
+                            @if ($row['unread'])
+                                <span class="pointer-events-none inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white dark:bg-accent-dark" title="{{ $row['unread'] }} unread">{{ $row['unread'] }}</span>
+                            @elseif (! $row['active'])
+                                <button type="button" wire:click="nudge({{ $friend->id }})" @disabled($row['nudged']) class="{{ $pill }} bg-accent text-white dark:bg-accent-dark">{{ $row['nudged'] ? '✓ Nudged' : '🔥 Nudge' }}</button>
+                            @endif
+                        </div>
                     </div>
-                @empty
-                    <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-6 text-center dark:border-line-dark">
-                        @svg('heroicon-o-face-frown', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
-                        <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No one found with that name.</p>
+                @endforeach
+
+                @foreach ($this->oneWayFollowing as $friend)
+                    <div wire:key="following-{{ $friend->id }}" class="flex items-center gap-3 px-2 py-2.5">
+                        <span class="opacity-60"><x-user-avatar :user="$friend" class="h-12 w-12 text-sm" /></span>
+                        <div class="min-w-0 flex-1 opacity-60">
+                            <p class="truncate text-sm font-extrabold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
+                            <p class="truncate text-xs text-ink-faint dark:text-ink-faint-dark">Hasn't followed back yet</p>
+                        </div>
+                        {{-- Two taps: the first arms it, the second cancels the follow. --}}
+                        <button
+                            type="button"
+                            x-data="{ armed: false, timer: null }"
+                            x-on:click="if (! armed) { armed = true; timer = setTimeout(() => armed = false, 3000) } else { clearTimeout(timer); $wire.unfollow({{ $friend->id }}) }"
+                            x-bind:class="armed ? 'border-danger-line bg-danger-soft text-danger-ink' : 'border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark'"
+                            class="{{ $pill }} border"
+                        ><span x-show="! armed">Waiting</span><span x-show="armed" x-cloak>Cancel?</span></button>
                     </div>
-                @endforelse
+                @endforeach
             </div>
         @endif
     </div>
 
-    @if ($this->pendingRequests->count())
-        <div class="card-accent p-3.5">
-            <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Follow requests ({{ $this->pendingRequests->count() }})</p>
-            <div class="mt-2 space-y-2">
-                @foreach ($this->pendingRequests as $requester)
-                    <div class="flex items-center gap-3 rounded-xl bg-surface px-3 py-2 shadow-sm dark:bg-surface-dark">
-                        <x-user-avatar :user="$requester" class="h-9 w-9 text-xs" />
-                        <span class="flex-1 truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $requester->name }}</span>
-                        <button
-                            type="button"
-                            wire:click="acceptRequest({{ $requester->id }})"
-                            wire:loading.attr="disabled"
-                            wire:target="acceptRequest({{ $requester->id }})"
-                            title="Accept"
-                            class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                        >@svg('heroicon-o-check', 'h-4 w-4')</button>
-                        <button
-                            type="button"
-                            wire:click="rejectRequest({{ $requester->id }})"
-                            wire:loading.attr="disabled"
-                            wire:target="rejectRequest({{ $requester->id }})"
-                            title="Reject"
-                            class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-line text-ink-faint transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                        >@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
+    {{-- ➕ Add friends --}}
+    <div x-show="adding" x-cloak class="space-y-4">
+        <header class="flex items-center gap-2">
+            <button type="button" x-on:click="adding = false" aria-label="Back to Friends" class="{{ $iconButton }} -ml-2 text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</button>
+            <h2 class="flex-1 font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Add friends</h2>
+        </header>
+
+        <label class="flex items-center gap-2 rounded-2xl border-2 border-accent bg-surface px-3 py-2.5 dark:border-accent-dark dark:bg-surface-dark">
+            @svg('heroicon-o-magnifying-glass', 'h-5 w-5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+            <span class="sr-only">Search by name</span>
+            <input x-ref="search" type="text" wire:model.live.debounce.300ms="search" placeholder="Search by name" class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm font-semibold text-ink focus:ring-0 focus:outline-none dark:text-ink-dark">
+        </label>
+
+        @if (trim($search) !== '')
+            <div class="-mx-2">
+                @forelse ($this->searchResults as $user)
+                    <div wire:key="result-{{ $user->id }}" class="flex items-center gap-3 px-2 py-2">
+                        <x-user-avatar :user="$user" class="h-10 w-10 text-xs" />
+                        <span class="min-w-0 flex-1 truncate text-sm font-extrabold text-ink dark:text-ink-dark">{{ $user->name }}</span>
+                        @if (auth()->user()->isFollowing($user))
+                            <span class="{{ $pill }} cursor-default bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">Following</span>
+                        @elseif (auth()->user()->hasPendingRequestTo($user))
+                            <button type="button" wire:click="unfollow({{ $user->id }})" wire:loading.attr="disabled" title="Cancel request" class="{{ $pill }} bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">Requested</button>
+                        @elseif (auth()->user()->hasPendingRequestFrom($user))
+                            <button type="button" wire:click="acceptRequest({{ $user->id }})" wire:loading.attr="disabled" class="{{ $pill }} bg-success text-white dark:bg-success-dark">Accept request</button>
+                        @else
+                            <button type="button" wire:click="follow({{ $user->id }})" wire:loading.attr="disabled" class="{{ $pill }} bg-accent text-white dark:bg-accent-dark">Follow</button>
+                        @endif
                     </div>
-                @endforeach
+                @empty
+                    <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">No one found with that name.</p>
+                @endforelse
             </div>
-        </div>
-    @endif
+        @endif
 
-    @if ($this->friends->isNotEmpty())
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Friends ({{ $this->friends->count() }})</p>
-            <div class="mt-2 space-y-2.5">
-                @foreach ($this->friends as $friend)
-                    @php
-                        $summary = $this->summaries[$friend->id] ?? null;
-                        $unread = $summary['unread'] ?? 0;
-                        $stats = $this->stats($friend);
-                    @endphp
-                    {{-- The whole card opens the chat (stretched link under the content);
-                         only the "⋯" menu and the report form sit above it. --}}
-                    <div wire:key="friend-{{ $friend->id }}" class="relative card p-3.5 shadow-sm transition-shadow hover:shadow-md">
-                        <a
-                            href="{{ route('friends.conversation', $friend) }}"
-                            wire:navigate
-                            aria-label="Open chat with {{ $friend->name }}"
-                            class="absolute inset-0 z-0 rounded-2xl"
-                        ></a>
-                        <div class="pointer-events-none relative flex items-center gap-3">
-                            <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-baseline justify-between gap-2">
-                                    <p class="truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
-                                    @if ($summary)
-                                        <span class="shrink-0 text-[11px] text-ink-faint tabular-nums dark:text-ink-faint-dark">{{ $summary['last']->created_at->diffForHumans(['short' => true, 'parts' => 1]) }}</span>
-                                    @endif
-                                </div>
-                                <p class="mt-0.5 truncate text-xs {{ $unread ? 'font-semibold text-ink dark:text-ink-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">
-                                    {{ $summary ? $this->preview($summary['last']) : 'No messages yet — say hello' }}
-                                </p>
-                                @if ($stats['streak'] > 0)
-                                    <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                                            <x-streak-flame :streak="$stats['streak']" size="h-3 w-3" />
-                                            {{ $stats['streak'] }}-day streak
-                                        </span>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="pointer-events-auto relative z-10 flex shrink-0 items-center gap-1.5">
-                                @if ($unread)
-                                    <span class="pointer-events-none inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white dark:bg-accent-dark" title="{{ $unread }} unread">{{ $unread }}</span>
-                                @endif
-                                <x-friends.card-menu :friend="$friend" :mutual="true" />
-                            </div>
-                        </div>
-
-                        @if (isset($reporting[$friend->id]))
-                            <div class="relative z-10">
-                                <x-friends.report-form :friend="$friend" :selected="$reportCategory[$friend->id] ?? null" :category-model="'reportCategory.'.$friend->id" :details-model="'reportReason.'.$friend->id" :submit-action="'submitReport('.$friend->id.')'" :cancel-action="'cancelReport('.$friend->id.')'" />
-                            </div>
-                        @elseif (isset($reportSent[$friend->id]))
-                            <div class="relative z-10">
-                                <x-friends.report-sent :friend="$friend" :block-action="'block('.$friend->id.')'" :dismiss-action="'dismissReportSent('.$friend->id.')'" />
-                            </div>
+        @if ($this->followBack->isNotEmpty())
+            <p class="text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">They follow you</p>
+            <div class="-mx-2">
+                @foreach ($this->followBack as $follower)
+                    <div wire:key="follower-{{ $follower->id }}" class="flex items-center gap-3 px-2 py-2">
+                        <x-user-avatar :user="$follower" class="h-10 w-10 text-xs" />
+                        <span class="min-w-0 flex-1 truncate text-sm font-extrabold text-ink dark:text-ink-dark">{{ $follower->name }}</span>
+                        @if (auth()->user()->hasPendingRequestTo($follower))
+                            <span class="{{ $pill }} cursor-default bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">Requested</span>
+                        @else
+                            <button type="button" wire:click="follow({{ $follower->id }})" wire:loading.attr="disabled" class="{{ $pill }} bg-success text-white dark:bg-success-dark">Follow back</button>
                         @endif
                     </div>
                 @endforeach
             </div>
-        </div>
-    @endif
-
-    @if ($this->oneWayFollowing->isNotEmpty())
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Waiting to follow you back ({{ $this->oneWayFollowing->count() }})</p>
-            <div class="mt-2 space-y-2.5">
-                @foreach ($this->oneWayFollowing as $friend)
-                    <div wire:key="following-{{ $friend->id }}" class="card p-3.5 shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
-                                <p class="mt-0.5 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                                    @svg('heroicon-o-lock-closed', 'h-3.5 w-3.5 shrink-0')
-                                    They don't follow you back yet — messaging unlocks once they do.
-                                </p>
-                            </div>
-                            <x-friends.card-menu :friend="$friend" :mutual="false" />
-                        </div>
-
-                        @if (isset($reporting[$friend->id]))
-                            <x-friends.report-form :friend="$friend" :selected="$reportCategory[$friend->id] ?? null" :category-model="'reportCategory.'.$friend->id" :details-model="'reportReason.'.$friend->id" :submit-action="'submitReport('.$friend->id.')'" :cancel-action="'cancelReport('.$friend->id.')'" />
-                        @elseif (isset($reportSent[$friend->id]))
-                            <x-friends.report-sent :friend="$friend" :block-action="'block('.$friend->id.')'" :dismiss-action="'dismissReportSent('.$friend->id.')'" />
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
-    @if ($this->friends->isEmpty() && $this->oneWayFollowing->isEmpty())
-        <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-8 text-center dark:border-line-dark">
-            @svg('heroicon-o-user-plus', 'h-6 w-6 text-ink-faint/60 dark:text-ink-faint-dark/60')
-            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Search above to follow your first classmate.</p>
-        </div>
-    @endif
-
-    @if ($this->followers->count())
-        <div x-data="{ showFollowers: false }">
-            <button
-                type="button"
-                x-on:click="showFollowers = !showFollowers"
-                class="flex w-full cursor-pointer items-center justify-between gap-2 text-xs font-semibold tracking-wide text-ink-faint uppercase transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark"
-            >
-                <span>Followers ({{ $this->followers->count() }})</span>
-                <span class="transition-transform" :class="showFollowers ? 'rotate-180' : ''">
-                    @svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')
-                </span>
-            </button>
-
-            <div x-show="showFollowers" x-cloak x-transition.opacity.duration.150ms class="mt-2 flex flex-wrap gap-2">
-                @foreach ($this->followers as $follower)
-                    <span class="inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pr-3 pl-1 text-xs text-ink-soft shadow-sm dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">
-                        <x-user-avatar :user="$follower" class="h-5 w-5 text-[10px]" />
-                        {{ $follower->name }}
-                        @if (! auth()->user()->isFollowing($follower))
-                            @if (auth()->user()->hasPendingRequestTo($follower))
-                                <span class="font-semibold text-ink-faint dark:text-ink-faint-dark">Requested</span>
-                            @else
-                                <button type="button" wire:click="follow({{ $follower->id }})" class="cursor-pointer font-semibold text-accent-ink hover:opacity-80 dark:text-accent-ink-dark">Follow back</button>
-                            @endif
-                        @endif
-                    </span>
-                @endforeach
-            </div>
-        </div>
-    @endif
+        @endif
+    </div>
 </div>
