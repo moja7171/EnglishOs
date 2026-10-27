@@ -1,7 +1,8 @@
 {{--
     The header of a mission step, pinned to the top while the step scrolls,
-    in the shape of a lesson in a learning app: ✕ back to the day overview,
-    a progress bar, and the ask-instructor icon (when given). Under them one
+    in the shape of a lesson in a learning app: <x-lesson-header> (✕ back
+    to the day overview, a progress bar, and the ask-instructor icon when
+    given). Under them one
     small line, "Day N · Step name · 4/5 ▾", opens the day's step list as a
     sheet (<x-menu-panel>), headed by the mission's code and title.
 
@@ -34,25 +35,7 @@
     class="sticky top-0 z-30 -mx-4 bg-ground px-3 pt-2 pb-1 sm:-mx-6 sm:px-5 dark:bg-ground-dark"
     data-step-header
 >
-    <div class="flex items-center gap-3">
-        <a
-            href="{{ $backUrl }}"
-            wire:navigate
-            aria-label="Close"
-            class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
-        >@svg('heroicon-o-x-mark', 'h-6 w-6')</a>
-
-        {{-- Filled by the step's own progress once it reports one (a
-             'step-progress' window event with a 0–1 share), and by how much
-             of the day is done until then. --}}
-        <div class="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark" aria-hidden="true">
-            <div
-                class="h-full rounded-full bg-success transition-[width] duration-300 dark:bg-success-dark"
-                style="width: {{ round($doneShare, 1) }}%"
-                x-effect="if (stepShare !== null) $el.style.width = Math.round(stepShare * 1000) / 10 + '%'"
-            ></div>
-        </div>
-
+    <x-lesson-header :close="$backUrl" :progress="$doneShare / 100" progress-expr="stepShare">
         @if ($askInstructor)
             <button
                 type="button"
@@ -63,7 +46,7 @@
                 class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink transition-opacity hover:opacity-80 dark:bg-accent-soft-dark dark:text-accent-ink-dark"
             >@svg('heroicon-o-sparkles', 'h-5 w-5')</button>
         @endif
-    </div>
+    </x-lesson-header>
 
     <div class="relative mt-1 flex justify-center" x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape.window="open = false" x-back-close="{ open: open, close: () => open = false }">
         <button
