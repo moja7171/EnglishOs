@@ -32,12 +32,12 @@ class PiPromptsTest extends TestCase
         ]);
     }
 
-    private function task(int $day, string $missionCode = 'M01', string $level = 'B1'): array
+    private function task(int $day, string $missionCode = 'M01', string $level = 'B1', ?int $seed = 7): array
     {
-        return app(PiPrompts::class)->dayTask(User::factory()->make(['cefr_level' => $level]), $missionCode, $day);
+        return app(PiPrompts::class)->dayTask(User::factory()->make(['cefr_level' => $level]), $missionCode, $day, $seed);
     }
 
-    public function test_every_day_is_a_self_contained_short_session_with_a_plan(): void
+    public function test_every_day_is_a_self_contained_short_chat_where_the_ai_and_the_learner_take_turns_asking(): void
     {
         $this->makeMission();
 
@@ -49,99 +49,51 @@ class PiPromptsTest extends TestCase
             $this->assertStringContainsString("Don't ask how I am. No small talk.", $task['prompt']);
             $this->assertStringContainsString('count only when I say one alone', $task['prompt']);
             $this->assertStringContainsString('reason in 8 words or less', $task['prompt']);
-            $this->assertMatchesRegularExpression('/Round 1 of \d+/', $task['prompt']);
-            $this->assertStringContainsString('"why?" = explain a bit more', $task['prompt']);
+            $this->assertStringContainsString('Round 1 of 8', $task['prompt']);
+            $this->assertStringContainsString('Odd rounds (1, 3, 5, 7): ask me ONE new, short question.', $task['prompt']);
+            $this->assertStringContainsString('Even rounds (2, 4, 6, 8): say "Your turn!"', $task['prompt']);
+            $this->assertStringContainsString('Never repeat a question you already asked me', $task['prompt']);
+            $this->assertStringContainsString('every question is about "My Daily Life".', $task['prompt']);
             $this->assertStringContainsString('"transcript" = get all my words in one message', $task['prompt']);
-            $this->assertStringContainsString('My transcript: ONE message, never split.', $task['prompt']);
+            $this->assertStringContainsString('"Round 2 — Me: (my question)"', $task['prompt']);
             $this->assertStringContainsString('do NOT fix my mistakes', $task['prompt']);
-            $this->assertStringEndsWith('tell me the plan in one short sentence, then begin round 1.', $task['prompt']);
+            $this->assertStringEndsWith('then begin round 1.', $task['prompt']);
             $this->assertCount(3, $task['plan']);
+            $this->assertStringContainsString('did they ask their 4 questions', $task['feedback']);
         }
     }
 
-    public function test_pronunciation_day_uses_the_shadow_lines_without_bold_markers(): void
-    {
-        $this->makeMission([
-            ['key' => 'daily_listen', 'shadow_lines' => ['**Otherwise** I\'m **very grumpy**.', 'Another line.']],
-        ]);
-
-        $task = $this->task(1);
-
-        $this->assertStringContainsString("1. Otherwise I'm very grumpy.\n2. Another line.", $task['prompt']);
-        $this->assertStringContainsString('Round 1 of 3', $task['prompt']);
-        $this->assertStringNotContainsString('**', $task['prompt']);
-    }
-
-    public function test_pronunciation_day_keeps_each_line_whole_in_the_transcript_and_is_judged_on_sounds_not_grammar(): void
-    {
-        $this->makeMission([
-            ['key' => 'daily_listen', 'shadow_lines' => ['**Otherwise** I\'m **very grumpy**.']],
-        ]);
-
-        $task = $this->task(1);
-
-        $this->assertStringContainsString('Round 1 — Line: (the whole line you said) / Me: (everything I said)', $task['prompt']);
-        $this->assertTrue($task['isPronunciationDrill']);
-        $this->assertStringContainsString('PRONUNCIATION drill', $task['feedback']);
-        $this->assertStringContainsString('NEVER judge their grammar', $task['feedback']);
-        $this->assertStringContainsString('"Otherwise I\'m very grumpy."', $task['feedback']);
-    }
-
-    public function test_the_other_days_are_judged_against_their_own_goal(): void
+    public function test_no_day_uses_written_questions_or_the_missions_listening_video_or_reading(): void
     {
         $this->makeMission([
             ['key' => 'listening', 'target_phrases' => [['phrase' => 'oversleep']], 'topic_summary' => 'Neil talks about mornings.'],
+            ['key' => 'daily_listen', 'shadow_lines' => ['Otherwise I\'m very grumpy.']],
         ], [
-            ['key' => 'grammar_in_context', 'focus' => 'Present Simple'],
+            ['key' => 'ai_conversation_1', 'interview_questions' => ['What time do you usually wake up?']],
         ]);
 
-        $grammar = $this->task(2);
-        $conversation = $this->task(3);
-        $retell = $this->task(4);
+        foreach (range(1, 4) as $day) {
+            $prompt = $this->task($day)['prompt'];
 
-        $this->assertStringContainsString('Round 1 — Q:', $grammar['prompt']);
-        $this->assertFalse($grammar['isPronunciationDrill']);
-        $this->assertStringContainsString('GRAMMAR practice: each answer should use "Present Simple"', $grammar['feedback']);
-        $this->assertStringContainsString('CONVERSATION about "My Daily Life"', $conversation['feedback']);
-        $this->assertStringContainsString('oversleep', $conversation['feedback']);
-        $this->assertStringContainsString('RETELL of one story from "My Daily Life" (Neil talks about mornings.)', $retell['feedback']);
+            $this->assertStringNotContainsString('What time do you usually wake up?', $prompt);
+            $this->assertStringNotContainsString('oversleep', $prompt);
+            $this->assertStringNotContainsString('Neil talks about mornings.', $prompt);
+            $this->assertStringNotContainsString('grumpy', $prompt);
+        }
     }
 
-    public function test_pronunciation_day_falls_back_to_the_example_sentences_of_the_new_words(): void
-    {
-        $this->makeMission([
-            ['key' => 'vocabulary_builder_1', 'words' => [
-                ['phrase' => 'get up', 'example' => 'He gets up at six every morning.'],
-                ['phrase' => 'sleep in', 'example' => 'We always sleep in on Sundays.'],
-            ]],
-        ]);
-
-        $task = $this->task(1);
-
-        $this->assertStringContainsString("1. He gets up at six every morning.\n2. We always sleep in on Sundays.", $task['prompt']);
-    }
-
-    public function test_pronunciation_day_hands_over_at_most_six_lines(): void
-    {
-        $words = collect(range(1, 8))->map(fn (int $n) => ['phrase' => "word {$n}", 'example' => "Example number {$n}."])->all();
-        $this->makeMission([['key' => 'vocabulary_builder_1', 'words' => $words]]);
-
-        $task = $this->task(1);
-
-        $this->assertStringContainsString('Example number 6.', $task['prompt']);
-        $this->assertStringNotContainsString('Example number 7.', $task['prompt']);
-    }
-
-    public function test_pronunciation_day_without_any_content_still_builds_a_prompt_from_the_mission_title(): void
+    public function test_each_day_gives_the_questions_its_own_flavor(): void
     {
         $this->makeMission();
 
-        $task = $this->task(1);
-
-        $this->assertStringContainsString('Make up 6 short, useful lines about "My Daily Life"', $task['prompt']);
+        $this->assertStringContainsString('Ask about my own life and habits', $this->task(1)['prompt']);
+        $this->assertStringContainsString('Ask what I think', $this->task(3)['prompt']);
+        $this->assertStringContainsString('I ask what you think.', $this->task(3)['prompt']);
+        $this->assertStringContainsString('Have you ever…?', $this->task(4)['prompt']);
+        $this->assertStringContainsString('past simple', $this->task(4)['feedback']);
     }
 
-    public function test_grammar_day_is_built_from_the_missions_grammar_focus(): void
+    public function test_grammar_day_asks_questions_that_need_the_missions_grammar_focus(): void
     {
         $this->makeMission([], [
             ['key' => 'grammar_in_context', 'focus' => 'Present Simple + Adverbs of Frequency'],
@@ -149,7 +101,9 @@ class PiPromptsTest extends TestCase
 
         $task = $this->task(2);
 
-        $this->assertStringContainsString('Present Simple + Adverbs of Frequency', $task['prompt']);
+        $this->assertStringContainsString('natural answer needs "Present Simple + Adverbs of Frequency"', $task['prompt']);
+        $this->assertStringContainsString('I try to use "Present Simple + Adverbs of Frequency" in my question too.', $task['prompt']);
+        $this->assertStringContainsString('Each answer should use "Present Simple + Adverbs of Frequency"', $task['feedback']);
     }
 
     public function test_grammar_day_uses_the_roadmap_grammar_when_the_mission_is_not_seeded(): void
@@ -159,54 +113,19 @@ class PiPromptsTest extends TestCase
         $this->assertStringContainsString('Gerunds vs Infinitives', $task['prompt']);
     }
 
-    public function test_conversation_day_suggests_the_interview_questions_and_the_taught_phrases(): void
-    {
-        $this->makeMission([
-            ['key' => 'listening', 'target_phrases' => [['phrase' => 'get up'], ['phrase' => 'oversleep']]],
-        ], [
-            ['key' => 'video_shadowing', 'target_phrases' => [['phrase' => 'get up'], ['phrase' => 'pack a lunch']]],
-            ['key' => 'ai_conversation_1', 'interview_questions' => ['What time do you usually wake up?']],
-        ]);
-
-        $task = $this->task(3);
-
-        $this->assertStringContainsString('casual chat about "My Daily Life". My goal: I can talk about my daily routine.', $task['prompt']);
-        $this->assertStringContainsString('- What time do you usually wake up?', $task['prompt']);
-        $this->assertStringContainsString('try to use: get up, oversleep, pack a lunch.', $task['prompt']);
-        $this->assertStringContainsString('In rounds 3 and 6, I ask you a question', $task['prompt']);
-    }
-
-    public function test_conversation_day_omits_the_hints_when_the_mission_has_none(): void
+    public function test_the_same_seed_keeps_the_prompt_and_a_new_one_gives_four_fresh_angles(): void
     {
         $this->makeMission();
 
-        $task = $this->task(3);
+        $this->assertSame($this->task(1, seed: 42)['prompt'], $this->task(1, seed: 42)['prompt']);
 
-        $this->assertStringNotContainsString('Questions you can ask me', $task['prompt']);
-        $this->assertStringNotContainsString('try to use', $task['prompt']);
-    }
+        $angleSets = collect(range(1, 10))->map(function (int $seed) {
+            preg_match('/one each, in this order: (.+)\.\n/', $this->task(1, seed: $seed)['prompt'], $match);
 
-    public function test_retell_day_offers_the_missions_stories_and_holds_the_fixes_until_the_end(): void
-    {
-        $this->makeMission([
-            ['key' => 'listening', 'topic_summary' => 'Neil and Georgie talk about mornings. They also talk about breakfast.'],
-        ]);
+            return explode(', ', $match[1]);
+        });
 
-        $task = $this->task(4);
-
-        $this->assertStringContainsString("- Neil and Georgie talk about mornings.\n", $task['prompt']);
-        $this->assertStringNotContainsString('They also talk about breakfast.', $task['prompt']);
-        $this->assertStringContainsString('no fixing while I talk', $task['prompt']);
-        $this->assertStringContainsString('my 3 most useful fixes', $task['prompt']);
-    }
-
-    public function test_retell_day_without_stories_falls_back_to_the_mission_title(): void
-    {
-        $this->makeMission();
-
-        $task = $this->task(4);
-
-        $this->assertStringContainsString('what I learned about "My Daily Life"', $task['prompt']);
-        $this->assertStringNotContainsString('Stories:', $task['prompt']);
+        $angleSets->each(fn (array $angles) => $this->assertCount(4, array_unique($angles)));
+        $this->assertGreaterThan(1, $angleSets->unique()->count());
     }
 }

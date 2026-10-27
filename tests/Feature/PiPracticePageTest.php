@@ -87,14 +87,14 @@ class PiPracticePageTest extends TestCase
         $this->get(route('pi.practice'))->assertRedirect(route('login'));
     }
 
-    public function test_a_new_learner_sees_the_pronunciation_practice_for_day_1(): void
+    public function test_a_new_learner_sees_the_about_you_chat_for_day_1(): void
     {
         $this->actingAs(User::factory()->create());
 
         $this->get(route('pi.practice'))
             ->assertSee('Daily talk')
             ->assertSee('M01 · My Daily Life · Day 1')
-            ->assertSee('Pronunciation · 10 min')
+            ->assertSee('About You · 10 min')
             ->assertSee('Talk with Pi')
             ->assertSee('Get feedback')
             ->assertSee("Today's plan")
@@ -127,11 +127,9 @@ class PiPracticePageTest extends TestCase
     {
         $this->actingAs($this->finishedLearner());
 
-        $this->get(route('pi.practice', ['M01', 2]))->assertSee('5 questions');
-        $this->get(route('pi.practice', ['M01', 3]))->assertSee('6 turns');
-        $this->get(route('pi.practice', ['M01', 4]))
-            ->assertSee('Retell &amp; Fix', false)
-            ->assertSee('3 fixes');
+        $this->get(route('pi.practice', ['M01', 2]))->assertSee('Grammar Chat');
+        $this->get(route('pi.practice', ['M01', 3]))->assertSee('Your Opinion');
+        $this->get(route('pi.practice', ['M01', 4]))->assertSee('Your Experiences');
     }
 
     public function test_a_day_finished_earlier_today_stays_the_target_until_the_learner_practices(): void
@@ -159,7 +157,7 @@ class PiPracticePageTest extends TestCase
         $this->get(route('pi.practice'))->assertSee('M01 · My Daily Life · Day 2');
     }
 
-    public function test_a_mission_finished_today_keeps_its_retell_day_as_the_target(): void
+    public function test_a_mission_finished_today_keeps_its_last_day_as_the_target(): void
     {
         $learner = User::factory()->create();
         $run = MissionRun::findOrStart($learner, $this->makeMission());
@@ -169,7 +167,7 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice'))
             ->assertSee('M01 · My Daily Life · Day 4')
-            ->assertSee('Retell &amp; Fix', false);
+            ->assertSee('Your Experiences');
     }
 
     public function test_a_learner_can_reopen_an_earlier_day_and_is_offered_the_way_back_to_today(): void
@@ -238,7 +236,7 @@ class PiPracticePageTest extends TestCase
         $this->get(route('pi.practice', ['M01', 1]))
             ->assertSeeHtml(' Practiced</span>')
             ->assertDontSee('Ticks itself after Feedback.')
-            ->assertSeeInOrder(['title="Pronunciation"', '<span class="sr-only">, done</span>', 'Day 2 · today'], false);
+            ->assertSeeInOrder(['title="About You"', '<span class="sr-only">, done</span>', 'Day 2 · today'], false);
     }
 
     public function test_the_day_switcher_marks_reached_and_not_yet_reached_days(): void
@@ -329,18 +327,18 @@ class PiPracticePageTest extends TestCase
             ->assertSee('برای گذشته فعل گذشته لازم است.');
     }
 
-    public function test_a_pasted_pronunciation_drill_is_judged_on_the_lines_not_on_grammar(): void
+    public function test_a_pasted_chat_is_judged_on_the_learners_answers_and_their_own_questions(): void
     {
         $learner = $this->learnerWhoFinishedDay1(yesterday: true);
         $this->actingAs($learner);
 
-        $chat = "My words:\nRound 1 — Line: I always get up early. / Me: I always get a pearly.";
+        $chat = "My words:\nRound 1 — Q: When do you get up? / Me: I always get up early.\nRound 2 — Me: What time you get up?";
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
             ->once()
-            ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'PRONUNCIATION drill')
-                && str_contains($systemPrompt, 'NEVER judge their grammar')
-                && ! str_contains($systemPrompt, 'never judge punctuation, capital letters or pronunciation'))
+            ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'simple CONVERSATION about')
+                && str_contains($systemPrompt, 'were the learner\'s own questions correctly formed')
+                && str_contains($systemPrompt, 'never judge punctuation, capital letters or pronunciation'))
             ->andReturn($this->learnerFeedbackReply()));
 
         Livewire::test('pi-practice.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
@@ -358,7 +356,7 @@ class PiPracticePageTest extends TestCase
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')
             ->once()
-            ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'GRAMMAR practice')
+            ->withArgs(fn ($messages, $systemPrompt) => str_contains($systemPrompt, 'Each answer should use')
                 && str_contains($systemPrompt, 'never judge punctuation, capital letters or pronunciation'))
             ->andReturn($this->learnerFeedbackReply()));
 
@@ -510,7 +508,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         $this->get(route('home'))
-            ->assertSeeInOrder(['Continue', 'Build step', 'Daily talk · Grammar']);
+            ->assertSeeInOrder(['Continue', 'Build step', 'Daily talk · Grammar Chat']);
     }
 
     public function test_the_voice_practice_rows_circle_on_home_cannot_tick_it_by_hand(): void
@@ -518,7 +516,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         Livewire::test('missions.overview')
-            ->assertSee('Daily talk · Grammar')
+            ->assertSee('Daily talk · Grammar Chat')
             ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
@@ -529,7 +527,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('home'))
-            ->assertSee('Daily talk · Grammar')
+            ->assertSee('Daily talk · Grammar Chat')
             ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
