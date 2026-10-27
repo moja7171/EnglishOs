@@ -8,9 +8,11 @@ use App\Models\MissionRun;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use App\Services\PexelsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -134,9 +136,10 @@ class VocabularyBuilderStepTest extends TestCase
         ]);
 
         // Yesterday's words already live in My Words and Daily Review, so
-        // the step opens on today's story as part 1 of 3.
+        // the step opens on today's words only.
         $component->assertDontSee('Quick reminder')
-            ->assertSee('Part 1 of 3');
+            ->assertSee('relax')
+            ->assertDontSee('commute');
     }
 
     public function test_a_meaning_check_quick_round_covers_every_word(): void
@@ -155,7 +158,34 @@ class VocabularyBuilderStepTest extends TestCase
             $this->assertSame($meanings[$card['prompt']], $card['options'][$card['correct']]);
         }
 
-        $component->assertSee('Quick check before you write');
+    }
+
+    public function test_the_quick_check_is_one_card_per_word_in_persian_when_every_word_has_it(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [[
+                'key' => 'vocabulary_builder_1',
+                'story' => '',
+                'words' => [
+                    ['phrase' => 'wake up', 'meaning' => 'to stop sleeping', 'meaning_fa' => 'بیدار شدن'],
+                    ['phrase' => 'get up', 'meaning' => 'to get out of bed', 'meaning_fa' => 'بلند شدن'],
+                    ['phrase' => 'commute', 'meaning' => 'to travel to work', 'meaning_fa' => 'رفت‌وآمد'],
+                ],
+            ]]]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $cards = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
+            ->instance()->quizCards();
+
+        $this->assertCount(3, $cards);
+        $this->assertSame('بیدار شدن', $cards[0]['options'][$cards[0]['correct']]);
+        $this->assertSame('Pick the meaning', $cards[0]['label']);
     }
 
     public function test_meaning_check_wrong_answers_come_from_other_days_so_they_cannot_be_ruled_out_by_elimination(): void
@@ -265,11 +295,8 @@ class VocabularyBuilderStepTest extends TestCase
         }
     }
 
-    public function test_practice_cards_never_show_an_image_even_when_the_word_has_one(): void
+    public function test_a_word_card_shows_the_words_picture(): void
     {
-        // Epic B decision: dual-coding images were removed from the
-        // personal-example practice cards specifically — only the
-        // image-match quiz round (tested above) still uses them.
         $learner = User::factory()->create();
         $mission = Mission::create([
             'code' => 'M01',
@@ -288,14 +315,13 @@ class VocabularyBuilderStepTest extends TestCase
         $this->actingAs($learner);
         $run = MissionRun::findOrStart($learner, $mission);
 
-        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn('http://localhost/storage/cereal.jpg'));
 
         Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
-            ->call('startPractice')
-            ->assertDontSeeHtml('<img');
+            ->assertSeeHtml('http://localhost/storage/cereal.jpg');
     }
 
-    public function test_read_only_mode_shows_the_story_as_reference_without_click(): void
+    public function test_read_only_mode_lists_each_word_with_the_learners_sentence(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
@@ -314,11 +340,9 @@ class VocabularyBuilderStepTest extends TestCase
             ]),
         ]);
 
-        $html = $this->stepComponent($run, readOnly: true)->html();
-
-        $this->assertStringContainsString('data-initial-phase="practice"', $html);
-        $this->assertStringContainsString('follow my', $html); // story text present as reference
-        $this->assertStringNotContainsString('wire:click="toggleWord', $html);
+        $this->stepComponent($run, readOnly: true)
+            ->assertSee('I commute by bus.')
+            ->assertDontSeeHtml('checkOne');
     }
 
     public function test_every_word_needs_an_example_before_continuing(): void
@@ -348,9 +372,6 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.2', 'I get up straight away.')
             ->set('examples.3', 'I commute by bus.')
             ->call('save')
-            ->assertSet('completed', true)
-            ->call('addWordsToNotebook')
-            ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
         $evidence = Evidence::where('phase', 'vocabulary_builder_1')->first();
@@ -385,13 +406,12 @@ class VocabularyBuilderStepTest extends TestCase
         $this->stepComponent($run)
             ->assertSee('بیدار شدن')
             ->set('examples.0', 'I usually wake up around 7.')
-            ->call('save')
-            ->call('addWordsToNotebook');
+            ->call('save');
 
         $this->assertDatabaseHas('vocabulary_words', ['learner_id' => $learner->id, 'word' => 'wake up', 'meaning_fa' => 'بیدار شدن']);
     }
 
-    public function test_saving_enrolls_every_word_into_the_vocabulary_notebook(): void
+    public function test_saving_adds_every_word_to_my_words_by_itself(): void
     {
         [$learner, , $run] = $this->makeMissionAndRun();
 
@@ -404,10 +424,7 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
             ->set('examples.3', 'I commute by bus.')
-            ->call('save')
-            ->assertSet('completed', true)
-            ->call('addWordsToNotebook')
-            ->assertSet('trackedWords', true);
+            ->call('save');
 
         $this->assertSame(4, VocabularyWord::where('learner_id', $learner->id)->count());
 
@@ -438,8 +455,7 @@ class VocabularyBuilderStepTest extends TestCase
             ->set('examples.1', 'I have a morning routine.')
             ->set('examples.2', 'I get up straight away.')
             ->set('examples.3', 'I commute by bus.')
-            ->call('save')
-            ->call('addWordsToNotebook');
+            ->call('save');
 
         $wakeUp = VocabularyWord::where('learner_id', $learner->id)->where('word', 'wake up')->firstOrFail();
         $this->assertSame('phrasal verb', $wakeUp->pos);
@@ -448,113 +464,6 @@ class VocabularyBuilderStepTest extends TestCase
         $routine = VocabularyWord::where('learner_id', $learner->id)->where('word', 'routine')->firstOrFail();
         $this->assertNull($routine->pos);
         $this->assertNull($routine->example);
-    }
-
-    public function test_words_are_only_enrolled_once_add_to_notebook_is_pressed(): void
-    {
-        [$learner, , $run] = $this->makeMissionAndRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        $this->stepComponent($run)
-            ->set('examples.0', 'I usually wake up around 7.')
-            ->set('examples.1', 'I have a morning routine.')
-            ->set('examples.2', 'I get up straight away.')
-            ->set('examples.3', 'I commute by bus.')
-            ->call('save');
-
-        $this->assertSame(0, VocabularyWord::where('learner_id', $learner->id)->count());
-    }
-
-    public function test_unchecking_a_word_before_adding_leaves_it_out_of_the_notebook(): void
-    {
-        [$learner, , $run] = $this->makeMissionAndRun();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        $this->stepComponent($run)
-            ->set('examples.0', 'I usually wake up around 7.')
-            ->set('examples.1', 'I have a morning routine.')
-            ->set('examples.2', 'I get up straight away.')
-            ->set('examples.3', 'I commute by bus.')
-            ->call('save')
-            ->set('wordsToTrack.0', false) // "wake up" is index 0
-            ->call('addWordsToNotebook');
-
-        $this->assertSame(3, VocabularyWord::where('learner_id', $learner->id)->count());
-        $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $learner->id, 'word' => 'wake up']);
-    }
-
-    private function completedComponent($run)
-    {
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        return $this->stepComponent($run)
-            ->set('examples.0', 'I usually wake up around 7.')
-            ->set('examples.1', 'I have a morning routine.')
-            ->set('examples.2', 'I get up straight away.')
-            ->set('examples.3', 'I commute by bus.')
-            ->call('save');
-    }
-
-    public function test_continue_with_ticked_words_not_yet_added_asks_before_leaving(): void
-    {
-        [$learner, , $run] = $this->makeMissionAndRun();
-
-        $this->completedComponent($run)
-            ->call('proceed')
-            ->assertSet('confirmingSkip', true)
-            ->assertNoRedirect()
-            ->assertSee('4 words are ticked but not in My Words yet');
-
-        $this->assertSame(0, VocabularyWord::where('learner_id', $learner->id)->count());
-    }
-
-    public function test_add_and_continue_enrolls_the_ticked_words_then_leaves(): void
-    {
-        [$learner, , $run] = $this->makeMissionAndRun();
-
-        $this->completedComponent($run)
-            ->set('wordsToTrack.0', false)
-            ->call('proceed')
-            ->call('addAndProceed')
-            ->assertRedirect(route('missions.show', $run->mission));
-
-        $this->assertSame(3, VocabularyWord::where('learner_id', $learner->id)->count());
-    }
-
-    public function test_continue_without_adding_leaves_the_notebook_untouched(): void
-    {
-        [$learner, , $run] = $this->makeMissionAndRun();
-
-        $this->completedComponent($run)
-            ->call('proceed')
-            ->call('proceedWithoutAdding')
-            ->assertRedirect(route('missions.show', $run->mission));
-
-        $this->assertSame(0, VocabularyWord::where('learner_id', $learner->id)->count());
-    }
-
-    public function test_continue_leaves_straight_away_when_nothing_is_left_to_add(): void
-    {
-        [, , $run] = $this->makeMissionAndRun();
-
-        // Unticking every word is an explicit "no" — no confirmation needed.
-        $component = $this->completedComponent($run);
-
-        foreach (range(0, 3) as $index) {
-            $component->set("wordsToTrack.{$index}", false);
-        }
-
-        $component->call('proceed')
-            ->assertSet('confirmingSkip', false)
-            ->assertRedirect(route('missions.show', $run->mission));
     }
 
     public function test_continue_checks_every_unchecked_filled_sentence_and_blocks_on_a_major_issue(): void
@@ -741,5 +650,34 @@ class VocabularyBuilderStepTest extends TestCase
         $this->stepComponent($run)->call('startPractice');
 
         $this->stepComponent($run)->assertSet('practiceStarted', true);
+    }
+
+    public function test_a_said_sentence_becomes_the_boxs_text_and_is_checked(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
+
+        $this->stepComponent($run)
+            ->set('dictation', UploadedFile::fake()->create('answer.webm', 10, 'audio/webm'))
+            ->call('dictateExample', 0)
+            ->assertSet('examples.0', 'I wake up at seven.')
+            ->assertSet('feedback.wake up.severity', 'none')
+            ->assertSee('Great!');
+    }
+
+    public function test_a_major_issue_offers_try_again_instead_of_continue(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'major', 'hint' => 'Use the word with its real meaning.'])));
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'Wake up is a word.')
+            ->call('checkOne', 0)
+            ->assertSee('Not quite')
+            ->assertSee('Use the word with its real meaning.')
+            ->assertSee('Try again');
     }
 }

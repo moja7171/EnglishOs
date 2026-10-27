@@ -40,8 +40,15 @@
     otherwise-adaptive set (e.g. Vocabulary Builder's image-match cards
     mixed in alongside its difficulty-tagged meaning-check cards) is
     treated as 'medium'.
+
+    @param bool $lesson The one-task lesson screen's look: no card around
+        it and no inner bar (each answer reports its share in a
+        'quick-round-progress' event { share } instead), a small chip
+        ($label, or a card's own `label`) over a big prompt, Skip at the
+        bottom.
+    @param string $label The chip over the prompt.
 --}}
-@props(['cards', 'onComplete' => null, 'onSkip' => null, 'draftKey' => null])
+@props(['cards', 'onComplete' => null, 'onSkip' => null, 'draftKey' => null, 'lesson' => false, 'label' => 'Quick check'])
 
 @if (count($cards))
     <div
@@ -121,6 +128,7 @@
             // The next card fades/slides in: flip `entering` on for one
             // frame so the transition has a start state to animate from.
             settle() {
+                $dispatch('quick-round-progress', { share: this.index / this.cards.length });
                 this.entering = true;
                 this.$nextTick(() => requestAnimationFrame(() => { this.entering = false }));
             },
@@ -165,10 +173,11 @@
             },
         }"
         x-show="!skipped"
-        {{ $attributes->class(['card-sunken p-4 shadow-sm sm:p-5']) }}
+        {{ $attributes->class([$lesson ? 'flex flex-col' : 'card-sunken p-4 shadow-sm sm:p-5']) }}
     >
         <template x-if="!finished && card">
-            <div>
+            <div @class(['flex min-h-[calc(100dvh-13rem)] flex-col' => $lesson])>
+                @unless ($lesson)
                 <div class="flex items-center gap-3">
                     <div class="flex-1">
                         <x-progress-bar>
@@ -185,18 +194,22 @@
                         class="-my-1 -mr-1.5 shrink-0 cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold text-ink-faint transition-colors hover:bg-surface hover:text-ink-soft dark:text-ink-faint-dark dark:hover:bg-surface-dark dark:hover:text-ink-soft-dark"
                     >Skip</button>
                 </div>
+                @endunless
 
                 <div
-                    class="transition duration-200 ease-out motion-reduce:transition-none"
+                    class="transition duration-200 ease-out motion-reduce:transition-none @if ($lesson) flex-1 pt-2 @endif"
                     :class="entering ? 'translate-y-1.5 opacity-0' : 'translate-y-0 opacity-100'"
                 >
-                    <p class="mt-4 flex items-center gap-2 text-xs font-bold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">
-                        Quick check
+                    @if ($lesson)
+                        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark" x-text="card.label ?? @js($label)"></span>
+                    @endif
+                    <p @class(['mt-4 flex items-center gap-2 text-xs font-bold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark', 'hidden' => $lesson])>
+                        {{ $label }}
                         <span x-show="correctStreak >= 3" x-cloak class="inline-flex items-center gap-0.5 rounded-full bg-accent-soft px-2 py-0.5 normal-case dark:bg-accent-soft-dark">
                             @svg('heroicon-s-fire', 'h-3.5 w-3.5') <span x-text="correctStreak"></span>
                         </span>
                     </p>
-                    <p class="mt-1.5 font-display text-xl leading-snug font-bold text-ink dark:text-ink-dark" x-text="card.prompt"></p>
+                    <p @class(['mt-1.5 font-display text-xl leading-snug font-bold text-ink dark:text-ink-dark' => ! $lesson, 'mt-4 text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark' => $lesson]) x-text="card.prompt"></p>
 
                     <div class="mt-4 grid gap-2.5" :class="card.optionType === 'image' ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'">
                         <template x-for="(option, i) in card.options" :key="i">
@@ -221,7 +234,7 @@
                                 <template x-if="card.optionType !== 'image'">
                                     <span class="flex min-w-0 flex-1 items-center gap-3">
                                         <span class="choice-key" x-text="letters[i]"></span>
-                                        <span class="min-w-0 flex-1 leading-snug" x-text="option"></span>
+                                        <span dir="auto" class="min-w-0 flex-1 leading-snug" x-text="option"></span>
                                         <span x-show="stateOf(i) === 'correct'" x-cloak class="shrink-0">@svg('heroicon-s-check-circle', 'h-5 w-5')</span>
                                         <span x-show="stateOf(i) === 'wrong'" x-cloak class="shrink-0">@svg('heroicon-s-x-circle', 'h-5 w-5')</span>
                                     </span>
@@ -230,6 +243,10 @@
                         </template>
                     </div>
                 </div>
+
+                @if ($lesson)
+                    <button type="button" x-on:click="skip" class="cursor-pointer pt-4 pb-2 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
+                @endif
             </div>
         </template>
 
