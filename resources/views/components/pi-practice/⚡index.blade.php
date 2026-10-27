@@ -26,6 +26,14 @@ new class extends Component
     #[Locked]
     public int $day = 1;
 
+    /**
+     * Picks the prompt's random angles (see PiPrompts::dayTask()), so the
+     * prompt stays the same while the page is open and changes on the
+     * next visit.
+     */
+    #[Locked]
+    public int $promptSeed = 0;
+
     /** The voice-AI chat the learner copied and pasted back in, for feedback. */
     public string $pastedChat = '';
 
@@ -43,6 +51,7 @@ new class extends Component
 
         $this->missionCode = $target['missionCode'];
         $this->day = $target['dayNumber'];
+        $this->promptSeed = random_int(1, PHP_INT_MAX);
 
         $saved = $this->savedChatFeedback();
 
@@ -79,10 +88,10 @@ new class extends Component
             $this->pastedChat,
             situation: 'a voice conversation the learner had with an AI speaking partner (such as Pi), copied from '
                 .'the app and pasted in. It may be a "My words:" list where each "Me:" line is the learner\'s exact '
-                .'words and "Q:" is the AI\'s question (or "Line:" the line to repeat), or a whole chat. Speaker names may be missing — the AI\'s turns are usually longer and '
+                .'words and "Q:" is the AI\'s question, or a whole chat. Speaker names may be missing — the AI\'s turns are usually longer and '
                 .'ask questions or give corrections; judge ONLY the learner\'s own turns. Ignore filler words.',
             source: 'pi',
-            spoken: ! $this->task['isPronunciationDrill'],
+            spoken: true,
             extraGuidance: $this->task['feedback'],
             practiceTask: implode('; ', $this->task['plan']),
         );
@@ -182,12 +191,12 @@ new class extends Component
     }
 
     /**
-     * @return array{title: string, goal: string, plan: list<string>, prompt: string, feedback: string, isPronunciationDrill: bool}
+     * @return array{title: string, goal: string, plan: list<string>, prompt: string, feedback: string}
      */
     #[Computed]
     public function task(): array
     {
-        return app(PiPrompts::class)->dayTask(auth()->user(), $this->missionCode, $this->day);
+        return app(PiPrompts::class)->dayTask(auth()->user(), $this->missionCode, $this->day, $this->promptSeed);
     }
 
     #[Computed]
