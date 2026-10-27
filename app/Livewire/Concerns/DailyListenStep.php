@@ -6,6 +6,7 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
+use Livewire\Attributes\Computed;
 use Livewire\WithFileUploads;
 
 /**
@@ -104,10 +105,14 @@ trait DailyListenStep
         return ($content['listening_turns'] ?? []) ?: ($content['listening_segments'] ?? []);
     }
 
+    /**
+     * Lines with a checked take. Any verdict counts (lesson design 4: a
+     * take is enough, "Almost" included — never a dead end).
+     */
     public function shadowedCount(): int
     {
         return collect($this->feedback)
-            ->filter(fn ($item, $key) => str_starts_with($key, 'shadow_') && $item['severity'] === 'none')
+            ->filter(fn ($item, $key) => str_starts_with($key, 'shadow_'))
             ->count();
     }
 
@@ -156,6 +161,7 @@ trait DailyListenStep
      * PexelsClient call. Purely decorative, fails soft (null) on no
      * query/no key/any error.
      */
+    #[Computed]
     public function heroImageUrl(): ?string
     {
         $query = $this->run->mission->stepContent($this->phaseKey())['image_query'] ?? null;
