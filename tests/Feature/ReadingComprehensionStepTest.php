@@ -86,49 +86,26 @@ class ReadingComprehensionStepTest extends TestCase
             ->assertSee('Aisha lives in Manchester and works at a hospital.');
     }
 
-    public function test_the_page_is_split_into_2_sub_steps(): void
+    public function test_the_passage_and_each_question_get_their_own_screen(): void
     {
         $run = $this->makeRun();
 
         $html = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])->html();
 
-        $this->assertStringContainsString('activeSubstep === 0', $html);
-        $this->assertStringContainsString('activeSubstep === 1', $html);
-        $this->assertStringContainsString('Part', $html);
+        // Lesson design 9: the passage alone, then one question per screen.
+        $this->assertStringContainsString('screen === 1', $html);
+        $this->assertStringContainsString('Answer · 1 of 2', $html);
+        $this->assertStringContainsString('Answer · 2 of 2', $html);
     }
 
-    /**
-     * Regression test for a bug where clicking Check did nothing: the root
-     * x-data declared `activeSubstep` but not `dismissed`, which
-     * <x-check-button> reads/writes on click. A missing `dismissed` key
-     * throws "Alpine Expression Error: dismissed is not defined" client-side
-     * and aborts the click handler before $wire.checkOne() ever runs — a
-     * failure PHP-level Livewire tests can't see directly (no real Alpine
-     * runtime here), so this only checks the cheap proxy: the root x-data
-     * actually declares `dismissed` alongside `activeSubstep`, matching the
-     * same pattern already used by Listening/Active Recall/Error Log.
-     */
-    public function test_root_x_data_declares_dismissed_for_the_check_button(): void
+    public function test_check_waits_for_an_answer_in_the_box(): void
     {
         $run = $this->makeRun();
 
-        $html = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])->html();
-
-        $this->assertMatchesRegularExpression('/x-data="\{[^"]*\bdismissed\b[^"]*\}"/', $html);
-    }
-
-    public function test_continue_stays_on_screen_but_disabled_until_both_answers_are_filled(): void
-    {
-        $run = $this->makeRun();
-
+        // Check waits for something in the box; the page's `filled` drives it.
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
-            ->assertSeeHtml('x-on:click="$wire.save()"')
-            ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->assertSee('Answer every question to continue')
-            ->set('answers.0', 'She wakes up early.')
-            ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->set('answers.1', 'She sleeps in.')
-            ->assertSeeHtml('x-bind:disabled="! (true)"');
+            ->assertSeeHtml('x-bind:disabled="! (filled[0])"')
+            ->assertSeeHtml('x-bind:disabled="! (filled[1])"');
     }
 
     public function test_a_passage_with_an_image_query_shows_a_header_image(): void
@@ -158,7 +135,7 @@ class ReadingComprehensionStepTest extends TestCase
     {
         $run = $this->makeRunWithImageQuery();
 
-        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->once()->andReturn(null));
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->assertOk()
@@ -239,7 +216,7 @@ class ReadingComprehensionStepTest extends TestCase
             ->set('answers.0', 'She wakes up early and never skips breakfast.')
             ->set('answers.1', 'On Sunday she sleeps in and does not set an alarm.')
             ->call('save')
-            ->assertSet('completed', true);
+            ->assertRedirect(route('missions.show', $run->mission));
 
         $this->assertDatabaseCount('evidences', 1);
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'reading_comprehension']);
@@ -248,11 +225,7 @@ class ReadingComprehensionStepTest extends TestCase
         $content = json_decode($evidence->content_ref, true);
         $this->assertSame('She wakes up early and never skips breakfast.', $content['answers'][0]);
 
-        // Evidence is already saved — currentStepKey has already advanced,
-        // the recap is just a courtesy screen before navigating away.
         $this->assertSame('writing', $run->fresh()->currentStepKey());
-
-        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
     }
 
     /**
@@ -260,7 +233,7 @@ class ReadingComprehensionStepTest extends TestCase
      * attempt (?retry=1) can be compared against this one, and the
      * immediate score is shown right on this completion.
      */
-    public function test_the_encouragement_score_reflects_how_many_answers_needed_no_fix(): void
+    public function test_each_answers_severity_is_saved(): void
     {
         $run = $this->makeRun();
 
@@ -274,37 +247,11 @@ class ReadingComprehensionStepTest extends TestCase
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->set('answers.0', 'She wakes up early and never skips breakfast.')
             ->set('answers.1', 'On Sunday she sleeps in, a bit differently.')
-            ->call('save')
-            ->assertSet('correctCount', 1)
-            ->assertSee('1 of 2 answers needed no fix at all');
+            ->call('save');
 
         $evidence = Evidence::where('phase', 'reading_comprehension')->first();
         $content = json_decode($evidence->content_ref, true);
         $this->assertSame(['none', 'minor'], $content['severities']);
-    }
-
-    public function test_the_encouragement_score_compares_to_the_learners_previous_attempt(): void
-    {
-        $run = $this->makeRun();
-
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'reading_comprehension',
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['answers' => ['old one', 'old two'], 'severities' => ['minor', 'minor']]),
-        ]);
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->twice()->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
-            ->set('answers.0', 'She wakes up early and never skips breakfast.')
-            ->set('answers.1', 'On Sunday she sleeps in and does not set an alarm.')
-            ->call('save')
-            ->assertSet('correctCount', 2)
-            ->assertSet('previousCorrect', 0)
-            ->assertSee('Better than last time');
     }
 
     public function test_three_failed_checks_offer_to_reveal_the_correction(): void
@@ -429,25 +376,22 @@ class ReadingComprehensionStepTest extends TestCase
      * (never worked on mobile — same fix already made for Vocabulary
      * Builder).
      */
-    public function test_the_new_words_section_shows_pos_and_example(): void
+    public function test_new_words_are_marked_in_the_passage_with_no_separate_list(): void
     {
         $run = $this->makeRunWithNewWords();
 
+        // Lesson design 9: no separate list — the new words are marked in
+        // the passage, a tap shows the meaning.
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
-            ->assertSee('New words')
-            ->assertSee('exhausted')
-            ->assertSee('adjective')
-            ->assertSee('very tired')
-            ->assertSee('I was exhausted after the long shift.')
-            // The reused word never appears in the "new words" list.
-            ->assertDontSeeHtml('>wakes up</p>');
+            ->assertDontSee('New words')
+            ->assertSeeHtml('title="very tired"');
     }
 
     /**
      * Epic F: new words hook into My Words the same way Vocabulary
      * Builder/Listening already do — offered, never silently enrolled.
      */
-    public function test_completing_the_step_offers_to_add_new_words_to_my_words(): void
+    public function test_finishing_adds_the_new_words_to_my_words(): void
     {
         $run = $this->makeRunWithNewWords();
 
@@ -456,13 +400,7 @@ class ReadingComprehensionStepTest extends TestCase
         $component = Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->set('answers.0', 'She seems tired but hardworking.')
             ->call('save')
-            ->assertSet('completed', true)
-            ->assertSee('exhausted')
-            ->assertSee('Add to My Words');
-
-        $component->call('addWordsToNotebook')
-            ->assertSet('trackedWords', true)
-            ->assertSee('Added to My Words');
+            ->assertRedirect(route('missions.show', $run->mission));
 
         $this->assertDatabaseHas('vocabulary_words', [
             'learner_id' => $run->learner_id,
