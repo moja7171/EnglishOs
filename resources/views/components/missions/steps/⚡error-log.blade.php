@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\DictatesAnswers;
 use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
@@ -9,31 +10,31 @@ use App\Models\MissionRun;
 use App\Services\AiFailure;
 use App\Services\GeminiClient;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
+/**
+ * Lesson design 12: a waiting screen while the AI finds the learner's top
+ * mistakes in everything they said and wrote, then one screen per mistake
+ * (wrong → right, the Persian why, and a new sentence of their own, typed
+ * or said), then one short line that the patterns come back in Review.
+ */
 new class extends Component
 {
+    use DictatesAnswers;
     use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
+    use WithFileUploads;
 
     public MissionRun $run;
 
     public bool $readOnly = false;
 
-    /** @var array<int, array{error: string, correction: string, drills: array<int, array{sentence: string, answer: string}>}> */
+    /** @var array<int, array{error: string, correction: string, why: ?string, category: ?string}> */
     public array $mistakes = [];
 
     /** @var array<int, string> */
     public array $newExamples = [];
-
-    /** @var array<int, array<int, string>> keyed by mistake index then drill index — the learner's own attempt */
-    public array $drillAnswers = [];
-
-    /** @var array<int, array<int, bool>> keyed the same way — whether the last-checked attempt was correct */
-    public array $drillChecked = [];
-
-    /** @var array<int, array<int, string>> keyed the same way — set only for an empty attempt, so Check never silently does nothing */
-    public array $drillErrors = [];
 
     public bool $generated = false;
 
@@ -64,7 +65,6 @@ new class extends Component
                 'correction' => $i->correction,
                 'why' => $i->why,
                 'category' => $i->category,
-                'drills' => $i->drills ?? [],
             ])->all();
             $this->newExamples = $items->pluck('new_example')->all();
             $this->generated = true;
@@ -78,7 +78,7 @@ new class extends Component
 
     protected function draftedProperties(): array
     {
-        return ['mistakes', 'generated', 'newExamples', 'drillAnswers', 'drillChecked'];
+        return ['mistakes', 'generated', 'newExamples'];
     }
 
     public function updatedNewExamples(): void
@@ -87,35 +87,19 @@ new class extends Component
     }
 
     /**
-     * Purely local — every drill's expected answer was already generated
-     * alongside its mistake, so there's no AI round-trip needed to check
-     * it, same reasoning as Grammar in Context's Quick Check. Optional
-     * bonus practice: never blocks save(), never required.
+     * The mic in a mistake's answer box: what was said becomes that
+     * mistake's new sentence.
      */
-    public function checkDrill(int $mistakeIndex, int $drillIndex): void
+    public function dictateExample(int $index): void
     {
-        $expected = $this->mistakes[$mistakeIndex]['drills'][$drillIndex]['answer'] ?? null;
-        $given = trim($this->drillAnswers[$mistakeIndex][$drillIndex] ?? '');
+        $text = isset($this->mistakes[$index]) ? $this->dictatedText($index) : null;
 
-        if ($expected === null) {
+        if ($text === null) {
             return;
         }
 
-        if ($given === '') {
-            $this->drillErrors[$mistakeIndex][$drillIndex] = 'Write something first.';
-
-            return;
-        }
-
-        unset($this->drillErrors[$mistakeIndex][$drillIndex]);
-        $this->drillChecked[$mistakeIndex][$drillIndex] = $this->normalizeAnswer($given) === $this->normalizeAnswer($expected);
-
+        $this->newExamples[$index] = $text;
         $this->keepStepDraft();
-    }
-
-    private function normalizeAnswer(string $text): string
-    {
-        return trim(preg_replace('/\s+/', ' ', strtolower(rtrim(trim($text), '.!?'))));
     }
 
     public function generate(): void
@@ -136,10 +120,7 @@ new class extends Component
                 [['role' => 'user', 'text' => $text]],
                 systemPrompt: 'You are an English teacher reviewing everything '.$this->run->learner->levelDescription()
                     .' said and wrote during a '
-                    .'lesson. Identify 3 to 5 recurring or notable grammar/vocabulary mistakes. For EACH mistake, also '
-                    .'write 2 short NEW fill-in-the-blank practice sentences that target the exact same error pattern '
-                    .'(not the same sentence reworded) — a personal, natural sentence with the key word or form '
-                    .'replaced by "___", plus the single word/phrase that correctly fills it. Also assign a short '
+                    .'lesson. Identify 3 to 5 recurring or notable grammar/vocabulary mistakes. For EACH mistake, assign a short '
                     .'category slug (lowercase, hyphenated, 1-3 words, e.g. "third-person-s", "article-usage", '
                     .'"preposition", "verb-tense", "word-order") naming the general grammar/vocabulary pattern the '
                     .'mistake belongs to — so the SAME pattern can be recognised again in a future lesson even '
@@ -150,8 +131,7 @@ new class extends Component
                     .'with ONLY a valid JSON array, no markdown fences, no extra text, each item shaped exactly '
                     .'like: {"error": "the mistake as the learner wrote/said it", "correction": "the corrected '
                     .'form", "why": "Persian explanation of the rule", '
-                    .'"category": "short-slug", '
-                    .'"drills": [{"sentence": "...___...", "answer": "..."}, {"sentence": "...___...", "answer": "..."}]}. '
+                    .'"category": "short-slug"}. '
                     .'If the learner made no real mistakes, reply with an empty JSON array: []',
                 profile: GeminiClient::PROFILE_JUDGE,
             );
@@ -164,7 +144,7 @@ new class extends Component
             }
 
             $this->mistakes = collect($data)
-                ->map(fn ($item) => $item + ['drills' => [], 'category' => null, 'why' => null])
+                ->map(fn ($item) => $item + ['category' => null, 'why' => null])
                 ->all();
             $this->newExamples = array_fill(0, count($data), '');
             $this->generated = true;
@@ -198,7 +178,6 @@ new class extends Component
                 'correction' => $item['correction'],
                 'why' => $item['why'] ?? null,
                 'new_example' => trim($this->newExamples[$i]),
-                'drills' => $item['drills'] ?? [],
                 'category' => $item['category'] ?? null,
             ]);
 
@@ -249,155 +228,128 @@ new class extends Component
 };
 ?>
 
-<div class="space-y-6">
-    <x-hook :text="$run->mission->stepContent('error_log')['hook'] ?? null" />
-
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">My Fixes</p>
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Correct your most common mistakes with a new example.</p>
+@if ($readOnly)
+    <div class="flex flex-col gap-3 pt-2">
+        <x-step-intro kind="My Fixes" />
+        @if (! $generated)
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Your own mistakes — fills in once you reach this step.</p>
+        @elseif (empty($mistakes))
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">No recurring mistakes found — nice work!</p>
+        @endif
+        @foreach ($mistakes as $i => $item)
+            <div class="flex flex-col gap-1 rounded-2xl bg-surface p-4 dark:bg-surface-dark">
+                <p class="text-sm text-danger-ink line-through decoration-danger">{{ $item['error'] }}</p>
+                <p class="text-sm font-bold text-success dark:text-success-dark">{{ $item['correction'] }}</p>
+                @if (! empty($item['why']))
+                    <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $item['why'] }}</p>
+                @endif
+                @if (filled($newExamples[$i] ?? null))
+                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $newExamples[$i] }}</p>
+                @endif
+            </div>
+        @endforeach
     </div>
-
-    @if ($error)
-        <div class="rounded-xl border border-danger-line p-3 text-sm text-danger-ink">
-            {{ $error }}
-            <button
-                wire:click="generate"
-                wire:loading.attr="disabled"
-                wire:target="generate"
-                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full border border-danger-line px-3 py-1 text-xs font-semibold text-danger-ink transition-colors hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-50"
-            >
-                <span wire:loading.remove wire:target="generate">Try again</span>
-                <span wire:loading wire:target="generate">Trying again…</span>
-            </button>
-            <button
-                wire:click="skipForNow"
-                wire:loading.attr="disabled"
-                wire:target="skipForNow"
-                class="mt-2 ml-2 inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark disabled:cursor-not-allowed disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark"
-            >
-                Skip this step for now
-            </button>
-        </div>
-    @elseif (! $generated)
-        <div class="rounded-xl border border-dashed border-line p-6 text-center dark:border-line-dark">
-            <div wire:loading.remove wire:target="generate">
-                @svg('heroicon-o-magnifying-glass', 'mx-auto h-6 w-6 text-ink-faint dark:text-ink-faint-dark')
-                @if ($preview)
-                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your own mistakes — fills in once you reach this step.</p>
-                @else
-                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">Your mistakes haven't been reviewed yet.</p>
+@elseif (! $generated || $error)
+    {{-- The waiting screen: the review starts on its own (a review already
+         made comes back from the step's draft, so a revisit never calls
+         the AI again). --}}
+    <div wire:key="error-log-waiting" @if (! $generated && ! $error) x-init="$wire.generate()" @endif x-effect="$dispatch('step-progress', { share: 0.05 })">
+        <x-lesson-screen when="true">
+            <div class="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+                @if ($error)
+                    <p class="text-sm text-danger-ink">{{ $error }}</p>
                     <button
                         wire:click="generate"
                         wire:loading.attr="disabled"
                         wire:target="generate"
-                        class="mt-3 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                        class="cursor-pointer rounded-full border-2 border-line px-5 py-2 text-sm font-bold text-ink transition-colors hover:bg-surface disabled:opacity-50 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-dark"
                     >
-                        <span wire:loading.remove wire:target="generate">Review my mistakes</span>
-                        <span wire:loading wire:target="generate">Reviewing…</span>
+                        <span wire:loading.remove wire:target="generate">Try again</span>
+                        <span wire:loading wire:target="generate">Trying again…</span>
                     </button>
+                @else
+                    <span class="h-16 w-16 animate-pulse rounded-full bg-[radial-gradient(circle_at_35%_35%,var(--color-accent-soft),var(--color-accent))]"></span>
+                    <p class="text-lg font-extrabold text-ink dark:text-ink-dark">Finding your top mistakes…</p>
+                    <p class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">From everything you said and wrote</p>
                 @endif
             </div>
-            <div wire:loading wire:target="generate">
-                <x-ai-thinking label="Reviewing everything you said and wrote…" class="mx-auto max-w-xs" />
-            </div>
-        </div>
-    @elseif (empty($mistakes))
-        <div class="rounded-xl border border-line p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-            No recurring mistakes found — nice work!
-        </div>
-        @unless ($readOnly)
-            <x-sticky-bar>
-                <button wire:click="save" wire:loading.attr="disabled" wire:target="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50">
-                    <span wire:loading.remove wire:target="save">Continue</span>
-                    <span wire:loading wire:target="save">Please wait…</span>
-                </button>
-            </x-sticky-bar>
-        @endunless
-    @else
-        <div class="space-y-4" x-data="{ dismissed: {} }">
-            @foreach ($mistakes as $i => $item)
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-sm text-danger-ink line-through decoration-danger">{{ $item['error'] }}</p>
-                    <p class="mt-1 text-sm text-success dark:text-success-dark">{{ $item['correction'] }}</p>
-                    @if (! empty($item['why']))
-                        <p class="font-fa mt-1 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $item['why'] }}</p>
-                    @endif
-                    @if (! empty($item['category']))
-                        <p class="font-fa mt-1 flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark" dir="rtl">
-                            @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5 shrink-0')
-                            این الگو رو دوباره توی مرور روزانه می‌بینی
-                        </p>
-                    @endif
-                    <input
-                        type="text"
-                        wire:model.live="newExamples.{{ $i }}"
-                        placeholder="Write a new sentence using the correct form…"
-                        @readonly($readOnly)
-                        class="mt-2 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                    >
 
-                    @if (count($item['drills'] ?? []))
-                        <div class="mt-3 space-y-2 border-t border-line pt-3 dark:border-line-dark">
-                            <p class="text-[11px] font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Extra practice — optional</p>
-                            @foreach ($item['drills'] as $d => $drill)
-                                @php
-                                    $drillKey = "drill_{$i}_{$d}";
-                                    [$before, $after] = array_pad(explode('___', $drill['sentence'] ?? '', 2), 2, '');
-                                    $checked = $drillChecked[$i][$d] ?? null;
-                                    $drillError = $drillErrors[$i][$d] ?? null;
-                                @endphp
-                                <div>
-                                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                                        {{ $before }}<input
-                                            type="text"
-                                            wire:model="drillAnswers.{{ $i }}.{{ $d }}"
-                                            placeholder="…"
-                                            x-on:input="dismissed['{{ $drillKey }}'] = true"
-                                            class="inline w-24 border-b border-line bg-transparent px-1 text-center text-ink focus:border-accent focus:outline-none dark:border-line-dark dark:text-ink-dark dark:focus:border-accent-dark"
-                                        >{{ $after }}
-                                        <button
-                                            type="button"
-                                            x-on:click="dismissed['{{ $drillKey }}'] = true; $wire.checkDrill({{ $i }}, {{ $d }}).then(() => { dismissed['{{ $drillKey }}'] = false })"
-                                            class="cursor-pointer rounded-full border border-line px-2 py-0.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                                        >Check</button>
-                                    </p>
-                                    <p
-                                        x-show="!dismissed['{{ $drillKey }}']"
-                                        class="mt-1 text-xs {{ $checked ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}"
-                                    >
-                                        @if ($drillError)
-                                            {{ $drillError }}
-                                        @elseif ($checked === true)
-                                            @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') Nice — that's it.
-                                        @elseif ($checked === false)
-                                            Not quite — try again.
-                                        @endif
-                                    </p>
-                                </div>
-                            @endforeach
-                        </div>
+            @if ($error)
+                <x-slot:actions>
+                    <button wire:click="skipForNow" wire:loading.attr="disabled" wire:target="skipForNow" class="cursor-pointer text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Skip this step for now</button>
+                </x-slot:actions>
+            @endif
+        </x-lesson-screen>
+    </div>
+@elseif (empty($mistakes))
+    <div wire:key="error-log-none" x-effect="$dispatch('step-progress', { share: 0.9 })">
+        <x-lesson-screen when="true">
+            <div class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+                <span class="flex h-16 w-16 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-o-check', 'h-8 w-8')</span>
+                <p class="text-lg font-extrabold text-ink dark:text-ink-dark">No recurring mistakes found — nice work!</p>
+            </div>
+
+            <x-slot:actions>
+                <x-continue-button on-click="$wire.save()" wire-target="save" />
+            </x-slot:actions>
+        </x-lesson-screen>
+    </div>
+@else
+    @php $total = count($mistakes); @endphp
+    <div
+        wire:key="error-log-fixes"
+        x-data="{ screen: 0, filled: @js(collect($newExamples)->map(fn ($e) => trim((string) $e) !== '')->all()) }"
+        x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $total + 1 }} })"
+        x-back-close="{ open: screen > 0, close: () => screen-- }"
+    >
+        @foreach ($mistakes as $i => $item)
+            <x-lesson-screen when="screen === {{ $i }}">
+                <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Fix {{ $i + 1 }} of {{ $total }}</span>
+
+                <div class="flex flex-col gap-1.5 rounded-3xl bg-surface p-4 dark:bg-surface-dark">
+                    <p class="text-base text-danger-ink line-through decoration-danger">{{ $item['error'] }}</p>
+                    <p class="text-base font-extrabold text-success dark:text-success-dark">{{ $item['correction'] }}</p>
+                    @if (! empty($item['why']))
+                        <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $item['why'] }}</p>
                     @endif
                 </div>
-            @endforeach
-        </div>
 
-        <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">
-            امروز {{ count($mistakes) }} الگوی تکراری رو شناسایی و اصلاح کردی
-        </p>
+                <p class="text-lg leading-snug font-extrabold text-ink dark:text-ink-dark">Now a new sentence of your own, the right way</p>
 
-        @error('newExamples')
-            <p class="text-sm text-danger-ink">{{ $message }}</p>
-        @enderror
+                <x-type-or-say
+                    model="newExamples.{{ $i }}"
+                    method="dictateExample"
+                    :param="$i"
+                    draft-key="error-log-{{ $run->id }}-{{ $i }}"
+                    placeholder="Your sentence…"
+                    on-input="filled[{{ $i }}] = $el.value.trim() !== ''"
+                    :rows="2"
+                    :error="$dictationErrors[$i] ?? null"
+                />
 
-        {{-- newExamples uses wire:model.live, so this is already known
-             server-side on every keystroke — no extra Alpine tracking. --}}
-        @if (! $readOnly && collect($newExamples)->every(fn ($e) => trim((string) $e) !== ''))
-            <x-sticky-bar>
-                <button wire:click="save" wire:loading.attr="disabled" wire:target="save" class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50">
-                    <span wire:loading.remove wire:target="save">Continue</span>
-                    <span wire:loading wire:target="save">Please wait…</span>
-                </button>
-            </x-sticky-bar>
-        @endif
-    @endif
-</div>
+                <x-slot:actions>
+                    <x-continue-button
+                        on-click="screen = {{ $i + 1 }}"
+                        wire-target="dictateExample"
+                        ready-when="filled[{{ $i }}] || {{ filled($newExamples[$i] ?? null) ? 'true' : 'false' }}"
+                    />
+                </x-slot:actions>
+            </x-lesson-screen>
+        @endforeach
+
+        <x-lesson-screen when="screen === {{ $total }}">
+            <div class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+                <span class="flex h-16 w-16 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-o-check', 'h-8 w-8')</span>
+                <p class="font-fa text-lg font-extrabold text-ink dark:text-ink-dark" dir="rtl">{{ $total }} الگو رو اصلاح کردی؛ توی مرور دوباره میان.</p>
+            </div>
+
+            @error('newExamples')
+                <p class="text-sm text-danger-ink">{{ $message }}</p>
+            @enderror
+
+            <x-slot:actions>
+                <x-continue-button on-click="$wire.save()" wire-target="save" />
+            </x-slot:actions>
+        </x-lesson-screen>
+    </div>
+@endif
