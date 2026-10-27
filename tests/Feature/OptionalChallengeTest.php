@@ -56,10 +56,10 @@ class OptionalChallengeTest extends TestCase
     public function test_final_challenge_offers_the_challenge_only_in_the_last_third(): void
     {
         Livewire::test('missions.steps.ai-conversation2', ['run' => $this->makeFinalChallengeRun('M08')])
-            ->assertDontSee('no time to prepare');
+            ->assertDontSee('No-prep challenge');
 
         Livewire::test('missions.steps.ai-conversation2', ['run' => $this->makeFinalChallengeRun('M17')])
-            ->assertSee('no time to prepare');
+            ->assertSee('No-prep challenge');
     }
 
     public function test_final_challenge_round_still_submits_normally_in_the_last_third(): void

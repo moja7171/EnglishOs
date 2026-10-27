@@ -180,7 +180,9 @@ class MissionRun extends Model
             $pieces[] = $data['transcript'] ?? '';
         }
 
-        if ($conv2 = $this->latestEvidence('ai_conversation_2')) {
+        // Final Talk also keeps an AUDIO row (the 3-minute take) — the
+        // transcript is the TRANSCRIPT row.
+        if ($conv2 = $this->evidence()->where('phase', 'ai_conversation_2')->where('type', Evidence::TYPE_TRANSCRIPT)->latest()->first()) {
             $data = json_decode($conv2->content_ref, true) ?? [];
             $pieces[] = collect($data['rounds'] ?? [])->pluck('answer')->implode(' ');
             $pieces[] = $data['final_transcript'] ?? '';

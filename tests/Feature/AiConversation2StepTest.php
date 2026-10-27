@@ -18,6 +18,14 @@ class AiConversation2StepTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // The 3-minute challenge keeps its take on the public disk.
+        Storage::fake('public');
+    }
+
     private function makeRun(): MissionRun
     {
         $learner = User::factory()->create();
@@ -59,7 +67,7 @@ class AiConversation2StepTest extends TestCase
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
-                ->times(8)
+                ->times(9)
                 ->andReturn(
                     json_encode(['severity' => 'none', 'hint' => '']),
                     'What time do you leave for work?',
@@ -71,7 +79,8 @@ class AiConversation2StepTest extends TestCase
                     json_encode([
                         'requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false],
                         'note' => 'Good use of Present Simple, try more vocabulary next time.',
-                    ])
+                    ]),
+                    $this->learnerFeedbackReply(['severity' => 'minor']), // the shared feedback on the whole talk
                 );
         });
 
@@ -97,15 +106,20 @@ class AiConversation2StepTest extends TestCase
             ->assertSet('checklist', ['Present Simple' => true, '5+ vocabulary expressions' => false]);
 
         $component->call('finishConversation')
+            ->assertSet('completed', true)
+            ->assertSee('I work in a hospital.')
+            ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
-        $evidence = Evidence::where('phase', 'ai_conversation_2')->first();
+        $evidence = Evidence::where('phase', 'ai_conversation_2')->where('type', Evidence::TYPE_TRANSCRIPT)->first();
         $this->assertNotNull($evidence);
         $content = json_decode($evidence->content_ref, true);
         $this->assertCount(2, $content['rounds']);
         $this->assertTrue($content['requirements']['Present Simple']);
         $this->assertSame('Do you have a daily routine?', $content['role_reversal']['question']);
         $this->assertSame('I usually wake up early too!', $content['role_reversal']['answer']);
+        $this->assertSame('minor', $content['feedback']['severity']);
+        $this->assertDatabaseHas('evidences', ['phase' => 'ai_conversation_2', 'type' => Evidence::TYPE_AUDIO]);
         $this->assertDatabaseCount('step_drafts', 0);
 
         $this->assertSame('error_log', $run->fresh()->currentStepKey());
@@ -313,17 +327,16 @@ class AiConversation2StepTest extends TestCase
             ->assertSee("This one's harder on purpose.");
     }
 
-    public function test_the_round_prompt_has_a_read_aloud_button_the_learner_must_click(): void
+    public function test_the_round_prompt_is_read_aloud_with_a_speaker_to_hear_it_again(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
             ->assertSeeHtml('data-text="Describe your typical weekday."')
-            ->assertSee('Read aloud')
-            ->assertDontSeeHtml('x-init');
+            ->assertSeeHtml('eosVoice?.speak');
     }
 
-    public function test_the_checklist_recap_offers_a_partner_session_with_a_mutual_friend(): void
+    public function test_the_feedback_screen_offers_a_partner_session_with_a_mutual_friend(): void
     {
         Storage::fake('local');
         $run = $this->makeRun();
@@ -338,7 +351,7 @@ class AiConversation2StepTest extends TestCase
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
-                ->times(8)
+                ->times(9)
                 ->andReturn(
                     json_encode(['severity' => 'none', 'hint' => '']),
                     'What time do you leave for work?',
@@ -347,7 +360,8 @@ class AiConversation2StepTest extends TestCase
                     json_encode(['severity' => 'none', 'hint' => '']),
                     'I usually eat breakfast at eight.',
                     json_encode(['severity' => 'none', 'hint' => '']),
-                    json_encode(['requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false], 'note' => 'Good job.'])
+                    json_encode(['requirements' => ['Present Simple' => true, '5+ vocabulary expressions' => false], 'note' => 'Good job.']),
+                    $this->learnerFeedbackReply(['severity' => 'minor']),
                 );
         });
 
@@ -363,12 +377,13 @@ class AiConversation2StepTest extends TestCase
         $component
             ->set('audioFile', UploadedFile::fake()->create('final.webm', 100, 'audio/webm'))
             ->call('submitFinalChallenge')
+            ->call('finishConversation')
             ->assertSee('Do this with a partner')
             ->assertSee('Priya')
             ->assertSeeHtml(route('missions.practice-with-friend', ['mission' => $run->mission, 'step' => 'ai_conversation_2', 'friend' => $friend]));
     }
 
-    public function test_the_final_challenge_prompt_has_a_read_aloud_button_the_learner_must_click(): void
+    public function test_the_final_challenge_prompt_has_a_speaker(): void
     {
         Storage::fake('local');
         $run = $this->makeRun();
@@ -402,8 +417,7 @@ class AiConversation2StepTest extends TestCase
 
         $component
             ->assertSeeHtml('data-text="Speak for 3 minutes about your daily life."')
-            ->assertSee('Read aloud')
-            ->assertDontSeeHtml('x-init');
+            ->assertSeeHtml('eosVoice?.speak');
     }
 
     public function test_an_off_topic_round_answer_is_not_advanced_and_shows_an_encouraging_hint(): void
@@ -563,7 +577,7 @@ class AiConversation2StepTest extends TestCase
 
         $returned = Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
             ->assertSet('roundIndex', 2)
-            ->assertSee('Your turn to ask');
+            ->assertSee('Your turn — ask me something');
 
         $this->assertSame(['a1', 'a2'], array_column($returned->get('turns'), 'answer'));
         $this->assertDatabaseCount('evidences', 0);
@@ -597,7 +611,7 @@ class AiConversation2StepTest extends TestCase
 
         $component
             ->assertSet('qaRoundsDone', true)
-            ->assertSee('Your turn to ask')
+            ->assertSee('Your turn — ask me something')
             ->assertSee('daily life')
             ->assertSeeHtml("this.\$wire.upload('audioFile'")
             ->assertSeeHtml("this.\$wire.call('submitLearnerQuestion')");

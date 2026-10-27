@@ -9,11 +9,20 @@ use App\Models\MissionRun;
 use App\Services\AiFailure;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\LearnerFeedback;
 use App\Services\SpokenAnswerChecker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+/**
+ * Lesson design 13: the start, then the Q&A rounds and the role reversal
+ * ("Your turn — ask me") as ONE chat, then the 3-minute challenge (a
+ * timer ring, the goals ticked once it is checked, an optional Try again),
+ * then the shared feedback screen.
+ */
 new class extends Component
 {
     use KeepsStepDraft;
@@ -60,6 +69,15 @@ new class extends Component
 
     public ?UploadedFile $audioFile = null;
 
+    /** The 3-minute challenge's take on the public disk — Mission Result plays it next to Day 1's. */
+    #[Locked]
+    public ?string $finalAudioPath = null;
+
+    /** @var array<string, mixed>|null A LearnerFeedback::review() result. */
+    public ?array $feedback = null;
+
+    public bool $completed = false;
+
     public bool $processing = false;
 
     public ?string $error = null;
@@ -91,6 +109,8 @@ new class extends Component
         $this->checklist = $data['requirements'] ?? null;
         $this->checklistNote = $data['note'] ?? null;
         $this->checklistRawResponse = $data['raw_ai_response'] ?? null;
+        $this->feedback = $data['feedback'] ?? null;
+        $this->completed = true;
     }
 
     protected function draftPhase(): string
@@ -100,7 +120,7 @@ new class extends Component
 
     protected function draftedProperties(): array
     {
-        return ['roundIndex', 'turns', 'roleReversalDone', 'learnerQuestion', 'aiAnswerToLearner', 'finalTranscript', 'checklist', 'checklistNote', 'checklistRawResponse'];
+        return ['roundIndex', 'turns', 'roleReversalDone', 'learnerQuestion', 'aiAnswerToLearner', 'finalTranscript', 'checklist', 'checklistNote', 'checklistRawResponse', 'finalAudioPath'];
     }
 
     /**
@@ -334,10 +354,13 @@ new class extends Component
 
         $this->validate(['audioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480']]);
 
+        $this->finalAudioPath = $this->keepDraftRecording($this->audioFile, $this->finalAudioPath);
+        $this->audioFile = null;
+        $this->keepStepDraft();
+
         try {
-            $transcript = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+            $transcript = trim(app(GroqClient::class)->transcribe(Storage::disk('public')->path($this->finalAudioPath)));
             $this->recordGroqCall();
-            $this->audioFile = null;
 
             $check = app(SpokenAnswerChecker::class)->checkRelevance(
                 $this->finalPrompt,
@@ -415,11 +438,24 @@ new class extends Component
         }
     }
 
+    /** "Try again" on the challenge: record it once more, checked afresh. */
+    public function retryFinalChallenge(): void
+    {
+        $this->finalTranscript = null;
+        $this->checklist = null;
+        $this->checklistNote = null;
+        $this->checklistRawResponse = null;
+
+        $this->keepStepDraft();
+    }
+
     public function finishConversation(): void
     {
         if (! $this->checklist) {
             return;
         }
+
+        $this->generateFeedback();
 
         Evidence::create([
             'mission_run_id' => $this->run->id,
@@ -435,277 +471,307 @@ new class extends Component
                 'requirements' => $this->checklist,
                 'note' => $this->checklistNote,
                 'raw_ai_response' => $this->checklistRawResponse,
+                'feedback' => $this->feedback,
             ]),
         ]);
 
-        $this->forgetStepDraft();
+        if ($this->finalAudioPath) {
+            Evidence::create([
+                'mission_run_id' => $this->run->id,
+                'phase' => 'ai_conversation_2',
+                'type' => Evidence::TYPE_AUDIO,
+                'content_ref' => Storage::disk('public')->url($this->finalAudioPath),
+            ]);
+        }
 
+        $this->forgetStepDraft();
+        $this->completed = true;
+    }
+
+    /**
+     * The shared sentence-by-sentence feedback on the whole talk. Silent on
+     * failure: the talk itself is already saved either way.
+     */
+    private function generateFeedback(): void
+    {
+        try {
+            $this->feedback = app(LearnerFeedback::class)->review(
+                $this->run->learner,
+                '',
+                situation: 'the last speaking task of a mission: spoken answers to a few questions, one question the '
+                    .'learner asked, then a 3-minute talk. Each Question is the AI partner; judge ONLY the learner\'s lines.',
+                source: 'ai_conversation_2',
+                spoken: true,
+                onCallSucceeded: fn () => $this->recordGeminiCall(),
+                answers: $this->answers(),
+            );
+
+            if ($this->feedback['severity'] === 'major') {
+                $this->run->recordStruggleSignal();
+            }
+        } catch (\Throwable) {
+            // Silent by design — see method docblock.
+        }
+    }
+
+    /**
+     * Every answer, the learner's own question and the 3-minute talk, in
+     * order — what the feedback is given on.
+     *
+     * @return list<array{question: ?string, text: string}>
+     */
+    public function answers(): array
+    {
+        $answers = array_map(fn (array $turn) => ['question' => $turn['prompt'], 'text' => $turn['answer']], $this->turns);
+
+        if (filled($this->learnerQuestion)) {
+            $answers[] = ['question' => 'Your turn — ask me something', 'text' => $this->learnerQuestion];
+        }
+
+        if (filled($this->finalTranscript)) {
+            $answers[] = ['question' => $this->finalPrompt, 'text' => $this->finalTranscript];
+        }
+
+        return $answers;
+    }
+
+    public function finalAudioUrl(): ?string
+    {
+        if ($this->finalAudioPath) {
+            return Storage::disk('public')->url($this->finalAudioPath);
+        }
+
+        return $this->readOnly
+            ? $this->run->evidence()->where('phase', 'ai_conversation_2')->where('type', Evidence::TYPE_AUDIO)->latest()->value('content_ref')
+            : null;
+    }
+
+    public function proceed(): void
+    {
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 };
 ?>
 
-<div class="space-y-6" x-data="{ noPrepChallenge: false }">
-    <x-hook :text="$run->mission->stepContent('ai_conversation_2')['hook'] ?? null" />
+@php
+    $content = $run->mission->stepContent('ai_conversation_2');
+    $roundCount = count($this->rounds);
+    $chatTotal = $roundCount + 1;
+    $chatDone = min($roundIndex, $roundCount) + ($roleReversalDone ? 1 : 0);
+    $askKey = $this->qaRoundsDone ? 'role_reversal' : $roundIndex;
+    $startScreen = $completed ? 3 : ($roleReversalDone && ($checklist || $finalAudioPath) ? 2 : (count($turns) ? 1 : 0));
+@endphp
 
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Final Talk</p>
-        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tougher this time — no starter words, so think it through before you speak.</p>
-    </div>
-
-    <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">
-        @if (! $this->qaRoundsDone)
-            Part 1 of 4 — Q&amp;A Rounds
-        @elseif (! $roleReversalDone)
-            Part 2 of 4 — Your Turn to Ask
-        @elseif (! $checklist)
-            Part 3 of 4 — Final Challenge
-        @else
-            Part 4 of 4 — Results
+@if ($readOnly)
+    <div class="flex flex-col gap-4 pt-2" @if ($preview) inert @endif>
+        <x-step-intro kind="Final Talk" :title="$content['hook'] ?? null" />
+        @foreach ($turns as $turn)
+            <x-conversation-turn :prompt="$turn['prompt']" :answer="$turn['answer']" :followup="$turn['followup']" />
+        @endforeach
+        @if ($learnerQuestion)
+            <p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-accent-soft px-3.5 py-2.5 text-base text-ink dark:bg-accent-soft-dark dark:text-ink-dark">{{ $learnerQuestion }}</p>
+            <p class="max-w-[85%] self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark">{{ $aiAnswerToLearner }}</p>
         @endif
-    </p>
+        @if ($checklist)
+            @include('components.missions.steps.partials.final-talk-goals')
+        @endif
+        @if ($url = $this->finalAudioUrl())
+            <x-audio-player :url="$url" />
+        @endif
+        @if ($feedback)
+            <x-learner-feedback :feedback="$feedback" :answers="$this->answers()" />
+        @elseif ($checklistNote)
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $checklistNote }}</p>
+        @endif
+    </div>
+@else
+<div
+    x-data="{ screen: {{ $startScreen }}, idea: false, noPrep: false }"
+    x-effect="$dispatch('step-progress', { share: screen === 1 ? (1 + {{ $chatDone / $chatTotal }}) / 4 : (screen + 0.5) / 4 })"
+    x-back-close="{ open: screen === 1, close: () => screen-- }"
+>
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Final Talk" :minutes="$run->mission->stepDuration('ai_conversation_2')" :title="$content['hook'] ?? null" />
 
-    @if (count($turns))
-        <div class="space-y-3">
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="submitRoundAnswer">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    {{-- The Q&A rounds and "Your turn — ask me" as one chat. --}}
+    <section x-show="screen === 1" x-cloak class="flex min-h-[calc(100dvh-11rem)] flex-col pt-2">
+        @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL && ! $this->qaRoundsDone)
+            <button type="button" x-on:click="noPrep = ! noPrep" class="flex w-fit cursor-pointer items-center gap-2 self-end rounded-full bg-surface px-3 py-1.5 text-xs font-extrabold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">
+                No-prep challenge
+                <span class="relative h-4 w-7 rounded-full transition-colors" :class="noPrep ? 'bg-accent dark:bg-accent-dark' : 'bg-line dark:bg-line-dark'"><span class="absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all" :class="noPrep ? 'left-3.5' : 'left-0.5'"></span></span>
+            </button>
+        @endif
+
+        <div class="flex flex-1 flex-col justify-end gap-4">
             @foreach ($turns as $turn)
-                <x-conversation-turn :prompt="$turn['prompt']" :answer="$turn['answer']" :followup="$turn['followup']" />
+                <x-conversation-turn chat :prompt="$turn['prompt']" :answer="$turn['answer']" :followup="$turn['followup']" />
             @endforeach
-        </div>
-    @endif
 
-    @if ($roleReversalDone && $learnerQuestion)
-        <div class="rounded-xl border border-line p-3 text-sm dark:border-line-dark">
-            <p class="font-semibold text-ink dark:text-ink-dark">You asked: {{ $learnerQuestion }}</p>
-            <p class="mt-1 text-ink-soft dark:text-ink-soft-dark">AI Instructor: {{ $aiAnswerToLearner }}</p>
-        </div>
-    @endif
-
-    @if (! $this->qaRoundsDone)
-        {{-- wire:key on the WHOLE card, not just the recorder inside it:
-             T6.2's per-round "revealed" gate below must reset fresh every
-             round, and the only reliable way to force Alpine to
-             reinitialize (rather than morph the existing node in place)
-             is a key that changes with $roundIndex. See
-             [[project_livewire_morph_xcloak_scroll_jump]] /
-             [[project_xdata_interpolation_resets_alpine_state]] for why a
-             literal x-data string plus a changing wire:key, not an
-             interpolated value INSIDE x-data, is the safe pattern here. --}}
-        <div wire:key="round-card-{{ $roundIndex }}" class="card p-4" x-data="{ revealed: false }">
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Round {{ $roundIndex + 1 }} of {{ count($this->rounds) }}</p>
-
-            @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL && ! $readOnly)
-                {{-- T6.2: opt-in only in the last third — see <x-optional-challenge>. --}}
-                <div class="mt-2" x-show="! noPrepChallenge">
-                    <x-optional-challenge
-                        model="noPrepChallenge"
-                        label="Want to try this round with no time to prepare?"
-                    />
+            @if (! $this->qaRoundsDone)
+                <div wire:key="round-{{ $roundIndex }}" x-data="{ revealed: false }" class="flex flex-col">
+                    <div
+                        x-show="! noPrep || revealed"
+                        x-effect="if (screen === 1 && (! noPrep || revealed)) $nextTick(() => window.eosVoice?.speak(@js($this->currentRoundPrompt)))"
+                        class="flex max-w-[85%] items-start gap-1.5 self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
+                    >
+                        <x-speak-word :word="$this->currentRoundPrompt" top />
+                    </div>
+                    <button type="button" x-show="noPrep && ! revealed" x-on:click="revealed = true" class="max-w-[85%] cursor-pointer self-start rounded-2xl rounded-bl-md border-2 border-dashed border-line px-3.5 py-2.5 text-sm font-bold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">Ready? Tap to see the question</button>
                 </div>
+            @else
+                <span class="self-center rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Your turn — ask me something</span>
+                @if ($learnerQuestion)
+                    <p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-accent-soft px-3.5 py-2.5 text-base text-ink dark:bg-accent-soft-dark dark:text-ink-dark">{{ $learnerQuestion }}</p>
+                    <div
+                        x-effect="if (screen === 1) $nextTick(() => window.eosVoice?.speak(@js($aiAnswerToLearner)))"
+                        class="flex max-w-[85%] items-start gap-1.5 self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
+                    >
+                        <x-speak-word :word="(string) $aiAnswerToLearner" top />
+                    </div>
+                @else
+                    <p class="self-center text-center text-xs font-bold text-ink-faint dark:text-ink-faint-dark">About {{ $this->roleReversalTopic }}</p>
+                @endif
             @endif
 
-            <div x-show="! noPrepChallenge || revealed">
-                <div class="mt-1 flex items-start justify-between gap-2">
-                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentRoundPrompt }}</p>
-                    @unless ($readOnly)
-                        <x-speak-button :text="$this->currentRoundPrompt" />
-                    @endunless
-                </div>
+            @if ($offTopicHint[$askKey] ?? null)
+                <p class="max-w-[85%] self-end rounded-2xl bg-accent-soft px-3.5 py-2 text-sm text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $offTopicHint[$askKey] }}</p>
+            @endif
+            <x-almost-reveal-notice
+                :show="($checkAttempts[$askKey] ?? 0) === 2"
+                label="One more try — after that I can suggest an example to help you get started."
+            />
 
-                <div class="mt-2">
-                    <x-practice-with-friend :text="$this->currentRoundPrompt" />
-                </div>
+            <x-ai-thinking wire:loading wire:target="submitRoundAnswer,submitLearnerQuestion" label="Listening to your answer…" />
+            @error('audioFile')
+                <p class="text-sm text-danger-ink">{{ $message }}</p>
+            @enderror
+            @if ($notice)
+                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
+            @endif
+            @if ($error)
+                <p class="text-sm text-danger-ink">{{ $error }}</p>
+            @endif
+        </div>
 
-                <div class="mt-3" wire:key="recorder-round-{{ $roundIndex }}" wire:loading.remove wire:target="submitRoundAnswer">
-                    <x-voice-recorder
-                        field="audioFile"
-                        :file="$audioFile"
-                        on-recorded="submitRoundAnswer"
-                        file-name="answer.webm"
-                    />
-                </div>
-            </div>
-
-            {{-- The challenge's actual effect: question and recorder stay
-                 hidden together behind one tap, removing the free,
-                 unlimited silent-reading window that exists by default —
-                 never a hard block (Article 3, Evidence Before Progress:
-                 nothing here can gate anything), just no head start. --}}
-            <div x-show="noPrepChallenge && ! revealed" class="mt-1">
+        @if (! $roleReversalDone)
+            <div class="sticky bottom-0 mt-4 flex items-center justify-between gap-3 bg-ground py-3 dark:bg-ground-dark">
                 <button
                     type="button"
-                    x-on:click="revealed = true"
-                    class="w-full cursor-pointer rounded-xl border border-dashed border-line py-3 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                >Ready? Tap to see the question and answer</button>
-            </div>
-
-            <p wire:loading wire:target="submitRoundAnswer" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
-
-            @if ($exampleAnswer[$roundIndex] ?? null)
-                <div class="mt-2 rounded-xl card-accent px-3 py-2">
-                    <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer[$roundIndex] }}</p>
+                    x-on:click="idea = true; @if (! ($exampleAnswer[$askKey] ?? null)) $wire.revealExample(@js($askKey)) @endif"
+                    class="min-w-16 cursor-pointer rounded-full bg-surface px-3 py-1.5 text-xs font-extrabold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark"
+                >💡 Idea</button>
+                <div wire:key="recorder-{{ $askKey }}" wire:loading.remove wire:target="submitRoundAnswer,submitLearnerQuestion" class="flex flex-1 justify-center">
+                    <x-voice-recorder
+                        big
+                        field="audioFile"
+                        :file="$audioFile"
+                        :on-recorded="$this->qaRoundsDone ? 'submitLearnerQuestion' : 'submitRoundAnswer'"
+                        :file-name="$this->qaRoundsDone ? 'question.webm' : 'answer.webm'"
+                    />
                 </div>
-            @elseif ($offTopicHint[$roundIndex] ?? null)
-                <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint[$roundIndex]]" />
-            @endif
-
-            @unless ($readOnly)
-                <x-almost-reveal-notice
-                    :show="($checkAttempts[$roundIndex] ?? 0) === 2"
-                    label="One more try — after that I can suggest an example to help you get started."
-                />
-                <x-reveal-offer
-                    :show="$offerReveal[$roundIndex] ?? false"
-                    :struggling="$this->run->isStruggling()"
-                    reveal-method="revealExample"
-                    decline-method="declineExample"
-                    :index="$roundIndex"
-                    wire-target="submitRoundAnswer,revealExample,declineExample"
-                    label="Want an example to help you get started?"
-                />
-            @endunless
-        </div>
-    @elseif (! $roleReversalDone)
-        {{-- Role-reversal round (Epic E): the learner asks a question
-             instead of answering one — the same recorder mechanics, a
-             different check (checkGenuineQuestion, not checkRelevance). --}}
-        <div class="card p-4">
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your turn to ask</p>
-            <p class="mt-1 font-display text-lg font-bold text-ink dark:text-ink-dark">Ask the AI Instructor a real question about {{ $this->roleReversalTopic }}.</p>
-
-            <div class="mt-3" wire:loading.remove wire:target="submitLearnerQuestion">
-                <x-voice-recorder
-                    field="audioFile"
-                    :file="$audioFile"
-                    on-recorded="submitLearnerQuestion"
-                    file-name="question.webm"
-                />
+                <span class="min-w-16 rounded-full bg-surface px-3 py-1.5 text-center text-xs font-extrabold text-ink-soft tabular-nums dark:bg-surface-dark dark:text-ink-soft-dark">{{ min($chatDone + 1, $chatTotal) }} / {{ $chatTotal }}</span>
             </div>
 
-            <p wire:loading wire:target="submitLearnerQuestion" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">Transcribing…</p>
+            <x-bottom-sheet show="idea" label="An example">
+                <x-slot:title>💡 Something like this</x-slot:title>
+                <x-ai-thinking wire:loading wire:target="revealExample" label="Thinking of an example…" />
+                @if ($exampleAnswer[$askKey] ?? null)
+                    <p class="text-base leading-relaxed text-ink dark:text-ink-dark">{{ $exampleAnswer[$askKey] }}</p>
+                @endif
+            </x-bottom-sheet>
+        @else
+            <div class="mt-4 pb-2">
+                <x-continue-button on-click="screen = 2" wire-target="submitLearnerQuestion" />
+            </div>
+        @endif
+    </section>
 
-            @if ($exampleAnswer['role_reversal'] ?? null)
-                <div class="mt-2 rounded-xl card-accent px-3 py-2">
-                    <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer['role_reversal'] }}</p>
+    {{-- The 3-minute challenge: a ring that fills while recording, the
+         goals ticked once the talk is checked. --}}
+    <x-lesson-screen when="screen === 2">
+        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Talk for 3 minutes</span>
+        <p class="flex items-start gap-1.5 text-lg leading-snug font-extrabold text-ink dark:text-ink-dark"><x-speak-word :word="$this->finalPrompt" top /></p>
+
+        @unless ($checklist)
+            <div
+                x-data="{ secs: 0, timer: null }"
+                x-on:eos-recording.window="if ($event.detail) { timer ??= setInterval(() => secs++, 1000) } else { clearInterval(timer); timer = null }"
+                class="flex justify-center"
+            >
+                <div class="flex h-24 w-24 items-center justify-center rounded-full" :style="`background: conic-gradient(var(--color-accent) 0 ${Math.min(secs / 180, 1) * 100}%, var(--color-line) 0 100%)`">
+                    <span class="flex h-20 w-20 items-center justify-center rounded-full bg-ground text-lg font-extrabold text-ink tabular-nums dark:bg-ground-dark dark:text-ink-dark" x-text="`${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`">0:00</span>
                 </div>
-            @elseif ($offTopicHint['role_reversal'] ?? null)
-                <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint['role_reversal']]" />
+            </div>
+        @endunless
+
+        @include('components.missions.steps.partials.final-talk-goals')
+
+        @if ($checklist)
+            @if ($url = $this->finalAudioUrl())
+                <x-audio-player :url="$url" />
             @endif
-
-            @unless ($readOnly)
-                <x-almost-reveal-notice
-                    :show="($checkAttempts['role_reversal'] ?? 0) === 2"
-                    label="One more try — after that I can suggest a question to help you get started."
-                />
-                <x-reveal-offer
-                    :show="$offerReveal['role_reversal'] ?? false"
-                    :struggling="$this->run->isStruggling()"
-                    reveal-method="revealExample"
-                    decline-method="declineExample"
-                    index="role_reversal"
-                    wire-target="submitLearnerQuestion,revealExample,declineExample"
-                    label="Want a question to help you get started?"
-                />
-            @endunless
-        </div>
-    @elseif (! $checklist)
-        <div class="card-sunken p-4">
-            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Final Challenge · Topic: My Daily Life</p>
-            <div class="mt-1 flex items-start justify-between gap-2">
-                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->finalPrompt }}</p>
-                @unless ($readOnly)
-                    <x-speak-button :text="$this->finalPrompt" />
-                @endunless
+        @else
+            <div class="flex justify-center" wire:loading.remove wire:target="submitFinalChallenge">
+                <x-voice-recorder big field="audioFile" :file="$audioFile" on-recorded="submitFinalChallenge" file-name="final.webm" />
             </div>
-
-            <div class="mt-2">
-                <x-practice-with-friend :text="$this->finalPrompt" />
-            </div>
-
-            <div class="mt-3" wire:loading.remove wire:target="submitFinalChallenge">
-                <x-voice-recorder
-                    field="audioFile"
-                    :file="$audioFile"
-                    on-recorded="submitFinalChallenge"
-                    file-name="answer.webm"
-                />
-            </div>
-
-            <p wire:loading wire:target="submitFinalChallenge" class="mt-3 text-sm text-ink-faint dark:text-ink-faint-dark">
-                Checking your answer against the requirements…
-            </p>
-
+            <x-ai-thinking wire:loading wire:target="submitFinalChallenge" label="Checking your talk…" />
             @if ($exampleAnswer['final'] ?? null)
-                <div class="mt-2 rounded-xl card-accent px-3 py-2">
-                    <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
+                <div class="rounded-2xl bg-accent-soft px-4 py-3 dark:bg-accent-soft-dark">
+                    <p class="text-xs font-extrabold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
                     <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer['final'] }}</p>
                 </div>
             @elseif ($offTopicHint['final'] ?? null)
                 <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint['final']]" />
             @endif
-
-            @unless ($readOnly)
-                <x-almost-reveal-notice
-                    :show="($checkAttempts['final'] ?? 0) === 2"
-                    label="One more try — after that I can suggest an example to help you get started."
-                />
-                <x-reveal-offer
-                    :show="$offerReveal['final'] ?? false"
-                    :struggling="$this->run->isStruggling()"
-                    reveal-method="revealExample"
-                    decline-method="declineExample"
-                    index="final"
-                    wire-target="submitFinalChallenge,revealExample,declineExample"
-                    label="Want an example to help you get started?"
-                />
-            @endunless
-        </div>
-    @else
-        <div class="space-y-3">
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Requirements</p>
-            <div class="grid gap-2 sm:grid-cols-2">
-                @foreach ($this->requirements as $requirement)
-                    <div class="flex items-center gap-2 text-sm text-ink dark:text-ink-dark">
-                        @if ($checklist[$requirement] ?? false)
-                            <span class="shrink-0 text-success dark:text-success-dark">@svg('heroicon-o-check-circle', 'h-4 w-4')</span>
-                        @else
-                            <span class="inline-block h-4 w-4 shrink-0 rounded-full border-2 border-line dark:border-line-dark"></span>
-                        @endif
-                        <span>{{ $requirement }}</span>
-                    </div>
-                @endforeach
-            </div>
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $checklistNote }}</p>
-
-            @if (count($this->rounds))
-                <div>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Want more practice? Ask each other all of these questions for real.</p>
-                    <div class="mt-1.5">
-                        <x-practice-session-with-friend :mission="$run->mission" step-key="ai_conversation_2" />
-                    </div>
-                </div>
+            <x-almost-reveal-notice
+                :show="($checkAttempts['final'] ?? 0) === 2"
+                label="One more try — after that I can suggest an example to help you get started."
+            />
+            <x-reveal-offer
+                :show="$offerReveal['final'] ?? false"
+                :struggling="$this->run->isStruggling()"
+                reveal-method="revealExample"
+                decline-method="declineExample"
+                index="final"
+                wire-target="submitFinalChallenge,revealExample,declineExample"
+                label="Want an example to help you get started?"
+            />
+            @error('audioFile')
+                <p class="text-sm text-danger-ink">{{ $message }}</p>
+            @enderror
+            @if ($error)
+                <p class="text-sm text-danger-ink">{{ $error }}</p>
             @endif
+        @endif
 
-            @unless ($readOnly)
-                <button wire:click="finishConversation"
-                    wire:loading.attr="disabled"
-                    wire:target="finishConversation"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark">
-                    <span wire:loading.remove wire:target="finishConversation">Continue</span>
-                    <span wire:loading wire:target="finishConversation">Saving…</span>
-                </button>
-            @endunless
-        </div>
-    @endif
+        <x-slot:actions>
+            <x-continue-button
+                on-click="screen = 3; $wire.finishConversation()"
+                wire-target="finishConversation,retryFinalChallenge"
+                ready-when="{{ $checklist ? 'true' : 'false' }}"
+            >See feedback</x-continue-button>
+            @if ($checklist)
+                <button type="button" wire:click="retryFinalChallenge" class="cursor-pointer text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">↻ Try again</button>
+            @endif
+        </x-slot:actions>
+    </x-lesson-screen>
 
-    @error('audioFile')
-        <p class="text-sm text-danger-ink">{{ $message }}</p>
-    @enderror
-    @if ($notice)
-        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
-    @endif
-    @if ($error)
-        <p class="text-sm text-danger-ink">{{ $error }}</p>
-    @endif
+    <x-feedback-screen when="screen === 3" :feedback="$feedback" :answers="$this->answers()" :waiting="! $completed">
+        @if (count($this->rounds))
+            <x-slot:said>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Want more practice? Ask each other all of these questions for real.</p>
+                <x-practice-session-with-friend :mission="$run->mission" step-key="ai_conversation_2" />
+            </x-slot:said>
+        @endif
+
+        <x-slot:actions>
+            <x-continue-button on-click="$wire.proceed()" wire-target="finishConversation,proceed" ready-when="{{ $completed ? 'true' : 'false' }}" />
+        </x-slot:actions>
+    </x-feedback-screen>
 </div>
+@endif

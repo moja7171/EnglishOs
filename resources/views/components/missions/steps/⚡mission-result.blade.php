@@ -454,7 +454,7 @@ new class extends Component
             }
         }
 
-        if ($conv2 = $this->run->evidence()->where('phase', 'ai_conversation_2')->latest()->first()) {
+        if ($conv2 = $this->run->evidence()->where('phase', 'ai_conversation_2')->where('type', Evidence::TYPE_TRANSCRIPT)->latest()->first()) {
             $data = json_decode($conv2->content_ref, true) ?? [];
             $reqs = $data['requirements'] ?? [];
             $met = collect($reqs)->filter()->count();
