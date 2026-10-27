@@ -112,26 +112,16 @@ class VideoShadowingStepTest extends TestCase
             ->assertDontSeeHtml('shadowModeOn');
     }
 
-    public function test_the_player_only_pauses_for_shadowing_on_the_second_watch(): void
+    public function test_each_line_plays_just_its_own_bit_of_the_video(): void
     {
         $run = $this->makeRun();
 
         $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
 
-        $this->assertStringContainsString('activeSubstep === 1', $html);
-        $this->assertStringContainsString('First watch', $html);
-        $this->assertStringContainsString('It pauses after each line', $html);
-    }
-
-    public function test_the_page_is_split_into_2_sub_steps(): void
-    {
-        $run = $this->makeRun();
-
-        $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
-
-        $this->assertStringContainsString('activeSubstep === 0', $html);
-        $this->assertStringContainsString('activeSubstep === 1', $html);
-        $this->assertStringContainsString('Part', $html);
+        // One watch, then one screen per line with that line's clip.
+        $this->assertStringContainsString('playLine(0)', $html);
+        $this->assertStringContainsString('Say it · 1 of 4', $html);
+        $this->assertStringNotContainsString('It pauses after each line', $html);
     }
 
     public function test_there_is_no_watched_checkbox_to_tick(): void
@@ -143,17 +133,17 @@ class VideoShadowingStepTest extends TestCase
             ->assertDontSeeHtml('wire:model.live="watchedWithCaptions"');
     }
 
-    public function test_continue_stays_on_screen_but_disabled_until_enough_lines_are_shadowed(): void
+    public function test_finish_shows_only_once_enough_lines_are_shadowed(): void
     {
         $run = $this->makeRun();
 
+        // The last line's quiet Finish (no take needed on it) only shows
+        // once enough lines are shadowed.
         $component = Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->assertSeeHtml('x-on:click="$wire.save()"')
-            ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->assertSee('Record 3 shadowed lines to continue');
+            ->assertDontSee('Finish');
 
-        $this->recordLines($component, 0, 1)->assertSeeHtml('x-bind:disabled="! (false)"');
-        $this->recordLines($component, 2)->assertSeeHtml('x-bind:disabled="! (true)"');
+        $this->recordLines($component, 0, 1)->assertDontSee('Finish');
+        $this->recordLines($component, 2)->assertSee('Finish');
     }
 
     public function test_continue_is_blocked_with_fewer_than_3_shadowed_lines_even_after_watching(): void
@@ -174,7 +164,7 @@ class VideoShadowingStepTest extends TestCase
         $component = $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0, 2, 3)
             ->call('save')
             ->assertHasNoErrors()
-            ->assertSet('completed', true);
+            ->assertRedirect(route('missions.show', $run->mission));
 
         $this->assertSame(4, Evidence::where('mission_run_id', $run->id)->where('phase', 'video_shadowing')->count());
 
@@ -187,7 +177,6 @@ class VideoShadowingStepTest extends TestCase
         $lineIndices = $audioEvidences->map(fn ($e) => json_decode($e->content_ref, true)['line_index'])->sort()->values();
         $this->assertSame([0, 2, 3], $lineIndices->all());
 
-        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
         $this->assertSame('daily_listen_3', $run->fresh()->currentStepKey());
     }
 
@@ -198,7 +187,7 @@ class VideoShadowingStepTest extends TestCase
         $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0, 1, 2, 3)
             ->call('save')
             ->assertHasNoErrors()
-            ->assertSet('completed', true);
+            ->assertRedirect(route('missions.show', $run->mission));
 
         $this->assertSame(4, Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->count());
     }
@@ -213,13 +202,14 @@ class VideoShadowingStepTest extends TestCase
             ->assertSee('I watched this');
     }
 
-    public function test_the_stress_tip_appears_once_not_per_line(): void
+    public function test_there_is_no_stress_tip_line(): void
     {
         $run = $this->makeRun();
 
         $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
 
-        $this->assertSame(1, substr_count($html, 'Bold = stressed'));
+        // Lesson design 7 dropped the tip: the marked words speak for themselves.
+        $this->assertSame(0, substr_count($html, 'Bold = stressed'));
     }
 
     public function test_every_shadow_line_renders_with_its_own_recorder(): void
@@ -228,10 +218,8 @@ class VideoShadowingStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])->html();
 
-        $this->assertStringContainsString('Line 1', $html);
-        $this->assertStringContainsString('Line 2', $html);
-        $this->assertStringContainsString('Line 3', $html);
-        $this->assertStringContainsString('Line 4', $html);
+        $this->assertStringContainsString('Say it · 1 of 4', $html);
+        $this->assertStringContainsString('Say it · 4 of 4', $html);
         $this->assertStringContainsString('>feel like</strong>', $html);
         $this->assertStringContainsString('>getting together</strong>', $html);
         $this->assertStringNotContainsString('**', $html);
@@ -314,11 +302,11 @@ class VideoShadowingStepTest extends TestCase
 
         $this->recordLines(Livewire::test('missions.steps.video-shadowing', ['run' => $run]), 0)
             ->call('checkShadowLine', 0)
-            ->assertSee('Nice — that counts.');
+            ->assertSee('✓ Nice!');
 
         // The learner left; the step opens fresh, with no new AI call.
         Livewire::test('missions.steps.video-shadowing', ['run' => $run])
-            ->assertSee('Nice — that counts.');
+            ->assertSee('✓ Nice!');
     }
 
     public function test_a_line_the_ai_heard_as_a_different_sentence_does_not_count_until_retried(): void

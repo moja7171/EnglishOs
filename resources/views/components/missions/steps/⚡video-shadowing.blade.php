@@ -5,12 +5,19 @@ use App\Livewire\Concerns\KeepsShadowDrafts;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
+use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use Illuminate\Http\UploadedFile;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+/**
+ * Video Shadowing, one task per screen (lesson design 7): watch once with
+ * one 🎯 line, the true/false cards one per screen, the video's
+ * expressions on one screen (they join My Words by themselves), then each
+ * line on its own screen — that bit of the video plays, then the big mic.
+ */
 new class extends Component
 {
     use ChecksShadowLines;
@@ -18,18 +25,12 @@ new class extends Component
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
+    use TracksVocabularyNotebook;
     use WithFileUploads;
 
     public MissionRun $run;
 
     public bool $readOnly = false;
-
-    /**
-     * True once Continue has passed every check and Evidence is saved —
-     * the step then shows a short recap before the learner navigates on,
-     * same pattern as Listening/Activation.
-     */
-    public bool $completed = false;
 
     /** @var array<int, ?UploadedFile> keyed by shadow_lines index — only the upload slot, see KeepsShadowDrafts */
     public array $shadowRecordings = [];
@@ -82,7 +83,7 @@ new class extends Component
         $items = $this->run->mission->stepContent('video_shadowing')['comprehension_check'] ?? [];
 
         return collect($items)
-            ->map(fn ($item) => ['prompt' => $item['statement'], 'options' => ['True', 'False'], 'correct' => $item['correct'] ? 0 : 1])
+            ->map(fn ($item) => ['prompt' => $item['statement'], 'options' => ['True', 'False'], 'correct' => $item['correct'] ? 0 : 1, 'label' => 'True or false?'])
             ->all();
     }
 
@@ -136,13 +137,24 @@ new class extends Component
 
         $this->saveShadowEvidence();
 
+        // The video's expressions join My Words by themselves (lesson design 7).
+        $this->initWordsToTrack();
+        $this->addWordsToNotebook();
+
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
-        $this->completed = true;
+        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
-    public function proceed(): void
+    /**
+     * @return list<array{word: string, meaning: string}>
+     */
+    protected function notebookCandidates(): array
     {
-        $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
+        return collect($this->run->mission->stepContent('video_shadowing')['target_phrases'] ?? [])
+            ->filter(fn ($item) => filled($item['phrase'] ?? null))
+            ->map(fn ($item) => ['word' => $item['phrase'], 'meaning' => $item['meaning'] ?? ''])
+            ->values()
+            ->all();
     }
 
     protected function phaseKey(): string
@@ -165,31 +177,74 @@ new class extends Component
     $video = $run->mission->stepContent('video_shadowing');
     $shadowLines = $video['shadow_lines'] ?? [];
     $targetPhrases = $video['target_phrases'] ?? [];
-    $listenCount = $run->learner->audioListenCount($run->mission->code, \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING);
-    // Two focused sub-steps instead of one long scroll (EOS-009 §8's
-    // UI/UX review) — the first watch (just understand it) and the quick
-    // check, then the second watch where the video pauses at each line
-    // and the learner shadows it. Shadowing is never offered on the first
-    // watch and is not a setting: the player only pauses on part 2.
-    $totalSubsteps = 2;
     $draftPrefix = $this->draftPrefix();
+    $cards = $readOnly ? [] : $this->comprehensionCards();
+    // Screens: 0 start · 1 watch · 2 true/false · 3 expressions · 4.. one line each.
+    $quizScreen = count($cards) ? 2 : null;
+    $phrasesScreen = count($targetPhrases) ? 3 : null;
+    $firstLineScreen = 4;
+    $lineCount = count($shadowLines);
+    $screenCount = $firstLineScreen + $lineCount;
+    $afterWatch = $quizScreen ?? $phrasesScreen ?? $firstLineScreen;
+    $afterQuiz = $phrasesScreen ?? $firstLineScreen;
+    $shadowedEnough = $this->shadowedCount() >= $this->requiredShadowedLines();
 @endphp
 
+@if ($readOnly)
+    <div class="flex flex-col gap-4 pt-2">
+        <x-step-intro kind="Video Shadowing" :title="$video['hook'] ?? null" />
+        @foreach ($shadowLines as $index => $line)
+            <div class="flex flex-col gap-2 rounded-2xl bg-surface p-4 dark:bg-surface-dark">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">“<x-stress-marked-line :text="$line" />”</p>
+                @if ($url = $savedShadowUrls[$index] ?? null)
+                    <x-audio-player :url="$url" />
+                @else
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
+                @endif
+            </div>
+        @endforeach
+    </div>
+@else
 <div
-    class="space-y-6"
     x-data="{
-        activeSubstep: 0,
+        screen: 0,
+        quizShare: 0,
+        clipEnd: null,
+        points: {{ \Illuminate\Support\Js::from($this->shadowTimestamps()) }},
         init() {
-            this.activeSubstep = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSubstep', 0);
-            this.$watch('activeSubstep', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSubstep', v));
+            this.screen = window.eosDraft.restoreIndex('{{ $draftPrefix }}screen', 0);
+            this.$watch('screen', (v) => {
+                window.eosDraft.persistIndex('{{ $draftPrefix }}screen', v);
+                if (v >= {{ $firstLineScreen }}) this.$nextTick(() => this.playLine(v - {{ $firstLineScreen }}));
+            });
         },
+        playLine(index) {
+            const point = this.points[index];
+            const clip = this.$refs.clip;
+            if (! point || ! clip) return;
+            this.clipEnd = point.end;
+            clip.currentTime = point.start;
+            clip.play().catch(() => {});
+        },
+        get share() { return (this.screen + (this.screen === 2 ? this.quizShare : 0.5)) / {{ $screenCount }} },
     }"
+    x-effect="$dispatch('step-progress', { share }); if (screen !== 1) $el.querySelectorAll('[data-watch] video').forEach((v) => v.pause()); if (screen < {{ $firstLineScreen }}) $refs.clip?.pause()"
+    x-on:quick-round-progress="quizShare = $event.detail.share"
+    x-back-close="{ open: screen > 0, close: () => screen-- }"
 >
-    <x-hook :text="$video['hook'] ?? null" />
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Video Shadowing" :minutes="$run->mission->stepDuration('video_shadowing')" :title="$video['hook'] ?? null" />
+        @if (filled($video['source'] ?? null))
+            <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $video['source'] }}</p>
+        @endif
 
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $video['source'] ?? 'Video' }}</p>
-        <div class="mt-2">
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    <x-lesson-screen when="screen === 1">
+        <div data-watch>
             <x-video-player
                 text-hidden
                 :url="$video['video_url'] ?? ''"
@@ -197,155 +252,86 @@ new class extends Component
                 :captions-url="$video['captions_url'] ?? null"
                 :title="$video['source'] ?? 'Video'"
                 :segments="$video['video_segments'] ?? []"
-                :shadow-lines="$readOnly ? [] : $shadowLines"
-                :shadow-timestamps="$readOnly ? [] : $this->shadowTimestamps()"
-                shadow-active="activeSubstep === 1"
-                :resume-key="$readOnly || $preview ? null : $draftPrefix.'position'"
+                :resume-key="$preview ? null : $draftPrefix.'position'"
             />
         </div>
+        @if (count($targetPhrases))
+            <p class="rounded-2xl bg-accent-soft px-4 py-3 text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">🎯 Listen for “{{ $targetPhrases[0]['phrase'] }}”@if (isset($targetPhrases[1])) and “{{ $targetPhrases[1]['phrase'] }}”@endif.</p>
+        @endif
+
+        <x-slot:actions>
+            <x-continue-button on-click="screen = {{ $afterWatch }}" wire-target="save" />
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    @if ($quizScreen)
+        <section x-show="screen === {{ $quizScreen }}" x-cloak class="pt-2">
+            <x-quick-round
+                lesson
+                :cards="$cards"
+                label="True or false?"
+                draft-key="{{ $draftPrefix }}quiz"
+                on-complete="if (screen === {{ $quizScreen }}) screen = {{ $afterQuiz }}"
+                on-skip="screen = {{ $afterQuiz }}"
+            />
+        </section>
+    @endif
+
+    @if ($phrasesScreen)
+        <x-lesson-screen when="screen === {{ $phrasesScreen }}">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">From the video</span>
+            <div class="flex flex-col gap-2">
+                @foreach ($targetPhrases as $item)
+                    <div class="flex flex-col gap-0.5 rounded-2xl bg-surface px-4 py-3 dark:bg-surface-dark">
+                        <x-speak-word :word="$item['phrase']" class="text-base font-extrabold text-ink dark:text-ink-dark" />
+                        @if (filled($item['meaning'] ?? null))
+                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $item['meaning'] }}</p>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            <x-slot:actions>
+                <x-continue-button on-click="screen = {{ $firstLineScreen }}" wire-target="save" />
+            </x-slot:actions>
+        </x-lesson-screen>
+    @endif
+
+    {{-- Each line's bit of the video, played as its screen opens. --}}
+    <div x-show="screen >= {{ $firstLineScreen }}" x-cloak class="pt-2" wire:ignore>
+        <video
+            x-ref="clip"
+            playsinline
+            preload="metadata"
+            x-on:timeupdate="if (clipEnd !== null && $el.currentTime >= clipEnd) { $el.pause(); clipEnd = null }"
+            class="aspect-video w-full rounded-2xl bg-ink object-cover ring-2 ring-accent dark:ring-accent-dark"
+            src="{{ $video['video_url'] ?? '' }}"
+        ></video>
     </div>
 
-    @if ($completed)
-        <div class="space-y-4 card p-4">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-4 w-4')
-                Video Shadowing complete
-            </p>
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You've watched this video {{ $listenCount }} {{ Str::plural('time', $listenCount) }} so far.</p>
-
-            <button
-                wire:click="proceed"
-                wire:loading.attr="disabled"
-                wire:target="proceed"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-            >
-                <span wire:loading.remove wire:target="proceed">Continue</span>
-                <span wire:loading wire:target="proceed">Please wait…</span>
-            </button>
-        </div>
-    @else
-        <div class="mb-2">
-            <x-progress-bar>
-                <div
-                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                    :style="`width: ${(activeSubstep + 1) / {{ $totalSubsteps }} * 100}%`"
-                ></div>
-                <x-slot:label>
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                        Part <span x-text="activeSubstep + 1"></span> of {{ $totalSubsteps }}
-                    </p>
-                </x-slot:label>
-            </x-progress-bar>
-        </div>
-
-        <div wire:loading.class="pointer-events-none" wire:target="save">
-            {{-- Sub-step 1, the first watch: just understand the video —
-                 a light check on it, then extra vocabulary. Nothing here
-                 is required, and the player does not pause for shadowing. --}}
-            <div x-show="activeSubstep === 0" x-cloak class="space-y-6">
-                @unless ($readOnly)
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">First watch: just follow along.</p>
-
-                    <div>
-                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">True or false — just a warm-up, skip anytime.</p>
-                        <div class="mt-2">
-                            <x-quick-round :cards="$this->comprehensionCards()" />
-                        </div>
-                    </div>
-                @endunless
-
-                @if (count($targetPhrases))
-                    <div>
-                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Expressions to notice</p>
-                        <ul class="mt-2 divide-y divide-line card-sunken px-4 dark:divide-line-dark">
-                            @foreach ($targetPhrases as $item)
-                                <li class="py-2.5">
-                                    <p x-lookup class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $item['phrase'] }}</p>
-                                    @if (filled($item['meaning'] ?? null))
-                                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">{{ $item['meaning'] }}</p>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+    @foreach ($shadowLines as $index => $line)
+        <x-shadow-line-screen
+            when="screen === {{ $firstLineScreen + $index }}"
+            :index="$index"
+            :line="$line"
+            kind="Say it · {{ $index + 1 }} of {{ $lineCount }}"
+            hear="playLine({{ $index }})"
+            :recording-url="$draftShadowUrls[$index] ?? null"
+            file-name="video-shadow-{{ $index }}.webm"
+            :feedback="$feedback['shadow_'.$index] ?? null"
+            :error="$checkErrors['shadow_'.$index] ?? null"
+            :next="$index + 1 < $lineCount ? 'screen++' : '$wire.save()'"
+            wire-target="checkShadowLine,save"
+        />
+        @if ($index + 1 < $lineCount || $shadowedEnough)
+            <div x-show="screen === {{ $firstLineScreen + $index }}" x-cloak class="-mt-3 flex justify-center pb-2">
+                <button type="button" x-on:click="{{ $index + 1 < $lineCount ? 'screen++' : '$wire.save()' }}" class="cursor-pointer text-sm font-bold text-ink-faint dark:text-ink-faint-dark">{{ $index + 1 < $lineCount ? 'Skip' : 'Finish' }}</button>
             </div>
+        @endif
+    @endforeach
 
-            {{-- Sub-step 2, the second watch: the video restarts and pauses
-                 at each line (see <x-video-player>'s shadow-active); one
-                 full recorder per line below. --}}
-            <div x-show="activeSubstep === 1" x-cloak>
-                @if (count($shadowLines))
-                    <div>
-                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">Shadow the lines</p>
-                        @unless ($readOnly)
-                            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                                It pauses after each line — say it, then record any {{ $this->requiredShadowedLines() }} of {{ count($shadowLines) }}.
-                            </p>
-                            <p class="mt-2 flex items-start gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
-                                @svg('heroicon-o-light-bulb', 'mt-px h-3.5 w-3.5 shrink-0')
-                                Bold = stressed.
-                            </p>
-                        @endunless
-
-                        <div class="mt-3 space-y-3">
-                            @foreach ($shadowLines as $index => $line)
-                                <div class="card-sunken p-4">
-                                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Line {{ $index + 1 }}</p>
-                                    <p x-lookup class="mt-1 text-sm text-ink dark:text-ink-dark">"<x-stress-marked-line :text="$line" />"</p>
-
-                                    @if ($readOnly)
-                                        @if ($url = $savedShadowUrls[$index] ?? null)
-                                            <div class="mt-2"><x-audio-player :url="$url" /></div>
-                                        @else
-                                            <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
-                                        @endif
-                                    @else
-                                        <div class="mt-2" wire:key="shadow-recorder-{{ $index }}">
-                                            <x-voice-recorder
-                                                field="shadowRecordings.{{ $index }}"
-                                                :file="$draftShadowUrls[$index] ?? null"
-                                                file-name="video-shadow-{{ $index }}.webm"
-                                                on-recorded="checkShadowLine"
-                                                :on-recorded-param="$index"
-                                            />
-                                        </div>
-                                        <x-shadow-line-check :index="$index" :feedback="$feedback['shadow_'.$index] ?? null" :error="$checkErrors['shadow_'.$index] ?? null" />
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                        @error('shadowRecordings')
-                            <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
-                        @enderror
-                    </div>
-                @endif
-
-                {{-- Always on screen, disabled until done. shadowedCount()
-                     only advances once an upload genuinely completes, so
-                     readiness is known server-side and goes into
-                     ready-when as a literal. Having watched is never a
-                     requirement — the recordings are the evidence. --}}
-                @unless ($readOnly)
-                    @php
-                        $shadowedEnough = $this->shadowedCount() >= $this->requiredShadowedLines();
-                    @endphp
-                    <div class="mt-4">
-                        <x-continue-button
-                            on-click="$wire.save()"
-                            wire-target="save"
-                            loading-label="Saving…"
-                            ready-when="{{ $shadowedEnough ? 'true' : 'false' }}"
-                            hint="Record {{ $this->requiredShadowedLines() }} shadowed {{ Str::plural('line', $this->requiredShadowedLines()) }} to continue"
-                        />
-                    </div>
-                @endunless
-            </div>
-        </div>
-
-        <div class="mt-4">
-            <x-substep-nav index-var="activeSubstep" :total="$totalSubsteps" />
-        </div>
-    @endif
+    @error('shadowRecordings')
+        <p class="text-sm text-danger-ink">{{ $message }}</p>
+    @enderror
 </div>
+@endif
