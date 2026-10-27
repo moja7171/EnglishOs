@@ -3,8 +3,6 @@
 use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
-use App\Models\ErrorLogItem;
-use App\Models\ErrorPatternReview;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
@@ -14,9 +12,16 @@ use App\Models\SpeakingPrompt;
 use App\Notifications\StreakMilestoneReached;
 use App\Services\AiFailure;
 use App\Services\GeminiClient;
-use Illuminate\Support\Collection;
 use Livewire\Component;
 
+/**
+ * Lesson design 14: three short questions (how easy the topic feels now —
+ * Day 1's question again; the five skills "now" only, "before" comes from
+ * the previous mission; one expression to keep), then the celebration,
+ * then Day 1 vs today (scores and voices), then the words used and Finish.
+ * What became easier / still hard is worked out from the skill scores,
+ * and every question this mission asked goes into Speaking Recall.
+ */
 new class extends Component
 {
     use KeepsStepDraft;
@@ -83,39 +88,15 @@ new class extends Component
     /** Mission Brief's optional Day 1 warm-up recording, if the learner made one. */
     public ?string $warmUpRecordingUrl = null;
 
-    /** Activation's recording — the closest "mid-mission, unscripted speaking" equivalent to pair it against. */
-    public ?string $activationRecordingUrl = null;
-
-    /**
-     * A random unscripted recording (Mission Brief's warm-up or
-     * Activation's solo speaking) from a DIFFERENT, already-finished
-     * mission — a "how far you've come" flashback, not tied to this
-     * mission's own before/after. Purely to listen back to; no new
-     * recording is asked for here (Speaking Recall is where that
-     * happens on a real schedule). Null for a learner's first
-     * completed mission, or if nobody ever recorded anything optional.
-     */
-    public ?string $flashbackRecordingUrl = null;
-
-    public ?string $flashbackMissionCode = null;
-
-    /**
-     * Opt-in "join Speaking Recall" checklist — same philosophy as
-     * TracksVocabularyNotebook (Article 12, Independence: offered, never
-     * silently enrolled), kept as plain properties here rather than a
-     * shared trait since this is its only caller so far, unlike the
-     * vocabulary notebook flow which two different steps already use.
-     *
-     * @var array<int, bool> keyed by index into speakingPromptCandidates()
-     */
-    public array $speakingPromptsToTrack = [];
-
-    public bool $trackedSpeakingPrompts = false;
+    /** Final Talk's 3-minute take — "today" next to Day 1's recording. */
+    public ?string $finalTalkRecordingUrl = null;
 
     public function mount(): void
     {
+        $previousScores = $this->previousMissionScores();
+
         foreach ($this->skills() as $skill) {
-            $this->scores[$skill] = ['before' => null, 'after' => null];
+            $this->scores[$skill] = ['before' => $previousScores[$skill] ?? null, 'after' => null];
         }
 
         foreach (array_keys($this->questions()) as $key) {
@@ -126,24 +107,7 @@ new class extends Component
         $this->briefScore = $briefScoreEvidence ? (int) $briefScoreEvidence->content_ref : null;
 
         $this->warmUpRecordingUrl = $this->run->evidence()->where('phase', 'mission_brief')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
-        // Activation's recording now lives under 'ai_conversation_1' — it's
-        // that step's own warm-up round, not a separate step (Epic E).
-        $this->activationRecordingUrl = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
-
-        $flashback = Evidence::query()
-            ->whereIn('phase', ['mission_brief', 'ai_conversation_1'])
-            ->where('type', Evidence::TYPE_AUDIO)
-            ->whereHas('missionRun', fn ($query) => $query
-                ->where('learner_id', $this->run->learner_id)
-                ->where('id', '!=', $this->run->id)
-                ->whereNotNull('completed_at'))
-            ->inRandomOrder()
-            ->first();
-
-        if ($flashback) {
-            $this->flashbackRecordingUrl = $flashback->content_ref;
-            $this->flashbackMissionCode = $flashback->missionRun->mission->code;
-        }
+        $this->finalTalkRecordingUrl = $this->run->evidence()->where('phase', 'ai_conversation_2')->where('type', Evidence::TYPE_AUDIO)->latest()->first()?->content_ref;
 
         if (! $this->readOnly) {
             $this->restoreStepDraft();
@@ -177,25 +141,34 @@ new class extends Component
     }
 
     /**
-     * Picking from real options beats a blank text box — every reflection
-     * question is authored with a "type" naming where its options come
-     * from, all real data about THIS run rather than a generic fixed
-     * list: the same skills self-assessed above, the learner's own
-     * Vocabulary Builder picks, or the corrections from their own Error
-     * Log this mission. Empty if that source has nothing yet (e.g. no
-     * mistakes logged this run) — the question is simply skipped, never a
-     * dead end forcing an answer that doesn't exist.
+     * Each skill's latest "now" score from an earlier mission — this
+     * mission's "before", so the learner only rates where they are now.
+     *
+     * @return array<string, int>
+     */
+    private function previousMissionScores(): array
+    {
+        return SelfAssessment::query()
+            ->whereHas('missionRun', fn ($query) => $query
+                ->where('learner_id', $this->run->learner_id)
+                ->where('id', '!=', $this->run->id))
+            ->whereNotNull('after')
+            ->latest('id')
+            ->get()
+            ->unique('skill')
+            ->mapWithKeys(fn (SelfAssessment $assessment) => [$assessment->skill => (int) $assessment->after])
+            ->all();
+    }
+
+    /**
+     * The learner's own words from this mission — "one expression you want
+     * to keep using?".
      *
      * @return list<string>
      */
-    private function reflectionOptions(string $type): array
+    public function expressionOptions(): array
     {
-        return match ($type) {
-            'skills' => $this->skills(),
-            'vocabulary' => $this->run->selectedVocabularyWords(),
-            'errors' => $this->run->errorLogItems()->pluck('correction')->filter()->unique()->values()->all(),
-            default => [],
-        };
+        return $this->run->selectedVocabularyWords();
     }
 
     protected function draftPhase(): string
@@ -205,7 +178,7 @@ new class extends Component
 
     protected function draftedProperties(): array
     {
-        return ['scores', 'reflection', 'status', 'reason', 'weakStep', 'evaluationUnavailable', 'milestoneJustReached', 'afterScore', 'speakingPromptsToTrack', 'trackedSpeakingPrompts'];
+        return ['scores', 'reflection', 'status', 'reason', 'weakStep', 'evaluationUnavailable', 'milestoneJustReached', 'afterScore'];
     }
 
     public function updatedScores(): void
@@ -223,62 +196,6 @@ new class extends Component
         $this->reflection[$key] = $option;
 
         $this->keepStepDraft();
-    }
-
-    /**
-     * The learner's most-recurring error pattern across missions (see
-     * User::topRecurringError(), built for Active Recall's spaced-
-     * repetition prompt) — naturally already includes anything logged in
-     * THIS mission's own Error Log step, since that step runs before
-     * Mission Result. Null until a pattern has recurred across 2+
-     * missions, the common case for a learner's first mission or two.
-     */
-    public function getRecurringErrorProperty(): ?ErrorLogItem
-    {
-        return $this->run->learner->topRecurringError();
-    }
-
-    /**
-     * The mirror image of recurringError, and the reason it sits right
-     * above it here: finishing a mission is the moment a learner is most
-     * open to hearing how they're doing, so "what you've fixed" gets to
-     * land before "a pattern to keep an eye on" does. See
-     * <x-mistakes-you-fixed>.
-     *
-     * @return Collection<int, ErrorPatternReview>
-     */
-    public function getMasteredErrorsProperty(): Collection
-    {
-        return $this->run->learner->masteredErrorPatterns();
-    }
-
-    /** @return Collection<int, ErrorPatternReview> */
-    public function getFadingErrorsProperty(): Collection
-    {
-        return $this->run->learner->fadingErrorPatterns();
-    }
-
-    /**
-     * How many of the learner's mutual friends have completed THIS SAME
-     * mission — a friendly, non-competitive nudge (presence only, never a
-     * score or a leaderboard), reusing the existing follow system rather
-     * than building any new social plumbing. Shown regardless of this
-     * learner's own status/readOnly state, since it's about the friends,
-     * not about this particular review.
-     */
-    public function getFriendsCompletedCountProperty(): int
-    {
-        $friendIds = $this->run->learner->mutualFriends()->pluck('id');
-
-        if ($friendIds->isEmpty()) {
-            return 0;
-        }
-
-        return MissionRun::query()
-            ->where('mission_id', $this->run->mission_id)
-            ->where('status', MissionRun::STATUS_COMPLETE)
-            ->whereIn('learner_id', $friendIds)
-            ->count();
     }
 
     /**
@@ -324,18 +241,13 @@ new class extends Component
     }
 
     /**
-     * firstOrCreate per checked question, same idea as
-     * TracksVocabularyNotebook::addWordsToNotebook() — re-adding a
-     * question already on the learner's list (from this mission or a
-     * past one) never resets its review schedule.
+     * Every question this mission asked goes into Speaking Recall —
+     * firstOrCreate, so a question already on the learner's list never
+     * has its review schedule reset.
      */
-    public function addSpeakingPromptsToRecall(): void
+    private function addSpeakingPromptsToRecall(): void
     {
-        foreach ($this->speakingPromptCandidates() as $index => $prompt) {
-            if (! ($this->speakingPromptsToTrack[$index] ?? false)) {
-                continue;
-            }
-
+        foreach ($this->speakingPromptCandidates() as $prompt) {
             SpeakingPrompt::firstOrCreate(
                 ['learner_id' => $this->run->learner_id, 'prompt' => $prompt],
                 [
@@ -345,10 +257,23 @@ new class extends Component
                 ],
             );
         }
+    }
 
-        $this->trackedSpeakingPrompts = true;
+    /**
+     * "What became easier" is the skill that rose most since the last
+     * mission; "still difficult" the one rated lowest now.
+     */
+    private function deriveReflection(): void
+    {
+        $scores = collect($this->scores);
 
-        $this->keepStepDraft();
+        $gains = $scores
+            ->filter(fn ($pair) => $pair['before'] && $pair['after'] && $pair['after'] > $pair['before'])
+            ->map(fn ($pair) => $pair['after'] - $pair['before'])
+            ->sortDesc();
+
+        $this->reflection['became_easier'] = (string) ($gains->keys()->first() ?? '');
+        $this->reflection['still_difficult'] = (string) ($scores->filter(fn ($pair) => $pair['after'])->sortBy('after')->keys()->first() ?? '');
     }
 
     public function getResult(): void
@@ -356,13 +281,14 @@ new class extends Component
         $this->error = null;
 
         foreach ($this->scores as $pair) {
-            if (! $pair['before'] || ! $pair['after']) {
-                $this->addError('scores', 'Rate every skill, before and after, before continuing.');
+            if (! $pair['after']) {
+                $this->addError('scores', 'Rate every skill before continuing.');
 
                 return;
             }
         }
 
+        $this->deriveReflection();
         $this->loading = true;
 
         try {
@@ -420,8 +346,6 @@ new class extends Component
                 // this moment again later, in the bell's history.
                 $this->run->learner->notify(new StreakMilestoneReached($this->milestoneJustReached));
             }
-            $this->speakingPromptsToTrack = array_fill(0, count($this->speakingPromptCandidates()), true);
-
             $this->keepStepDraft();
         } catch (Throwable $e) {
             $this->error = AiFailure::message($e, "Couldn't get your result from the AI Instructor");
@@ -489,8 +413,8 @@ new class extends Component
             SelfAssessment::create([
                 'mission_run_id' => $this->run->id,
                 'skill' => $skill,
-                'before' => $pair['before'],
-                'after' => $pair['after'],
+                'before' => $pair['before'] ?? null,
+                'after' => $pair['after'] ?? null,
             ]);
         }
 
@@ -514,6 +438,8 @@ new class extends Component
             ]),
         ]);
 
+        $this->addSpeakingPromptsToRecall();
+
         $this->run->update(['status' => $this->status, 'completed_at' => now()]);
 
         $this->forgetStepDraft();
@@ -532,435 +458,156 @@ new class extends Component
 };
 ?>
 
-@php $draftPrefix = $this->draftPrefix(); @endphp
+@php
+    $comfortChoices = [
+        1 => ['😣', 'Very hard'],
+        2 => ['😕', 'Hard'],
+        3 => ['😐', 'Okay'],
+        4 => ['🙂', 'Easy'],
+        5 => ['😄', 'Very easy'],
+    ];
+    $streak = $this->run->learner->currentStreak();
+    $usage = $this->vocabularyUsage;
+    $usedCount = collect($usage)->where('used', true)->count();
+    $allRated = collect($scores)->every(fn ($pair) => (bool) $pair['after']);
+    $chip = 'inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark';
+    $bigQuestion = 'text-2xl leading-tight font-extrabold text-ink dark:text-ink-dark';
+@endphp
 
-<div
-    class="space-y-6"
-    x-data="{
-        activeSection: 0,
-        init() {
-            this.activeSection = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSection', 0);
-            this.$watch('activeSection', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSection', v));
-        },
-    }"
->
-    <x-hook :text="$run->mission->stepContent('mission_result')['hook'] ?? null" />
-
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Mission Result</p>
+@if ($readOnly)
+    <div class="flex flex-col gap-5 pt-2" @if ($preview) inert @endif>
+        <x-step-intro kind="Mission Result" :title="$status ? null : ($run->mission->stepContent('mission_result')['hook'] ?? null)" />
+        @if ($status)
+            @include('components.missions.steps.partials.mission-result-verdict')
+            @include('components.missions.steps.partials.mission-result-then-now')
+            @if (count($usage))
+                @include('components.missions.steps.partials.mission-result-words')
+            @endif
+        @endif
     </div>
-
-    @if (! $status)
-        <div class="mb-2">
-            <x-progress-bar>
-                <div
-                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                    :style="`width: ${(activeSection + 1) / 2 * 100}%`"
-                ></div>
-                <x-slot:label>
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                        Part <span x-text="activeSection + 1"></span> of 2
-                    </p>
-                </x-slot:label>
-            </x-progress-bar>
-        </div>
-
-        <div x-show="activeSection === 0" x-cloak>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Final self-assessment</p>
-            <div class="mt-2 space-y-2">
-                @foreach ($this->skills() as $skill)
-                    <div class="flex items-center justify-between gap-3 rounded-xl border border-line p-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-                        <span class="w-24">{{ $skill }}</span>
-                        <span class="flex items-center gap-2">
-                            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">Before</span>
-                            <select wire:model.live="scores.{{ $skill }}.before" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
-                                <option value="">–</option>
-                                @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
-                            </select>
-                            <span class="text-xs text-ink-faint dark:text-ink-faint-dark">After</span>
-                            <select wire:model.live="scores.{{ $skill }}.after" @disabled($preview) class="rounded-lg border border-line bg-transparent px-1 text-ink dark:border-line-dark dark:text-ink-dark">
-                                <option value="">–</option>
-                                @foreach (range(1, 5) as $n) <option value="{{ $n }}">{{ $n }}</option> @endforeach
-                            </select>
-                        </span>
-                    </div>
-                @endforeach
-            </div>
-            @error('scores')
-                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div x-show="activeSection === 1" x-cloak>
-            <div class="space-y-4">
-                @foreach ($this->questions() as $key => $question)
-                    @php
-                        $label = is_array($question) ? $question['label'] : $question;
-                        $options = is_array($question) ? $this->reflectionOptions($question['type'] ?? '') : [];
-                    @endphp
-                    @if ($options || ! is_array($question))
-                        <div>
-                            <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $label }}</p>
-                            @if ($options)
-                                <div class="mt-1.5 flex flex-wrap gap-1.5">
-                                    @foreach ($options as $option)
-                                        <button
-                                            type="button"
-                                            @unless ($readOnly)
-                                                wire:click="selectReflectionOption('{{ $key }}', {{ \Illuminate\Support\Js::from($option) }})"
-                                            @endunless
-                                            @class([
-                                                'cursor-pointer rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
-                                                'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => ($reflection[$key] ?? null) === $option,
-                                                'border-line text-ink-soft hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark' => ($reflection[$key] ?? null) !== $option,
-                                            ])
-                                        >{{ $option }}</button>
-                                    @endforeach
-                                </div>
-                            @else
-                                <input
-                                    type="text"
-                                    wire:model="reflection.{{ $key }}"
-                                    @unless ($readOnly)
-                                        x-draft="{ key: '{{ $draftPrefix }}reflection.{{ $key }}', field: 'reflection.{{ $key }}' }"
-                                    @endunless
-                                    class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                                >
-                            @endif
-                        </div>
-                    @endif
-                @endforeach
-            </div>
-
-            @if ($error)
-                <p class="mt-2 text-sm text-danger-ink">{{ $error }}</p>
-            @endif
-
-            @unless ($preview)
+@else
+<div
+    x-data="{ screen: {{ $status ? 3 : 0 }} }"
+    x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 6 })"
+    x-back-close="{ open: screen > 0 && screen < 3, close: () => screen-- }"
+>
+    <x-lesson-screen when="screen === 0">
+        <span class="{{ $chip }}">Mission Result</span>
+        <p class="{{ $bigQuestion }}">How easy is it to talk about this now?</p>
+        <div class="flex flex-col gap-2">
+            @foreach ($comfortChoices as $value => [$emoji, $label])
                 <button
-                    wire:click="getResult"
-                    wire:loading.attr="disabled"
-                    class="mt-4 cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                >
-                    <span wire:loading.remove wire:target="getResult">Get My Result</span>
-                    <span wire:loading wire:target="getResult">Reviewing your mission…</span>
-                </button>
-            @endunless
+                    type="button"
+                    wire:click="$set('afterScore', {{ $value }})"
+                    @class([
+                        'flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left text-base font-bold text-ink transition-colors dark:text-ink-dark',
+                        'border-accent bg-accent-soft dark:border-accent-dark dark:bg-accent-soft-dark' => $afterScore === $value,
+                        'border-transparent bg-surface dark:bg-surface-dark' => $afterScore !== $value,
+                    ])
+                ><span class="text-xl">{{ $emoji }}</span>{{ $label }}</button>
+            @endforeach
         </div>
 
-        <div class="mt-4">
-            <x-substep-nav index-var="activeSection" :total="2" />
-        </div>
-    @else
-        @php
-            // Mission Result used to be one unbroken card stacking everything
-            // from the streak banner down to the share-with-a-friend widget —
-            // the densest, least-structured screen in the app. Split into
-            // "Your result" / "Your growth" / "Keep practicing" so a first
-            // finish doesn't read as one long undifferentiated report. A
-            // section's card is skipped entirely when none of its own content
-            // would render, so a short result still looks deliberate.
-            $hasGrowthSection = collect($scores)->every(fn ($pair) => $pair['before'] && $pair['after'])
-                || $briefScore
-                || $flashbackRecordingUrl
-                || count($this->vocabularyUsage)
-                || $this->masteredErrors->isNotEmpty()
-                || $this->fadingErrors->isNotEmpty()
-                || $this->recurringError;
-            $hasKeepPracticingSection = (! $readOnly && count($this->speakingPromptCandidates()))
-                || $status !== 'complete'
-                || ($status === 'complete' && ! $readOnly);
-        @endphp
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="afterScore" ready-when="{{ $afterScore ? 'true' : 'false' }}" />
+        </x-slot:actions>
+    </x-lesson-screen>
 
-        <div class="card p-4">
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your result</p>
-
-            @if ($milestoneJustReached)
-                {{-- Reuses the exact same full-screen confetti burst the
-                     "mission complete" moment below already triggers (see
-                     window.eosConfetti in resources/js/app.js — it already
-                     honors prefers-reduced-motion, so this doesn't need its
-                     own check) plus a small pop on the badge itself. Fires
-                     once: this property is only ever set live inside
-                     getResult(), never restored on a later page load, so
-                     this block can't render true again on a plain review.
-                     Skipped when the "mission complete" block below will
-                     also render (same page load) — that block already
-                     bursts confetti, so firing here too would stack two
-                     canvases at once. --}}
-                <div
-                    x-init="{{ $status === 'complete' && ! $readOnly ? '' : 'window.eosConfetti?.burst()' }}"
-                    class="mt-2 mb-3 rounded-xl card-accent p-3 text-center"
-                >
-                    <span class="animate-trophy-ring inline-flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
-                        @svg('heroicon-s-trophy', 'h-5 w-5')
+    <x-lesson-screen when="screen === 1">
+        <p class="{{ $bigQuestion }}">How good are you now?</p>
+        <div class="flex flex-col gap-2">
+            @foreach ($scores as $skill => $pair)
+                <div class="flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-2.5 dark:bg-surface-dark">
+                    <span class="text-base font-bold text-ink dark:text-ink-dark">{{ $skill }}</span>
+                    <span class="flex gap-1">
+                        @foreach (range(1, 5) as $n)
+                            <button
+                                type="button"
+                                wire:click="$set('scores.{{ $skill }}.after', {{ $n }})"
+                                aria-label="{{ $skill }} {{ $n }} of 5"
+                                class="flex h-8 w-8 cursor-pointer items-center justify-center"
+                            ><span @class([
+                                'h-5 w-5 rounded-full transition-colors',
+                                'bg-accent dark:bg-accent-dark' => ($pair['after'] ?? 0) >= $n,
+                                'bg-line dark:bg-line-dark' => ($pair['after'] ?? 0) < $n,
+                            ])></span></button>
+                        @endforeach
                     </span>
-                    <p class="mt-1.5 text-sm font-bold text-accent-ink dark:text-accent-ink-dark">{{ $milestoneJustReached }}-day streak!</p>
-                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">
-                        @if ($milestoneJustReached === 7)
-                            A full week of practice — real momentum is building.
-                        @elseif ($milestoneJustReached === 30)
-                            A whole month, consistently — that's a real habit now.
-                        @else
-                            100 days. That's not a habit anymore — that's just who you are now.
-                        @endif
-                    </p>
                 </div>
-            @elseif ($streak = $this->run->learner->currentStreak())
-                <p class="mt-2 mb-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark">
-                    <x-streak-flame :streak="$streak" animated />
-                    {{ $streak === 1 ? "You're on a 1-day streak — nice start!" : "You're on a {$streak}-day streak — keep it going!" }}
-                </p>
-            @endif
-
-            <p class="mt-2 text-xs font-semibold uppercase tracking-wide {{ $status === 'complete' && ! $readOnly ? 'inline-block origin-left animate-badge-pop' : '' }}
-                {{ $status === 'complete' ? 'text-success dark:text-success-dark' : ($status === 'needs_review' ? 'text-warning-ink' : 'text-danger-ink') }}">
-                {{ str($status)->replace('_', ' ')->title() }}
-            </p>
-            <p class="mt-2 text-sm text-ink dark:text-ink-dark">{{ $reason }}</p>
-
-            @if ($this->friendsCompletedCount > 0)
-                <p class="mt-2 inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                    @svg('heroicon-o-user-group', 'h-3.5 w-3.5')
-                    {{ $this->friendsCompletedCount === 1
-                        ? '1 of your friends has completed this mission too.'
-                        : "{$this->friendsCompletedCount} of your friends have completed this mission too." }}
-                </p>
-            @endif
+            @endforeach
         </div>
+        @error('scores')
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
+        @enderror
 
-        @if ($hasGrowthSection)
-            <div class="mt-4 card p-4">
-                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your growth</p>
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 2" wire-target="scores" ready-when="{{ $allRated ? 'true' : 'false' }}" />
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            @if (collect($scores)->every(fn ($pair) => $pair['before'] && $pair['after']))
-                <div class="mt-4 space-y-2.5">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Self-assessment</p>
-                    @foreach ($scores as $skill => $pair)
-                        @php
-                            $before = (int) $pair['before'];
-                            $after = (int) $pair['after'];
-                            $delta = $after - $before;
-                        @endphp
-                        <div>
-                            <div class="flex items-center justify-between text-xs text-ink-soft dark:text-ink-soft-dark">
-                                <span>{{ $skill }}</span>
-                                <span class="font-semibold {{ $delta > 0 ? 'text-success dark:text-success-dark' : ($delta < 0 ? 'text-danger-ink' : 'text-ink-faint dark:text-ink-faint-dark') }}">
-                                    {{ $before }} → {{ $after }} ({{ $delta > 0 ? '+' : '' }}{{ $delta }})
-                                </span>
-                            </div>
-                            <div class="mt-1 flex gap-1">
-                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark" title="Before">
-                                    <div class="h-full rounded-full bg-ink-faint dark:bg-ink-faint-dark" style="width: {{ $before / 5 * 100 }}%"></div>
-                                </div>
-                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark" title="After">
-                                    <div class="h-full rounded-full bg-accent dark:bg-accent-dark" style="width: {{ $after / 5 * 100 }}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-
-            @if ($briefScore)
-                <div class="mt-4">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Since Day 1</p>
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">You started this mission rating your comfort with this topic <span class="font-semibold text-ink dark:text-ink-dark">{{ $briefScore }}/5</span>.</p>
-
-                    @if ($warmUpRecordingUrl || $activationRecordingUrl)
-                        <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                            @if ($warmUpRecordingUrl)
-                                <div class="rounded-xl border border-line p-2.5 dark:border-line-dark">
-                                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Day 1 — your warm-up answer</p>
-                                    <div class="mt-1"><x-audio-player :url="$warmUpRecordingUrl" /></div>
-                                </div>
-                            @endif
-                            @if ($activationRecordingUrl)
-                                <div class="rounded-xl border border-line p-2.5 dark:border-line-dark">
-                                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Mid-mission — your Activation recording</p>
-                                    <div class="mt-1"><x-audio-player :url="$activationRecordingUrl" /></div>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-
-                    @if ($readOnly)
-                        @if ($afterScore)
-                            <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">You rated it <span class="font-semibold text-ink dark:text-ink-dark">{{ $afterScore }}/5</span> by the end.</p>
-                        @endif
-                    @else
-                        <p class="mt-2 text-xs text-ink-faint dark:text-ink-faint-dark">How about now? (optional)</p>
-                        <div class="mt-1 flex gap-1.5">
-                            @foreach (range(1, 5) as $value)
-                                <button
-                                    type="button"
-                                    wire:click="$set('afterScore', {{ $value }})"
-                                    @class([
-                                        'h-8 w-8 cursor-pointer rounded-full border text-xs font-semibold transition-colors',
-                                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $afterScore === $value,
-                                        'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark' => $afterScore !== $value,
-                                    ])
-                                >{{ $value }}</button>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            @endif
-
-            @if ($flashbackRecordingUrl)
-                <div class="mt-4 rounded-xl border border-line bg-surface-sunken p-3 dark:border-line-dark dark:bg-surface-sunken-dark">
-                    <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                        @svg('heroicon-o-clock', 'h-3.5 w-3.5')
-                        A voice from an earlier mission
-                    </p>
-                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                        @if ($flashbackMissionCode)
-                            From {{ $flashbackMissionCode }} — listen back and hear how far you've come.
-                        @else
-                            Listen back and hear how far you've come.
-                        @endif
-                    </p>
-                    <div class="mt-2"><x-audio-player :url="$flashbackRecordingUrl" /></div>
-                </div>
-            @endif
-
-            @if (count($this->vocabularyUsage))
-                @php $usedCount = collect($this->vocabularyUsage)->where('used', true)->count(); @endphp
-                <div class="mt-4">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                        Vocabulary — {{ $usedCount }} of {{ count($this->vocabularyUsage) }} words used
-                    </p>
-                    <div class="mt-1.5 flex flex-wrap gap-1.5">
-                        @foreach ($this->vocabularyUsage as $item)
-                            <span class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs
-                                {{ $item['used']
-                                    ? 'border-success/30 bg-success-soft text-success dark:border-success-dark/30 dark:bg-success-soft-dark dark:text-success-dark'
-                                    : 'border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark' }}">
-                                @if ($item['used'])
-                                    @svg('heroicon-o-check-circle', 'h-3 w-3')
-                                @endif
-                                <x-speak-word :word="$item['word']" size="sm" />
-                            </span>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            {{-- Unlike on the Progress page, the empty state is suppressed
-                 here: this is a celebration screen, and "nothing here yet"
-                 would be one more card saying nothing. --}}
-            @if ($this->masteredErrors->isNotEmpty() || $this->fadingErrors->isNotEmpty())
-                <div class="mt-4 rounded-xl border border-success/30 bg-success-soft p-3 dark:border-success-dark/30 dark:bg-success-soft-dark">
-                    <x-mistakes-you-fixed :mastered="$this->masteredErrors" :fading="$this->fadingErrors" :boxed="false" />
-                </div>
-            @endif
-
-            @if ($this->recurringError)
-                <div class="mt-4 rounded-xl border border-warning-line bg-warning-soft p-3">
-                    <p class="inline-flex items-center gap-1 text-xs font-semibold text-warning-ink uppercase">
-                        @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')
-                        A pattern to keep an eye on
-                    </p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">
-                        <span class="text-danger-ink line-through decoration-danger">{{ $this->recurringError->error }}</span>
-                        <span class="text-success dark:text-success-dark">{{ $this->recurringError->correction }}</span>
-                    </p>
-                </div>
-            @endif
+    <x-lesson-screen when="screen === 2">
+        @if (count($this->expressionOptions()))
+            <p class="{{ $bigQuestion }}">One expression you want to keep using?</p>
+            <div class="flex flex-wrap gap-2">
+                @foreach ($this->expressionOptions() as $option)
+                    <button
+                        type="button"
+                        wire:click="selectReflectionOption('expression_to_keep', {{ \Illuminate\Support\Js::from($option) }})"
+                        @class([
+                            'cursor-pointer rounded-full border-2 px-3.5 py-2 text-sm font-bold transition-colors',
+                            'border-accent bg-accent-soft text-accent-ink dark:border-accent-dark dark:bg-accent-soft-dark dark:text-accent-ink-dark' => ($reflection['expression_to_keep'] ?? null) === $option,
+                            'border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark' => ($reflection['expression_to_keep'] ?? null) !== $option,
+                        ])
+                    >{{ $option }}</button>
+                @endforeach
             </div>
+        @else
+            <p class="{{ $bigQuestion }}">Ready to see your result?</p>
+        @endif
+        @if ($error)
+            <p class="text-sm text-danger-ink">{{ $error }}</p>
         @endif
 
-        @if ($hasKeepPracticingSection)
-            <div class="mt-4 card p-4">
-                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Keep practicing</p>
+        <x-slot:actions>
+            <x-continue-button
+                on-click="$wire.getResult().then(() => { if ($wire.status) screen = 3 })"
+                wire-target="getResult"
+                loading-label="Reviewing your mission…"
+            >See my result</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            @if (! $readOnly && count($this->speakingPromptCandidates()))
-                <div class="mt-4">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speaking Recall</p>
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Want to practice these again later? Pick which ones to save.</p>
-
-                    <div class="mt-2 space-y-2">
-                        @foreach ($this->speakingPromptCandidates() as $index => $prompt)
-                            <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
-                                <input
-                                    type="checkbox"
-                                    wire:model="speakingPromptsToTrack.{{ $index }}"
-                                    class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                                >
-                                <span class="text-sm text-ink dark:text-ink-dark">{{ $prompt }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-
-                    @if ($trackedSpeakingPrompts)
-                        <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
-                            @svg('heroicon-o-check-circle', 'h-4 w-4') Added to Speaking Recall
-                        </span>
-                    @else
-                        <button
-                            type="button"
-                            wire:click="addSpeakingPromptsToRecall"
-                            wire:loading.attr="disabled"
-                            wire:target="addSpeakingPromptsToRecall"
-                            class="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <span wire:loading.remove wire:target="addSpeakingPromptsToRecall" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-microphone', 'h-4 w-4') Add to Speaking Recall</span>
-                            <span wire:loading wire:target="addSpeakingPromptsToRecall">Adding…</span>
-                        </button>
-                    @endif
-                </div>
-            @endif
-
-            @if ($status !== 'complete')
-                <div class="mt-4 flex flex-wrap gap-2">
-                    @if ($weakStep)
-                        <a
-                            href="{{ route('missions.show', ['mission' => $run->mission, 'step' => $weakStep, 'retry' => 1]) }}"
-                            wire:navigate
-                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >
-                            @svg('heroicon-o-arrow-uturn-left', 'h-3.5 w-3.5')
-                            Redo {{ $run->mission->stepLabel($weakStep) }}
-                        </a>
-                    @endif
-                    <a
-                        href="{{ route('missions.show', ['mission' => $run->mission, 'step' => 'mission_result', 'retry' => 1]) }}"
-                        wire:navigate
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-ground transition-colors hover:opacity-85 dark:bg-ink-dark dark:text-ground-dark"
-                    >
-                        @svg('heroicon-o-arrow-path', 'h-3.5 w-3.5')
-                        Get an updated result
-                    </a>
-                </div>
-            @endif
-
-            @if ($status === 'complete' && ! $readOnly)
-                {{-- Fires once — this exact condition (freshly graded, own
-                     live session, never a later review) can only render
-                     true the one time a mission actually completes. --}}
+    @if ($status)
+        <x-lesson-screen when="screen === 3">
+            @if ($status === 'complete' || $milestoneJustReached)
                 <div x-init="window.eosConfetti?.burst()"></div>
-
-                <div class="mt-4">
-                    <x-practice-with-friend
-                        :text="$run->mission->title"
-                        intro="Hey — I just finished my mission:"
-                        label="Share this with a friend"
-                    />
-                </div>
             @endif
-            </div>
-        @endif
+            @include('components.missions.steps.partials.mission-result-verdict')
 
-        @unless ($readOnly)
-            <button
-                wire:click="finish"
-                wire:loading.attr="disabled"
-                wire:target="finish"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-            >
-                <span wire:loading.remove wire:target="finish">Finish Mission</span>
-                <span wire:loading wire:target="finish">Finishing…</span>
-            </button>
-        @endunless
+            <x-slot:actions>
+                <x-continue-button on-click="screen = 4" wire-target="finish" />
+            </x-slot:actions>
+        </x-lesson-screen>
+
+        <x-lesson-screen when="screen === 4">
+            @include('components.missions.steps.partials.mission-result-then-now')
+
+            <x-slot:actions>
+                <x-continue-button on-click="screen = 5" wire-target="finish" />
+            </x-slot:actions>
+        </x-lesson-screen>
+
+        <x-lesson-screen when="screen === 5">
+            @if (count($usage))
+                @include('components.missions.steps.partials.mission-result-words')
+            @else
+                <p class="{{ $bigQuestion }}">That's the mission done.</p>
+            @endif
+
+            <x-slot:actions>
+                <x-continue-button on-click="$wire.finish()" wire-target="finish" loading-label="Finishing…">Finish mission</x-continue-button>
+            </x-slot:actions>
+        </x-lesson-screen>
     @endif
 </div>
+@endif
