@@ -939,16 +939,38 @@ window.eosConfetti = {
  * auto-pauses can cost a few seconds, but a learner who clearly listened
  * through to the end must not stay locked out. Jumping straight to the end
  * credits nothing, so it still can't be skipped.
+ *
+ * `memoryKey` (localStorage) keeps the heard seconds across a reload or a
+ * learner who leaves mid-way and comes back where they left off (see
+ * eosResume): without it, the half heard before leaving was forgotten and a
+ * resumed listen could never reach 90%. Storage may be blocked; the
+ * tracker then simply works per page load as before.
  */
-window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6) {
+window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6, memoryKey = null) {
     const heard = new Set();
     let last = null;
     let waitingForRestart = false;
+    let unsaved = 0;
+
+    const remember = () => {
+        if (!memoryKey) return;
+        unsaved = 0;
+        try { localStorage.setItem(memoryKey, JSON.stringify([...heard])); } catch (e) {}
+    };
+
+    if (memoryKey) {
+        try { JSON.parse(localStorage.getItem(memoryKey) ?? '[]').forEach((second) => heard.add(second)); } catch (e) {}
+        media.addEventListener('pause', remember);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) remember(); });
+    }
 
     const reset = () => {
         heard.clear();
         last = null;
         waitingForRestart = false;
+        if (memoryKey) {
+            try { localStorage.removeItem(memoryKey); } catch (e) {}
+        }
     };
 
     media.addEventListener('seeking', () => {
@@ -981,12 +1003,15 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
             return;
         }
 
-        // Only fully played seconds are marked. Continuous playback only: a gap this big between two updates is a
-        // jump (a seek the 'seeking' event didn't flag first), not listening.
-        if (last !== null && now >= last && now - last <= 2.5) {
+        // Only fully played seconds are marked, from continuous playback: a seek fires 'seeking' first and clears
+        // `last`. The gap allowed between two updates is generous because a phone with its screen off sends them
+        // only every few seconds — those seconds were really heard.
+        if (last !== null && now >= last && now - last <= 15) {
             for (let second = Math.floor(last); second < Math.floor(now); second++) {
                 heard.add(second);
             }
+
+            if (++unsaved >= 10) remember();
         }
 
         last = now;

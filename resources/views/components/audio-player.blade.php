@@ -151,11 +151,11 @@
                             duration: duration,
                         });
                         this.$dispatch('audio-listened');
-                    }, 0.9, () => this.$dispatch('audio-listened'), 0.6);
+                    }, 0.9, () => this.$dispatch('audio-listened'), 0.6, {{ Illuminate\Support\Js::from($resumeKey ? $resumeKey.':heard-listen' : null) }});
                 @endif
 
                 @if ($onListened)
-                    window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9);
+                    window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9, null, 0.6, {{ Illuminate\Support\Js::from($resumeKey ? $resumeKey.':heard' : null) }});
                 @endif
 
                 @if ($resumeKey)

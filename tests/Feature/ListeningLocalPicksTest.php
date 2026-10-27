@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AudioListen;
 use App\Models\User;
 use App\Services\ListeningPicks;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -103,7 +104,8 @@ class ListeningLocalPicksTest extends TestCase
             ->assertSeeHtml('src="'.route('listening.audio', ['M01', 'lee-fixture']).'"')
             ->assertSeeInOrder(['Alex', 'First fixture line.', 'Sam', 'Second fixture line.'])
             ->assertSee('Original page')
-            ->assertSeeHtml('window.eosListenTracker(audio, () => { $wire.heardPick(0) }, 0.9);')
+            // The heard seconds outlive the page, so leaving mid-way and resuming can still tick.
+            ->assertSeeHtml('window.eosListenTracker(audio, () => { $wire.heardPick(0) }, 0.9, null, 0.6, \'eos-resume:M01:'.AudioListen::pickKey(1, 0).':heard\');')
             ->assertSeeHtml('href="https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240607"');
     }
 
