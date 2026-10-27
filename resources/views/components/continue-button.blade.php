@@ -11,7 +11,8 @@
     <x-sticky-bar>): the learner can see where the step leads from the
     start instead of the button materialising the moment they finish, and
     a click before then can't reach a save that would only fail anyway.
-    $hint says what's still missing while it's disabled.
+    $hint says what's still missing while it's disabled. The slot, when
+    given, replaces the "Continue" label (e.g. "Start").
 --}}
 <x-sticky-bar :ready-when="$readyWhen" :hint="$hint">
     <button
@@ -22,7 +23,7 @@
         wire:target="{{ $wireTarget }}"
         class="w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-line disabled:text-ink-faint disabled:shadow-none dark:bg-accent-dark dark:disabled:bg-line-dark dark:disabled:text-ink-faint-dark"
     >
-        <span wire:loading.remove wire:target="{{ $wireTarget }}">Continue</span>
+        <span wire:loading.remove wire:target="{{ $wireTarget }}">{{ $slot->isEmpty() ? 'Continue' : $slot }}</span>
         <span wire:loading wire:target="{{ $wireTarget }}">{{ $loadingLabel }}</span>
     </button>
 </x-sticky-bar>
