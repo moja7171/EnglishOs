@@ -7,6 +7,7 @@ use App\Services\GroqClient;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -141,6 +142,7 @@ new class extends Component
             return;
         }
 
+        $this->clearStoredAvatarPhoto();
         auth()->user()->update(['avatar_path' => $path]);
         $this->newAvatar = null;
     }
@@ -341,9 +343,10 @@ new class extends Component
     }
 
     /**
-     * Always the same fixed filename per learner (see the migration and
-     * processAvatarUpload()) — an upload overwrites, a removal deletes,
-     * neither ever leaves an orphaned file behind on the public disk.
+     * Deletes the learner's current photo file — called before a new
+     * upload is saved (each upload has its own file name, see
+     * processAvatarUpload()) and on removal, so no orphaned file is ever
+     * left behind on the public disk.
      */
     private function clearStoredAvatarPhoto(): void
     {
@@ -359,8 +362,9 @@ new class extends Component
      * plain GD (already a PHP extension here — no Composer package, same
      * "no new dependency for something the platform already gives us"
      * instinct as the curated emoji list and the self-hosted dot-grid
-     * wallpaper). Always the same path per learner, so re-uploading is a
-     * plain overwrite.
+     * wallpaper). A fresh file name every upload, so the new photo gets a
+     * new URL and no browser keeps showing the cached old one; the caller
+     * deletes the previous file.
      */
     private function processAvatarUpload(UploadedFile $file): string
     {
@@ -393,7 +397,7 @@ new class extends Component
         $data = ob_get_clean();
         imagedestroy($square);
 
-        $path = 'avatars/'.auth()->id().'.jpg';
+        $path = 'avatars/'.auth()->id().'-'.Str::lower(Str::random(8)).'.jpg';
         Storage::disk('public')->put($path, $data);
 
         return $path;
