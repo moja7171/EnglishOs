@@ -8,7 +8,9 @@ use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\ListeningPicks;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
@@ -77,7 +79,7 @@ class ListeningPageTest extends TestCase
 
         $this->get(route('listening.show'))
             ->assertSee('Listening')
-            ->assertSee('Pick one — one is enough.')
+            ->assertSee('Pick one')
             ->assertSee('M01 · My Daily Life · Day 1')
             ->assertSeeInOrder(['Routines', 'Describing Your Day: Mornings', "Why you need a good night's sleep"])
             ->assertSeeInOrder(['Lighter', 'Medium', 'Challenging']);
@@ -269,7 +271,26 @@ class ListeningPageTest extends TestCase
 
         $html = $this->get(route('listening.show'))->getContent();
 
-        $this->assertSame(1, substr_count($html, '> Heard</span>'));
+        $this->assertSame(1, substr_count($html, '✓ Heard</span>'));
+    }
+
+    public function test_a_pick_heard_more_than_once_shows_how_many_times(): void
+    {
+        $learner = User::factory()->create();
+        AudioListen::factory()->pick(1, 0)->count(3)->create(['learner_id' => $learner->id]);
+        $this->actingAs($learner);
+
+        $this->get(route('listening.show'))->assertSee('✓ 3×');
+    }
+
+    public function test_each_pick_shows_its_own_cached_photo(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('vocabulary-images/'.Str::slug(ListeningPicks::imageKey('M01', 1, 2)).'.jpg', 'jpg');
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('listening.show'))
+            ->assertSeeHtml(Storage::disk('public')->url('vocabulary-images/m01-pick-1-2.jpg'));
     }
 
     public function test_there_is_no_manual_tick(): void

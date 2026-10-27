@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Mission;
+use App\Services\ListeningPicks;
 use App\Services\MediaHost;
 use App\Services\PexelsClient;
 use Illuminate\Database\Seeder;
@@ -933,6 +934,10 @@ class MissionSeeder extends Seeder
                     };
                 }
             }
+        }
+
+        foreach (app(ListeningPicks::class)->imageQueries() as $key => $query) {
+            $client->imageUrlFor($key, $query, null);
         }
 
         $builtCodes = Mission::all()->pluck('code')->all();

@@ -3,6 +3,8 @@
 use App\Models\AudioListen;
 use App\Models\Mission;
 use App\Services\ListeningPicks;
+use App\Services\MissionGrid;
+use App\Services\PexelsClient;
 use App\Services\ProgramPlanner;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -75,28 +77,45 @@ new class extends Component
 
         $learner->recordListeningToday($this->missionCode, $this->day);
 
-        unset($this->listenedToday, $this->listenedDaysByMission, $this->listenedDays, $this->missionDays, $this->heardLevels);
+        unset($this->listenedToday, $this->listenedDaysByMission, $this->listenedDays, $this->missionDays, $this->listenCounts);
     }
 
     /**
-     * The levels (0-2) of the day's picks heard at least once, for the
-     * "Heard" mark on their cards.
+     * How many times each of the day's picks was really heard (each a 90%
+     * listen, see heardPick()), by level — the 🎧 count on its card.
      *
-     * @return list<int>
+     * @return array<int, int>
      */
     #[Computed]
-    public function heardLevels(): array
+    public function listenCounts(): array
     {
-        $heardKeys = auth()->user()->audioListens()
+        $counts = auth()->user()->audioListens()
             ->where('mission_code', $this->missionCode)
             ->where('source', AudioListen::SOURCE_LISTENING_PICK)
             ->whereIn('pick_key', collect(array_keys($this->picks))->map(fn (int $level) => AudioListen::pickKey($this->day, $level)))
-            ->pluck('pick_key')
-            ->all();
+            ->selectRaw('pick_key, count(*) as listens')
+            ->groupBy('pick_key')
+            ->pluck('listens', 'pick_key');
 
         return collect(array_keys($this->picks))
-            ->filter(fn (int $level) => in_array(AudioListen::pickKey($this->day, $level), $heardKeys, true))
-            ->values()
+            ->mapWithKeys(fn (int $level) => [$level => (int) ($counts[AudioListen::pickKey($this->day, $level)] ?? 0)])
+            ->all();
+    }
+
+    /**
+     * Each pick's own photo by level, or the mission's photo when the
+     * pick's isn't cached — read from disk only, never fetched here.
+     *
+     * @return array<int, string|null>
+     */
+    #[Computed]
+    public function pickImages(): array
+    {
+        $pexels = app(PexelsClient::class);
+        $missionPhoto = app(MissionGrid::class)->coverUrl($this->missionCode);
+
+        return collect(array_keys($this->picks))
+            ->mapWithKeys(fn (int $level) => [$level => $pexels->cachedImageUrl(ListeningPicks::imageKey($this->missionCode, $this->day, $level)) ?? $missionPhoto])
             ->all();
     }
 
@@ -275,32 +294,71 @@ new class extends Component
         <x-preview-only-note />
     @endif
 
-    <p class="text-base font-semibold text-ink dark:text-ink-dark">Pick one — one is enough.</p>
+    <h2 class="text-base font-extrabold text-ink dark:text-ink-dark">Pick one</h2>
 
-    {{-- One card per pick: level, title, source and length, a star on the
-         one with the day's grammar, and a round play button that opens the
-         player and its synced text inside the card — one card at a time.
-         The day ticks itself once a pick has really been heard (90% played
+    {{-- One card per pick: its photo, level, title, source and length, how
+         many times it was really heard, and — when it was left half-way —
+         an orange bar with where it stopped (the player's own resume
+         memory). A tap opens the pick's full-screen player; leaving it
+         (⌄) keeps the audio playing until another pick is opened. The day
+         ticks itself once a pick has really been heard (90% played
          through, see heardPick()); there is no manual tick. --}}
-    <section x-data="{ playing: null }" class="space-y-3" aria-label="Listening picks">
+    <section
+        x-data="{ open: null, current: null }"
+        x-effect="document.documentElement.classList.toggle('overflow-hidden', open !== null)"
+        class="space-y-3"
+        aria-label="Listening picks"
+    >
         @foreach ($this->picks as $level => $pick)
-            @php $heard = in_array($level, $this->heardLevels, true); @endphp
+            @php
+                $listens = $this->listenCounts[$level] ?? 0;
+                $source = \App\Services\ListeningPicks::SOURCES[$pick['src']] ?? $pick['src'];
+                $sourceShort = \Illuminate\Support\Str::before($source, ' · ');
+                $resumeKey = 'eos-resume:'.$missionCode.':'.AudioListen::pickKey($day, $level);
+                $image = $this->pickImages[$level] ?? null;
+            @endphp
             <article
                 wire:key="pick-{{ $missionCode }}-{{ $day }}-{{ $level }}"
-                x-data="{ loaded: false }"
-                x-effect="if (playing === {{ $level }}) { loaded = true } else { $el.querySelectorAll('audio').forEach((audio) => audio.pause()) }"
-                @class(['card overflow-hidden', 'ring-1 ring-success/40 dark:ring-success-dark/40' => $heard])
+                x-data="{
+                    loaded: false,
+                    resumeAt: null,
+                    length: {{ ($pick['min'] ?? 0) * 60 }},
+                    refresh() {
+                        try {
+                            const at = Number(localStorage.getItem({{ Illuminate\Support\Js::from($resumeKey) }}));
+                            const length = Number(localStorage.getItem({{ Illuminate\Support\Js::from($resumeKey.':length') }}));
+                            if (length > 0) this.length = length;
+                            this.resumeAt = at > 0 ? at : null;
+                        } catch (e) {}
+                    },
+                    get share() { return this.length > 0 ? Math.min(this.resumeAt / this.length, 0.97) : 0.5 },
+                    clock(seconds) { const s = Math.floor(seconds); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') },
+                }"
+                x-init="refresh()"
+                x-effect="if (open === {{ $level }}) { loaded = true; current = {{ $level }} } else { refresh() } if (current !== {{ $level }}) $el.querySelectorAll('audio').forEach((audio) => audio.pause())"
             >
-                <div class="flex items-center gap-3 p-4">
-                    <div class="min-w-0 flex-1">
-                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
-                            <span class="inline-flex h-4 items-end gap-0.5" role="img" aria-label="Difficulty: {{ \App\Services\ListeningPicks::LEVELS[$level] }}">
-                                @foreach ([2, 3, 4] as $bar => $height)
+                @php
+                    $cardInner = 'flex w-full items-center gap-3 rounded-3xl bg-surface p-2 pr-3 text-left shadow-sm dark:bg-surface-dark';
+                @endphp
+                @if ($pick['local'])
+                    <button type="button" x-on:click="open = {{ $level }}" class="{{ $cardInner }} cursor-pointer">
+                @else
+                    <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="{{ $cardInner }}">
+                @endif
+                    <span class="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br from-hero to-hero-2">
+                        @if ($image)
+                            <img src="{{ $image }}" alt="" class="h-full w-full object-cover">
+                        @endif
+                    </span>
+                    <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span class="flex items-center gap-1.5 text-[11px] font-extrabold text-ink-faint dark:text-ink-faint-dark">
+                            <span class="inline-flex h-3 items-end gap-0.5" role="img" aria-label="Difficulty: {{ \App\Services\ListeningPicks::LEVELS[$level] }}">
+                                @foreach ([1, 2, 3] as $bar => $height)
                                     <span @class([
-                                        'w-1 rounded-sm',
+                                        'w-[3px] rounded-sm',
+                                        'h-1' => $height === 1,
                                         'h-2' => $height === 2,
                                         'h-3' => $height === 3,
-                                        'h-4' => $height === 4,
                                         'bg-accent dark:bg-accent-dark' => $bar <= $level,
                                         'bg-line dark:bg-line-dark' => $bar > $level,
                                     ])></span>
@@ -310,59 +368,98 @@ new class extends Component
                             @if ($pick['grammar'])
                                 <span class="text-warning-ink" title="Grammar of the day: {{ $this->mission['grammar'] }}" aria-label="Grammar of the day">★</span>
                             @endif
-                            @if ($heard)
-                                <span class="inline-flex items-center gap-0.5 text-success dark:text-success-dark">@svg('heroicon-s-check-circle', 'h-3.5 w-3.5') Heard</span>
+                        </span>
+                        <span class="line-clamp-2 text-sm leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $pick['title'] }}</span>
+                        <span class="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
+                            {{ $sourceShort }}{{ $pick['min'] ? ' · '.$pick['min'].' min' : '' }}
+                            @if ($listens > 0)
+                                <span class="rounded-full bg-success-soft px-1.5 font-extrabold text-success dark:bg-success-soft-dark dark:text-success-dark">✓ {{ $listens > 1 ? $listens.'×' : 'Heard' }}</span>
                             @endif
-                        </div>
-                        <h2 class="mt-1 line-clamp-2 text-base leading-snug font-bold text-ink dark:text-ink-dark">{{ $pick['title'] }}</h2>
-                        <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">{{ \App\Services\ListeningPicks::SOURCES[$pick['src']] ?? $pick['src'] }}{{ $pick['min'] ? ' · '.$pick['min'].' min' : '' }}</p>
-                        @if (! $pick['local'] && $pick['tx'] === 'link' && $pick['txUrl'])
-                            <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="mt-1 inline-block text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
+                        </span>
+                        @if ($pick['local'])
+                            <span x-show="resumeAt !== null" x-cloak class="mt-1 flex items-center gap-2">
+                                <span class="h-1 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark"><span class="block h-full rounded-full bg-accent dark:bg-accent-dark" :style="`width: ${share * 100}%`"></span></span>
+                                <span class="text-[11px] font-extrabold text-accent-ink tabular-nums dark:text-accent-ink-dark" x-text="clock(resumeAt ?? 0)"></span>
+                            </span>
                         @endif
-                    </div>
-
+                    </span>
                     @if ($pick['local'])
-                        <button
-                            type="button"
-                            x-on:click="playing = playing === {{ $level }} ? null : {{ $level }}"
-                            x-bind:aria-expanded="playing === {{ $level }}"
-                            aria-label="Play"
-                            x-bind:aria-label="playing === {{ $level }} ? 'Close player' : 'Play'"
-                            class="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-sm transition-transform hover:scale-105 motion-reduce:transition-none dark:bg-accent-dark"
-                        >
-                            <span x-show="playing !== {{ $level }}">@svg('heroicon-s-play', 'ml-0.5 h-5 w-5')</span>
-                            <span x-show="playing === {{ $level }}" x-cloak>@svg('heroicon-s-x-mark', 'h-5 w-5')</span>
-                        </button>
+                        <span @class([
+                            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                            'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $listens > 0,
+                            'bg-accent text-white dark:bg-accent-dark' => $listens === 0,
+                        ]) aria-label="Play">
+                            @if ($listens > 0)
+                                @svg('heroicon-s-check', 'h-5 w-5')
+                            @else
+                                @svg('heroicon-s-play', 'ml-0.5 h-5 w-5')
+                            @endif
+                        </span>
                     @else
-                        <a
-                            href="{{ $pick['url'] }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Listen on the original page"
-                            class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent text-white shadow-sm dark:bg-accent-dark"
-                        >@svg('heroicon-o-arrow-top-right-on-square', 'h-5 w-5')</a>
+                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark" aria-label="Listen on the original page">@svg('heroicon-o-arrow-top-right-on-square', 'h-5 w-5')</span>
                     @endif
-                </div>
+                @if ($pick['local'])
+                    </button>
+                @else
+                    </a>
+                @endif
+                @if (! $pick['local'] && $pick['tx'] === 'link' && $pick['txUrl'])
+                    <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="mt-1 ml-3 inline-block text-xs font-semibold text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
+                @endif
 
                 @if ($pick['local'])
-                    {{-- Built on the first open, so the page doesn't start
-                         downloading three audio files nobody asked for;
-                         hidden (and paused), not destroyed, after. --}}
-                    <div wire:ignore x-show="playing === {{ $level }}" x-cloak class="space-y-3 border-t border-line px-4 pt-3 pb-4 dark:border-line-dark">
-                        <template x-if="loaded">
-                            <x-audio-player
-                                :url="$pick['local']['audioUrl']"
-                                :segments="$this->localSegments[$level] ?? []"
-                                :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.')'"
-                                :resume-key="$this->isAhead ? null : 'eos-resume:'.$missionCode.':'.AudioListen::pickKey($day, $level)"
-                            />
-                        </template>
-                        <p class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold">
-                            <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="text-accent-ink underline dark:text-accent-ink-dark">Original page</a>
-                            @if ($pick['tx'] === 'link' && $pick['txUrl'])
-                                <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="text-accent-ink underline dark:text-accent-ink-dark">Transcript</a>
-                            @endif
-                        </p>
+                    {{-- The pick's own full-screen player, built on the first
+                         open (no audio is fetched before that), then only
+                         hidden — the audio keeps playing behind ⌄. --}}
+                    <div
+                        wire:ignore
+                        x-show="open === {{ $level }}"
+                        x-cloak
+                        x-back-close="{ open: open === {{ $level }}, close: () => open = null }"
+                        x-on:keydown.escape.window="if (open === {{ $level }}) open = null"
+                        x-on:loadedmetadata.capture="try { localStorage.setItem({{ Illuminate\Support\Js::from($resumeKey.':length') }}, $event.target.duration) } catch (e) {}"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="{{ $pick['title'] }}"
+                        class="fixed inset-0 z-50 overflow-y-auto bg-ground dark:bg-ground-dark"
+                    >
+                        <div x-data="{ menu: false }" class="mx-auto flex min-h-full max-w-lg flex-col gap-4 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-8">
+                            <div class="relative flex items-center gap-2">
+                                <button type="button" x-on:click="open = null" aria-label="Back to the list" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-down', 'h-6 w-6')</button>
+                                <span class="flex-1 text-center text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $missionCode }} · Day {{ $day }}</span>
+                                <button type="button" x-on:click="menu = ! menu" x-bind:aria-expanded="menu" aria-label="More" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-ellipsis-horizontal', 'h-6 w-6')</button>
+                                <div x-show="menu" x-cloak x-on:click.outside="menu = false" class="absolute top-11 right-0 z-10 flex min-w-48 flex-col rounded-2xl bg-surface p-1.5 text-sm font-bold text-ink shadow-xl dark:bg-surface-dark dark:text-ink-dark">
+                                    <a href="{{ $pick['local']['audioUrl'] }}" download class="flex items-center gap-2 rounded-xl px-3 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-arrow-down-tray', 'h-4 w-4') Download</a>
+                                    <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 rounded-xl px-3 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-arrow-top-right-on-square', 'h-4 w-4') Original page</a>
+                                    @if ($pick['tx'] === 'link' && $pick['txUrl'])
+                                        <a href="{{ $pick['txUrl'] }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 rounded-xl px-3 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-document-text', 'h-4 w-4') Transcript</a>
+                                    @endif
+                                    <button type="button" x-on:click="const audio = $root.querySelector('audio'); if (audio) audio.currentTime = 0; menu = false" class="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-arrow-uturn-left', 'h-4 w-4') Start from 0:00</button>
+                                </div>
+                            </div>
+
+                            <div class="h-56 overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2">
+                                @if ($image)
+                                    <img src="{{ $image }}" alt="" class="h-full w-full object-cover">
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-lg leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $pick['title'] }}</p>
+                                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $source }}@if ($listens > 0) · 🎧 {{ $listens }}×@endif</p>
+                            </div>
+
+                            <template x-if="loaded">
+                                <x-audio-player
+                                    podcast
+                                    text-hidden
+                                    text-sheet
+                                    :url="$pick['local']['audioUrl']"
+                                    :segments="$this->localSegments[$level] ?? []"
+                                    :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.')'"
+                                    :resume-key="$this->isAhead ? null : $resumeKey"
+                                />
+                            </template>
+                        </div>
                     </div>
                 @endif
             </article>
