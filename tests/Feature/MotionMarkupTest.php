@@ -14,7 +14,7 @@ class MotionMarkupTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
 
-        foreach (['home', 'friends.index', 'review.index', 'vocabulary.index'] as $route) {
+        foreach (['home', 'friends.index', 'vocabulary.index'] as $route) {
             $this->get(route($route))->assertSee('stagger-children', false);
         }
     }

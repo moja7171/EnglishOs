@@ -640,13 +640,14 @@ window.eosConnectionNotice = {
  * something a step depends on.
  */
 window.eosVoice = {
-    speak(text) {
+    // options.rate: slower for the dictation card's 🐢 (default 0.95).
+    speak(text, options = {}) {
         try {
             if (!('speechSynthesis' in window) || !text) return;
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            utterance.rate = 0.95;
+            utterance.rate = options.rate ?? 0.95;
             window.speechSynthesis.speak(utterance);
         } catch (e) {}
     },

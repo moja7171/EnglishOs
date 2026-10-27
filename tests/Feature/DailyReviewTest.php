@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\ErrorPatternReview;
 use App\Models\GrammarPoint;
+use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
@@ -20,14 +22,30 @@ class DailyReviewTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * A word from a mission's New Words (a source run) — a word card. A
+     * word with no source run is one the learner added themselves, and
+     * may come as a dictation card instead.
+     */
     private function makeDueWord(User $learner, array $attributes = []): VocabularyWord
     {
         return VocabularyWord::create(array_merge([
             'learner_id' => $learner->id,
+            'source_mission_run_id' => $this->missionRunFor($learner)->id,
             'word' => 'commute',
             'meaning' => 'to travel to work',
             'next_review_at' => now()->subMinute(),
         ], $attributes));
+    }
+
+    private function missionRunFor(User $learner): MissionRun
+    {
+        $mission = Mission::firstOrCreate(['code' => 'M01'], ['title' => 'My Daily Life', 'module' => 'Me', 'outcome' => 'x', 'phases' => []]);
+
+        return MissionRun::firstOrCreate(
+            ['learner_id' => $learner->id, 'mission_id' => $mission->id],
+            ['status' => MissionRun::STATUS_IN_PROGRESS, 'started_at' => now()],
+        );
     }
 
     private function makeDuePrompt(User $learner): SpeakingPrompt
@@ -113,11 +131,10 @@ class DailyReviewTest extends TestCase
 
         Livewire::test('review.index')
             ->assertSee('commute')
-            ->assertSee('Do you remember it?')
-            ->assertSee('I remember')
-            ->assertSee('1 / 1')
-            ->assertSee('Skip for now')
-            ->assertSeeHtml('x-data="recallCard"');
+            ->assertSee('✕ Forget')
+            ->assertSee('✓ I know')
+            ->assertSee('1/1')
+            ->assertSee('Skip');
     }
 
     public function test_grading_a_word_advances_its_schedule_and_the_session_progress(): void
@@ -131,16 +148,16 @@ class DailyReviewTest extends TestCase
         $component = Livewire::test('review.index');
         $currentWord = $component->instance()->currentItem['model'];
 
-        $component->assertSee('1 / 3')
+        $component->assertSee('1/3')
             ->call('gradeWord', 5, true)
-            ->assertSee('2 / 3')
+            ->assertSee('2/3')
             ->assertSet('sessionGraded', 1)
             ->assertSet('sessionRemembered', 1);
 
         $this->assertSame(3, $currentWord->fresh()->repetitions);
     }
 
-    public function test_the_back_of_a_word_card_has_its_details_and_grade_gaps(): void
+    public function test_a_word_card_has_its_meaning_and_example_a_tap_away(): void
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner, [
@@ -156,10 +173,7 @@ class DailyReviewTest extends TestCase
 
         Livewire::test('review.index')
             ->assertSee('to travel to work')
-            ->assertSee('You wrote')
-            ->assertSeeHtml($bold.'commute</strong> by train.')
-            ->assertSeeHtml($bold.'commutes</strong> to the office every day.')
-            ->assertSeeInOrder(['Again', '1d', 'Good', '15d', 'Easy', '20d']);
+            ->assertSeeHtml($bold.'commute</strong> by train.');
     }
 
     /**
@@ -175,7 +189,7 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->assertSee('I remember')
+            ->assertSee('✓ I know')
             ->assertDontSee('Write a sentence using this word.')
             ->call('gradeWord', 4, true);
 
@@ -263,18 +277,19 @@ class DailyReviewTest extends TestCase
             ->assertDontSee('Session done!');
     }
 
-    public function test_non_word_cards_use_the_shared_frame_and_show_grade_gaps(): void
+    public function test_non_word_cards_use_the_lesson_frame_and_two_buttons_after_the_reveal(): void
     {
         $learner = User::factory()->create();
         $this->makeDueError($learner);
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->assertSee('Grammar')
-            ->assertSee('1 / 1')
-            ->assertDontSee('Again')
+            ->assertSee('Your mistake')
+            ->assertSee('1/1')
+            ->assertDontSee('✓ I know')
             ->call('reveal')
-            ->assertSeeInOrder(['Again', '1d', 'Good', 'Easy']);
+            ->assertSee('✕ Forget')
+            ->assertSee('✓ I know');
     }
 
     public function test_an_error_pattern_requires_revealing_the_fix_before_grading(): void
@@ -405,14 +420,14 @@ class DailyReviewTest extends TestCase
         Livewire::test('review.index')
             ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
             ->call('recorded')
-            ->assertSee('How did that feel?')
+            ->assertSee('✓ I know')
             ->call('gradeSelf', 5);
 
         $this->assertSame(1, $prompt->fresh()->repetitions);
         $this->assertNotNull($prompt->fresh()->last_recording_url);
     }
 
-    public function test_a_recorded_speaking_prompt_offers_only_again_and_good(): void
+    public function test_a_recorded_speaking_prompt_offers_forget_and_i_know(): void
     {
         Storage::fake('public');
         $this->fakeSpeakingAi();
@@ -423,8 +438,8 @@ class DailyReviewTest extends TestCase
         Livewire::test('review.index')
             ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
             ->call('recorded')
-            ->assertSeeInOrder(['Again', 'Good'])
-            ->assertDontSee('Easy');
+            ->assertSee('✕ Forget')
+            ->assertSee('✓ I know');
     }
 
     public function test_a_speaking_recording_gets_one_line_of_ai_feedback_that_goes_away_with_the_card(): void
@@ -456,7 +471,7 @@ class DailyReviewTest extends TestCase
             ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
             ->call('recorded')
             ->assertSet('feedback', null)
-            ->assertSee('How did that feel?')
+            ->assertSee('✓ I know')
             ->call('gradeSelf', 4);
 
         $this->assertSame(1, $prompt->fresh()->repetitions);
@@ -679,9 +694,7 @@ class DailyReviewTest extends TestCase
         Livewire::test('review.index')
             ->call('pickOption', 1)
             ->assertSee('Yes — that')
-            ->assertSee('Remember')
             ->assertSeeHtml('<strong>he / she / it</strong>')
-            ->assertSee('I usually wake up at 7.')
             ->call('continueGrammar')
             ->assertSet('sessionGraded', 1)
             ->assertSet('sessionRemembered', 1);
@@ -705,5 +718,57 @@ class DailyReviewTest extends TestCase
             ->assertSet('sessionRemembered', 0);
 
         $this->assertSame(0, $point->fresh()->repetitions);
+    }
+
+    public function test_a_word_the_learner_added_themselves_comes_as_dictation(): void
+    {
+        $learner = User::factory()->create();
+        $word = $this->makeDueWord($learner, ['source_mission_run_id' => null, 'meaning_fa' => 'رفت‌وآمد']);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSee('Dictation · My words')
+            ->assertSee('🐢 Slower')
+            ->assertDontSee('✓ I know')
+            ->set('spelling', 'comut')
+            ->call('checkSpelling')
+            ->assertSet('spellingCorrect', false)
+            ->assertSee('Almost!')
+            ->assertSeeHtml('<span class="text-success dark:text-success-dark">m</span>')
+            ->call('continueDictation')
+            ->assertSet('sessionGraded', 1)
+            ->assertSet('sessionRemembered', 0);
+
+        $this->assertSame(0, $word->fresh()->repetitions);
+    }
+
+    public function test_a_right_spelling_moves_the_word_up_a_box(): void
+    {
+        $learner = User::factory()->create();
+        $word = $this->makeDueWord($learner, ['source_mission_run_id' => null]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->set('spelling', 'Commute.')
+            ->call('checkSpelling')
+            ->assertSet('spellingCorrect', true)
+            ->call('continueDictation')
+            ->assertSet('sessionRemembered', 1);
+
+        $this->assertSame(1, $word->fresh()->repetitions);
+    }
+
+    public function test_no_more_than_three_dictations_a_day(): void
+    {
+        $learner = User::factory()->create();
+        foreach (['commute', 'oversleep', 'errand', 'hang out', 'chore'] as $text) {
+            $this->makeDueWord($learner, ['word' => $text, 'source_mission_run_id' => null]);
+        }
+        $this->actingAs($learner);
+
+        $queue = Livewire::test('review.index')->instance()->queue();
+
+        $this->assertSame(3, collect($queue)->where('type', 'dictation')->count());
+        $this->assertSame(2, collect($queue)->where('type', 'word')->count());
     }
 }
