@@ -208,10 +208,36 @@ class WritingStepTest extends TestCase
             ->set('text', 'I usually wake up early and then have breakfast.')
             ->call('save')
             ->assertSet('completed', true)
-            ->assertSet('feedback', null);
+            ->assertSet('feedback', null)
+            ->assertSeeHtml('data-writing-feedback-missing');
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'writing']);
         $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'writing_feedback']);
+    }
+
+    public function test_an_essay_saved_without_feedback_can_ask_for_it_again_later(): void
+    {
+        $run = $this->makeRun();
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'writing',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => 'I usually wake up early and then have breakfast.',
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply());
+        });
+
+        Livewire::test('missions.steps.writing', ['run' => $run, 'readOnly' => true])
+            ->assertSee('I usually wake up early and then have breakfast.')
+            ->assertSeeHtml('data-writing-feedback-missing')
+            ->call('retryFeedback')
+            ->assertNotSet('feedback', null)
+            ->assertDontSeeHtml('data-writing-feedback-missing');
+
+        $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'writing_feedback']);
     }
 
     public function test_reviewing_a_completed_step_reloads_the_saved_feedback(): void

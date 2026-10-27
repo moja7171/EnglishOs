@@ -116,8 +116,9 @@ new class extends Component
      * any mission, so it's just extra data alongside the essay Evidence —
      * never affects step progression, and Error Log's gatherLearnerText()
      * (which reads the 'writing' Evidence as plain text) stays untouched.
-     * Silent on failure, same as Activation's reflection: Evidence for
-     * the essay itself is already saved either way.
+     * A failure never blocks the step (the essay's Evidence is already
+     * saved) but no longer passes in silence: the step says so and offers
+     * retryFeedback().
      */
     private function generateFeedback(): void
     {
@@ -141,9 +142,28 @@ new class extends Component
                 'type' => Evidence::TYPE_TEXT,
                 'content_ref' => json_encode($data),
             ]);
-        } catch (Throwable) {
-            // Silent by design — see method docblock.
+        } catch (Throwable $exception) {
+            report($exception);
         }
+    }
+
+    /**
+     * Asks for the feedback again — after a failed call, or for an essay
+     * saved back when a failure showed nothing at all.
+     */
+    public function retryFeedback(): void
+    {
+        if ($this->preview || $this->feedback) {
+            return;
+        }
+
+        $this->text = $this->run->latestEvidence('writing')?->content_ref ?? $this->text;
+
+        if (trim($this->text) === '') {
+            return;
+        }
+
+        $this->generateFeedback();
     }
 
     public function proceed(): void
@@ -173,7 +193,7 @@ new class extends Component
 <div class="space-y-4">
     <x-hook :text="$writing['hook'] ?? null" />
 
-    @if ($completed || ($readOnly && $feedback))
+    @if ($completed || ($readOnly && filled($text)))
         <div class="space-y-4 card p-4">
             <div>
                 <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
@@ -192,6 +212,22 @@ new class extends Component
                         <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
                     </x-slot:more>
                 </x-learner-feedback>
+            @elseif (! $preview)
+                <div class="flex flex-wrap items-center gap-3 rounded-2xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark" data-writing-feedback-missing>
+                    <p class="font-fa flex-1 text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">بازخورد این متن نیومد.</p>
+                    <button
+                        type="button"
+                        wire:click="retryFeedback"
+                        wire:loading.attr="disabled"
+                        wire:target="retryFeedback"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
+                    >
+                        <span wire:loading.remove wire:target="retryFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4')</span>
+                        <span wire:loading wire:target="retryFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')</span>
+                        Get feedback
+                    </button>
+                </div>
+                <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
             @endif
 
             @unless ($readOnly)
