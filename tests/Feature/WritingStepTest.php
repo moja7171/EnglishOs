@@ -122,18 +122,15 @@ class WritingStepTest extends TestCase
      * not absent entirely, which is the anti-pattern <x-continue-button>
      * itself warns against.
      */
-    public function test_continue_stays_on_screen_but_disabled_until_the_minimum_word_count_is_reached(): void
+    public function test_send_waits_for_the_minimum_word_count(): void
     {
         $run = $this->makeRun();
 
+        // Send waits for the minimum, counted live in the page.
         Livewire::test('missions.steps.writing', ['run' => $run])
-            ->assertSeeHtml('x-on:click="$wire.save()"')
-            ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->assertSee('more words to continue')
-            ->set('text', 'Too short.')
-            ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->set('text', 'This sentence has five words.')
-            ->assertSeeHtml('x-bind:disabled="! (true)"');
+            ->assertSeeHtml('$wire.save()')
+            ->assertSeeHtml('x-bind:disabled="! (words($wire.text) &gt;= 5)"')
+            ->assertSee('5 words to send');
     }
 
     public function test_reaching_the_minimum_saves_evidence_and_shows_the_recap(): void
@@ -289,7 +286,7 @@ class WritingStepTest extends TestCase
             ->assertSet('wordCount', 3);
     }
 
-    public function test_the_learners_own_selected_vocabulary_shows_as_suggestions(): void
+    public function test_the_word_pills_are_gone(): void
     {
         $run = $this->makeRun();
 
@@ -303,11 +300,9 @@ class WritingStepTest extends TestCase
             ]),
         ]);
 
+        // Lesson design 10 cut the word pills: one idea per screen instead.
         Livewire::test('missions.steps.writing', ['run' => $run])
-            ->assertSee('wake up')
-            ->assertSee('have a shower')
-            ->assertSee('do the housework')
-            ->assertSee('Words you picked');
+            ->assertDontSee('Words you picked');
     }
 
     public function test_the_text_field_carries_a_draft_key_scoped_to_the_run(): void
