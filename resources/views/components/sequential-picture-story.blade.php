@@ -11,18 +11,21 @@
     the learner — see the Picture Story step's own docblock) separately
     from 'caption' (a visible label shown under the image, for callers
     that do want one on screen).
---}}
-@props(['images' => []])
 
-<div {{ $attributes->class(['relative rounded-2xl p-1.5']) }} style="background-image: var(--mood-texture); background-size: var(--mood-texture-size);">
-    <div class="flex gap-3 overflow-x-auto pb-1">
+    @param bool $grid All the pictures at once as a numbered 2×2 grid (the
+        lesson screen, design 6) instead of a sideways strip.
+--}}
+@props(['images' => [], 'grid' => false])
+
+<div {{ $attributes->class(['relative rounded-2xl', 'p-1.5' => ! $grid]) }} @unless ($grid) style="background-image: var(--mood-texture); background-size: var(--mood-texture-size);" @endunless>
+    <div @class(['grid grid-cols-2 gap-2' => $grid, 'flex gap-3 overflow-x-auto pb-1' => ! $grid])>
         @foreach ($images as $index => $image)
-            <div class="w-36 shrink-0">
+            <div @class(['w-36 shrink-0' => ! $grid])>
                 <div class="relative">
                     <x-zoomable-image
                         :url="$image['url']"
                         :alt="$image['alt'] ?? $image['caption'] ?? 'Step '.($index + 1)"
-                        class="h-28 w-36 rounded-xl object-cover"
+                        :class="$grid ? 'aspect-[4/3] w-full rounded-2xl object-cover' : 'h-28 w-36 rounded-xl object-cover'"
                     />
                     <span class="pointer-events-none absolute top-1.5 left-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-ink/80 text-[11px] font-bold text-white dark:bg-ink-dark/80">
                         {{ $index + 1 }}
@@ -38,7 +41,7 @@
     {{-- Fade hint on the right edge so a 4-image strip that overflows the
          viewport (routine on mobile) reads as "scroll for more", not as
          the whole story. --}}
-    @if (count($images) > 2)
+    @if (count($images) > 2 && ! $grid)
         <div class="pointer-events-none absolute top-1.5 right-1.5 bottom-2.5 w-10 rounded-r-xl bg-gradient-to-l from-surface to-transparent dark:from-surface-dark" aria-hidden="true"></div>
     @endif
 </div>
