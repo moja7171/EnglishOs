@@ -1,26 +1,16 @@
 {{--
     The avatar in the header and the menu it opens: only what is secondary
-    to the bottom-nav tabs — Progress, Friends and Profile & settings (plus
-    Admin). The guides, the theme and sound switches and Sign out live on
+    to the bottom-nav tabs — Progress and Profile & settings (plus Admin). The guides, the theme and sound switches and Sign out live on
     the Profile & settings page.
 
     A thin ring around the avatar fills with the 96-day program ("Day N of
     96", ProgramPlanner's programDay), so how far the learner has come is
     on every screen without a tap; Progress opens the rest.
 
-    Friends lives here because the social side is secondary, so its
-    unread-message and follow-request count rides on the avatar as a dot
-    instead of being lost.
-
-    It lives in the header, not the bottom nav, so it stays reachable in a
-    friend chat, the one page without the bottom nav.
+    Friends is a bottom-nav tab with its own count (see <x-bottom-nav>).
 --}}
 @php
     $user = auth()->user();
-
-    // Unread *conversations* (not messages) plus pending requests — the same
-    // unit the bell uses, and never counting someone you can no longer message.
-    $friendsBadge = $user->friendsBadgeCount();
 
     $plan = app(\App\Services\ProgramPlanner::class)->plan($user);
     $ringLength = 2 * M_PI * 15;
@@ -45,9 +35,6 @@
             />
         </svg>
         <x-user-avatar :user="$user" class="h-7 w-7 text-[11px]" />
-        @if ($friendsBadge)
-            <span class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-ground bg-accent dark:border-ground-dark dark:bg-accent-dark" title="{{ $friendsBadge }} new in Friends"></span>
-        @endif
     </button>
 
     <x-menu-panel role="menu" aria-label="Account menu" class="sm:py-1">
@@ -60,13 +47,6 @@
             @svg('heroicon-o-chart-bar', 'h-5 w-5')
             <span class="flex-1">Progress</span>
             <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Day {{ $plan['programDay'] }} of {{ $plan['totalDays'] }}</span>
-        </a>
-        <a href="{{ route('friends.index') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
-            @svg('heroicon-o-user-group', 'h-5 w-5')
-            <span class="flex-1">Friends</span>
-            @if ($friendsBadge)
-                <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white dark:bg-accent-dark">{{ $friendsBadge }}</span>
-            @endif
         </a>
         <a href="{{ route('profile') }}" wire:navigate x-on:click="open = false" class="{{ $menuLinkClass }}">
             @svg('heroicon-o-user-circle', 'h-5 w-5') Profile &amp; settings
