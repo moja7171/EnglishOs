@@ -102,7 +102,7 @@ class AiConversation1StepTest extends TestCase
         $component->assertSet('warmUpDone', false);
     }
 
-    public function test_the_warm_up_shows_the_selected_vocabulary_as_a_speaking_reminder(): void
+    public function test_the_warm_up_has_no_word_pills(): void
     {
         $run = $this->makeRun();
 
@@ -114,8 +114,8 @@ class AiConversation1StepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSee('Words you picked — try to use some while you speak')
-            ->assertSee('wake up');
+            // Lesson design 8: the warm-up is the questions and the mic only.
+            ->assertDontSee('Words you picked');
     }
 
     public function test_the_warm_up_does_not_show_a_pi_practice_card(): void
@@ -138,7 +138,7 @@ class AiConversation1StepTest extends TestCase
         $component->assertSet('warmUpDone', true)
             ->assertSet('completed', false)
             ->assertSet('transcript', 'I usually wake up at seven and have breakfast.')
-            ->assertSee('Question 1 of 2');
+            ->assertSee('1 / 2');
 
         $this->assertDatabaseCount('evidences', 0);
         $this->assertSame('ai_conversation_1', $run->fresh()->currentStepKey());
@@ -205,7 +205,6 @@ class AiConversation1StepTest extends TestCase
         $run = MissionRun::findOrStart($learner, $mission);
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSee('Same ideas as Day 1')
             ->assertSee('What time do you usually wake up?');
     }
 
@@ -263,7 +262,7 @@ class AiConversation1StepTest extends TestCase
             ->set('audioFile', UploadedFile::fake()->create('answer2.webm', 100, 'audio/webm'))
             ->call('submitAnswer')
             ->assertSet('completed', true)
-            ->assertSee('Talk It Out complete')
+            ->assertSee('Feedback')
             ->assertSee('Warm-up')
             ->assertSee('I have breakfast and go to work.')
             ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
@@ -454,7 +453,7 @@ class AiConversation1StepTest extends TestCase
         $this->assertDatabaseCount('evidences', 0);
     }
 
-    public function test_the_current_question_has_a_read_aloud_button_the_learner_must_click(): void
+    public function test_the_current_question_is_read_out_and_has_its_own_speaker(): void
     {
         Storage::fake('public');
         $run = $this->makeRun(questionCount: 2);
@@ -464,11 +463,11 @@ class AiConversation1StepTest extends TestCase
 
         $component
             ->assertSeeHtml('data-text="What time do you usually wake up?"')
-            ->assertSee('Read aloud')
-            ->assertDontSeeHtml('x-init');
+            // Lesson design 8: the question reads itself out, like a chat.
+            ->assertSeeHtml('eosVoice?.speak');
     }
 
-    public function test_a_mutual_friend_can_be_offered_the_question_to_practice_together(): void
+    public function test_no_friend_card_sits_beside_the_question(): void
     {
         Storage::fake('public');
         $run = $this->makeRun(questionCount: 2);
@@ -479,12 +478,8 @@ class AiConversation1StepTest extends TestCase
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
         $this->completeWarmUp($component);
 
-        $component
-            ->assertSee('Priya')
-            ->assertSeeHtml(route('friends.conversation', [
-                'user' => $friend,
-                'prefill' => 'Hey — want to help me practice this: "What time do you usually wake up?"',
-            ]));
+        // The friend card beside each question is cut (lesson design 8).
+        $component->assertDontSee('Priya');
     }
 
     public function test_an_off_topic_answer_is_not_advanced_and_shows_an_encouraging_hint(): void
@@ -542,7 +537,7 @@ class AiConversation1StepTest extends TestCase
             ->assertSee('I usually wake up at seven.');
     }
 
-    public function test_shows_a_progress_bar_and_the_selected_vocabulary(): void
+    public function test_shows_the_question_count_and_no_word_pills(): void
     {
         Storage::fake('public');
         $run = $this->makeRun(questionCount: 2);
@@ -558,11 +553,8 @@ class AiConversation1StepTest extends TestCase
         $this->completeWarmUp($component);
 
         $component
-            ->assertSee('Question 1 of 2')
-            ->assertSeeHtml('h-1.5 w-full overflow-hidden rounded-full')
-            ->assertSee('Words you picked')
-            ->assertSee('wake up')
-            ->assertSee('have a shower');
+            ->assertSee('1 / 2')
+            ->assertDontSee('Words you picked');
     }
 
     public function test_shows_the_shared_thinking_indicator_while_submitting(): void
@@ -575,7 +567,7 @@ class AiConversation1StepTest extends TestCase
 
         $component
             ->assertSeeHtml('wire:target="submitAnswer"')
-            ->assertSee('Transcribing and checking your answer…');
+            ->assertSee('Listening to your answer…');
     }
 
     // -----------------------------------------------------------------
