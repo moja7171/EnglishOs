@@ -1,13 +1,13 @@
 @props(['missions'])
 
-{{-- All 24 missions as square photo cards, two to a row on a phone (see
+{{-- The missions as square photo cards, two to a row on a phone (see
      App\Services\MissionGrid for the data). The photo opens the mission's
      own page. Each day is a circle ringed in three parts — Lesson,
      Listening, Daily talk — that fill as they are done (all three: a green
      tick, see <x-day-ring>); a tap opens the mission's page on that day.
-     The current mission is ringed and scrolled into view, a finished one
-     ticked. Every built mission looks open, reached or not — its own page
-     holds the lock; only one not built yet is greyed out with a lock.
+     A finished mission is ticked; one not unlocked yet shows a 🔒 and is
+     dimmed (its page still opens as a preview); one not built yet is
+     greyed out. The current mission sits above, see <x-mission-grid-hero>.
 
      @param list<array<string, mixed>> $missions see MissionGrid::for() --}}
 <div>
@@ -15,15 +15,13 @@
         @foreach ($missions as $mission)
             <li
                 wire:key="mission-card-{{ $mission['code'] }}"
-                @if ($mission['current']) x-data x-init="$el.scrollIntoView({ block: 'center' })" @endif
                 @class([
                     'relative aspect-square overflow-hidden rounded-2xl bg-linear-to-br from-hero to-hero-2',
-                    'ring-2 ring-accent ring-offset-2 ring-offset-ground dark:ring-accent-dark dark:ring-offset-ground-dark' => $mission['current'],
                     'opacity-60' => ! $mission['built'],
                 ])
             >
                 @if ($mission['coverUrl'])
-                    <img src="{{ $mission['coverUrl'] }}" alt="" loading="lazy" @class(['absolute inset-0 h-full w-full object-cover', 'grayscale' => ! $mission['built']])>
+                    <img src="{{ $mission['coverUrl'] }}" alt="" loading="lazy" @class(['absolute inset-0 h-full w-full object-cover', 'grayscale' => ! $mission['built'], 'grayscale-[70%] brightness-75' => $mission['built'] && ! $mission['reached'] && ! $mission['done']])>
                 @endif
                 <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/25 to-transparent"></div>
 
@@ -32,14 +30,10 @@
                 @endif
 
                 <div class="pointer-events-none absolute inset-x-2 top-2 flex items-start justify-between gap-1">
-                    @if ($mission['current'])
-                        <span class="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-white dark:bg-accent-dark">You're here</span>
-                    @else
-                        <span></span>
-                    @endif
+                    <span></span>
                     @if ($mission['done'])
                         <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark" aria-label="Done">@svg('heroicon-s-check', 'h-3.5 w-3.5')</span>
-                    @elseif (! $mission['built'])
+                    @elseif (! $mission['built'] || ! $mission['reached'])
                         <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/40 text-white" aria-label="Locked">@svg('heroicon-s-lock-closed', 'h-3 w-3')</span>
                     @endif
                 </div>

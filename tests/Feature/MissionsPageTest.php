@@ -126,4 +126,14 @@ class MissionsPageTest extends TestCase
             ->assertRedirect(route('missions.index'));
         $this->get(route('missions.index', ['day' => 'nonsense']))->assertOk();
     }
+
+    public function test_a_built_mission_not_unlocked_yet_shows_a_lock_but_still_opens(): void
+    {
+        $learner = $this->learnerOnM02();
+        $this->makeMission('M03');
+
+        $this->actingAs($learner)->get(route('missions.index'))
+            ->assertSeeHtml('aria-label="Locked"')
+            ->assertSeeHtml('href="'.route('missions.show', ['M03', 'overview']).'"');
+    }
 }

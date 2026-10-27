@@ -508,7 +508,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         $this->get(route('home'))
-            ->assertSeeInOrder(['Continue', 'Build step', 'Daily talk · Grammar Chat']);
+            ->assertSeeInOrder(['Build step', 'Start', 'Daily talk · Grammar Chat']);
     }
 
     public function test_the_voice_practice_rows_circle_on_home_cannot_tick_it_by_hand(): void

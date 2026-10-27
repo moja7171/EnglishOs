@@ -1,13 +1,18 @@
 <x-layouts.app>
-    <div class="mx-auto max-w-2xl space-y-4 p-6">
-        <header>
-            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Missions</h1>
-            <p class="mt-1 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Day {{ $grid['reachedDay'] }} of 96</p>
-            <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark">
-                <div class="h-full rounded-full bg-accent dark:bg-accent-dark" style="width: {{ round($grid['reachedDay'] / 96 * 100, 1) }}%"></div>
-            </div>
+    {{-- A2: the mission the learner is on as one big card on top (one tap
+         to go on), then every other mission in a grid — ✓ when finished,
+         🔒 when not unlocked yet (a preview still opens). --}}
+    @php $current = collect($grid['missions'])->firstWhere('current', true); @endphp
+    <div class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
+        <header class="flex items-baseline justify-between gap-3">
+            <h1 class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Missions</h1>
+            <p class="text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Day {{ $grid['reachedDay'] }} of 96</p>
         </header>
 
-        <x-mission-grid :missions="$grid['missions']" />
+        @if ($current)
+            <x-mission-grid-hero :mission="$current" />
+        @endif
+
+        <x-mission-grid :missions="collect($grid['missions'])->reject(fn ($mission) => $mission['current'])->values()->all()" />
     </div>
 </x-layouts.app>
