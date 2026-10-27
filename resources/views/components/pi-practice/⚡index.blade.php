@@ -353,58 +353,183 @@ new class extends Component
     </section>
 
     @php
-        $stepNumber = 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark';
+        $copiedKey = 'eos-pi-copied:'.$missionCode.':'.$day;
+        $openPi = 'if (/Android/i.test(navigator.userAgent)) { window.location.href = '.App\Services\PiPrompts::piAndroidIntentJs().' }';
+        $notCounted = ($feedback['practice_done'] ?? null) === false && ! $this->isPracticed;
+        $normalized = $feedback ? App\Services\LearnerFeedback::normalize($feedback) : null;
+        $firstIssue = $normalized ? collect($normalized['sentences'])->first(fn ($sentence) => $sentence['status'] !== 'ok') : null;
+        $stepLabels = ['Talk', 'Paste', 'Feedback'];
     @endphp
 
-    {{-- 1. The talk itself, outside the app: one big button copies the
-         prompt and opens Pi; the prompt and the plan stay folded. --}}
-    <section class="card space-y-3 p-4" aria-labelledby="talk-heading">
-        <h2 id="talk-heading" class="flex items-center gap-2.5 text-base font-bold text-ink dark:text-ink-dark">
-            <span class="{{ $stepNumber }}">1</span> Talk with Pi
-        </h2>
-        <x-pi-practice-card :task="$this->task" :plan-label="$this->isToday ? 'Today\'s plan' : 'Day '.$day.' plan'" :preview="$this->isAhead" />
-    </section>
+    {{-- One card that changes with the learner's step: 1 copy the prompt
+         and talk in Pi, 2 back from Pi: paste Pi's "transcript" answer, 3
+         the feedback — the only way the day gets its tick (see
+         checkPastedChat()). The page remembers the copy tap, so coming
+         back from Pi lands on step 2 even after a reload. --}}
+    <div
+        x-data="{
+            copied: false,
+            manual: false,
+            fullPrompt: false,
+            showPrompt: false,
+            showAll: false,
+            init() {
+                try { this.copied = localStorage.getItem({{ Illuminate\Support\Js::from($copiedKey) }}) === '1' } catch (e) {}
+            },
+            copyAndOpen() {
+                navigator.clipboard?.writeText($refs.prompt.value);
+                this.copied = true;
+                try { localStorage.setItem({{ Illuminate\Support\Js::from($copiedKey) }}, '1') } catch (e) {}
+                {{ $openPi }}
+            },
+            async pasteAndCheck() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && text.trim().length >= 40) {
+                        $wire.pastedChat = text;
+                        await $wire.checkPastedChat();
+                        return;
+                    }
+                } catch (e) {}
+                this.manual = true;
+            },
+            get step() { return $wire.feedback ? 3 : (this.copied ? 2 : 1) },
+        }"
+        class="space-y-4"
+    >
+        <textarea x-ref="prompt" readonly hidden aria-hidden="true">{{ $this->task['prompt'] }}</textarea>
 
-    @unless ($this->isAhead)
-        {{-- 2. Pi's last message pasted back: the feedback, and the only way
-             the day gets its tick (see checkPastedChat()). --}}
-        <section class="card space-y-3 p-4" aria-labelledby="feedback-heading">
-            <h2 id="feedback-heading" class="flex items-center gap-2.5 text-base font-bold text-ink dark:text-ink-dark">
-                <span class="{{ $stepNumber }}">2</span>
-                <label for="pasted-chat">Get feedback</label>
-            </h2>
-            <textarea
-                id="pasted-chat"
-                wire:model="pastedChat"
-                rows="3"
-                placeholder="Paste Pi's last message here"
-                class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            ></textarea>
-            @error('pastedChat')
-                <p class="text-xs text-danger-ink">{{ $message }}</p>
-            @enderror
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        @unless ($this->isAhead)
+            <ol class="flex items-center gap-1.5 px-1 text-xs font-extrabold text-ink-faint dark:text-ink-faint-dark" aria-label="Steps">
+                @foreach ($stepLabels as $index => $label)
+                    @php $number = $index + 1; @endphp
+                    <li
+                        class="flex items-center gap-1.5"
+                        :class="step > {{ $number }} ? 'text-success dark:text-success-dark' : (step === {{ $number }} ? 'text-accent-ink dark:text-accent-ink-dark' : '')"
+                        x-bind:aria-current="step === {{ $number }} ? 'step' : null"
+                    >
+                        <span
+                            class="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-line text-[10px] dark:border-line-dark"
+                            :class="step > {{ $number }} ? 'border-success bg-success text-white dark:border-success-dark dark:bg-success-dark' : (step === {{ $number }} ? 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' : '')"
+                            x-text="step > {{ $number }} ? '✓' : '{{ $number }}'"
+                        >{{ $number }}</span>
+                        {{ $label }}
+                    </li>
+                    @if (! $loop->last)
+                        <li aria-hidden="true" class="h-0.5 flex-1 rounded-full bg-line dark:bg-line-dark" :class="step > {{ $number }} ? 'bg-success dark:bg-success-dark' : ''"></li>
+                    @endif
+                @endforeach
+            </ol>
+        @endunless
+
+        {{-- 1. Talk --}}
+        <section wire:key="pi-step-talk" x-show="step === 1" @unless ($this->isAhead) x-cloak @endunless class="card flex flex-col items-center gap-3 p-5 text-center" aria-label="Talk with Pi">
+            <span class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-linear-to-br from-[#1fa98a] to-[#0e5c4b] text-xl font-extrabold text-white" aria-hidden="true">Pi</span>
+            <h2 class="text-lg font-extrabold text-ink dark:text-ink-dark">Talk with Pi · {{ App\Services\PiPractice::MINUTES }} min</h2>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Pi asks, you answer. Then you ask Pi.</p>
+            @unless ($this->isAhead)
+                <button type="button" x-on:click="copyAndOpen()" class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-sm transition-colors hover:opacity-90 dark:bg-accent-dark">
+                    @svg('heroicon-s-microphone', 'h-5 w-5') Copy &amp; open Pi
+                </button>
+            @endunless
+            <button type="button" x-on:click="showPrompt = true" class="cursor-pointer text-sm font-extrabold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">See prompt</button>
+        </section>
+
+        @unless ($this->isAhead)
+            {{-- 2. Back from Pi: one button reads Pi's answer from the
+                 clipboard; the box only shows when the phone won't allow it. --}}
+            <section wire:key="pi-step-paste" x-show="step === 2" x-cloak class="card flex flex-col items-center gap-3 p-5 text-center" aria-label="Paste">
+                <span class="text-4xl" aria-hidden="true">📋</span>
+                <h2 class="text-lg font-extrabold text-ink dark:text-ink-dark">Back from Pi?</h2>
+                <p class="w-full rounded-2xl bg-surface-sunken px-3 py-2.5 text-sm font-bold text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">In Pi, type <span class="text-accent-ink dark:text-accent-ink-dark">transcript</span><br>then copy Pi's answer</p>
+
+                <div x-show="manual" x-cloak class="w-full text-left">
+                    <label for="pasted-chat" class="sr-only">Pi's answer</label>
+                    <textarea id="pasted-chat" wire:model="pastedChat" rows="4" placeholder="Paste Pi's answer here" class="w-full rounded-2xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"></textarea>
+                </div>
+                @error('pastedChat')
+                    <p class="text-xs text-danger-ink" x-init="manual = true">{{ $message }}</p>
+                @enderror
+                @if ($feedbackError && ! $feedback)
+                    <p class="text-sm text-danger-ink">{{ $feedbackError }}</p>
+                @endif
+
                 <button
                     type="button"
-                    wire:click="checkPastedChat"
+                    x-on:click="manual ? $wire.checkPastedChat() : pasteAndCheck()"
                     wire:loading.attr="disabled"
                     wire:target="checkPastedChat"
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
+                    class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-sm transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
                 >
-                    <span wire:loading.remove wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4')</span>
-                    <span wire:loading wire:target="checkPastedChat">@svg('heroicon-o-sparkles', 'h-4 w-4 animate-pulse')</span>
-                    Feedback
+                    <span wire:loading.remove wire:target="checkPastedChat" x-text="manual ? 'Check' : 'Paste & check'">Paste &amp; check</span>
+                    <span wire:loading wire:target="checkPastedChat">Checking…</span>
                 </button>
-                @if (! $this->isPracticed)
-                    <span class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ ($feedback['practice_done'] ?? null) === false ? ($this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice.") : 'Ticks itself after Feedback.' }}</span>
-                @endif
-            </div>
+                <button type="button" x-on:click="copyAndOpen()" class="cursor-pointer text-sm font-extrabold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Open Pi again</button>
+            </section>
 
-            @if ($feedback || $feedbackError)
-                <div wire:loading.class="opacity-60" wire:target="checkPastedChat" class="border-t border-line pt-3 dark:border-line-dark">
-                    <x-conversation-feedback :feedback="$feedback" :error="$feedbackError" action="checkPastedChat" />
-                </div>
+            {{-- 3. Feedback: the summary and the first thing to fix, the
+                 whole feedback one tap away. --}}
+            @if ($normalized)
+                <section wire:key="pi-step-feedback" class="space-y-3" aria-label="Feedback">
+                    <div class="card space-y-3 p-4" dir="rtl">
+                        <div class="flex items-center justify-between gap-2" dir="ltr">
+                            <h2 class="text-base font-extrabold text-ink dark:text-ink-dark">Your feedback</h2>
+                            <button type="button" x-on:click="showAll = true" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">See all ›</button>
+                        </div>
+                        @if ($normalized['summary'])
+                            <p class="font-fa text-sm font-semibold text-ink dark:text-ink-dark">{{ $normalized['summary'] }}</p>
+                        @endif
+                        @if ($firstIssue)
+                            <div class="rounded-2xl border border-line p-3 dark:border-line-dark">
+                                <x-learner-feedback-sentence :sentence="$firstIssue" />
+                            </div>
+                        @endif
+                    </div>
+                    @if ($notCounted)
+                        <p class="text-center text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">{{ $this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice." }}</p>
+                    @endif
+                    <div class="flex items-center justify-center gap-4 text-xs font-extrabold text-ink-faint dark:text-ink-faint-dark">
+                        <span>Saved to your Notebook</span>
+                        <button type="button" wire:click="dismissFeedback" class="cursor-pointer underline hover:text-ink dark:hover:text-ink-dark">Paste again</button>
+                    </div>
+
+                    {{-- The whole feedback, full screen like a lesson's. --}}
+                    <div
+                        x-show="showAll"
+                        x-cloak
+                        x-back-close="{ open: showAll, close: () => showAll = false }"
+                        x-on:keydown.escape.window="showAll = false"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Your feedback"
+                        class="fixed inset-0 z-50 overflow-y-auto bg-ground dark:bg-ground-dark"
+                    >
+                        <div class="mx-auto flex max-w-lg flex-col gap-4 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-10">
+                            <x-lesson-header close-click="showAll = false" :progress="1" />
+                            <x-step-intro kind="Feedback" />
+                            <x-learner-feedback :feedback="$feedback" fold-techniques />
+                        </div>
+                    </div>
+                </section>
             @endif
-        </section>
-    @endunless
+        @endunless
+
+        {{-- What Pi will do: the day's plan, the full prompt one tap further. --}}
+        <x-bottom-sheet show="showPrompt" label="What Pi will do">
+            <x-slot:title>What Pi will do</x-slot:title>
+            <ol class="space-y-2">
+                @foreach ($this->task['plan'] as $planStep)
+                    <li class="flex items-start gap-2.5 rounded-xl bg-surface-sunken px-3 py-2 text-sm font-semibold text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">
+                        <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-line text-[10px] font-extrabold dark:border-line-dark">{{ $loop->iteration }}</span>
+                        {{ $planStep }}
+                    </li>
+                @endforeach
+            </ol>
+            <button type="button" x-on:click="fullPrompt = ! fullPrompt" class="w-fit cursor-pointer rounded-full border border-line px-3 py-1 text-xs font-bold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" x-text="fullPrompt ? 'Hide full prompt' : 'Show full prompt'">Show full prompt</button>
+            <p x-show="fullPrompt" x-cloak class="max-h-60 overflow-y-auto rounded-xl bg-surface-sunken p-3 text-xs whitespace-pre-line text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $this->task['prompt'] }}</p>
+            @unless ($this->isAhead)
+                <button type="button" x-on:click="showPrompt = false; copyAndOpen()" class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white dark:bg-accent-dark">Copy &amp; open Pi</button>
+            @endunless
+        </x-bottom-sheet>
+    </div>
 </div>
