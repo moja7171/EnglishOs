@@ -127,6 +127,7 @@ new class extends Component
                     'number' => $number,
                     'heading' => Mission::dayHeading($number, $day['label']),
                     'estimatedMinutes' => $day['estimatedMinutes'],
+                    'stepCount' => count($day['stepKeys']),
                     'completedAt' => $day['completedAt'],
                     'lesson' => $parts['lesson'],
                     'listened' => $parts['listening'],
@@ -483,111 +484,91 @@ new class extends Component
             <x-missions.locked-notice :gating-mission="$this->gatingMission" />
         @endif
 
-        {{-- The mission's page: its four days, each with its Lesson,
-             Listening and Daily talk and their ticks (the same as on the
-             Missions page). One day is unfolded — the one asked for, or the
-             learner's day — the rest fold to one line with its ring. A
-             day's first part not done yet is its one filled button. --}}
+        {{-- A3: the four days as buttons side by side (done = green ✓,
+             the learner's day selected), and under them the chosen day's
+             three cards — Lesson (steps · time + its button), Listening,
+             Daily talk — then "Practice this day with a friend". --}}
         @php
-            $openDay = $this->openDayNumber;
+            $openDay = $this->openDayNumber ?? 1;
             $hasPracticeFriend = $this->hasPracticeFriend;
-            $partRow = 'flex min-h-11 items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold';
+            $card = 'flex min-h-16 items-center gap-3 rounded-2xl p-3';
         @endphp
-        <div
-            x-data="{ openDay: @js($openDay) }"
-            @if ($requestedDay && $openDay) x-init="$nextTick(() => document.getElementById('mission-day-{{ $openDay }}')?.scrollIntoView({ block: 'center' }))" @endif
-            class="space-y-2.5"
-        >
+        <div x-data="{ openDay: @js($openDay) }" class="space-y-2.5">
+            <div class="grid grid-cols-4 gap-2" role="tablist" aria-label="Days">
+                @foreach ($this->missionDays as $day)
+                    @php $allDone = $day['lesson'] && $day['listened'] && $day['talked']; @endphp
+                    <button
+                        type="button"
+                        role="tab"
+                        wire:key="mission-day-tab-{{ $day['number'] }}"
+                        x-on:click="openDay = {{ $day['number'] }}"
+                        x-bind:aria-selected="openDay === {{ $day['number'] }}"
+                        aria-label="Day {{ $day['number'] }}{{ $day['here'] ? ', today' : '' }}{{ $allDone ? ', done' : '' }}"
+                        class="flex cursor-pointer flex-col items-center rounded-2xl py-2 text-base font-extrabold transition-colors"
+                        x-bind:class="openDay === {{ $day['number'] }} ? 'bg-accent text-white dark:bg-accent-dark' : @js($day['lesson'] ? 'bg-surface text-success dark:bg-surface-dark dark:text-success-dark' : 'bg-surface text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark')"
+                    >
+                        <span>{{ $day['lesson'] ? '✓' : $day['number'] }}</span>
+                        <span class="text-[11px] font-bold opacity-80">{{ $day['here'] ? 'Today' : 'Day '.$day['number'] }}</span>
+                    </button>
+                @endforeach
+            </div>
+
             @foreach ($this->missionDays as $day)
                 @php
                     $number = $day['number'];
+                    $lessonNote = $day['lesson'] ? 'Done · tap to review' : ($day['preview'] ? 'Preview' : $day['stepCount'].' '.Str::plural('step', $day['stepCount']).($day['estimatedMinutes'] ? ' · ~'.Mission::formatDuration($day['estimatedMinutes']) : ''));
                     $parts = [
-                        ['key' => 'lesson', 'done' => $day['lesson'], 'url' => $day['lessonUrl'], 'label' => 'Lesson', 'icon' => 'book-open',
-                            'note' => $day['lesson'] ? 'Review' : ($day['preview'] ? 'Preview' : ($day['estimatedMinutes'] ? '~'.Mission::formatDuration($day['estimatedMinutes']) : null)),
-                            'action' => $day['started'] ? 'Continue' : 'Start'],
-                        ['key' => 'listening', 'done' => $day['listened'], 'url' => $day['listeningUrl'], 'label' => 'Listening', 'icon' => 'speaker-wave', 'note' => $day['ahead'] ? 'Preview' : null, 'action' => 'Listen'],
-                        ['key' => 'talk', 'done' => $day['talked'], 'url' => $day['talkUrl'], 'label' => 'Daily talk', 'icon' => 'microphone', 'note' => $day['ahead'] ? 'Preview' : null, 'action' => 'Talk'],
+                        ['key' => 'listening', 'done' => $day['listened'], 'url' => $day['listeningUrl'], 'label' => 'Listening', 'icon' => 'speaker-wave', 'note' => $day['ahead'] ? 'Preview' : 'Pick one'],
+                        ['key' => 'talk', 'done' => $day['talked'], 'url' => $day['talkUrl'], 'label' => 'Daily talk', 'icon' => 'microphone', 'note' => $day['ahead'] ? 'Preview' : 'with Pi'],
                     ];
-                    $doneParts = collect($parts)->where('done', true)->count();
                 @endphp
-                <section
+                <div
                     wire:key="mission-day-{{ $mission->code }}-{{ $number }}"
                     id="mission-day-{{ $number }}"
-                    @class([
-                        'card overflow-hidden',
-                        'ring-2 ring-accent dark:ring-accent-dark' => $day['here'],
-                        'border-dashed' => $day['preview'],
-                    ])
+                    x-show="openDay === {{ $number }}"
+                    @if ($openDay !== $number) x-cloak @endif
+                    class="space-y-2"
                 >
-                    <button
-                        type="button"
-                        x-on:click="openDay = openDay === {{ $number }} ? null : {{ $number }}"
-                        x-bind:aria-expanded="openDay === {{ $number }}"
-                        aria-controls="mission-day-{{ $number }}-parts"
-                        class="flex w-full cursor-pointer items-center gap-3 p-3.5 text-left"
+                    <{{ $day['lessonUrl'] ? 'a' : 'div' }}
+                        @if ($day['lessonUrl']) href="{{ $day['lessonUrl'] }}" wire:navigate @endif
+                        aria-label="Day {{ $number }} Lesson{{ $day['lesson'] ? ', done' : '' }}"
+                        class="{{ $card }} bg-accent-soft dark:bg-accent-soft-dark"
                     >
-                        <x-day-ring :number="$number" :lesson="$day['lesson']" :listened="$day['listened']" :talked="$day['talked']" :today="$day['here']" />
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white dark:bg-accent-dark">@svg('heroicon-o-book-open', 'h-5 w-5')</span>
                         <span class="min-w-0 flex-1">
-                            <span class="block truncate text-sm font-bold text-ink dark:text-ink-dark">{{ $day['heading'] }}</span>
-                            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">
-                                @if ($doneParts === 3)
-                                    All done
-                                @elseif ($day['preview'])
-                                    Preview
-                                @else
-                                    {{ $doneParts }} of 3 done
-                                @endif
-                            </span>
+                            <span class="block text-base font-extrabold text-ink dark:text-ink-dark">Lesson</span>
+                            <span class="block truncate text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $lessonNote }}</span>
                         </span>
-                        @if ($day['here'])
-                            <span class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-white dark:bg-accent-dark">You are here</span>
+                        @if ($day['lesson'])
+                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
+                        @elseif ($day['lessonUrl'] && ! $day['preview'])
+                            <span class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">{{ $day['started'] ? 'Continue' : 'Start' }}</span>
                         @endif
-                        <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="openDay === {{ $number }} && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-4 w-4')</span>
-                    </button>
+                    </{{ $day['lessonUrl'] ? 'a' : 'div' }}>
 
-                    <div id="mission-day-{{ $number }}-parts" x-show="openDay === {{ $number }}" @if ($openDay !== $number) x-cloak @endif class="space-y-0.5 border-t border-line px-2 py-2 dark:border-line-dark">
-                        @foreach ($parts as $part)
-                            @php $isPrimary = $day['primary'] === $part['key']; @endphp
-                            <{{ $part['url'] ? 'a' : 'div' }}
-                                @if ($part['url']) href="{{ $part['url'] }}" wire:navigate @endif
-                                aria-label="Day {{ $number }} {{ $part['label'] }}{{ $part['done'] ? ', done' : '' }}"
-                                @class([
-                                    $partRow,
-                                    'text-ink transition-colors hover:bg-surface-sunken dark:text-ink-dark dark:hover:bg-surface-sunken-dark' => $part['url'],
-                                    'text-ink-faint dark:text-ink-faint-dark' => ! $part['url'],
-                                ])
-                            >
-                                <span @class([
-                                    'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
-                                    'bg-success text-white dark:bg-success-dark' => $part['done'],
-                                    'border-2 border-line text-transparent dark:border-line-dark' => ! $part['done'],
-                                ])>@svg('heroicon-s-check', 'h-3.5 w-3.5')</span>
-                                @svg('heroicon-o-'.$part['icon'], 'h-5 w-5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
-                                <span class="min-w-0 flex-1">
-                                    {{ $part['label'] }}
-                                    @if ($part['note'])
-                                        <span class="block text-xs font-normal text-ink-faint dark:text-ink-faint-dark">{{ $part['note'] }}</span>
-                                    @endif
-                                </span>
-                                @if ($isPrimary)
-                                    <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold text-white dark:bg-accent-dark">
-                                        {{ $part['action'] }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
-                                    </span>
-                                @elseif ($part['url'])
-                                    @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
-                                @endif
-                            </{{ $part['url'] ? 'a' : 'div' }}>
-                        @endforeach
+                    @foreach ($parts as $part)
+                        <{{ $part['url'] ? 'a' : 'div' }}
+                            @if ($part['url']) href="{{ $part['url'] }}" wire:navigate @endif
+                            aria-label="Day {{ $number }} {{ $part['label'] }}{{ $part['done'] ? ', done' : '' }}"
+                            class="{{ $card }} bg-surface dark:bg-surface-dark"
+                        >
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-'.$part['icon'], 'h-5 w-5')</span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-base font-extrabold text-ink dark:text-ink-dark">{{ $part['label'] }}</span>
+                                <span class="block text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $part['note'] }}</span>
+                            </span>
+                            @if ($part['done'])
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
+                            @elseif ($part['url'])
+                                @svg('heroicon-o-chevron-right', 'h-5 w-5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+                            @endif
+                        </{{ $part['url'] ? 'a' : 'div' }}>
+                    @endforeach
 
-                        @if ($day['lesson'] && $hasPracticeFriend)
-                            <a href="{{ route('pair-practice.index', ['day' => $mission->code.'-'.$number]) }}" wire:navigate class="{{ $partRow }} text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-                                <span class="inline-flex h-6 w-6 shrink-0"></span>
-                                @svg('heroicon-o-user-group', 'h-5 w-5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
-                                <span class="min-w-0 flex-1 text-xs">Practice this day with a friend</span>
-                            </a>
-                        @endif
-                    </div>
-                </section>
+                    @if ($day['lesson'] && $hasPracticeFriend)
+                        <a href="{{ route('pair-practice.index', ['day' => $mission->code.'-'.$number]) }}" wire:navigate class="block px-2 py-1 text-sm font-bold text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark">👫 Practice this day with a friend ›</a>
+                    @endif
+                </div>
             @endforeach
         </div>
 

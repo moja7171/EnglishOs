@@ -153,7 +153,7 @@ class MissionStepPreviewTest extends TestCase
         $run = $this->freshM01Run();
 
         $component = Livewire::test('missions.runner', ['mission' => $run->mission, 'step' => 'overview'])
-            ->assertSee('You are here')
+            ->assertSee('Today')
             ->assertSee('Preview');
 
         foreach ($run->dayProgress() as $day) {
@@ -307,13 +307,13 @@ class MissionStepPreviewTest extends TestCase
         PreviewMissionRun::for(auth()->user(), $mission)->save();
     }
 
-    public function test_the_home_page_lets_you_open_a_locked_mission_as_a_preview(): void
+    public function test_the_missions_page_lets_you_open_a_locked_mission_as_a_preview(): void
     {
         $mission = $this->lockedMission();
 
-        $this->get(route('home'))
+        $this->get(route('missions.index'))
             ->assertOk()
-            ->assertSee('Next: '.$mission->code)
+            ->assertSeeHtml('aria-label="Locked"')
             ->assertSeeHtml('href="'.route('missions.show', [$mission, 'overview']).'"');
     }
 }

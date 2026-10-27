@@ -296,7 +296,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSee('Day 2')
             ->assertSee('Day 3')
             ->assertSee('Day 4')
-            ->assertSee('You are here')
+            ->assertSee('Today')
             ->assertSeeHtml('x-data="{ openDay: 1 }"')
             ->assertSee('Start') // Day 1's lesson, not started yet, is the one filled button
             ->assertDontSee('All done');
@@ -346,8 +346,8 @@ class MissionRunnerNavigationTest extends TestCase
         Livewire::test('missions.runner', ['mission' => $mission])
             ->assertSet('showOverview', true)
             ->assertSeeHtml('aria-label="Day 1 Lesson, done"')
-            ->assertSee('Review') // Day 1's lesson now opens as a review
-            ->assertSee('Listen'); // so the day's first part not done is its listening
+            ->assertSee('Done · tap to review') // Day 1's lesson now opens as a review
+            ->assertSee('Pick one'); // and its listening is still to do
     }
 
     public function test_the_header_line_is_full_while_reviewing_the_last_step_of_a_finished_day(): void
@@ -479,7 +479,7 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSeeHtml('aria-label="Day 1 Lesson, done"')
             ->assertSeeHtml('href="'.route('listening.show', ['M01', 1]).'"')
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"')
-            ->assertSeeHtml('x-data="{ openDay: null }"')
+            ->assertSeeHtml('x-data="{ openDay: 1 }"')
             ->assertSeeHtml('wire:name="progress.mission"');
     }
 
