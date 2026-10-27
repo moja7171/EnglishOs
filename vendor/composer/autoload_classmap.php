@@ -38,6 +38,7 @@ return array(
     'App\\Http\\Resources\\DictionaryEntryResource' => $baseDir . '/app/Http/Resources/DictionaryEntryResource.php',
     'App\\Livewire\\Concerns\\ChecksShadowLines' => $baseDir . '/app/Livewire/Concerns/ChecksShadowLines.php',
     'App\\Livewire\\Concerns\\DailyListenStep' => $baseDir . '/app/Livewire/Concerns/DailyListenStep.php',
+    'App\\Livewire\\Concerns\\DictatesAnswers' => $baseDir . '/app/Livewire/Concerns/DictatesAnswers.php',
     'App\\Livewire\\Concerns\\GivesConversationFeedback' => $baseDir . '/app/Livewire/Concerns/GivesConversationFeedback.php',
     'App\\Livewire\\Concerns\\GivesQuickSpokenFeedback' => $baseDir . '/app/Livewire/Concerns/GivesQuickSpokenFeedback.php',
     'App\\Livewire\\Concerns\\KeepsShadowDrafts' => $baseDir . '/app/Livewire/Concerns/KeepsShadowDrafts.php',

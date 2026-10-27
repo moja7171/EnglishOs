@@ -580,6 +580,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Http\\Resources\\DictionaryEntryResource' => __DIR__ . '/../..' . '/app/Http/Resources/DictionaryEntryResource.php',
         'App\\Livewire\\Concerns\\ChecksShadowLines' => __DIR__ . '/../..' . '/app/Livewire/Concerns/ChecksShadowLines.php',
         'App\\Livewire\\Concerns\\DailyListenStep' => __DIR__ . '/../..' . '/app/Livewire/Concerns/DailyListenStep.php',
+        'App\\Livewire\\Concerns\\DictatesAnswers' => __DIR__ . '/../..' . '/app/Livewire/Concerns/DictatesAnswers.php',
         'App\\Livewire\\Concerns\\GivesConversationFeedback' => __DIR__ . '/../..' . '/app/Livewire/Concerns/GivesConversationFeedback.php',
         'App\\Livewire\\Concerns\\GivesQuickSpokenFeedback' => __DIR__ . '/../..' . '/app/Livewire/Concerns/GivesQuickSpokenFeedback.php',
         'App\\Livewire\\Concerns\\KeepsShadowDrafts' => __DIR__ . '/../..' . '/app/Livewire/Concerns/KeepsShadowDrafts.php',
