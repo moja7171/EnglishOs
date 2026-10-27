@@ -497,7 +497,7 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Daily Review · 3 items');
+            ->assertSeeInOrder(['Daily Review', '3 items']);
     }
 
     public function test_todays_review_is_capped_at_the_daily_limit_with_the_most_overdue_first(): void
@@ -518,7 +518,7 @@ class DailyReviewTest extends TestCase
             $items->pluck('id')->all(),
         );
 
-        Livewire::test('missions.overview')->assertSee('Daily Review · 8 items');
+        Livewire::test('missions.overview')->assertSeeInOrder(['Daily Review', '8 items']);
     }
 
     public function test_reviewing_an_item_uses_up_one_of_todays_eight_instead_of_pulling_in_a_ninth(): void
