@@ -159,9 +159,8 @@ class PictureDescriptionStepTest extends TestCase
         // leads) but not clickable until there's something to save — see
         // <x-continue-button>.
         Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->assertSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-on:click="screen = 1; $wire.save()"')
             ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->assertSee('Record your description to continue')
             ->set('recording', UploadedFile::fake()->create('description.webm', 400, 'audio/webm'))
             ->assertSeeHtml('x-bind:disabled="! (true)"');
     }
@@ -213,14 +212,22 @@ class PictureDescriptionStepTest extends TestCase
             ->assertDontSeeHtml('blur-sm');
     }
 
-    public function test_the_recorder_sits_inside_a_bordered_card(): void
+    /**
+     * Lesson design 11: one guiding question on screen at a time (‹ ›
+     * move through them), and no "Try to cover" list or start screen.
+     */
+    public function test_the_guiding_questions_show_one_at_a_time(): void
     {
         $run = $this->makeRun();
 
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
 
         Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->assertSeeHtml('card-sunken p-4');
+            ->assertSeeHtml('x-show="question === 0"')
+            ->assertSeeHtml('x-show="question === 1"')
+            ->assertSee('Next question')
+            ->assertDontSee('Try to cover')
+            ->assertDontSee('Describe what you see');
     }
 
     public function test_hotspot_markers_are_rendered_at_their_seeded_coordinates(): void
@@ -299,19 +306,33 @@ class PictureDescriptionStepTest extends TestCase
     }
 
     /**
-     * The numbered hotspots and their matching guiding questions highlight
-     * each other on hover OR tap — tapping only fires mouseenter on a
-     * pointer device, so the question list needs its own click handler to
-     * work on a phone.
+     * Tapping a numbered dot on the picture brings up its question.
      */
-    public function test_tapping_a_guiding_question_also_highlights_its_hotspot(): void
+    public function test_tapping_a_hotspot_shows_its_question(): void
     {
-        $run = $this->makeRun();
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [[
+                    'key' => 'picture_description',
+                    'image_query' => 'family breakfast table morning kitchen busy',
+                    'guiding_questions' => ['What do you see?', 'Who is cooking?'],
+                    'hotspots' => [['x' => 17, 'y' => 32, 'question_index' => 1]],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
 
-        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn('http://localhost/image.jpg'));
 
         Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->assertSeeHtml('x-on:click="activeQuestion = (activeQuestion === 0 ? null : 0)"');
+            ->assertSeeHtml('x-on:click="question = 1"');
     }
 
     public function test_a_recording_is_kept_when_the_learner_leaves_before_saving(): void
