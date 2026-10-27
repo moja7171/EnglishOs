@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\DictatesAnswers;
 use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
@@ -11,13 +12,24 @@ use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
+/**
+ * Grammar Time, learn → try (lesson design 5): each lesson section is a
+ * short rule + formula screen followed by "Which one is right?" built from
+ * that section's own wrong/right pair; then the quick-check and build-the-
+ * sentence cards one per screen; then three sentences about the learner,
+ * one per screen, typed or said, checked from the bottom. 💡 Rule opens
+ * every rule in a sheet on the practice screens.
+ */
 new class extends Component
 {
+    use DictatesAnswers;
     use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
+    use WithFileUploads;
 
     public MissionRun $run;
 
@@ -54,19 +66,6 @@ new class extends Component
      * @var array{correct: int, total: int}|null
      */
     public ?array $wordOrderScore = null;
-
-    /**
-     * True once Continue has passed every check and Evidence is saved —
-     * the step then shows the encouragement score (Epic H) before the
-     * learner dismisses it with proceed() below.
-     */
-    public bool $completed = false;
-
-    /** How many sentences needed no fix at all this attempt (encouragement score, Epic H). */
-    public ?int $correctCount = null;
-
-    /** The same count from the learner's own last attempt at this step, if any. */
-    public ?int $previousCorrect = null;
 
     public function mount(): void
     {
@@ -323,30 +322,52 @@ new class extends Component
         );
     }
 
-    public function declineReveal(int $index): void
+    /**
+     * The mic in a sentence box: what was said (minus the starter, if it
+     * was said too) becomes the box's text and is checked straight away.
+     */
+    public function dictateSentence(int $index): void
     {
-        $this->declineCheckReveal($index);
+        $starter = $this->starters()[$index] ?? null;
+        $text = $starter ? $this->dictatedText($index) : null;
+
+        if ($text === null) {
+            return;
+        }
+
+        $this->frequencySentences[$index] = $this->continuation($starter, $text);
+        $this->runCheck($index, $starter, $this->frequencySentences[$index]);
     }
 
     /**
-     * Wraps the first occurrence of $word in an example sentence with a
-     * highlight so its position in the sentence is visible at a glance, not
-     * just stated in prose. $word is empty for lesson content that has
-     * nothing to highlight (e.g. a contrast rule with no single word to
-     * point at) — in that case the sentence is shown plain, still escaped.
+     * Each lesson section's "Which one is right?" pair — its spot-the-
+     * mistake block, or else its first don't/do pair. Null when the
+     * section has neither.
+     *
+     * @return array{wrong: string, right: string, why: ?string}|null
      */
-    public function highlightWord(string $example, string $word): string
+    public function sectionPair(array $section): ?array
     {
-        if ($word === '') {
-            return e($example);
+        foreach ($section['blocks'] ?? [] as $block) {
+            if (($block['type'] ?? null) === 'mistake_fix' && filled($block['wrong'] ?? null)) {
+                return ['wrong' => $block['wrong'], 'right' => $block['right'], 'why' => $block['explanation'] ?? null];
+            }
         }
 
-        return preg_replace(
-            '/\b'.preg_quote($word, '/').'\b/',
-            '<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">$0</strong>',
-            e($example),
-            1
-        );
+        foreach ($section['blocks'] ?? [] as $block) {
+            if (($block['type'] ?? null) === 'do_dont' && filled($block['items'][0]['wrong'] ?? null)) {
+                $item = $block['items'][0];
+
+                return ['wrong' => $item['wrong'], 'right' => $item['right'], 'why' => $item['note'] ?? null];
+            }
+        }
+
+        return null;
+    }
+
+    public function declineReveal(int $index): void
+    {
+        $this->declineCheckReveal($index);
     }
 
     public function save(): void
@@ -386,10 +407,6 @@ new class extends Component
             return;
         }
 
-        // Read BEFORE creating this attempt's own row — a retry (?retry=1)
-        // means there can already be an earlier one for this same phase.
-        $this->previousCorrect = $this->readPreviousCorrectCount();
-
         Evidence::create([
             'mission_run_id' => $this->run->id,
             'phase' => 'grammar_in_context',
@@ -405,43 +422,11 @@ new class extends Component
             ]),
         ]);
 
-        $this->correctCount = $filledSentences
-            ->filter(fn ($s) => ($this->feedback[$s['index']]['severity'] ?? null) === 'none')
-            ->count();
-
         $this->syncGrammarPoint($filledSentences->first());
 
         $this->forgetStepDraft();
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
-        $this->completed = true;
-    }
-
-    public function proceed(): void
-    {
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
-    }
-
-    /**
-     * The learner's own last attempt at this exact step (encouragement
-     * score's comparison, Epic H) — null when this is their first attempt
-     * or an old Evidence row predates severities being persisted at all.
-     */
-    private function readPreviousCorrectCount(): ?int
-    {
-        $previous = $this->run->evidence()
-            ->where('phase', 'grammar_in_context')
-            ->where('type', Evidence::TYPE_TEXT)
-            ->latest()
-            ->first();
-
-        if (! $previous) {
-            return null;
-        }
-
-        $sentences = json_decode($previous->content_ref, true)['frequency_sentences'] ?? [];
-        $severities = collect($sentences)->pluck('severity')->filter();
-
-        return $severities->isNotEmpty() ? $severities->filter(fn ($s) => $s === 'none')->count() : null;
     }
 
     /**
@@ -488,294 +473,235 @@ new class extends Component
 @php
     $grammar = $run->mission->stepContent('grammar_in_context');
     $lesson = $grammar['lesson'] ?? [];
-    // The lesson's whole point/structure lives in seeded content now, not
-    // hardcoded Blade prose — this is what lets grammar_in_context teach any
-    // grammar point a mission seeds it with (M01's Present Simple + Adverbs
-    // of Frequency, M02's Present Simple vs Present Continuous, a future
-    // Past Simple vs Present Perfect, …) without another component edit.
-    // Each section is {heading, body, blocks[]}; each block is one of the
-    // generic shapes handled below (pairs / examples / chips / rule_examples).
-    $lessonSectionsData = $lesson['sections'] ?? [];
-    $initialFilled = collect($frequencySentences)->map(fn ($s) => trim((string) $s) !== '')->values();
+    $sections = $lesson['sections'] ?? [];
+    $starters = $this->starters();
+    $sentenceCount = min($this->requiredSentences(), count($starters));
     $draftPrefix = $this->draftPrefix();
+    $initialFilled = collect(range(0, max(0, count($starters) - 1)))->map(fn ($i) => trim((string) ($frequencySentences[$i] ?? '')) !== '')->values();
+
+    // Screens in order: start · per section a rule screen and its "Which
+    // one is right?" · quick check · build the sentence · one sentence each.
+    $screens = [['type' => 'intro']];
+    foreach ($sections as $sectionIndex => $section) {
+        $screens[] = ['type' => 'rule', 'section' => $sectionIndex];
+        if ($pair = $this->sectionPair($section)) {
+            $screens[] = ['type' => 'pick', 'section' => $sectionIndex, 'pair' => $pair];
+        }
+    }
+    if (! $readOnly && $this->quickCheckCards()) {
+        $screens[] = ['type' => 'quick'];
+    }
+    if (! $readOnly && $this->wordOrderCards()) {
+        $screens[] = ['type' => 'order'];
+    }
+    foreach (range(0, max(0, $sentenceCount - 1)) as $sentenceIndex) {
+        $screens[] = ['type' => 'sentence', 'index' => $sentenceIndex];
+    }
+    $screenCount = count($screens);
+    $roundScreens = collect($screens)->filter(fn ($screen) => in_array($screen['type'], ['quick', 'order'], true))->keys()->values();
+    $firstPracticeScreen = collect($screens)->search(fn ($screen) => in_array($screen['type'], ['quick', 'order', 'sentence'], true));
+    $firstSentenceScreen = collect($screens)->search(fn ($screen) => $screen['type'] === 'sentence');
+    $firstUnwritten = $initialFilled->take($sentenceCount)->search(false);
+    $startScreen = $practiceStarted ? $firstSentenceScreen + ($firstUnwritten === false ? $sentenceCount - 1 : $firstUnwritten) : 0;
 @endphp
 
-<div
-    class="space-y-6"
-    data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : 'lesson' }}"
-    data-lesson-sections="{{ count($lessonSectionsData) }}"
-    data-initial-filled="{{ $initialFilled->toJson() }}"
-    x-data="{
-        phase: 'lesson',
-        lessonStep: 0,
-        lessonSections: 1,
-        filled: [],
-        dismissed: {},
-        init() {
-            this.phase = this.$el.dataset.initialPhase;
-            this.lessonSections = Number(this.$el.dataset.lessonSections);
-            this.filled = JSON.parse(this.$el.dataset.initialFilled);
-            // Lesson sections scroll back to the top through the shared sub-step
-            // pager; moving into practice swaps the content in place the same way.
-            this.$watch('phase', () => this.$nextTick(() => this.$scrollToStepTop()));
-        },
-        get filledCount() { return this.filled.filter(Boolean).length },
-        get progressMessage() {
-            const n = this.filledCount;
-            if (n === 0) return 'Fill in your first sentence below.';
-            if (n === 1) return 'Nice start — keep going!';
-            if (n === 2) return 'One more and you\'re ready to continue!';
-            return 'Ready to continue — write more if you like!';
-        },
-    }"
->
-    <div class="space-y-3">
-        <h3 class="font-display text-2xl leading-tight font-medium text-ink dark:text-ink-dark">{{ $grammar['focus'] ?? 'Grammar' }}</h3>
-        <x-hook :text="$grammar['hook'] ?? null" />
+@if ($readOnly)
+    <div class="flex flex-col gap-5 pt-2">
+        <x-step-intro kind="Grammar Time" :title="$grammar['focus'] ?? 'Grammar'" />
+        @foreach ($sections as $section)
+            @include('missions.steps.partials.grammar-rule-card', ['section' => $section])
+        @endforeach
+        @if ($quickCheckScore)
+            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Fix the sentence: you scored {{ $quickCheckScore['correct'] }} of {{ $quickCheckScore['total'] }}.</p>
+        @endif
+        @if ($wordOrderScore)
+            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Build the sentence: you scored {{ $wordOrderScore['correct'] }} of {{ $wordOrderScore['total'] }}.</p>
+        @endif
+        @foreach ($starters as $index => $starter)
+            @if (filled($frequencySentences[$index] ?? null))
+                <p class="rounded-2xl bg-surface px-4 py-3 text-base text-ink dark:bg-surface-dark dark:text-ink-dark"><strong>{{ $starter }}</strong> {{ $frequencySentences[$index] }}</p>
+            @endif
+        @endforeach
     </div>
-
-    @if ($completed)
-        <div class="space-y-4 card p-4">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-4 w-4')
-                Grammar Time complete
-            </p>
-
-            @if (! is_null($correctCount))
-                <x-encouragement-score :correct="$correctCount" :total="$this->requiredSentences()" label="sentences" :previous-correct="$previousCorrect" />
-            @endif
-
-            <button
-                wire:click="proceed"
-                wire:loading.attr="disabled"
-                wire:target="proceed"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-            >
-                <span wire:loading.remove wire:target="proceed">Continue</span>
-                <span wire:loading wire:target="proceed">Please wait…</span>
-            </button>
-        </div>
-    @else
-    @unless ($readOnly)
-        <div x-show="phase === 'lesson'" x-cloak class="space-y-4">
-            @if (! empty($lesson['intro']))
-                <p class="text-base leading-relaxed text-ink-soft dark:text-ink-soft-dark">{{ $lesson['intro'] }}</p>
-            @endif
-
-            <div>
-                <x-progress-bar>
-                    <div
-                        class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                        :style="`width: ${(lessonStep + 1) / lessonSections * 100}%`"
-                    ></div>
-                    <x-slot:label>
-                        <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                            Lesson <span x-text="lessonStep + 1"></span> of <span x-text="lessonSections"></span>
-                        </p>
-                    </x-slot:label>
-                </x-progress-bar>
+@else
+<div
+    data-initial-filled="{{ $initialFilled->toJson() }}"
+    data-round-screens="{{ $roundScreens->toJson() }}"
+    x-data="{
+        screen: {{ $startScreen }},
+        roundShare: 0,
+        roundScreens: [],
+        ruleSheet: false,
+        picked: {},
+        filled: [],
+        edited: {},
+        init() {
+            this.filled = JSON.parse(this.$el.dataset.initialFilled);
+            this.roundScreens = JSON.parse(this.$el.dataset.roundScreens);
+        },
+        get share() { return (this.screen + (this.roundScreens.includes(this.screen) ? this.roundShare : 0.5)) / {{ $screenCount }} },
+    }"
+    x-effect="$dispatch('step-progress', { share })"
+    x-on:quick-round-progress="roundShare = $event.detail.share"
+    x-back-close="{ open: screen > 0, close: () => screen-- }"
+>
+    @foreach ($screens as $screenIndex => $screen)
+        @if (in_array($screen['type'], ['quick', 'order', 'sentence'], true))
+            <div x-show="screen === {{ $screenIndex }}" x-cloak class="flex justify-end">
+                <button type="button" x-on:click="ruleSheet = true" class="cursor-pointer rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">💡 Rule</button>
             </div>
-
-            @foreach ($lessonSectionsData as $sectionIndex => $section)
-                <div x-show="lessonStep === {{ $sectionIndex }}" x-cloak class="card-sunken p-5">
-                    @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
-
-                    @if ($loop->last && ! empty($lesson['bridge_note']))
-                        <p class="mt-6 flex items-start gap-2 text-sm leading-relaxed text-ink-soft italic dark:text-ink-soft-dark">@svg('heroicon-o-arrow-trending-up', 'mt-0.5 h-4 w-4 shrink-0 not-italic') {{ $lesson['bridge_note'] }}</p>
-                    @endif
-                </div>
-            @endforeach
-
-            {{-- <x-substep-nav> is deliberately a small muted grouped pill,
-                 not the app's bold filled-pill "Next" language used for
-                 moving between mission steps at the bottom of the page —
-                 that's what keeps the two from being confused with each
-                 other. "Start practice" is the real, prominent commitment,
-                 so it keeps the app's normal primary-button treatment. --}}
-            {{-- pe-16 on mobile keeps "Start practice" out from under Sage's
-                 floating trigger (fixed bottom-24 right-5 there, see
-                 ⚡ask-instructor.blade.php): this row can come to rest at
-                 exactly that height, and the trigger sat on the button.
-                 The centred column already clears it from sm: up. --}}
-            <div class="flex items-center justify-between gap-2 pe-16 sm:pe-0">
-                <x-substep-nav index-var="lessonStep" :total="count($lessonSectionsData)" />
-
-                <button
-                    type="button"
-                    x-show="lessonStep === lessonSections - 1"
-                    x-cloak
-                    wire:click="startPractice"
-                    wire:loading.attr="disabled"
-                    wire:target="startPractice"
-                    x-on:click="phase = 'practice'"
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    <span wire:loading.remove wire:target="startPractice" class="inline-flex items-center gap-1 whitespace-nowrap">Start practice @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</span>
-                    <span wire:loading wire:target="startPractice">Please wait…</span>
-                </button>
-            </div>
-        </div>
-    @endunless
-
-    <div x-show="phase === 'practice'" @unless ($readOnly) x-cloak @endunless class="space-y-6">
-        <div x-data="{ showLessonAgain: false }">
-            <button
-                type="button"
-                x-on:click="showLessonAgain = !showLessonAgain"
-                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
-            >
-                <span x-show="!showLessonAgain" class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-right', 'h-3 w-3') Show the lesson again</span>
-                <span x-show="showLessonAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the lesson</span>
-            </button>
-            <div x-show="showLessonAgain" x-cloak class="mt-2 space-y-8 card-sunken p-5">
-                @foreach ($lessonSectionsData as $section)
-                    @if (! $loop->first)<hr class="border-line dark:border-line-dark">@endif
-                    @include('missions.steps.partials.grammar-lesson-section', ['section' => $section])
-                @endforeach
-            </div>
-        </div>
-
-        @if ($readOnly)
-            @if ($quickCheckScore)
-                <div>
-                    <p class="text-sm font-medium text-ink dark:text-ink-dark">Quick check</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $quickCheckScore['correct'] }} of {{ $quickCheckScore['total'] }}.</p>
-                </div>
-            @endif
-            @if ($wordOrderScore)
-                <div>
-                    <p class="text-sm font-medium text-ink dark:text-ink-dark">Build the sentence</p>
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">You scored {{ $wordOrderScore['correct'] }} of {{ $wordOrderScore['total'] }}.</p>
-                </div>
-            @endif
-        @else
-            <div>
-                <p class="text-sm font-medium text-ink dark:text-ink-dark">Quick check</p>
-                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Pick the correct fix for each sentence — just a warm-up, skip anytime.</p>
-                <div class="mt-2">
-                    <x-quick-round :cards="$this->quickCheckCards()" :draft-key="$preview ? null : $this->draftPrefix().'quickCheck'" on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length })" />
-                </div>
-            </div>
-
-            @if ($this->wordOrderCards())
-                <div>
-                    <p class="text-sm font-medium text-ink dark:text-ink-dark">Build the sentence</p>
-                    <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap the words in the right order — another warm-up, skip anytime.</p>
-                    <div class="mt-2">
-                        <x-word-order-round :cards="$this->wordOrderCards()" :draft-key="$preview ? null : $this->draftPrefix().'wordOrder'" on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length })" />
-                    </div>
-                </div>
-            @endif
         @endif
 
-        <div>
-            <p class="text-sm font-medium text-ink dark:text-ink-dark">Make it personal</p>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Write at least 3 sentences about your life.</p>
-            @unless ($readOnly)
-                @php $vocabularyWords = $run->selectedVocabularyWords(); @endphp
-                @if ($vocabularyWords)
-                    <div class="mt-2">
-                        <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Tap a word to drop it into your next sentence:</p>
-                        <div class="mt-1">
-                            <x-vocabulary-chips
-                                :words="$vocabularyWords"
-                                :collapsed="$this->run->mission->scaffoldLevel() !== App\Models\Mission::SCAFFOLD_FULL"
-                                field="frequencySentences"
-                                on-insert="filled[idx] = true; dismissed['freq' + idx] = true;"
-                            />
-                        </div>
+        @switch($screen['type'])
+            @case('intro')
+                <x-lesson-screen when="screen === {{ $screenIndex }}">
+                    <x-step-intro kind="Grammar Time" :minutes="$run->mission->stepDuration('grammar_in_context')" :title="$grammar['focus'] ?? 'Grammar'" />
+                    @if (filled($grammar['hook'] ?? null))
+                        <p class="text-base leading-relaxed text-ink-soft dark:text-ink-soft-dark">{{ $grammar['hook'] }}</p>
+                    @endif
+
+                    <x-slot:actions>
+                        <x-continue-button on-click="screen++" wire-target="save">Start</x-continue-button>
+                    </x-slot:actions>
+                </x-lesson-screen>
+                @break
+
+            @case('rule')
+                <x-lesson-screen when="screen === {{ $screenIndex }}">
+                    @include('missions.steps.partials.grammar-rule-card', ['section' => $sections[$screen['section']]])
+
+                    <x-slot:actions>
+                        <x-continue-button on-click="screen++{{ $screenIndex + 1 === $firstPracticeScreen ? '; $wire.startPractice()' : '' }}" wire-target="save">Got it</x-continue-button>
+                    </x-slot:actions>
+                </x-lesson-screen>
+                @break
+
+            @case('pick')
+                @php
+                    $pair = $screen['pair'];
+                    $options = crc32($pair['wrong']) % 2 === 0 ? [[$pair['wrong'], false], [$pair['right'], true]] : [[$pair['right'], true], [$pair['wrong'], false]];
+                @endphp
+                <x-lesson-screen when="screen === {{ $screenIndex }}">
+                    <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Which one is right?</span>
+                    <div class="flex flex-col gap-2.5">
+                        @foreach ($options as [$sentence, $isRight])
+                            <button
+                                type="button"
+                                x-on:click="if (picked[{{ $screenIndex }}] === undefined) { picked[{{ $screenIndex }}] = {{ $isRight ? 'true' : 'false' }}; {{ $isRight ? 'window.eosSound?.playSuccess()' : '' }} }"
+                                class="choice text-left"
+                                :data-state="picked[{{ $screenIndex }}] === undefined ? 'idle' : ({{ $isRight ? "'correct'" : "(picked[{$screenIndex}] === false ? 'wrong' : 'muted')" }})"
+                            ><span class="min-w-0 flex-1 leading-snug">{{ $sentence }}</span></button>
+                        @endforeach
                     </div>
-                @endif
-                <div class="mt-2">
-                    <x-progress-bar>
-                        <div
-                            class="h-full rounded-full transition-all duration-300"
-                            :class="filledCount >= 3 ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
-                            :style="`width: ${Math.min(filledCount, 3) / 3 * 100}%`"
-                        ></div>
-                        <x-slot:label>
-                            <p
-                                class="text-xs font-semibold transition-colors"
-                                :class="filledCount >= 3 ? 'text-success dark:text-success-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
-                                x-text="progressMessage"
-                            ></p>
-                        </x-slot:label>
-                    </x-progress-bar>
-                </div>
-            @endunless
 
-            <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="mt-2 space-y-3">
-                @foreach ($this->starters() as $index => $starter)
-                    @php $itemFeedback = $feedback[$index] ?? null; @endphp
-                    <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                        {{-- The starter lives INSIDE the answer box (not as a label beside a
-                             tiny input) so the learner only types the continuation, on a
-                             full-width, growing field. The AI still receives starter +
-                             continuation as one sentence — see fullSentence(). --}}
-                        <div class="rounded-xl border-[1.5px] border-line bg-surface px-3.5 pt-2.5 pb-2 transition-colors focus-within:border-accent dark:border-line-dark dark:bg-surface-dark dark:focus-within:border-accent-dark">
-                            <p class="text-base font-semibold text-ink dark:text-ink-dark">
-                                {{ $starter }} <span class="font-normal text-ink-faint dark:text-ink-faint-dark">&hellip;</span>
-                            </p>
-                            <textarea
-                                rows="2"
-                                wire:model="frequencySentences.{{ $index }}"
-                                x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed['freq{{ $index }}'] = true"
-                                x-on:keydown.enter.prevent
-                                @unless ($readOnly)
-                                    x-draft="{ key: '{{ $draftPrefix }}frequencySentences.{{ $index }}', field: 'frequencySentences.{{ $index }}' }"
-                                @endunless
-                                @readonly($readOnly)
-                                wire:loading.attr="disabled"
-                                wire:target="checkOne,revealCorrection,declineReveal,save"
-                                placeholder="finish the sentence…"
-                                aria-label="Finish the sentence: {{ $starter }}"
-                                class="mt-1 block min-h-14 w-full resize-none bg-transparent text-base leading-snug text-ink [field-sizing:content] placeholder:text-ink-faint focus:outline-none disabled:opacity-50 dark:text-ink-dark dark:placeholder:text-ink-faint-dark"
-                            ></textarea>
+                    <x-slot:actions>
+                        <x-answer-sheet when="picked[{{ $screenIndex }}] !== undefined" tone="picked[{{ $screenIndex }}] ? 'good' : 'almost'" title="picked[{{ $screenIndex }}] ? '✓ Correct!' : 'Not quite'">
+                            {{ $pair['why'] ?? '' }}
+                            <x-slot:actions>
+                                <x-continue-button on-click="screen++{{ $screenIndex + 1 === $firstPracticeScreen ? '; $wire.startPractice()' : '' }}" wire-target="save" />
+                            </x-slot:actions>
+                        </x-answer-sheet>
+                    </x-slot:actions>
+                </x-lesson-screen>
+                @break
+
+            @case('quick')
+                <section x-show="screen === {{ $screenIndex }}" x-cloak>
+                    <x-quick-round
+                        lesson
+                        label="Fix the sentence"
+                        :cards="$this->quickCheckCards()"
+                        :draft-key="$preview ? null : $draftPrefix.'quickCheck'"
+                        on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
+                        on-skip="screen++"
+                    />
+                </section>
+                @break
+
+            @case('order')
+                <section x-show="screen === {{ $screenIndex }}" x-cloak>
+                    <x-word-order-round
+                        lesson
+                        :cards="$this->wordOrderCards()"
+                        :draft-key="$preview ? null : $draftPrefix.'wordOrder'"
+                        on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
+                        on-skip="screen++"
+                    />
+                </section>
+                @break
+
+            @case('sentence')
+                @php
+                    $index = $screen['index'];
+                    $starter = $starters[$index];
+                    $itemFeedback = $feedback[$index] ?? null;
+                    $isChecked = $itemFeedback && ($itemFeedback['checkedText'] ?? null) === trim((string) ($frequencySentences[$index] ?? ''));
+                    $severity = $itemFeedback['severity'] ?? null;
+                    $isLast = $index === $sentenceCount - 1;
+                    $sheetTone = $severity === 'none' ? "'good'" : "'almost'";
+                    $sheetTitle = match ($severity) { 'none' => "'✓ Great!'", 'minor' => "'Almost!'", default => "'Not quite'" };
+                @endphp
+                <x-lesson-screen when="screen === {{ $screenIndex }}" wire:key="grammar-sentence-{{ $index }}">
+                    <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">About you · {{ $index + 1 }} of {{ $sentenceCount }}</span>
+
+                    <x-type-or-say
+                        model="frequencySentences.{{ $index }}"
+                        method="dictateSentence"
+                        :param="$index"
+                        :starter="$starter"
+                        draft-key="{{ $draftPrefix }}frequencySentences.{{ $index }}"
+                        placeholder="finish the sentence…"
+                        on-input="filled[{{ $index }}] = $el.value.trim() !== ''; edited[{{ $index }}] = true"
+                        :error="$checkErrors[$index] ?? ($dictationErrors[$index] ?? null)"
+                    />
+                    <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateSentence, revealCorrection({{ $index }}), save" />
+
+                    <x-slot:actions>
+                        @if ($isChecked)
+                            <x-answer-sheet when="! edited[{{ $index }}]" :tone="$sheetTone" :title="$sheetTitle">
+                                @if ($severity !== 'none' && filled($itemFeedback['hint'] ?? null))
+                                    {{ $itemFeedback['hint'] }}
+                                @endif
+                                <x-almost-reveal-notice :show="$this->isAlmostRevealing($index)" />
+
+                                <x-slot:actions>
+                                    @if ($severity === 'major')
+                                        <x-continue-button on-click="edited[{{ $index }}] = true" wire-target="save">Try again</x-continue-button>
+                                        @if ($offerReveal[$index] ?? false)
+                                            <button type="button" wire:click="revealCorrection({{ $index }})" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Show me a right one</button>
+                                        @endif
+                                    @elseif ($isLast)
+                                        <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Saving…" />
+                                    @else
+                                        <x-continue-button on-click="screen++" wire-target="save" />
+                                    @endif
+                                </x-slot:actions>
+                            </x-answer-sheet>
+                        @endif
+
+                        <div @if ($isChecked) x-show="edited[{{ $index }}]" x-cloak @endif class="flex flex-col gap-3">
+                            <x-continue-button
+                                on-click="$wire.checkOne({{ $index }}).then(() => { edited[{{ $index }}] = false })"
+                                wire-target="checkOne,dictateSentence,revealCorrection,save"
+                                loading-label="Checking…"
+                                ready-when="filled[{{ $index }}]"
+                            >Check</x-continue-button>
                         </div>
+                    </x-slot:actions>
+                </x-lesson-screen>
+                @break
+        @endswitch
+    @endforeach
 
-                        @unless ($readOnly)
-                            <div class="mt-2 flex items-center justify-end gap-2">
-                                <x-filled-check show="filled[{{ $index }}]" />
-                                <x-check-button method="checkOne" :index="$index" key-prefix="freq" wire-target="checkOne,revealCorrection,declineReveal,save" />
-                            </div>
-                        @endunless
+    @error('frequencySentences')
+        <p class="text-sm text-danger-ink">{{ $message }}</p>
+    @enderror
 
-                        @unless ($readOnly)
-                            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
-                        @endunless
-
-                        <div x-show="!dismissed['freq{{ $index }}']" x-transition.opacity.duration.300ms>
-                            <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$index] ?? null" />
-                        </div>
-
-                        @unless ($readOnly)
-                            <x-almost-reveal-notice :show="$this->isAlmostRevealing($index)" />
-                            <x-reveal-offer
-                                :show="$offerReveal[$index] ?? false"
-                                :struggling="$this->run->isStruggling()"
-                                reveal-method="revealCorrection"
-                                decline-method="declineReveal"
-                                :index="$index"
-                                wire-target="checkOne,revealCorrection,declineReveal,save"
-                            />
-                        @endunless
-                    </div>
-                @endforeach
-            </div>
-            @error('frequencySentences')
-                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
-            @enderror
-        </div>
-
-        @unless ($readOnly)
-            <x-continue-button
-                on-click="filled.forEach((_, i) => dismissed['freq' + i] = true); $wire.save().then(() => { dismissed = {} })"
-                wire-target="checkOne,revealCorrection,declineReveal,save"
-                loading-label="Checking your sentences…"
-                ready-when="filledCount >= 3"
-                hint="Finish 3 sentences to continue"
-            />
-        @endunless
-    </div>
-    @endif
+    <x-bottom-sheet show="ruleSheet" label="The rules">
+        <x-slot:title>💡 The rules</x-slot:title>
+        @foreach ($sections as $section)
+            @include('missions.steps.partials.grammar-rule-card', ['section' => $section])
+        @endforeach
+    </x-bottom-sheet>
 </div>
+@endif

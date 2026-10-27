@@ -651,7 +651,9 @@ new class extends Component
                     >
                         @if ($severity !== 'none' && filled($itemFeedback['hint'] ?? null))
                             {{ $itemFeedback['hint'] }}
-                        @elseif ($isLast && $this->newWordCount() > 0)
+                        @endif
+                        <x-almost-reveal-notice :show="$this->isAlmostRevealing($word)" />
+                        @if ($isLast && $severity === 'none' && $this->newWordCount() > 0)
                             <span class="inline-flex rounded-full bg-ink px-3 py-1.5 text-xs font-bold text-ground dark:bg-ink-dark dark:text-ground-dark">+{{ $this->newWordCount() }} words in My Words</span>
                         @endif
 

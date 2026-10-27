@@ -13,18 +13,23 @@
     @param string $placeholder
     @param string|null $onInput Raw Alpine run on every keystroke.
     @param int $rows
+    @param string|null $starter Words the sentence starts with, shown bold
+        inside the box; the learner types only the rest.
 --}}
-@props(['model', 'method', 'param', 'draftKey' => null, 'error' => null, 'placeholder' => 'Type here…', 'onInput' => null, 'rows' => 3])
+@props(['model', 'method', 'param', 'draftKey' => null, 'error' => null, 'placeholder' => 'Type here…', 'onInput' => null, 'rows' => 3, 'starter' => null])
 
 <div {{ $attributes->class('flex flex-col gap-2') }}>
-    <div class="relative">
+    <div class="relative rounded-2xl border-2 border-line bg-surface focus-within:border-accent dark:border-line-dark dark:bg-surface-dark dark:focus-within:border-accent-dark">
+        @if (filled($starter))
+            <p class="px-4 pt-3 text-base font-extrabold text-ink dark:text-ink-dark">{{ $starter }} <span class="font-normal text-ink-faint dark:text-ink-faint-dark">…</span></p>
+        @endif
         <textarea
             wire:model="{{ $model }}"
             rows="{{ $rows }}"
             placeholder="{{ $placeholder }}"
             @if ($onInput) x-on:input="{{ $onInput }}" @endif
             @if ($draftKey) x-draft="{ key: '{{ $draftKey }}', field: '{{ $model }}' }" @endif
-            class="w-full resize-none rounded-2xl border-2 border-line bg-surface px-4 py-3 pr-14 text-base leading-relaxed text-ink focus:border-accent focus:ring-0 dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:focus:border-accent-dark"
+            class="block w-full resize-none rounded-2xl border-0 bg-transparent px-4 py-3 pr-14 text-base leading-relaxed text-ink focus:ring-0 focus:outline-none dark:text-ink-dark"
         ></textarea>
         <div class="absolute right-2 bottom-3">
             <x-voice-recorder compact field="dictation" :on-recorded="$method" :on-recorded-param="$param" file-name="answer.webm" />
