@@ -50,6 +50,13 @@
         the line's beginning — and says so in one line until play. A
         mission step uses its eos-draft prefix, so saving the step clears it.
         null = always from the start.
+    @param bool $podcast The one-task lesson screen's look, like a podcast
+        app: no card around it, ↺10 · big play · 10↻, the speed on the left
+        and nothing else on the controls row; only "Show text" under it
+        (no full screen, no download).
+    @param string|null $textOpenWhen Raw Alpine expression from the
+        surrounding page that opens the text when it turns true (e.g. the
+        second listen of a lesson).
 --}}
 @props([
     'url',
@@ -61,11 +68,14 @@
     'shadowLines' => [],
     'shadowTimestamps' => [],
     'resumeKey' => null,
+    'podcast' => false,
+    'textOpenWhen' => null,
 ])
 
 @if (! empty($url))
     <div
-        class="card p-4"
+        class="{{ $podcast ? 'flex flex-col' : 'card p-4' }}"
+        @if ($textOpenWhen) x-effect="if ({{ $textOpenWhen }}) showText = true" @endif
         :class="focus ? 'fixed inset-0 z-50 flex flex-col overflow-hidden rounded-none border-0 bg-ground sm:p-6 dark:bg-ground-dark' : ''"
         x-on:keydown.escape.window="focus = false"
         x-back-close="{ open: focus, close: () => focus = false }"
@@ -288,7 +298,8 @@
         </audio>
 
         @if ($listen && ($listen['chip'] ?? true) !== false)
-            <div class="mb-3 flex items-start justify-end gap-3">
+            {{-- The podcast look keeps the counter (it records the listen) but out of sight. --}}
+            <div @class(['mb-3 flex items-start justify-end gap-3', 'hidden' => $podcast])>
                 <div>
                         <livewire:listen-counter
                             :mission-code="$listen['mission_code']"
@@ -360,18 +371,18 @@
             <div class="flex items-center gap-3">
                 <button
                     type="button"
-                    x-on:click="skip(-5)"
-                    title="Back 5 seconds"
+                    x-on:click="skip(-{{ $podcast ? 10 : 5 }})"
+                    title="Back {{ $podcast ? 10 : 5 }} seconds"
                     class="inline-flex shrink-0 cursor-pointer flex-col items-center gap-0.5 text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
                 >
                     @svg('heroicon-o-backward', 'h-5 w-5')
-                    <span class="text-[10px] leading-none font-semibold">5s</span>
+                    <span class="text-[10px] leading-none font-semibold">{{ $podcast ? 10 : 5 }}s</span>
                 </button>
 
                 <button
                     type="button"
                     x-on:click="togglePlay()"
-                    :class="focus ? 'h-16 w-16' : 'h-12 w-12'"
+                    :class="focus || {{ $podcast ? 'true' : 'false' }} ? 'h-16 w-16' : 'h-12 w-12'"
                     class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-sm transition-transform hover:scale-105 active:scale-95 dark:bg-accent-dark"
                 >
                     <span x-show="!playing">@svg('heroicon-s-play', 'ml-0.5 h-5 w-5')</span>
@@ -380,21 +391,25 @@
 
                 <button
                     type="button"
-                    x-on:click="skip(5)"
-                    title="Forward 5 seconds"
+                    x-on:click="skip({{ $podcast ? 10 : 5 }})"
+                    title="Forward {{ $podcast ? 10 : 5 }} seconds"
                     class="inline-flex shrink-0 cursor-pointer flex-col items-center gap-0.5 text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
                 >
                     @svg('heroicon-o-forward', 'h-5 w-5')
-                    <span class="text-[10px] leading-none font-semibold">5s</span>
+                    <span class="text-[10px] leading-none font-semibold">{{ $podcast ? 10 : 5 }}s</span>
                 </button>
             </div>
 
+            @if ($podcast)
+                <span class="w-11 shrink-0" aria-hidden="true"></span>
+            @else
             <a
                 href="{{ $url }}"
                 download
                 title="Download"
                 class="inline-flex w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line py-1.5 text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >@svg('heroicon-o-arrow-down-tray', 'h-3.5 w-3.5')</a>
+            @endif
         </div>
         </div>
 
@@ -402,7 +417,7 @@
             {{-- Show/hide the text, and full screen (which makes it big).
                  In full screen this row moves to the top. --}}
             <div
-                class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+                class="flex flex-wrap items-center {{ $podcast ? 'justify-center' : 'justify-between' }} gap-x-4 gap-y-2"
                 :class="focus ? 'order-0 mx-auto mb-3 w-full max-w-3xl shrink-0' : 'mt-3'"
             >
                 <button
@@ -416,6 +431,7 @@
                     <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
                 </button>
 
+                @unless ($podcast)
                 <button
                     type="button"
                     x-show="showText || focus"
@@ -436,6 +452,7 @@
                     >
                     Full screen when I press play
                 </label>
+                @endunless
             </div>
         @endif
 

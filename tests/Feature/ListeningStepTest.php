@@ -80,7 +80,7 @@ class ListeningStepTest extends TestCase
             ->assertDontSee("Today's prompt", false);
     }
 
-    public function test_the_wrap_up_offers_discussing_the_topic_with_a_mutual_friend(): void
+    public function test_the_friend_card_is_gone_from_the_step(): void
     {
         $run = $this->makeRun();
         $friend = User::factory()->create(['name' => 'Priya']);
@@ -88,8 +88,7 @@ class ListeningStepTest extends TestCase
         $friend->acceptFollowRequest($run->learner);
 
         Livewire::test('missions.steps.listening', ['run' => $run])
-            ->assertSee('Discuss this with a friend')
-            ->assertSee('Priya');
+            ->assertDontSee('Discuss this with a friend');
     }
 
     public function test_the_custom_audio_player_renders_with_skip_and_seek_controls(): void
@@ -99,11 +98,12 @@ class ListeningStepTest extends TestCase
         $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
 
         $this->assertStringContainsString('http://localhost/storage/missions/m01/mornings.mp3', $html);
-        $this->assertStringContainsString('skip(-5)', $html);
-        $this->assertStringContainsString('skip(5)', $html);
+        $this->assertStringContainsString('skip(-10)', $html);
+        $this->assertStringContainsString('skip(10)', $html);
         $this->assertStringContainsString('togglePlay()', $html);
         $this->assertStringContainsString('type="range"', $html);
-        $this->assertStringContainsString('download', $html);
+        // The text opens by itself on the second listen.
+        $this->assertStringContainsString('if (screen === 3) showText = true', $html);
     }
 
     public function test_the_word_bank_lists_every_target_phrase(): void
@@ -214,9 +214,6 @@ class ListeningStepTest extends TestCase
         $component
             ->call('save')
             ->assertHasNoErrors()
-            ->assertSet('completed', true) // shows the language recap first
-            ->assertOk()
-            ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
         $textEvidence = Evidence::where('phase', 'listening')->where('type', Evidence::TYPE_TEXT)->first();
@@ -224,14 +221,14 @@ class ListeningStepTest extends TestCase
         $this->assertSame('grammar_in_context', $run->fresh()->currentStepKey());
     }
 
-    public function test_adding_to_the_notebook_enrolls_every_target_phrase(): void
+    public function test_finishing_adds_every_target_phrase_to_my_words(): void
     {
         $run = $this->makeRun();
 
         $component = Livewire::test('missions.steps.listening', ['run' => $run]);
         $this->fillGapsCorrectly($component);
 
-        $component->call('save')->call('addWordsToNotebook')->assertSet('trackedWords', true);
+        $component->call('save');
 
         $this->assertSame(2, VocabularyWord::where('learner_id', $run->learner_id)->count());
 
@@ -245,84 +242,18 @@ class ListeningStepTest extends TestCase
         $this->assertEqualsWithDelta(now()->addDay()->timestamp, $sleepIn->next_review_at->timestamp, 5);
     }
 
-    public function test_words_are_not_enrolled_until_add_to_notebook_is_pressed(): void
+    public function test_a_phrase_already_in_my_words_is_left_as_it_is(): void
     {
         $run = $this->makeRun();
+        VocabularyWord::create(['learner_id' => $run->learner_id, 'word' => 'sleep in', 'meaning' => 'x', 'next_review_at' => now()]);
 
         $component = Livewire::test('missions.steps.listening', ['run' => $run]);
         $this->fillGapsCorrectly($component);
+
         $component->call('save');
 
-        $this->assertSame(0, VocabularyWord::where('learner_id', $run->learner_id)->count());
-    }
-
-    public function test_unchecking_a_target_phrase_leaves_it_out_of_the_notebook(): void
-    {
-        $run = $this->makeRun();
-
-        $component = Livewire::test('missions.steps.listening', ['run' => $run]);
-        $this->fillGapsCorrectly($component);
-
-        $component
-            ->call('save')
-            ->set('wordsToTrack.0', false) // "sleep in"
-            ->call('addWordsToNotebook');
-
-        $this->assertSame(1, VocabularyWord::where('learner_id', $run->learner_id)->count());
-        $this->assertDatabaseMissing('vocabulary_words', ['learner_id' => $run->learner_id, 'word' => 'sleep in']);
-        $this->assertDatabaseHas('vocabulary_words', ['learner_id' => $run->learner_id, 'word' => 'morning person']);
-    }
-
-    public function test_phrases_already_in_my_words_are_not_offered_again(): void
-    {
-        $run = $this->makeRun();
-        VocabularyWord::create(['learner_id' => $run->learner_id, 'word' => 'sleep in', 'meaning' => 'x', 'next_review_at' => now()]);
-
-        $component = Livewire::test('missions.steps.listening', ['run' => $run]);
-        $this->fillGapsCorrectly($component);
-
-        $component
-            ->call('save')
-            ->assertSet('alreadyTracked', [true, false])
-            ->assertSet('wordsToTrack', [false, true])
-            ->assertSee('Already in My Words')
-            ->call('addWordsToNotebook');
-
         $this->assertSame(2, VocabularyWord::where('learner_id', $run->learner_id)->count());
-    }
-
-    public function test_when_every_phrase_is_already_in_my_words_the_add_button_is_hidden(): void
-    {
-        $run = $this->makeRun();
-        VocabularyWord::create(['learner_id' => $run->learner_id, 'word' => 'sleep in', 'meaning' => 'x', 'next_review_at' => now()]);
-        VocabularyWord::create(['learner_id' => $run->learner_id, 'word' => 'morning person', 'meaning' => 'x', 'next_review_at' => now()]);
-
-        $component = Livewire::test('missions.steps.listening', ['run' => $run]);
-        $this->fillGapsCorrectly($component);
-
-        $component
-            ->call('save')
-            ->assertSee('all of it is already in My Words')
-            ->assertDontSee('Add to My Words')
-            ->assertSee('Continue');
-    }
-
-    public function test_completing_the_step_shows_a_language_recap_before_proceeding(): void
-    {
-        $run = $this->makeRun();
-
-        $component = Livewire::test('missions.steps.listening', ['run' => $run]);
-        $this->fillGapsCorrectly($component);
-
-        $component
-            ->call('save')
-            ->assertSee('sleep in')
-            ->assertSee('to stay in bed and sleep later than usual')
-            ->assertSee('morning person');
-
-        // Nothing has navigated away yet — evidence is saved, but the
-        // learner is still looking at the recap until they click through.
-        $this->assertDatabaseCount('evidences', 1);
+        $this->assertSame('x', VocabularyWord::where('learner_id', $run->learner_id)->where('word', 'sleep in')->value('meaning'));
     }
 
     public function test_read_only_mode_maps_saved_gap_fill_answers_back(): void
@@ -391,7 +322,7 @@ class ListeningStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.listening', ['run' => $run])->html();
 
-        $this->assertStringContainsString('activeSubstep === 0', $html);
+        $this->assertStringContainsString('screen === 2', $html);
         $this->assertStringContainsString('They are talking about morning routines.', $html);
         $this->assertStringContainsString('Neil often skips breakfast.', $html);
     }
@@ -553,7 +484,7 @@ class ListeningStepTest extends TestCase
         Livewire::test('missions.steps.listening', ['run' => $run])
             ->call('save')
             ->assertHasNoErrors()
-            ->assertSet('completed', true);
+            ->assertRedirect(route('missions.show', $run->mission));
     }
 
     public function test_a_completed_detail_bonus_is_recorded_in_evidence(): void

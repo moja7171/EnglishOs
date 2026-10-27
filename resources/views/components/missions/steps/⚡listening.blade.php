@@ -8,9 +8,16 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Models\VocabularyWord;
 use App\Services\PexelsClient;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 /**
+ * Lesson design 3: one task per screen — the episode's cover and hook,
+ * then a podcast-style player with one "listen for" line (text closed),
+ * then the true/false cards and the detail question one per screen, then
+ * an optional second listen with the synced text open. The phrases join
+ * My Words by themselves on Finish.
+ *
  * Mission structure redesign, Epic C: day 1's Listening is now exactly 2
  * clean sub-steps — first listen + a short true/false check (comprehension
  * only; deliberately no shadowing here, so the very first listen isn't
@@ -39,13 +46,6 @@ new class extends Component
     public MissionRun $run;
 
     public bool $readOnly = false;
-
-    /**
-     * True once Continue has passed every check and Evidence is saved —
-     * the step then shows a recap of the target expressions before the
-     * learner actually navigates on, instead of jumping away immediately.
-     */
-    public bool $completed = false;
 
     /**
      * A one-tap bonus check (see <x-quick-round>), not a required field —
@@ -98,6 +98,7 @@ new class extends Component
      * ⚡mission-brief.blade.php's heroImageUrl()). Purely decorative,
      * fails soft (null) on no query/no key/any error.
      */
+    #[Computed]
     public function heroImageUrl(): ?string
     {
         $query = $this->run->mission->stepContent('listening')['image_query'] ?? null;
@@ -155,7 +156,7 @@ new class extends Component
     }
 
     /**
-     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
+     * @return list<array{prompt: string, options: list<string>, correct: int, label: string, difficulty?: string}>
      */
     public function comprehensionCards(): array
     {
@@ -166,9 +167,33 @@ new class extends Component
                 'prompt' => $item['statement'],
                 'options' => ['True', 'False'],
                 'correct' => $item['correct'] ? 0 : 1,
+                'label' => 'True or false?',
                 ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
             ])
             ->all();
+    }
+
+    /**
+     * Every question after the first listen, one card per screen: the
+     * true/false cards, then the detail question (keyed, so its answer is
+     * kept as detail_correct).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function questionCards(): array
+    {
+        $detail = $this->run->mission->stepContent('listening')['detail_question'] ?? null;
+
+        return [
+            ...$this->comprehensionCards(),
+            ...($detail ? [[
+                'prompt' => $detail['question'],
+                'options' => $detail['options'],
+                'correct' => $detail['correct'],
+                'label' => 'A detail',
+                'key' => 'detail',
+            ]] : []),
+        ];
     }
 
     /**
@@ -238,13 +263,11 @@ new class extends Component
             ]),
         ]);
 
-        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
-        $this->completed = true;
+        // The episode's phrases join My Words by themselves (lesson design 3).
         $this->initWordsToTrack();
-    }
+        $this->addWordsToNotebook();
 
-    public function proceed(): void
-    {
+        $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
@@ -276,241 +299,108 @@ new class extends Component
 
 @php
     $listening = $run->mission->stepContent('listening');
-    $targetPhrases = $listening['target_phrases'] ?? [];
-    $detailQuestion = $listening['detail_question'] ?? null;
-    $listenCount = $run->learner->audioListenCount($run->mission->code, \App\Models\AudioListen::SOURCE_LISTENING);
-
-    $detailCard = $detailQuestion ? [[
-        'prompt' => $detailQuestion['question'],
-        'options' => $detailQuestion['options'],
-        'correct' => $detailQuestion['correct'],
-    ]] : [];
-
-    $comprehensionCards = ! $readOnly ? $this->comprehensionCards() : [];
-    $hasComprehensionCheck = count($comprehensionCards) > 0;
-    $comprehensionIndex = $hasComprehensionCheck ? 0 : null;
-    $gapFillIndex = $hasComprehensionCheck ? 1 : 0;
-    $totalSubsteps = $gapFillIndex + 1;
-    $nextDisabledExpr = "(activeSubstep === {$gapFillIndex} && ".($this->gapFillAllCorrect() ? 'false' : 'true').')';
+    $questionCards = $readOnly ? [] : $this->questionCards();
     $draftPrefix = $this->draftPrefix();
     $keepsDraft = ! $readOnly && ! $preview;
+    $sourceTitle = trim(\Illuminate\Support\Str::afterLast($listening['source'] ?? 'Listening', '—'));
+    $sourceTitle = trim(preg_replace('/\s*\(\d{4}\)$/', '', $sourceTitle));
+    $sourceName = trim(\Illuminate\Support\Str::before($listening['source'] ?? '', '—'));
+    $listenParams = $preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1, 'manual_report' => true];
+    // Screens: 0 start · 1 first listen · 2 questions · 3 second listen with the text.
+    $questionsScreen = count($questionCards) ? 2 : null;
+    $lastScreen = 3;
 @endphp
 
+@if ($readOnly)
+    <div class="flex flex-col gap-5 pt-2">
+        <x-step-intro kind="Listening" :title="$sourceTitle" :image="$this->heroImageUrl" />
+        <x-audio-player podcast :url="$listening['audio_url'] ?? null" :segments="$this->listeningSegments()" />
+        @if ($detailCorrect !== null && ($listening['detail_question'] ?? null))
+            <p class="text-sm text-ink-faint dark:text-ink-faint-dark">You {{ $detailCorrect ? 'got' : "didn't quite get" }} this one: {{ $listening['detail_question']['question'] }}</p>
+        @endif
+    </div>
+@else
 <div
-    class="space-y-6"
     x-data="{
-        activeSubstep: 0,
+        screen: 0,
+        quizShare: 0,
         init() {
             @if ($keepsDraft)
-                this.activeSubstep = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSubstep', 0);
-                this.$watch('activeSubstep', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSubstep', v));
+                this.screen = window.eosDraft.restoreIndex('{{ $draftPrefix }}screen', 0);
+                this.$watch('screen', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}screen', v));
             @endif
         },
+        get share() { return this.screen === 2 ? (2 + this.quizShare) / 4 : (this.screen + 0.5) / 4 },
     }"
+    x-effect="$dispatch('step-progress', { share }); if (screen !== 1 && screen !== 3) $el.querySelector('audio')?.pause()"
+    x-on:quick-round-progress="quizShare = $event.detail.share"
+    x-on:quick-round-answered="if ($event.detail.key === 'detail') $wire.set('detailCorrect', $event.detail.correct, false)"
+    x-back-close="{ open: screen > 0, close: () => screen-- }"
 >
-    @if ($imageUrl = $this->heroImageUrl())
-        <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
-    @endif
-
-    <x-hook :text="$listening['hook'] ?? null" />
-
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $listening['source'] ?? 'Listening' }}</p>
-        <div class="mt-2">
-            <x-audio-player text-hidden :url="$listening['audio_url'] ?? null" :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => 1, 'manual_report' => true]" :segments="$this->listeningSegments()" :resume-key="$keepsDraft ? $draftPrefix.'position' : null" />
-        </div>
-    </div>
-
-    @if ($completed)
-        <div class="space-y-4 card p-4">
-            <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                    @svg('heroicon-o-check-circle', 'h-4 w-4')
-                    Listening complete
-                </p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">@if ($this->allWordsAlreadyTracked())
-                        Here's today's language — all of it is already in My Words.
-                    @else
-                        Here's today's language — pick which ones to save to My Words.
-                    @endif</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">You've listened to this episode {{ $listenCount }} {{ Str::plural('time', $listenCount) }} so far.</p>
-            </div>
-            <div class="space-y-2">
-                @foreach ($targetPhrases as $index => $item)
-                    @if ($alreadyTracked[$index] ?? false)
-                        <div class="flex items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
-                            @svg('heroicon-o-check-circle', 'mt-0.5 h-4 w-4 shrink-0 text-success dark:text-success-dark')
-                            <span>
-                                <x-speak-word :word="$item['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
-                                <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</span>
-                                <span class="block text-xs font-semibold text-success dark:text-success-dark">Already in My Words</span>
-                            </span>
-                        </div>
-                    @else
-                    <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
-                        <input
-                            type="checkbox"
-                            wire:model="wordsToTrack.{{ $index }}"
-                            class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                        >
-                        <span>
-                            <x-speak-word :word="$item['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
-                            <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $item['meaning'] }}</span>
-                        </span>
-                    </label>
-                    @endif
-                @endforeach
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                @if ($trackedWords)
-                    <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
-                        @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
-                    </span>
-                @elseif (! $this->allWordsAlreadyTracked())
-                    <button
-                        type="button"
-                        wire:click="addWordsToNotebook"
-                        wire:loading.attr="disabled"
-                        wire:target="addWordsToNotebook"
-                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        <span wire:loading.remove wire:target="addWordsToNotebook" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
-                        <span wire:loading wire:target="addWordsToNotebook">Adding…</span>
-                    </button>
-                @endif
-
-                <button
-                    wire:click="proceed"
-                    wire:loading.attr="disabled"
-                    wire:target="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    <span wire:loading.remove wire:target="proceed">Continue</span>
-                    <span wire:loading wire:target="proceed">Please wait…</span>
-                </button>
-            </div>
-        </div>
-    @else
-    <div wire:loading.class="pointer-events-none" wire:target="checkGapFill,save">
-        <div class="mb-4">
-            <x-progress-bar>
-                <div
-                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                    :style="`width: ${(activeSubstep + 1) / {{ $totalSubsteps }} * 100}%`"
-                ></div>
-                <x-slot:label>
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                        Part <span x-text="activeSubstep + 1"></span> of {{ $totalSubsteps }}
-                    </p>
-                </x-slot:label>
-            </x-progress-bar>
-        </div>
-
-        @if ($hasComprehensionCheck)
-            {{-- Sub-step 1: first listen + a short true/false check. --}}
-            <div x-show="activeSubstep === {{ $comprehensionIndex }}" x-cloak>
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">First listening — quick check</p>
-                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen once, then true or false.</p>
-                <div class="mt-2">
-                    <x-quick-round :cards="$comprehensionCards" :draft-key="$keepsDraft ? $draftPrefix.'comprehension' : null" />
-                </div>
-            </div>
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Listening" :minutes="$run->mission->stepDuration('listening')" :title="$sourceTitle" :image="$this->heroImageUrl" />
+        @if (filled($sourceName))
+            <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $sourceName }}</p>
         @endif
 
-        {{-- Sub-step 2: second listen + gap-fill, answered by picking from a word bank. --}}
-        <div x-show="activeSubstep === {{ $gapFillIndex }}" x-cloak>
-            <p class="text-sm font-semibold text-ink dark:text-ink-dark">Second listening</p>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Listen again.</p>
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            {{-- Gap-fill hidden for now (see GAP_FILL_HIDDEN). --}}
-            @if (count($targetPhrases) && false)
-                <div class="mt-3 flex flex-wrap gap-1.5">
-                    @foreach ($this->gapFillBankOrder as $bankPhrase)
-                        <x-speak-word :word="$bankPhrase" size="sm" class="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
-                    @endforeach
-                </div>
+    {{-- One player for both listens: the text stays closed the first time
+         and opens by itself the second time. --}}
+    <section x-show="screen === 1 || screen === 3" x-cloak class="flex min-h-[calc(100dvh-11rem)] flex-col gap-5 pt-2">
+        <div class="flex flex-1 flex-col gap-4">
+            <span x-show="screen === 3" class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Listen again with the text</span>
+            <div x-show="screen === 1" class="flex flex-col gap-4">
+                @if ($cover = $this->heroImageUrl)
+                    <div class="relative h-40 overflow-hidden rounded-3xl">
+                        <img src="{{ $cover }}" alt="" class="h-full w-full object-cover">
+                        <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pt-6 pb-3 text-sm font-bold text-white">{{ $sourceTitle }}</span>
+                    </div>
+                @endif
+                @if (filled($listening['hook'] ?? null))
+                    <p class="rounded-2xl bg-accent-soft px-4 py-3 text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">🎯 {{ $listening['hook'] }}</p>
+                @endif
+            </div>
 
-                <div class="mt-3 space-y-3">
-                    @foreach ($targetPhrases as $index => $item)
-                        @php $gapFeedback = $gapFillFeedback[$index] ?? null; @endphp
-                        <div>
-                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                                {{ $item['gap_before'] ?? '' }}
-                                <select
-                                    wire:model.live="gapFillSelections.{{ $index }}"
-                                    @disabled($readOnly)
-                                    @if ($keepsDraft) x-draft="{ key: '{{ $draftPrefix }}gap.{{ $index }}', field: 'gapFillSelections.{{ $index }}' }" @endif
-                                    class="inline rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                                >
-                                    <option value="">…</option>
-                                    @foreach ($this->gapFillBankOrder as $bankPhrase)
-                                        <option value="{{ $bankPhrase }}">{{ $bankPhrase }}</option>
-                                    @endforeach
-                                </select>
-                                {{ $item['gap_after'] ?? '' }}
-                            </p>
-                            @if ($gapFeedback)
-                                <p class="mt-1 text-xs {{ $gapFeedback['severity'] === 'none' ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}">
-                                    @if ($gapFeedback['severity'] === 'none')
-                                        @svg('heroicon-o-check-circle', 'inline h-3.5 w-3.5') That's it.
-                                    @else
-                                        {{ $gapFeedback['hint'] }}
-                                    @endif
-                                </p>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-
-                @error('gapFill')
-                    <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
-                @enderror
-            @endif
-
-            @if ($detailQuestion)
-                <div class="mt-4">
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark">Bonus — a detail</p>
-                    @if ($readOnly)
-                        @if ($detailCorrect !== null)
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                                You {{ $detailCorrect ? 'got' : "didn't quite get" }} this one: {{ $detailQuestion['question'] }}
-                            </p>
-                        @endif
-                    @else
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Optional — one real detail from the conversation. Doesn't affect Continue.</p>
-                        <div class="mt-2">
-                            <x-quick-round :cards="$detailCard" :draft-key="$keepsDraft ? $draftPrefix.'detail' : null" on-complete="$wire.set('detailCorrect', correctCount === 1)" />
-                        </div>
-                    @endif
-                </div>
-            @endif
-
-            @if ($listening['topic_summary'] ?? null)
-                <div class="mt-4">
-                    <x-practice-with-friend
-                        :text="$listening['topic_summary']"
-                        intro="Hey — want to discuss this listening topic with me:"
-                        label="Discuss this with a friend"
-                    />
-                </div>
-            @endif
-
-            @unless ($readOnly)
-                <div class="mt-4">
-                    <x-continue-button
-                        on-click="$wire.save()"
-                        wire-target="checkGapFill,save"
-                        loading-label="Saving…"
-                        ready-when="{{ $this->gapFillAllCorrect() ? 'true' : 'false' }}"
-                        hint="Finish the gap-fill to continue"
-                    />
-                </div>
-            @endunless
+            <x-audio-player
+                podcast
+                text-hidden
+                text-open-when="screen === 3"
+                :url="$listening['audio_url'] ?? null"
+                :listen="$listenParams"
+                :segments="$this->listeningSegments()"
+                :resume-key="$keepsDraft ? $draftPrefix.'position' : null"
+            />
         </div>
-    </div>
 
-    <div class="mt-4">
-        <x-substep-nav index-var="activeSubstep" :total="$totalSubsteps" :next-disabled="$nextDisabledExpr" />
-    </div>
+        <div class="flex flex-col items-stretch gap-3 pb-2">
+            <div x-show="screen === 1">
+                <x-continue-button on-click="screen = {{ $questionsScreen ?? $lastScreen }}" wire-target="save" />
+            </div>
+            <div x-show="screen === 3" x-cloak>
+                <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Saving…">Finish</x-continue-button>
+            </div>
+        </div>
+    </section>
+
+    @if ($questionsScreen)
+        <section x-show="screen === 2" x-cloak class="pt-2">
+            <x-quick-round
+                lesson
+                :cards="$questionCards"
+                label="True or false?"
+                :draft-key="$keepsDraft ? $draftPrefix.'questions' : null"
+                on-complete="if (screen === 2) screen = 3"
+                on-skip="screen = 3"
+            />
+        </section>
     @endif
+
+    @error('gapFill')
+        <p class="text-sm text-danger-ink">{{ $message }}</p>
+    @enderror
 </div>
+@endif

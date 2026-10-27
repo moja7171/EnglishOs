@@ -47,6 +47,9 @@
         ($label, or a card's own `label`) over a big prompt, Skip at the
         bottom.
     @param string $label The chip over the prompt.
+
+    Every answer also dispatches 'quick-round-answered' { key, correct },
+    `key` being the card's own optional `key`.
 --}}
 @props(['cards', 'onComplete' => null, 'onSkip' => null, 'draftKey' => null, 'lesson' => false, 'label' => 'Quick check'])
 
@@ -116,6 +119,7 @@
             pick(i) {
                 if (this.selected !== null) return;
                 this.selected = i;
+                $dispatch('quick-round-answered', { key: this.card.key ?? null, correct: i === this.card.correct });
                 if (i === this.card.correct) {
                     this.correctCount++;
                     this.correctStreak++;
