@@ -268,7 +268,7 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeInOrder(['Continue', 'Mission Brief', 'Vocabulary Builder'])
+            ->assertSeeInOrder(['Mission Brief', 'Start', 'Vocabulary Builder'])
             ->assertSeeHtml('href="'.route('missions.show', [$mission, 'mission_brief']).'"')
             ->assertDontSeeHtml('href="'.route('missions.show', [$mission, 'vocabulary_builder']).'"');
     }
@@ -346,7 +346,7 @@ class ProgramPlannerTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSee('Today · Build')
-            ->assertSee('Continue')
+            ->assertSee('Start')
             ->assertDontSee('Tomorrow');
     }
 
@@ -358,7 +358,7 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Start with Daily Review')
+            ->assertSeeInOrder(['Daily Review', 'Start'])
             ->assertSeeHtml('href="'.route('review.index').'"')
             ->assertDontSee('Continue');
     }

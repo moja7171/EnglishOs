@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\DictatesAnswers;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
@@ -11,14 +12,25 @@ use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
+/**
+ * Reading, one task per screen (lesson design 9): the passage alone (tap a
+ * word for its meaning), the true/false cards one per screen, then each
+ * question on its own screen — typed or said, checked from the bottom,
+ * the passage a tap away in a sheet. The new words join My Words by
+ * themselves.
+ */
 new class extends Component
 {
+    use DictatesAnswers;
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
     use TracksVocabularyNotebook;
+    use WithFileUploads;
 
     public MissionRun $run;
 
@@ -32,19 +44,6 @@ new class extends Component
 
     /** @var array<int, string> keyed by question index — per-input check failure message */
     public array $checkErrors = [];
-
-    /**
-     * True once Continue has passed every check and Evidence is saved —
-     * the step then shows the "Add to My Words" checklist for the new
-     * words met in the passage (Epic F), same pattern as Listening.
-     */
-    public bool $completed = false;
-
-    /** How many answers needed no fix at all this attempt (encouragement score, Epic H). */
-    public ?int $correctCount = null;
-
-    /** The same count from the learner's own last attempt at this step, if any. */
-    public ?int $previousCorrect = null;
 
     public function mount(): void
     {
@@ -89,7 +88,7 @@ new class extends Component
             ->all();
     }
 
-    private function questions(): array
+    public function questions(): array
     {
         return $this->run->mission->stepContent('reading_comprehension')['questions'] ?? [];
     }
@@ -166,6 +165,22 @@ new class extends Component
      * After 3 failed attempts on the same answer, the learner can ask the
      * AI to just write the corrected version — see TracksCheckAttempts.
      */
+    /**
+     * The mic in an answer box: what was said becomes the answer and is
+     * checked straight away.
+     */
+    public function dictateAnswer(int $index): void
+    {
+        $text = isset($this->questions()[$index]) ? $this->dictatedText($index) : null;
+
+        if ($text === null) {
+            return;
+        }
+
+        $this->answers[$index] = $text;
+        $this->runCheck($index, $text);
+    }
+
     public function revealCorrection(int $index): void
     {
         $answer = trim($this->answers[$index] ?? '');
@@ -239,6 +254,7 @@ new class extends Component
      * same principle as Vocabulary Builder's flashcards. Cached per
      * mission (not per learner), fails soft like every PexelsClient call.
      */
+    #[Computed]
     public function passageImageUrl(): ?string
     {
         $query = $this->run->mission->stepContent('reading_comprehension')['image_query'] ?? null;
@@ -262,6 +278,7 @@ new class extends Component
                 'prompt' => $item['statement'],
                 'options' => ['True', 'False'],
                 'correct' => $item['correct'] ? 0 : 1,
+                'label' => 'True or false?',
                 ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
             ])
             ->all();
@@ -298,10 +315,6 @@ new class extends Component
             return;
         }
 
-        // Read BEFORE creating this attempt's own row — a retry (?retry=1)
-        // means there can already be an earlier one for this same phase.
-        $this->previousCorrect = $this->readPreviousCorrectCount();
-
         $severities = $filled->keys()->map(fn ($index) => $this->feedback[$index]['severity'] ?? 'none')->values();
 
         Evidence::create([
@@ -311,37 +324,11 @@ new class extends Component
             'content_ref' => json_encode(['answers' => $filled->values(), 'severities' => $severities]),
         ]);
 
-        $this->correctCount = $severities->filter(fn ($s) => $s === 'none')->count();
+        // The passage's new words join My Words by themselves (lesson design 9).
+        $this->initWordsToTrack();
+        $this->addWordsToNotebook();
 
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
-        $this->completed = true;
-        $this->initWordsToTrack();
-    }
-
-    /**
-     * The learner's own last attempt at this exact step (encouragement
-     * score's comparison, Epic H) — null when this is their first attempt
-     * or an old Evidence row predates severities being persisted at all.
-     */
-    private function readPreviousCorrectCount(): ?int
-    {
-        $previous = $this->run->evidence()
-            ->where('phase', 'reading_comprehension')
-            ->where('type', Evidence::TYPE_TEXT)
-            ->latest()
-            ->first();
-
-        if (! $previous) {
-            return null;
-        }
-
-        $severities = json_decode($previous->content_ref, true)['severities'] ?? null;
-
-        return $severities ? collect($severities)->filter(fn ($s) => $s === 'none')->count() : null;
-    }
-
-    public function proceed(): void
-    {
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }
 
@@ -360,244 +347,128 @@ new class extends Component
     $reading = $run->mission->stepContent('reading_comprehension');
     $passageHtml = $this->highlightedPassageHtml();
     $draftPrefix = $this->draftPrefix();
-    // Two focused sub-steps instead of one long scroll (EOS-009 §8's
-    // UI/UX review) — read + warm-up first, the AI-checked questions
-    // second. Nothing here needs a next-disabled gate (the quick-round
-    // warm-up is always skippable), unlike Listening's gist/expression gate.
-    $totalSubsteps = 2;
+    $questions = $this->questions();
+    $cards = $readOnly ? [] : $this->comprehensionCards();
+    // Screens: 0 start · 1 the passage · 2 true/false · 3.. one question each.
+    $quizScreen = count($cards) ? 2 : null;
+    $firstQuestionScreen = 3;
+    $screenCount = $firstQuestionScreen + count($questions);
+    $initialFilled = collect($answers)->map(fn ($a) => trim((string) $a) !== '')->values();
 @endphp
 
+@if ($readOnly)
+    <div class="flex flex-col gap-4 pt-2">
+        <x-step-intro kind="Reading" :title="$reading['passage_title'] ?? 'Reading'" />
+        <p x-lookup class="text-base leading-relaxed text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
+        @foreach ($questions as $index => $question)
+            <div class="flex flex-col gap-1 rounded-2xl bg-surface p-4 dark:bg-surface-dark">
+                <p class="text-sm font-bold text-ink dark:text-ink-dark">{{ $question }}</p>
+                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $answers[$index] ?? '' }}</p>
+            </div>
+        @endforeach
+    </div>
+@else
 <div
-    class="space-y-6"
+    data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
-        activeSubstep: 0,
-        dismissed: {},
+        screen: 0,
+        quizShare: 0,
+        text: false,
+        filled: [],
+        edited: {},
         init() {
-            this.activeSubstep = window.eosDraft.restoreIndex('{{ $draftPrefix }}activeSubstep', 0);
-            this.$watch('activeSubstep', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}activeSubstep', v));
+            this.filled = JSON.parse(this.$el.dataset.initialFilled);
+            this.screen = window.eosDraft.restoreIndex('{{ $draftPrefix }}screen', 0);
+            this.$watch('screen', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}screen', v));
         },
+        get share() { return (this.screen + (this.screen === 2 ? this.quizShare : 0.5)) / {{ $screenCount }} },
     }"
+    x-effect="$dispatch('step-progress', { share })"
+    x-on:quick-round-progress="quizShare = $event.detail.share"
+    x-back-close="{ open: screen > 0, close: () => screen-- }"
 >
-    <x-hook :text="$reading['hook'] ?? null" />
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Reading" :minutes="$run->mission->stepDuration('reading_comprehension')" :title="$reading['hook'] ?? null" :image="$this->passageImageUrl" />
 
-    @if ($completed)
-        <div class="space-y-4 card p-4">
-            <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-4 w-4')
-                Reading complete
-            </p>
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            @if (! is_null($correctCount))
-                <x-encouragement-score :correct="$correctCount" :total="count($this->questions())" label="answers" :previous-correct="$previousCorrect" />
-            @endif
+    {{-- The only screen that scrolls: the passage, a tap on any word for its meaning. --}}
+    <x-lesson-screen when="screen === 1">
+        <h2 class="font-display text-2xl leading-tight font-semibold text-ink dark:text-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
+        <p x-lookup class="text-base leading-loose text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
 
-            @if (count($this->newWords()))
-                <div>
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">@if ($this->allWordsAlreadyTracked())
-                            Here are today's new words — all of them are already in My Words.
-                        @else
-                            Here are today's new words — pick which ones to save to My Words.
-                        @endif</p>
-                    <div class="mt-2 space-y-2">
-                        @foreach ($this->newWords() as $index => $word)
-                            @if ($alreadyTracked[$index] ?? false)
-                                <div class="flex items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
-                                    @svg('heroicon-o-check-circle', 'mt-0.5 h-4 w-4 shrink-0 text-success dark:text-success-dark')
-                                    <span>
-                                        <x-speak-word :word="$word['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
-                                        <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</span>
-                                        <span class="block text-xs font-semibold text-success dark:text-success-dark">Already in My Words</span>
-                                    </span>
-                                </div>
-                            @else
-                            <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
-                                <input
-                                    type="checkbox"
-                                    wire:model="wordsToTrack.{{ $index }}"
-                                    class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                                >
-                                <span>
-                                    <x-speak-word :word="$word['phrase']" block class="text-sm font-bold text-ink dark:text-ink-dark" />
-                                    <span class="block text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</span>
-                                </span>
-                            </label>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+        <x-slot:actions>
+            <x-continue-button on-click="screen = {{ $quizScreen ?? $firstQuestionScreen }}" wire-target="save" />
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            <div class="flex flex-wrap items-center gap-3">
-                @unless ($readOnly)
-                    @if ($trackedWords)
-                        <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
-                            @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
-                        </span>
-                    @elseif (count($this->newWords()) && ! $this->allWordsAlreadyTracked())
-                        <button
-                            type="button"
-                            wire:click="addWordsToNotebook"
-                            wire:loading.attr="disabled"
-                            wire:target="addWordsToNotebook"
-                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <span wire:loading.remove wire:target="addWordsToNotebook" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
-                            <span wire:loading wire:target="addWordsToNotebook">Adding…</span>
-                        </button>
-                    @endif
-
-                    <button
-                        wire:click="proceed"
-                        wire:loading.attr="disabled"
-                        wire:target="proceed"
-                        class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        <span wire:loading.remove wire:target="proceed">Continue</span>
-                        <span wire:loading wire:target="proceed">Please wait…</span>
-                    </button>
-                @endunless
-            </div>
-        </div>
-    @else
-
-    <div class="mb-2">
-        <x-progress-bar>
-            <div
-                class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                :style="`width: ${(activeSubstep + 1) / {{ $totalSubsteps }} * 100}%`"
-            ></div>
-            <x-slot:label>
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                    Part <span x-text="activeSubstep + 1"></span> of {{ $totalSubsteps }}
-                </p>
-            </x-slot:label>
-        </x-progress-bar>
-    </div>
-
-    {{-- Sub-step: the passage itself + the ungraded warm-up --}}
-    <div x-show="activeSubstep === 0" x-cloak>
-        <div class="card p-4">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
-                @if ($imageUrl = $this->passageImageUrl())
-                    <img src="{{ $imageUrl }}" alt="" class="h-12 w-12 shrink-0 rounded-full object-cover sm:h-16 sm:w-16">
-                @endif
-                <div class="min-w-0 flex-1">
-                    <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</p>
-                    <p x-lookup class="mt-2 text-sm leading-relaxed text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
-                    <p class="mt-1 text-[11px] text-ink-faint dark:text-ink-faint-dark">Tap any word to see its meaning.</p>
-                    @if (! empty($reading['highlighted_phrases'] ?? []))
-                        <p class="mt-2 flex items-center gap-3 text-[11px] text-ink-faint dark:text-ink-faint-dark">
-                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-success/60 dark:bg-success-dark/60"></span> words you already know</span>
-                            <span class="inline-flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-accent/60 dark:bg-accent-dark/60"></span> new words</span>
-                        </p>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- New words (Epic F): the passage's brand-new vocabulary, with a
-             plain-language meaning, part of speech, and an example — shown
-             directly, not behind a hover-only tooltip (that never worked
-             on mobile, same fix already made for Vocabulary Builder). --}}
-        @if (count($this->newWords()))
-            <div class="mt-4">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">New words</p>
-                <div class="mt-2 space-y-2">
-                    @foreach ($this->newWords() as $word)
-                        <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                            <div class="flex items-baseline gap-2">
-                                <x-speak-word :word="$word['phrase']" class="text-sm font-bold text-ink dark:text-ink-dark" />
-                                @if (! empty($word['pos']))
-                                    <p class="text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $word['pos'] }}</p>
-                                @endif
-                            </div>
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $word['definition'] }}</p>
-                            @if (! empty($word['example']))
-                                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">"{{ $word['example'] }}"</p>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        @unless ($readOnly)
-            <div class="mt-4">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Quick check</p>
-                <p class="text-xs text-ink-soft dark:text-ink-soft-dark">True or false — just a warm-up, skip anytime.</p>
-                <div class="mt-2">
-                    <x-quick-round :cards="$this->comprehensionCards()" />
-                </div>
-            </div>
-        @endunless
-    </div>
-
-    {{-- Sub-step: the AI-checked comprehension questions --}}
-    <div x-show="activeSubstep === 1" x-cloak>
-        <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="space-y-3">
-            @foreach ($reading['questions'] ?? [] as $index => $question)
-                @php $itemFeedback = $feedback[$index] ?? null; @endphp
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="text-sm text-ink dark:text-ink-dark">{{ $question }}</p>
-                    <div class="mt-2 flex items-center gap-2">
-                        <input
-                            type="text"
-                            wire:model.live="answers.{{ $index }}"
-                            @unless ($readOnly)
-                                x-draft="{ key: '{{ $draftPrefix }}answers.{{ $index }}', field: 'answers.{{ $index }}' }"
-                            @endunless
-                            @readonly($readOnly)
-                            wire:loading.attr="disabled"
-                            wire:target="checkOne,revealCorrection,declineReveal,save"
-                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                        >
-                        @unless ($readOnly)
-                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
-                        @endunless
-                    </div>
-
-                    @unless ($readOnly)
-                        <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
-                    @endunless
-
-                    <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$index] ?? null" />
-
-                    @unless ($readOnly)
-                        <x-almost-reveal-notice :show="$this->isAlmostRevealing($index)" />
-                        <x-reveal-offer
-                            :show="$offerReveal[$index] ?? false"
-                            :struggling="$this->run->isStruggling()"
-                            reveal-method="revealCorrection"
-                            decline-method="declineReveal"
-                            :index="$index"
-                            wire-target="checkOne,revealCorrection,declineReveal,save"
-                        />
-                    @endunless
-                </div>
-            @endforeach
-        </div>
-        @error('answers')
-            <p class="text-sm text-danger-ink">{{ $message }}</p>
-        @enderror
-
-        {{-- Always on screen, disabled until every answer is written.
-             answers use wire:model.live, so completeness is already known
-             server-side on every keystroke — no extra Alpine tracking. --}}
-        @unless ($readOnly)
-            <div class="mt-4">
-                <x-continue-button
-                    on-click="$wire.save()"
-                    wire-target="checkOne,revealCorrection,declineReveal,save"
-                    loading-label="Checking your answers…"
-                    ready-when="{{ collect($answers)->every(fn ($a) => trim((string) $a) !== '') ? 'true' : 'false' }}"
-                    hint="Answer every question to continue"
-                />
-            </div>
-        @endunless
-    </div>
-
-    <div class="mt-4">
-        <x-substep-nav index-var="activeSubstep" :total="$totalSubsteps" />
-    </div>
+    @if ($quizScreen)
+        <section x-show="screen === {{ $quizScreen }}" x-cloak class="pt-2">
+            <x-quick-round
+                lesson
+                :cards="$cards"
+                label="True or false?"
+                draft-key="{{ $draftPrefix }}quiz"
+                on-complete="if (screen === {{ $quizScreen }}) screen = {{ $firstQuestionScreen }}"
+                on-skip="screen = {{ $firstQuestionScreen }}"
+            />
+        </section>
     @endif
+
+    @foreach ($questions as $index => $question)
+        @php
+            $itemFeedback = $feedback[$index] ?? null;
+            $isChecked = $itemFeedback && ($itemFeedback['checkedText'] ?? null) === trim((string) ($answers[$index] ?? ''));
+            $isLast = $index === count($questions) - 1;
+        @endphp
+        <x-lesson-screen when="screen === {{ $firstQuestionScreen + $index }}" wire:key="reading-question-{{ $index }}">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Answer · {{ $index + 1 }} of {{ count($questions) }}</span>
+            <p class="text-xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $question }}</p>
+
+            <x-type-or-say
+                model="answers.{{ $index }}"
+                method="dictateAnswer"
+                :param="$index"
+                draft-key="{{ $draftPrefix }}answers.{{ $index }}"
+                placeholder="Answer in a full sentence…"
+                on-input="filled[{{ $index }}] = $el.value.trim() !== ''; edited[{{ $index }}] = true"
+                :error="$checkErrors[$index] ?? ($dictationErrors[$index] ?? null)"
+            />
+            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateAnswer, revealCorrection({{ $index }}), save" />
+
+            <x-slot:actions>
+                <x-checked-answer-actions
+                    :index="$index"
+                    :feedback="$itemFeedback"
+                    :checked="(bool) $isChecked"
+                    check="$wire.checkOne({{ $index }})"
+                    :next="$isLast ? '$wire.save()' : 'screen++'"
+                    wire-target="checkOne,dictateAnswer,revealCorrection,save"
+                    :offer-reveal="$offerReveal[$index] ?? false"
+                    :almost-revealing="$this->isAlmostRevealing($index)"
+                />
+            </x-slot:actions>
+        </x-lesson-screen>
+    @endforeach
+
+    @error('answers')
+        <p class="text-sm text-danger-ink">{{ $message }}</p>
+    @enderror
+
+    {{-- 📄 Text: the passage, a tap away on every question screen. --}}
+    <button
+        type="button"
+        x-show="screen >= {{ $quizScreen ?? $firstQuestionScreen }}"
+        x-cloak
+        x-on:click="text = true"
+        class="fixed top-24 right-4 z-30 cursor-pointer rounded-full bg-accent-soft px-3 py-1.5 text-xs font-extrabold text-accent-ink shadow-sm dark:bg-accent-soft-dark dark:text-accent-ink-dark"
+    >📄 Text</button>
+    <x-bottom-sheet show="text" label="The text">
+        <x-slot:title>{{ $reading['passage_title'] ?? 'Reading' }}</x-slot:title>
+        <p x-lookup class="text-base leading-loose text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
+    </x-bottom-sheet>
 </div>
+@endif

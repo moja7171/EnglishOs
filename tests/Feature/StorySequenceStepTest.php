@@ -132,7 +132,7 @@ class StorySequenceStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
-            ->assertSee('using Present Simple.')
+            ->assertSee('Tell it · Present Simple')
             ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
             ->call('save')
             ->assertSet('completed', true);
@@ -163,8 +163,8 @@ class StorySequenceStepTest extends TestCase
         });
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
-            ->assertSee('using Past Simple.')
-            ->assertDontSee('using Present Simple')
+            ->assertSee('Tell it · Past Simple')
+            ->assertDontSee('Tell it · Present Simple')
             ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
             ->call('save')
             ->assertSet('completed', true);
@@ -197,9 +197,8 @@ class StorySequenceStepTest extends TestCase
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
 
         Livewire::test('missions.steps.story-sequence', ['run' => $run])
-            ->assertSeeHtml('x-on:click="$wire.save()"')
+            ->assertSeeHtml('x-on:click="screen = 2; $wire.save()"')
             ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->assertSee('Record your story to continue')
             ->set('recording', UploadedFile::fake()->create('story.webm', 400, 'audio/webm'))
             ->assertSeeHtml('x-bind:disabled="! (true)"');
     }

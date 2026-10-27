@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\DayActivity;
-use App\Models\ErrorLogItem;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
@@ -118,8 +117,10 @@ class MissionResultStepTest extends TestCase
         $this->assertDatabaseCount('self_assessments', 2);
         $this->assertDatabaseHas('self_assessments', ['skill' => 'Speaking', 'before' => 2, 'after' => 4]);
 
+        // Worked out from the scores: Speaking rose most, Writing is lowest now (a tie goes to the first).
         $reflection = Reflection::first();
-        $this->assertSame('Talking about my routine.', $reflection->answers['became_easier']);
+        $this->assertSame('Speaking', $reflection->answers['became_easier']);
+        $this->assertSame('Speaking', $reflection->answers['still_difficult']);
 
         $this->assertDatabaseHas('evidences', ['mission_run_id' => $run->id, 'phase' => 'mission_result']);
 
@@ -176,54 +177,6 @@ class MissionResultStepTest extends TestCase
             ->assertDontSeeHtml('window.eosConfetti?.burst()');
     }
 
-    public function test_friends_who_completed_this_mission_are_shown(): void
-    {
-        $run = $this->makeRun();
-
-        $friend = User::factory()->create();
-        $run->learner->follow($friend);
-        $friend->acceptFollowRequest($run->learner);
-
-        MissionRun::create([
-            'learner_id' => $friend->id,
-            'mission_id' => $run->mission_id,
-            'status' => MissionRun::STATUS_COMPLETE,
-            'started_at' => now(),
-            'completed_at' => now(),
-        ]);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->call('getResult')
-            ->assertSee('1 of your friends has completed this mission too.');
-    }
-
-    public function test_no_friends_block_shown_when_no_mutual_friend_has_completed_it(): void
-    {
-        $run = $this->makeRun();
-
-        $friend = User::factory()->create();
-        $run->learner->follow($friend);
-        $friend->acceptFollowRequest($run->learner);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->call('getResult')
-            ->assertDontSee('completed this mission too');
-    }
-
     public function test_the_result_shows_a_before_after_comparison_per_skill(): void
     {
         $run = $this->makeRun();
@@ -239,8 +192,9 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'Talking about my routine.')
             ->set('reflection.still_difficult', 'Past tense.')
             ->call('getResult')
-            ->assertSee('2 → 4 (+2)')
-            ->assertSee('3 → 3 (0)');
+            ->assertSee('2 →')
+            ->assertSee('4/5')
+            ->assertSee('3/5');
     }
 
     public function test_self_assessment_scores_never_reach_the_ai_status_prompt(): void
@@ -297,7 +251,8 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertSee('2 of 3 words used')
+            ->assertSee('Words you used')
+            ->assertSee('2 of 3')
             ->assertSee('wake up')
             ->assertSee('commute')
             ->assertSee('have a shower');
@@ -319,67 +274,6 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
             ->assertDontSee('words used');
-    }
-
-    public function test_the_result_surfaces_a_recurring_error_pattern(): void
-    {
-        $run = $this->makeRun();
-
-        // Recurring means "shown up across 2+ mission runs" — seed one
-        // earlier, separate mission for the same learner.
-        $earlierMission = Mission::create([
-            'code' => 'M-EARLIER',
-            'title' => 'Earlier Mission',
-            'module' => 'Me',
-            'outcome' => 'Outcome.',
-            'phases' => [],
-        ]);
-        $earlierRun = MissionRun::findOrStart($run->learner, $earlierMission);
-        ErrorLogItem::create([
-            'mission_run_id' => $earlierRun->id,
-            'error' => 'He walk fast.',
-            'correction' => 'He walks fast.',
-            'category' => 'third-person-s',
-        ]);
-        ErrorLogItem::create([
-            'mission_run_id' => $run->id,
-            'error' => 'She go home.',
-            'correction' => 'She goes home.',
-            'category' => 'third-person-s',
-        ]);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->set('reflection.still_difficult', 'y')
-            ->call('getResult')
-            ->assertSee('A pattern to keep an eye on')
-            ->assertSee('She go home.')
-            ->assertSee('She goes home.');
-    }
-
-    public function test_no_recurring_error_section_without_a_repeated_pattern(): void
-    {
-        $run = $this->makeRun();
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->set('reflection.still_difficult', 'y')
-            ->call('getResult')
-            ->assertDontSee('A pattern to keep an eye on');
     }
 
     public function test_the_result_shows_the_learners_current_streak(): void
@@ -405,7 +299,7 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertSee("You're on a 1-day streak — nice start!");
+            ->assertSee('🔥 1-day streak');
     }
 
     public function test_no_streak_banner_without_any_active_days(): void
@@ -458,8 +352,7 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertSee('7-day streak!')
-            ->assertSee('A full week of practice');
+            ->assertSee('7-day streak!');
 
         $this->assertSame(7, $run->learner->fresh()->celebrated_streak_milestone);
     }
@@ -500,7 +393,7 @@ class MissionResultStepTest extends TestCase
             ->set('scores.Writing.before', 3)->set('scores.Writing.after', 3)
             ->call('getResult')
             ->assertSee('7-day streak!')
-            ->assertSeeHtml('animate-trophy-ring')
+            ->assertSeeHtml('animate-badge-pop')
             ->assertSeeHtml('window.eosConfetti?.burst()');
     }
 
@@ -736,49 +629,6 @@ class MissionResultStepTest extends TestCase
             ->assertDontSee('Get an updated result');
     }
 
-    public function test_a_complete_status_offers_to_share_with_a_mutual_friend(): void
-    {
-        $run = $this->makeRun();
-        $friend = User::factory()->create(['name' => 'Priya']);
-        $run->learner->follow($friend);
-        $friend->acceptFollowRequest($run->learner);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->set('reflection.still_difficult', 'y')
-            ->call('getResult')
-            ->assertSee('Share this with a friend')
-            ->assertSee('Priya');
-    }
-
-    public function test_no_share_prompt_when_status_is_not_complete(): void
-    {
-        $run = $this->makeRun();
-        $friend = User::factory()->create();
-        $run->learner->follow($friend);
-        $friend->acceptFollowRequest($run->learner);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'needs_review',
-            'reason' => 'Needs a bit more.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->set('reflection.still_difficult', 'y')
-            ->call('getResult')
-            ->assertDontSee('Share this with a friend');
-    }
-
     /**
      * Mirrors the real seeded shape (see MissionSeeder) — each reflection
      * question authored as {label, type}, not a plain string — used only
@@ -816,16 +666,6 @@ class MissionResultStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
-    public function test_a_skills_type_reflection_question_offers_the_skill_chips(): void
-    {
-        $run = $this->makeRunWithSelectableReflection();
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->assertSee('What became easier?')
-            ->assertSee('Speaking')
-            ->assertSee('Writing');
-    }
-
     public function test_selecting_a_chip_sets_the_reflection_answer(): void
     {
         $run = $this->makeRunWithSelectableReflection();
@@ -847,34 +687,18 @@ class MissionResultStepTest extends TestCase
         ]);
 
         Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->assertSee('One expression I want to keep using')
+            ->assertSee('One expression you want to keep using?')
             ->assertSee('wake up')
             ->assertSee('commute');
     }
 
-    public function test_an_errors_type_reflection_offers_this_runs_corrections(): void
+    public function test_without_words_of_its_own_the_expression_screen_just_offers_the_result(): void
     {
-        $run = $this->makeRunWithSelectableReflection();
-
-        ErrorLogItem::create([
-            'mission_run_id' => $run->id,
-            'error' => 'She go home.',
-            'correction' => 'She goes home.',
-        ]);
+        $run = $this->makeRunWithSelectableReflection(); // no vocabulary_builder Evidence
 
         Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->assertSee('One grammar point I need to review')
-            ->assertSee('She goes home.');
-    }
-
-    public function test_a_reflection_question_with_no_available_options_is_skipped(): void
-    {
-        $run = $this->makeRunWithSelectableReflection(); // no vocabulary_builder Evidence, no ErrorLogItem
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->assertSee('What became easier?') // skills always available
-            ->assertDontSee('One expression I want to keep using')
-            ->assertDontSee('One grammar point I need to review');
+            ->assertSee('Ready to see your result?')
+            ->assertDontSee('One expression you want to keep using?');
     }
 
     public function test_a_selected_reflection_option_persists_through_finish(): void
@@ -959,8 +783,9 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertSee('Since Day 1')
-            ->assertSee('2/5');
+            ->set('afterScore', 4)
+            ->assertSee('Day 1 → today')
+            ->assertSee('2 → 4');
     }
 
     public function test_no_since_day_1_section_without_a_mission_brief_score(): void
@@ -978,7 +803,7 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertDontSee('Since Day 1');
+            ->assertDontSee('2 → 4');
     }
 
     public function test_tapping_the_after_score_never_blocks_finish_and_is_saved(): void
@@ -1064,10 +889,10 @@ class MissionResultStepTest extends TestCase
 
         Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
             ->assertSet('afterScore', 5)
-            ->assertSee('5/5');
+            ->assertSee('2 → 5');
     }
 
-    public function test_the_result_shows_day_1_and_activation_recordings_when_present(): void
+    public function test_the_result_plays_day_1_next_to_the_final_talk(): void
     {
         $run = $this->makeRun();
 
@@ -1085,9 +910,9 @@ class MissionResultStepTest extends TestCase
         ]);
         Evidence::create([
             'mission_run_id' => $run->id,
-            'phase' => 'ai_conversation_1',
+            'phase' => 'ai_conversation_2',
             'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => 'https://example.test/storage/activation.webm',
+            'content_ref' => 'https://example.test/storage/final-talk.webm',
         ]);
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
@@ -1101,96 +926,9 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertSee('Day 1 — your warm-up answer')
-            ->assertSee('Mid-mission — your Activation recording')
+            ->assertSee('Today')
             ->assertSeeHtml('https://example.test/storage/warmup.webm')
-            ->assertSeeHtml('https://example.test/storage/activation.webm');
-    }
-
-    public function test_a_flashback_recording_from_a_different_finished_mission_is_shown(): void
-    {
-        $run = $this->makeRun();
-
-        $earlierMission = Mission::create([
-            'code' => 'M-EARLIER',
-            'title' => 'Earlier Mission',
-            'module' => 'Me',
-            'outcome' => 'Outcome.',
-            'phases' => [],
-        ]);
-        $earlierRun = MissionRun::findOrStart($run->learner, $earlierMission);
-        $earlierRun->update(['completed_at' => now()->subWeek()]);
-        Evidence::create([
-            'mission_run_id' => $earlierRun->id,
-            'phase' => 'ai_conversation_1',
-            'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => 'https://example.test/storage/earlier-activation.webm',
-        ]);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->set('reflection.still_difficult', 'y')
-            ->call('getResult')
-            ->assertSee('A voice from an earlier mission')
-            ->assertSee('M-EARLIER')
-            ->assertSeeHtml('https://example.test/storage/earlier-activation.webm');
-    }
-
-    public function test_no_flashback_recording_from_the_current_mission_itself_or_an_unfinished_one(): void
-    {
-        $run = $this->makeRun();
-
-        // A recording from THIS SAME run must never count as a "flashback".
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'ai_conversation_1',
-            'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => 'https://example.test/storage/this-run-activation.webm',
-        ]);
-
-        // A different run that was never finished must not count either.
-        $unfinishedMission = Mission::create([
-            'code' => 'M-UNFINISHED',
-            'title' => 'Unfinished Mission',
-            'module' => 'Me',
-            'outcome' => 'Outcome.',
-            'phases' => [],
-        ]);
-        $unfinishedRun = MissionRun::findOrStart($run->learner, $unfinishedMission);
-        Evidence::create([
-            'mission_run_id' => $unfinishedRun->id,
-            'phase' => 'ai_conversation_1',
-            'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => 'https://example.test/storage/unfinished-activation.webm',
-        ]);
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('scores.Writing.before', 3)->set('scores.Writing.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->set('reflection.still_difficult', 'y')
-            ->call('getResult')
-            ->assertDontSee('A voice from an earlier mission');
-    }
-
-    public function test_reflection_inputs_carry_a_draft_key_scoped_to_the_run(): void
-    {
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->assertSeeHtml("eos-draft:{$run->id}:mission_result:reflection.became_easier");
+            ->assertSeeHtml('https://example.test/storage/final-talk.webm');
     }
 
     public function test_finishing_the_mission_dispatches_a_clear_draft_event(): void
@@ -1280,7 +1018,7 @@ class MissionResultStepTest extends TestCase
         $this->assertSame([], array_diff($asked, $pool));
     }
 
-    public function test_the_speaking_recall_checklist_is_offered_after_a_result_and_never_blocks_finish(): void
+    public function test_finishing_puts_every_question_this_mission_asked_into_speaking_recall(): void
     {
         $run = $this->makeRunWithSpeakingPromptCandidates();
 
@@ -1293,28 +1031,7 @@ class MissionResultStepTest extends TestCase
             ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
             ->set('reflection.became_easier', 'x')
             ->call('getResult')
-            ->assertSee('Speaking Recall')
-            ->assertSee('What time do you usually wake up?')
             ->call('finish');
-
-        $this->assertDatabaseCount('speaking_prompts', 0);
-    }
-
-    public function test_adding_speaking_prompts_enrolls_every_checked_question(): void
-    {
-        $run = $this->makeRunWithSpeakingPromptCandidates();
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->call('getResult')
-            ->call('addSpeakingPromptsToRecall')
-            ->assertSet('trackedSpeakingPrompts', true);
 
         $this->assertSame(3, SpeakingPrompt::where('learner_id', $run->learner_id)->count());
 
@@ -1322,42 +1039,6 @@ class MissionResultStepTest extends TestCase
         $this->assertSame($run->id, $prompt->source_mission_run_id);
         $this->assertSame('M01', $prompt->mission_code);
         $this->assertTrue($prompt->isDue());
-    }
-
-    public function test_unchecking_a_speaking_prompt_leaves_it_out(): void
-    {
-        $run = $this->makeRunWithSpeakingPromptCandidates();
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            'status' => 'complete',
-            'reason' => 'Nice work.',
-        ])));
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run])
-            ->set('scores.Speaking.before', 2)->set('scores.Speaking.after', 4)
-            ->set('reflection.became_easier', 'x')
-            ->call('getResult')
-            ->set('speakingPromptsToTrack.0', false)
-            ->call('addSpeakingPromptsToRecall');
-
-        $this->assertSame(2, SpeakingPrompt::where('learner_id', $run->learner_id)->count());
-        $this->assertDatabaseMissing('speaking_prompts', ['learner_id' => $run->learner_id, 'prompt' => 'What time do you usually wake up?']);
-    }
-
-    public function test_no_speaking_recall_section_renders_in_read_only_mode(): void
-    {
-        $run = $this->makeRunWithSpeakingPromptCandidates();
-
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'mission_result',
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode(['status' => 'complete', 'reason' => 'Nice work.']),
-        ]);
-        SelfAssessment::create(['mission_run_id' => $run->id, 'skill' => 'Speaking', 'before' => 2, 'after' => 4]);
-
-        Livewire::test('missions.steps.mission-result', ['run' => $run, 'readOnly' => true])
-            ->assertDontSee('Speaking Recall');
     }
 
     public function test_ratings_and_the_ai_result_come_back_after_leaving_the_step(): void
@@ -1382,5 +1063,21 @@ class MissionResultStepTest extends TestCase
 
         $returned->call('finish');
         $this->assertDatabaseCount('step_drafts', 0);
+    }
+
+    public function test_before_comes_from_the_previous_missions_now(): void
+    {
+        $run = $this->makeRun();
+        $earlier = MissionRun::create([
+            'learner_id' => $run->learner_id,
+            'mission_id' => Mission::create(['code' => 'M00', 'title' => 'Earlier', 'module' => 'Me', 'outcome' => 'x', 'phases' => []])->id,
+            'status' => MissionRun::STATUS_COMPLETE,
+            'started_at' => now()->subWeek(),
+        ]);
+        SelfAssessment::create(['mission_run_id' => $earlier->id, 'skill' => 'Speaking', 'before' => 1, 'after' => 3]);
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->assertSet('scores.Speaking', ['before' => 3, 'after' => null])
+            ->assertSet('scores.Writing', ['before' => null, 'after' => null]);
     }
 }

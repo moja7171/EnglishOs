@@ -40,8 +40,13 @@
         labeled pill buttons. No level meter, no "Recording saved"
         text — meant for an auto-send flow (see $onRecorded) where the
         message appears in the thread immediately anyway.
+    @param bool $big The one-task lesson screen's recorder: a 72px round
+        mic in the middle of the screen with a soft double ring (and a
+        72px stop whose ring breathes while recording) instead of the
+        labeled pill buttons. Review and the saved take look the same as
+        always.
 --}}
-@props(['field', 'file' => null, 'onRecorded' => null, 'onRecordedParam' => null, 'onUploaded' => null, 'onProcessed' => null, 'fileName' => 'recording.webm', 'compact' => false])
+@props(['field', 'file' => null, 'onRecorded' => null, 'onRecordedParam' => null, 'onUploaded' => null, 'onProcessed' => null, 'fileName' => 'recording.webm', 'compact' => false, 'big' => false])
 
 <div
     x-data="{
@@ -321,6 +326,7 @@
             window.dispatchEvent(new CustomEvent('eos-recording', { detail: false }));
         },
     }"
+    @if ($big) class="flex w-full flex-col items-center gap-3" @endif
 >
     {{-- The take's own playback, before it is sent. A finished play-through
          leaves the bar full (and the clock on the total) until Play again. --}}
@@ -416,13 +422,31 @@
 
         <p x-show="error" x-cloak x-text="error" class="mt-1 text-xs text-danger-ink"></p>
     @else
-        <div x-show="state === 'idle'" class="flex flex-wrap items-center gap-3">
-            <button
-                type="button"
-                x-on:click="startRecording"
-                :disabled="uploading || processing"
-                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-            >@svg('heroicon-s-microphone', 'h-4 w-4') Record</button>
+        <div x-show="state === 'idle'" @class(['flex flex-wrap items-center gap-3' => ! $big, 'flex flex-col items-center gap-2 text-center' => $big])>
+            @if ($big && $file)
+                <button
+                    type="button"
+                    x-show="!uploading && !processing"
+                    x-on:click="startRecording"
+                    class="inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-accent-ink dark:text-accent-ink-dark"
+                >@svg('heroicon-o-arrow-path', 'h-4 w-4') Record again</button>
+            @elseif ($big)
+                <button
+                    type="button"
+                    x-on:click="startRecording"
+                    :disabled="uploading || processing"
+                    aria-label="Record"
+                    class="my-5 inline-flex cursor-pointer rounded-full text-accent transition-transform active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:text-accent-dark"
+                ><span class="mic-ring inline-flex h-18 w-18 items-center justify-center rounded-full bg-current">@svg('heroicon-s-microphone', 'h-8 w-8 text-white')</span></button>
+                <span x-show="!uploading && !processing" class="text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Tap to record</span>
+            @else
+                <button
+                    type="button"
+                    x-on:click="startRecording"
+                    :disabled="uploading || processing"
+                    class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                >@svg('heroicon-s-microphone', 'h-4 w-4') Record</button>
+            @endif
 
             <span x-show="uploading" x-cloak class="inline-flex items-center gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
                 @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Uploading…
@@ -430,13 +454,52 @@
             <span x-show="processing" x-cloak class="inline-flex items-center gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
                 @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Processing…
             </span>
-            <span x-show="!uploading && !processing && {{ $file ? 'true' : 'false' }}" class="inline-flex items-center gap-1 text-sm text-success dark:text-success-dark">
+            <span x-show="!uploading && !processing && {{ $file && ! $big ? 'true' : 'false' }}" class="inline-flex items-center gap-1 text-sm text-success dark:text-success-dark">
                 @svg('heroicon-o-check-circle', 'h-4 w-4')
                 Recording saved
             </span>
         </div>
 
         {{-- Recording / paused --}}
+        @if ($big)
+            <div x-show="state === 'recording' || state === 'paused'" x-cloak class="flex flex-col items-center gap-3">
+                <div class="flex items-center gap-5">
+                    <button
+                        type="button"
+                        x-on:click="cancelRecording"
+                        title="Cancel"
+                        class="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >@svg('heroicon-o-x-mark', 'h-5 w-5')</button>
+                    <button
+                        type="button"
+                        x-on:click="stopRecording"
+                        aria-label="Stop"
+                        class="my-5 inline-flex cursor-pointer rounded-full text-red-600 transition-transform active:scale-95"
+                    ><span x-bind:class="state === 'recording' ? 'animate-mic-breathe' : 'mic-ring'" class="inline-flex h-18 w-18 items-center justify-center rounded-full bg-current">@svg('heroicon-s-stop', 'h-8 w-8 text-white')</span></button>
+                    <button
+                        type="button"
+                        x-on:click="state === 'recording' ? pauseRecording() : resumeRecording()"
+                        x-bind:title="state === 'recording' ? 'Pause' : 'Resume'"
+                        class="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                    >
+                        <span x-show="state === 'recording'">@svg('heroicon-s-pause', 'h-5 w-5')</span>
+                        <span x-show="state === 'paused'" x-cloak>@svg('heroicon-s-microphone', 'h-5 w-5 text-danger')</span>
+                    </button>
+                </div>
+                <div class="inline-flex items-center gap-2 text-sm font-bold text-ink tabular-nums dark:text-ink-dark">
+                    <span x-bind:class="{ 'animate-pulse': state === 'paused', 'text-warning-ink': nearLimit }" x-text="formattedTime"></span>
+                    <span class="flex h-5 items-center gap-0.5" aria-hidden="true">
+                        <template x-for="(level, index) in levels" :key="index">
+                            <span
+                                class="w-1 rounded-full transition-[height] duration-100"
+                                x-bind:class="state === 'recording' ? 'bg-danger' : 'bg-line dark:bg-line-dark'"
+                                x-bind:style="`height: ${4 + Math.round(level * 16)}px`"
+                            ></span>
+                        </template>
+                    </span>
+                </div>
+            </div>
+        @else
         <div x-show="state === 'recording' || state === 'paused'" x-cloak class="flex flex-wrap items-center gap-3">
             <div class="inline-flex items-center gap-2 text-sm font-semibold text-ink tabular-nums dark:text-ink-dark">
                 <span class="h-2.5 w-2.5 shrink-0 rounded-full" x-bind:class="state === 'recording' ? 'bg-danger animate-pulse' : 'bg-warning'"></span>
@@ -478,8 +541,10 @@
             </div>
         </div>
 
+        @endif
+
         {{-- Review: listen before it goes anywhere --}}
-        <div x-show="state === 'review'" x-cloak class="flex flex-wrap items-center gap-2">
+        <div x-show="state === 'review'" x-cloak @class(['flex flex-wrap items-center gap-2', 'w-full' => $big])>
             <div class="flex min-w-0 flex-1 basis-48 items-center gap-2 rounded-full bg-surface-sunken py-1 pr-3 pl-1 dark:bg-surface-sunken-dark">
                 <button
                     type="button"
@@ -522,8 +587,10 @@
         <p x-show="error" x-text="error" class="mt-2 text-sm text-danger-ink"></p>
 
         @if ($file)
-            <div class="mt-3">
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen back — not happy with it? Just record again.</p>
+            <div @class(['mt-3' => ! $big, 'order-first w-full' => $big])>
+                @unless ($big)
+                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen back — not happy with it? Just record again.</p>
+                @endunless
                 <div class="mt-1">
                     <x-audio-player :url="is_string($file) ? $file : $file->temporaryUrl()" />
                 </div>

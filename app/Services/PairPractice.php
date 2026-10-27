@@ -7,8 +7,10 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PairPracticeSession;
 use App\Models\User;
+use App\Notifications\PairPracticeNudge;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Pair Practice: which mission days two friends have BOTH
@@ -105,6 +107,61 @@ class PairPractice
             'total' => $steps->count(),
             'finished' => $today['dayCompletedToday'] || ($steps->isNotEmpty() && $done === $steps->count()),
         ];
+    }
+
+    /**
+     * How the two have practised together: finished rounds, days in a row
+     * with one (up to today or yesterday), and days since the last one —
+     * the "5× together · 🔥 3 days" line on Friends, chat and Practice
+     * together.
+     *
+     * @return array{times: int, daysInRow: int, daysSince: ?int}
+     */
+    public function together(User $a, User $b): array
+    {
+        $dates = PairPracticeSession::forPair($a, $b)
+            ->where('stage', PairPracticeSession::STAGE_DONE)
+            ->pluck('finished_at')
+            ->filter()
+            ->map(fn (Carbon $at) => $at->copy()->setTimezone($a->reminderTimezone())->toDateString())
+            ->unique();
+
+        $today = $a->localToday();
+        $day = $dates->contains($today->toDateString()) ? $today->copy() : $today->copy()->subDay();
+        $daysInRow = 0;
+
+        while ($dates->contains($day->toDateString())) {
+            $daysInRow++;
+            $day = $day->subDay();
+        }
+
+        $last = $dates->sort()->last();
+
+        return [
+            'times' => PairPracticeSession::forPair($a, $b)->where('stage', PairPracticeSession::STAGE_DONE)->count(),
+            'daysInRow' => $daysInRow,
+            'daysSince' => $last === null ? null : (int) Carbon::parse($last)->diffInDays($today),
+        ];
+    }
+
+    /**
+     * One nudge per friend per day — a bell row plus a phone push. False
+     * when today's was already sent.
+     */
+    public function nudge(User $from, User $to): bool
+    {
+        if (! Cache::add(self::nudgeKey($from, $to), true, now()->endOfDay())) {
+            return false;
+        }
+
+        $to->notify(new PairPracticeNudge($from));
+
+        return true;
+    }
+
+    public static function nudgeKey(User $from, User $to): string
+    {
+        return 'pair-nudge:'.$from->id.':'.$to->id.':'.now()->toDateString();
     }
 
     /**

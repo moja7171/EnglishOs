@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['follower_id', 'followed_id', 'status'])]
+#[Fillable(['follower_id', 'followed_id', 'status', 'muted_at'])]
 class Follow extends Model
 {
     use HasFactory;
@@ -15,6 +15,11 @@ class Follow extends Model
     public const STATUS_PENDING = 'pending';
 
     public const STATUS_ACCEPTED = 'accepted';
+
+    protected function casts(): array
+    {
+        return ['muted_at' => 'datetime'];
+    }
 
     /**
      * @return BelongsTo<User, $this>

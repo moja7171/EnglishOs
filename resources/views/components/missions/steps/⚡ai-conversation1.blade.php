@@ -498,219 +498,142 @@ new class extends Component
 
 @php
     $conversation = $run->mission->stepContent('ai_conversation_1');
-    $vocabularyWords = $run->selectedVocabularyWords();
     $warmUpQuestions = $run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
+    $questionCount = count($this->questions);
+    $startScreen = $completed ? 3 : ($warmUpDone ? 2 : ($warmUpAudioUrl ? 1 : 0));
 @endphp
 
-<div class="space-y-6" @if ($preview) inert @endif>
-    <x-hook :text="$conversation['hook'] ?? null" />
-
-    @if ($completed)
-        <div class="space-y-4">
-            <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                    @svg('heroicon-o-check-circle', 'h-4 w-4')
-                    Talk It Out complete
-                </p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Here's how each answer went.</p>
-            </div>
-
+@if ($readOnly)
+    <div class="flex flex-col gap-4 pt-2" @if ($preview) inert @endif>
+        <x-step-intro kind="Talk It Out" :title="$conversation['hook'] ?? null" />
+        @if ($completed)
             <x-learner-feedback :feedback="$feedback" :answers="$this->answers()">
-                <x-slot:more>
-                    @if ($warmUpAudioUrl)
-                        <div>
-                            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
-                            <div class="mt-1"><x-audio-player :url="$warmUpAudioUrl" /></div>
-                        </div>
-                    @endif
-
-                    @if (count($this->questions))
-                        <div>
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Want more practice? Ask each other all of these questions for real.</p>
-                            <div class="mt-1.5">
-                                <x-practice-session-with-friend :mission="$run->mission" step-key="ai_conversation_1" />
-                            </div>
-                        </div>
-                    @endif
-                </x-slot:more>
-            </x-learner-feedback>
-
-            @unless ($readOnly)
-                <button
-                    wire:click="proceed"
-                    wire:loading.attr="disabled"
-                    wire:target="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
-                >
-                    <span wire:loading.remove wire:target="proceed">Continue</span>
-                    <span wire:loading wire:target="proceed">Saving…</span>
-                </button>
-            @endunless
-        </div>
-    @elseif (! $warmUpDone)
-        {{-- Warm-up round: was the standalone Activation step. UX audit fix:
-             this used to read like a multi-question quiz (bold task text +
-             4-item question list all with equal visual weight)
-             when it's actually ONE continuous ~2-minute recording — see
-             finishWarmUp(), which just checks a file exists and transcribes
-             it, never per-question. Below: the task box is the only
-             required thing (accent left border); the "same questions" list
-             is optional context, deliberately de-weighted (lighter box /
-             collapsed) so it doesn't read as a checklist.
-
-             No <x-substep-nav> here: the two phases aren't both pre-rendered
-             behind one toggle (the interview only exists once finishWarmUp()
-             really runs), so a Back/Next pager would have nothing real to
-             do — and the interview branch already has its own live
-             "Question X of Y" progress bar, so a second one up here would
-             just be a redundant, non-functional "tab". --}}
-        <x-progress-bar>
-            <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 50%"></div>
-            <x-slot:label>
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 1 of 2 — Warm-up</p>
-            </x-slot:label>
-        </x-progress-bar>
-
-        <div>
-            <div class="mt-3 rounded-2xl border-l-4 border-accent bg-accent/5 p-4 dark:border-accent-dark dark:bg-accent-dark/10">
-                <p class="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">
-                    @svg('heroicon-o-clipboard-document-list', 'h-4 w-4')
-                    Instruction
-                </p>
-                <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">Practice alone first, then talk to the AI.</p>
-                <p class="mt-1 text-sm font-medium text-ink dark:text-ink-dark">{{ $conversation['warm_up_task'] ?? '' }}</p>
-            </div>
-
-            <div class="mt-2">
-                <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some while you speak" />
-            </div>
-
-            @if (count($warmUpQuestions))
-                <div class="mt-3 rounded-2xl bg-surface-sunken/60 p-4 dark:bg-surface-sunken-dark/60">
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Same ideas as Day 1 — any order.</p>
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        @foreach ($warmUpQuestions as $question)
-                            <span class="rounded-full border border-line bg-surface px-2.5 py-1 text-xs text-ink-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark">{{ $question }}</span>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            <p class="mt-3 text-sm text-ink-soft dark:text-ink-soft-dark">
-                One recording — talk freely for 2 minutes.
-            </p>
-
-            <div class="mt-2">
-                <x-voice-recorder field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" />
-            </div>
-
-            @error('warmUpAudioFile')
-                <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div class="mt-4">
-            <x-continue-button
-                on-click="$wire.finishWarmUp()"
-                wire-target="finishWarmUp"
-                loading-label="Preparing your recap…"
-                ready-when="{{ $warmUpAudioUrl ? 'true' : 'false' }}"
-                hint="Record your answer to continue"
-            />
-        </div>
-    @else
-        {{-- Interview round: unchanged AI Conversation #1 behavior. --}}
-        <x-progress-bar>
-            <div class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark" style="width: 100%"></div>
-            <x-slot:label>
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Part 2 of 2 — Interview</p>
-            </x-slot:label>
-        </x-progress-bar>
-
-        <div>
-            <p class="text-xs text-ink-soft dark:text-ink-soft-dark">Answer each question out loud.</p>
-        </div>
-
-        <x-vocabulary-pills :words="$vocabularyWords" label="Words you picked — try to use some when you answer" />
-
-        <div>
-            <x-progress-bar>
-                <div
-                    class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                    style="width: {{ count($this->questions) ? $round / count($this->questions) * 100 : 0 }}%"
-                ></div>
-                <x-slot:label>
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                        Question {{ min($round + 1, count($this->questions)) }} of {{ count($this->questions) }}
-                    </p>
-                </x-slot:label>
-            </x-progress-bar>
-        </div>
-
-        @if (count($turns))
-            <div class="space-y-3">
-                @foreach ($turns as $turn)
-                    <x-conversation-turn :prompt="$turn['question']" :answer="$turn['answer']" :check="$turn['check'] ?? null" :followup="$turn['followup'] ?? null" />
-                @endforeach
-            </div>
-        @endif
-
-        @if ($this->currentQuestion)
-            <div class="card p-4">
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $round + 1 }} of {{ count($this->questions) }}</p>
-                <div class="mt-1 flex items-start justify-between gap-2">
-                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $this->currentQuestion }}</p>
-                    <x-speak-button :text="$this->currentQuestion" />
-                </div>
-
-                <div class="mt-2">
-                    <x-practice-with-friend :text="$this->currentQuestion" />
-                </div>
-
-                <div class="mt-3" wire:key="recorder-{{ $round }}" wire:loading.remove wire:target="submitAnswer">
-                    <x-voice-recorder
-                        field="audioFile"
-                        :file="$audioFile"
-                        on-recorded="submitAnswer"
-                        file-name="answer.webm"
-                    />
-                </div>
-
-                <x-ai-thinking wire:loading wire:target="submitAnswer" label="Transcribing and checking your answer…" class="mt-3" />
-
-                @if ($exampleAnswer[$round] ?? null)
-                    <div class="mt-2 rounded-xl card-accent px-3 py-2">
-                        <p class="text-xs font-semibold text-accent-ink uppercase dark:text-accent-ink-dark">Something like this…</p>
-                        <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $exampleAnswer[$round] }}</p>
-                    </div>
-                @elseif ($offTopicHint[$round] ?? null)
-                    <x-severity-feedback :feedback="['severity' => 'major', 'hint' => $offTopicHint[$round]]" />
+                @if ($warmUpAudioUrl)
+                    <x-slot:more>
+                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
+                        <x-audio-player :url="$warmUpAudioUrl" />
+                    </x-slot:more>
                 @endif
+            </x-learner-feedback>
+        @endif
+    </div>
+@else
+{{-- Lesson design 8: the start, a short solo warm-up (the four Day 1
+     questions, one take), the interview as a real chat (the question read
+     out, the answer as a bubble with its one-line check, the mic bottom
+     centre, 💡 Idea for an example answer), then the shared feedback. --}}
+<div
+    x-data="{ screen: {{ $startScreen }}, idea: false }"
+    x-effect="$dispatch('step-progress', { share: screen === 2 ? (2 + {{ $questionCount ? $round / $questionCount : 0 }}) / 4 : (screen + 0.5) / 4 })"
+    x-back-close="{ open: screen === 1, close: () => screen-- }"
+>
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Talk It Out" :minutes="$run->mission->stepDuration('ai_conversation_1')" :title="$conversation['hook'] ?? null" />
 
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="finishWarmUp">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    <x-lesson-screen when="screen === 1">
+        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Talk alone · 2 min</span>
+        <div class="flex flex-col gap-2">
+            @foreach ($warmUpQuestions as $question)
+                <p class="rounded-2xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark">{{ $question }}</p>
+            @endforeach
+        </div>
+        <div class="flex justify-center">
+            <x-voice-recorder big field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" />
+        </div>
+        @error('warmUpAudioFile')
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
+        @enderror
+
+        <x-slot:actions>
+            <x-continue-button
+                on-click="$wire.finishWarmUp().then(() => { if ($wire.warmUpDone) screen = 2 })"
+                wire-target="finishWarmUp"
+                loading-label="Getting ready…"
+                ready-when="{{ $warmUpAudioUrl ? 'true' : 'false' }}"
+            />
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    <section x-show="screen === 2" x-cloak class="flex min-h-[calc(100dvh-11rem)] flex-col pt-2">
+        <div class="flex flex-1 flex-col justify-end gap-4">
+            @foreach ($turns as $turn)
+                <x-conversation-turn chat :prompt="$turn['question']" :answer="$turn['answer']" :check="$turn['check'] ?? null" />
+            @endforeach
+
+            @if ($this->currentQuestion)
+                <div
+                    wire:key="question-{{ $round }}"
+                    x-effect="if (screen === 2) $nextTick(() => window.eosVoice?.speak(@js($this->currentQuestion)))"
+                    class="flex max-w-[85%] items-start gap-1.5 self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
+                >
+                    <x-speak-word :word="$this->currentQuestion" top />
+                </div>
+
+                @if ($offTopicHint[$round] ?? null)
+                    <p class="max-w-[85%] self-end rounded-2xl bg-accent-soft px-3.5 py-2 text-sm text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $offTopicHint[$round] }}</p>
+                @endif
                 <x-almost-reveal-notice
                     :show="($checkAttempts[$round] ?? 0) === 2"
                     label="One more try — after that I can suggest an example to help you get started."
                 />
-                <x-reveal-offer
-                    :show="$offerReveal[$round] ?? false"
-                    :struggling="$this->run->isStruggling()"
-                    reveal-method="revealExample"
-                    decline-method="declineExample"
-                    :index="$round"
-                    wire-target="submitAnswer,revealExample,declineExample"
-                    label="Want an example to help you get started?"
-                />
+            @endif
 
-                @error('audioFile')
-                    <p class="mt-2 text-sm text-danger-ink">{{ $message }}</p>
-                @enderror
-                @if ($notice)
-                    <p class="mt-2 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
-                @endif
-                @if ($error)
-                    <p class="mt-2 text-sm text-danger-ink">{{ $error }}</p>
-                @endif
+            <x-ai-thinking wire:loading wire:target="submitAnswer" label="Listening to your answer…" />
+            @error('audioFile')
+                <p class="text-sm text-danger-ink">{{ $message }}</p>
+            @enderror
+            @if ($notice)
+                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
+            @endif
+            @if ($error)
+                <p class="text-sm text-danger-ink">{{ $error }}</p>
+            @endif
+        </div>
+
+        @if ($this->currentQuestion)
+            <div class="sticky bottom-0 mt-4 flex items-center justify-between gap-3 bg-ground py-3 dark:bg-ground-dark">
+                <button
+                    type="button"
+                    x-on:click="idea = true; @if (! ($exampleAnswer[$round] ?? null)) $wire.revealExample({{ $round }}) @endif"
+                    class="min-w-16 cursor-pointer rounded-full bg-surface px-3 py-1.5 text-xs font-extrabold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark"
+                >💡 Idea</button>
+                <div wire:key="recorder-{{ $round }}" wire:loading.remove wire:target="submitAnswer" class="flex flex-1 justify-center">
+                    <x-voice-recorder big field="audioFile" :file="$audioFile" on-recorded="submitAnswer" file-name="answer.webm" />
+                </div>
+                <span class="min-w-16 rounded-full bg-surface px-3 py-1.5 text-center text-xs font-extrabold text-ink-soft tabular-nums dark:bg-surface-dark dark:text-ink-soft-dark">{{ min($round + 1, $questionCount) }} / {{ $questionCount }}</span>
             </div>
+
+            <x-bottom-sheet show="idea" label="An example answer">
+                <x-slot:title>💡 Something like this</x-slot:title>
+                <x-ai-thinking wire:loading wire:target="revealExample" label="Thinking of an example…" />
+                @if ($exampleAnswer[$round] ?? null)
+                    <p class="text-base leading-relaxed text-ink dark:text-ink-dark">{{ $exampleAnswer[$round] }}</p>
+                @endif
+            </x-bottom-sheet>
         @endif
+    </section>
+
+    <x-feedback-screen when="screen === 3" :feedback="$feedback" :answers="$this->answers()" :waiting="! $completed">
+        @if ($warmUpAudioUrl)
+            <x-slot:said>
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
+                <x-audio-player :url="$warmUpAudioUrl" />
+            </x-slot:said>
+        @endif
+
+        <x-slot:actions>
+            <x-continue-button on-click="$wire.proceed()" wire-target="proceed" />
+        </x-slot:actions>
+    </x-feedback-screen>
+
+    {{-- The last answer finishes the interview: move to the feedback. --}}
+    @if ($completed)
+        <span x-init="screen = 3" class="hidden"></span>
     @endif
 </div>
+@endif

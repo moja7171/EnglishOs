@@ -9,6 +9,13 @@ use App\Services\LearnerFeedback;
 use App\Services\PexelsClient;
 use Livewire\Component;
 
+/**
+ * Writing, step by step (lesson design 10): each of the mission's idea
+ * prompts on its own screen (picture + one or two sentences, a running
+ * word count), then the sentences joined into one paragraph to polish with
+ * connector chips and send, then the shared feedback screen. No mic —
+ * this step is for writing.
+ */
 new class extends Component
 {
     use PreviewsStep;
@@ -116,8 +123,9 @@ new class extends Component
      * any mission, so it's just extra data alongside the essay Evidence —
      * never affects step progression, and Error Log's gatherLearnerText()
      * (which reads the 'writing' Evidence as plain text) stays untouched.
-     * Silent on failure, same as Activation's reflection: Evidence for
-     * the essay itself is already saved either way.
+     * A failure never blocks the step (the essay's Evidence is already
+     * saved) but no longer passes in silence: the step says so and offers
+     * retryFeedback().
      */
     private function generateFeedback(): void
     {
@@ -141,9 +149,28 @@ new class extends Component
                 'type' => Evidence::TYPE_TEXT,
                 'content_ref' => json_encode($data),
             ]);
-        } catch (Throwable) {
-            // Silent by design — see method docblock.
+        } catch (Throwable $exception) {
+            report($exception);
         }
+    }
+
+    /**
+     * Asks for the feedback again — after a failed call, or for an essay
+     * saved back when a failure showed nothing at all.
+     */
+    public function retryFeedback(): void
+    {
+        if ($this->preview || $this->feedback) {
+            return;
+        }
+
+        $this->text = $this->run->latestEvidence('writing')?->content_ref ?? $this->text;
+
+        if (trim($this->text) === '') {
+            return;
+        }
+
+        $this->generateFeedback();
     }
 
     public function proceed(): void
@@ -164,124 +191,161 @@ new class extends Component
 
 @php
     $writing = $run->mission->stepContent('writing');
-    $vocabularyWords = $run->selectedVocabularyWords();
     $draftPrefix = $this->draftPrefix();
-    $prompts = $writing['prompts'] ?? [];
+    $prompts = collect($writing['prompts'] ?? [])->map(fn ($prompt) => is_array($prompt) ? ($prompt['label'] ?? '') : $prompt)->filter()->values();
     $promptImages = $this->promptImageUrls();
+    $minWords = $writing['min_words'] ?? 100;
+    $paragraphScreen = $prompts->count() + 1;
+    $feedbackScreen = $paragraphScreen + 1;
 @endphp
 
-<div class="space-y-4">
-    <x-hook :text="$writing['hook'] ?? null" />
-
-    @if ($completed || ($readOnly && $feedback))
-        <div class="space-y-4 card p-4">
-            <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                    @svg('heroicon-o-check-circle', 'h-4 w-4')
-                    Writing complete
-                </p>
-                @if ($feedback)
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">A quick look at your writing before you move on.</p>
-                @endif
-            </div>
-
-            @if ($feedback)
-                <x-learner-feedback :feedback="$feedback">
-                    <x-slot:more>
-                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you wrote</p>
-                        <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
-                    </x-slot:more>
-                </x-learner-feedback>
-            @endif
-
-            @unless ($readOnly)
-                <button
-                    wire:click="proceed"
-                    wire:loading.attr="disabled"
-                    wire:target="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    <span wire:loading.remove wire:target="proceed">Continue</span>
-                    <span wire:loading wire:target="proceed">Please wait…</span>
-                </button>
+@if ($readOnly)
+    <div class="flex flex-col gap-4 pt-2">
+        <x-step-intro kind="Writing" :title="$writing['title'] ?? 'Writing'" />
+        @if ($feedback)
+            <x-learner-feedback :feedback="$feedback">
+                <x-slot:more>
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you wrote</p>
+                    <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
+                </x-slot:more>
+            </x-learner-feedback>
+        @else
+            @unless ($preview)
+                <div class="flex flex-col items-start gap-3 rounded-2xl bg-surface-sunken p-4 dark:bg-surface-sunken-dark" data-writing-feedback-missing>
+                    <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">بازخورد این متن نیومد.</p>
+                    <button type="button" wire:click="retryFeedback" wire:loading.attr="disabled" wire:target="retryFeedback" class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">Get feedback</button>
+                </div>
             @endunless
-        </div>
-    @endif
-
-    @unless ($completed)
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Writing</p>
-        <h2 class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $writing['title'] ?? 'Writing' }}</h2>
-        @if ($writing['structure_note'] ?? null)
-            <p class="mt-1 text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $writing['structure_note'] }}</p>
+            <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
         @endif
     </div>
+@else
+<div
+    x-data="{
+        screen: {{ $completed ? $feedbackScreen : 0 }},
+        parts: [],
+        init() {
+            try { this.parts = JSON.parse(localStorage.getItem('{{ $draftPrefix }}parts')) ?? []; } catch (e) {}
+            this.$watch('parts', (v) => { try { localStorage.setItem('{{ $draftPrefix }}parts', JSON.stringify(v)) } catch (e) {} });
+        },
+        words(text) { return (text ?? '').trim().split(/\s+/).filter((t) => /[A-Za-z]/.test(t)).length },
+        get partWords() { return this.parts.reduce((sum, part) => sum + this.words(part), 0) },
+        toParagraph() {
+            if (! ($wire.text ?? '').trim()) $wire.text = this.parts.map((p) => (p ?? '').trim()).filter(Boolean).join(' ');
+            this.screen = {{ $paragraphScreen }};
+        },
+        insert(word) {
+            const box = this.$refs.paragraph;
+            const text = $wire.text ?? '';
+            const at = box && box.selectionStart !== undefined ? box.selectionStart : text.length;
+            const before = text.slice(0, at).replace(/\s+$/, '');
+            $wire.text = before + (before ? ' ' : '') + word + ' ' + text.slice(at).replace(/^\s+/, '');
+            this.$nextTick(() => box?.focus());
+        },
+    }"
+    x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $feedbackScreen + 1 }} })"
+    x-back-close="{ open: screen > 0 && screen < {{ $feedbackScreen }}, close: () => screen-- }"
+>
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Writing" :minutes="$run->mission->stepDuration('writing')" :title="$writing['title'] ?? 'Writing'" />
+        @if (filled($writing['hook'] ?? null))
+            <p class="text-base leading-relaxed text-ink-soft dark:text-ink-soft-dark">{{ $writing['hook'] }}</p>
+        @endif
 
-    <div>
-        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Write about:</p>
-        <div class="mt-2 flex gap-3 overflow-x-auto pb-1">
-            @foreach ($prompts as $prompt)
-                @php $label = is_array($prompt) ? ($prompt['label'] ?? '') : $prompt; @endphp
-                <div class="flex shrink-0 flex-col items-center gap-1">
-                    @if ($imageUrl = $promptImages[$label] ?? null)
-                        <x-zoomable-image :url="$imageUrl" :alt="$label" class="h-14 w-14 rounded-xl object-cover" />
-                    @else
-                        <div class="flex h-14 w-14 items-center justify-center rounded-xl border border-line dark:border-line-dark"></div>
-                    @endif
-                    <x-speak-word :word="$label" size="sm" class="text-xs text-ink-soft dark:text-ink-soft-dark" />
-                </div>
-            @endforeach
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    {{-- One idea per screen: never a blank page. --}}
+    @foreach ($prompts as $index => $label)
+        <x-lesson-screen when="screen === {{ $index + 1 }}">
+            <p class="self-end text-xs font-extrabold text-ink-faint tabular-nums dark:text-ink-faint-dark"><span x-text="partWords">0</span> / {{ $minWords }} words</p>
+            <div class="flex items-center gap-3">
+                @if ($imageUrl = $promptImages[$label] ?? null)
+                    <x-zoomable-image :url="$imageUrl" :alt="$label" class="h-14 w-14 shrink-0 rounded-2xl object-cover" />
+                @endif
+                <p class="text-lg leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $label }}</p>
+            </div>
+            <textarea
+                x-model="parts[{{ $index }}]"
+                rows="5"
+                placeholder="One or two sentences…"
+                class="w-full resize-none rounded-2xl border-2 border-line bg-surface px-4 py-3 text-base leading-relaxed text-ink focus:border-accent focus:ring-0 dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:focus:border-accent-dark"
+            ></textarea>
+
+            <x-slot:actions>
+                @if ($index + 1 < $prompts->count())
+                    <x-continue-button on-click="screen++" wire-target="save">Next idea</x-continue-button>
+                @else
+                    <x-continue-button on-click="toParagraph()" wire-target="save" />
+                @endif
+            </x-slot:actions>
+        </x-lesson-screen>
+    @endforeach
+
+    <x-lesson-screen when="screen === {{ $paragraphScreen }}">
+        <div class="flex items-center justify-between gap-3">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $writing['title'] ?? 'Writing' }}</span>
+            <span class="text-xs font-extrabold tabular-nums" :class="words($wire.text) >= {{ $minWords }} ? 'text-success dark:text-success-dark' : 'text-ink-faint dark:text-ink-faint-dark'"><span x-text="words($wire.text)"></span> words<span x-show="words($wire.text) >= {{ $minWords }}"> ✓</span></span>
         </div>
-    </div>
-
-    <x-vocabulary-pills :words="$vocabularyWords" />
-
-    @if (count($writing['try_to_use'] ?? []))
-        <div>
-            <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Connectors that help</p>
-            <div class="mt-1 flex flex-wrap gap-1.5">
+        <textarea
+            x-ref="paragraph"
+            wire:model="text"
+            rows="12"
+            placeholder="Your text…"
+            x-draft="{ key: '{{ $draftPrefix }}text', field: 'text' }"
+            class="w-full flex-1 resize-none rounded-2xl border-2 border-line bg-surface px-4 py-3 text-base leading-relaxed text-ink focus:border-accent focus:ring-0 dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:focus:border-accent-dark"
+        ></textarea>
+        @if (count($writing['try_to_use'] ?? []))
+            <div class="flex flex-wrap gap-1.5">
                 @foreach ($writing['try_to_use'] as $word)
-                    <x-speak-word :word="$word" size="sm" class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark" />
+                    <button type="button" x-on:click="insert(@js($word))" class="cursor-pointer rounded-full border-2 border-dashed border-line px-3 py-1 text-xs font-bold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">+ {{ $word }}</button>
                 @endforeach
             </div>
-        </div>
+        @endif
+        @error('text')
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
+        @enderror
+
+        <x-slot:actions>
+            <x-continue-button
+                on-click="screen = {{ $feedbackScreen }}; $wire.save().then(() => { if (! $wire.completed) screen = {{ $paragraphScreen }} })"
+                wire-target="save"
+                ready-when="words($wire.text) >= {{ $minWords }}"
+                hint="{{ $minWords }} words to send"
+            >Send for feedback</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    @if ($completed && ! $feedback)
+        <x-lesson-screen when="screen === {{ $feedbackScreen }}">
+            <x-step-intro kind="Feedback" />
+            <div class="flex flex-col items-start gap-3 rounded-2xl bg-surface-sunken p-4 dark:bg-surface-sunken-dark" data-writing-feedback-missing>
+                <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark" dir="rtl">بازخورد این متن نیومد.</p>
+                <button type="button" wire:click="retryFeedback" wire:loading.attr="disabled" wire:target="retryFeedback" class="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">
+                    <span wire:loading.remove wire:target="retryFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4')</span>
+                    <span wire:loading wire:target="retryFeedback">@svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')</span>
+                    Get feedback
+                </button>
+            </div>
+            <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
+
+            <x-slot:actions>
+                <x-continue-button on-click="$wire.proceed()" wire-target="proceed" />
+            </x-slot:actions>
+        </x-lesson-screen>
+    @else
+        <x-feedback-screen when="screen === {{ $feedbackScreen }}" :feedback="$feedback" :waiting="! $completed">
+            <x-slot:said>
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you wrote</p>
+                <p class="text-sm whitespace-pre-line text-ink dark:text-ink-dark">{{ $text }}</p>
+            </x-slot:said>
+
+            <x-slot:actions>
+                <x-continue-button on-click="$wire.proceed()" wire-target="proceed" ready-when="{{ $completed ? 'true' : 'false' }}" />
+            </x-slot:actions>
+        </x-feedback-screen>
     @endif
-
-    {{-- Word counter above the box (Epic F), not below — it's the thing to
-         glance at while writing, not an afterthought once you scroll down. --}}
-    <div class="flex items-center justify-between text-xs">
-        <span class="{{ $this->wordCount >= ($writing['min_words'] ?? 100) ? 'text-success dark:text-success-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">
-            {{ $this->wordCount }} words (target {{ $writing['min_words'] ?? 100 }}–{{ $writing['max_words'] ?? 150 }})
-        </span>
-    </div>
-
-    <textarea
-        wire:model.live="text"
-        rows="10"
-        placeholder="Start writing…"
-        @unless ($readOnly)
-            x-draft="{ key: '{{ $draftPrefix }}text', field: 'text' }"
-        @endunless
-        @readonly($readOnly)
-        class="w-full rounded-xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-    ></textarea>
-
-    @error('text')
-        <p class="text-sm text-danger-ink">{{ $message }}</p>
-    @enderror
-
-    {{-- Always on screen, disabled until the minimum is reached — the
-         standard shared component (Epic F), not a button that didn't
-         exist at all until then. text uses wire:model.live, so wordCount
-         is already known server-side on every keystroke. --}}
-    @unless ($readOnly)
-        <x-continue-button
-            on-click="$wire.save()"
-            wire-target="save"
-            loading-label="Saving…"
-            ready-when="{{ $this->wordCount >= ($writing['min_words'] ?? 100) ? 'true' : 'false' }}"
-            hint="{{ max(($writing['min_words'] ?? 100) - $this->wordCount, 0) }} more words to continue"
-        />
-    @endunless
-    @endunless
 </div>
+@endif

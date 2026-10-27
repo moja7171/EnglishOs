@@ -96,8 +96,8 @@ class PiPracticePageTest extends TestCase
             ->assertSee('M01 · My Daily Life · Day 1')
             ->assertSee('About You · 10 min')
             ->assertSee('Talk with Pi')
-            ->assertSee('Get feedback')
-            ->assertSee("Today's plan")
+            ->assertSee('Paste & check')
+            ->assertSee('What Pi will do')
             ->assertSee('Be my warm, fun English buddy');
     }
 
@@ -119,7 +119,7 @@ class PiPracticePageTest extends TestCase
         $this->get(route('pi.practice'))
             ->assertSee('Copy & open Pi')
             ->assertSee('package=ai.inflection.pi')
-            ->assertSee('open the Pi app and paste')
+            ->assertSee('Back from Pi?')
             ->assertDontSee('S.browser_fallback_url=https%3A%2F%2Fpi.ai');
     }
 
@@ -188,9 +188,9 @@ class PiPracticePageTest extends TestCase
         $this->get(route('pi.practice', ['M01', 3]))
             ->assertOk()
             ->assertSee('Preview only')
-            ->assertSee('Day 3 plan')
+            ->assertSee('What Pi will do')
             ->assertDontSee('Copy &amp; open Pi', false)
-            ->assertDontSee('Get feedback');
+            ->assertDontSee('Paste &amp; check', false);
     }
 
     public function test_a_chat_pasted_on_a_day_ahead_asks_no_ai_and_keeps_nothing(): void
@@ -222,8 +222,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($learner);
 
         $this->get(route('pi.practice', ['M01', 1]))
-            ->assertSee('Day 1 plan')
-            ->assertSee('Ticks itself after Feedback.')
+            ->assertSee('About You')
             ->assertDontSeeHtml(' Practiced</span>');
     }
 
@@ -235,7 +234,6 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice', ['M01', 1]))
             ->assertSeeHtml(' Practiced</span>')
-            ->assertDontSee('Ticks itself after Feedback.')
             ->assertSeeInOrder(['title="About You"', '<span class="sr-only">, done</span>', 'Day 2 · today'], false);
     }
 
@@ -267,7 +265,6 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1());
 
         $this->get(route('pi.practice'))
-            ->assertSee('Ticks itself after Feedback.')
             ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
@@ -281,7 +278,7 @@ class PiPracticePageTest extends TestCase
             ->set('pastedChat', self::A_PRACTICE_CHAT)
             ->call('checkPastedChat')
             ->assertSeeHtml(' Practiced</span>')
-            ->assertDontSee('Ticks itself after Feedback.');
+            ->assertSee('Your feedback');
 
         $this->assertDatabaseHas('pi_practice_logs', [
             'learner_id' => $learner->id,
@@ -508,7 +505,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         $this->get(route('home'))
-            ->assertSeeInOrder(['Continue', 'Build step', 'Daily talk · Grammar Chat']);
+            ->assertSeeInOrder(['Build step', 'Start', 'Daily talk · Grammar Chat']);
     }
 
     public function test_the_voice_practice_rows_circle_on_home_cannot_tick_it_by_hand(): void

@@ -96,7 +96,7 @@ class MissionBriefStepTest extends TestCase
         Livewire::test('missions.steps.mission-brief', ['run' => $run])->assertDontSeeHtml('<img');
     }
 
-    public function test_continue_is_hidden_until_a_score_is_picked(): void
+    public function test_continue_stays_disabled_until_a_score_is_picked(): void
     {
         $learner = User::factory()->create();
         $mission = Mission::create([
@@ -108,10 +108,11 @@ class MissionBriefStepTest extends TestCase
         ]);
         $run = MissionRun::findOrStart($learner, $mission);
 
-        Livewire::test('missions.steps.mission-brief', ['run' => $run])
-            ->assertDontSeeHtml('wire:click="save"')
-            ->set('score', 3)
-            ->assertSeeHtml('wire:click="save"');
+        $saveIsDisabled = '/\$wire\.save\(\)"\s+x-bind:disabled="! \(false\)"/';
+        $component = Livewire::test('missions.steps.mission-brief', ['run' => $run]);
+
+        $this->assertMatchesRegularExpression($saveIsDisabled, $component->html());
+        $this->assertDoesNotMatchRegularExpression($saveIsDisabled, $component->set('score', 3)->html());
     }
 
     public function test_score_is_required_before_saving(): void
@@ -246,7 +247,7 @@ class MissionBriefStepTest extends TestCase
             ->assertSee('Your Day 1 answer');
     }
 
-    public function test_shows_the_real_hook_and_a_roadmap_of_the_mission_phases(): void
+    public function test_shows_the_real_hook_and_the_first_warm_up_question_only(): void
     {
         $this->seed(MissionSeeder::class);
 
@@ -256,57 +257,9 @@ class MissionBriefStepTest extends TestCase
 
         Livewire::test('missions.steps.mission-brief', ['run' => $run])
             ->assertSee('new coworker turns to you and asks')
-            ->assertSee('Day 1')
-            ->assertSee('Day 2')
-            ->assertSee('Day 3')
-            ->assertSee('Day 4')
-            ->assertSee('We\'ll compare this to your score at the end of the mission.', false);
-    }
-
-    /**
-     * Epic F: the hook is the first thing on the page, before the
-     * roadmap/outcome summary — not buried after a syllabus-style block.
-     */
-    public function test_the_hook_appears_before_the_roadmap(): void
-    {
-        $this->seed(MissionSeeder::class);
-
-        $learner = User::factory()->create();
-        $mission = Mission::where('code', 'M01')->firstOrFail();
-        $run = MissionRun::findOrStart($learner, $mission);
-
-        $html = Livewire::test('missions.steps.mission-brief', ['run' => $run])->html();
-
-        $hookPos = strpos($html, 'new coworker turns to you and asks');
-        $roadmapPos = strpos($html, 'Day 1');
-
-        $this->assertNotFalse($hookPos);
-        $this->assertNotFalse($roadmapPos);
-        $this->assertLessThan($roadmapPos, $hookPos);
-    }
-
-    /**
-     * Epic F: the optional recording is now tied to one specific, named
-     * question — not an ambiguous "answer one of these".
-     */
-    public function test_the_optional_recording_names_a_specific_question(): void
-    {
-        $learner = User::factory()->create();
-        $mission = Mission::create([
-            'code' => 'M01',
-            'title' => 'My Daily Life',
-            'module' => 'Me',
-            'outcome' => 'I can talk about my daily routine.',
-            'phases' => [['phase' => 'foundation', 'steps' => [[
-                'key' => 'mission_brief',
-                'warm_up_questions' => ['What time do you usually wake up?', 'What do you usually do in the morning?'],
-            ]]]],
-        ]);
-        $run = MissionRun::findOrStart($learner, $mission);
-
-        Livewire::test('missions.steps.mission-brief', ['run' => $run])
-            ->assertSee('Optional — record this one:')
-            ->assertSee('What time do you usually wake up?');
+            ->assertSee('What time do you usually wake up?')
+            ->assertDontSee('What do you usually do in the morning?')
+            ->assertDontSee('short steps');
     }
 
     public function test_the_comfort_score_buttons_show_labels_not_just_numbers(): void
@@ -322,8 +275,8 @@ class MissionBriefStepTest extends TestCase
         $run = MissionRun::findOrStart($learner, $mission);
 
         Livewire::test('missions.steps.mission-brief', ['run' => $run])
-            ->assertSee('Not comfortable at all')
-            ->assertSee('Very comfortable');
+            ->assertSee('Very hard')
+            ->assertSee('Very easy');
     }
 
     public function test_the_score_and_warm_up_recording_come_back_after_leaving_the_step(): void

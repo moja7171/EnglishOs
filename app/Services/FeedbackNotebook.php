@@ -27,6 +27,7 @@ class FeedbackNotebook
         'story_sequence' => 'Picture Story',
         'picture_description' => 'Picture Description',
         'ai_conversation_1' => 'Talk It Out',
+        'ai_conversation_2' => 'Final Talk',
         'partner_speaking' => 'Speaking',
         'friends_chat' => 'Chat',
         'pi' => 'Pi',

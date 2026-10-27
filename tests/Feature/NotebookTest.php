@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Mission;
 use App\Models\NotebookEntry;
 use App\Models\User;
 use App\Models\VocabularyWord;
@@ -436,7 +437,7 @@ class NotebookTest extends TestCase
         $this->assertNull($young->fresh()->learned_at);
     }
 
-    public function test_the_notebook_page_shows_three_lines_in_full_and_folds_the_rest(): void
+    public function test_the_notebook_page_lists_every_line_most_repeated_first_with_a_practice_card(): void
     {
         $learner = User::factory()->create();
         foreach ([5, 4, 3, 2] as $timesSeen) {
@@ -445,9 +446,10 @@ class NotebookTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('notebook.index')
-            ->assertSeeInOrder(['note 5', 'note 4', 'note 3', 'a / an / the', 'note 2'])
-            ->assertSee('4 waiting for review')
-            ->assertSee('Practice 4 now');
+            ->assertSeeInOrder(['5×', '4×', '3×', '2×'])
+            ->assertSee('4 lines · ~1 min')
+            ->assertSee('Mistakes')
+            ->assertSee('Words');
     }
 
     public function test_practice_moves_the_rung_not_the_schedule_and_a_wrong_line_comes_back_once(): void
@@ -472,7 +474,7 @@ class NotebookTest extends TestCase
             ->call('drillNext')
             ->call('drillTap', 1)
             ->call('drillNext')
-            ->assertSee('1 / 2 right');
+            ->assertSee('✓ 1/2 right today');
 
         $this->assertSame(NotebookEntry::LEVEL_PICK, $first->fresh()->practice_level);
         $this->assertSame(NotebookEntry::LEVEL_PICK, $second->fresh()->practice_level);
@@ -491,7 +493,7 @@ class NotebookTest extends TestCase
             ->call('drillShowFix')
             ->call('drillNext')
             ->assertSet('practiceIds', [$only->id])
-            ->assertSee('0 / 1 right');
+            ->assertSee('✓ 0/1 right today');
     }
 
     public function test_feedback_on_the_same_sentence_again_refreshes_its_line_instead_of_adding_a_twin(): void
@@ -567,14 +569,13 @@ class NotebookTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('notebook.index')
-            ->assertSee('Practice 1 now')
+            ->assertSee('1 line · ~1 min')
             ->call('startPractice', NotebookEntry::KIND_MISTAKE)
             ->assertSet('practiceIds', [$new->id, $practised->id])
             ->call('drillTap', 1)
             ->call('drillNext')
             ->call('stopPractice')
-            ->assertSee('Practice again')
-            ->assertDontSee('Practice 1 now');
+            ->assertSee('✓ Practice again');
     }
 
     public function test_tips_are_practised_from_their_own_tab_and_five_more_brings_new_ones(): void
@@ -625,5 +626,60 @@ class NotebookTest extends TestCase
             ->call('drillCheckTyped')
             ->assertDontSee('Spot on!')
             ->assertSee('You wrote: I have lived here for three years.');
+    }
+
+    public function test_the_words_tab_lists_my_words_by_mission_and_a_word_can_be_removed(): void
+    {
+        $learner = User::factory()->create();
+        $word = $learner->vocabularyWords()->create(['word' => 'commute', 'meaning_fa' => 'رفت‌وآمد', 'next_review_at' => now()->addDay()]);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')
+            ->assertSee('Words')
+            ->assertSee('Added by you')
+            ->assertSee('commute')
+            ->assertSee('رفت‌وآمد')
+            ->call('removeWord', $word->id);
+
+        $this->assertModelMissing($word);
+    }
+
+    public function test_practice_this_one_starts_a_round_of_just_that_line(): void
+    {
+        $learner = User::factory()->create();
+        $entry = NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'She go home.', 'better' => 'She goes home.']);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')
+            ->call('practiceOne', $entry->id)
+            ->assertSet('practiceIds', [$entry->id])
+            ->assertSee('1/1');
+    }
+
+    public function test_the_old_my_words_page_opens_the_notebooks_words_tab(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get('/vocabulary')->assertRedirect(route('notebook.index', ['tab' => 'words']));
+        $this->get(route('notebook.index', ['tab' => 'words']))->assertSee("notebookTab: 'words'", false);
+    }
+
+    public function test_a_word_without_its_own_persian_meaning_falls_back_to_the_courses(): void
+    {
+        Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'foundation', 'steps' => [[
+                'key' => 'vocabulary_builder_1',
+                'words' => [['phrase' => 'Get Up', 'meaning' => 'to get out of bed', 'meaning_fa' => 'از خواب بلند شدن']],
+            ]]]],
+        ]);
+        $learner = User::factory()->create();
+        $learner->vocabularyWords()->create(['word' => 'get up', 'next_review_at' => now()->addWeek()]);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')->assertSee('از خواب بلند شدن');
     }
 }

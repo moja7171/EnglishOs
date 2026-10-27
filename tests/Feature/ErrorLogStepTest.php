@@ -9,8 +9,10 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -59,7 +61,8 @@ class ErrorLogStepTest extends TestCase
         Livewire::test('missions.steps.error-log', ['run' => $run])
             ->assertSet('generated', false)
             ->assertSet('mistakes', [])
-            ->assertSee('Review my mistakes');
+            ->assertSee('Finding your top mistakes…')
+            ->assertSeeHtml('x-init="$wire.generate()"');
     }
 
     public function test_clicking_generate_calls_gemini_and_fills_mistakes(): void
@@ -79,7 +82,6 @@ class ErrorLogStepTest extends TestCase
                 'error' => 'She go to work.',
                 'correction' => 'She goes to work.',
                 'why' => 'فعل نیاز به s سوم شخص دارد.',
-                'drills' => [],
                 'category' => null,
             ]]);
     }
@@ -102,7 +104,7 @@ class ErrorLogStepTest extends TestCase
         $this->assertDatabaseCount('error_log_items', 0);
     }
 
-    public function test_the_why_explanation_and_recurrence_note_are_shown(): void
+    public function test_the_why_explanation_is_shown_on_the_mistakes_screen(): void
     {
         $run = $this->makeRunWithEvidence();
 
@@ -119,11 +121,11 @@ class ErrorLogStepTest extends TestCase
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
             ->call('generate')
-            ->assertSee('فعل نیاز به s سوم شخص دارد.')
-            ->assertSee('این الگو رو دوباره توی مرور روزانه می‌بینی');
+            ->assertSee('Fix 1 of 1')
+            ->assertSee('فعل نیاز به s سوم شخص دارد.');
     }
 
-    public function test_end_of_page_summary_counts_the_mistakes(): void
+    public function test_the_closing_line_counts_the_mistakes(): void
     {
         $run = $this->makeRunWithEvidence();
 
@@ -136,7 +138,7 @@ class ErrorLogStepTest extends TestCase
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
             ->call('generate')
-            ->assertSee('امروز 2 الگوی تکراری رو شناسایی و اصلاح کردی');
+            ->assertSee('2 الگو رو اصلاح کردی؛ توی مرور دوباره میان.');
     }
 
     public function test_the_ai_assigned_category_is_persisted_for_recurrence_detection(): void
@@ -195,7 +197,7 @@ class ErrorLogStepTest extends TestCase
         $this->assertDatabaseCount('error_log_items', 0);
     }
 
-    public function test_continue_is_hidden_until_every_new_example_is_filled(): void
+    public function test_each_mistakes_continue_waits_for_its_own_sentence(): void
     {
         $run = $this->makeRunWithEvidence();
 
@@ -208,11 +210,10 @@ class ErrorLogStepTest extends TestCase
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
             ->call('generate')
-            ->assertDontSeeHtml('wire:click="save"')
+            ->assertSeeHtml('x-bind:disabled="! (filled[0] || false)"')
             ->set('newExamples.0', 'She goes to work every day.')
-            ->assertDontSeeHtml('wire:click="save"')
-            ->set('newExamples.1', 'I usually go home at six.')
-            ->assertSeeHtml('wire:click="save"');
+            ->assertSeeHtml('x-bind:disabled="! (filled[0] || true)"')
+            ->assertSeeHtml('x-bind:disabled="! (filled[1] || false)"');
     }
 
     public function test_saving_persists_error_log_items_and_advances_the_run(): void
@@ -285,126 +286,9 @@ class ErrorLogStepTest extends TestCase
                 'correction' => 'She goes to work.',
                 'why' => 'فعل نیاز به s سوم شخص دارد.',
                 'category' => null,
-                'drills' => [],
             ]])
             ->assertSet('newExamples', ['She goes to work every day.'])
             ->assertDontSee('Continue');
-    }
-
-    public function test_generated_drills_render_as_optional_extra_practice(): void
-    {
-        $run = $this->makeRunWithEvidence();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                [
-                    'error' => 'She go to work.',
-                    'correction' => 'She goes to work.',
-                    'drills' => [
-                        ['sentence' => 'He ___ to the gym every morning.', 'answer' => 'goes'],
-                        ['sentence' => 'My sister ___ dinner every night.', 'answer' => 'cooks'],
-                    ],
-                ],
-            ]));
-        });
-
-        Livewire::test('missions.steps.error-log', ['run' => $run])
-            ->call('generate')
-            ->assertSee('Extra practice')
-            ->assertSee('to the gym every morning.')
-            ->assertSee('dinner every night.');
-    }
-
-    public function test_checking_a_drill_with_the_right_answer_is_marked_correct(): void
-    {
-        $run = $this->makeRunWithEvidence();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                [
-                    'error' => 'She go to work.',
-                    'correction' => 'She goes to work.',
-                    'drills' => [['sentence' => 'He ___ to the gym.', 'answer' => 'goes']],
-                ],
-            ]));
-        });
-
-        Livewire::test('missions.steps.error-log', ['run' => $run])
-            ->call('generate')
-            ->set('drillAnswers.0.0', 'Goes.') // capitalization/punctuation shouldn't matter
-            ->call('checkDrill', 0, 0)
-            ->assertSet('drillChecked.0.0', true)
-            ->assertSee("Nice — that's it.", false);
-    }
-
-    public function test_checking_a_drill_with_the_wrong_answer_is_marked_incorrect(): void
-    {
-        $run = $this->makeRunWithEvidence();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                [
-                    'error' => 'She go to work.',
-                    'correction' => 'She goes to work.',
-                    'drills' => [['sentence' => 'He ___ to the gym.', 'answer' => 'goes']],
-                ],
-            ]));
-        });
-
-        Livewire::test('missions.steps.error-log', ['run' => $run])
-            ->call('generate')
-            ->set('drillAnswers.0.0', 'go')
-            ->call('checkDrill', 0, 0)
-            ->assertSet('drillChecked.0.0', false)
-            ->assertSee('Not quite — try again.');
-    }
-
-    public function test_checking_a_drill_with_no_answer_shows_a_message_instead_of_doing_nothing(): void
-    {
-        $run = $this->makeRunWithEvidence();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                [
-                    'error' => 'She go to work.',
-                    'correction' => 'She goes to work.',
-                    'drills' => [['sentence' => 'He ___ to the gym.', 'answer' => 'goes']],
-                ],
-            ]));
-        });
-
-        Livewire::test('missions.steps.error-log', ['run' => $run])
-            ->call('generate')
-            ->call('checkDrill', 0, 0)
-            ->assertSet('drillChecked.0.0', null)
-            ->assertSee('Write something first.');
-    }
-
-    public function test_drills_never_block_saving_even_if_never_attempted(): void
-    {
-        $run = $this->makeRunWithEvidence();
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-                [
-                    'error' => 'She go to work.',
-                    'correction' => 'She goes to work.',
-                    'drills' => [['sentence' => 'He ___ to the gym.', 'answer' => 'goes']],
-                ],
-            ]));
-        });
-
-        Livewire::test('missions.steps.error-log', ['run' => $run])
-            ->call('generate')
-            ->set('newExamples.0', 'She goes to work every day by bus.')
-            ->call('save')
-            ->assertRedirect(route('missions.show', $run->mission));
-
-        $item = ErrorLogItem::first();
-        // assertEquals, not assertSame — MySQL's native JSON type normalizes
-        // object key order on storage (Postgres's json type preserves it
-        // verbatim), and nothing in the app depends on key order here.
-        $this->assertEquals([['sentence' => 'He ___ to the gym.', 'answer' => 'goes']], $item->drills);
     }
 
     public function test_a_newly_recurring_category_starts_a_speaking_recall_style_error_review(): void
@@ -485,20 +369,33 @@ class ErrorLogStepTest extends TestCase
         $run = $this->makeRunWithEvidence();
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
-            ['error' => 'She go to work.', 'correction' => 'She goes to work.', 'drills' => [['sentence' => 'He ___ fast.', 'answer' => 'runs']]],
+            ['error' => 'She go to work.', 'correction' => 'She goes to work.'],
         ])));
 
         Livewire::test('missions.steps.error-log', ['run' => $run])
             ->call('generate')
-            ->set('newExamples.0', 'My sister goes to school.')
-            ->set('drillAnswers.0.0', 'runs')
-            ->call('checkDrill', 0, 0);
+            ->set('newExamples.0', 'My sister goes to school.');
 
         $returned = Livewire::test('missions.steps.error-log', ['run' => $run])
             ->assertSet('generated', true)
-            ->assertSet('newExamples', ['My sister goes to school.'])
-            ->assertSet('drillChecked', [[true]]);
+            ->assertSet('newExamples', ['My sister goes to school.']);
 
         $this->assertSame('She goes to work.', $returned->get('mistakes')[0]['correction']);
+    }
+
+    public function test_saying_the_new_sentence_fills_that_mistakes_box(): void
+    {
+        $run = $this->makeRunWithEvidence();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            ['error' => 'She go to work.', 'correction' => 'She goes to work.'],
+        ])));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('He goes to the gym on Mondays.'));
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])
+            ->call('generate')
+            ->set('dictation', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
+            ->call('dictateExample', 0)
+            ->assertSet('newExamples.0', 'He goes to the gym on Mondays.');
     }
 }

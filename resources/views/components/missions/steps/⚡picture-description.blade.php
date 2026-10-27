@@ -219,171 +219,111 @@ new class extends Component
 
 @php
     $content = $run->mission->stepContent('picture_description');
+    $imageUrl = $this->imageUrl();
+    $questions = array_values($content['guiding_questions'] ?? []);
+    $hotspots = $content['hotspots'] ?? [];
 @endphp
 
-<div class="space-y-4">
-    <x-hook :text="$content['hook'] ?? null" />
-
-    @if ($completed || ($readOnly && ($transcript || $feedback)))
-        <div class="space-y-4">
-            <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                    @svg('heroicon-o-check-circle', 'h-4 w-4')
-                    Picture Description complete
-                </p>
-                @if ($feedback)
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">A quick look at your description before you move on.</p>
+@if ($readOnly)
+    <div class="flex flex-col gap-4 pt-2">
+        <x-step-intro kind="Describe it" />
+        @if ($imageUrl)
+            <x-zoomable-image :url="$imageUrl" alt="A picture to describe" class="h-52 w-full rounded-3xl object-cover" />
+        @endif
+        @if ($savedAudioUrl)
+            <x-audio-player :url="$savedAudioUrl" />
+        @endif
+        @if ($feedback)
+            <x-learner-feedback :feedback="$feedback">
+                @if ($transcript)
+                    <x-slot:more>
+                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                        <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+                    </x-slot:more>
                 @endif
-            </div>
+            </x-learner-feedback>
+        @elseif ($transcript)
+            <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+        @endif
+    </div>
+@else
+{{-- Lesson design 11: no start screen — the picture itself is the start.
+     One guiding question at a time, its numbered dot lit on the picture
+     (‹ › or tap a dot to move on), ONE recording for all of them, then
+     the shared feedback screen. --}}
+<div
+    x-data="{ screen: {{ $completed ? 1 : 0 }}, question: 0, count: {{ max(count($questions), 1) }} }"
+    x-effect="$dispatch('step-progress', { share: screen === 1 ? 0.9 : 0.15 + 0.5 * question / count })"
+>
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Describe it" />
 
-            {{-- The image up top, then the shared feedback card; the
-                 transcript itself sits under its "More" (the sentences that
-                 need work are already shown in the feedback). Without
-                 feedback, the transcript shows as a speech bubble instead. --}}
-            @if ($imageUrl = $this->imageUrl())
-                <div class="rounded-2xl p-1.5" style="background-image: var(--mood-texture); background-size: var(--mood-texture-size);">
-                    <img src="{{ $imageUrl }}" alt="A picture to describe" class="h-44 w-full rounded-xl object-cover">
-                </div>
-            @endif
-
-            @if ($completed && ! $transcript)
-                <p class="mx-3 text-sm text-ink-soft dark:text-ink-soft-dark">Your recording was saved, but feedback isn't available this time. You can still move on.</p>
-            @endif
-
-            @if ($transcript && ! $feedback)
-                <div class="relative {{ $imageUrl ?? null ? '-mt-8' : '' }} mx-3 rounded-2xl rounded-tl-sm border border-line bg-surface p-3 shadow-md dark:border-line-dark dark:bg-surface-dark">
-                    <p class="text-[10px] font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
-                </div>
-
-                <div class="flex items-center gap-2 px-1">
-                    @if ($durationSeconds)
-                        <span class="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2.5 py-1 text-xs text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
-                            @svg('heroicon-o-clock', 'h-3.5 w-3.5') {{ (int) round($durationSeconds) }}s
-                        </span>
-                    @endif
-                    <span class="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2.5 py-1 text-xs text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">
-                        @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5') {{ $this->wordCount() }} words
-                    </span>
-                </div>
-            @endif
-
-            @if ($feedback)
-                <x-learner-feedback :feedback="$feedback">
-                    @if ($transcript)
-                        <x-slot:more>
-                            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
-                            <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                                @if ($durationSeconds) {{ (int) round($durationSeconds) }}s · @endif{{ $this->wordCount() }} words
-                            </p>
-                        </x-slot:more>
-                    @endif
-                </x-learner-feedback>
-            @endif
-
-            @unless ($readOnly)
+        @if ($imageUrl)
+            <div class="relative overflow-hidden rounded-3xl">
+                <img src="{{ $imageUrl }}" alt="A picture to describe" class="h-56 w-full object-cover">
                 <button
-                    wire:click="proceed"
-                    wire:loading.attr="disabled"
-                    wire:target="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
-                >
-                    <span wire:loading.remove wire:target="proceed">Continue</span>
-                    <span wire:loading wire:target="proceed">Saving…</span>
-                </button>
-            @endunless
+                    type="button"
+                    x-on:click="$dispatch('zoom-image', { url: @js($imageUrl), alt: 'A picture to describe' })"
+                    aria-label="Enlarge picture"
+                    class="absolute right-2 bottom-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+                >@svg('heroicon-o-arrows-pointing-out', 'h-4 w-4')</button>
+                @foreach ($hotspots as $hotspot)
+                    @php $qi = (int) ($hotspot['question_index'] ?? 0); @endphp
+                    <button
+                        type="button"
+                        style="left: {{ $hotspot['x'] }}%; top: {{ $hotspot['y'] }}%;"
+                        aria-label="Question {{ $qi + 1 }}"
+                        class="absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-xs font-extrabold shadow-md transition-transform before:absolute before:-inset-2.5 before:content-['']"
+                        :class="question === {{ $qi }} ? 'scale-110 bg-accent text-white outline-4 outline-accent/35 dark:bg-accent-dark' : 'bg-white text-ink'"
+                        x-on:click="question = {{ $qi }}"
+                    >{{ $qi + 1 }}</button>
+                @endforeach
+            </div>
+        @endif
+
+        @if (count($questions))
+            <div class="flex items-center gap-1 rounded-2xl bg-surface p-1.5 dark:bg-surface-dark">
+                <button type="button" x-on:click="question = (question + count - 1) % count" aria-label="Previous question" class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">@svg('heroicon-o-chevron-left', 'h-5 w-5')</button>
+                @foreach ($questions as $qi => $question)
+                    <p x-show="question === {{ $qi }}" class="min-w-0 flex-1 text-center text-base leading-snug font-bold text-ink dark:text-ink-dark">{{ $question }}</p>
+                @endforeach
+                <button type="button" x-on:click="question = (question + 1) % count" aria-label="Next question" class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">@svg('heroicon-o-chevron-right', 'h-5 w-5')</button>
+            </div>
+        @endif
+
+        <div class="flex justify-center">
+            <x-voice-recorder big field="recording" :file="$this->recordingUrl()" file-name="picture-description.webm" />
         </div>
-    @endif
+        @error('recording')
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
+        @enderror
 
-    @unless ($completed)
-        <div x-data="{ activeQuestion: null }">
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Describe what you see</p>
+        <x-slot:actions>
+            <x-continue-button
+                on-click="screen = 1; $wire.save()"
+                wire-target="save"
+                ready-when="{{ $recordingPath ? 'true' : 'false' }}"
+            />
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            {{-- Mood-texture frame (see resources/css/app.css's [data-mood]
-                 block) around the image, and numbered hotspot markers tied
-                 to the guiding questions below — hover/tap either side to
-                 highlight its match. Shown fully clear from the start
-                 (Epic F): the hotspots need to be checked against the
-                 image BEFORE recording, which a blur-until-recording
-                 effect worked against. --}}
-            @if ($imageUrl = $this->imageUrl())
-                <div class="relative mt-2 rounded-2xl p-1.5" style="background-image: var(--mood-texture); background-size: var(--mood-texture-size);">
-                    <div class="relative overflow-hidden rounded-xl">
-                        <img
-                            src="{{ $imageUrl }}"
-                            alt="A picture to describe"
-                            class="h-52 w-full object-cover"
-                        >
-                        <button
-                            type="button"
-                            x-on:click="$dispatch('zoom-image', { url: @js($imageUrl), alt: 'A picture to describe' })"
-                            aria-label="Enlarge picture"
-                            class="absolute right-2 bottom-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-                        >@svg('heroicon-o-arrows-pointing-out', 'h-4 w-4')</button>
-                        @foreach (($content['hotspots'] ?? []) as $hotspot)
-                            @php $qi = $hotspot['question_index'] ?? null; @endphp
-                            <button
-                                type="button"
-                                style="left: {{ $hotspot['x'] }}%; top: {{ $hotspot['y'] }}%;"
-                                class="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-accent text-xs font-bold text-white shadow-md transition-transform before:absolute before:-inset-2.5 before:content-[''] hover:scale-110 dark:border-surface-dark dark:bg-accent-dark"
-                                :class="activeQuestion === {{ $qi }} ? 'scale-125 ring-2 ring-white dark:ring-surface-dark' : ''"
-                                x-on:mouseenter="activeQuestion = {{ $qi }}"
-                                x-on:mouseleave="activeQuestion = null"
-                                x-on:click="activeQuestion = (activeQuestion === {{ $qi }} ? null : {{ $qi }})"
-                            >{{ ($qi ?? 0) + 1 }}</button>
-                        @endforeach
-                    </div>
-                </div>
+    <x-feedback-screen when="screen === 1" :feedback="$feedback" :waiting="! $completed">
+        @if ($transcript)
+            <x-slot:said>
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
+                    @if ($durationSeconds) {{ (int) round($durationSeconds) }}s · @endif{{ $this->wordCount() }} words
+                </p>
+            </x-slot:said>
+        @endif
+
+        <x-slot:actions>
+            @if ($completed && ! $transcript)
+                <p class="text-center text-sm text-ink-soft dark:text-ink-soft-dark">Your recording was saved, but feedback isn't available this time.</p>
             @endif
-
-            @if (count($content['guiding_questions'] ?? []))
-                <div class="mt-3 card-sunken p-4">
-                    <p class="text-xs font-semibold text-ink dark:text-ink-dark">Try to cover:</p>
-                    <ul class="mt-2 space-y-1.5">
-                        @foreach ($content['guiding_questions'] as $qi => $question)
-                            <li
-                                class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1 text-sm text-ink-soft transition-colors dark:text-ink-soft-dark"
-                                :class="activeQuestion === {{ $qi }} ? 'bg-accent/10 text-ink dark:bg-accent-dark/10 dark:text-ink-dark' : ''"
-                                x-on:mouseenter="activeQuestion = {{ $qi }}"
-                                x-on:mouseleave="activeQuestion = null"
-                                x-on:click="activeQuestion = (activeQuestion === {{ $qi }} ? null : {{ $qi }})"
-                            >
-                                <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/20 text-[10px] font-bold text-accent-ink dark:bg-accent-dark/20 dark:text-accent-ink-dark">{{ $qi + 1 }}</span>
-                                {{ $question }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            @if ($readOnly)
-                <div class="mt-3">
-                    <x-audio-player :url="$savedAudioUrl" />
-                </div>
-            @else
-                <div class="mt-3 card-sunken p-4">
-                    <x-voice-recorder field="recording" :file="$this->recordingUrl()" file-name="picture-description.webm" />
-                </div>
-
-                @error('recording')
-                    <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
-                @enderror
-
-                {{-- Always on screen, disabled until there's a recording —
-                     which can only be confirmed server-side (an upload needs a
-                     real round-trip), so it's a literal in ready-when. Same
-                     pattern as Activation's recording substep. --}}
-                <div class="mt-4">
-                    <x-continue-button
-                        on-click="$wire.save()"
-                        wire-target="save"
-                        loading-label="Listening and preparing your feedback…"
-                        ready-when="{{ $recordingPath ? 'true' : 'false' }}"
-                        hint="Record your description to continue"
-                    />
-                </div>
-            @endif
-        </div>
-    @endunless
+            <x-continue-button on-click="$wire.proceed()" wire-target="save,proceed" ready-when="{{ $completed ? 'true' : 'false' }}" />
+        </x-slot:actions>
+    </x-feedback-screen>
 </div>
+@endif

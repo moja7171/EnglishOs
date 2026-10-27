@@ -62,7 +62,7 @@ class FriendsBoardTest extends TestCase
             ->assertDontSee('One Way Wendy');
     }
 
-    public function test_a_friends_current_mission_progress_percentage_is_shown(): void
+    public function test_a_friends_overall_progress_and_current_mission_are_shown(): void
     {
         $me = User::factory()->create();
         $this->actingAs($me);
@@ -77,9 +77,10 @@ class FriendsBoardTest extends TestCase
             'content_ref' => 'a very private real answer',
         ]);
 
-        // 1 of 3 total steps recorded = 33%.
+        // 1 of 3 steps of one mission out of 24 = 1% of the whole course.
         Livewire::test('friends.board')
-            ->assertSee('33%')
+            ->assertSee('1%')
+            ->assertSee('On '.$mission->code)
             ->assertDontSee('a very private real answer');
     }
 
@@ -110,7 +111,7 @@ class FriendsBoardTest extends TestCase
         Livewire::test('friends.board')->assertSee('1 mission');
     }
 
-    public function test_expanding_a_friends_card_reveals_the_heatmap_and_journey_map(): void
+    public function test_a_friends_sheet_holds_the_heatmap_and_mission_days(): void
     {
         $me = User::factory()->create();
         $this->actingAs($me);
@@ -120,22 +121,22 @@ class FriendsBoardTest extends TestCase
         MissionRun::findOrStart($friend, $mission);
 
         Livewire::test('friends.board')
-            ->assertDontSee('Last 12 weeks')
-            ->call('toggleExpanded', $friend->id)
             ->assertSee('Last 12 weeks')
-            ->assertSee('Day 1 · Foundation');
+            ->assertSeeHtml('aria-label="Mission days"')
+            ->assertSee('Message');
     }
 
-    public function test_collapsed_by_default_a_friends_card_hides_the_journey_map(): void
+    public function test_the_board_ranks_everyone_by_streak_with_me_in_the_list(): void
     {
         $me = User::factory()->create();
         $this->actingAs($me);
         $friend = $this->makeMutualFriend($me);
+        $friend->update(['name' => 'Zed Friend']);
 
-        $mission = $this->makeMission();
-        MissionRun::findOrStart($friend, $mission);
-
-        Livewire::test('friends.board')->assertDontSee('Day 1 · Foundation');
+        Livewire::test('friends.board')
+            ->assertSee('You')
+            ->assertSee('Tap to pin a highlight')
+            ->assertSee('Zed Friend');
     }
 
     public function test_a_pinned_highlight_can_be_saved_and_is_shown_on_my_own_card(): void
@@ -199,7 +200,6 @@ class FriendsBoardTest extends TestCase
         ]);
 
         Livewire::test('friends.board')
-            ->call('toggleExpanded', $friend->id)
             ->assertDontSee('SUPER SECRET SENTENCE NOBODY SHOULD SEE');
     }
 

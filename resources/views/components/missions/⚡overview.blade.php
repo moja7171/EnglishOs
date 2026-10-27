@@ -2,11 +2,13 @@
 
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\User;
 use App\Services\ListeningPicks;
 use App\Services\PexelsClient;
 use App\Services\PiPractice;
 use App\Services\PiPrompts;
 use App\Services\ProgramPlanner;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -136,6 +138,72 @@ new class extends Component
         }
 
         return null;
+    }
+
+    /**
+     * A1: the next thing to do today as one big card — its name, a short
+     * line, and one Start. The rest of the day is the small list under it.
+     * Same order as nextAction(): Review, the day's step, then Daily talk.
+     *
+     * @return array{key: string, title: string, sub: string, icon: string, url: string}|null
+     */
+    #[Computed]
+    public function nextCard(): ?array
+    {
+        $today = $this->program['today'];
+
+        if ($today['kind'] !== 'mission_day') {
+            return null;
+        }
+
+        if (($remaining = $this->review['remaining'] ?? 0) > 0) {
+            return ['key' => 'review', 'title' => 'Daily Review', 'sub' => $remaining.' '.Str::plural('item', $remaining).' · '.$this->review['minutes'].' min', 'icon' => 'heroicon-s-bolt', 'url' => route('review.index')];
+        }
+
+        if (! $today['dayCompletedToday']) {
+            $step = collect($today['steps'])->firstWhere('current', true);
+
+            return $step
+                ? ['key' => 'step', 'title' => $step['label'], 'sub' => ($today['dayLabel'] ?: $today['mission']->code).($step['minutes'] ? ' · '.$step['minutes'].' min' : ''), 'icon' => 'heroicon-s-play', 'url' => route('missions.show', [$today['mission'], $step['key']])]
+                : ['key' => 'step', 'title' => $today['mission']->title, 'sub' => $today['mission']->code, 'icon' => 'heroicon-s-play', 'url' => route('missions.show', [$today['mission']])];
+        }
+
+        if ($this->piLeft) {
+            return ['key' => 'pi', 'title' => 'Daily talk', 'sub' => $this->piPractice['title'].' · '.PiPractice::MINUTES.' min', 'icon' => 'heroicon-s-chat-bubble-left-right', 'url' => route('pi.practice')];
+        }
+
+        return null;
+    }
+
+    /**
+     * A1's "friends now" row: up to three friends' faces, where the first
+     * one who practised today is (mission · step), and one who hasn't
+     * started yet. Null without friends.
+     *
+     * @return array{friends: \Illuminate\Support\Collection<int, User>, line: string, sub: ?string}|null
+     */
+    #[Computed]
+    public function friendsNow(): ?array
+    {
+        $friends = auth()->user()->mutualFriends();
+
+        if ($friends->isEmpty()) {
+            return null;
+        }
+
+        [$active, $idle] = $friends->partition(fn (User $friend) => $friend->wasActiveToday());
+        $where = function (User $friend): string {
+            $run = $friend->currentInProgressMissionRun();
+            $step = $run?->currentStepKey();
+
+            return $friend->name.($run ? ' · '.$run->mission->code.($step ? ' '.$run->mission->stepLabel($step) : '') : ' practised today');
+        };
+
+        return [
+            'friends' => $active->concat($idle)->take(3)->values(),
+            'line' => $active->isNotEmpty() ? $where($active->first()) : $idle->first()->name." hasn't started today",
+            'sub' => $active->isNotEmpty() && $idle->isNotEmpty() ? $idle->first()->name." hasn't started today" : ($active->count() > 1 ? '+'.($active->count() - 1).' more practised today' : null),
+        ];
     }
 
     /**
@@ -341,30 +409,7 @@ new class extends Component
         return auth()->user()->justBenefitedFromGrace();
     }
 
-    #[Computed]
-    public function justLostStreak(): bool
-    {
-        return auth()->user()->justLostStreak();
-    }
 
-    /**
-     * What home shows below Today, as one line: the next mission still to
-     * unlock and how many more come after it (locked or not built yet) —
-     * the full list is the Missions tab.
-     *
-     * @return array{next: ?Mission, moreCount: int}
-     */
-    #[Computed]
-    public function upcoming(): array
-    {
-        $upcoming = collect($this->missionSlots)->filter(fn ($slot) => ! $slot['mission'] || $slot['blockedBy']);
-        $next = $upcoming->first(fn ($slot) => $slot['mission'] !== null)['mission'] ?? null;
-
-        return [
-            'next' => $next,
-            'moreCount' => $upcoming->count() - ($next ? 1 : 0),
-        ];
-    }
 
     /**
      * The voice practice guide is offered as one line on home until the
@@ -376,33 +421,6 @@ new class extends Component
         return auth()->user()->pi_onboarded_at === null;
     }
 
-    /**
-     * Every slot of the 24-mission curriculum (EOS-009 §15 roadmap, v3.0),
-     * with the seeded Mission if there is one and what still gates it.
-     * Home only uses it for upcoming() — the full list is the roadmap.
-     *
-     * Evidence Before Progress (EOS-001 Article 3) also gates mission-to-
-     * mission: a seeded mission whose predecessor's MissionRun isn't at
-     * least 'complete' or 'needs_review' is gated (see
-     * MissionRun::gatingMission(), which also exempts a learner who
-     * already has a run of their own for it).
-     *
-     * @return list<array{code: string, mission: ?Mission, blockedBy: ?Mission}>
-     */
-    #[Computed]
-    public function missionSlots(): array
-    {
-        $seeded = Mission::orderBy('code')->get()->keyBy('code');
-        $learner = auth()->user();
-
-        return collect(range(1, Mission::TOTAL_ROADMAP_MISSIONS))
-            ->map(fn ($n) => sprintf('M%02d', $n))
-            ->map(fn ($code) => ['code' => $code, 'mission' => $seeded->get($code)])
-            ->map(fn ($slot) => $slot + [
-                'blockedBy' => $slot['mission'] ? MissionRun::gatingMission($learner, $slot['mission']) : null,
-            ])
-            ->all();
-    }
 };
 ?>
 
@@ -480,7 +498,7 @@ new class extends Component
     @endif
 
     {{-- Today — the one thing this page must answer (see ProgramPlanner). --}}
-    <section class="rounded-2xl border-2 border-accent/40 bg-surface p-4 dark:border-accent-dark/40 dark:bg-surface-dark">
+    <section class="rounded-3xl bg-surface p-3.5 dark:bg-surface-dark">
         @if ($today['kind'] === 'mission_day')
             @php $nextAction = $this->nextAction; $dayTime = $this->dayTime; $review = $this->review; $piPractice = $this->piPractice; @endphp
             <div class="flex items-center justify-between gap-3">
@@ -505,34 +523,37 @@ new class extends Component
                 </div>
             @endif
 
-            @if ($nextAction)
-                <a
-                    href="{{ $nextAction['url'] }}"
-                    wire:navigate
-                    class="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >{{ $nextAction['label'] }} @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</a>
+            {{-- A1: the next thing as one big card with one Start; the rest
+                 of the day a small list under it. --}}
+            @php $nextCard = $this->nextCard; $nextKey = $nextCard['key'] ?? null; @endphp
+            @if ($nextCard)
+                <div class="mt-3 flex flex-col gap-3 rounded-2xl bg-accent-soft p-3.5 dark:bg-accent-soft-dark">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white dark:bg-accent-dark">@svg($nextCard['icon'], 'h-5 w-5')</span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $nextCard['title'] }}</span>
+                            <span class="block truncate text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $nextCard['sub'] }}</span>
+                        </span>
+                    </div>
+                    <a href="{{ $nextCard['url'] }}" wire:navigate class="block w-full rounded-2xl bg-accent py-3 text-center text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 dark:bg-accent-dark">Start</a>
+                </div>
             @endif
 
-            {{-- The whole day as one checklist, in the order it's meant to be
-                 done: Daily Review as the warm-up, the steps, then Pi. The
-                 play mark sits on the row the main button points at. Steps
-                 further ahead are plain text — the button is the way in. --}}
-            @php $reviewIsNext = ($review['remaining'] ?? 0) > 0; @endphp
-            <ul class="mt-3">
-                @if ($review)
-                    <x-review-today :review="$review" :current="$reviewIsNext" />
+            <ul class="mt-2">
+                @if ($review && $nextKey !== 'review')
+                    <x-review-today :review="$review" />
                 @endif
                 @foreach ($today['steps'] as $step)
+                    @continue($nextKey === 'step' && $step['current'])
                     <x-today-row
                         :href="$step['done'] || $step['current'] ? route('missions.show', [$today['mission'], $step['key']]) : null"
                         :title="$step['label']"
                         :minutes="$step['minutes']"
                         :done="$step['done']"
-                        :current="$step['current'] && ! $reviewIsNext"
                     />
                 @endforeach
-                @if ($piPractice)
-                    <x-pi-today :practice="$piPractice" :current="$today['dayCompletedToday'] && ! $reviewIsNext" />
+                @if ($piPractice && $nextKey !== 'pi')
+                    <x-pi-today :practice="$piPractice" />
                 @endif
             </ul>
 
@@ -629,10 +650,24 @@ new class extends Component
         <p class="flex items-center gap-2 px-3.5 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
             <span aria-hidden="true">🧊</span> A freeze saved your streak yesterday.
         </p>
-    @elseif ($this->justLostStreak)
-        <p class="flex items-center gap-2 px-3.5 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
-            @svg('heroicon-o-trophy', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark') Fresh start — your best run was {{ auth()->user()->longestStreak() }} {{ Str::plural('day', auth()->user()->longestStreak()) }}.
-        </p>
+    @endif
+
+    {{-- A1: where friends are right now — one tap to the Friends tab. --}}
+    @if ($friendsNow = $this->friendsNow)
+        <a href="{{ route('friends.index') }}" wire:navigate class="flex items-center gap-3 rounded-2xl bg-surface px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:bg-surface-dark dark:hover:bg-surface-sunken-dark">
+            <span class="flex shrink-0 -space-x-2">
+                @foreach ($friendsNow['friends'] as $friend)
+                    <x-user-avatar :user="$friend" class="h-8 w-8 rounded-full ring-2 ring-surface dark:ring-surface-dark" />
+                @endforeach
+            </span>
+            <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-bold text-ink dark:text-ink-dark">{{ $friendsNow['line'] }}</span>
+                @if ($friendsNow['sub'])
+                    <span class="block truncate text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $friendsNow['sub'] }}</span>
+                @endif
+            </span>
+            @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+        </a>
     @endif
 
     {{-- At most one suggestion below the day's work (see suggestion()). --}}
@@ -644,19 +679,4 @@ new class extends Component
         </a>
     @endif
 
-    {{-- One line for what comes after: the next mission opens as a
-         preview, the rest is the Missions page. --}}
-    @php $upcoming = $this->upcoming; $linkClass = 'transition-colors hover:text-ink-soft dark:hover:text-ink-soft-dark'; @endphp
-    @if ($upcoming['next'] || $upcoming['moreCount'] > 0)
-        <p class="flex flex-wrap items-center justify-center gap-x-1.5 px-4 py-2 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-            <span aria-hidden="true">🔒</span>
-            @if ($next = $upcoming['next'])
-                <a href="{{ route('missions.show', [$next, 'overview']) }}" wire:navigate class="{{ $linkClass }}">Next: {{ $next->code }} {{ $next->title }}</a>
-                <span aria-hidden="true">·</span>
-            @endif
-            <a href="{{ route('missions.index') }}" wire:navigate class="inline-flex items-center gap-1 {{ $linkClass }}">
-                {{ $upcoming['moreCount'] > 0 ? $upcoming['moreCount'].' more'.($upcoming['next'] ? '' : ' '.Str::plural('mission', $upcoming['moreCount'])).' · ' : '' }}Missions @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')
-            </a>
-        </p>
-    @endif
 </div>

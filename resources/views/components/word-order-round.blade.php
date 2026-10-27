@@ -21,8 +21,12 @@
         is kept in this browser after every sentence and comes back where
         it was after a reload, like <x-quick-round>'s; a round that comes
         back finished runs $onComplete again.
+    @param bool $lesson The one-task lesson screen's look (lesson design 5):
+        no card, "Build the sentence" chip, the tray as a line, word tiles,
+        a full-width Check at the bottom and the verdict in an answer sheet;
+        each sentence reports its share in 'quick-round-progress'.
 --}}
-@props(['cards', 'onComplete' => null, 'onSkip' => null, 'draftKey' => null])
+@props(['cards', 'onComplete' => null, 'onSkip' => null, 'draftKey' => null, 'lesson' => false])
 
 @if (count($cards))
     <div
@@ -90,6 +94,7 @@
                 this.index++;
                 this.reset();
                 this.saveDraft();
+                $dispatch('quick-round-progress', { share: this.index / this.cards.length });
             },
             skip() {
                 this.skipped = true;
@@ -98,8 +103,51 @@
             },
         }"
         x-show="!skipped"
-        {{ $attributes->class(['rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark']) }}
+        {{ $attributes->class([$lesson ? 'flex flex-col' : 'rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark']) }}
     >
+        @if ($lesson)
+        <template x-if="!finished && card">
+            <div class="flex min-h-[calc(100dvh-13rem)] flex-col gap-5 pt-2">
+                <div class="flex flex-1 flex-col gap-5">
+                    <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Build the sentence</span>
+                    <div class="flex min-h-14 flex-wrap items-end gap-2 border-b-2 border-line pb-2 dark:border-line-dark">
+                        <template x-for="(word, pos) in tray" :key="pos">
+                            <button type="button" x-on:click="untap(pos)" :disabled="checked" class="cursor-pointer rounded-xl border-2 border-b-4 border-line bg-surface px-3 py-1.5 text-base font-bold text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark" x-text="word"></button>
+                        </template>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <template x-for="(word, i) in card.words" :key="i">
+                            <button
+                                type="button"
+                                x-on:click="tap(i)"
+                                :disabled="checked || bankUsed.includes(i)"
+                                :class="bankUsed.includes(i) ? 'border-line bg-line text-transparent dark:border-line-dark dark:bg-line-dark' : 'border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark'"
+                                class="cursor-pointer rounded-xl border-2 border-b-4 px-3 py-1.5 text-base font-bold"
+                                x-text="word"
+                            ></button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-stretch gap-3 pb-2">
+                    <div x-show="!checked" class="flex flex-col gap-3">
+                        <x-continue-button on-click="check()" wire-target="__none" ready-when="tray.length > 0">Check</x-continue-button>
+                        <button type="button" x-on:click="skip" class="cursor-pointer text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
+                    </div>
+                    <x-answer-sheet when="checked" tone="correct ? 'good' : 'almost'" title="correct ? '✓ Right!' : 'Not quite'">
+                        <span x-show="!correct" x-text="card.answer"></span>
+                        <x-slot:actions>
+                            <div x-show="correct"><x-continue-button on-click="advance()" wire-target="__none" /></div>
+                            <div x-show="!correct" class="flex flex-col gap-3">
+                                <x-continue-button on-click="reset()" wire-target="__none">Try again</x-continue-button>
+                                <button type="button" x-on:click="advance()" class="cursor-pointer text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Next</button>
+                            </div>
+                        </x-slot:actions>
+                    </x-answer-sheet>
+                </div>
+            </div>
+        </template>
+        @else
         <template x-if="!finished && card">
             <div>
                 <div class="flex items-center gap-3">
@@ -174,6 +222,8 @@
                 </div>
             </div>
         </template>
+
+        @endif
 
         <template x-if="finished">
             <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-success dark:text-success-dark">

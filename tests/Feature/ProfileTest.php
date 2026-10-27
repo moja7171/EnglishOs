@@ -241,7 +241,29 @@ class ProfileTest extends TestCase
             ->call('saveAvatar');
 
         $me->refresh();
-        $this->assertSame('avatars/'.$me->id.'.jpg', $me->avatar_path);
+        $this->assertStringStartsWith('avatars/'.$me->id.'-', $me->avatar_path);
+        Storage::disk('public')->assertExists($me->avatar_path);
+    }
+
+    public function test_a_new_photo_gets_a_new_url_and_the_old_file_is_deleted(): void
+    {
+        Storage::fake('public');
+        $me = User::factory()->create();
+
+        $this->actingAs($me);
+
+        $component = Livewire::test('profile')
+            ->set('newAvatar', UploadedFile::fake()->image('first.jpg', 600, 600))
+            ->call('saveAvatar');
+        $firstPath = $me->fresh()->avatar_path;
+
+        $component
+            ->set('newAvatar', UploadedFile::fake()->image('second.jpg', 600, 600))
+            ->call('saveAvatar');
+        $me->refresh();
+
+        $this->assertNotSame($firstPath, $me->avatar_path);
+        Storage::disk('public')->assertMissing($firstPath);
         Storage::disk('public')->assertExists($me->avatar_path);
     }
 

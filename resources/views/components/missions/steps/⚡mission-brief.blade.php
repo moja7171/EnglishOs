@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Services\PexelsClient;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -59,6 +60,7 @@ new class extends Component
      * other PexelsClient call. Cached per mission (not per learner), fails
      * soft (null) on no query/no key/any error.
      */
+    #[Computed]
     public function heroImageUrl(): ?string
     {
         $query = $this->run->mission->stepContent('mission_brief')['image_query'] ?? null;
@@ -137,125 +139,96 @@ new class extends Component
 
 @php
     $brief = $run->mission->stepContent('mission_brief');
-    $phases = $run->mission->phases ?? [];
-    $totalSteps = $run->mission->stepKeys();
+    $firstQuestion = $brief['warm_up_questions'][0] ?? null;
+    $scoreChoices = [
+        1 => ['😣', 'Very hard'],
+        2 => ['😕', 'Hard'],
+        3 => ['😐', 'Okay'],
+        4 => ['🙂', 'Easy'],
+        5 => ['😄', 'Very easy'],
+    ];
 @endphp
 
-<div class="space-y-6">
-    @if ($imageUrl = $this->heroImageUrl())
-        <img src="{{ $imageUrl }}" alt="" class="h-32 w-full rounded-2xl object-cover">
-    @endif
+@if ($readOnly)
+    <div class="flex flex-col gap-5 pt-2">
+        <x-step-intro kind="Get Ready" :title="$brief['hook'] ?? null" :image="$this->heroImageUrl" />
 
-    {{-- Epic F: the hook comes first and bigger — it's the actual hook,
-         not a footnote after a syllabus-style summary. --}}
-    @if ($brief['hook'] ?? null)
-        <p class="font-display text-lg font-semibold text-ink dark:text-ink-dark">{{ $brief['hook'] }}</p>
-    @endif
+        @if ($firstQuestion)
+            <p class="text-lg font-bold text-ink dark:text-ink-dark">{{ $firstQuestion }}</p>
+        @endif
 
-    {{-- Mission outcome already shown in the hero banner above (mission-runner.blade.php) — not repeated here. --}}
-
-    {{-- Roadmap: a short, visible journey rather than an open-ended form --}}
-    <div class="flex flex-wrap items-center gap-1.5 text-xs text-ink-faint dark:text-ink-faint-dark">
-        @foreach ($phases as $phase)
-            <span class="rounded-full border border-line px-2.5 py-1 dark:border-line-dark">
-                {{ $phase['label'] ?? ucfirst($phase['phase'] ?? '') }}
-            </span>
-            @if (! $loop->last)
-                <span>@svg('heroicon-o-chevron-right', 'inline h-3 w-3')</span>
-            @endif
-        @endforeach
-        <span class="ml-1">· {{ count($totalSteps) }} short steps · ~{{ Mission::formatDuration($run->mission->totalDurationMinutes()) }} total</span>
-    </div>
-
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Before you start</p>
-        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Answer out loud, with no preparation.</p>
-        <ul class="mt-3 space-y-2">
-            @foreach ($brief['warm_up_questions'] ?? [] as $question)
-                <li class="rounded-xl border border-line px-3 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark">
-                    {{ $question }}
-                </li>
-            @endforeach
-        </ul>
-
-        @if ($readOnly)
-            @if ($savedWarmUpRecordingUrl)
-                <div class="mt-3">
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Your Day 1 answer</p>
-                    <div class="mt-1">
-                        <x-audio-player :url="$savedWarmUpRecordingUrl" />
-                    </div>
-                </div>
-            @endif
-        @else
-            {{-- Epic F: tied to ONE specific, named question — the old copy
-                 ("record yourself answering one") never said which,
-                 leaving the learner to guess. --}}
-            <div class="mt-3 card-sunken p-4">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Optional — record this one:</p>
-                <p class="mt-1 text-sm text-ink dark:text-ink-dark">"{{ $brief['warm_up_questions'][0] ?? '' }}"</p>
-                <div class="mt-2">
-                    <x-voice-recorder field="warmUpRecording" :file="$this->warmUpRecordingUrl()" file-name="mission-brief-warmup.webm" />
-                </div>
+        @if ($savedWarmUpRecordingUrl)
+            <div>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Your Day 1 answer</p>
+                <div class="mt-1"><x-audio-player :url="$savedWarmUpRecordingUrl" /></div>
             </div>
         @endif
-    </div>
 
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Starting score</p>
-        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-            How comfortable am I talking about this topic right now?
-        </p>
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">We'll compare this to your score at the end of the mission.</p>
-        @php
-            // Epic F: a short label next to each number — bare digits read
-            // as a cold form control, not a real comfort scale.
-            $scoreLabels = [
-                1 => 'Not comfortable at all',
-                2 => 'A little uneasy',
-                3 => "It's okay",
-                4 => 'Pretty comfortable',
-                5 => 'Very comfortable',
-            ];
-        @endphp
-        <div class="mt-2 grid grid-cols-5 gap-1.5">
-            @foreach (range(1, 5) as $value)
-                <button
-                    type="button"
-                    @disabled($readOnly)
-                    wire:click="$set('score', {{ $value }})"
-                    @class([
-                        'flex flex-col items-center gap-1 rounded-xl border px-1.5 py-2 text-center transition-colors',
-                        'cursor-pointer' => ! $readOnly,
-                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $score === $value,
-                        'border-line text-ink-soft hover:border-ink-faint dark:border-line-dark dark:text-ink-soft-dark' => $score !== $value,
-                    ])
-                >
-                    <span class="text-sm font-semibold">{{ $value }}</span>
-                    <span class="text-[10px] leading-tight">{{ $scoreLabels[$value] }}</span>
-                </button>
+        <div class="grid grid-cols-5 gap-1.5">
+            @foreach ($scoreChoices as $value => [$face, $label])
+                <span @class([
+                    'flex flex-col items-center gap-1 rounded-2xl px-1 py-2 text-center text-[11px] font-bold',
+                    'bg-accent text-white dark:bg-accent-dark' => $score === $value,
+                    'bg-surface text-ink-faint dark:bg-surface-dark dark:text-ink-faint-dark' => $score !== $value,
+                ])><span class="text-xl">{{ $face }}</span>{{ $label }}</span>
             @endforeach
         </div>
-        @error('score')
-            <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
-        @enderror
     </div>
+@else
+    {{-- Three screens, one thing each: the hook, the first warm-up
+         question said out loud (the take comes back at Mission Result,
+         next to the Final Talk), and the starting comfort score. --}}
+    <div
+        x-data="{ screen: {{ $score !== null ? 2 : ($warmUpRecordingPath ? 1 : 0) }} }"
+        x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 3 })"
+        x-back-close="{ open: screen > 0, close: () => screen-- }"
+    >
+        <x-lesson-screen when="screen === 0">
+            <x-step-intro kind="Get Ready" :minutes="$run->mission->stepDuration('mission_brief')" :title="$brief['hook'] ?? null" :image="$this->heroImageUrl" />
 
-    {{-- The score buttons use wire:click="$set(...)" (a real round-trip),
-         so readiness is already known server-side by the time this
-         renders — no Alpine tracking needed, just don't render the bar
-         at all until it's true. --}}
-    @if (! $readOnly && $score !== null)
-        <x-sticky-bar>
-            <button
-                wire:click="save"
-                wire:loading.attr="disabled"
-                wire:target="save"
-                class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
-            >
-                <span wire:loading.remove wire:target="save">Continue</span>
-                <span wire:loading wire:target="save">Saving…</span>
-            </button>
-        </x-sticky-bar>
-    @endif
-</div>
+            <x-slot:actions>
+                <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+            </x-slot:actions>
+        </x-lesson-screen>
+
+        <x-lesson-screen when="screen === 1">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Say it out loud</span>
+            <p class="text-xl leading-snug font-bold text-ink dark:text-ink-dark">{{ $firstQuestion }}</p>
+            <div class="mt-4 flex justify-center">
+                <x-voice-recorder big field="warmUpRecording" :file="$this->warmUpRecordingUrl()" file-name="mission-brief-warmup.webm" />
+            </div>
+            @if ($warmUpRecordingPath)
+                <p class="text-center text-sm text-ink-faint dark:text-ink-faint-dark">You'll hear this again at the end.</p>
+            @endif
+
+            <x-slot:actions>
+                <x-continue-button on-click="screen = 2" wire-target="save" ready-when="{{ $warmUpRecordingPath ? 'true' : 'false' }}" />
+                <button type="button" x-on:click="screen = 2" class="cursor-pointer text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
+            </x-slot:actions>
+        </x-lesson-screen>
+
+        <x-lesson-screen when="screen === 2">
+            <p class="text-xl leading-snug font-bold text-ink dark:text-ink-dark">How easy is it to talk about this now?</p>
+            <div class="flex flex-col gap-2">
+                @foreach ($scoreChoices as $value => [$face, $label])
+                    <button
+                        type="button"
+                        wire:click="$set('score', {{ $value }})"
+                        @class([
+                            'flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left text-base font-bold transition-colors',
+                            'border-accent bg-accent-soft text-accent-ink dark:border-accent-dark dark:bg-accent-soft-dark dark:text-accent-ink-dark' => $score === $value,
+                            'border-transparent bg-surface text-ink dark:bg-surface-dark dark:text-ink-dark' => $score !== $value,
+                        ])
+                    ><span class="text-2xl">{{ $face }}</span>{{ $label }}</button>
+                @endforeach
+            </div>
+            @error('score')
+                <p class="text-sm text-danger-ink">{{ $message }}</p>
+            @enderror
+
+            <x-slot:actions>
+                <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Saving…" ready-when="{{ $score !== null ? 'true' : 'false' }}" />
+            </x-slot:actions>
+        </x-lesson-screen>
+    </div>
+@endif

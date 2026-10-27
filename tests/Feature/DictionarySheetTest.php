@@ -62,8 +62,8 @@ class DictionarySheetTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => MissionRun::findOrStart($learner, $mission)])
-            ->assertSeeHtml('<p x-lookup class="mt-2 text-sm leading-relaxed')
-            ->assertSee('Tap any word to see its meaning.');
+            ->assertSeeHtml('<p x-lookup class="text-base leading-loose')
+            ->assertSee('Aisha lives in Manchester.');
     }
 
     public function test_the_review_card_shows_the_persian_meaning_beside_the_english_one(): void
@@ -77,7 +77,7 @@ class DictionarySheetTest extends TestCase
         ]);
         $this->actingAs($learner);
 
-        Livewire::test('vocabulary.index')
+        Livewire::test('notebook.index')
             ->assertSee('to travel to work')
             ->assertSee('رفت‌وآمد');
     }

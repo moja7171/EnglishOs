@@ -44,18 +44,19 @@ class TopNavTest extends TestCase
         $this->get(route('home'))->assertSee('>3<', false);
     }
 
-    public function test_the_bottom_nav_has_four_tabs_with_missions_and_notebook(): void
+    public function test_the_bottom_nav_has_five_tabs_ending_with_friends(): void
     {
         $this->actingAs(User::factory()->create());
 
         $this->get(route('review.index'))
             ->assertSee('aria-label="Primary"', false)
-            ->assertSee('grid-cols-4', false)
+            ->assertSee('grid-cols-5', false)
             ->assertSeeInOrder([
                 'href="'.route('home').'"',
                 'href="'.route('missions.index').'"',
                 'href="'.route('review.index').'"',
                 'href="'.route('notebook.index').'"',
+                'href="'.route('friends.index').'"',
             ], false);
     }
 
@@ -68,8 +69,10 @@ class TopNavTest extends TestCase
         $this->get(route('pi.practice'))->assertSee('style="translate: 100% 0"', false);
         $this->get(route('review.index'))->assertSee('style="translate: 200% 0"', false);
         $this->get(route('notebook.index'))->assertSee('style="translate: 300% 0"', false);
+        $this->get(route('friends.index'))->assertSee('style="translate: 400% 0"', false);
+        $this->get(route('pair-practice.index'))->assertSee('style="translate: 400% 0"', false);
 
-        $this->get(route('friends.index'))->assertSee('motion-reduce:transition-none opacity-0', false);
+        $this->get(route('profile'))->assertSee('motion-reduce:transition-none opacity-0', false);
     }
 
     public function test_the_header_shows_only_the_logo_mark_for_a_signed_in_learner(): void
@@ -86,16 +89,16 @@ class TopNavTest extends TestCase
             ->assertDontSee('aria-label="Primary"', false);
     }
 
-    public function test_the_account_menu_holds_only_progress_friends_and_profile(): void
+    public function test_the_account_menu_holds_only_progress_and_profile(): void
     {
         $this->actingAs(User::factory()->create());
 
         $menu = (string) $this->blade('<x-account-menu />');
 
-        $this->assertSame(3, substr_count($menu, '<a '));
+        $this->assertSame(2, substr_count($menu, '<a '));
         $this->assertStringContainsString('href="'.route('progress.index').'"', $menu);
         $this->assertStringContainsString('Day 1 of 96', $menu);
-        $this->assertStringContainsString('href="'.route('friends.index').'"', $menu);
+        $this->assertStringNotContainsString('href="'.route('friends.index').'"', $menu);
         $this->assertStringContainsString('href="'.route('profile').'"', $menu);
         $this->assertStringNotContainsString('Sign out', $menu);
         $this->assertStringNotContainsString('dark mode', $menu);
@@ -122,7 +125,7 @@ class TopNavTest extends TestCase
             ->assertSee('Sign out');
     }
 
-    public function test_the_avatar_shows_a_dot_when_friends_has_something_new(): void
+    public function test_the_friends_tab_counts_what_is_new_in_friends(): void
     {
         $learner = User::factory()->create();
         $friend = User::factory()->create();
@@ -140,7 +143,7 @@ class TopNavTest extends TestCase
         $this->get(route('home'))->assertSee('new in Friends');
     }
 
-    public function test_the_avatar_dot_ignores_messages_from_someone_you_can_no_longer_message(): void
+    public function test_the_friends_tab_ignores_messages_from_someone_you_can_no_longer_message(): void
     {
         $learner = User::factory()->create();
         $friend = User::factory()->create();
@@ -156,7 +159,7 @@ class TopNavTest extends TestCase
         $this->get(route('home'))->assertDontSee('new in Friends');
     }
 
-    public function test_the_avatar_has_no_dot_when_friends_is_quiet(): void
+    public function test_the_friends_tab_has_no_count_when_friends_is_quiet(): void
     {
         $this->actingAs(User::factory()->create());
 

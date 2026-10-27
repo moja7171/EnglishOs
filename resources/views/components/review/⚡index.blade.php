@@ -106,10 +106,31 @@ new class extends Component
      */
     public array $retryKeys = [];
 
+    /**
+     * A dictation card's typed spelling, and whether it was right — null
+     * until Check (see checkSpelling()).
+     */
+    public string $spelling = '';
+
+    public ?bool $spellingCorrect = null;
+
+    /**
+     * The speaking card's previous recording, kept when a new take
+     * replaces it — "▶ Last time" next to the new one.
+     */
+    public ?string $previousRecordingUrl = null;
+
     public function mount(): void
     {
         $this->shuffleSeed = Str::random(16);
     }
+
+    /**
+     * At most this many of today's words come as a dictation card (hear
+     * it, type it) instead of a word card — only words the learner added
+     * to My Words themselves (no mission behind them).
+     */
+    public const DICTATIONS_PER_DAY = 3;
 
     /**
      * A fast, mixed session across every review system the app has —
@@ -139,9 +160,38 @@ new class extends Component
         // microphone access denied, see voice-recorder.blade.php's own
         // error state) keep moving through the rest of today's queue
         // instead of every later item becoming unreachable behind it.
+        $all = $this->withDictations($all);
+
         [$ready, $skipped] = $all->partition(fn ($entry) => ! in_array($this->itemKey($entry['type'], $entry['id']), $this->skippedKeys, true));
 
         return $ready->concat($skipped)->values()->all();
+    }
+
+    /**
+     * Turns up to DICTATIONS_PER_DAY of the learner's own words into
+     * dictation cards, in queue order (so the same ones every request).
+     *
+     * @param  \Illuminate\Support\Collection<int, array{type: string, id: int}>  $entries
+     * @return \Illuminate\Support\Collection<int, array{type: string, id: int}>
+     */
+    private function withDictations($entries)
+    {
+        $ownWordIds = VocabularyWord::query()
+            ->whereIn('id', $entries->where('type', 'word')->pluck('id'))
+            ->whereNull('source_mission_run_id')
+            ->pluck('id')
+            ->all();
+        $picked = 0;
+
+        return $entries->map(function (array $entry) use ($ownWordIds, &$picked) {
+            if ($entry['type'] === 'word' && in_array($entry['id'], $ownWordIds, true) && $picked < self::DICTATIONS_PER_DAY) {
+                $picked++;
+
+                return ['type' => 'dictation', 'id' => $entry['id']];
+            }
+
+            return $entry;
+        });
     }
 
     /**
@@ -180,7 +230,7 @@ new class extends Component
         }
 
         $model = match ($entry['type']) {
-            'word' => VocabularyWord::find($entry['id']),
+            'word', 'dictation' => VocabularyWord::find($entry['id']),
             'speaking' => SpeakingPrompt::find($entry['id']),
             'error' => ErrorPatternReview::find($entry['id']),
             'grammar' => GrammarPoint::find($entry['id']),
@@ -300,6 +350,7 @@ new class extends Component
         }
 
         $path = $this->recording->store('speaking-recall/'.auth()->id(), 'public');
+        $this->previousRecordingUrl ??= $item['model']->last_recording_url;
         $item['model']->update(['last_recording_url' => Storage::disk('public')->url($path)]);
 
         $this->feedback = $this->quickSpokenFeedback($this->recording, $item['model']->prompt);
@@ -351,6 +402,89 @@ new class extends Component
         }
 
         $this->gradeCurrent($item['model'], $remembered ? $quality : 1);
+    }
+
+    /**
+     * A dictation card: the typed spelling against the word. Nothing is
+     * graded until continueDictation(), so the learner can read the fix.
+     */
+    public function checkSpelling(): void
+    {
+        $item = $this->currentItem;
+
+        if (! $item || $item['type'] !== 'dictation' || trim($this->spelling) === '') {
+            return;
+        }
+
+        $this->spellingCorrect = $this->normalizeSpelling($this->spelling) === $this->normalizeSpelling($item['model']->word);
+    }
+
+    /** Right → the card moves up a box like any other; wrong → Again. */
+    public function continueDictation(): void
+    {
+        $item = $this->currentItem;
+
+        if (! $item || $item['type'] !== 'dictation' || $this->spellingCorrect === null) {
+            return;
+        }
+
+        $this->gradeCurrent($item['model'], $this->spellingCorrect ? 4 : 1);
+    }
+
+    private function normalizeSpelling(string $text): string
+    {
+        return trim(preg_replace('/\s+/', ' ', mb_strtolower(rtrim(trim($text), '.!?'))));
+    }
+
+    /**
+     * The right spelling in pieces, each marked whether the learner's
+     * typing had it — the letters they missed show green on the answer
+     * sheet. A longest-common-subsequence match, case-insensitive.
+     *
+     * @return list<array{text: string, missed: bool}>
+     */
+    public function spellingPieces(): array
+    {
+        $word = (string) ($this->currentItem['model']->word ?? '');
+        $target = mb_str_split($word);
+        $typed = mb_str_split(mb_strtolower(trim($this->spelling)));
+        $lower = mb_str_split(mb_strtolower($word));
+        $rows = count($lower);
+        $cols = count($typed);
+        $lengths = array_fill(0, $rows + 1, array_fill(0, $cols + 1, 0));
+
+        for ($i = $rows - 1; $i >= 0; $i--) {
+            for ($j = $cols - 1; $j >= 0; $j--) {
+                $lengths[$i][$j] = $lower[$i] === $typed[$j]
+                    ? $lengths[$i + 1][$j + 1] + 1
+                    : max($lengths[$i + 1][$j], $lengths[$i][$j + 1]);
+            }
+        }
+
+        $pieces = [];
+
+        for ($i = 0, $j = 0; $i < $rows;) {
+            $missed = ! ($j < $cols && $lower[$i] === $typed[$j]);
+
+            if ($missed && $j < $cols && $lengths[$i][$j + 1] >= $lengths[$i + 1][$j]) {
+                $j++;
+
+                continue;
+            }
+
+            $last = count($pieces) - 1;
+
+            if ($last >= 0 && $pieces[$last]['missed'] === $missed) {
+                $pieces[$last]['text'] .= $target[$i];
+            } else {
+                $pieces[] = ['text' => $target[$i], 'missed' => $missed];
+            }
+
+            $i++;
+            $j += $missed ? 0 : 1;
+        }
+
+        return $pieces;
     }
 
     protected function drillEntry(): ?NotebookEntry
@@ -419,54 +553,39 @@ new class extends Component
         $this->attemptCorrect = null;
         $this->revealed = false;
         $this->pickedOption = null;
+        $this->spelling = '';
+        $this->spellingCorrect = null;
+        $this->previousRecordingUrl = null;
         $this->resetDrill();
         unset($this->grammarReview);
     }
 };
 ?>
 
-<div class="stagger-children mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-    <a href="{{ route('home') }}" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        All missions
-    </a>
+@php
+    $item = $this->currentItem;
+    $bigButton = 'flex-1 cursor-pointer rounded-2xl py-3.5 text-base font-extrabold transition-opacity hover:opacity-90 disabled:opacity-50';
+    $forgetClass = $bigButton.' bg-danger-soft text-danger-ink';
+    $knowClass = $bigButton.' bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark';
+@endphp
 
-    <header class="flex items-center gap-3">
-        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-            @svg('heroicon-o-bolt', 'h-5 w-5')
-        </span>
-        <div>
-            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Daily Review</h1>
-        </div>
-    </header>
-
-    @if (! $this->currentItem)
+{{-- A5: the review runs like a short lesson — ✕, one bar and "3/8" on
+     top, one full-screen card, two big buttons at the thumb ("✕ Forget" /
+     "✓ I know"), a small Skip. --}}
+<div class="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-2xl flex-col gap-4 p-4 sm:p-6">
+    @if (! $item)
         @if ($this->hasSkippedEverything)
-            {{--
-                Every item left today got a "Skip for now" — not the same
-                as actually being caught up, so this says so rather than
-                reusing the success copy below. Nothing was graded, so
-                every one of these is exactly as due as it was before;
-                they're just one page reload away from showing again.
-            --}}
-            <div class="flex flex-col items-center gap-2 card p-8 text-center">
-                @svg('heroicon-o-forward', 'h-6 w-6 text-ink-faint dark:text-ink-faint-dark')
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">You've skipped everything for today.</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing here was graded — come back to the rest whenever you're ready.</p>
+            <div class="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+                @svg('heroicon-o-forward', 'h-8 w-8 text-ink-faint dark:text-ink-faint-dark')
+                <p class="text-lg font-extrabold text-ink dark:text-ink-dark">You've skipped everything for today.</p>
+                <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Nothing here was graded — come back to the rest whenever you're ready.</p>
             </div>
         @elseif ($sessionGraded > 0)
-            {{--
-                This page session's wrap-up: how many were graded and how
-                they split into "remembered" vs "back tomorrow" (a failed
-                review is rescheduled a day out). Shown only after at
-                least one grade this session — arriving on an already
-                finished day still gets the plain "all caught up" below.
-            --}}
-            <div class="flex flex-col items-center gap-3 card p-8 text-center" @if ($sessionRemembered > 0) x-data x-init="window.eosConfetti?.burst()" @endif>
-                <span class="animate-trophy-pop inline-flex h-14 w-14 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
-                    @svg('heroicon-o-check-badge', 'h-8 w-8')
+            <div class="flex flex-1 flex-col items-center justify-center gap-3 text-center" @if ($sessionRemembered > 0) x-data x-init="window.eosConfetti?.burst()" @endif>
+                <span class="animate-trophy-pop inline-flex h-20 w-20 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
+                    @svg('heroicon-o-check-badge', 'h-10 w-10')
                 </span>
-                <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Session done!</p>
+                <p class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Session done!</p>
                 <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $sessionGraded }} {{ Str::plural('item', $sessionGraded) }} reviewed</p>
                 <div class="flex flex-wrap justify-center gap-2 text-sm font-semibold">
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-success dark:bg-success-soft-dark dark:text-success-dark">
@@ -478,231 +597,241 @@ new class extends Component
                         </span>
                     @endif
                 </div>
-                <a
-                    href="{{ route('home') }}"
-                    wire:navigate
-                    class="mt-2 inline-flex cursor-pointer items-center rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >Done</a>
             </div>
+            <a href="{{ route('home') }}" wire:navigate class="w-full rounded-2xl bg-accent py-3.5 text-center text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark">Done</a>
         @else
-            <div class="flex flex-col items-center gap-2 card p-8 text-center">
-                @svg('heroicon-o-check-badge', 'h-6 w-6 text-success dark:text-success-dark')
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">You're all caught up!</p>
+            <div class="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+                @svg('heroicon-o-check-badge', 'h-10 w-10 text-success dark:text-success-dark')
+                <p class="text-lg font-extrabold text-ink dark:text-ink-dark">You're all caught up!</p>
                 @if (auth()->user()->reviewedTodayCount() > 0)
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">That's today's review done — whatever is still waiting rolls into tomorrow.</p>
+                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">That's today's review done — whatever is still waiting rolls into tomorrow.</p>
                 @else
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Nothing is due right now — come back later.</p>
+                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Nothing is due right now — come back later.</p>
                 @endif
             </div>
         @endif
     @else
         @php
-            $item = $this->currentItem;
             $type = $item['type'];
             $model = $item['model'];
             $position = $sessionGraded + 1;
             $total = $sessionGraded + count($this->queue);
-            $remaining = count($this->queue) - 1;
             $label = match ($type) {
-                'speaking' => 'Speaking',
+                'word' => 'Word',
+                'dictation' => 'Dictation · My words',
+                'speaking' => 'Speaking'.($model->mission_code ? ' · '.$model->mission_code : ''),
                 'note' => $model->isMistake() ? 'Your mistake' : 'Your tip',
+                'error' => 'Your mistake',
                 default => 'Grammar',
             };
             $grammarReview = $this->grammarReview;
             $hasQuestion = $type === 'grammar' && ! empty($grammarReview['card']);
-            $icon = match ($type) {
-                'speaking' => 'heroicon-o-microphone',
-                'error' => 'heroicon-o-pencil',
-                'note' => $model->isMistake() ? 'heroicon-o-pencil' : 'heroicon-o-light-bulb',
-                default => 'heroicon-o-academic-cap',
-            };
+            $strength = $model->strengthLevel();
         @endphp
 
-        @if ($type === 'word')
-            <div wire:key="review-word-{{ $model->id }}">
-                <x-vocabulary-review-card :word="$model" :position="$position" :total="$total" :remaining="$remaining" />
-            </div>
-        @else
-            <div wire:key="review-{{ $type }}-{{ $model->id }}">
-                <x-review-shell
-                    :label="$label"
-                    :icon="$icon"
-                    :position="$position"
-                    :total="$total"
-                    :remaining="$remaining"
-                    class="animate-review-card-in"
-                >
-                    @if ($type === 'speaking')
-                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Say it out loud — no preparing.</p>
+        <x-lesson-header data-step-header :close="route('home')" :progress="($position - 1) / max($total, 1)" :counter="$position.'/'.$total" />
 
-                        @if ($model->last_recording_url && ! $recordedThisTurn)
-                            <div>
-                                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your last attempt:</p>
-                                <div class="mt-1"><x-audio-player :url="$model->last_recording_url" /></div>
-                            </div>
-                        @endif
+        <div
+            wire:key="review-{{ $type }}-{{ $model->id }}"
+            x-data="{ forgot: false, meaning: false }"
+            class="animate-review-card-in flex flex-1 flex-col gap-4"
+        >
+            <div class="flex flex-1 flex-col gap-4 rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
+                <p class="flex items-center gap-2 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
+                    {{ $label }}
+                    @if ($type !== 'note')
+                        <span class="flex gap-1" title="{{ $model->strengthLabel() }}" aria-hidden="true">
+                            @for ($dot = 1; $dot <= 5; $dot++)
+                                <span class="h-1 w-3 rounded-full {{ $dot <= $strength ? 'bg-success dark:bg-success-dark' : 'bg-line dark:bg-line-dark' }}"></span>
+                            @endfor
+                        </span>
+                    @endif
+                </p>
 
-                        <x-voice-recorder field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
-                    @elseif ($type === 'error')
-                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">
-                            You've mixed this up before: <span class="text-danger-ink line-through decoration-danger">{{ $model->last_error }}</span>
-                        </p>
-                        @if (! $revealed)
-                            <form wire:submit="checkAttempt" class="flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    wire:model="attempt"
-                                    aria-label="Write the sentence correctly"
-                                    placeholder="Write it correctly…"
-                                    class="w-full rounded-lg border border-line bg-transparent px-2 py-2 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-                                >
-                                <button
-                                    type="submit"
-                                    title="Check"
-                                    class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                                ><span class="sr-only">Check</span>@svg('heroicon-o-check', 'h-5 w-5')</button>
-                            </form>
-                            <button
-                                type="button"
-                                wire:click="reveal"
-                                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
-                            >@svg('heroicon-o-eye', 'h-3.5 w-3.5') Just show the fix</button>
-                        @else
-                            @if (trim($attempt) !== '')
-                                @if ($attemptCorrect)
-                                    <p class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
-                                        @svg('heroicon-o-check-circle', 'h-4 w-4') Spot on!
-                                    </p>
-                                @else
-                                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You wrote: {{ $attempt }}</p>
-                                @endif
+                @if ($type === 'word')
+                    <div role="button" tabindex="0" x-on:click="meaning = ! meaning" x-on:keydown.enter="meaning = ! meaning" class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 text-center">
+                        <span x-show="! meaning" class="flex flex-col items-center gap-3">
+                            <x-speak-word :word="$model->word" class="font-display text-4xl font-semibold text-ink dark:text-ink-dark" />
+                            @if (filled($model->pos))
+                                <span class="rounded-full bg-accent-soft px-3 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $model->pos }}</span>
                             @endif
-                            <p class="text-sm text-success dark:text-success-dark">{{ $model->last_correction }}</p>
-                        @endif
-                    @elseif ($type === 'note')
-                        <x-notebook-drill :entry="$model" :answer="$drillAnswer" :correct="$drillCorrect" :typing="$drillTyping" :heard="$drillHeard" :missed-audio="$drillMissedAudio" :recording="$drillRecording" />
-                    @elseif ($hasQuestion)
-                        @php
-                            $card = $grammarReview['card'];
-                            $answered = $pickedOption !== null;
-                            $gotItRight = $answered && $pickedOption === $card['correct'];
-                        @endphp
-
-                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
-
-                        <div class="rounded-2xl border border-line bg-surface-sunken p-4 dark:border-line-dark dark:bg-surface-sunken-dark">
-                            <p class="text-xs font-medium tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Fix this sentence</p>
-                            <p class="mt-1.5 text-lg leading-snug font-normal text-ink dark:text-ink-dark">&ldquo;{{ $card['wrong'] }}&rdquo;</p>
-                        </div>
-
-                        <div class="grid gap-2.5">
-                            @foreach ($card['options'] as $i => $option)
-                                @php $state = ! $answered ? 'idle' : ($i === $card['correct'] ? 'correct' : ($pickedOption === $i ? 'wrong' : 'muted')); @endphp
-                                <button
-                                    type="button"
-                                    wire:key="grammar-option-{{ $model->id }}-{{ $i }}"
-                                    wire:click="pickOption({{ $i }})"
-                                    @disabled($answered)
-                                    data-state="{{ $state }}"
-                                    class="choice"
-                                >
-                                    <span class="choice-key">{{ chr(65 + $i) }}</span>
-                                    <span class="min-w-0 flex-1 leading-snug">{{ $option }}</span>
-                                    @if ($state === 'correct') <span class="shrink-0">@svg('heroicon-s-check-circle', 'h-5 w-5')</span> @endif
-                                    @if ($state === 'wrong') <span class="shrink-0">@svg('heroicon-s-x-circle', 'h-5 w-5')</span> @endif
-                                </button>
-                            @endforeach
-                        </div>
-
-                        @if ($answered)
-                            <div class="space-y-4">
-                                <p class="font-display text-lg font-semibold {{ $gotItRight ? 'text-success dark:text-success-dark' : 'text-danger-ink' }}">
-                                    {{ $gotItRight ? 'Yes — that\'s right!' : 'Not quite — the green one is correct.' }}
-                                </p>
-
-                                @if ($grammarReview['rules'])
-                                    <div class="space-y-3 rounded-2xl border border-accent/30 bg-accent-soft p-4 dark:border-accent-dark/40 dark:bg-accent-soft-dark">
-                                        <p class="inline-flex items-center gap-1.5 text-xs font-medium tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">
-                                            @svg('heroicon-o-light-bulb', 'h-4 w-4') Remember
-                                        </p>
-                                        @foreach ($grammarReview['rules'] as $rule)
-                                            <div>
-                                                <p class="text-base leading-snug font-normal text-ink dark:text-ink-dark">{!! $rule['text'] !!}</p>
-                                                @if ($rule['fa'])
-                                                    <p dir="rtl" class="mt-1 text-start text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! $rule['fa'] !!}</p>
-                                                @endif
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Your own sentence: <span class="text-ink italic dark:text-ink-dark">&ldquo;{{ $model->example_sentence }}&rdquo;</span></p>
-
-                                <button
-                                    type="button"
-                                    wire:click="continueGrammar"
-                                    title="Continue"
-                                    class="flex w-full cursor-pointer items-center justify-center rounded-full bg-accent px-5 py-3 text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                                ><span class="sr-only">Continue</span>@svg('heroicon-o-arrow-right', 'h-5 w-5')</button>
-                            </div>
-                        @endif
-                    @else
-                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
-                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Can you still write a sentence like this? <span class="text-ink-faint italic dark:text-ink-faint-dark">"{{ $model->example_sentence }}"</span></p>
-                        @if (! $revealed)
+                        </span>
+                        <span x-show="meaning" x-cloak class="flex flex-col items-center gap-2">
+                            <x-review-word-meaning :word="$model" />
+                        </span>
+                    </div>
+                @elseif ($type === 'dictation')
+                    <div class="flex flex-1 flex-col items-center justify-center gap-3" x-data="{ say: (rate) => window.eosVoice?.speak(@js($model->word), { rate }) }" x-init="$nextTick(() => say(1))">
+                        <button type="button" x-on:click="say(1)" aria-label="Hear the word" class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-9 w-9')</button>
+                        <button type="button" x-on:click="say(0.6)" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">🐢 Slower</button>
+                    </div>
+                    <form wire:submit="checkSpelling" class="contents">
+                        <input
+                            type="text"
+                            wire:model="spelling"
+                            autocapitalize="off"
+                            autocomplete="off"
+                            spellcheck="false"
+                            aria-label="Type the word you hear"
+                            placeholder="Type what you hear"
+                            @readonly($spellingCorrect !== null)
+                            class="w-full rounded-2xl border-2 border-line bg-ground px-4 py-3 text-center text-lg font-bold text-ink focus:border-accent focus:outline-none dark:border-line-dark dark:bg-ground-dark dark:text-ink-dark dark:focus:border-accent-dark"
+                        >
+                    </form>
+                @elseif ($type === 'speaking')
+                    <p class="font-display text-2xl leading-snug font-semibold text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
+                    <div class="mt-auto flex flex-col items-center gap-3">
+                        <x-voice-recorder big field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
+                    </div>
+                @elseif ($type === 'error')
+                    <p class="text-lg text-ink-soft dark:text-ink-soft-dark">You've mixed this up before:</p>
+                    <p class="text-xl text-danger-ink line-through decoration-danger">{{ $model->last_error }}</p>
+                    @if (! $revealed)
+                        <form wire:submit="checkAttempt" class="mt-auto flex flex-col gap-2">
+                            <input
+                                type="text"
+                                wire:model="attempt"
+                                aria-label="Write the sentence correctly"
+                                placeholder="Write it correctly…"
+                                class="w-full rounded-2xl border-2 border-line bg-ground px-4 py-3 text-base text-ink focus:border-accent focus:outline-none dark:border-line-dark dark:bg-ground-dark dark:text-ink-dark"
+                            >
+                            <button type="submit" class="w-full cursor-pointer rounded-2xl bg-accent py-3 text-base font-bold text-white dark:bg-accent-dark">Check</button>
+                            <button type="button" wire:click="reveal" class="cursor-pointer text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Just show the fix</button>
+                        </form>
+                    @endif
+                @elseif ($type === 'note')
+                    <x-notebook-drill :entry="$model" :answer="$drillAnswer" :correct="$drillCorrect" :typing="$drillTyping" :heard="$drillHeard" :missed-audio="$drillMissedAudio" :recording="$drillRecording" />
+                @elseif ($hasQuestion)
+                    @php
+                        $card = $grammarReview['card'];
+                        $answered = $pickedOption !== null;
+                    @endphp
+                    <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">{{ $model->focus }}</p>
+                    <p class="text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Fix this sentence</p>
+                    <p class="text-xl leading-snug text-ink dark:text-ink-dark">&ldquo;{{ $card['wrong'] }}&rdquo;</p>
+                    <div class="mt-auto grid gap-2.5">
+                        @foreach ($card['options'] as $i => $option)
+                            @php $state = ! $answered ? 'idle' : ($i === $card['correct'] ? 'correct' : ($pickedOption === $i ? 'wrong' : 'muted')); @endphp
                             <button
                                 type="button"
-                                wire:click="reveal"
-                                class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                            >@svg('heroicon-o-eye', 'h-4 w-4') Show a quick reminder</button>
-                        @else
-                            <p class="text-sm text-success dark:text-success-dark">{{ $model->rule_reminder }}</p>
-                        @endif
+                                wire:key="grammar-option-{{ $model->id }}-{{ $i }}"
+                                wire:click="pickOption({{ $i }})"
+                                @disabled($answered)
+                                data-state="{{ $state }}"
+                                class="choice"
+                            >
+                                <span class="choice-key">{{ chr(65 + $i) }}</span>
+                                <span class="min-w-0 flex-1 leading-snug">{{ $option }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="font-display text-2xl leading-snug font-semibold text-ink dark:text-ink-dark">{{ $model->focus }}</p>
+                    <p class="text-base text-ink-soft dark:text-ink-soft-dark">Can you still say a sentence like this? <span class="italic">"{{ $model->example_sentence }}"</span></p>
+                    @if (! $revealed)
+                        <button type="button" wire:click="reveal" class="mt-auto cursor-pointer self-center rounded-full border-2 border-line px-4 py-2 text-sm font-bold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">Show a quick reminder</button>
                     @endif
-
-                    @if ($type === 'speaking' && $recordedThisTurn && $feedback)
-                        <p class="flex items-start gap-2 rounded-xl bg-accent-soft px-3 py-2 text-sm text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                            @svg('heroicon-o-sparkles', 'mt-0.5 h-4 w-4 shrink-0') {{ $feedback }}
-                        </p>
-                    @endif
-
-                    @if (! $hasQuestion && $type !== 'note' && ($type === 'speaking' ? $recordedThisTurn : $revealed))
-                        <div>
-                            <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                                @if ($type === 'speaking') How did that feel? @else Did you remember it? @endif
-                            </p>
-                            <div class="mt-2">
-                                <x-review-grade-buttons :item="$model" :grades="$type === 'speaking' ? [1, 4] : [1, 4, 5]" />
-                            </div>
-                        </div>
-                    @endif
-                </x-review-shell>
+                @endif
             </div>
-        @endif
 
-        {{--
-            Deliberately far lighter than the grade buttons — a plain text
-            link, not a pill button — this is an escape hatch for a stuck
-            item (e.g. denied microphone access, see voice-recorder.blade.php),
-            not a normal everyday action.
-        --}}
-        <div class="pt-1 text-center">
-            <button
-                type="button"
-                wire:click="skip"
-                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark"
-            >@svg('heroicon-o-forward', 'h-3.5 w-3.5') Skip for now</button>
+            {{-- The bottom of the screen: what to do next for this card. --}}
+            @if ($type === 'word')
+                <div x-show="! forgot" class="flex gap-3">
+                    <button type="button" x-on:click="forgot = true" class="{{ $forgetClass }}">✕ Forget</button>
+                    <button type="button" wire:click="gradeWord(4, true)" wire:loading.attr="disabled" class="{{ $knowClass }}">✓ I know</button>
+                </div>
+                <x-answer-sheet when="forgot" tone="'almost'" title="'Here it is'">
+                    <x-review-word-meaning :word="$model" />
+                    <x-slot:actions>
+                        <x-continue-button on-click="$wire.gradeWord(1, false)" wire-target="gradeWord" />
+                    </x-slot:actions>
+                </x-answer-sheet>
+            @elseif ($type === 'dictation')
+                @if ($spellingCorrect === null)
+                    <div wire:key="dictation-check-{{ $model->id }}">
+                        <x-continue-button on-click="$wire.checkSpelling()" wire-target="checkSpelling">Check</x-continue-button>
+                    </div>
+                @else
+                    @php
+                        $sheetTone = $spellingCorrect ? "'good'" : "'almost'";
+                        $sheetTitle = $spellingCorrect ? "'Right!'" : "'Almost!'";
+                    @endphp
+                    <x-answer-sheet wire:key="dictation-sheet-{{ $model->id }}" when="true" :tone="$sheetTone" :title="$sheetTitle">
+                        <p class="text-lg font-extrabold">
+                            @unless ($spellingCorrect)
+                                <span class="font-bold text-ink-faint line-through dark:text-ink-faint-dark">{{ $spelling }}</span> →
+                            @endunless
+                            @foreach ($this->spellingPieces() as $piece)<span @class(['text-success dark:text-success-dark' => $piece['missed']])>{{ $piece['text'] }}</span>@endforeach
+                        </p>
+                        @if (filled($model->meaning_fa))
+                            <p dir="rtl" class="font-fa text-ink-soft dark:text-ink-soft-dark">{{ $model->meaning_fa }}</p>
+                        @endif
+                        <x-slot:actions>
+                            <x-continue-button on-click="$wire.continueDictation()" wire-target="continueDictation" />
+                        </x-slot:actions>
+                    </x-answer-sheet>
+                @endif
+            @elseif ($type === 'speaking')
+                @if ($recordedThisTurn)
+                    <div class="-mx-4 flex flex-col gap-3 rounded-t-3xl bg-surface px-4 pt-4 pb-3 shadow-[0_-6px_18px_rgba(20,16,60,.12)] sm:-mx-6 sm:px-6 dark:bg-surface-dark">
+                        @if ($feedback)
+                            <p class="flex items-start gap-2 text-sm text-ink dark:text-ink-dark">@svg('heroicon-o-sparkles', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark') {{ $feedback }}</p>
+                        @endif
+                        @if ($previousRecordingUrl)
+                            <div x-data="{ last: false }">
+                                <button type="button" x-on:click="last = ! last" class="cursor-pointer text-sm font-bold text-ink-faint dark:text-ink-faint-dark">▶ Last time{{ $model->last_reviewed_at ? ' · '.$model->last_reviewed_at->diffForHumans() : '' }}</button>
+                                <div x-show="last" x-cloak class="mt-2"><x-audio-player :url="$previousRecordingUrl" /></div>
+                            </div>
+                        @endif
+                        <div class="flex gap-3">
+                            <button type="button" wire:click="gradeSelf(1)" class="{{ $forgetClass }}">✕ Forget</button>
+                            <button type="button" wire:click="gradeSelf(4)" class="{{ $knowClass }}">✓ I know</button>
+                        </div>
+                    </div>
+                @endif
+            @elseif ($type === 'error' || ($type === 'grammar' && ! $hasQuestion))
+                @if ($revealed)
+                    @php
+                        $sheetTone = $type === 'error' && $attemptCorrect ? "'good'" : "'almost'";
+                        $sheetTitle = $type !== 'error' ? "'Quick reminder'" : ($attemptCorrect ? "'Spot on!'" : (trim($attempt) !== '' ? "'Not quite'" : "'The fix'"));
+                    @endphp
+                    <x-answer-sheet when="true" :tone="$sheetTone" :title="$sheetTitle">
+                        @if ($type === 'error')
+                            @if (trim($attempt) !== '' && ! $attemptCorrect)
+                                <p class="text-ink-soft dark:text-ink-soft-dark">You wrote: {{ $attempt }}</p>
+                            @endif
+                            <p class="text-base font-extrabold text-success dark:text-success-dark">{{ $model->last_correction }}</p>
+                        @else
+                            <p class="text-base">{{ $model->rule_reminder }}</p>
+                        @endif
+                        <x-slot:actions>
+                            <div class="flex gap-3">
+                                <button type="button" wire:click="gradeSelf(1)" class="{{ $forgetClass }}">✕ Forget</button>
+                                <button type="button" wire:click="gradeSelf(4)" class="{{ $knowClass }}">✓ I know</button>
+                            </div>
+                        </x-slot:actions>
+                    </x-answer-sheet>
+                @endif
+            @elseif ($hasQuestion && $pickedOption !== null)
+                @php
+                    $gotItRight = $pickedOption === $grammarReview['card']['correct'];
+                    $sheetTone = $gotItRight ? "'good'" : "'almost'";
+                    $sheetTitle = $gotItRight ? "'Yes — that\\'s right!'" : "'Not quite — the green one is correct.'";
+                @endphp
+                <x-answer-sheet when="true" :tone="$sheetTone" :title="$sheetTitle">
+                    @foreach ($grammarReview['rules'] as $rule)
+                        <p>{!! $rule['text'] !!}</p>
+                        @if ($rule['fa'])
+                            <p dir="rtl" class="font-fa text-ink-soft dark:text-ink-soft-dark">{!! $rule['fa'] !!}</p>
+                        @endif
+                    @endforeach
+                    <x-slot:actions>
+                        <x-continue-button on-click="$wire.continueGrammar()" wire-target="continueGrammar" />
+                    </x-slot:actions>
+                </x-answer-sheet>
+            @endif
+
+            <button type="button" wire:click="skip" class="cursor-pointer self-center pb-1 text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Skip</button>
         </div>
     @endif
-    @unless ($this->currentItem)
-        <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">
-            Want just one kind?
-            <a href="{{ route('vocabulary.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">My Words</a>
-            ·
-            <a href="{{ route('speaking.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">Speaking Recall</a>
-            ·
-            <a href="{{ route('notebook.index') }}" wire:navigate class="font-semibold text-accent-ink transition-colors hover:opacity-80 dark:text-accent-ink-dark">Notebook</a>
-        </p>
-    @endunless
 </div>

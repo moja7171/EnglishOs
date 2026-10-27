@@ -84,6 +84,36 @@ class ListeningPicks
     }
 
     /**
+     * The name a pick's photo is cached under (searched on Pexels by the
+     * pick's title — see MissionSeeder::warmPexelsCache(); pages only ever
+     * read it back with PexelsClient::cachedImageUrl()).
+     */
+    public static function imageKey(string $missionCode, int $dayNumber, int $level): string
+    {
+        return "{$missionCode}-pick-{$dayNumber}-{$level}";
+    }
+
+    /**
+     * Every pick's photo name with the words its photo is searched by.
+     *
+     * @return array<string, string>
+     */
+    public function imageQueries(): array
+    {
+        $queries = [];
+
+        foreach ($this->all() as $missionCode => $days) {
+            foreach ($days as $dayIndex => $trio) {
+                foreach ($trio as $level => $pick) {
+                    $queries[self::imageKey($missionCode, $dayIndex + 1, $level)] = $pick['title'];
+                }
+            }
+        }
+
+        return $queries;
+    }
+
+    /**
      * The file of an in-app pick's audio, or null if that mission has no
      * such pick or its file isn't there. Only a slug listed in the
      * mission's index.json is ever turned into a path.

@@ -1,8 +1,8 @@
 {{--
     One notebook line's practice card (NotebookDrill builds it, the
     PractisesNotebookLines trait answers it) — the same in Daily Review
-    and the notebook page's practice. The caller wraps it in
-    <x-review-shell> and passes the trait's state in.
+    and the notebook page's practice. The caller puts it on its card and
+    passes the trait's state in.
 
     @param \App\Models\NotebookEntry $entry
     @param int|null $answer  $drillAnswer

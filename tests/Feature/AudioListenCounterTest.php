@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\AudioListen;
-use App\Models\Mission;
-use App\Models\MissionRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Blade;
@@ -342,35 +340,5 @@ class AudioListenCounterTest extends TestCase
         foreach (['audio-player', 'video-player'] as $component) {
             $this->assertStringContainsString('x-back-close=', $this->renderPlayer($component, []));
         }
-    }
-
-    public function test_the_listening_recap_reports_how_many_times_the_episode_was_heard(): void
-    {
-        $learner = User::factory()->create();
-        $mission = Mission::create([
-            'code' => 'M01',
-            'title' => 'My Daily Life',
-            'module' => 'Me',
-            'outcome' => 'I can talk about my daily routine.',
-            'phases' => [[
-                'phase' => 'foundation',
-                'steps' => [[
-                    'key' => 'listening',
-                    'source' => 'BBC',
-                    'audio_url' => 'http://localhost/storage/missions/m01/mornings.mp3',
-                    'target_phrases' => [
-                        ['phrase' => 'sleep in', 'meaning' => 'to stay in bed', 'gap_before' => 'I like to ', 'gap_after' => ' at weekends.'],
-                    ],
-                ]],
-            ]],
-        ]);
-        $this->actingAs($learner);
-        $run = MissionRun::findOrStart($learner, $mission);
-        AudioListen::factory()->count(3)->create(['learner_id' => $learner->id]);
-
-        Livewire::test('missions.steps.listening', ['run' => $run])
-            ->set('gapFillSelections.0', 'sleep in')
-            ->call('save')
-            ->assertSee('listened to this episode 3 times');
     }
 }

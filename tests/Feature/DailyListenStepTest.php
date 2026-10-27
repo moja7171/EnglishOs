@@ -169,7 +169,7 @@ class DailyListenStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
-            ->assertSee('Shadow these lines')
+            ->assertSee('Say it · 1 of 2')
             ->assertDontSee('Listen at least once')
             ->call('save')
             ->assertHasErrors(['shadowRecordings']);
@@ -192,7 +192,7 @@ class DailyListenStepTest extends TestCase
         $this->assertDatabaseMissing('evidences', ['mission_run_id' => $run->id, 'phase' => 'daily_listen_2']);
     }
 
-    public function test_a_major_verdict_does_not_count_toward_the_requirement(): void
+    public function test_a_take_counts_even_with_a_major_verdict_and_shows_its_hint(): void
     {
         $run = $this->makeRun();
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('completely unrelated'));
@@ -202,8 +202,9 @@ class DailyListenStepTest extends TestCase
             ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 0);
 
-        $this->assertSame(0, $component->instance()->shadowedCount());
-        $component->assertSee('Try that line again.');
+        // Lesson design 4: any take moves the learner on ("Almost" included).
+        $this->assertSame(1, $component->instance()->shadowedCount());
+        $component->assertSee('Try that line again.')->assertSee('Almost!');
     }
 
     public function test_an_unreachable_ai_does_not_block_a_shadowed_line_and_hides_its_error(): void
@@ -216,7 +217,7 @@ class DailyListenStepTest extends TestCase
             ->call('checkShadowLine', 0)
             ->set('shadowRecordings.1', UploadedFile::fake()->create('shadow-1.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 1)
-            ->assertSee('your recording is saved and it counts')
+            ->assertSee('your take is saved and it counts')
             ->assertDontSee('GROQ_API_KEY')
             ->call('save')
             ->assertRedirect(route('missions.show', $run->mission));

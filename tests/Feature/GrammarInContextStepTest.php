@@ -240,7 +240,7 @@ class GrammarInContextStepTest extends TestCase
             ->set('frequencySentences.2', 'I sometimes exercise.')
             // quickCheckScore left untouched — the learner skipped the round.
             ->call('save')
-            ->assertSet('completed', true);
+            ->assertRedirect(route('missions.show', $run->mission));
 
         $evidence = Evidence::where('phase', 'grammar_in_context')->first();
         $content = json_decode($evidence->content_ref, true);
@@ -248,8 +248,6 @@ class GrammarInContextStepTest extends TestCase
         $this->assertCount(3, $content['frequency_sentences']);
         $this->assertNull($content['quick_check_score']);
         $this->assertSame('activation', $run->fresh()->currentStepKey());
-
-        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
     }
 
     /**
@@ -257,7 +255,7 @@ class GrammarInContextStepTest extends TestCase
      * later attempt (?retry=1) can be compared against this one, and the
      * immediate score is shown right on this completion.
      */
-    public function test_the_encouragement_score_reflects_how_many_sentences_needed_no_fix(): void
+    public function test_each_sentences_severity_is_saved_and_the_step_moves_straight_on(): void
     {
         $run = $this->makeRun();
 
@@ -274,48 +272,12 @@ class GrammarInContextStepTest extends TestCase
             ->set('frequencySentences.1', 'I often cook dinner.')
             ->set('frequencySentences.2', 'I sometimes exercise, a bit.')
             ->call('save')
-            ->assertSet('correctCount', 2)
-            ->assertSee('2 of 3 sentences needed no fix at all');
+            ->assertRedirect(route('missions.show', $run->mission));
 
         $evidence = Evidence::where('phase', 'grammar_in_context')->first();
         $content = json_decode($evidence->content_ref, true);
         $severities = collect($content['frequency_sentences'])->pluck('severity');
         $this->assertSame(['none', 'none', 'minor'], $severities->all());
-
-        $component->call('proceed')->assertRedirect(route('missions.show', $run->mission));
-    }
-
-    public function test_the_encouragement_score_compares_to_the_learners_previous_attempt(): void
-    {
-        $run = $this->makeRun();
-
-        Evidence::create([
-            'mission_run_id' => $run->id,
-            'phase' => 'grammar_in_context',
-            'type' => Evidence::TYPE_TEXT,
-            'content_ref' => json_encode([
-                'frequency_sentences' => [
-                    ['starter' => 'I usually', 'completion' => 'old one', 'severity' => 'minor'],
-                    ['starter' => 'I often', 'completion' => 'old two', 'severity' => 'minor'],
-                    ['starter' => 'I sometimes', 'completion' => 'old three', 'severity' => 'none'],
-                ],
-                'quick_check_score' => null,
-                'word_order_score' => null,
-            ]),
-        ]);
-
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
-        });
-
-        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->set('frequencySentences.0', 'I usually wake up at 7.')
-            ->set('frequencySentences.1', 'I often cook dinner.')
-            ->set('frequencySentences.2', 'I sometimes exercise.')
-            ->call('save')
-            ->assertSet('correctCount', 3)
-            ->assertSet('previousCorrect', 1)
-            ->assertSee('Better than last time');
     }
 
     public function test_a_completed_quick_check_score_is_recorded_in_evidence(): void
@@ -349,15 +311,13 @@ class GrammarInContextStepTest extends TestCase
         $this->assertStringContainsString('quick-round-completed', $html);
     }
 
-    public function test_a_mistake_fix_block_renders_tap_to_reveal(): void
+    public function test_a_sections_mistake_fix_becomes_which_one_is_right(): void
     {
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->assertSee('Alex said:')
+            ->assertSee('Which one is right?')
             ->assertSee('She wake up early.')
-            ->assertSeeHtml("What's the mistake?")
-            ->assertSeeHtml('x-show="revealed"')
             ->assertSee('She wakes up early.')
             ->assertSee('He/she/it needs the -s ending.');
     }
@@ -377,9 +337,8 @@ class GrammarInContextStepTest extends TestCase
         // @unless($readOnly) with no other way in — review mode could
         // never show the lesson again at all.
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run, 'readOnly' => true])
-            ->assertSee('Show the lesson again')
-            ->assertSee('The verb changes with he / she / it')
-            ->assertSee('She wakes up early.');
+            ->assertDontSee('Show the lesson again')
+            ->assertSee('The verb changes with he / she / it');
     }
 
     public function test_word_order_cards_come_from_seeded_content_and_render(): void
@@ -422,9 +381,9 @@ class GrammarInContextStepTest extends TestCase
 
         $html = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])->html();
 
-        $quickCheckPos = strpos($html, 'Quick check');
+        $quickCheckPos = strpos($html, 'Fix the sentence');
         $wordOrderPos = strpos($html, 'Build the sentence');
-        $makeItPersonalPos = strpos($html, 'Make it personal');
+        $makeItPersonalPos = strpos($html, 'About you · 1 of');
 
         $this->assertNotFalse($quickCheckPos);
         $this->assertNotFalse($wordOrderPos);
@@ -445,16 +404,7 @@ class GrammarInContextStepTest extends TestCase
         $this->assertSame('hard', $cards[1]['difficulty']);
     }
 
-    public function test_the_lesson_highlights_the_adverb_and_shows_the_bridge_note(): void
-    {
-        $run = $this->makeRun();
-
-        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->assertSeeHtml('<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">always</strong>')
-            ->assertSee("You'll use this next in Activation.");
-    }
-
-    public function test_the_practice_section_offers_clickable_vocabulary_chips(): void
+    public function test_the_sentence_screens_have_no_word_chips(): void
     {
         $run = $this->makeRun();
 
@@ -465,19 +415,9 @@ class GrammarInContextStepTest extends TestCase
             'content_ref' => json_encode(['selected_words' => ['wake up', 'have a shower', 'go to bed']]),
         ]);
 
+        // Lesson design 5 cut the word chips under the sentence boxes.
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
-            ->assertSee('Tap a word to drop it into your next sentence')
-            ->assertSee('wake up')
-            ->assertSee('have a shower')
-            ->assertSee('go to bed')
-            // Behaviour, not mechanics: the chips target this step's own
-            // sentence inputs, and a word dropped into an empty box starts
-            // it capitalised. See <x-vocabulary-chips>.
-            // Behaviour, not mechanics: the chips target this step's own
-            // sentence inputs, and a word dropped into an empty box starts
-            // it capitalised. See <x-vocabulary-chips>.
-            ->assertSeeHtml('^=&quot;frequencySentences.&quot;')
-            ->assertSeeHtml('Wake up');
+            ->assertDontSee('Tap a word to drop it into your next sentence');
     }
 
     public function test_starting_practice_is_persisted_so_a_later_render_still_shows_practice(): void
@@ -488,14 +428,8 @@ class GrammarInContextStepTest extends TestCase
             ->call('startPractice')
             ->assertSet('practiceStarted', true);
 
-        // A later Livewire round-trip (e.g. clicking Check) re-renders the
-        // component — the phase Alpine initialises from must still say
-        // 'practice', not 'lesson', or the UI would silently jump back to
-        // the start of the lesson on every check. (It rides a data-*
-        // attribute rather than the x-data string itself, so that string
-        // never changes between renders and Alpine keeps its live state —
-        // see the note on that element.)
-        $this->assertStringContainsString('data-initial-phase="practice"', $component->html());
+        // A fresh render (coming back later) opens on the sentences, not the lesson.
+        $this->assertStringNotContainsString('screen: 0,', Livewire::test('missions.steps.grammar-in-context', ['run' => $run])->html());
     }
 
     public function test_three_failed_frequency_sentence_checks_offer_to_reveal_the_correction(): void
@@ -604,7 +538,7 @@ class GrammarInContextStepTest extends TestCase
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run, 'readOnly' => true])
             ->assertSet('frequencySentences.0', 'wake up at 7.')
             ->assertSet('quickCheckScore', ['correct' => 2, 'total' => 2])
-            ->assertSee('You scored 2 of 2.');
+            ->assertSee('you scored 2 of 2.');
     }
 
     public function test_sentence_inputs_carry_a_draft_key_scoped_to_the_run(): void
@@ -725,34 +659,18 @@ class GrammarInContextStepTest extends TestCase
 
         $component = Livewire::test('missions.steps.grammar-in-context', ['run' => $run]);
 
+        // Each section is a short rule screen (lesson design 5): its name,
+        // rule, formula and word scales; the example lists and the bridge
+        // note are cut.
         $component
             ->assertSee('What each tense is for')
             ->assertSee('Time words')
             ->assertSee('Choosing the right one')
             ->assertSeeHtml('Use <strong>Past Simple</strong> for a finished time.')
-            ->assertSee('Past Simple') // group label
-            ->assertSee('Present Perfect') // group label
-            ->assertSee('I visited Paris last year.')
-            ->assertSee("I've visited Paris.")
             ->assertSee('yesterday')
             ->assertSee('already')
-            ->assertSee('A specific finished time → Past Simple')
-            ->assertSee('I saw that film last night.')
-            ->assertSee('Bridge note for a different grammar point.');
-
-        // No 'highlight' key was supplied for the rule_examples item — the
-        // highlight <strong> wrapper (used elsewhere, e.g. M01's "always")
-        // must not appear for this one, proving the guard in highlightWord()
-        // degrades to plain escaped text instead of a broken regex.
-        $component->assertDontSeeHtml(
-            '<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">'
-        );
-
-        // The bridge note is attached to the lesson as a whole, not
-        // per-section — it must render exactly once even though 3 sections
-        // are all present in the DOM (only one visible at a time via
-        // x-show/x-cloak).
-        $this->assertSame(1, substr_count($component->html(), 'Bridge note for a different grammar point.'));
+            ->assertDontSee('I visited Paris last year.')
+            ->assertDontSee('Bridge note for a different grammar point.');
     }
 
     public function test_the_seeded_judgment_and_major_criteria_drive_the_ai_check_for_a_different_grammar_point(): void
@@ -878,7 +796,7 @@ class GrammarInContextStepTest extends TestCase
             ->assertSee('The pattern')
             ->assertSee('verb + s')
             ->assertSee('She wake up.')
-            ->assertSeeHtml('<strong class="text-ink underline decoration-2 underline-offset-2 dark:text-ink-dark">wakes</strong>')
+            ->assertSee('She wakes up.')
             ->assertSee('Do not forget the -s.');
     }
 

@@ -8,7 +8,8 @@
        learner's own words, and that answer's fixes right under it), or
        one card per sentence that needs work when it isn't; fine
        sentences fold away.
-    3. "Next time" — the speaking techniques.
+    3. "Next time" — the speaking techniques (inside "More" when
+       $foldTechniques).
     4. "Your better version" to listen to and repeat.
     5. "More" — whatever the page passes in the `more` slot (recordings,
        the full text), collapsed.
@@ -23,8 +24,11 @@
         null still shows the answers (e.g. when the AI was down).
     @param list<array{question: ?string, text: string}> $answers The
         learner's answers in order, matched to each sentence's 'answer'.
+    @param bool $foldTechniques Puts "Next time" inside "More" (the
+        lesson's feedback screen, <x-feedback-screen>, keeps the first view
+        to the summary and the fixes).
 --}}
-@props(['feedback' => null, 'answers' => []])
+@props(['feedback' => null, 'answers' => [], 'foldTechniques' => false])
 
 @use('App\Services\LearnerFeedback')
 
@@ -111,19 +115,8 @@
         </details>
     @endif
 
-    @if ($feedback['techniques'])
-        <div class="space-y-2 rounded-2xl border border-sky-200 bg-sky-50 p-3 dark:border-sky-900 dark:bg-sky-950">
-            <p class="font-fa flex items-center gap-1.5 text-xs font-semibold text-sky-800 dark:text-sky-300">@svg('heroicon-o-light-bulb', 'h-4 w-4') دفعه‌ی بعد</p>
-            @foreach ($feedback['techniques'] as $technique)
-                <div>
-                    <p class="text-sm font-semibold text-ink dark:text-ink-dark {{ $english }}" dir="ltr">{{ LearnerFeedback::TECHNIQUES[$technique['key']]['name'] }}</p>
-                    @if ($technique['tip'])
-                        <p class="font-fa text-sm text-ink-soft dark:text-ink-soft-dark">{{ $technique['tip'] }}</p>
-                    @endif
-                    <p class="text-sm text-ink italic dark:text-ink-dark {{ $english }}" dir="ltr">{{ $technique['example'] }}</p>
-                </div>
-            @endforeach
-        </div>
+    @if ($feedback['techniques'] && ! $foldTechniques)
+        <x-feedback-techniques :techniques="$feedback['techniques']" />
     @endif
 
     @if ($feedback['better_version'])
@@ -145,10 +138,16 @@
         </a>
     @endif
 
-    @if (isset($more) && $more->isNotEmpty())
+    @php $foldedTechniques = $foldTechniques && $feedback['techniques']; @endphp
+    @if ($foldedTechniques || (isset($more) && $more->isNotEmpty()))
         <details class="rounded-2xl border border-line p-3 dark:border-line-dark">
             <summary class="font-fa cursor-pointer text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">بیشتر</summary>
-            <div class="mt-3 space-y-3" dir="ltr">{{ $more }}</div>
+            <div class="mt-3 space-y-3" dir="ltr">
+                @if ($foldedTechniques)
+                    <x-feedback-techniques :techniques="$feedback['techniques']" />
+                @endif
+                {{ $more ?? '' }}
+            </div>
         </details>
     @endif
 </div>

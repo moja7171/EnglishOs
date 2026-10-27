@@ -70,31 +70,6 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('You missed a day, but your streak is safe!');
     }
 
-    public function test_the_comeback_banner_shows_after_a_streak_actually_breaks(): void
-    {
-        $learner = User::factory()->create();
-        $run = MissionRun::findOrStart($learner, $this->makeMission());
-
-        $this->recordEvidenceOn($run, now()->subDays(10)->toDateString());
-        $this->recordEvidenceOn($run, now()->subDays(9)->toDateString());
-        $this->recordEvidenceOn($run, now()->subDays(8)->toDateString());
-
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->assertSee('Fresh start')
-            ->assertSee('3 days');
-    }
-
-    public function test_no_comeback_banner_for_a_learner_with_no_history(): void
-    {
-        $learner = User::factory()->create();
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->assertDontSee('Fresh start');
-    }
-
     public function test_no_comeback_banner_while_the_streak_is_still_alive(): void
     {
         $learner = User::factory()->create();
@@ -292,8 +267,7 @@ class MissionsOverviewTest extends TestCase
         $this->makeSecondMission();
         $this->actingAs($learner);
 
-        Livewire::test('missions.overview')
-            ->assertSee('Next: M02');
+        $this->assertNotNull(MissionRun::gatingMission($learner, Mission::where('code', 'M02')->firstOrFail()));
     }
 
     public function test_a_mission_unlocks_once_its_predecessor_is_complete(): void
@@ -323,8 +297,7 @@ class MissionsOverviewTest extends TestCase
 
         $this->actingAs($learner);
 
-        Livewire::test('missions.overview')
-            ->assertDontSee('Next: M02');
+        $this->assertNull(MissionRun::gatingMission($learner, Mission::where('code', 'M02')->firstOrFail()));
     }
 
     public function test_a_mission_stays_gated_when_its_predecessor_needs_retry_evidence(): void
@@ -338,8 +311,7 @@ class MissionsOverviewTest extends TestCase
 
         $this->actingAs($learner);
 
-        Livewire::test('missions.overview')
-            ->assertSee('Next: M02');
+        $this->assertNotNull(MissionRun::gatingMission($learner, Mission::where('code', 'M02')->firstOrFail()));
     }
 
     public function test_progress_already_made_on_a_gated_mission_is_never_locked_out(): void
@@ -355,25 +327,7 @@ class MissionsOverviewTest extends TestCase
 
         $this->actingAs($learner);
 
-        Livewire::test('missions.overview')
-            ->assertDontSee('Next: M02');
-    }
-
-    public function test_home_shows_the_next_mission_and_one_line_for_the_rest(): void
-    {
-        $learner = User::factory()->create();
-        $first = $this->makeMission();
-        MissionRun::findOrStart($learner, $first);
-        $second = $this->makeMission('M02');
-        $this->actingAs($learner);
-
-        // M02 is the next (gated) one; M03–M24 are the 22 after it.
-        Livewire::test('missions.overview')
-            ->assertSee('Next: M02 My Daily Life')
-            ->assertSee('22 more · Missions')
-            ->assertSeeHtml('href="'.route('missions.show', [$second, 'overview']).'"')
-            ->assertSeeHtml('href="'.route('missions.index').'"')
-            ->assertDontSee($first->outcome);
+        $this->assertNull(MissionRun::gatingMission($learner, Mission::where('code', 'M02')->firstOrFail()));
     }
 
     public function test_only_one_suggestion_shows_below_today(): void
@@ -407,7 +361,7 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeInOrder(['Continue', 'Mission Brief', 'Extra listening · anytime']);
+            ->assertSeeInOrder(['Mission Brief', 'Start', 'Extra listening · anytime']);
     }
 
     public function test_the_today_box_reflects_a_tick_made_today(): void
@@ -471,5 +425,32 @@ class MissionsOverviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')->assertDontSee('Extra listening');
+    }
+
+    public function test_home_shows_where_friends_are_and_links_to_friends(): void
+    {
+        $learner = User::factory()->create();
+        $friend = User::factory()->create(['name' => 'Ali']);
+        $learner->follow($friend);
+        $friend->acceptFollowRequest($learner);
+        $friend->follow($learner);
+        $learner->acceptFollowRequest($friend);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee("Ali hasn't started today")
+            ->assertSeeHtml('href="'.route('friends.index').'"');
+    }
+
+    public function test_the_next_thing_today_is_one_big_card_with_one_start(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission());
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Start')
+            ->assertDontSee('Fresh start')
+            ->assertDontSee('more · Missions');
     }
 }

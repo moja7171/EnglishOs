@@ -50,6 +50,16 @@
         the line's beginning — and says so in one line until play. A
         mission step uses its eos-draft prefix, so saving the step clears it.
         null = always from the start.
+    @param bool $podcast The one-task lesson screen's look, like a podcast
+        app: no card around it, ↺10 · big play · 10↻, the speed on the left
+        and nothing else on the controls row; only "Show text" under it
+        (no full screen, no download).
+    @param string|null $textOpenWhen Raw Alpine expression from the
+        surrounding page that opens the text when it turns true (e.g. the
+        second listen of a lesson).
+    @param bool $textSheet With $podcast: the text opens as a bottom sheet
+        over the player, with a small play/pause and time on top of it,
+        behind one "Text" button (the /listening full-screen player).
 --}}
 @props([
     'url',
@@ -61,11 +71,19 @@
     'shadowLines' => [],
     'shadowTimestamps' => [],
     'resumeKey' => null,
+    'podcast' => false,
+    'textOpenWhen' => null,
+    'textSheet' => false,
 ])
+
+@php
+    $panelClass = $textSheet ? 'min-h-0 flex-1 text-base' : null;
+@endphp
 
 @if (! empty($url))
     <div
-        class="card p-4"
+        class="{{ $podcast ? 'flex flex-col' : 'card p-4' }}"
+        @if ($textOpenWhen) x-effect="if ({{ $textOpenWhen }}) showText = true" @endif
         :class="focus ? 'fixed inset-0 z-50 flex flex-col overflow-hidden rounded-none border-0 bg-ground sm:p-6 dark:bg-ground-dark' : ''"
         x-on:keydown.escape.window="focus = false"
         x-back-close="{ open: focus, close: () => focus = false }"
@@ -151,11 +169,11 @@
                             duration: duration,
                         });
                         this.$dispatch('audio-listened');
-                    }, 0.9, () => this.$dispatch('audio-listened'), 0.6);
+                    }, 0.9, () => this.$dispatch('audio-listened'), 0.6, {{ Illuminate\Support\Js::from($resumeKey ? $resumeKey.':heard-listen' : null) }});
                 @endif
 
                 @if ($onListened)
-                    window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9);
+                    window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9, null, 0.6, {{ Illuminate\Support\Js::from($resumeKey ? $resumeKey.':heard' : null) }});
                 @endif
 
                 @if ($resumeKey)
@@ -288,7 +306,8 @@
         </audio>
 
         @if ($listen && ($listen['chip'] ?? true) !== false)
-            <div class="mb-3 flex items-start justify-end gap-3">
+            {{-- The podcast look keeps the counter (it records the listen) but out of sight. --}}
+            <div @class(['mb-3 flex items-start justify-end gap-3', 'hidden' => $podcast])>
                 <div>
                         <livewire:listen-counter
                             :mission-code="$listen['mission_code']"
@@ -340,7 +359,11 @@
         </div>
 
         @if ($resumeKey)
-            <p x-show="resumedFrom !== null" x-cloak class="mt-1 text-center text-xs text-ink-faint dark:text-ink-faint-dark">
+            <p x-show="resumedFrom !== null" x-cloak @class([
+                'mt-1 text-center text-xs',
+                'text-ink-faint dark:text-ink-faint-dark' => ! $textSheet,
+                'mx-auto mt-3 w-fit rounded-full bg-accent-soft px-3 py-1 font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark' => $textSheet,
+            ])>
                 Continue from <span x-text="formatTime(resumedFrom)"></span>
             </p>
         @endif
@@ -360,18 +383,18 @@
             <div class="flex items-center gap-3">
                 <button
                     type="button"
-                    x-on:click="skip(-5)"
-                    title="Back 5 seconds"
+                    x-on:click="skip(-{{ $podcast ? 10 : 5 }})"
+                    title="Back {{ $podcast ? 10 : 5 }} seconds"
                     class="inline-flex shrink-0 cursor-pointer flex-col items-center gap-0.5 text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
                 >
                     @svg('heroicon-o-backward', 'h-5 w-5')
-                    <span class="text-[10px] leading-none font-semibold">5s</span>
+                    <span class="text-[10px] leading-none font-semibold">{{ $podcast ? 10 : 5 }}s</span>
                 </button>
 
                 <button
                     type="button"
                     x-on:click="togglePlay()"
-                    :class="focus ? 'h-16 w-16' : 'h-12 w-12'"
+                    :class="focus || {{ $podcast ? 'true' : 'false' }} ? 'h-16 w-16' : 'h-12 w-12'"
                     class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white shadow-sm transition-transform hover:scale-105 active:scale-95 dark:bg-accent-dark"
                 >
                     <span x-show="!playing">@svg('heroicon-s-play', 'ml-0.5 h-5 w-5')</span>
@@ -380,21 +403,25 @@
 
                 <button
                     type="button"
-                    x-on:click="skip(5)"
-                    title="Forward 5 seconds"
+                    x-on:click="skip({{ $podcast ? 10 : 5 }})"
+                    title="Forward {{ $podcast ? 10 : 5 }} seconds"
                     class="inline-flex shrink-0 cursor-pointer flex-col items-center gap-0.5 text-ink-soft transition-colors hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark"
                 >
                     @svg('heroicon-o-forward', 'h-5 w-5')
-                    <span class="text-[10px] leading-none font-semibold">5s</span>
+                    <span class="text-[10px] leading-none font-semibold">{{ $podcast ? 10 : 5 }}s</span>
                 </button>
             </div>
 
+            @if ($podcast)
+                <span class="w-11 shrink-0" aria-hidden="true"></span>
+            @else
             <a
                 href="{{ $url }}"
                 download
                 title="Download"
                 class="inline-flex w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line py-1.5 text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
             >@svg('heroicon-o-arrow-down-tray', 'h-3.5 w-3.5')</a>
+            @endif
         </div>
         </div>
 
@@ -402,7 +429,7 @@
             {{-- Show/hide the text, and full screen (which makes it big).
                  In full screen this row moves to the top. --}}
             <div
-                class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+                class="flex flex-wrap items-center {{ $podcast ? 'justify-center' : 'justify-between' }} gap-x-4 gap-y-2"
                 :class="focus ? 'order-0 mx-auto mb-3 w-full max-w-3xl shrink-0' : 'mt-3'"
             >
                 <button
@@ -413,9 +440,14 @@
                     class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                 >
                     @svg('heroicon-o-document-text', 'h-4 w-4')
-                    <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
+                    @if ($textSheet)
+                        <span>Text</span>
+                    @else
+                        <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
+                    @endif
                 </button>
 
+                @unless ($podcast)
                 <button
                     type="button"
                     x-show="showText || focus"
@@ -436,7 +468,37 @@
                     >
                     Full screen when I press play
                 </label>
+                @endunless
             </div>
+        @endif
+
+        @if ($textSheet && count($segments))
+            {{-- The text as a bottom sheet over the player, with its own
+                 small play/pause on top so it can be followed hands-free. --}}
+            <div x-show="showText" x-cloak x-on:click="showText = false" x-transition.opacity aria-hidden="true" class="fixed inset-0 z-[55] bg-ink/40"></div>
+            <div
+                x-show="showText"
+                x-cloak
+                x-swipe-close="showText = false"
+                x-back-close="{ open: showText, close: () => showText = false }"
+                x-on:keydown.escape.window="showText = false"
+                x-transition:enter="transition duration-200 ease-out motion-reduce:duration-0"
+                x-transition:enter-start="translate-y-full"
+                x-transition:enter-end="translate-y-0"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Text"
+                class="fixed inset-x-0 top-14 bottom-0 z-[56] mx-auto flex w-full max-w-lg flex-col gap-3 rounded-t-3xl border border-b-0 border-line bg-surface px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl dark:border-line-dark dark:bg-surface-dark"
+            >
+                <div class="mx-auto h-1 w-10 shrink-0 rounded-full bg-line dark:bg-line-dark" aria-hidden="true"></div>
+                <div class="flex shrink-0 items-center gap-3 rounded-2xl bg-surface-sunken px-2.5 py-2 dark:bg-surface-sunken-dark">
+                    <button type="button" x-on:click="togglePlay()" x-bind:aria-label="playing ? 'Pause' : 'Play'" class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
+                        <span x-show="!playing">@svg('heroicon-s-play', 'ml-0.5 h-4 w-4')</span>
+                        <span x-show="playing" x-cloak>@svg('heroicon-s-pause', 'h-4 w-4')</span>
+                    </button>
+                    <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark"><div class="h-full rounded-full bg-accent dark:bg-accent-dark" :style="`width: ${progressPercent}%`"></div></div>
+                    <span class="shrink-0 text-xs font-extrabold text-ink-soft tabular-nums dark:text-ink-soft-dark" x-text="formatTime(currentTime)"></span>
+                </div>
         @endif
 
         @if (count($segments) && filled($segments[0]['speaker'] ?? null))
@@ -477,7 +539,7 @@
                 x-show="showText || focus"
                 @if ($textHidden) x-cloak @endif
                 class="space-y-3 overflow-y-auto card-sunken p-3"
-                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-lg leading-relaxed sm:text-xl' : 'mt-4 max-h-72 text-sm'"
+                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-lg leading-relaxed sm:text-xl' : '{{ $panelClass ?? 'mt-4 max-h-72 text-sm' }}'"
             >
                 @foreach ($turns as $turn)
                     <div class="max-w-[90%] {{ $turn['alignRight'] ? 'ml-auto' : '' }}">
@@ -509,7 +571,7 @@
                 x-show="showText || focus"
                 @if ($textHidden) x-cloak @endif
                 class="space-y-1.5 overflow-y-auto card-sunken p-3"
-                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : 'mt-4 max-h-56 text-sm'"
+                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : '{{ $panelClass ?? 'mt-4 max-h-56 text-sm' }}'"
             >
                 @foreach ($segments as $index => $segment)
                     <p
@@ -521,6 +583,10 @@
                             : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
                     >{{ $segment['text'] }}</p>
                 @endforeach
+            </div>
+        @endif
+
+        @if ($textSheet && count($segments))
             </div>
         @endif
 

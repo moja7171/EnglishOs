@@ -235,189 +235,6 @@ document.addEventListener('alpine:init', () => {
         cleanup(() => el.removeEventListener('input', handler));
     });
 
-    /**
-     * One vocabulary review card (<x-vocabulary-review-card>): the front asks
-     * "do you remember it?", the back shows the answer and takes the grade.
-     * The flip, a swipe, a key press and the leave animation all happen right
-     * here in the browser — the only server round-trip is the final
-     * gradeWord(quality, remembered), which matters on a slow connection.
-     *
-     * Front: swipe right / Space / Enter / ArrowRight = "I remember",
-     *        swipe left / ArrowLeft = "Not sure".
-     * Back:  swipe right / ArrowRight = Good, swipe left / ArrowLeft = Again,
-     *        1 / 2 / 3 = Again / Good / Easy. Someone who wasn't sure can only
-     *        ever answer Again.
-     */
-    Alpine.data('recallCard', () => ({
-        flipped: false,
-        recalled: false,
-        busy: false,
-        leaving: 0,
-        dx: 0,
-        dragging: false,
-        startX: null,
-        startY: null,
-        pointerId: null,
-        reduceMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
-
-        get hint() {
-            if (Math.abs(this.dx) < 40) return null;
-
-            return this.dx > 0 ? 'right' : 'left';
-        },
-
-        get hintLabel() {
-            if (this.hint === null) return '';
-            if (!this.flipped) return this.hint === 'right' ? 'I remember' : 'Not sure';
-            if (!this.recalled) return 'Again';
-
-            return this.hint === 'right' ? 'Good' : 'Again';
-        },
-
-        get cardStyle() {
-            if (this.leaving) {
-                return `transform: translateX(${this.leaving * 120}%) rotate(${this.leaving * 12}deg); opacity: 0; transition: transform .22s ease-in, opacity .22s ease-in;`;
-            }
-            if (this.dx !== 0) {
-                return `transform: translateX(${this.dx}px) rotate(${this.dx / 18}deg); transition: none;`;
-            }
-
-            return 'transition: transform .2s ease-out;';
-        },
-
-        get tintStyle() {
-            const strength = Math.min(Math.abs(this.dx) / 140, 1) * 0.16;
-
-            return `background: var(${this.dx > 0 ? '--color-success' : '--color-danger'}); opacity: ${strength};`;
-        },
-
-        buzz() {
-            try {
-                navigator.vibrate?.(12);
-            } catch (e) {}
-        },
-
-        flip(remembered) {
-            if (this.flipped || this.busy) return;
-
-            this.recalled = remembered;
-            this.flipped = true;
-            this.buzz();
-        },
-
-        grade(quality) {
-            if (this.busy || !this.flipped) return;
-
-            this.busy = true;
-            this.buzz();
-
-            const send = () => this.$wire.gradeWord(quality, this.recalled).catch(() => {
-                this.leaving = 0;
-                this.busy = false;
-            });
-
-            if (this.reduceMotion) {
-                send();
-
-                return;
-            }
-
-            this.leaving = quality === 1 ? -1 : 1;
-            setTimeout(send, 200);
-        },
-
-        pointerDown(event) {
-            if (this.busy || event.button > 0) return;
-            if (event.target.closest('button, a, input, textarea, select')) return;
-
-            this.startX = event.clientX;
-            this.startY = event.clientY;
-            this.pointerId = event.pointerId;
-            this.dragging = false;
-        },
-
-        pointerMove(event) {
-            if (this.startX === null || event.pointerId !== this.pointerId) return;
-
-            const dx = event.clientX - this.startX;
-            const dy = event.clientY - this.startY;
-
-            if (!this.dragging) {
-                // A mostly-vertical gesture is the page scrolling, not a swipe.
-                if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return;
-
-                this.dragging = true;
-                try {
-                    this.$el.setPointerCapture(event.pointerId);
-                } catch (e) {}
-            }
-
-            this.dx = dx;
-        },
-
-        pointerUp() {
-            if (this.startX === null) return;
-
-            const dx = this.dx;
-            const wasDragging = this.dragging;
-
-            this.pointerCancel();
-
-            if (wasDragging && Math.abs(dx) >= 90) {
-                this.swipe(dx > 0);
-            }
-        },
-
-        pointerCancel() {
-            this.startX = null;
-            this.startY = null;
-            this.pointerId = null;
-            this.dragging = false;
-            this.dx = 0;
-        },
-
-        swipe(toRight) {
-            if (!this.flipped) {
-                this.flip(toRight);
-            } else {
-                this.grade(toRight && this.recalled ? 4 : 1);
-            }
-        },
-
-        key(event) {
-            if (event.metaKey || event.ctrlKey || event.altKey || this.busy) return;
-            if (event.target.closest?.('input, textarea, select, [contenteditable]')) return;
-
-            if (!this.flipped) {
-                if (event.key === ' ' || event.key === 'Enter' || event.key === 'ArrowRight') {
-                    event.preventDefault();
-                    this.flip(true);
-                } else if (event.key === 'ArrowLeft') {
-                    event.preventDefault();
-                    this.flip(false);
-                }
-
-                return;
-            }
-
-            if (!this.recalled) {
-                if ([' ', 'Enter', '1', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-                    event.preventDefault();
-                    this.grade(1);
-                }
-
-                return;
-            }
-
-            const quality = { 1: 1, 2: 4, 3: 5, ArrowLeft: 1, ArrowRight: 4 }[event.key];
-
-            if (quality !== undefined) {
-                event.preventDefault();
-                this.grade(quality);
-            }
-        },
-    }));
-
     window.eosDraft = {
         clearPrefix(prefix) {
             try {
@@ -640,13 +457,14 @@ window.eosConnectionNotice = {
  * something a step depends on.
  */
 window.eosVoice = {
-    speak(text) {
+    // options.rate: slower for the dictation card's 🐢 (default 0.95).
+    speak(text, options = {}) {
         try {
             if (!('speechSynthesis' in window) || !text) return;
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            utterance.rate = 0.95;
+            utterance.rate = options.rate ?? 0.95;
             window.speechSynthesis.speak(utterance);
         } catch (e) {}
     },
@@ -939,16 +757,38 @@ window.eosConfetti = {
  * auto-pauses can cost a few seconds, but a learner who clearly listened
  * through to the end must not stay locked out. Jumping straight to the end
  * credits nothing, so it still can't be skipped.
+ *
+ * `memoryKey` (localStorage) keeps the heard seconds across a reload or a
+ * learner who leaves mid-way and comes back where they left off (see
+ * eosResume): without it, the half heard before leaving was forgotten and a
+ * resumed listen could never reach 90%. Storage may be blocked; the
+ * tracker then simply works per page load as before.
  */
-window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6) {
+window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6, memoryKey = null) {
     const heard = new Set();
     let last = null;
     let waitingForRestart = false;
+    let unsaved = 0;
+
+    const remember = () => {
+        if (!memoryKey) return;
+        unsaved = 0;
+        try { localStorage.setItem(memoryKey, JSON.stringify([...heard])); } catch (e) {}
+    };
+
+    if (memoryKey) {
+        try { JSON.parse(localStorage.getItem(memoryKey) ?? '[]').forEach((second) => heard.add(second)); } catch (e) {}
+        media.addEventListener('pause', remember);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) remember(); });
+    }
 
     const reset = () => {
         heard.clear();
         last = null;
         waitingForRestart = false;
+        if (memoryKey) {
+            try { localStorage.removeItem(memoryKey); } catch (e) {}
+        }
     };
 
     media.addEventListener('seeking', () => {
@@ -981,12 +821,15 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
             return;
         }
 
-        // Only fully played seconds are marked. Continuous playback only: a gap this big between two updates is a
-        // jump (a seek the 'seeking' event didn't flag first), not listening.
-        if (last !== null && now >= last && now - last <= 2.5) {
+        // Only fully played seconds are marked, from continuous playback: a seek fires 'seeking' first and clears
+        // `last`. The gap allowed between two updates is generous because a phone with its screen off sends them
+        // only every few seconds — those seconds were really heard.
+        if (last !== null && now >= last && now - last <= 15) {
             for (let second = Math.floor(last); second < Math.floor(now); second++) {
                 heard.add(second);
             }
+
+            if (++unsaved >= 10) remember();
         }
 
         last = now;

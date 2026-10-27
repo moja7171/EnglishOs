@@ -244,95 +244,90 @@ new class extends Component
 @php
     $content = $run->mission->stepContent('story_sequence');
     $sequenceImages = $this->sequenceImages();
+    $sequencingWords = $content['sequencing_words'] ?? [];
 @endphp
 
-<div class="space-y-4">
-    <x-hook :text="$content['hook'] ?? null" />
-
-    @if ($completed || ($readOnly && ($transcript || $feedback)))
-        <div class="space-y-4 card p-4">
-            <div>
-                <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                    @svg('heroicon-o-check-circle', 'h-4 w-4')
-                    Picture Story complete
-                </p>
-                @if ($feedback)
-                    <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">A quick look at your story before you move on.</p>
+@if ($readOnly)
+    <div class="flex flex-col gap-4 pt-2">
+        <x-step-intro kind="Picture Story" :title="$content['hook'] ?? null" />
+        <x-sequential-picture-story grid :images="$sequenceImages" />
+        @if ($savedAudioUrl)
+            <x-audio-player :url="$savedAudioUrl" />
+        @endif
+        @if ($feedback)
+            <x-learner-feedback :feedback="$feedback">
+                @if ($transcript)
+                    <x-slot:more>
+                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                        <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+                    </x-slot:more>
                 @endif
-            </div>
+            </x-learner-feedback>
+        @elseif ($transcript)
+            <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+        @endif
+    </div>
+@else
+{{-- Lesson design 6: the start, then all four pictures at once with the
+     sequencing words and ONE recording of the whole story, then the
+     feedback on a screen of its own. --}}
+<div
+    x-data="{ screen: {{ $completed ? 2 : ($recordingPath ? 1 : 0) }} }"
+    x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 3 })"
+    x-back-close="{ open: screen === 1, close: () => screen-- }"
+>
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="Picture Story" :minutes="$run->mission->stepDuration('story_sequence')" :title="$content['hook'] ?? null" />
 
-            @if ($feedback)
-                <x-learner-feedback :feedback="$feedback">
-                    @if ($transcript)
-                        <x-slot:more>
-                            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
-                            <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
-                        </x-slot:more>
-                    @endif
-                </x-learner-feedback>
-            @elseif ($transcript)
-                <div>
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
-                    <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
-                </div>
-            @endif
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            @unless ($readOnly)
-                <button
-                    wire:click="proceed"
-                    wire:loading.attr="disabled"
-                    wire:target="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
-                >
-                    <span wire:loading.remove wire:target="proceed">Continue</span>
-                    <span wire:loading wire:target="proceed">Saving…</span>
-                </button>
-            @endunless
-        </div>
-    @endif
-
-    @unless ($completed)
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Tell the story, in order</p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Tell the story in order, using {{ $this->narration()['tense'] }}.</p>
-        </div>
-
-        <x-sequential-picture-story :images="$sequenceImages" />
+    <x-lesson-screen when="screen === 1">
+        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Tell it · {{ $this->narration()['tense'] }}</span>
 
         @if (empty($sequenceImages))
             <p class="text-sm text-ink-soft dark:text-ink-soft-dark">We couldn't load the pictures for this story — refresh the page to try again.</p>
+        @else
+            <x-sequential-picture-story grid :images="$sequenceImages" />
         @endif
 
-        @if (count($content['sequencing_words'] ?? []))
-            <div class="flex flex-wrap gap-1.5">
-                @foreach ($content['sequencing_words'] as $word)
-                    <span class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">{{ $word }}</span>
+        @if (count($sequencingWords))
+            <div class="flex flex-wrap justify-center gap-1.5">
+                @foreach ($sequencingWords as $word)
+                    <span class="rounded-full bg-surface px-3 py-1 text-xs font-bold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">{{ $word }}</span>
                 @endforeach
             </div>
         @endif
 
-        @if ($readOnly)
-            <div>
-                <x-audio-player :url="$savedAudioUrl" />
-            </div>
-        @else
-            <div>
-                <x-voice-recorder field="recording" :file="$this->recordingUrl()" file-name="story-sequence.webm" />
-            </div>
+        <div class="flex justify-center">
+            <x-voice-recorder big field="recording" :file="$this->recordingUrl()" file-name="story-sequence.webm" />
+        </div>
+        @error('recording')
+            <p class="text-sm text-danger-ink">{{ $message }}</p>
+        @enderror
 
-            @error('recording')
-                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
-            @enderror
+        <x-slot:actions>
+            <x-continue-button
+                on-click="screen = 2; $wire.save()"
+                wire-target="save"
+                ready-when="{{ $recordingPath ? 'true' : 'false' }}"
+            />
+        </x-slot:actions>
+    </x-lesson-screen>
 
-            <div class="mt-4">
-                <x-continue-button
-                    on-click="$wire.save()"
-                    wire-target="save"
-                    loading-label="Listening and preparing your feedback…"
-                    ready-when="{{ $recordingPath ? 'true' : 'false' }}"
-                    hint="Record your story to continue"
-                />
-            </div>
-        @endunless
-    @endunless
+    <x-feedback-screen when="screen === 2" :feedback="$feedback" :waiting="! $completed">
+        @if ($transcript)
+            <x-slot:said>
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+            </x-slot:said>
+        @endif
+
+        <x-slot:actions>
+            <x-continue-button on-click="$wire.proceed()" wire-target="save,proceed" ready-when="{{ $completed ? 'true' : 'false' }}" />
+        </x-slot:actions>
+    </x-feedback-screen>
 </div>
+@endif

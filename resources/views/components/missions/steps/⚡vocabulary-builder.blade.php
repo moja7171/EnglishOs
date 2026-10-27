@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\DictatesAnswers;
 use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
@@ -7,14 +8,21 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Models\VocabularyWord;
 use App\Services\AiFailure;
 use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 /**
+ * New Words, one task per screen (lesson design 2): a card per word (picture,
+ * sound, Persian meaning, one example), the day's short story, one quick
+ * check per word, then one personal sentence per word — typed or said —
+ * checked one at a time. Saving adds every word to My Words by itself.
+ *
  * One day's worth of vocabulary (5-6 curated words — never the old
  * "pick at least 8" free-for-all) — this same component renders as
  * vocabulary_builder_1, _2 and _3 (see ⚡runner.blade.php's stepComponents()
@@ -27,11 +35,13 @@ use Livewire\Component;
  */
 new class extends Component
 {
+    use DictatesAnswers;
     use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
     use TracksVocabularyNotebook;
+    use WithFileUploads;
 
     public MissionRun $run;
 
@@ -56,19 +66,6 @@ new class extends Component
 
     /** @var array<string, string> keyed by word — per-input check failure message */
     public array $checkErrors = [];
-
-    /**
-     * True once save() has succeeded — swaps the whole step over to the
-     * completion recap (pick which words join My Words, then Continue).
-     */
-    public bool $completed = false;
-
-    /**
-     * True after Continue was pressed with ticked words not yet in My
-     * Words — swaps the Continue row for an "add them / leave them out"
-     * choice.
-     */
-    public bool $confirmingSkip = false;
 
     public function mount(): void
     {
@@ -134,7 +131,7 @@ new class extends Component
      * practice cards any more (Epic B decision) — this method now exists
      * only to feed the image-match quiz round.
      */
-    private function wordImageUrl(string $phrase): ?string
+    public function wordImageUrl(string $phrase): ?string
     {
         $word = collect($this->words())->firstWhere('phrase', $phrase);
         $query = $word['image_query'] ?? null;
@@ -147,31 +144,49 @@ new class extends Component
     }
 
     /**
-     * A warm-up <x-quick-round> between the story and practice — one card
-     * per word. Distractor meanings come from the mission's OTHER days'
-     * words first: a distractor taken from this page's own words is the
-     * right answer to another card, so the learner could finish the round
-     * by elimination alone. Today's other words only top up when the
-     * mission has too few others.
+     * The quick check between the story and the sentences — ONE card per
+     * word, mixed: a word with a picture (every other one) asks for its
+     * picture, the rest for its meaning, in Persian when every option has
+     * one. Distractor meanings come from the mission's OTHER days' words
+     * first: one taken from today's own words is the right answer to
+     * another card, so the round could be finished by elimination alone.
      *
+     * @return list<array{prompt: string, options: list<string>, correct: int, label: string, optionType?: string, difficulty?: string}>
+     */
+    public function quizCards(): array
+    {
+        $pictureCards = collect($this->imageMatchCards())->keyBy('prompt');
+
+        return collect($this->meaningCheckCards())
+            ->map(fn (array $card, int $index) => $index % 2 === 1 && $pictureCards->has($card['prompt'])
+                ? [...$pictureCards[$card['prompt']], 'label' => 'Pick the picture']
+                : [...$card, 'label' => 'Pick the meaning'])
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
      */
     public function meaningCheckCards(): array
     {
         $words = collect($this->words());
         $todaysPhrases = $words->pluck('phrase');
+        $inPersian = $words->every(fn (array $word) => filled($word['meaning_fa'] ?? null));
+        $meaningOf = fn (array $word) => $inPersian ? ($word['meaning_fa'] ?? null) : ($word['meaning'] ?? null);
 
         $fromOtherDays = collect($this->run->mission->vocabularyEntries())
             ->reject(fn (array $other) => $todaysPhrases->contains($other['phrase']))
-            ->pluck('meaning')
+            ->map($meaningOf)
             ->filter()
             ->unique()
             ->values();
 
         return $words
-            ->map(function (array $entry) use ($words, $fromOtherDays) {
+            ->map(function (array $entry) use ($words, $fromOtherDays, $meaningOf) {
+                $meaning = $meaningOf($entry);
                 $distractors = $fromOtherDays
-                    ->reject(fn (string $meaning) => $meaning === $entry['meaning'])
+                    ->reject(fn (string $other) => $other === $meaning)
                     ->shuffle()
                     ->take(2);
 
@@ -179,19 +194,19 @@ new class extends Component
                     $distractors = $distractors->concat(
                         $words
                             ->where('phrase', '!=', $entry['phrase'])
-                            ->pluck('meaning')
+                            ->map($meaningOf)
                             ->filter()
                             ->shuffle()
                             ->take(2 - $distractors->count())
                     );
                 }
 
-                $options = collect([$entry['meaning'], ...$distractors])->shuffle()->values();
+                $options = collect([$meaning, ...$distractors])->shuffle()->values();
 
                 return [
                     'prompt' => $entry['phrase'],
                     'options' => $options->all(),
-                    'correct' => $options->search($entry['meaning']),
+                    'correct' => $options->search($meaning),
                     ...(isset($entry['difficulty']) ? ['difficulty' => $entry['difficulty']] : []),
                 ];
             })
@@ -200,10 +215,8 @@ new class extends Component
     }
 
     /**
-     * A second, image-based warm-up round right after the meaning-check
-     * one — "which picture means this word?" (kept from before the Epic B
-     * redesign; only the personal-example practice cards below lost their
-     * images, not this quiz). Only covers words with an image_query.
+     * "Which picture means this word?" for a word with an image_query —
+     * quizCards() swaps some meaning cards for these.
      *
      * @return list<array{prompt: string, options: list<string>, correct: int, optionType: string}>
      */
@@ -256,6 +269,23 @@ new class extends Component
     protected function draftedProperties(): array
     {
         return ['practiceStarted'];
+    }
+
+    /**
+     * The mic in a sentence box: what was said becomes that box's text and
+     * is checked straight away, like a typed sentence.
+     */
+    public function dictateExample(int $index): void
+    {
+        $word = $this->words()[$index]['phrase'] ?? null;
+        $text = $word ? $this->dictatedText($index) : null;
+
+        if ($text === null) {
+            return;
+        }
+
+        $this->examples[$index] = $text;
+        $this->runCheck($word, $text);
     }
 
     /** Kept in the step's draft, so a learner who leaves comes back to practice, not the story. */
@@ -404,43 +434,26 @@ new class extends Component
             ]),
         ]);
 
+        // Today's words join My Words by themselves (lesson design 2): the
+        // old pick-and-confirm screen is gone.
+        $this->initWordsToTrack();
+        $this->addWordsToNotebook();
+
         $this->forgetStepDraft();
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
 
-        $this->completed = true;
-        $this->initWordsToTrack();
-    }
-
-    /**
-     * Continue never silently drops ticked words: if some are still not in
-     * My Words it asks first (see confirmingSkip), and only a second,
-     * explicit choice — add them, or leave them out — moves on.
-     */
-    public function proceed(): void
-    {
-        if ($this->uncommittedWordCount() > 0) {
-            $this->confirmingSkip = true;
-
-            return;
-        }
-
-        $this->leaveStep();
-    }
-
-    public function addAndProceed(): void
-    {
-        $this->addWordsToNotebook();
-        $this->leaveStep();
-    }
-
-    public function proceedWithoutAdding(): void
-    {
-        $this->leaveStep();
-    }
-
-    private function leaveStep(): void
-    {
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
+    }
+
+    /** How many of today's words aren't in My Words yet — the "+N" on the last sentence. */
+    public function newWordCount(): int
+    {
+        $existing = VocabularyWord::where('learner_id', $this->run->learner_id)
+            ->whereIn('word', collect($this->words())->pluck('phrase'))
+            ->pluck('word')
+            ->map(fn (string $word) => mb_strtolower($word));
+
+        return collect($this->words())->reject(fn (array $word) => $existing->contains(mb_strtolower($word['phrase'])))->count();
     }
 
     /**
@@ -476,273 +489,203 @@ new class extends Component
 
 @php
     $words = $this->words();
+    $wordCount = count($words);
     $storySegments = $this->storySegments();
     $initialFilled = collect($examples)->map(fn ($e) => trim((string) $e) !== '')->values();
     $draftPrefix = $this->draftPrefix();
+    $firstUnwritten = $initialFilled->search(false);
+    // Screens: 0 start · 1..n one card per word · n+1 story · n+2 quick
+    // check · n+3.. one sentence per word.
+    $storyScreen = $wordCount + 1;
+    $quizScreen = $wordCount + 2;
+    $firstSentenceScreen = $wordCount + 3;
+    $screenCount = $wordCount * 2 + 3;
+    $startScreen = $practiceStarted ? $firstSentenceScreen + ($firstUnwritten === false ? $wordCount - 1 : $firstUnwritten) : 0;
 @endphp
 
-@if ($completed)
-    <div class="space-y-4 card p-4">
-        <div>
-            <p class="inline-flex items-center gap-1 text-xs font-semibold tracking-wide text-success uppercase dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-4 w-4')
-                Vocabulary saved
-            </p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">@if ($this->allWordsAlreadyTracked())
-                    These words are already in My Words — nothing more to add.
+@if ($readOnly)
+    <div class="flex flex-col gap-3 pt-2">
+        @foreach ($words as $index => $entry)
+            <div class="flex flex-col gap-1 rounded-2xl bg-surface p-4 dark:bg-surface-dark">
+                <x-speak-word :word="$entry['phrase']" class="text-lg font-extrabold text-ink dark:text-ink-dark" />
+                @if (filled($entry['meaning_fa'] ?? null))
+                    <p dir="rtl" class="font-fa text-sm font-bold text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning_fa'] }}</p>
                 @else
-                    Want to keep practicing these? Pick which ones to save to My Words.
-                @endif</p>
-        </div>
-
-        <div class="space-y-2">
-            @foreach ($this->notebookCandidates() as $index => $candidate)
-                @if ($alreadyTracked[$index] ?? false)
-                    <div class="flex items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
-                        @svg('heroicon-o-check-circle', 'mt-0.5 h-4 w-4 shrink-0 text-success dark:text-success-dark')
-                        <span>
-                            <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $candidate['word'] }}</span>
-                            <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $candidate['meaning'] }}</span>
-                            <span class="block text-xs font-semibold text-success dark:text-success-dark">Already in My Words</span>
-                        </span>
-                    </div>
-                @else
-                <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line p-3 dark:border-line-dark">
-                    <input
-                        type="checkbox"
-                        wire:model="wordsToTrack.{{ $index }}"
-                        class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-accent dark:border-line-dark dark:bg-surface-dark dark:text-accent-dark"
-                    >
-                    <span>
-                        <span class="block text-sm font-bold text-ink dark:text-ink-dark">{{ $candidate['word'] }}</span>
-                        <span class="block text-xs text-ink-soft dark:text-ink-soft-dark">{{ $candidate['meaning'] }}</span>
-                    </span>
-                </label>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
                 @endif
-            @endforeach
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-            @if ($trackedWords)
-                <span class="inline-flex items-center gap-1 text-sm font-semibold text-success dark:text-success-dark">
-                    @svg('heroicon-o-check-circle', 'h-4 w-4') Added to My Words
-                </span>
-            @elseif (! $this->allWordsAlreadyTracked())
-                <button
-                    type="button"
-                    wire:click="addWordsToNotebook"
-                    wire:loading.attr="disabled"
-                    wire:target="addWordsToNotebook"
-                    class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    <span wire:loading.remove wire:target="addWordsToNotebook" class="inline-flex items-center gap-1 whitespace-nowrap">@svg('heroicon-o-book-open', 'h-4 w-4') Add to My Words</span>
-                    <span wire:loading wire:target="addWordsToNotebook">Adding…</span>
-                </button>
-            @endif
-
-            @php $showSkipConfirm = $confirmingSkip && $this->uncommittedWordCount() > 0; @endphp
-
-            @unless ($showSkipConfirm)
-                <button
-                    wire:click="proceed"
-                    wire:loading.attr="disabled"
-                    wire:target="proceed"
-                    class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    <span wire:loading.remove wire:target="proceed">Continue</span>
-                    <span wire:loading wire:target="proceed">Please wait…</span>
-                </button>
-            @endunless
-        </div>
-
-        @if ($showSkipConfirm)
-            <div class="space-y-3 rounded-xl border border-warning-line bg-warning-soft p-3">
-                <p class="text-sm text-ink dark:text-ink-dark">
-                    {{ $this->uncommittedWordCount() === 1 ? '1 word is' : $this->uncommittedWordCount().' words are' }} ticked but not in My Words yet — without adding, you won't review {{ $this->uncommittedWordCount() === 1 ? 'it' : 'them' }} tomorrow.
-                </p>
-                <div class="flex flex-wrap items-center gap-3">
-                    <button
-                        type="button"
-                        wire:click="addAndProceed"
-                        wire:loading.attr="disabled"
-                        wire:target="addAndProceed,proceedWithoutAdding"
-                        class="cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                    >Add and continue</button>
-                    <button
-                        type="button"
-                        wire:click="proceedWithoutAdding"
-                        wire:loading.attr="disabled"
-                        wire:target="addAndProceed,proceedWithoutAdding"
-                        class="cursor-pointer text-sm font-semibold text-ink-faint transition-colors hover:text-ink hover:underline dark:text-ink-faint-dark dark:hover:text-ink-dark disabled:pointer-events-none disabled:opacity-50"
-                    >Continue without adding</button>
-                </div>
+                @if (filled($examples[$index] ?? null))
+                    <p class="text-sm text-ink dark:text-ink-dark">“{{ $examples[$index] }}”</p>
+                @endif
             </div>
-        @endif
+        @endforeach
     </div>
 @else
 <div
-    class="space-y-6"
-    data-initial-phase="{{ $readOnly || $practiceStarted ? 'practice' : 'story' }}"
     data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
-        phase: 'story',
-        showStoryAgain: false,
+        screen: {{ $startScreen }},
+        quizShare: 0,
         filled: [],
-        dismissed: {},
-        init() {
-            this.phase = this.$el.dataset.initialPhase;
-            this.filled = JSON.parse(this.$el.dataset.initialFilled);
+        edited: {},
+        english: {},
+        init() { this.filled = JSON.parse(this.$el.dataset.initialFilled) },
+        get share() {
+            return this.screen === {{ $quizScreen }}
+                ? ({{ $quizScreen }} + this.quizShare) / {{ $screenCount }}
+                : (this.screen + 0.5) / {{ $screenCount }};
         },
-        get filledCount() { return this.filled.filter(Boolean).length },
     }"
+    x-effect="$dispatch('step-progress', { share })"
+    x-on:quick-round-progress="quizShare = $event.detail.share"
+    x-back-close="{ open: screen > 0, close: () => screen-- }"
 >
-    <x-hook :text="$run->mission->stepContent($stepKey)['hook'] ?? null" />
-
-    @php
-        // Used only for the "Part X of Y" orientation label below.
-        $vbPhaseCount = 3;
-        $vbPhaseIndex = ['story' => 1, 'meaning_check' => 2, 'practice' => 3];
-    @endphp
-
-    @unless ($readOnly)
-        <div x-show="phase === 'story'" x-cloak class="space-y-4">
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['story'] }} of {{ $vbPhaseCount }}</p>
-                <p class="mt-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today's words</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Read the story — new words are highlighted.</p>
-            </div>
-
-            <div class="card-sunken p-4">
-                @include('missions.steps.partials.vocabulary-story', ['segments' => $storySegments, 'words' => $words])
-            </div>
-
-            <button
-                type="button"
-                x-on:click="phase = 'meaning_check'"
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-            >Continue @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
-        </div>
-
-        <div x-show="phase === 'meaning_check'" x-cloak class="space-y-4">
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['meaning_check'] }} of {{ $vbPhaseCount }}</p>
-                <p class="mt-1 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Quick check before you write</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Match each word to its meaning, then its picture — just a warm-up, skip anytime.</p>
-            </div>
-            <x-quick-round
-                :cards="[...$this->meaningCheckCards(), ...$this->imageMatchCards()]"
-                on-complete="$wire.call('startPractice'); phase = 'practice'"
-                on-skip="$wire.call('startPractice'); phase = 'practice'"
-            />
-        </div>
-    @endunless
-
-    <div x-show="phase === 'practice'" @unless ($readOnly) x-cloak @endunless class="space-y-6">
-        @unless ($readOnly)
-            <p class="text-xs font-semibold tracking-wide text-accent uppercase dark:text-accent-dark">Part {{ $vbPhaseIndex['practice'] }} of {{ $vbPhaseCount }}</p>
-        @endunless
-        <div>
-            <button
-                type="button"
-                x-on:click="showStoryAgain = !showStoryAgain"
-                class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint underline decoration-dotted underline-offset-2 dark:text-ink-faint-dark"
-            >
-                <span x-show="!showStoryAgain" class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-right', 'h-3 w-3') Show the story again</span>
-                <span x-show="showStoryAgain" x-cloak class="inline-flex items-center gap-1">@svg('heroicon-o-chevron-down', 'h-3 w-3') Hide the story</span>
-            </button>
-            <div x-show="showStoryAgain" x-cloak class="mt-2 card-sunken p-4">
-                @include('missions.steps.partials.vocabulary-story', ['segments' => $storySegments, 'words' => $words])
-            </div>
-        </div>
-
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Write a personal example for each word</p>
-            <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Check one anytime for feedback, or we'll check the rest for you when you move on.</p>
-            @unless ($readOnly)
-                <div class="mt-2">
-                    <x-progress-bar>
-                        <div
-                            class="h-full rounded-full transition-all duration-300"
-                            :class="filledCount >= {{ count($words) }} ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'"
-                            :style="`width: ${Math.min(filledCount, {{ count($words) }}) / {{ count($words) }} * 100}%`"
-                        ></div>
-                        <x-slot:label>
-                            <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
-                                <span x-text="filledCount"></span> of {{ count($words) }} written
-                            </p>
-                        </x-slot:label>
-                    </x-progress-bar>
-                </div>
-            @endunless
-        </div>
-
-        <div wire:loading.class="pointer-events-none" wire:target="checkOne,revealCorrection,declineReveal,save" class="space-y-4">
-            @foreach ($words as $index => $entry)
-                @php $word = $entry['phrase']; $itemFeedback = $feedback[$word] ?? null; @endphp
-                <div class="rounded-xl border border-line p-3 dark:border-line-dark">
-                    <p class="flex items-baseline gap-2">
-                        <x-speak-word :word="$word" class="text-sm font-bold text-ink dark:text-ink-dark" />
-                        @if (! empty($entry['pos']))
-                            <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">{{ $entry['pos'] }}</span>
-                        @endif
-                    </p>
-
-                    <div class="mt-2 flex items-center gap-2">
-                        <input
-                            type="text"
-                            wire:model="examples.{{ $index }}"
-                            x-on:input="filled[{{ $index }}] = $el.value.trim() !== ''; dismissed[{{ $index }}] = true"
-                            placeholder="My example…"
-                            @unless ($readOnly)
-                                x-draft="{ key: '{{ $draftPrefix }}examples.{{ $index }}', field: 'examples.{{ $index }}' }"
-                            @endunless
-                            @readonly($readOnly)
-                            wire:loading.attr="disabled"
-                            wire:target="checkOne,revealCorrection,declineReveal,save"
-                            class="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                        >
-                        <x-filled-check show="filled[{{ $index }}]" />
-                        @unless ($readOnly)
-                            <x-check-button method="checkOne" :index="$index" wire-target="checkOne,revealCorrection,declineReveal,save" />
-                        @endunless
-                    </div>
-
-                    @unless ($readOnly)
-                        <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" class="mt-2" />
-                    @endunless
-
-                    <div x-show="!dismissed[{{ $index }}]" x-transition.opacity.duration.300ms>
-                        <x-severity-feedback :feedback="$itemFeedback" :error="$checkErrors[$word] ?? null" />
-                    </div>
-
-                    @unless ($readOnly)
-                        <x-almost-reveal-notice :show="$this->isAlmostRevealing($word)" />
-                        <x-reveal-offer
-                            :show="$offerReveal[$word] ?? false"
-                            :struggling="$this->run->isStruggling()"
-                            reveal-method="revealCorrection"
-                            decline-method="declineReveal"
-                            :index="$index"
-                            wire-target="checkOne,revealCorrection,declineReveal,save"
-                        />
-                    @endunless
-                </div>
+    <x-lesson-screen when="screen === 0">
+        <x-step-intro kind="New Words" :minutes="$run->mission->stepDuration($stepKey)" :title="$run->mission->stepContent($stepKey)['hook'] ?? null" />
+        <div class="flex flex-wrap gap-2">
+            @foreach ($words as $entry)
+                <span class="rounded-full bg-surface px-3 py-1.5 text-sm font-bold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">{{ $entry['phrase'] }}</span>
             @endforeach
         </div>
 
-        @error('examples')
-            <p class="text-sm text-danger-ink">{{ $message }}</p>
-        @enderror
+        <x-slot:actions>
+            <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+        </x-slot:actions>
+    </x-lesson-screen>
 
-        @unless ($readOnly)
-            <x-continue-button
-                on-click="filled.forEach((_, i) => dismissed[i] = true); $wire.save().then(() => { dismissed = {} })"
-                wire-target="checkOne,revealCorrection,declineReveal,save"
-                loading-label="Checking your sentences…"
-                ready-when="filledCount >= {{ count($words) }}"
-                hint="Write an example for every word to continue"
+    {{-- One card per word; its sound plays as the card opens. --}}
+    @foreach ($words as $index => $entry)
+        @php $picture = $this->wordImageUrl($entry['phrase']); @endphp
+        <x-lesson-screen when="screen === {{ $index + 1 }}" x-effect="if (screen === {{ $index + 1 }}) window.eosVoice?.speak(@js($entry['phrase']))">
+            <div class="flex flex-col gap-3 rounded-3xl bg-surface p-4 dark:bg-surface-dark">
+                @if ($picture)
+                    <img src="{{ $picture }}" alt="" loading="lazy" class="h-36 w-full rounded-2xl object-cover">
+                @endif
+                @if (filled($entry['pos'] ?? null))
+                    <span class="w-fit rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $entry['pos'] }}</span>
+                @endif
+                <x-speak-word :word="$entry['phrase']" class="text-3xl font-extrabold text-ink dark:text-ink-dark" />
+                @if (filled($entry['meaning_fa'] ?? null))
+                    <p dir="rtl" class="font-fa text-lg font-bold text-ink dark:text-ink-dark">{{ $entry['meaning_fa'] }}</p>
+                    <button type="button" x-on:click="english[{{ $index }}] = ! english[{{ $index }}]" class="w-fit cursor-pointer text-xs font-bold text-ink-faint dark:text-ink-faint-dark">In English</button>
+                    <p x-show="english[{{ $index }}]" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
+                @else
+                    <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $entry['meaning'] }}</p>
+                @endif
+                @if (filled($entry['example'] ?? null))
+                    <p class="text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! preg_replace('/'.preg_quote(e($entry['phrase']), '/').'/i', '<b class="rounded bg-accent-soft px-1 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">$0</b>', e($entry['example']), 1) !!}</p>
+                @endif
+            </div>
+            <div class="flex justify-center gap-1.5" aria-hidden="true">
+                @foreach ($words as $dot)
+                    <span @class(['h-2 rounded-full', 'w-5 bg-accent dark:bg-accent-dark' => $loop->index === $index, 'w-2 bg-line dark:bg-line-dark' => $loop->index !== $index])></span>
+                @endforeach
+            </div>
+
+            <x-slot:actions>
+                <x-continue-button on-click="screen++" wire-target="save">{{ $index + 1 < $wordCount ? 'Next word' : 'Continue' }}</x-continue-button>
+            </x-slot:actions>
+        </x-lesson-screen>
+    @endforeach
+
+    <x-lesson-screen when="screen === {{ $storyScreen }}">
+        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Read it</span>
+        <p x-lookup class="rounded-3xl bg-surface p-4 text-base leading-loose text-ink dark:bg-surface-dark dark:text-ink-dark">
+            @foreach ($storySegments as $segment)
+                @if ($segment['type'] === 'text')
+                    {{ $segment['value'] }}
+                @else
+                    <mark class="rounded bg-accent-soft px-1 font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $segment['value'] }}</mark>
+                @endif
+            @endforeach
+        </p>
+        <p class="text-center text-xs font-bold text-ink-faint dark:text-ink-faint-dark">Tap a word to see it again</p>
+
+        <x-slot:actions>
+            <x-continue-button on-click="screen++" wire-target="save" />
+        </x-slot:actions>
+    </x-lesson-screen>
+
+    <section x-show="screen === {{ $quizScreen }}" x-cloak class="pt-2">
+        <x-quick-round
+            lesson
+            :cards="$this->quizCards()"
+            label="Pick the meaning"
+            draft-key="{{ $draftPrefix }}quiz"
+            on-complete="if (screen === {{ $quizScreen }}) { $wire.call('startPractice'); screen = {{ $firstSentenceScreen }} }"
+            on-skip="$wire.call('startPractice'); screen = {{ $firstSentenceScreen }}"
+        />
+    </section>
+
+    {{-- One sentence per word, typed or said; the check comes up from the bottom. --}}
+    @foreach ($words as $index => $entry)
+        @php
+            $word = $entry['phrase'];
+            $itemFeedback = $feedback[$word] ?? null;
+            $isChecked = $itemFeedback && ($itemFeedback['checkedText'] ?? null) === trim((string) ($examples[$index] ?? ''));
+            $severity = $itemFeedback['severity'] ?? null;
+            $isLast = $index === $wordCount - 1;
+            $sheetTone = $severity === 'none' ? "'good'" : "'almost'";
+            $sheetTitle = match ($severity) { 'none' => "'✓ Great!'", 'minor' => "'Almost!'", default => "'Not quite'" };
+        @endphp
+        <x-lesson-screen when="screen === {{ $firstSentenceScreen + $index }}" wire:key="sentence-{{ $index }}">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">About you · {{ $index + 1 }} of {{ $wordCount }}</span>
+            <x-speak-word :word="$word" class="text-2xl font-extrabold text-ink dark:text-ink-dark" />
+
+            <x-type-or-say
+                model="examples.{{ $index }}"
+                method="dictateExample"
+                :param="$index"
+                draft-key="{{ $draftPrefix }}examples.{{ $index }}"
+                placeholder="Write a sentence about you…"
+                on-input="filled[{{ $index }}] = $el.value.trim() !== ''; edited[{{ $index }}] = true"
+                :error="$checkErrors[$word] ?? ($dictationErrors[$index] ?? null)"
             />
-        @endunless
-    </div>
+            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateExample, revealCorrection({{ $index }}), save" />
+
+            <x-slot:actions>
+                @if ($isChecked)
+                    <x-answer-sheet
+                        when="! edited[{{ $index }}]"
+                        :tone="$sheetTone"
+                        :title="$sheetTitle"
+                    >
+                        @if ($severity !== 'none' && filled($itemFeedback['hint'] ?? null))
+                            {{ $itemFeedback['hint'] }}
+                        @endif
+                        <x-almost-reveal-notice :show="$this->isAlmostRevealing($word)" />
+                        @if ($isLast && $severity === 'none' && $this->newWordCount() > 0)
+                            <span class="inline-flex rounded-full bg-ink px-3 py-1.5 text-xs font-bold text-ground dark:bg-ink-dark dark:text-ground-dark">+{{ $this->newWordCount() }} words in My Words</span>
+                        @endif
+
+                        <x-slot:actions>
+                            @if ($severity === 'major')
+                                <x-continue-button on-click="edited[{{ $index }}] = true" wire-target="save">Try again</x-continue-button>
+                                @if ($offerReveal[$word] ?? false)
+                                    <button type="button" wire:click="revealCorrection({{ $index }})" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Show me a right one</button>
+                                @endif
+                            @elseif ($isLast)
+                                <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Saving…" />
+                            @else
+                                <x-continue-button on-click="screen++" wire-target="save" />
+                            @endif
+                        </x-slot:actions>
+                    </x-answer-sheet>
+                @endif
+
+                <div @if ($isChecked) x-show="edited[{{ $index }}]" x-cloak @endif class="flex flex-col gap-3">
+                    <x-continue-button
+                        on-click="$wire.checkOne({{ $index }}).then(() => { edited[{{ $index }}] = false })"
+                        wire-target="checkOne,dictateExample,revealCorrection,save"
+                        loading-label="Checking…"
+                        ready-when="filled[{{ $index }}]"
+                    >Check</x-continue-button>
+                </div>
+            </x-slot:actions>
+        </x-lesson-screen>
+    @endforeach
+
+    @error('examples')
+        <p class="text-sm text-danger-ink">{{ $message }}</p>
+    @enderror
 </div>
 @endif
