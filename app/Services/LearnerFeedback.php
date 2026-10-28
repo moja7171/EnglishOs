@@ -32,71 +32,103 @@ class LearnerFeedback
     /**
      * The fixed list the AI picks from — never a technique of its own. Each
      * has the situation that calls for it (for the prompt), a stock
-     * example (shown when the AI's own example is missing) and the same
-     * kind of sentence without it (the wrong choice in NotebookDrill).
+     * example (shown when the AI's own example is missing), and the practice
+     * card's pieces (NotebookDrill): what someone says (ask), a full answer
+     * that uses the technique (with), a full answer that doesn't (without)
+     * and the one-line reason shown after the learner picks (why).
      *
-     * @var array<string, array{name: string, when: string, example: string, without: string}>
+     * @var array<string, array{name: string, when: string, example: string, ask: string, with: string, without: string, why: string}>
      */
     public const TECHNIQUES = [
         'linking' => [
             'name' => 'Link your ideas',
             'when' => 'the sentences are short and separate',
             'example' => 'I was tired, so I stayed home.',
+            'ask' => 'What did you do yesterday?',
+            'with' => 'I was tired, so I stayed home.',
             'without' => 'I was tired. I stayed home.',
+            'why' => '“so” joins the two ideas into one sentence.',
         ],
         'buying_time' => [
             'name' => 'Buy time',
             'when' => 'the answer stops half-way or has long pauses (mostly spoken answers)',
             'example' => 'Well, let me think…',
-            'without' => "I don't know.",
+            'ask' => 'What\'s your biggest goal this year?',
+            'with' => 'Well, let me think… I\'d like to speak English at work.',
+            'without' => 'Um… um… I don\'t know what to say.',
+            'why' => '“Well, let me think…” gives you time without going silent.',
         ],
         'reason_example' => [
             'name' => 'Give a reason and an example',
             'when' => 'an opinion is given with no reason or example',
             'example' => 'I like it because… For example…',
-            'without' => 'I like it.',
+            'ask' => 'Do you like your city?',
+            'with' => 'I like it because it\'s quiet. For example, I can walk by the river.',
+            'without' => 'I like it. It is a good city.',
+            'why' => 'A reason and an example make the opinion clear.',
         ],
         'extend' => [
             'name' => 'Say a bit more',
             'when' => 'the answer is only yes/no or one short sentence',
             'example' => 'Yes, I do. Actually, I…',
-            'without' => 'Yes.',
+            'ask' => 'Do you exercise?',
+            'with' => 'Yes, I do. Actually, I go every morning.',
+            'without' => 'Yes, I do.',
+            'why' => '“Actually, I…” keeps the answer going.',
         ],
         'ask_back' => [
             'name' => 'Ask back',
             'when' => 'in a chat, the learner never keeps the conversation going',
             'example' => 'What about you?',
-            'without' => 'I like football.',
+            'ask' => 'How was your weekend?',
+            'with' => 'It was great! What about you?',
+            'without' => 'It was great.',
+            'why' => '“What about you?” hands the conversation back.',
         ],
         'chunks' => [
             'name' => 'Use English chunks, not Persian word order',
             'when' => 'a sentence is translated word by word from Persian',
             'example' => "I'm 25. (not: I have 25 years)",
+            'ask' => 'How old are you?',
+            'with' => 'I\'m 25.',
             'without' => 'I have 25 years.',
+            'why' => 'English says “I\'m 25”, not “I have 25 years”.',
         ],
         'soften' => [
             'name' => 'Soften your opinion',
             'when' => 'an opinion sounds too blunt',
             'example' => "I'd say… / In my opinion…",
-            'without' => 'You are wrong.',
+            'ask' => 'What do you think of this plan?',
+            'with' => 'In my opinion, it needs more time.',
+            'without' => 'You are wrong. It\'s a bad plan.',
+            'why' => '“In my opinion…” sounds polite, not blunt.',
         ],
         'paraphrase' => [
             'name' => 'Talk around a missing word',
             'when' => 'a Persian word is used or the learner says they don\'t know the word',
             'example' => "It's a kind of… / the thing you use to…",
-            'without' => "I need a… I don't know.",
+            'ask' => 'What did you buy at the shop?',
+            'with' => 'I bought a kind of bag you use to carry books.',
+            'without' => 'I bought a… I don\'t know the word.',
+            'why' => 'Talking around the missing word keeps you speaking.',
         ],
         'react' => [
             'name' => 'React to the other person',
             'when' => 'in a chat, the learner ignores what the other person just said',
             'example' => "Really? That's great!",
+            'ask' => 'I just got a new job!',
+            'with' => 'Really? That\'s great! What\'s the job?',
             'without' => 'OK. Next question.',
+            'why' => 'A short reaction shows you listened.',
         ],
         'sequence' => [
             'name' => 'Tell it in order',
             'when' => 'a past event or story is told with no clear order',
             'example' => 'First… then… in the end…',
-            'without' => 'I got up. I ate. I woke up late.',
+            'ask' => 'What did you do this morning?',
+            'with' => 'First I got up, then I ate breakfast, and in the end I left home.',
+            'without' => 'I left home. I ate breakfast. I got up.',
+            'why' => '“First… then… in the end…” puts the story in order.',
         ],
     ];
 

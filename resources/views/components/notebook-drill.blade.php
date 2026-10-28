@@ -60,12 +60,15 @@
             @endforeach
         </div>
     @elseif ($card['mode'] === 'choose')
-        {{-- The question is the big line (it names the tip), with the tip's own
-             example under it as a reminder of what to look for. --}}
+        {{-- A tip: its name as a chip, what someone says, then the question —
+             so it is clear what the two answers are answering. --}}
+        @isset($card['name'])
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $card['name'] }}</span>
+        @endisset
+        @isset($card['situation'])
+            <p class="rounded-2xl bg-surface-sunken px-4 py-3 text-base text-ink dark:bg-surface-sunken-dark dark:text-ink-dark"><span class="block text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Someone says</span>“{{ $card['situation'] }}”</p>
+        @endisset
         <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $card['question'] }}</p>
-        @if ($techniqueExample = $entry->techniqueExample())
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">e.g. {{ $techniqueExample }}</p>
-        @endif
         <div class="grid gap-2.5">
             @foreach ($card['options'] as $i => $option)
                 @php $state = ! $answered ? 'idle' : ($i === $card['correct'] ? 'correct' : ($answer === $i ? 'wrong' : 'muted')); @endphp
@@ -84,6 +87,9 @@
                 </button>
             @endforeach
         </div>
+        @if ($answered && isset($card['why']))
+            <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $card['why'] }}</p>
+        @endif
     @else
         @if ($entry->original)
             <p class="text-sm text-ink-soft dark:text-ink-soft-dark">

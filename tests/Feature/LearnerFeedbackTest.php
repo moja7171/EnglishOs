@@ -93,4 +93,15 @@ class LearnerFeedbackTest extends TestCase
         $this->assertSame(['تمرین کن.'], $feedback['negatives']);
         $this->assertSame('major', $feedback['severity']);
     }
+
+    public function test_every_technique_has_what_its_practice_card_needs(): void
+    {
+        foreach (LearnerFeedback::TECHNIQUES as $key => $technique) {
+            foreach (['ask', 'with', 'without', 'why'] as $part) {
+                $this->assertNotSame('', trim($technique[$part] ?? ''), "{$key} has no {$part}");
+            }
+
+            $this->assertNotSame($technique['with'], $technique['without'], "{$key} offers the same two answers");
+        }
+    }
 }

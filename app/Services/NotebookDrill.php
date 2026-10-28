@@ -24,12 +24,15 @@ class NotebookDrill
     public const NO_WORD = '—';
 
     /**
-     * @return array{mode: 'spot', words: list<string>, wrong: list<int>}|array{mode: 'pick', before: string, after: string, options: list<string>, correct: int}|array{mode: 'choose', question: string, options: list<string>, correct: int}|array{mode: 'say'}
+     * @return array{mode: 'spot', words: list<string>, wrong: list<int>}|array{mode: 'pick', before: string, after: string, options: list<string>, correct: int}|array{mode: 'choose', question: string, options: list<string>, correct: int, name?: string, situation?: string, why?: string}|array{mode: 'say'}
      */
     public static function card(NotebookEntry $entry): array
     {
         if ($entry->techniqueName() !== null) {
-            return self::choice($entry, 'Which answer uses “'.$entry->techniqueName().'”?', $entry->better, LearnerFeedback::TECHNIQUES[$entry->label]['without']);
+            $technique = LearnerFeedback::TECHNIQUES[$entry->label];
+
+            return self::choice($entry, 'Which answer is better?', $technique['with'], $technique['without'])
+                + ['name' => $technique['name'], 'situation' => $technique['ask'], 'why' => $technique['why']];
         }
 
         if ($entry->original === null || ($entry->isMistake() && $entry->practice_level >= NotebookEntry::LEVEL_SAY)) {
