@@ -1,262 +1,39 @@
-<?php
-    // Merged with the old /program page (English roadmap doc) — the two
-    // used to answer overlapping "how does this work" questions in
-    // different languages from different entry points, with no link
-    // between them. This is now the one page for both.
-    $seededMissions = \App\Models\Mission::orderBy('code')->get()->keyBy('code');
-    $learner = auth()->user();
-    $roadmapCatalog = \App\Models\Mission::roadmapCatalog();
-    $roadmapSlots = collect(range(1, \App\Models\Mission::TOTAL_ROADMAP_MISSIONS))
-        ->map(fn ($n) => sprintf('M%02d', $n))
-        ->map(function ($code) use ($seededMissions, $roadmapCatalog, $learner) {
-            $mission = $seededMissions->get($code);
-
-            return [
-                'code' => $code,
-                'mission' => $mission,
-                'title' => $mission->title ?? ($roadmapCatalog[$code]['title'] ?? 'Coming soon'),
-                'blockedBy' => $mission ? \App\Models\MissionRun::gatingMission($learner, $mission) : null,
-            ];
-        });
-?>
+{{-- The Guide: the three swipe cards (<x-guide-cards>), then only short
+     questions, each folded to a one- or two-line answer. --}}
 <x-layouts.app>
-    <div class="font-fa mx-auto max-w-2xl space-y-6 p-6" dir="rtl">
-
-        <header class="border-b border-line pb-4 dark:border-line-dark">
-            <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-                @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5') بازگشت به ماموریت‌ها
-            </a>
-            <div class="mt-3 flex items-center gap-3">
-                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-white dark:bg-accent-dark">
-                    @svg('heroicon-o-book-open', 'h-5 w-5')
-                </span>
-                <div>
-                    <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">راهنمای یادگیرنده</h1>
-                    <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">همه‌چیزهایی که برای شروع و پیش رفتن لازم داری، یک‌جا.</p>
-                </div>
-            </div>
+    <div class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
+        <header class="flex items-center gap-2">
+            <a href="{{ route('profile') }}" wire:navigate aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
+            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Guide</h1>
         </header>
 
-        <section class="card p-4">
-            <p class="text-sm leading-8 text-ink-soft dark:text-ink-soft-dark">
-                <strong class="text-ink dark:text-ink-dark">English OS</strong> یه برنامه‌ی یادگیری انگلیسیه که <strong class="text-accent-ink dark:text-accent-ink-dark">با کمک هوش مصنوعی</strong> کارهای گفتاری و نوشتاریت رو چک می‌کنه و بهت فیدبک می‌ده — نه یه معلم واقعی پشت صحنه، بلکه یه AI Instructor که صدا و متنت رو گوش می‌ده/می‌خونه و بهت می‌گه چی خوب بوده و چی رو باید اصلاح کنی. کل برنامه ۲۴ ماموریت و ۱۰۰ روزه؛ هر روز حدود ۴۰ دقیقه.
-            </p>
-        </section>
+        <x-guide-cards />
 
-        <section class="flex items-start gap-3 rounded-2xl border-2 border-accent/40 bg-surface p-4 dark:border-accent-dark/40 dark:bg-surface-dark">
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                @svg('heroicon-o-rocket-launch', 'h-4 w-4')
-            </span>
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">اولین قدم</p>
-                <p class="mt-1 text-sm leading-8 text-ink dark:text-ink-dark">
-                    وقتی وارد می‌شی، صفحه‌ی اصلی («Missions») رو می‌بینی. یه بخش به اسم «Today» بهت می‌گه امروز دقیقاً باید چیکار کنی. فقط کافیه دکمه‌ی اصلی اون کادر رو بزنی — همیشه کار بعدی رو نشون می‌ده: اول Daily Review، بعد مرحله‌های امروز («Continue»)، آخر هم تمرین صوتی با Pi. شنیدن جداست: هر وقت از روز.
-                </p>
-            </div>
-        </section>
-
-        <section class="flex items-start gap-3 card-sunken p-4">
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning-ink">
-                @svg('heroicon-o-heart', 'h-4 w-4')
-            </span>
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-warning-ink uppercase">خیالت راحت باشه</p>
-                <p class="mt-1 text-sm leading-8 text-ink-soft dark:text-ink-soft-dark">
-                    هیچ‌وقت توی این برنامه به‌خاطر اشتباه سرزنش نمی‌شی. اگه چندبار پشت‌سرهم یه چیزی رو درست نگی/ننویسی، AI به‌جای سخت‌گیری بیشتر، <strong class="text-ink dark:text-ink-dark">زودتر بهت کمک پیشنهاد می‌ده</strong>. ضبط صدات بد بود؟ جمله‌ت گرامر نداشت؟ مشکلی نیست — دقیقاً برای همینه که این تمرین‌ها وجود دارن. هدف اینجا امتحان دادن نیست، تمرین کردنه.
-                </p>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">ساختار برنامه</p>
-                <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">نقشه‌ی هر روز</h2>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">هر ماموریت یه موضوع واقعی زندگی روزمره‌ست که توی ۴ روز پیش می‌ری.</p>
-            </div>
-
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <section dir="rtl" class="font-fa space-y-2">
+            <h2 class="px-1 text-sm font-extrabold text-ink-faint dark:text-ink-faint-dark">سؤال‌ها</h2>
+            <div class="card divide-y divide-line rounded-2xl px-4 py-0 dark:divide-line-dark">
                 @foreach ([
-                    ['۱', 'پایه', 'شروع ماموریت', 'با موضوع آشنا می‌شی، چند کلمه‌ی جدید یاد می‌گیری، و یه فایل صوتی واقعی گوش می‌دی.', '۴۰'],
-                    ['۲', 'ساخت', 'یادگیری عمیق‌تر', 'کلمات بیشتر، یه نکته‌ی گرامری با مثال واقعی، و یه ویدیوی واقعی که دنبالش حرف می‌زنی.', '۵۵'],
-                    ['۳', 'تمرین', 'به‌کاربردن', 'با هوش مصنوعی مکالمه می‌کنی، یه متن می‌خونی، و یه متن می‌نویسی.', '۶۵'],
-                    ['۴', 'چالش', 'جمع‌بندی', 'یه تصویر رو توصیف می‌کنی، اشتباهاتت رو رفع می‌کنی، یه مکالمه‌ی نهایی بدون آمادگی انجام می‌دی، و نتیجه رو می‌بینی.', '۳۵'],
-                ] as [$num, $phase, $title, $desc, $minutes])
-                    <div class="card p-4">
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2">
-                                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white dark:bg-accent-dark">{{ $num }}</span>
-                                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">{{ $phase }}</p>
-                            </div>
-                            <span class="shrink-0 text-xs text-ink-faint dark:text-ink-faint-dark">~{{ $minutes }} دقیقه</span>
-                        </div>
-                        <p class="mt-2 text-sm font-bold text-ink dark:text-ink-dark">{{ $title }}</p>
-                        <p class="mt-1 text-xs leading-7 text-ink-soft dark:text-ink-soft-dark">{{ $desc }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-
-        <section class="space-y-2">
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">برای جواب گرفتن</p>
-                <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">سه عادت که جواب می‌ده</h2>
-            </div>
-            <ul class="list-disc space-y-1.5 pe-5 text-sm leading-7 text-ink-soft dark:text-ink-soft-dark">
-                <li><strong class="text-ink dark:text-ink-dark">هر روز سر یه ساعت ثابت.</strong> چهل دقیقه‌ی روزانه بیشتر از دو ساعت یک‌جا توی آخر هفته جواب می‌ده.</li>
-                <li><strong class="text-ink dark:text-ink-dark">همیشه با صدای بلند حرف بزن.</strong> توی هر تمرین ضبط‌صدا، دهنت باید کار کنه، نه فقط چشمت.</li>
-                <li><strong class="text-ink dark:text-ink-dark">قبل از مطلب جدید، Daily Review رو بزن.</strong> ده دقیقه مرور توی یه روز کوتاه، از یه قدم جدید باارزش‌تره.</li>
-            </ul>
-        </section>
-
-        <section class="flex items-start gap-3 card p-4">
-            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                @svg('heroicon-o-shield-check', 'h-4 w-4')
-            </span>
-            <div>
-                <p class="text-sm font-bold text-ink dark:text-ink-dark">چرا نمی‌تونم یه مرحله رو رد کنم؟</p>
-                <p class="mt-1 text-sm leading-8 text-ink-soft dark:text-ink-soft-dark">
-                    چون یادگیری زبان با دیدن جواب درست اتفاق نمی‌افته، با <strong class="text-ink dark:text-ink-dark">تلاش کردن</strong> اتفاق می‌افته. هر مرحله از تو یه خروجی واقعی می‌خواد (صدا، نوشته، یا جواب) تا AI Instructor بتونه واقعاً بهت فیدبک بده.
-                </p>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">خارج از برنامه</p>
-                <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">منابع تکمیلی</h2>
-            </div>
-
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div class="card p-4" x-data="{ open: false }">
-                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                        @svg('heroicon-o-speaker-wave', 'h-4 w-4')
-                    </span>
-                    <p class="mt-2 text-sm font-bold text-ink dark:text-ink-dark">شنیداری و تلفظ</p>
-                    <ul class="mt-1.5 list-disc space-y-1.5 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
-                        <li>کانال‌های BBC Learning English و Rachel's English روی یوتیوب</li>
-                        <li>کلمات «My Words» رو دوبار لمس کن تا تلفظ امریکنش رو بشنوی</li>
-                    </ul>
-
-                    <button
-                        type="button"
-                        x-on:click="open = ! open"
-                        class="mt-2 flex w-full cursor-pointer items-center justify-between gap-2 text-xs font-semibold text-accent-ink dark:text-accent-ink-dark"
-                    >
-                        <span>راهنمای کامل تمرین شنیداری بیرون از اپ</span>
-                        <span class="shrink-0" :class="open ? 'rotate-180' : ''" style="transition: transform 150ms">
-                            @svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')
-                        </span>
-                    </button>
-
-                    <div x-show="open" x-cloak x-transition.opacity.duration.150ms class="mt-2 space-y-2.5 border-t border-line pt-2.5 dark:border-line-dark">
-                        <div>
-                            <p class="text-xs font-bold text-ink dark:text-ink-dark">چرا این کار رو بکنم؟</p>
-                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">توی اپ، Listening عمیقه: یه فایل کوتاه رو چندبار گوش می‌دی تا همه‌چیزش رو بفهمی. این خوبه، ولی کافی نیست — زبان واقعی سریع‌تر و نامنظم‌تره. این بخش برعکسشه: زیاد گوش بده، راحت، بدون توقف، تا گوشت به سرعت و لهجه‌ی واقعی عادت کنه.</p>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-ink dark:text-ink-dark">چقدر و چطور؟</p>
-                            <ul class="mt-1 list-disc space-y-1 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
-                                <li>روزی یه فایل کافیه، هر وقت از روز.</li>
-                                <li>برای هر کلمه‌ی ناآشنا نایست — فقط ادامه بده.</li>
-                                <li>فایلی رو انتخاب کن که بدون زحمت حدود ۷۰ تا ۸۰ درصدش رو می‌فهمی. اگه کمتره، یه پله ساده‌تر برو.</li>
-                                <li>هیچ‌وقت زیرنویس فارسی نذار؛ اگه لازم شد، فقط زیرنویس انگلیسی.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-ink dark:text-ink-dark">از کجا شروع کنم؟</p>
-                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">برای هر روز برنامه، سه پیشنهاد آماده‌ست، از سبک‌تر تا چالشی‌تر. <strong class="text-ink dark:text-ink-dark">یکی رو گوش بده، همین کافیه.</strong></p>
-                            <p class="mt-1 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">کارت «Extra listening» پایین کادر Today توی صفحه‌ی اصلی، پیشنهادهای روز خودت رو باز می‌کنه. بعدش «I listened» رو بزن تا توی استریک حساب بشه.</p>
-                            <a
-                                href="{{ route('listening.show') }}"
-                                wire:navigate
-                                class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                            >باز کردن پیشنهادهای شنیدن @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card p-4">
-                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                        @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4')
-                    </span>
-                    <p class="mt-2 text-sm font-bold text-ink dark:text-ink-dark">مکالمه</p>
-                    <ul class="mt-1.5 list-disc space-y-1.5 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
-                        <li>اگه دوستی روی پلتفرم داری، باهاش تمرین کن</li>
-                        <li>جلوی آینه جواب سوال‌های همون روز رو بدون آمادگی تمرین کن</li>
-                        <li>آخر هر روز، ۱۰ دقیقه تمرین صوتی با یه هوش مصنوعی صوتی (Pi یا هر کدوم که خودت دوست داری): روز اول تلفظ، روز دوم گرامر، روز سوم مکالمه، روز چهارم تعریف کردن ماجرای ماموریت با زبان خودت. «Daily talk» توی صفحه‌ی اصلی پرامپت آماده‌ش رو داره؛ بعدش آخرین پیام Pi رو کپی کن و برای «Feedback» بچسبون؛ اگه واقعاً تمرین کرده باشی خودش تیک می‌خوره و توی استریک حساب می‌شه.</li>
-                    </ul>
-                    <a
-                        href="{{ route('pi.practice') }}"
-                        wire:navigate
-                        class="mt-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                    >باز کردن تمرین صوتی امروز @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')</a>
-                </div>
-                <div class="card p-4">
-                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                        @svg('heroicon-o-sparkles', 'h-4 w-4')
-                    </span>
-                    <p class="mt-2 text-sm font-bold text-ink dark:text-ink-dark">واژگان</p>
-                    <ul class="mt-1.5 list-disc space-y-1.5 pe-4 text-xs leading-6 text-ink-soft dark:text-ink-soft-dark">
-                        <li>آخر هر قدم، کلماتی که می‌خوای یادت بمونه رو با دکمه‌ی «Add to My Words» تایید کن</li>
-                        <li>از اون به بعد نیازی نیست خودت زمان‌بندی مرورشون رو مدیریت کنی — خودکار با فاصله‌ی زمانی مناسب جلوت میان</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">مسیر کامل</p>
-                <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">نقشه‌ی ۲۴ ماموریت</h2>
-            </div>
-            <ol class="space-y-1.5">
-                @foreach ($roadmapSlots as $slot)
-                    <li class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {{ $slot['mission'] && ! $slot['blockedBy'] ? 'hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark' : '' }}">
-                        <span class="w-9 shrink-0 text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $slot['code'] }}</span>
-                        @if ($slot['mission'] && ! $slot['blockedBy'])
-                            <a href="{{ route('missions.show', [$slot['mission'], 'overview']) }}" wire:navigate class="flex-1 font-semibold text-ink dark:text-ink-dark">{{ $slot['title'] }}</a>
-                            @svg('heroicon-o-chevron-left', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
-                        @else
-                            <span class="flex-1 {{ $slot['mission'] ? 'text-ink-soft dark:text-ink-soft-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $slot['title'] }}</span>
-                            @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
-                        @endif
-                    </li>
-                @endforeach
-            </ol>
-        </section>
-
-        <section class="space-y-3">
-            <div>
-                <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">هنوز سوال داری؟</p>
-                <h2 class="mt-0.5 font-display text-lg font-bold text-ink dark:text-ink-dark">سوالات متداول</h2>
-            </div>
-
-            <div class="space-y-2">
-                @foreach ([
-                    ['میکروفون لازم دارم؟', 'برای تمرین‌های گفتاری (مکالمه، توصیف تصویر، Shadowing) بله — گوشی یا لپ‌تاپت کافیه، نیازی به تجهیزات خاص نیست.'],
-                    ['روی موبایل هم کار می‌کنه؟', 'بله، کاملاً. اتفاقاً خیلی از قابلیت‌ها (مثل تلفظ کلمات با دوبار لمس) مخصوص موبایل طراحی شدن.'],
-                    ['اگه یه کلمه یا جمله رو نفهمم چی؟', 'نگران نباش، همه‌چیز با معنی و مثال همراهشه. اگه بازم گیر کردی، همون سوالی که داری رو با AI یا با دوستات مطرح کن.'],
-                    ['می‌تونم یه مرحله یا کل ماموریت رو دوباره انجام بدم؟', 'بله، مرحله‌هایی که قابل تکرارن همیشه در دسترسن.'],
-                    ['اگه یه روز جا موندم چی می‌شه؟', 'هیچی از دست نمی‌ره — ماموریت منتظرت می‌مونه، فقط استریکت صفر می‌شه. تاریخ تقویمی هیچ‌وقت جریمه نداره.'],
-                    ['نتیجه‌ی ماموریت چطور تعیین می‌شه؟', 'AI Instructor بر اساس چیزایی که واقعاً نوشتی و گفتی (نه خودارزیابیت) تصمیم می‌گیره که ماموریت کامله یا یه مرحله رو دوباره نیاز داری — نه چون اشتباه بزرگی کردی، بلکه چون اونجا بیشترین کمک رو بهت می‌کنه.'],
-                ] as [$q, $a])
-                    <div class="rounded-xl border border-line bg-surface dark:border-line-dark dark:bg-surface-dark" x-data="{ open: false }">
-                        <button
-                            type="button"
-                            x-on:click="open = ! open"
-                            class="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-right"
-                        >
-                            <span class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $q }}</span>
-                            <span class="shrink-0 text-ink-faint dark:text-ink-faint-dark" :class="open ? 'rotate-180' : ''" style="transition: transform 150ms">
-                                @svg('heroicon-o-chevron-down', 'h-4 w-4')
-                            </span>
+                    ['اگه یه روز جا موندم چی می‌شه؟', 'چیزی از دست نمی‌ره؛ مأموریت منتظرت می‌مونه، فقط استریک صفر می‌شه.', null],
+                    ['میکروفون لازم دارم؟', 'برای تمرین‌های گفتاری بله؛ میکروفون گوشی کافیه.', null],
+                    ['می‌تونم یه مرحله رو دوباره انجام بدم؟', 'بله؛ از صفحه‌ی مأموریت، روزش رو باز کن.', null],
+                    ['بیرون از اپ چی گوش بدم؟', 'روزی یه فایل که ۷۰ تا ۸۰ درصدش رو بفهمی، بدون زیرنویس فارسی؛ مثلاً BBC Learning English یا Rachel\'s English در یوتیوب.', ['listening.show', 'پیشنهادهای امروز']],
+                    ['چرا این‌همه تکرار؟', 'چون چیزی که با فاصله دوباره می‌بینی، تو حافظه‌ی بلندمدت می‌مونه؛ مرور روزانه همین کار رو می‌کنه.', null],
+                    ['نتیجه‌ی مأموریت چطور تعیین می‌شه؟', 'AI از چیزهایی که واقعاً گفتی و نوشتی تصمیم می‌گیره؛ اگه لازم باشه یه مرحله رو دوباره پیشنهاد می‌ده.', null],
+                ] as [$question, $answer, $link])
+                    <div wire:key="faq-{{ $loop->index }}" x-data="{ open: false }">
+                        <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open" class="flex w-full cursor-pointer items-center justify-between gap-3 py-3.5 text-start text-sm font-bold text-ink dark:text-ink-dark">
+                            <span>{{ $question }}</span>
+                            <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="open && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-4 w-4')</span>
                         </button>
-                        <div x-show="open" x-cloak x-transition.opacity.duration.150ms class="px-4 pb-3">
-                            <p class="text-sm leading-7 text-ink-soft dark:text-ink-soft-dark">{{ $a }}</p>
+                        <div x-show="open" x-cloak x-transition.opacity.duration.150ms class="pb-3.5 text-sm leading-7 text-ink-soft dark:text-ink-soft-dark">
+                            {{ $answer }}
+                            @if ($link)
+                                <a href="{{ route($link[0]) }}" wire:navigate class="font-bold text-accent-ink dark:text-accent-ink-dark">{{ $link[1] }} ›</a>
+                            @endif
                         </div>
                     </div>
                 @endforeach
             </div>
         </section>
-
     </div>
 </x-layouts.app>

@@ -472,11 +472,15 @@ class ProgramPlannerTest extends TestCase
         $this->get(route('program.guide'))->assertRedirect(route('learner.guide'));
     }
 
-    public function test_the_learner_guide_page_renders_the_full_roadmap(): void
+    public function test_the_learner_guide_is_three_cards_and_short_questions(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('learner.guide'))->assertOk()->assertSee('نقشه‌ی ۲۴ ماموریت')->assertSee('M24');
+        $this->get(route('learner.guide'))
+            ->assertOk()
+            ->assertSeeInOrder(['اپ چطور کار می‌کنه', 'روز تو در ۴ قدم', '۳ عادت که جواب می‌ده', 'سؤال‌ها', 'چرا این‌همه تکرار؟'])
+            ->assertDontSee('نقشه‌ی ۲۴ ماموریت')
+            ->assertDontSee("Let's go");
     }
 
     public function test_the_learner_guide_links_to_the_listening_picks_page(): void
@@ -486,6 +490,6 @@ class ProgramPlannerTest extends TestCase
         $this->get(route('learner.guide'))
             ->assertOk()
             ->assertSeeHtml('href="'.route('listening.show').'"')
-            ->assertSee('باز کردن پیشنهادهای شنیدن');
+            ->assertSee('بیرون از اپ چی گوش بدم؟');
     }
 }
