@@ -28,6 +28,7 @@ class ImageViewerTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('x-on:zoom-image.window', false);
+            ->assertSee('x-on:zoom-image.window', false)
+            ->assertSee('x-swipe-close="open = false"', false);
     }
 }

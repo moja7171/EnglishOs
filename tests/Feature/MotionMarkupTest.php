@@ -25,7 +25,8 @@ class MotionMarkupTest extends TestCase
 
         $html = $this->get(route('home'))->getContent();
 
-        $this->assertSame(2, substr_count($html, 'x-swipe-close="open = false"'));
+        // The bell, the streak ring and the full-screen picture viewer.
+        $this->assertSame(3, substr_count($html, 'x-swipe-close="open = false"'));
         $this->assertStringContainsString('aria-label="Notifications"', $html);
         $this->assertStringContainsString('aria-label="Daily streak"', $html);
     }
