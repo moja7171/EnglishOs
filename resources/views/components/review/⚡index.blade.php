@@ -572,10 +572,12 @@ new class extends Component
 {{-- A5: the review runs like a short lesson — ✕, one bar and "3/8" on
      top, one full-screen card, two big buttons at the thumb ("✕ Forget" /
      "✓ I know"), a small Skip. --}}
-{{-- A fixed-height column (the screen minus the bottom nav): a long card
-     scrolls inside itself while the grading buttons and the answer sheet stay
-     in view, instead of the whole page growing and scrolling. --}}
-<div class="mx-auto flex h-[calc(100dvh-5rem)] max-w-2xl flex-col gap-4 p-4 sm:p-6">
+{{-- With a card open (the top bar is hidden then) the page is a fixed-height
+     column, the screen minus the bottom nav: a long card scrolls inside itself
+     while the grading buttons and the answer sheet stay in view. The end
+     screens keep the top bar, so they are only a minimum height and scroll as
+     a page — their Done button is never left under the nav. --}}
+<div @class(['mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6', 'h-[calc(100dvh-6rem)]' => $item, 'min-h-[calc(100dvh-6rem)]' => ! $item])>
     @if (! $item)
         @if ($this->hasSkippedEverything)
             <div class="flex flex-1 flex-col items-center justify-center gap-2 text-center">

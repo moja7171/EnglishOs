@@ -319,7 +319,7 @@ new class extends Component
                 </a>
             </section>
 
-            <div class="sticky bottom-20 -mx-4 flex gap-2 bg-ground px-4 py-3 dark:bg-ground-dark" x-show="q < total">
+            <div class="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] -mx-4 flex gap-2 bg-ground px-4 py-3 dark:bg-ground-dark" x-show="q < total">
                 <button type="button" x-show="q > 0" x-on:click="q--" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-3 text-base font-extrabold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">Back</button>
                 <button type="button" x-on:click="q++" class="flex-1 cursor-pointer rounded-2xl bg-accent py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark" x-text="q === total - 1 ? 'Done' : 'Next'"></button>
             </div>
