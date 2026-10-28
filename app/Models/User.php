@@ -230,13 +230,26 @@ class User extends Authenticatable
     }
 
     /**
+     * Missions the learner has moved past: passed ('complete') or sent on
+     * with a note ('needs_review'), the same two statuses that open the next
+     * mission and move ProgramPlanner on. The Friends Board shows this, so a
+     * friend who is already on M02 never reads "0 missions".
+     */
+    public function missionsFinishedCount(): int
+    {
+        return $this->missionRuns()
+            ->whereIn('status', [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW])
+            ->count();
+    }
+
+    /**
      * Non-competitive "this week" framing for the Friends Board (see
      * friends/⚡board.blade.php) — a plain count, never a rank.
      */
     public function missionsCompletedThisWeekCount(): int
     {
         return $this->missionRuns()
-            ->where('status', MissionRun::STATUS_COMPLETE)
+            ->whereIn('status', [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW])
             ->where('completed_at', '>=', now()->startOfWeek())
             ->count();
     }

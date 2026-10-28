@@ -84,6 +84,22 @@ class FriendsBoardTest extends TestCase
             ->assertDontSee('a very private real answer');
     }
 
+    public function test_a_friend_who_moved_on_with_a_note_still_counts_the_mission_as_finished(): void
+    {
+        $me = User::factory()->create();
+        $this->actingAs($me);
+        $friend = $this->makeMutualFriend($me);
+
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($friend, $mission);
+        $run->update(['status' => MissionRun::STATUS_NEEDS_REVIEW, 'completed_at' => now()]);
+
+        $this->assertSame(1, $friend->missionsFinishedCount());
+        $this->assertSame(0, $friend->missionsCompletedCount());
+
+        Livewire::test('friends.board')->assertSee('1 mission');
+    }
+
     public function test_a_friend_with_no_active_mission_run_renders_without_error(): void
     {
         $me = User::factory()->create();
