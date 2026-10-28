@@ -172,14 +172,21 @@ class StreakRingTest extends TestCase
     {
         $learner = $this->learner();
         $this->slices($learner, 1, 2);
-        $this->slices($learner, 0, 1);
+        DayActivity::factory()->create([
+            'learner_id' => $learner->id,
+            'on_date' => now()->toDateString(),
+            'activity' => 'review',
+        ]);
         $this->actingAs($learner);
 
         Livewire::test('streak.ring')
             ->assertSee('Day 2')
-            ->assertSee('1/3 today')
+            ->assertSee('1/3')
             ->assertSee('1 more activity keeps your streak')
-            ->assertSee('1 freeze');
+            ->assertSee('Review')
+            ->assertSee('Step, review, listening or Daily talk')
+            ->assertSee('1 freeze')
+            ->assertSee(route('progress.index'));
     }
 
     public function test_filling_the_ring_celebrates_once_a_day(): void

@@ -130,11 +130,12 @@
                 x-bind:href="current.url"
                 wire:navigate
                 x-on:click="close()"
+                x-bind:dir="/[\u0600-\u06FF]/.test(current.title) ? 'rtl' : 'ltr'"
                 class="flex items-center gap-3 px-3.5 py-3"
             >
                 <span x-show="current.avatar" class="inline-flex shrink-0" x-html="current.avatar"></span>
                 <span x-show="! current.avatar" class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark" x-html="current.icon"></span>
-                <span dir="auto" class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-bold text-ink dark:text-ink-dark" x-text="current.title"></span>
+                <span class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-bold text-ink dark:text-ink-dark" x-text="current.title"></span>
                 <span x-show="current.urgent" class="shrink-0 rounded-full bg-success px-4 py-2 text-xs font-extrabold text-white dark:bg-success-dark">Join</span>
             </a>
 

@@ -258,9 +258,11 @@ new class extends Component
                             $isFresh = in_array($item->id, $this->freshIds, true);
                             $isRequest = isset($item->data['follower_id']) && in_array($item->data['follower_id'], $this->pendingRequesterIds, true);
                         @endphp
-                        <div wire:key="notification-{{ $item->id }}" class="relative flex items-center gap-3 px-4 py-2.5">
+                        {{-- A Persian title makes the whole row right-to-left, so an English name or
+                             code inside it stays where it belongs in the sentence. --}}
+                        <div wire:key="notification-{{ $item->id }}" dir="{{ preg_match('/\p{Arabic}/u', $item->data['title']) ? 'rtl' : 'ltr' }}" class="relative flex items-center gap-3 px-4 py-2.5">
                             @if ($isFresh)
-                                <span aria-label="New" class="absolute top-1/2 left-1.5 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-accent dark:bg-accent-dark"></span>
+                                <span aria-label="New" class="absolute top-1/2 start-1 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-accent dark:bg-accent-dark"></span>
                             @endif
                             <a href="{{ $item->data['url'] }}" wire:navigate x-on:click="open = false" class="flex min-w-0 flex-1 items-center gap-3">
                                 @if ($person)
@@ -271,7 +273,7 @@ new class extends Component
                                     </span>
                                 @endif
                                 <span class="min-w-0 flex-1">
-                                    <span dir="auto" @class(['block text-sm leading-snug text-ink dark:text-ink-dark', 'font-bold' => $isFresh, 'font-semibold' => ! $isFresh])>{{ $item->data['title'] }}</span>
+                                    <span @class(['block text-sm leading-snug text-ink dark:text-ink-dark', 'font-bold' => $isFresh, 'font-semibold' => ! $isFresh])>{{ $item->data['title'] }}</span>
                                     <span class="block text-[11px] font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $item->created_at->diffForHumans(['short' => true, 'parts' => 1]) }}</span>
                                 </span>
                             </a>
