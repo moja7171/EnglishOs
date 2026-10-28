@@ -102,7 +102,8 @@ class SentenceChecker
             .'(. ? or !); and that any word is used in the right grammatical form (e.g. not a noun used as a '
             .'verb). Reply with ONLY valid JSON, no markdown fences, shaped exactly like: {"severity": "major" '
             .'or "minor" or "none", "hint": "..."}. Use "major" only for real problems: '.$majorCriteria.', or '
-            .'it is not real English. Use "minor" for small slips: spelling mistakes, a missing capital letter '
+            .'it is not real English, or it makes no sense (words that do not say anything meaningful, even if each '
+            .'word is spelled correctly). Use "minor" for small slips: spelling mistakes, a missing capital letter '
             .'or end punctuation, a wrong word form, or article/preposition/tense mistakes — things that do '
             .'not block understanding. Use "none" when it is good.';
 

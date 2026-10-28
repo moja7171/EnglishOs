@@ -181,7 +181,7 @@ new class extends Component
     <div
         x-data="{ screen: {{ $score !== null ? 2 : ($warmUpRecordingPath ? 1 : 0) }} }"
         x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 3 })"
-        x-back-close="{ open: screen > 0, close: () => screen-- }"
+        x-back-close.step="{ open: screen > 0, close: () => screen-- }"
     >
         <x-lesson-screen when="screen === 0">
             <x-step-intro kind="Get Ready" :minutes="$run->mission->stepDuration('mission_brief')" :title="$brief['hook'] ?? null" :image="$this->heroImageUrl" centered />

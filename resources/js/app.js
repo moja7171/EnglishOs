@@ -114,6 +114,10 @@ document.addEventListener('alpine:init', () => {
             history.back();
         };
 
+        const showStepBack = () => {
+            Alpine.store('stepBack').open = open.some((overlay) => overlay.step);
+        };
+
         const sync = (overlay) => {
             const isOpen = overlay.isOpen();
             const index = open.indexOf(overlay);
@@ -130,6 +134,8 @@ document.addEventListener('alpine:init', () => {
                 open.splice(index, 1);
                 releaseEntry();
             }
+
+            showStepBack();
         };
 
         window.addEventListener('popstate', () => {
@@ -154,12 +160,23 @@ document.addEventListener('alpine:init', () => {
 
                 open.splice(index, 1);
                 releaseEntry();
+                showStepBack();
             },
         };
     })();
 
-    Alpine.directive('back-close', (el, { expression }, { evaluate, effect, cleanup }) => {
+    /**
+     * x-back-close.step marks the overlay as a lesson step's own "previous
+     * screen". While one is open, $store.stepBack.open is true and the
+     * step header's ‹ shows; tapping it is the phone's Back, so the sheet
+     * or dictionary on top closes first and the step goes back one screen
+     * after that.
+     */
+    Alpine.store('stepBack', { open: false });
+
+    Alpine.directive('back-close', (el, { expression, modifiers }, { evaluate, effect, cleanup }) => {
         const overlay = {
+            step: modifiers.includes('step'),
             isOpen: () => evaluate(expression).open,
             close: () => evaluate(expression).close(),
         };
@@ -217,15 +234,6 @@ document.addEventListener('alpine:init', () => {
             const saved = localStorage.getItem(key);
             if (saved && !wire.get(field)) {
                 wire.set(field, saved);
-
-                // A restored text counts as typed: the page's own input
-                // handlers (e.g. a Check button that waits for something to
-                // be written) hear it too. After this directive pass, so the
-                // element's own x-on:input is already attached.
-                queueMicrotask(() => {
-                    el.value = saved;
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                });
             }
         } catch (e) {}
 

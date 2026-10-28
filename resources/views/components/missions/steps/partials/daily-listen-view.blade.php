@@ -56,7 +56,7 @@
         },
     }"
     x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $screenCount }} }); if (screen !== {{ $wholeTalkScreen }}) $el.querySelector('[data-whole-talk] audio')?.pause()"
-    x-back-close="{ open: screen > 0, close: () => screen-- }"
+    x-back-close.step="{ open: screen > 0, close: () => screen-- }"
 >
     {{-- Plays one line at a time out of the episode for "Hear it". --}}
     <audio x-ref="clip" preload="auto" class="hidden" wire:ignore x-on:timeupdate="if (clipEnd !== null && $el.currentTime >= clipEnd) { $el.pause(); clipEnd = null }">

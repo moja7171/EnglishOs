@@ -244,7 +244,7 @@ new class extends Component
         },
     }"
     x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $feedbackScreen + 1 }} })"
-    x-back-close="{ open: screen > 0 && screen < {{ $feedbackScreen }}, close: () => screen-- }"
+    x-back-close.step="{ open: screen > 0 && screen < {{ $feedbackScreen }}, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="Writing" :minutes="$run->mission->stepDuration('writing')" :title="$writing['title'] ?? 'Writing'" />

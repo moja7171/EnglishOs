@@ -514,7 +514,7 @@ new class extends Component
 <div
     x-data="{ screen: {{ $status ? 3 : 0 }} }"
     x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 6 })"
-    x-back-close="{ open: screen > 0 && screen < 3, close: () => screen-- }"
+    x-back-close.step="{ open: screen > 0 && screen < 3, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <span class="{{ $chip }}">Mission Result</span>

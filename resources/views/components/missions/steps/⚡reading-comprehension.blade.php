@@ -353,7 +353,6 @@ new class extends Component
     $quizScreen = count($cards) ? 2 : null;
     $firstQuestionScreen = 3;
     $screenCount = $firstQuestionScreen + count($questions);
-    $initialFilled = collect($answers)->map(fn ($a) => trim((string) $a) !== '')->values();
 @endphp
 
 @if ($readOnly)
@@ -369,15 +368,12 @@ new class extends Component
     </div>
 @else
 <div
-    data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
         screen: 0,
         quizShare: 0,
         text: false,
-        filled: [],
         edited: {},
         init() {
-            this.filled = JSON.parse(this.$el.dataset.initialFilled);
             this.screen = window.eosDraft.restoreIndex('{{ $draftPrefix }}screen', 0);
             this.$watch('screen', (v) => window.eosDraft.persistIndex('{{ $draftPrefix }}screen', v));
         },
@@ -385,7 +381,7 @@ new class extends Component
     }"
     x-effect="$dispatch('step-progress', { share })"
     x-on:quick-round-progress="quizShare = $event.detail.share"
-    x-back-close="{ open: screen > 0, close: () => screen-- }"
+    x-back-close.step="{ open: screen > 0, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="Reading" :minutes="$run->mission->stepDuration('reading_comprehension')" :title="$reading['hook'] ?? null" :image="$this->passageImageUrl" />
@@ -434,15 +430,17 @@ new class extends Component
                 :param="$index"
                 draft-key="{{ $draftPrefix }}answers.{{ $index }}"
                 placeholder="Answer in a full sentence…"
-                on-input="filled[{{ $index }}] = $el.value.trim() !== ''; edited[{{ $index }}] = true"
-                :error="$checkErrors[$index] ?? ($dictationErrors[$index] ?? null)"
+                on-input="edited[{{ $index }}] = true"
+                :error="$dictationErrors[$index] ?? null"
             />
             <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateAnswer, revealCorrection({{ $index }}), save" />
 
             <x-slot:actions>
                 <x-checked-answer-actions
                     :index="$index"
+                    :model="'answers.'.$index"
                     :feedback="$itemFeedback"
+                    :error="$checkErrors[$index] ?? null"
                     :checked="(bool) $isChecked"
                     check="$wire.checkOne({{ $index }})"
                     :next="$isLast ? '$wire.save()' : 'screen++'"

@@ -274,7 +274,7 @@ new class extends Component
 <div
     x-data="{ screen: {{ $completed ? 2 : ($recordingPath ? 1 : 0) }} }"
     x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 3 })"
-    x-back-close="{ open: screen === 1, close: () => screen-- }"
+    x-back-close.step="{ open: screen === 1, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="Picture Story" :minutes="$run->mission->stepDuration('story_sequence')" :title="$content['hook'] ?? null" />

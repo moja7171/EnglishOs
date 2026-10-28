@@ -521,14 +521,11 @@ new class extends Component
     </div>
 @else
 <div
-    data-initial-filled="{{ $initialFilled->toJson() }}"
     x-data="{
         screen: {{ $startScreen }},
         quizShare: 0,
-        filled: [],
         edited: {},
         english: {},
-        init() { this.filled = JSON.parse(this.$el.dataset.initialFilled) },
         get share() {
             return this.screen === {{ $quizScreen }}
                 ? ({{ $quizScreen }} + this.quizShare) / {{ $screenCount }}
@@ -537,7 +534,7 @@ new class extends Component
     }"
     x-effect="$dispatch('step-progress', { share })"
     x-on:quick-round-progress="quizShare = $event.detail.share"
-    x-back-close="{ open: screen > 0, close: () => screen-- }"
+    x-back-close.step="{ open: screen > 0, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="New Words" :minutes="$run->mission->stepDuration($stepKey)" :title="$run->mission->stepContent($stepKey)['hook'] ?? null" />
@@ -555,7 +552,7 @@ new class extends Component
     {{-- One card per word; its sound plays as the card opens. --}}
     @foreach ($words as $index => $entry)
         @php $picture = $this->wordImageUrl($entry['phrase']); @endphp
-        <x-lesson-screen when="screen === {{ $index + 1 }}" x-effect="if (screen === {{ $index + 1 }}) window.eosVoice?.speak(@js($entry['phrase']))">
+        <x-lesson-screen when="screen === {{ $index + 1 }}" x-effect="if (screen === {{ $index + 1 }}) window.eosVoice?.speak({{ Illuminate\Support\Js::from($entry['phrase']) }})">
             <div class="flex flex-col gap-3 rounded-3xl bg-surface p-4 dark:bg-surface-dark">
                 @if ($picture)
                     <img src="{{ $picture }}" alt="" loading="lazy" class="h-36 w-full rounded-2xl object-cover">
@@ -622,10 +619,7 @@ new class extends Component
             $word = $entry['phrase'];
             $itemFeedback = $feedback[$word] ?? null;
             $isChecked = $itemFeedback && ($itemFeedback['checkedText'] ?? null) === trim((string) ($examples[$index] ?? ''));
-            $severity = $itemFeedback['severity'] ?? null;
             $isLast = $index === $wordCount - 1;
-            $sheetTone = $severity === 'none' ? "'good'" : "'almost'";
-            $sheetTitle = match ($severity) { 'none' => "'✓ Great!'", 'minor' => "'Almost!'", default => "'Not quite'" };
         @endphp
         <x-lesson-screen when="screen === {{ $firstSentenceScreen + $index }}" wire:key="sentence-{{ $index }}">
             <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">About you · {{ $index + 1 }} of {{ $wordCount }}</span>
@@ -637,49 +631,30 @@ new class extends Component
                 :param="$index"
                 draft-key="{{ $draftPrefix }}examples.{{ $index }}"
                 placeholder="Write a sentence about you…"
-                on-input="filled[{{ $index }}] = $el.value.trim() !== ''; edited[{{ $index }}] = true"
-                :error="$checkErrors[$word] ?? ($dictationErrors[$index] ?? null)"
+                on-input="edited[{{ $index }}] = true"
+                :error="$dictationErrors[$index] ?? null"
             />
             <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateExample, revealCorrection({{ $index }}), save" />
 
             <x-slot:actions>
-                @if ($isChecked)
-                    <x-answer-sheet
-                        when="! edited[{{ $index }}]"
-                        :tone="$sheetTone"
-                        :title="$sheetTitle"
-                    >
-                        @if (filled($itemFeedback['hint'] ?? null))
-                            {{ $itemFeedback['hint'] }}
-                        @endif
-                        <x-almost-reveal-notice :show="$this->isAlmostRevealing($word)" />
-                        @if ($isLast && $severity === 'none' && $this->newWordCount() > 0)
+                <x-checked-answer-actions
+                    :index="$index"
+                    :model="'examples.'.$index"
+                    :feedback="$itemFeedback"
+                    :checked="(bool) $isChecked"
+                    :error="$checkErrors[$word] ?? null"
+                    check="$wire.checkOne({{ $index }})"
+                    :next="$isLast ? '$wire.save()' : 'screen++'"
+                    wire-target="checkOne,dictateExample,revealCorrection,save"
+                    :offer-reveal="$offerReveal[$word] ?? false"
+                    :almost-revealing="$this->isAlmostRevealing($word)"
+                >
+                    @if ($isLast && $this->newWordCount() > 0)
+                        <x-slot:extra>
                             <span class="inline-flex rounded-full bg-ink px-3 py-1.5 text-xs font-bold text-ground dark:bg-ink-dark dark:text-ground-dark">+{{ $this->newWordCount() }} words in My Words</span>
-                        @endif
-
-                        <x-slot:actions>
-                            @if ($severity === 'major')
-                                <x-continue-button on-click="edited[{{ $index }}] = true" wire-target="save">Try again</x-continue-button>
-                                @if ($offerReveal[$word] ?? false)
-                                    <button type="button" wire:click="revealCorrection({{ $index }})" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Show me a right one</button>
-                                @endif
-                            @elseif ($isLast)
-                                <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Saving…" />
-                            @else
-                                <x-continue-button on-click="screen++" wire-target="save" />
-                            @endif
-                        </x-slot:actions>
-                    </x-answer-sheet>
-                @endif
-
-                <div @if ($isChecked) x-show="edited[{{ $index }}]" x-cloak @endif class="flex flex-col gap-3">
-                    <x-continue-button
-                        on-click="$wire.checkOne({{ $index }}).then(() => { edited[{{ $index }}] = false })"
-                        wire-target="checkOne,dictateExample,revealCorrection,save"
-                        loading-label="Checking…"
-                        ready-when="filled[{{ $index }}]"
-                    >Check</x-continue-button>
-                </div>
+                        </x-slot:extra>
+                    @endif
+                </x-checked-answer-actions>
             </x-slot:actions>
         </x-lesson-screen>
     @endforeach

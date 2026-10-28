@@ -98,7 +98,11 @@
                 // Local to this take: a cancelled take's late events must
                 // never leak into (or end) a new one started right after.
                 const chunks = [];
-                const recorder = mimeType ? new MediaRecorder(this.stream, { mimeType }) : new MediaRecorder(this.stream);
+                // 32 kbps is plenty for speech and keeps a 3-minute take under
+                // 1 MB instead of the browser's ~3 MB default — a small upload
+                // is far likelier to get through a weak or filtered connection.
+                const options = { audioBitsPerSecond: 32000, ...(mimeType ? { mimeType } : {}) };
+                const recorder = new MediaRecorder(this.stream, options);
                 this.mediaRecorder = recorder;
                 recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
                 recorder.onstop = () => {

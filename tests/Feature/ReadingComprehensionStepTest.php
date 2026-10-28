@@ -102,10 +102,11 @@ class ReadingComprehensionStepTest extends TestCase
     {
         $run = $this->makeRun();
 
-        // Check waits for something in the box; the page's `filled` drives it.
+        // Check waits for something in the box, read from the live value of
+        // the box itself — so a restored draft or a said sentence counts too.
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
-            ->assertSeeHtml('x-bind:disabled="! (filled[0])"')
-            ->assertSeeHtml('x-bind:disabled="! (filled[1])"');
+            ->assertSeeHtml('$wire.get(&#039;answers.0&#039;)')
+            ->assertSeeHtml('$wire.get(&#039;answers.1&#039;)');
     }
 
     public function test_a_passage_with_an_image_query_shows_a_header_image(): void

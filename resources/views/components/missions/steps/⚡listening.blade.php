@@ -335,7 +335,7 @@ new class extends Component
     x-effect="$dispatch('step-progress', { share }); if (screen !== 1 && screen !== 3) $el.querySelector('audio')?.pause()"
     x-on:quick-round-progress="quizShare = $event.detail.share"
     x-on:quick-round-answered="if ($event.detail.key === 'detail') $wire.set('detailCorrect', $event.detail.correct, false)"
-    x-back-close="{ open: screen > 0, close: () => screen-- }"
+    x-back-close.step="{ open: screen > 0, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="Listening" :minutes="$run->mission->stepDuration('listening')" :title="$sourceTitle" :image="$this->heroImageUrl" />
