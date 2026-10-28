@@ -656,6 +656,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\AdminInsights' => __DIR__ . '/../..' . '/app/Services/AdminInsights.php',
         'App\\Services\\AiFailure' => __DIR__ . '/../..' . '/app/Services/AiFailure.php',
         'App\\Services\\AiFeedbackCard' => __DIR__ . '/../..' . '/app/Services/AiFeedbackCard.php',
+        'App\\Services\\AiJson' => __DIR__ . '/../..' . '/app/Services/AiJson.php',
         'App\\Services\\AiLimitReached' => __DIR__ . '/../..' . '/app/Services/AiLimitReached.php',
         'App\\Services\\AiModelChain' => __DIR__ . '/../..' . '/app/Services/AiModelChain.php',
         'App\\Services\\AiUsage' => __DIR__ . '/../..' . '/app/Services/AiUsage.php',

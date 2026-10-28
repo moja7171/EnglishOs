@@ -114,6 +114,7 @@ return array(
     'App\\Services\\AdminInsights' => $baseDir . '/app/Services/AdminInsights.php',
     'App\\Services\\AiFailure' => $baseDir . '/app/Services/AiFailure.php',
     'App\\Services\\AiFeedbackCard' => $baseDir . '/app/Services/AiFeedbackCard.php',
+    'App\\Services\\AiJson' => $baseDir . '/app/Services/AiJson.php',
     'App\\Services\\AiLimitReached' => $baseDir . '/app/Services/AiLimitReached.php',
     'App\\Services\\AiModelChain' => $baseDir . '/app/Services/AiModelChain.php',
     'App\\Services\\AiUsage' => $baseDir . '/app/Services/AiUsage.php',
