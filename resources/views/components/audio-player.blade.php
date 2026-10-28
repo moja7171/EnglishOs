@@ -87,7 +87,7 @@
     <div
         class="{{ $podcast ? 'flex flex-col' : 'card p-4' }}"
         @if ($textOpenWhen) x-effect="if ({{ $textOpenWhen }}) showText = true" @endif
-        :class="focus ? 'fixed inset-0 z-50 flex flex-col overflow-hidden rounded-none border-0 bg-ground sm:p-6 dark:bg-ground-dark' : ''"
+        :class="focus ? 'fixed inset-0 z-50 flex flex-col overflow-hidden rounded-none border-0 bg-ground p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-6 dark:bg-ground-dark' : ''"
         x-on:keydown.escape.window="focus = false"
         x-back-close="{ open: focus, close: () => focus = false }"
         x-data="{
@@ -148,7 +148,7 @@
                     this.playing = true;
                     this.resumedFrom = null;
                     this.watchShadowPoints(audio);
-                    if (this.focusOnPlay && this.segments.length) this.focus = true;
+                    if (this.focusOnPlay && this.segments.length && {{ $podcast ? 'false' : 'true' }}) this.focus = true;
                 });
                 audio.addEventListener('pause', () => this.playing = false);
                 // Pinned to the very end: the last 'timeupdate' can land up
