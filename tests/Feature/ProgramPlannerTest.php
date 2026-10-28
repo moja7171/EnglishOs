@@ -240,7 +240,7 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('progress.index')
-            ->assertSee('Day 2 of 96')
+            ->assertSeeText('Day 2 of 96')
             ->assertSee('8 days behind');
     }
 

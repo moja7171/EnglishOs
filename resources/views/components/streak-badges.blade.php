@@ -8,8 +8,8 @@
     Rendered as a hand-rolled medal (a disc + two ribbon tails, plain
     primitives only — same "no freehand bezier" rule as
     <x-illustrated-avatar>) with tier-appropriate color intensity, the same
-    richer visual language as <x-streak-flame>'s tiered icon/color and
-    <x-milestone-path>'s hand-built shapes — not a third, separate style.
+    richer visual language as <x-streak-flame>'s tiered icon/color — not
+    a separate style.
 
     @param int $longestStreak
 --}}

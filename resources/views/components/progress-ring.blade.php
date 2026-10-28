@@ -8,6 +8,7 @@
     @param int $percent 0-100.
     @param int $size Outer diameter in pixels.
     @param int $strokeWidth Ring thickness in pixels.
+    @slot Optional centre label instead of "N%".
 --}}
 @props(['percent' => 0, 'size' => 44, 'strokeWidth' => 4])
 
@@ -41,5 +42,5 @@
             class="stroke-accent dark:stroke-accent-dark"
         ></circle>
     </svg>
-    <span class="absolute text-[11px] font-bold text-ink dark:text-ink-dark">{{ $clamped }}%</span>
+    <span class="absolute text-[11px] font-bold text-ink dark:text-ink-dark">{{ $slot->isEmpty() ? $clamped.'%' : $slot }}</span>
 </span>

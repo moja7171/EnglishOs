@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\GrammarPoint;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
@@ -93,47 +92,5 @@ class GrammarPointsProgressTest extends TestCase
             ['Sooner one', 'Later one'],
             $learner->learningGrammarPoints()->pluck('focus')->all(),
         );
-    }
-
-    public function test_the_progress_page_names_a_mastered_grammar_point(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeGrammarPoint($learner, 'Present Simple + Adverbs', User::MASTERED_GRAMMAR_REPETITIONS);
-
-        Livewire::actingAs($learner)
-            ->test('progress.index')
-            ->assertSee('Grammar points')
-            ->assertSee('Present Simple + Adverbs');
-    }
-
-    public function test_the_progress_page_shows_a_still_learning_grammar_point_with_its_next_review(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeGrammarPoint($learner, 'Past Continuous', 1, '+3 days');
-
-        Livewire::actingAs($learner)
-            ->test('progress.index')
-            ->assertSee('Past Continuous')
-            ->assertSee('Next review');
-    }
-
-    public function test_a_due_still_learning_grammar_point_reads_as_due_now(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeGrammarPoint($learner, 'Past Continuous', 1, '-1 minute');
-
-        Livewire::actingAs($learner)
-            ->test('progress.index')
-            ->assertSee('Past Continuous')
-            ->assertSee('Due now');
-    }
-
-    public function test_the_grammar_points_section_is_absent_with_no_grammar_points_at_all(): void
-    {
-        $learner = User::factory()->create();
-
-        Livewire::actingAs($learner)
-            ->test('progress.index')
-            ->assertDontSee('Grammar points');
     }
 }

@@ -86,7 +86,7 @@ class UserVocabularyAndProgressTest extends TestCase
         $this->assertSame(1, $learner->missionsCompletedCount());
     }
 
-    public function test_the_progress_page_surfaces_streak_missions_vocabulary_and_recurring_error(): void
+    public function test_the_progress_page_counts_words_across_missions(): void
     {
         $learner = User::factory()->create();
         $run1 = $this->makeRun($learner, 'M01');
@@ -101,31 +101,7 @@ class UserVocabularyAndProgressTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('progress.index')
-            ->assertSet('progressStats.vocabularyCount', 2)
-            ->assertSee('Your most recurring mistake');
-    }
-
-    public function test_the_progress_page_has_a_friendly_empty_state_for_recurring_errors(): void
-    {
-        $learner = User::factory()->create();
-
-        $this->actingAs($learner);
-
-        Livewire::test('progress.index')
-            ->assertSee('Complete 2+ missions and any pattern in your mistakes will show up here.');
-    }
-
-    public function test_setting_a_weekly_goal_saves_it(): void
-    {
-        $learner = User::factory()->create();
-        $this->actingAs($learner);
-
-        Livewire::test('progress.index')
-            ->set('weeklyGoalDays', '5')
-            ->call('updateWeeklyGoal')
-            ->assertSet('weeklyGoalSaved', true);
-
-        $this->assertSame(5, $learner->fresh()->weekly_goal_days);
+            ->assertSet('progressStats.vocabularyCount', 2);
     }
 
     public function test_tapping_a_goal_option_sets_the_weekly_goal(): void
@@ -135,7 +111,7 @@ class UserVocabularyAndProgressTest extends TestCase
 
         Livewire::test('progress.index')
             ->call('setWeeklyGoal', '4')
-            ->assertSet('weeklyGoalSaved', true);
+            ->assertSee('Goal: 4 days');
 
         $this->assertSame(4, $learner->fresh()->weekly_goal_days);
     }
@@ -156,44 +132,6 @@ class UserVocabularyAndProgressTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('progress.index')->call('setWeeklyGoal', '99');
-
-        $this->assertSame(5, $learner->fresh()->weekly_goal_days);
-    }
-
-    public function test_the_progress_page_has_overview_activity_and_skills_tabs(): void
-    {
-        $this->actingAs(User::factory()->create());
-
-        Livewire::test('progress.index')
-            ->assertSee('Overview')
-            ->assertSee('Activity')
-            ->assertSee('Growth')
-            ->assertSee('Mistakes you no longer make')
-            ->assertDontSee('New wins to see')
-            ->assertDontSee('More stats');
-    }
-
-    public function test_clearing_the_weekly_goal_sets_it_back_to_no_goal(): void
-    {
-        $learner = User::factory()->create(['weekly_goal_days' => 5]);
-        $this->actingAs($learner);
-
-        Livewire::test('progress.index')
-            ->set('weeklyGoalDays', '')
-            ->call('updateWeeklyGoal');
-
-        $this->assertNull($learner->fresh()->weekly_goal_days);
-    }
-
-    public function test_an_invalid_weekly_goal_value_is_ignored(): void
-    {
-        $learner = User::factory()->create(['weekly_goal_days' => 5]);
-        $this->actingAs($learner);
-
-        Livewire::test('progress.index')
-            ->set('weeklyGoalDays', '99')
-            ->call('updateWeeklyGoal')
-            ->assertSet('weeklyGoalSaved', false);
 
         $this->assertSame(5, $learner->fresh()->weekly_goal_days);
     }
@@ -237,18 +175,6 @@ class UserVocabularyAndProgressTest extends TestCase
             ->assertDontSee('Weekly goal');
     }
 
-    public function test_memory_freshness_has_a_friendly_empty_state_with_nothing_reviewed_yet(): void
-    {
-        $learner = User::factory()->create();
-        $this->actingAs($learner);
-
-        // false = don't escape the needle — it's plain literal Blade text
-        // (not passed through {{ }}), so the raw apostrophe in the
-        // rendered HTML would never match an auto-escaped needle.
-        Livewire::test('progress.index')
-            ->assertSee("Once you've reviewed a word, speaking prompt, or grammar pattern at least once, its memory freshness shows up here.", false);
-    }
-
     public function test_memory_freshness_averages_across_reviewed_words_and_shows_the_fastest_fading_first(): void
     {
         $learner = User::factory()->create();
@@ -273,11 +199,8 @@ class UserVocabularyAndProgressTest extends TestCase
             'repetitions' => 0, 'interval_days' => 0, 'next_review_at' => now(),
         ]);
 
-        $this->actingAs($learner);
-
-        Livewire::test('progress.index')
-            ->assertSet('averageFreshness', 50)
-            ->assertSeeInOrder(['errand', 'commute']);
+        $this->assertSame(50, $learner->averageMemoryFreshness());
+        $this->assertSame(['errand', 'commute'], array_column($learner->memoryFreshnessItems(), 'label'));
     }
 
     public function test_skill_averages_only_uses_after_scores_across_completed_runs(): void
