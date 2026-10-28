@@ -138,19 +138,7 @@ class PlacementTest
             }
         }
 
-        // Highest band whose items are ≥75% right, and every band below it
-        // passed too — a lucky B1 guess on a failed A2 doesn't promote.
-        $recognition = 'A1';
-        foreach (self::LEVELS as $band) {
-            $stats = $bands[$band] ?? ['correct' => 0, 'total' => 0];
-            $passed = $stats['total'] > 0 && $stats['correct'] / $stats['total'] >= 0.75;
-
-            if (! $passed) {
-                break;
-            }
-
-            $recognition = $band;
-        }
+        $recognition = $this->highestPassedBand($bands);
 
         // A1 recognition that isn't even close to passing A1 still reads
         // as A1 — this app's floor — but it's worth knowing.
@@ -168,6 +156,61 @@ class PlacementTest
             'bands' => $bands,
             'provisional' => $spokenLevel === null,
         ];
+    }
+
+    /**
+     * The result screen's Words and Grammar bars: each part's own level
+     * (the same band rule as score()) and its share of right answers.
+     *
+     * @param  array<string, int>  $vocabularyAnswers
+     * @param  array<string, int>  $grammarAnswers
+     * @return array{vocabulary: array{level: string, share: float}, grammar: array{level: string, share: float}}
+     */
+    public function partLevels(array $vocabularyAnswers, array $grammarAnswers): array
+    {
+        $parts = [];
+
+        foreach (['vocabulary' => [$this->vocabulary(), $vocabularyAnswers], 'grammar' => [$this->grammar(), $grammarAnswers]] as $part => [$items, $answers]) {
+            $bands = [];
+            $right = 0;
+
+            foreach ($items as $index => $item) {
+                $bands[$item['band']] ??= ['correct' => 0, 'total' => 0];
+                $bands[$item['band']]['total']++;
+
+                if (($answers[$index] ?? $answers[(string) $index] ?? null) === $item['correct']) {
+                    $bands[$item['band']]['correct']++;
+                    $right++;
+                }
+            }
+
+            $parts[$part] = ['level' => $this->highestPassedBand($bands), 'share' => $right / max(1, count($items))];
+        }
+
+        return $parts;
+    }
+
+    /**
+     * Highest band whose items are ≥75% right, and every band below it
+     * passed too — a lucky B1 guess on a failed A2 doesn't promote.
+     *
+     * @param  array<string, array{correct: int, total: int}>  $bands
+     */
+    private function highestPassedBand(array $bands): string
+    {
+        $level = 'A1';
+
+        foreach (self::LEVELS as $band) {
+            $stats = $bands[$band] ?? ['correct' => 0, 'total' => 0];
+
+            if ($stats['total'] === 0 || $stats['correct'] / $stats['total'] < 0.75) {
+                break;
+            }
+
+            $level = $band;
+        }
+
+        return $level;
     }
 
     /**

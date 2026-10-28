@@ -128,15 +128,21 @@ class PlacementTest extends TestCase
 
         $component = Livewire::test('placement');
         foreach ($vocabulary as $index => $option) {
-            $component->call('answerVocabulary', $index, $option);
+            $component->set("vocabularyAnswers.{$index}", $option);
         }
         foreach ($grammar as $index => $option) {
-            $component->call('answerGrammar', $index, $option);
+            $component->set("grammarAnswers.{$index}", $option);
         }
 
         // No recording here: the AI half is allowed to be absent (a relay
         // outage must not cost the learner their test).
-        $component->call('finish')->assertSet('completed', true);
+        $component->call('finish')
+            ->assertSet('completed', true)
+            ->assertSet('result.parts.vocabulary.level', 'A2')
+            ->assertSet('result.parts.grammar.level', 'A2')
+            ->assertSee("You're starting at", false)
+            ->assertSeeInOrder(['Words', 'A2', 'Grammar', 'A2', 'Speaking'])
+            ->assertSee('Start M01');
 
         $this->assertDatabaseHas('placement_tests', [
             'learner_id' => $learner->id,
@@ -202,6 +208,8 @@ class PlacementTest extends TestCase
             ->assertOk()
             ->assertSee('breakfast')                               // part 1
             ->assertSee('She ___ coffee every morning.')           // part 2
-            ->assertSee('Tell me about a normal day in your life.'); // part 3
+            ->assertSee('Tell me about a normal day in your life.') // part 3
+            ->assertSee('/22')
+            ->assertSee("I don't know", false);
     }
 }
