@@ -218,7 +218,7 @@ class DailyReviewTest extends TestCase
         $word = $this->makeDueWord($learner, ['repetitions' => 2]);
         $this->actingAs($learner);
 
-        // gradeSelf is for the other card types; a word must go through gradeWord.
+        // gradeSelf is for the grammar-reminder card; a word must go through gradeWord.
         Livewire::test('review.index')
             ->set('revealed', true)
             ->call('gradeSelf', 5);
@@ -277,14 +277,13 @@ class DailyReviewTest extends TestCase
             ->assertDontSee('Session done!');
     }
 
-    public function test_non_word_cards_use_the_lesson_frame_and_two_buttons_after_the_reveal(): void
+    public function test_a_grammar_reminder_uses_the_lesson_frame_and_two_buttons_after_the_reveal(): void
     {
         $learner = User::factory()->create();
-        $this->makeDueError($learner);
+        $this->makeDueGrammarPoint($learner);
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->assertSee('Your mistake')
             ->assertSee('1/1')
             ->assertDontSee('✓ I know')
             ->call('reveal')
@@ -301,23 +300,51 @@ class DailyReviewTest extends TestCase
         Livewire::test('review.index')
             ->assertSee('He walk fast.')
             ->assertDontSee('He walks fast.')
-            ->call('gradeSelf', 5);
+            ->call('continueError');
 
         $this->assertSame(0, $error->fresh()->repetitions);
     }
 
-    public function test_revealing_an_error_pattern_then_grading_advances_its_schedule(): void
+    public function test_an_error_pattern_has_no_self_grading_buttons_and_a_right_fix_grades_good(): void
     {
         $learner = User::factory()->create();
         $error = $this->makeDueError($learner);
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->call('reveal')
-            ->assertSee('He walks fast.')
-            ->call('gradeSelf', 5);
+            ->set('attempt', 'He walks fast.')
+            ->call('checkAttempt')
+            ->assertSee('Spot on!')
+            ->assertDontSee('✓ I know')
+            ->assertDontSee('✕ Forget')
+            ->call('continueError');
 
         $this->assertSame(1, $error->fresh()->repetitions);
+    }
+
+    public function test_a_wrong_fix_or_just_showing_it_grades_an_error_pattern_as_forgotten(): void
+    {
+        $learner = User::factory()->create();
+        $wrong = $this->makeDueError($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->set('attempt', 'He walking fast.')
+            ->call('checkAttempt')
+            ->assertSee('Not quite')
+            ->call('continueError');
+
+        $this->assertSame(0, $wrong->fresh()->repetitions);
+
+        $learner2 = User::factory()->create();
+        $shown = $this->makeDueError($learner2);
+        $this->actingAs($learner2);
+
+        Livewire::test('review.index')
+            ->call('reveal')
+            ->call('continueError');
+
+        $this->assertSame(0, $shown->fresh()->repetitions);
     }
 
     public function test_writing_the_correct_fix_for_an_error_pattern_says_spot_on_ignoring_case_and_the_full_stop(): void
@@ -360,7 +387,7 @@ class DailyReviewTest extends TestCase
             ->assertSet('revealed', false)
             ->assertDontSee('He walks fast.');
 
-        $test->set('attempt', 'He walks fast.')->call('checkAttempt')->call('gradeSelf', 4);
+        $test->set('attempt', 'He walks fast.')->call('checkAttempt')->call('continueError');
 
         $test->assertSet('attempt', '');
         $this->assertSame(1, $error->fresh()->repetitions);
@@ -395,7 +422,7 @@ class DailyReviewTest extends TestCase
         $this->assertSame(1, $point->fresh()->repetitions);
     }
 
-    public function test_a_speaking_prompt_requires_a_fresh_recording_before_grading(): void
+    public function test_a_speaking_prompt_requires_a_fresh_recording_before_continuing(): void
     {
         $learner = User::factory()->create();
         $prompt = $this->makeDuePrompt($learner);
@@ -404,12 +431,12 @@ class DailyReviewTest extends TestCase
         Livewire::test('review.index')
             ->assertSee('What time do you usually wake up?')
             ->assertDontSee('How did that feel?')
-            ->call('gradeSelf', 5);
+            ->call('continueSpeaking');
 
         $this->assertSame(0, $prompt->fresh()->repetitions);
     }
 
-    public function test_recording_then_grading_a_speaking_prompt_advances_its_schedule(): void
+    public function test_recording_a_speaking_prompt_then_continuing_grades_it_good_without_self_grading_buttons(): void
     {
         Storage::fake('public');
         $this->fakeSpeakingAi();
@@ -420,26 +447,13 @@ class DailyReviewTest extends TestCase
         Livewire::test('review.index')
             ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
             ->call('recorded')
-            ->assertSee('✓ I know')
-            ->call('gradeSelf', 5);
+            ->assertSee('Continue')
+            ->assertDontSee('✓ I know')
+            ->assertDontSee('✕ Forget')
+            ->call('continueSpeaking');
 
         $this->assertSame(1, $prompt->fresh()->repetitions);
         $this->assertNotNull($prompt->fresh()->last_recording_url);
-    }
-
-    public function test_a_recorded_speaking_prompt_offers_forget_and_i_know(): void
-    {
-        Storage::fake('public');
-        $this->fakeSpeakingAi();
-        $learner = User::factory()->create();
-        $this->makeDuePrompt($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')
-            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
-            ->call('recorded')
-            ->assertSee('✕ Forget')
-            ->assertSee('✓ I know');
     }
 
     public function test_a_speaking_recording_gets_one_line_of_ai_feedback_that_goes_away_with_the_card(): void
@@ -455,7 +469,7 @@ class DailyReviewTest extends TestCase
             ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
             ->call('recorded')
             ->assertSee('I wake up at seven', false)
-            ->call('gradeSelf', 4)
+            ->call('continueSpeaking')
             ->assertSet('feedback', null);
     }
 
@@ -471,8 +485,8 @@ class DailyReviewTest extends TestCase
             ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
             ->call('recorded')
             ->assertSet('feedback', null)
-            ->assertSee('✓ I know')
-            ->call('gradeSelf', 4);
+            ->assertSee('Continue')
+            ->call('continueSpeaking');
 
         $this->assertSame(1, $prompt->fresh()->repetitions);
     }
