@@ -296,12 +296,12 @@ new class extends Component
         $this->keepStepDraft();
     }
 
-    public function checkOne(int $index): void
+    public function checkOne(int $index): bool
     {
         $word = $this->words()[$index]['phrase'] ?? null;
 
         if (! $word) {
-            return;
+            return false;
         }
 
         $example = trim($this->examples[$index] ?? '');
@@ -309,17 +309,17 @@ new class extends Component
         if ($example === '') {
             $this->checkErrors[$word] = 'Write something first.';
 
-            return;
+            return false;
         }
 
-        $this->runCheck($word, $example);
+        return $this->runCheck($word, $example);
     }
 
     /**
      * Asks the shared SentenceChecker to judge one word/sentence pair. See
      * EOS-009 §8 "الگوی چک جمله" for the shared rules.
      */
-    private function runCheck(string $word, string $example): void
+    private function runCheck(string $word, string $example): bool
     {
         unset($this->checkErrors[$word]);
 
@@ -338,13 +338,19 @@ new class extends Component
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
             $this->trackCheckAttempt($word, $data['severity']);
+
+            return true;
         } catch (ConnectionException|RequestException) {
             // RequestException's message carries the raw HTTP response body
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
+
+            return false;
         } catch (Throwable $e) {
             $this->checkErrors[$word] = AiFailure::message($e, "Couldn't check this one");
+
+            return false;
         }
     }
 
@@ -618,7 +624,6 @@ new class extends Component
         @php
             $word = $entry['phrase'];
             $itemFeedback = $feedback[$word] ?? null;
-            $isChecked = $itemFeedback && ($itemFeedback['checkedText'] ?? null) === trim((string) ($examples[$index] ?? ''));
             $isLast = $index === $wordCount - 1;
         @endphp
         <x-lesson-screen when="screen === {{ $firstSentenceScreen + $index }}" wire:key="sentence-{{ $index }}">
@@ -641,7 +646,6 @@ new class extends Component
                     :index="$index"
                     :model="'examples.'.$index"
                     :feedback="$itemFeedback"
-                    :checked="(bool) $isChecked"
                     :error="$checkErrors[$word] ?? null"
                     check="$wire.checkOne({{ $index }})"
                     :next="$isLast ? '$wire.save()' : 'screen++'"
