@@ -151,6 +151,69 @@ class MissionResultStepTest extends TestCase
         $this->assertDatabaseCount('self_assessments', 2);
     }
 
+    public function test_missed_final_talk_goals_make_the_result_needs_review_not_retry_evidence(): void
+    {
+        $run = $this->makeRun();
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'ai_conversation_2',
+            'type' => Evidence::TYPE_TRANSCRIPT,
+            'content_ref' => json_encode(['requirements' => ['Used the past tense' => false]]),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'status' => 'retry_evidence',
+                'reason' => 'You need to meet more challenge requirements before completing the mission.',
+                'weak_step' => 'mission_result',
+            ]));
+        });
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.after', 3)->set('scores.Writing.after', 3)
+            ->call('getResult')
+            ->assertSet('status', MissionRun::STATUS_NEEDS_REVIEW)
+            ->assertSet('weakStep', null)
+            ->call('finish');
+
+        $this->assertSame(MissionRun::STATUS_NEEDS_REVIEW, $run->fresh()->status);
+    }
+
+    public function test_mission_result_is_never_offered_as_the_step_to_redo(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'status' => 'needs_review',
+            'reason' => 'A bit more work.',
+            'weak_step' => 'mission_result',
+        ])));
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.after', 3)->set('scores.Writing.after', 3)
+            ->call('getResult')
+            ->assertSet('weakStep', null)
+            ->assertDontSee('Redo Mission Result');
+    }
+
+    public function test_retry_evidence_stays_when_the_final_talk_was_never_done(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'status' => 'retry_evidence',
+                'reason' => 'Please do the final talk.',
+                'weak_step' => null,
+            ]));
+        });
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.after', 3)->set('scores.Writing.after', 3)
+            ->call('getResult')
+            ->assertSet('status', MissionRun::STATUS_RETRY_EVIDENCE);
+    }
+
     public function test_getting_a_complete_result_triggers_the_confetti_burst_only_once(): void
     {
         $run = $this->makeRun();
@@ -528,11 +591,15 @@ class MissionResultStepTest extends TestCase
     public function test_a_non_complete_status_offers_to_redo_the_flagged_step(): void
     {
         $run = $this->makeRun();
+        $run->mission->update(['phases' => [['phase' => 'mission', 'steps' => [
+            ['key' => 'grammar', 'label' => 'Grammar'],
+            ['key' => 'mission_result', 'label' => 'Mission Result', 'skills' => ['Speaking', 'Writing']],
+        ]]]]);
 
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
             'status' => 'needs_review',
             'reason' => 'Your grammar needs a bit more work.',
-            'weak_step' => 'mission_result',
+            'weak_step' => 'grammar',
         ])));
 
         Livewire::test('missions.steps.mission-result', ['run' => $run])
@@ -541,9 +608,9 @@ class MissionResultStepTest extends TestCase
             ->set('reflection.became_easier', 'x')
             ->set('reflection.still_difficult', 'y')
             ->call('getResult')
-            ->assertSet('weakStep', 'mission_result')
-            ->assertSeeHtml(route('missions.show', ['mission' => $run->mission, 'step' => 'mission_result', 'retry' => 1]))
-            ->assertSee('Redo Mission Result')
+            ->assertSet('weakStep', 'grammar')
+            ->assertSeeHtml(route('missions.show', ['mission' => $run->mission, 'step' => 'grammar', 'retry' => 1]))
+            ->assertSee('Redo Grammar')
             ->assertSee('Get an updated result');
     }
 

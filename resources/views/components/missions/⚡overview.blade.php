@@ -74,7 +74,10 @@ new class extends Component
 
         return $target + [
             'title' => PiPrompts::DAYS[$target['dayNumber']]['title'],
-            'practicedToday' => $learner->hasPracticedWithPiToday(),
+            // The day's Daily talk also counts when it was done on an
+            // earlier calendar day — the card ticks it, so no minutes left.
+            'practicedToday' => $learner->hasPracticedWithPiToday()
+                || in_array($target['dayNumber'], $learner->piPracticedDaysOf($target['missionCode']), true),
         ];
     }
 
@@ -338,14 +341,17 @@ new class extends Component
         return collect($today['run']->dayProgress())
             ->map(fn (array $day, int $index) => [
                 'number' => $index + 1,
-                'state' => match (true) {
+                'state' => $state = match (true) {
                     $index + 1 < $today['dayNumber'] => 'past',
                     $index + 1 === $today['dayNumber'] => 'today',
                     default => 'future',
                 },
                 'lesson' => $day['done'],
-                'listened' => in_array($index + 1, $listened, true),
-                'talked' => in_array($index + 1, $talked, true),
+                // A day behind the learner with its Lesson done is finished:
+                // Listening and Daily talk are extras, never a reason to
+                // leave an old day half-ringed.
+                'listened' => ($state === 'past' && $day['done']) || in_array($index + 1, $listened, true),
+                'talked' => ($state === 'past' && $day['done']) || in_array($index + 1, $talked, true),
                 'url' => route('missions.show', [$mission, 'overview', 'day' => $index + 1]),
             ])
             ->all();
