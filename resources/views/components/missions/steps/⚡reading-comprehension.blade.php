@@ -107,17 +107,17 @@ new class extends Component
         return $this->topicSummary() ? "{$context}. The passage was about: {$this->topicSummary()}" : $context;
     }
 
-    public function checkOne(int $index): void
+    public function checkOne(int $index): bool
     {
         $answer = trim($this->answers[$index] ?? '');
 
         if ($answer === '') {
             $this->checkErrors[$index] = 'Write something first.';
 
-            return;
+            return false;
         }
 
-        $this->runCheck($index, $answer);
+        return $this->runCheck($index, $answer);
     }
 
     /**
@@ -126,7 +126,7 @@ new class extends Component
      * doesn't leave a stale verdict attached to different text. See
      * EOS-009 §8 "الگوی چک جمله" for the shared rules.
      */
-    private function runCheck(int $index, string $text): void
+    private function runCheck(int $index, string $text): bool
     {
         unset($this->checkErrors[$index]);
 
@@ -151,13 +151,19 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $text];
             $this->trackCheckAttempt($index, $data['severity']);
+
+            return true;
         } catch (ConnectionException|RequestException) {
             // RequestException's message carries the raw HTTP response body
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
+
+            return false;
         } catch (Throwable $e) {
             $this->checkErrors[$index] = AiFailure::message($e, "Couldn't check this one");
+
+            return false;
         }
     }
 
@@ -417,7 +423,6 @@ new class extends Component
     @foreach ($questions as $index => $question)
         @php
             $itemFeedback = $feedback[$index] ?? null;
-            $isChecked = $itemFeedback && ($itemFeedback['checkedText'] ?? null) === trim((string) ($answers[$index] ?? ''));
             $isLast = $index === count($questions) - 1;
         @endphp
         <x-lesson-screen when="screen === {{ $firstQuestionScreen + $index }}" wire:key="reading-question-{{ $index }}">
@@ -441,7 +446,6 @@ new class extends Component
                     :model="'answers.'.$index"
                     :feedback="$itemFeedback"
                     :error="$checkErrors[$index] ?? null"
-                    :checked="(bool) $isChecked"
                     check="$wire.checkOne({{ $index }})"
                     :next="$isLast ? '$wire.save()' : 'screen++'"
                     wire-target="checkOne,dictateAnswer,revealCorrection,save"

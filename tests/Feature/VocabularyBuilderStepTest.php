@@ -680,7 +680,7 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Clear and natural.');
     }
 
-    public function test_a_major_issue_offers_try_again_instead_of_continue(): void
+    public function test_a_major_issue_offers_only_check_again_not_continue(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
@@ -691,6 +691,35 @@ class VocabularyBuilderStepTest extends TestCase
             ->call('checkOne', 0)
             ->assertSee('Not quite')
             ->assertSee('Use the word with its real meaning.')
-            ->assertSee('Try again');
+            ->assertSee('Check again')
+            ->assertDontSee('Try again')
+            ->assertDontSee('Continue anyway');
+    }
+
+    public function test_a_nearly_right_sentence_offers_check_again_and_a_quiet_continue_anyway(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'minor', 'hint' => "'day' should be plural."])));
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I wake up at seven every day.')
+            ->call('checkOne', 0)
+            ->assertSee('Almost!')
+            ->assertSee('Check again')
+            ->assertSee('Continue anyway');
+    }
+
+    public function test_check_reports_whether_the_ai_answered_so_the_page_can_keep_the_change_flag(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('boom')));
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I wake up at seven.')
+            ->call('checkOne', 0)
+            ->assertReturned(false)
+            ->assertSee("Couldn't check this one");
     }
 }

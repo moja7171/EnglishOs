@@ -170,7 +170,7 @@ new class extends Component
         $this->keepStepDraft();
     }
 
-    public function checkOne(int $index): void
+    public function checkOne(int $index): bool
     {
         $this->stripTypedStarters();
 
@@ -178,7 +178,7 @@ new class extends Component
         $starter = $starters[$index] ?? null;
 
         if (! $starter) {
-            return;
+            return false;
         }
 
         $sentence = trim($this->frequencySentences[$index] ?? '');
@@ -186,10 +186,10 @@ new class extends Component
         if ($sentence === '') {
             $this->checkErrors[$index] = 'Write something first.';
 
-            return;
+            return false;
         }
 
-        $this->runCheck($index, $starter, $sentence);
+        return $this->runCheck($index, $starter, $sentence);
     }
 
     /**
@@ -263,7 +263,7 @@ new class extends Component
      * rather than being hardcoded here, so this step can teach any grammar
      * point a mission seeds it with — not just M01's present simple focus.
      */
-    private function runCheck(int $index, string $starter, string $sentence): void
+    private function runCheck(int $index, string $starter, string $sentence): bool
     {
         unset($this->checkErrors[$index]);
 
@@ -282,13 +282,19 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
             $this->trackCheckAttempt($index, $data['severity']);
+
+            return true;
         } catch (ConnectionException|RequestException) {
             // RequestException's message carries the raw HTTP response body
             // (which can be an arbitrarily large error page, not a clean
             // API message) — never show that to the learner.
             $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
+
+            return false;
         } catch (Throwable $e) {
             $this->checkErrors[$index] = AiFailure::message($e, "Couldn't check this one");
+
+            return false;
         }
     }
 
@@ -632,7 +638,6 @@ new class extends Component
                     $index = $screen['index'];
                     $starter = $starters[$index];
                     $itemFeedback = $feedback[$index] ?? null;
-                    $isChecked = $itemFeedback && ($itemFeedback['checkedText'] ?? null) === trim((string) ($frequencySentences[$index] ?? ''));
                     $isLast = $index === $sentenceCount - 1;
                 @endphp
                 <x-lesson-screen when="screen === {{ $screenIndex }}" wire:key="grammar-sentence-{{ $index }}">
@@ -655,8 +660,7 @@ new class extends Component
                             :index="$index"
                             :model="'frequencySentences.'.$index"
                             :feedback="$itemFeedback"
-                            :checked="(bool) $isChecked"
-                            :error="$checkErrors[$index] ?? null"
+                                    :error="$checkErrors[$index] ?? null"
                             check="$wire.checkOne({{ $index }})"
                             :next="$isLast ? '$wire.save()' : 'screen++'"
                             wire-target="checkOne,dictateSentence,revealCorrection,save"
