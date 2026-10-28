@@ -522,7 +522,7 @@ new class extends Component
                         type="button"
                         role="tab"
                         wire:key="mission-day-tab-{{ $day['number'] }}"
-                        x-on:click="openDay = {{ $day['number'] }}"
+                        x-on:click="openDay = {{ $day['number'] }}; $dispatch('select-day', { day: {{ $day['number'] }} })"
                         x-bind:aria-selected="openDay === {{ $day['number'] }}"
                         aria-label="Day {{ $day['number'] }}{{ $day['here'] ? ', today' : '' }}{{ $allDone ? ', done' : '' }}"
                         class="flex cursor-pointer flex-col items-center rounded-2xl py-2 text-base font-extrabold transition-colors"
@@ -553,7 +553,7 @@ new class extends Component
                 >
                     {{-- Tap the card: the day's steps open right here. Continue / Start
                          goes straight into the current step. --}}
-                    <div x-data="{ steps: @js($day['here']) }" @class(['rounded-2xl', 'bg-accent-soft dark:bg-accent-soft-dark' => $day['primary'] === 'lesson', 'bg-surface dark:bg-surface-dark' => $day['primary'] !== 'lesson'])>
+                    <div x-data="{ steps: @js($day['here']) }" x-on:select-day.window="if ($event.detail.day === {{ $number }}) steps = true" @class(['rounded-2xl', 'bg-accent-soft dark:bg-accent-soft-dark' => $day['primary'] === 'lesson', 'bg-surface dark:bg-surface-dark' => $day['primary'] !== 'lesson'])>
                         <div
                             role="button"
                             tabindex="0"
