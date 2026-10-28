@@ -50,6 +50,7 @@ class PiSetupTest extends TestCase
             ->assertOk()
             ->assertSee('How Daily talk works')
             ->assertSee('turn on voice mode first')
+            ->assertSee('Gemini Live')
             ->assertSee('slower');
     }
 
