@@ -136,7 +136,7 @@ new class extends Component
     </a>
 
     <header class="flex items-center gap-3">
-        <a href="{{ route('admin.index') }}" wire:navigate x-data x-on:click="if (history.length > 1) { $event.preventDefault(); history.back() }" aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-5 w-5')</a>
+        <a href="{{ route('admin.index') }}" x-data x-on:click="if (history.length > 1) { $event.preventDefault(); history.back() }" aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-5 w-5')</a>
         <x-user-avatar :user="$user" class="h-11 w-11 text-sm" />
         <div class="min-w-0">
             <h1 class="flex items-center gap-2 truncate font-display text-2xl font-extrabold text-ink dark:text-ink-dark">

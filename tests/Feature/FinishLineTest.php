@@ -295,4 +295,13 @@ class FinishLineTest extends TestCase
             ->assertSee($finishLine->persianDate($forecast['steadyDate']))
             ->assertDontSee($finishLine->persianDate($forecast['paceDate']));
     }
+
+    public function test_the_progress_back_arrow_goes_back_in_history_without_also_loading_home(): void
+    {
+        $this->actingAs($this->learner());
+
+        Livewire::test('progress.index')
+            ->assertSeeHtml('history.back()')
+            ->assertDontSeeHtml('wire:navigate x-data x-on:click="if (history.length');
+    }
 }

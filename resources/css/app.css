@@ -339,11 +339,14 @@ body:has([data-step-header]) [data-app-topbar] {
 }
 
 /* The next review card sliding in after the previous one was graded — plays
-   when the (wire:key'd) card element is inserted, so it needs no state. */
+   when the (wire:key'd) card element is inserted, so it needs no state. The
+   slide stays inside the page's 16px side padding: a card pushed past the
+   screen edge widens the page for a moment and a phone browser zooms out
+   and jumps. */
 @keyframes review-card-in {
     from {
         opacity: 0;
-        transform: translateX(28px) scale(0.98);
+        transform: translateX(12px) scale(0.98);
     }
     to {
         opacity: 1;
