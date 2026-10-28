@@ -505,7 +505,7 @@ class PiPracticePageTest extends TestCase
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         $this->get(route('home'))
-            ->assertSeeInOrder(['Build step', 'Start', 'Daily talk'])
+            ->assertSeeInOrder(['Lesson', 'Build step', 'Daily talk'])
             ->assertSeeHtml('aria-label="Day 2 Daily talk"')
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 2]).'"');
     }

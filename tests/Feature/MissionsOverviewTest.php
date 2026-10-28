@@ -232,7 +232,7 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::withQueryParams(['day' => 1])
             ->test('missions.overview')
-            ->assertSee('Today · Build')
+            ->assertSeeHtml('aria-label="Day 2, today"')
             ->assertDontSee('Back to today');
     }
 
@@ -354,28 +354,30 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Practice with a friend');
     }
 
-    public function test_the_today_box_shows_one_listening_row_not_the_picks_themselves(): void
+    public function test_with_the_days_below_home_has_no_extra_listening_row_but_the_days_listening_card(): void
     {
         $learner = User::factory()->create();
         MissionRun::findOrStart($learner, $this->makeMission());
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Extra listening')
-            ->assertSeeHtml('href="'.route('listening.show').'"')
-            ->assertDontSee('Routines')
+            ->assertDontSee('Extra listening')
             ->assertDontSee('Describing Your Day: Mornings')
-            ->assertDontSeeHtml('target="_blank"');
+            ->assertSeeHtml('aria-label="Day 1 Listening"')
+            ->assertDontSeeHtml('wire:click="markListened"');
     }
 
-    public function test_the_today_box_keeps_listening_out_of_the_days_order(): void
+    public function test_the_banner_shows_the_days_time_and_the_next_card_is_the_highlighted_one(): void
     {
         $learner = User::factory()->create();
         MissionRun::findOrStart($learner, $this->makeMission());
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeInOrder(['Mission Brief', 'Start', 'Extra listening · anytime']);
+            ->assertDontSee('Today · ')
+            ->assertSeeHtml('aria-label="Days of M01"')
+            ->assertSee('today')
+            ->assertSee('min');
     }
 
     public function test_the_today_box_reflects_a_tick_made_today(): void
@@ -387,17 +389,6 @@ class MissionsOverviewTest extends TestCase
         Livewire::test('missions.overview')
             ->assertSee('Extra listening')
             ->assertSeeHtml('aria-label="Extra listening"');
-    }
-
-    public function test_the_listening_row_has_no_manual_tick(): void
-    {
-        $learner = User::factory()->create();
-        MissionRun::findOrStart($learner, $this->makeMission());
-        $this->actingAs($learner);
-
-        Livewire::test('missions.overview')
-            ->assertSee('Extra listening')
-            ->assertDontSeeHtml('wire:click="markListened"');
     }
 
     public function test_the_today_box_previews_day_1_picks_before_any_run_exists(): void

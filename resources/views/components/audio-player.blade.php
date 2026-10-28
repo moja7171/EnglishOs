@@ -57,6 +57,8 @@
     @param string|null $textOpenWhen Raw Alpine expression from the
         surrounding page that opens the text when it turns true (e.g. the
         second listen of a lesson).
+    @param string|null $textPanelClass Classes for the inline text panel, e.g. a taller, larger one
+        under the controls of the full-screen Listening player.
     @param bool $textSheet With $podcast: the text opens as a bottom sheet
         over the player, with a small play/pause and time on top of it,
         behind one "Text" button (the /listening full-screen player).
@@ -74,10 +76,11 @@
     'podcast' => false,
     'textOpenWhen' => null,
     'textSheet' => false,
+    'textPanelClass' => null,
 ])
 
 @php
-    $panelClass = $textSheet ? 'min-h-0 flex-1 text-base' : null;
+    $panelClass = $textSheet ? 'min-h-0 flex-1 text-base' : $textPanelClass;
 @endphp
 
 @if (! empty($url))
@@ -306,8 +309,8 @@
         </audio>
 
         @if ($listen && ($listen['chip'] ?? true) !== false)
-            {{-- The podcast look keeps the counter (it records the listen) but out of sight. --}}
-            <div @class(['mb-3 flex items-start justify-end gap-3', 'hidden' => $podcast])>
+            {{-- The podcast look shows the same "Listens: N" chip, centred above the seek bar. --}}
+            <div @class(['mb-3 flex items-start gap-3', 'justify-end' => ! $podcast, 'justify-center' => $podcast])>
                 <div>
                         <livewire:listen-counter
                             :mission-code="$listen['mission_code']"

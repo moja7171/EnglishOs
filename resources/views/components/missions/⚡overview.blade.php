@@ -461,6 +461,12 @@ new class extends Component
             @if ($missionDays = $this->missionDays)
                 {{-- The rings pick the day shown under the banner (the mission's
                      days live right here on Home). --}}
+                @if (($dayTime = $this->dayTime) && $dayTime['minutes'] > 0)
+                    <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-bold text-white">
+                        @svg('heroicon-o-clock', 'h-3.5 w-3.5')
+                        ~{{ \App\Models\Mission::formatDuration($dayTime['minutes']) }} {{ $dayTime['started'] ? 'left' : 'today' }}
+                    </p>
+                @endif
                 <nav class="mt-3 flex gap-1.5" aria-label="Days of {{ $bannerMission->code }}" x-data="{ day: {{ (int) ($today['dayNumber'] ?? 1) }} }">
                     @foreach ($missionDays as $missionDay)
                         @php $doneParts = collect([$missionDay['lesson'], $missionDay['listened'], $missionDay['talked']])->filter()->count(); @endphp
@@ -502,8 +508,37 @@ new class extends Component
     @endif
 
     {{-- Today — the one thing this page must answer (see ProgramPlanner). --}}
-    <section class="rounded-3xl bg-surface p-3.5 dark:bg-surface-dark">
-        @if ($today['kind'] === 'mission_day')
+    @php $daysBelow = $today['kind'] === 'mission_day' && $this->missionDays !== []; @endphp
+    <section @class(['rounded-3xl bg-surface p-3.5 dark:bg-surface-dark' => ! $daysBelow, 'space-y-3' => $daysBelow])>
+        @if ($daysBelow)
+            {{-- The Today box is gone: the time is a chip on the banner and the
+                 next thing is the highlighted card of the day below. What is
+                 left here: the day-done note and the Review row. --}}
+            @php $review = $this->review; @endphp
+            @if ($today['dayCompletedToday'])
+                <div class="rounded-2xl bg-success-soft px-3.5 py-2.5 dark:bg-success-soft-dark">
+                    <p class="flex items-center gap-2 text-sm font-semibold text-success dark:text-success-dark">
+                        @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
+                        {{ $this->piLeft ? 'Steps done — one more: Pi' : 'Day '.$today['dayNumber'].' done — nice work.' }}
+                    </p>
+                    @if ($tomorrow = $this->tomorrow)
+                        <a href="{{ $tomorrow['url'] }}" wire:navigate class="mt-1 ms-6 inline-flex items-center gap-1 text-xs font-semibold text-ink-soft underline-offset-2 hover:underline dark:text-ink-soft-dark">{{ $tomorrow['label'] }} @svg('heroicon-o-chevron-right', 'h-3 w-3')</a>
+                    @endif
+                </div>
+            @endif
+            @if (($review['remaining'] ?? 0) > 0)
+                <a href="{{ route('review.index') }}" wire:navigate class="flex min-h-16 items-center gap-3 rounded-2xl bg-accent-soft p-3 dark:bg-accent-soft-dark">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white dark:bg-accent-dark">@svg('heroicon-s-bolt', 'h-5 w-5')</span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block text-base font-extrabold text-ink dark:text-ink-dark">Review</span>
+                        <span class="block truncate text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $review['remaining'] }} {{ Str::plural('item', $review['remaining']) }} · {{ $review['minutes'] }} min</span>
+                    </span>
+                    <span class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">Start</span>
+                </a>
+            @elseif (($review['reviewedToday'] ?? 0) > 0)
+                <p class="flex items-center gap-1.5 px-1 text-sm font-bold text-success dark:text-success-dark">@svg('heroicon-s-check', 'h-4 w-4') Review done</p>
+            @endif
+        @elseif ($today['kind'] === 'mission_day')
             @php $nextAction = $this->nextAction; $dayTime = $this->dayTime; $review = $this->review; $piPractice = $this->piPractice; @endphp
             <div class="flex items-center justify-between gap-3">
                 <p class="text-xs font-semibold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Today{{ $today['dayLabel'] ? ' · '.$today['dayLabel'] : '' }}</p>

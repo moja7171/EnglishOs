@@ -17,9 +17,10 @@
     @param string|null $error
     @param string $next Raw Alpine statement for Continue.
     @param string $wireTarget
+    @param bool $finish The step's last line: the button reads Finish and saves.
     @slot media Optional picture/video above the line.
 --}}
-@props(['when', 'index', 'line', 'kind', 'hear', 'recordingUrl' => null, 'fileName', 'feedback' => null, 'error' => null, 'next', 'wireTarget' => 'save'])
+@props(['when', 'index', 'line', 'kind', 'hear', 'recordingUrl' => null, 'fileName', 'feedback' => null, 'error' => null, 'next', 'wireTarget' => 'save', 'finish' => false])
 
 @php
     $isGood = ($feedback['severity'] ?? null) === 'none';
@@ -57,11 +58,11 @@
                 @endif
 
                 <x-slot:actions>
-                    <x-continue-button :on-click="$next" :wire-target="$wireTarget" />
+                    <x-continue-button :on-click="$next" :wire-target="$wireTarget" loading-label="{{ $finish ? 'Saving…' : 'Please wait…' }}">{{ $finish ? 'Finish' : '' }}</x-continue-button>
                 </x-slot:actions>
             </x-answer-sheet>
         @else
-            <x-continue-button :on-click="$next" :wire-target="$wireTarget" ready-when="false" />
+            <x-continue-button :on-click="$next" :wire-target="$wireTarget" ready-when="false">{{ $finish ? 'Finish' : '' }}</x-continue-button>
         @endif
     </x-slot:actions>
 </x-lesson-screen>
