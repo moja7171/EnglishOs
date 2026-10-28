@@ -120,6 +120,34 @@ class SentenceCheckerTest extends TestCase
         $this->assertSame('Clear and natural.', $result['hint']);
     }
 
+    public function test_it_still_reads_a_verdict_whose_hint_is_wrapped_in_single_quotes_around_a_quoted_word(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
+            ->andReturn('{"severity": "minor", "hint": \'"day" should be plural.\'}'));
+
+        $result = app(SentenceChecker::class)->check('Judge.', 'major thing', 'a context', 'I stay friends through hard day.');
+
+        $this->assertSame('minor', $result['severity']);
+        $this->assertSame('"day" should be plural.', $result['hint']);
+    }
+
+    public function test_it_still_reads_a_verdict_with_an_unescaped_quote_or_code_fences(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->twice()
+            ->andReturn(
+                '{"severity": "minor", "hint": "Write "work" here."}',
+                "```json\n{\"severity\": \"none\", \"hint\": \"Clear and natural.\"}\n```",
+            ));
+
+        $first = app(SentenceChecker::class)->check('Judge.', 'major thing', 'a context', 'I wrok.');
+        $second = app(SentenceChecker::class)->check('Judge.', 'major thing', 'a context', 'I work.');
+
+        $this->assertSame('minor', $first['severity']);
+        $this->assertSame('Write "work" here.', $first['hint']);
+        $this->assertSame('none', $second['severity']);
+        $this->assertSame('Clear and natural.', $second['hint']);
+    }
+
     public function test_it_throws_on_malformed_ai_output(): void
     {
         $this->mock(GeminiClient::class, function ($mock) {

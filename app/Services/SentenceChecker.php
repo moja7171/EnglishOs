@@ -51,13 +51,45 @@ class SentenceChecker
             profile: GeminiClient::PROFILE_JUDGE,
         );
 
-        $data = json_decode(trim($raw), true);
+        return $this->parseVerdict($raw);
+    }
 
-        if (! is_array($data) || ! isset($data['severity'])) {
+    /**
+     * Reads the model's {"severity", "hint"} answer. A model sometimes breaks
+     * its own JSON — most often by quoting a word inside the hint, wrapping
+     * the hint in single quotes or adding code fences — so when strict JSON
+     * fails the two fields are pulled out by hand rather than turning a
+     * usable verdict into "please try again".
+     *
+     * @return array{severity: string, hint: string}
+     */
+    private function parseVerdict(string $raw): array
+    {
+        $raw = trim(preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($raw)));
+
+        $data = json_decode($raw, true);
+
+        if (is_array($data) && isset($data['severity'])) {
+            return $data;
+        }
+
+        if (! preg_match('/"severity"\s*:\s*"(major|minor|none)"/', $raw, $severity)) {
             throw new RuntimeException('Unexpected AI response format.');
         }
 
-        return $data;
+        $hint = '';
+
+        if (preg_match('/"hint"\s*:\s*(.*?)\s*\}?\s*$/s', $raw, $found)) {
+            $hint = trim($found[1]);
+
+            if (strlen($hint) >= 2 && in_array($hint[0], ['"', "'"], true) && $hint[-1] === $hint[0]) {
+                $hint = substr($hint, 1, -1);
+            }
+
+            $hint = trim(str_replace('\\"', '"', $hint));
+        }
+
+        return ['severity' => $severity[1], 'hint' => $hint];
     }
 
     /**
@@ -121,9 +153,10 @@ class SentenceChecker
             .'corrected sentence for them. '
             .'EXCEPTION: if the issue is a spelling mistake, a missing/wrong capital letter, or missing end '
             .'punctuation, say directly what the fix is — that is a fact, not the answer to the exercise. '
-            .'Phrase a spelling fix explicitly, e.g. \'"wrok" should be spelled "work".\' Keep the hint to ONE '
+            .'Phrase a spelling fix explicitly, e.g. \'wrok\' should be spelled \'work\'. Never use double quote '
+            .'characters inside the hint — quote a word with single quotes only, so the JSON stays valid. Keep the hint to ONE '
             .'short, simple sentence, no more than 12 words, plain everyday words — no jargon. '
             .'When the severity is "none", the hint is still never empty: one short, warm comment on what '
-            .'works well, no more than 8 words (e.g. "Clear and natural.").';
+            .'works well, no more than 8 words (e.g. \'Clear and natural.\').';
     }
 }
