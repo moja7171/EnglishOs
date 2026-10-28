@@ -48,6 +48,14 @@ new class extends Component
     public bool $missionLocked = false;
 
     /**
+     * True when Home shows this mission's days under its own banner: no
+     * banner, day tabs or recap of its own (Home's rings pick the day, via
+     * the 'select-day' window event).
+     */
+    #[Locked]
+    public bool $embedded = false;
+
+    /**
      * The gate is checked BEFORE findOrStart() deliberately — that call is
      * a firstOrCreate() and would otherwise plant an 'in_progress' run for
      * a still-gated mission on the mere act of visiting its URL, which
@@ -56,9 +64,10 @@ new class extends Component
      * gated mission is previewed on an in-memory run instead, so visiting
      * it never starts it.
      */
-    public function mount(Mission $mission, ?string $step = null): void
+    public function mount(Mission $mission, ?string $step = null, bool $embedded = false): void
     {
         $this->mission = $mission;
+        $this->embedded = $embedded;
         $this->viewStep = $step;
 
         if (MissionRun::gatingMission(auth()->user(), $mission)) {
@@ -468,8 +477,8 @@ new class extends Component
     $isStepView = ! $this->showOverview && $this->activeStepKey;
 @endphp
 
-<div class="mx-auto max-w-2xl {{ $isStepView ? 'space-y-4 px-4 pb-6 sm:px-6' : 'space-y-6 p-6' }}" data-mood="{{ $mission->moodKey() }}">
-    @unless ($isStepView)
+<div class="{{ $embedded ? 'space-y-4' : 'mx-auto max-w-2xl '.($isStepView ? 'space-y-4 px-4 pb-6 sm:px-6' : 'space-y-6 p-6') }}" data-mood="{{ $mission->moodKey() }}">
+    @unless ($isStepView || $embedded)
         {{-- The mission's photo banner only on its page (the same as
              Listening and Daily talk) — inside a step the one-line header
              below says where the learner is, so the step's own content
@@ -505,8 +514,8 @@ new class extends Component
             $hasPracticeFriend = $this->hasPracticeFriend;
             $card = 'flex min-h-16 items-center gap-3 rounded-2xl p-3';
         @endphp
-        <div x-data="{ openDay: @js($openDay) }" class="space-y-2.5">
-            <div class="grid grid-cols-4 gap-2" role="tablist" aria-label="Days">
+        <div x-data="{ openDay: @js($openDay) }" x-on:select-day.window="openDay = $event.detail.day" class="space-y-2.5">
+            <div @class(['grid grid-cols-4 gap-2', 'hidden' => $embedded]) role="tablist" aria-label="Days">
                 @foreach ($this->missionDays as $day)
                     @php $allDone = $day['lesson'] && $day['listened'] && $day['talked']; @endphp
                     <button
@@ -631,7 +640,7 @@ new class extends Component
             @endforeach
         </div>
 
-        @if ($this->isFinished)
+        @if ($this->isFinished && ! $embedded)
             <livewire:progress.mission :mission="$mission" :key="'recap-'.$mission->code" />
         @endif
     @elseif ($this->activeStepKey)

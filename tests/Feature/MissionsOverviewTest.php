@@ -184,10 +184,10 @@ class MissionsOverviewTest extends TestCase
         return $run;
     }
 
-    public function test_the_banner_rings_open_each_day_of_the_mission_on_its_page(): void
+    public function test_the_banner_rings_pick_the_day_shown_under_the_banner(): void
     {
         $learner = User::factory()->create();
-        $run = $this->startOnDayTwo($learner);
+        $this->startOnDayTwo($learner);
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
@@ -195,8 +195,22 @@ class MissionsOverviewTest extends TestCase
             ->assertSeeHtml('aria-label="Day 1, 1 of 3 done"')
             ->assertSeeHtml('aria-label="Day 2, today"')
             ->assertSeeHtml('aria-label="Day 3, not reached yet"')
-            ->assertSeeHtml('href="'.route('missions.show', [$run->mission, 'overview', 'day' => 1]).'"')
-            ->assertSeeHtml('href="'.route('missions.show', [$run->mission, 'overview', 'day' => 3]).'"');
+            ->assertSeeHtml("\$dispatch('select-day', { day: 1 })")
+            ->assertSeeHtml("\$dispatch('select-day', { day: 3 })");
+    }
+
+    public function test_the_missions_days_are_under_the_banner_on_home_without_a_second_banner(): void
+    {
+        $learner = User::factory()->create();
+        $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSeeLivewire('missions.runner')
+            ->assertSee('aria-label="Day 2 steps"', false)
+            ->assertSee('aria-label="Day 2 Lesson', false)
+            ->assertSee('x-on:select-day.window', false);
     }
 
     public function test_the_banner_title_opens_the_missions_page_on_today(): void

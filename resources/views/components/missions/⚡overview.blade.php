@@ -459,22 +459,26 @@ new class extends Component
                 </x-slot:media>
             @endif
             @if ($missionDays = $this->missionDays)
-                <nav class="mt-3 flex gap-1.5" aria-label="Days of {{ $bannerMission->code }}">
+                {{-- The rings pick the day shown under the banner (the mission's
+                     days live right here on Home). --}}
+                <nav class="mt-3 flex gap-1.5" aria-label="Days of {{ $bannerMission->code }}" x-data="{ day: {{ (int) ($today['dayNumber'] ?? 1) }} }">
                     @foreach ($missionDays as $missionDay)
                         @php $doneParts = collect([$missionDay['lesson'], $missionDay['listened'], $missionDay['talked']])->filter()->count(); @endphp
-                        <a
-                            href="{{ $missionDay['url'] }}"
-                            wire:navigate
+                        <button
+                            type="button"
+                            x-on:click="day = {{ $missionDay['number'] }}; $dispatch('select-day', { day: {{ $missionDay['number'] }} })"
+                            x-bind:aria-pressed="day === {{ $missionDay['number'] }}"
                             wire:key="day-ring-{{ $missionDay['number'] }}"
                             @if ($missionDay['state'] === 'today') aria-current="true" @endif
                             aria-label="Day {{ $missionDay['number'] }}{{ $missionDay['state'] === 'today' ? ', today' : '' }}{{ $doneParts === 3 ? ', done' : ($doneParts ? ", {$doneParts} of 3 done" : '') }}{{ $missionDay['state'] === 'future' ? ', not reached yet' : '' }}"
                             @class([
-                                'inline-flex shrink-0 transition-transform hover:scale-110 motion-reduce:transition-none',
+                                'inline-flex shrink-0 cursor-pointer rounded-full transition-transform hover:scale-110 motion-reduce:transition-none',
                                 'opacity-60' => $missionDay['state'] === 'future',
                             ])
+                            x-bind:class="day === {{ $missionDay['number'] }} && 'ring-2 ring-white ring-offset-2 ring-offset-transparent'"
                         >
                             <x-day-ring :number="$missionDay['number']" :lesson="$missionDay['lesson']" :listened="$missionDay['listened']" :talked="$missionDay['talked']" :today="$missionDay['state'] === 'today'" on-photo />
-                        </a>
+                        </button>
                     @endforeach
                 </nav>
             @else
@@ -539,11 +543,12 @@ new class extends Component
                 </div>
             @endif
 
+            @php $daysBelow = $this->missionDays !== []; @endphp
             <ul class="mt-2">
                 @if ($review && $nextKey !== 'review')
                     <x-review-today :review="$review" />
                 @endif
-                @foreach ($today['steps'] as $step)
+                @foreach ($daysBelow ? [] : $today['steps'] as $step)
                     @continue($nextKey === 'step' && $step['current'])
                     <x-today-row
                         :href="$step['done'] || $step['current'] ? route('missions.show', [$today['mission'], $step['key']]) : null"
@@ -552,7 +557,7 @@ new class extends Component
                         :done="$step['done']"
                     />
                 @endforeach
-                @if ($piPractice && $nextKey !== 'pi')
+                @if ($piPractice && $nextKey !== 'pi' && ! $daysBelow)
                     <x-pi-today :practice="$piPractice" />
                 @endif
             </ul>
@@ -645,6 +650,13 @@ new class extends Component
             @endif
         @endif
     </section>
+
+    {{-- The mission's days under the banner: the day picked on its rings,
+         with the Lesson's steps, Listening and Daily talk (the mission's own
+         page, without its banner and tabs). --}}
+    @if ($this->missionDays !== [])
+        <livewire:missions.runner :mission="$today['mission']" step="overview" :embedded="true" :key="'home-days-'.$today['mission']->code" />
+    @endif
 
     @if ($this->justBenefitedFromGrace)
         <p class="flex items-center gap-2 px-3.5 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
