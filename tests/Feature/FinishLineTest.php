@@ -278,4 +278,21 @@ class FinishLineTest extends TestCase
             ->assertSee('🏁 Finish:')
             ->assertSee('۵ بهمن ۱۴۰۵');
     }
+
+    public function test_the_progress_page_tells_the_one_day_a_day_date_even_when_the_real_pace_is_slower(): void
+    {
+        $learner = $this->learner();
+        $this->finishDays($learner, $this->makeMission(), ['foundation', 'build'], now()->subDays(2)->toDateTimeString());
+        $learner->forceFill(['program_started_at' => now()->subDays(9)])->save();
+        $this->actingAs($learner);
+
+        $forecast = app(FinishLine::class)->forecast($learner->fresh());
+        $finishLine = app(FinishLine::class);
+
+        $this->assertNotSame($forecast['steadyDate']->toDateString(), $forecast['paceDate']->toDateString());
+
+        Livewire::test('progress.index')
+            ->assertSee($finishLine->persianDate($forecast['steadyDate']))
+            ->assertDontSee($finishLine->persianDate($forecast['paceDate']));
+    }
 }

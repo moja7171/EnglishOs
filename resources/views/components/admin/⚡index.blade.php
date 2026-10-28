@@ -73,6 +73,7 @@ new class extends Component
 
 <div class="mx-auto max-w-3xl space-y-6 p-4 sm:p-6" x-data="{ tab: $wire.entangle('tab').live }">
     <header class="flex items-center gap-3">
+        <a href="{{ route('profile') }}" wire:navigate x-data x-on:click="if (history.length > 1) { $event.preventDefault(); history.back() }" aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-5 w-5')</a>
         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
             @svg('heroicon-o-chart-bar', 'h-5 w-5')
         </span>

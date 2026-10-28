@@ -431,6 +431,7 @@ new class extends Component
 <div
     class="mx-auto max-w-2xl p-4 sm:p-6"
     x-data="{ screen: @js($tabs)[new URLSearchParams(window.location.search).get('tab')] ?? '', avatarSheet: false }"
+    x-back-close="{ open: screen !== '', close: () => screen = '' }"
 >
     {{-- Main list --}}
     <div x-show="screen === ''" class="stagger-children space-y-3">
