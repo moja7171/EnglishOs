@@ -56,6 +56,13 @@ new class extends Component
     public bool $embedded = false;
 
     /**
+     * The day Home unfolds first when it shows a finished mission (the
+     * last one) — no day is "here" in a mission that is over.
+     */
+    #[Locked]
+    public ?int $startDay = null;
+
+    /**
      * The gate is checked BEFORE findOrStart() deliberately — that call is
      * a firstOrCreate() and would otherwise plant an 'in_progress' run for
      * a still-gated mission on the mere act of visiting its URL, which
@@ -185,7 +192,7 @@ new class extends Component
             return $this->requestedDay;
         }
 
-        return collect($days)->firstWhere('here', true)['number'] ?? null;
+        return collect($days)->firstWhere('here', true)['number'] ?? $this->startDay;
     }
 
     /**

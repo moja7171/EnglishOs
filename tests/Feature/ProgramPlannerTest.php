@@ -458,7 +458,7 @@ class ProgramPlannerTest extends TestCase
 
         // Straight into the first step, not the day overview.
         Livewire::test('missions.overview')
-            ->assertSee('Start a new mission')
+            ->assertSee('Next mission')
             ->assertSeeHtml('href="'.route('missions.show', [$next, $next->stepKeys()[0]]).'"');
     }
 

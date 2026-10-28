@@ -268,18 +268,62 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Back to today');
     }
 
-    public function test_between_missions_the_banner_is_the_next_mission_without_days(): void
+    public function test_between_missions_home_stays_on_the_finished_mission_with_the_next_one_as_a_strip(): void
     {
         $learner = User::factory()->create();
         MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
-        $this->makeSecondMission();
+        $next = $this->makeSecondMission();
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
             ->assertSeeHtml('data-mission-banner')
+            ->assertSee('M01 · My Daily Life')
+            ->assertSee('Mission done')
+            ->assertSee('Next mission')
             ->assertSee('M02 · My Neighborhood')
-            ->assertSee('Up next')
-            ->assertDontSeeHtml('aria-label="Days of');
+            ->assertSeeHtml('href="'.route('missions.show', [$next, $next->stepKeys()[0]]).'"')
+            ->assertSeeHtml('aria-label="Days of M01"')
+            ->assertSeeHtml('aria-label="Day 1, done"')
+            ->assertDontSee('Start a new mission');
+    }
+
+    public function test_the_finished_missions_last_day_is_the_one_unfolded_on_home(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        $run->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
+        $this->actingAs($learner);
+
+        $component = Livewire::test('missions.runner', ['mission' => $run->mission, 'step' => 'overview', 'embedded' => true, 'startDay' => 1]);
+
+        $this->assertSame(1, $component->instance()->openDayNumber);
+    }
+
+    public function test_a_mission_closed_for_review_says_so_instead_of_done(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_NEEDS_REVIEW, 'completed_at' => now()->subDay()]);
+        $this->makeSecondMission();
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('Done · review later')
+            ->assertDontSee('Mission done');
+    }
+
+    public function test_once_the_next_mission_is_started_home_becomes_that_mission(): void
+    {
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $this->makeMission())->update(['status' => MissionRun::STATUS_COMPLETE, 'completed_at' => now()->subDay()]);
+        $next = $this->makeSecondMission();
+        MissionRun::findOrStart($learner, $next);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')
+            ->assertSee('M02 · My Neighborhood')
+            ->assertDontSee('Next mission')
+            ->assertDontSee('Mission done')
+            ->assertDontSee('M01 · My Daily Life');
     }
 
     public function test_a_next_mission_not_built_yet_keeps_the_plain_headline(): void
