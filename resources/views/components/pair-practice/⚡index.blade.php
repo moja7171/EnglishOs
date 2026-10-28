@@ -20,9 +20,10 @@ new class extends Component
 
     /**
      * One row per friend: what a round would practise, every day either
-     * of you finished (for picking days) and how the pair is doing.
+     * of you finished (for picking days) and how often the two have
+     * practised together.
      *
-     * @return list<array{friend: User, unfinished: bool, streak: int, next: ?string, shared: list<string>, missions: list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>, nudged: bool, open: ?PairPracticeSession}>
+     * @return list<array{friend: User, unfinished: bool, together: array{times: int, daysInRow: int, daysSince: ?int}, next: ?string, shared: list<string>, missions: list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>, nudged: bool, open: ?PairPracticeSession}>
      */
     #[Computed]
     public function pairs(): array
@@ -39,7 +40,7 @@ new class extends Component
             return [
                 'friend' => $friend,
                 'unfinished' => ! $pairPractice->todayProgress($friend)['finished'],
-                'streak' => $pairPractice->pairStreak($me, $friend),
+                'together' => $pairPractice->together($me, $friend),
                 'next' => $latest ? PairPracticeSession::describeDays([$latest]).($shared->count() > 1 ? ' + review' : '') : null,
                 'shared' => $shared->keys()->values()->all(),
                 'missions' => $mine->union($theirs)
@@ -103,23 +104,24 @@ new class extends Component
 };
 ?>
 
-<div class="stagger-children mx-auto max-w-2xl space-y-4 p-4 sm:p-6">
-    <a href="{{ route('friends.index') }}" wire:navigate class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs leading-none font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        Friends
-    </a>
-
-    <header>
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Practice together</h1>
-        <p class="mt-0.5 text-sm text-ink-soft dark:text-ink-soft-dark">
-            {{ $day ? PairPracticeSession::describeDays([$day]).' · pick a friend' : 'Each on your own phone · 12 min' }}
-        </p>
+{{-- Like the other Friends screens: ‹ title, then one card per friend with
+     how often the two practised together and the one button. --}}
+<div class="stagger-children mx-auto max-w-2xl space-y-3 p-4 sm:p-6">
+    <header class="flex items-center gap-2">
+        <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
+        <div class="min-w-0">
+            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Practice together</h1>
+            @if ($day)
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ PairPracticeSession::describeDays([$day]) }} · pick a friend</p>
+            @endif
+        </div>
     </header>
 
     @forelse ($this->pairs as $pair)
         @php
             $friend = $pair['friend'];
             $preset = $day !== null && in_array($day, $pair['shared'], true);
+            $together = $pair['together'];
         @endphp
         <div
             wire:key="pair-{{ $friend->id }}"
@@ -136,16 +138,11 @@ new class extends Component
                         : [...new Set([...this.days, ...keys])];
                 },
             }"
-            class="card space-y-3 p-4"
+            class="card space-y-2.5 rounded-3xl p-4"
         >
             <div class="flex items-center gap-3">
                 <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
                 <p class="min-w-0 flex-1 truncate font-semibold text-ink dark:text-ink-dark">{{ $friend->name }}</p>
-                @if ($pair['streak'] > 0)
-                    <span class="inline-flex items-center gap-1 text-sm font-bold text-accent-ink dark:text-accent-ink-dark" title="Days in a row you both finished">
-                        @svg('heroicon-s-fire', 'h-4 w-4') {{ $pair['streak'] }}
-                    </span>
-                @endif
                 @if ($pair['unfinished'])
                     <button
                         type="button"
@@ -158,7 +155,18 @@ new class extends Component
                 @endif
             </div>
 
-            @if ($pair['next'])
+            @if ($together['times'] > 0)
+                <div class="flex flex-wrap gap-1.5 text-xs font-bold">
+                    <span class="rounded-full bg-success-soft px-2.5 py-0.5 text-success dark:bg-success-soft-dark dark:text-success-dark">👫 {{ $together['times'] }}× together</span>
+                    @if ($together['daysInRow'] > 1)
+                        <span class="rounded-full bg-accent-soft px-2.5 py-0.5 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">🔥 {{ $together['daysInRow'] }} days</span>
+                    @endif
+                </div>
+            @endif
+
+            @if (($together['daysSince'] ?? 0) >= 3)
+                <p class="text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $together['daysSince'] }} days without practicing together</p>
+            @elseif ($pair['next'])
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Next: <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $pair['next'] }}</span></p>
             @endif
 
@@ -167,14 +175,14 @@ new class extends Component
                     type="button"
                     wire:click="start({{ $friend->id }})"
                     wire:loading.attr="disabled"
-                    class="block w-full cursor-pointer truncate rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
+                    class="block w-full cursor-pointer truncate rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
                 >{{ match (true) {
                     $open->isWaiting() && $open->started_by_id === $friend->id => 'Join '.$friend->name,
                     $open->isWaiting() => 'Waiting for '.$friend->name,
                     default => 'Continue',
                 } }}</button>
             @elseif ($pair['shared'] !== [])
-                <button type="button" x-on:click="sheet = true" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">Practice · 12 min</button>
+                <button type="button" x-on:click="sheet = true" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 dark:bg-accent-dark">Practice · 12 min</button>
 
                 <template x-teleport="body">
                     <div x-on:keydown.escape.window="sheet = false">

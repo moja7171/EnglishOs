@@ -775,4 +775,43 @@ class PairPracticeTest extends TestCase
             ->assertSee('M01 · Day 1 · pick a friend')
             ->assertSeeHtml("mode: 'choose'");
     }
+
+    public function test_each_card_and_the_result_show_how_often_the_pair_practised_together(): void
+    {
+        $mission = $this->makeMission();
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $this->finishDays($me, $mission, [1]);
+        $this->finishDays($friend, $mission, [1]);
+        $done = fn (int $daysAgo) => PairPracticeSession::factory()->create([
+            'user_a_id' => $me->id,
+            'user_b_id' => $friend->id,
+            'stage' => PairPracticeSession::STAGE_DONE,
+            'finished_at' => now()->subDays($daysAgo),
+            'score_a' => 3,
+            'score_b' => 2,
+        ]);
+        $done(5);
+        $done(4);
+
+        $this->actingAs($me);
+
+        Livewire::test('pair-practice.index')
+            ->assertSee('2× together')
+            ->assertSee('4 days without practicing together')
+            ->assertDontSee('🔥');
+
+        $done(1);
+        $last = $done(0);
+
+        Livewire::test('pair-practice.index')
+            ->assertSee('4× together')
+            ->assertSee('🔥 2 days')
+            ->assertDontSee('days without practicing together')
+            ->assertSeeText('Next: M01 · Day 1');
+
+        Livewire::test('pair-practice.session', ['session' => $last])
+            ->assertSee('4th time together')
+            ->assertSee('🔥 2 days');
+    }
 }
