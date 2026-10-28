@@ -257,10 +257,12 @@ new class extends Component
 @endphp
 
 @if ($practiceEntry)
-    {{-- Practice runs full-screen in the review frame: ✕ ends it. --}}
-    <div class="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-2xl flex-col gap-4 p-4 sm:p-6">
+    {{-- Practice runs full-screen in the review frame: ✕ ends it. The top bar is
+         hidden here, so the page is a fixed-height column (the screen minus the
+         bottom nav) and a tall card scrolls inside itself. --}}
+    <div class="mx-auto flex h-[calc(100dvh-6rem)] max-w-2xl flex-col gap-4 p-4 sm:p-6">
         <x-lesson-header data-step-header close-click="$wire.stopPractice()" :progress="$practiceAt / max(count($practiceIds), 1)" :counter="($practiceAt + 1).'/'.count($practiceIds)" />
-        <div wire:key="practice-{{ $practiceAt }}-{{ $practiceEntry->id }}" class="animate-review-card-in flex flex-1 flex-col gap-4 rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
+        <div wire:key="practice-{{ $practiceAt }}-{{ $practiceEntry->id }}" class="animate-review-card-in flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
             <x-notebook-drill :entry="$practiceEntry" :answer="$drillAnswer" :correct="$drillCorrect" :typing="$drillTyping" :heard="$drillHeard" :missed-audio="$drillMissedAudio" :recording="$drillRecording" />
         </div>
     </div>
