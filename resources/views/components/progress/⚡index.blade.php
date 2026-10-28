@@ -134,7 +134,7 @@ new class extends Component
 <div class="stagger-children mx-auto max-w-2xl space-y-3 p-4 sm:p-6">
     <header class="flex items-center gap-2">
         {{-- Back goes where the learner came from (Profile, the streak sheet, Home), not always Home. --}}
-        <a href="{{ route('home') }}" wire:navigate x-data x-on:click="if (history.length > 1) { $event.preventDefault(); history.back() }" aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
+        <a href="{{ route('home') }}" x-data x-on:click="if (history.length > 1) { $event.preventDefault(); history.back() }" aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Progress</h1>
     </header>
 
