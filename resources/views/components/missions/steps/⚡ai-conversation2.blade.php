@@ -695,7 +695,7 @@ new class extends Component
          goals ticked once the talk is checked. --}}
     <x-lesson-screen when="screen === 2">
         <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Talk for 3 minutes</span>
-        <p class="flex items-start gap-1.5 text-lg leading-snug font-extrabold text-ink dark:text-ink-dark"><x-speak-word :word="$this->finalPrompt" top /></p>
+        <p class="flex items-start gap-1.5 lesson-prompt text-ink dark:text-ink-dark"><x-speak-word :word="$this->finalPrompt" top /></p>
 
         @unless ($checklist)
             <div

@@ -29,7 +29,7 @@ class NotebookDrill
     public static function card(NotebookEntry $entry): array
     {
         if ($entry->techniqueName() !== null) {
-            return self::choice($entry, 'Which one uses it?', $entry->better, LearnerFeedback::TECHNIQUES[$entry->label]['without']);
+            return self::choice($entry, 'Which answer uses “'.$entry->techniqueName().'”?', $entry->better, LearnerFeedback::TECHNIQUES[$entry->label]['without']);
         }
 
         if ($entry->original === null || ($entry->isMistake() && $entry->practice_level >= NotebookEntry::LEVEL_SAY)) {

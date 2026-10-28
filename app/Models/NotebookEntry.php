@@ -106,6 +106,17 @@ class NotebookEntry extends Model
     }
 
     /**
+     * The tip's own short example ("Yes, I do. Actually, I…"), shown under
+     * the practice question as a reminder of what to look for.
+     */
+    public function techniqueExample(): ?string
+    {
+        return $this->kind === self::KIND_TIP && $this->label !== null
+            ? (LearnerFeedback::TECHNIQUES[$this->label]['example'] ?? null)
+            : null;
+    }
+
+    /**
      * A plain "say it like this" swap — a tip that isn't a technique.
      */
     public function isPhraseSwap(): bool

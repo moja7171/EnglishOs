@@ -60,10 +60,12 @@
             @endforeach
         </div>
     @elseif ($card['mode'] === 'choose')
-        @if ($techniqueName = $entry->techniqueName())
-            <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $techniqueName }}</p>
+        {{-- The question is the big line (it names the tip), with the tip's own
+             example under it as a reminder of what to look for. --}}
+        <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $card['question'] }}</p>
+        @if ($techniqueExample = $entry->techniqueExample())
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">e.g. {{ $techniqueExample }}</p>
         @endif
-        <p class="{{ $prompt }}">{{ $card['question'] }}</p>
         <div class="grid gap-2.5">
             @foreach ($card['options'] as $i => $option)
                 @php $state = ! $answered ? 'idle' : ($i === $card['correct'] ? 'correct' : ($answer === $i ? 'wrong' : 'muted')); @endphp

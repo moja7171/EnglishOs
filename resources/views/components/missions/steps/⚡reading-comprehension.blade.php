@@ -426,7 +426,7 @@ new class extends Component
         @endphp
         <x-lesson-screen when="screen === {{ $firstQuestionScreen + $index }}" wire:key="reading-question-{{ $index }}">
             <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Answer · {{ $index + 1 }} of {{ count($questions) }}</span>
-            <p class="text-xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $question }}</p>
+            <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $question }}</p>
 
             <x-type-or-say
                 model="answers.{{ $index }}"

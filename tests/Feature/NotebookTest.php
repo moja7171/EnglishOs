@@ -332,7 +332,8 @@ class NotebookTest extends TestCase
 
         Livewire::test('review.index')
             ->assertSee('Ask back')
-            ->assertSee('Which one uses it?')
+            ->assertSee('Which answer uses “Ask back”?')
+            ->assertSee('e.g. What about you?')
             ->call('drillTap', $this->optionIndex($options, 'What about you?'))
             ->assertSee('Spot on!')
             ->assertSee('Listen, then say it out loud.');
