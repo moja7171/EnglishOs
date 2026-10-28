@@ -237,7 +237,7 @@ class PartnerSessionTest extends TestCase
         $bobView = Livewire::test('partner-session', ['session' => $session])
             ->assertDontSee('Seven in the morning.')
             ->assertSee("{$alice->name} has answered")
-            ->assertSee('Waiting for '.$alice->name, false)
+            ->assertSee('Waiting for '.$alice->name)
             ->assertDontSee('Waiting for '.$bob->name);
 
         $bobView->set('textAnswers.0', 'Eight, I think.')

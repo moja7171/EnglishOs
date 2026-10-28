@@ -94,7 +94,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body @if ($focus) data-no-interrupt @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-20' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
+<body @if ($focus) data-no-interrupt @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
     {{-- Deliberately bare: the logo mark on the left; notifications and the
          avatar (which opens <x-account-menu>) on the right. Navigation
          lives in <x-bottom-nav> and everything secondary in the avatar's
@@ -177,7 +177,7 @@
         x-show="{{ $offerInstall ? 'true' : 'false' }} && deferredPrompt && !dismissed"
         x-cloak
         x-transition
-        class="fixed inset-x-3 {{ $showNav ? 'bottom-20' : 'bottom-3' }} z-30 mx-auto flex max-w-2xl items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-xs shadow-lg sm:inset-x-6 dark:border-line-dark dark:bg-surface-dark"
+        class="fixed inset-x-3 {{ $showNav ? 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]' : 'bottom-3' }} z-30 mx-auto flex max-w-2xl items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-xs shadow-lg sm:inset-x-6 dark:border-line-dark dark:bg-surface-dark"
     >
         <x-logo icon-class="h-8 w-8" :with-text="false" />
         <div class="flex-1">

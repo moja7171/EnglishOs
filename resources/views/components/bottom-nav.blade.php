@@ -78,7 +78,7 @@
     x-on:click.window="checkTyping()"
     x-on:eos-recording.window="recording = $event.detail"
     aria-label="Primary"
-    class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 backdrop-blur dark:border-line-dark dark:bg-surface-dark/95"
+    class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur dark:border-line-dark dark:bg-surface-dark/95"
 >
     <div class="relative mx-auto grid max-w-2xl grid-cols-5">
         {{-- The soft highlight behind the current tab. One element for all
