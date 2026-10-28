@@ -40,6 +40,19 @@ class VocabularyWord extends Model
     }
 
     /**
+     * The three-way status the Notebook's Words tab filters by: never
+     * reviewed, still being learned, or strong (a 21-day gap or more).
+     */
+    public function studyStatus(): string
+    {
+        return match (true) {
+            ! $this->last_reviewed_at => 'new',
+            $this->strengthLevel() >= 4 => 'known',
+            default => 'learning',
+        };
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function learner(): BelongsTo

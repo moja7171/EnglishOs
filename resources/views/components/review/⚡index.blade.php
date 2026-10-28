@@ -6,6 +6,7 @@ use App\Models\ErrorPatternReview;
 use App\Models\GrammarPoint;
 use App\Models\NotebookEntry;
 use App\Models\SpeakingPrompt;
+use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Services\FixChecker;
 use Illuminate\Http\UploadedFile;
@@ -202,6 +203,23 @@ new class extends Component
      * shows a distinct "come back to the rest later" message rather than
      * silently re-showing the first skipped item.
      */
+    /**
+     * Items due beyond today's eight — they roll into the next days, so
+     * the learner sees the size of the backlog, not just "8".
+     */
+    #[Computed]
+    public function waitingCount(): int
+    {
+        return max(0, auth()->user()->dueReviewCount() - auth()->user()->dailyReviewCount());
+    }
+
+    /** How many days of eight the waiting items make. */
+    #[Computed]
+    public function waitingDays(): int
+    {
+        return max(1, (int) ceil($this->waitingCount / User::DAILY_REVIEW_LIMIT));
+    }
+
     #[Computed]
     public function hasSkippedEverything(): bool
     {
@@ -614,6 +632,9 @@ new class extends Component
                 </span>
                 <p class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">Session done!</p>
                 <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $sessionGraded }} {{ Str::plural('item', $sessionGraded) }} reviewed</p>
+                @if ($this->waitingCount > 0)
+                    <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">{{ $this->waitingCount }} more waiting · about {{ $this->waitingDays }} {{ Str::plural('day', $this->waitingDays) }}</p>
+                @endif
                 <div class="flex flex-wrap justify-center gap-2 text-sm font-semibold">
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-success dark:bg-success-soft-dark dark:text-success-dark">
                         @svg('heroicon-o-check', 'h-4 w-4') {{ $sessionRemembered }} remembered
@@ -631,7 +652,10 @@ new class extends Component
                 @svg('heroicon-o-check-badge', 'h-10 w-10 text-success dark:text-success-dark')
                 <p class="text-lg font-extrabold text-ink dark:text-ink-dark">You're all caught up!</p>
                 @if (auth()->user()->reviewedTodayCount() > 0)
-                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">That's today's review done — whatever is still waiting rolls into tomorrow.</p>
+                    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">That's today's review done.</p>
+                @if ($this->waitingCount > 0)
+                    <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">{{ $this->waitingCount }} more waiting · about {{ $this->waitingDays }} {{ Str::plural('day', $this->waitingDays) }}</p>
+                @endif
                 @else
                     <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Nothing is due right now — come back later.</p>
                 @endif
