@@ -257,16 +257,8 @@ new class extends Component
         <x-lesson-screen when="true">
             <div class="flex flex-1 flex-col items-center justify-center gap-4 text-center">
                 @if ($error)
-                    <p class="text-sm text-danger-ink">{{ $error }}</p>
-                    <button
-                        wire:click="generate"
-                        wire:loading.attr="disabled"
-                        wire:target="generate"
-                        class="cursor-pointer rounded-full border-2 border-line px-5 py-2 text-sm font-bold text-ink transition-colors hover:bg-surface disabled:opacity-50 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-dark"
-                    >
-                        <span wire:loading.remove wire:target="generate">Try again</span>
-                        <span wire:loading wire:target="generate">Trying again…</span>
-                    </button>
+                    <x-error-card>{{ $error }}</x-error-card>
+                    <x-continue-button on-click="$wire.generate()" wire-target="generate" loading-label="Trying again…">Try again</x-continue-button>
                 @else
                     <span class="h-16 w-16 animate-pulse rounded-full bg-[radial-gradient(circle_at_35%_35%,var(--color-accent-soft),var(--color-accent))]"></span>
                     <p class="lesson-prompt text-ink dark:text-ink-dark">Finding your top mistakes…</p>

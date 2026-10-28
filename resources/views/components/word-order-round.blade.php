@@ -140,7 +140,7 @@
                             <div x-show="correct"><x-continue-button on-click="advance()" wire-target="__none" /></div>
                             <div x-show="!correct" class="flex flex-col gap-3">
                                 <x-continue-button on-click="reset()" wire-target="__none">Try again</x-continue-button>
-                                <button type="button" x-on:click="advance()" class="cursor-pointer text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Next</button>
+                                <button type="button" x-on:click="advance()" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Continue anyway</button>
                             </div>
                         </x-slot:actions>
                     </x-answer-sheet>

@@ -53,7 +53,7 @@
             <x-answer-sheet when="true" :tone="$sheetTone" :title="$sheetTitle">
                 @if ($feedback['unchecked'] ?? false)
                     Couldn't check this one just now — your take is saved and it counts.
-                @elseif (! $isGood && filled($feedback['hint'] ?? null))
+                @elseif (filled($feedback['hint'] ?? null))
                     {{ $feedback['hint'] }}
                 @endif
 
