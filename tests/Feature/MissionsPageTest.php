@@ -52,7 +52,7 @@ class MissionsPageTest extends TestCase
 
     public function test_a_guest_is_sent_to_log_in(): void
     {
-        $this->get(route('missions.index'))->assertRedirect(route('login'));
+        $this->get(route('missions.index'))->assertRedirect(route('welcome'));
     }
 
     public function test_the_page_shows_every_mission_with_where_the_learner_is(): void

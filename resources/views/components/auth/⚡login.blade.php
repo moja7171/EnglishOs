@@ -32,39 +32,44 @@ new class extends Component
 };
 ?>
 
-<form wire:submit="login" class="mx-auto max-w-sm space-y-6 p-6">
-    <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Sign in</h1>
+@php
+    $field = 'mt-1 w-full rounded-2xl border-2 border-line bg-surface px-4 py-3 text-base font-semibold text-ink focus:border-accent focus:outline-none dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:focus:border-accent-dark';
+    $label = 'text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark';
+@endphp
 
-    <div class="space-y-3">
+<form wire:submit="login" class="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-sm flex-col gap-5 p-6">
+    <a href="{{ route('welcome') }}" wire:navigate aria-label="Back" class="-ms-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
+    <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Welcome back</h1>
+
+    <div class="space-y-4">
         <div>
-            <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Email</label>
-            <input
-                type="email"
-                wire:model="email"
-                class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
-            >
+            <label class="{{ $label }}">Email</label>
+            <input type="email" wire:model="email" autocomplete="email" class="{{ $field }}">
             @error('email')
                 <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
         <div>
-            <label class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Password</label>
-            <x-password-input wire-model="password" />
+            <label class="{{ $label }}">Password</label>
+            <x-password-input bare wire-model="password" autocomplete="current-password" class="{{ $field }} pr-11" />
             @error('password')
                 <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>
     </div>
 
-    <button
-        type="submit"
-        wire:loading.attr="disabled"
-        wire:target="login"
-        class="w-full cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent-dark"
-    >
-        <span wire:loading.remove wire:target="login">Sign in</span>
-        <span wire:loading wire:target="login">Signing in…</span>
-    </button>
+    <div class="flex-1"></div>
 
-    <p class="text-sm text-ink-faint dark:text-ink-faint-dark">No account? <a href="/register" class="underline">Register</a></p>
+    <div class="space-y-3 pb-2">
+        <button
+            type="submit"
+            wire:loading.attr="disabled"
+            wire:target="login"
+            class="block w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+        >
+            <span wire:loading.remove wire:target="login">Sign in</span>
+            <span wire:loading wire:target="login">Signing in…</span>
+        </button>
+        <p class="text-center text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">New here? <a href="{{ route('register') }}" wire:navigate class="font-extrabold text-accent-ink dark:text-accent-ink-dark">Get started</a></p>
+    </div>
 </form>

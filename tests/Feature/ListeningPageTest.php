@@ -70,7 +70,7 @@ class ListeningPageTest extends TestCase
 
     public function test_visitors_who_are_not_logged_in_are_sent_to_login(): void
     {
-        $this->get(route('listening.show'))->assertRedirect(route('login'));
+        $this->get(route('listening.show'))->assertRedirect(route('welcome'));
     }
 
     public function test_a_new_learner_sees_todays_three_picks_easiest_first(): void
