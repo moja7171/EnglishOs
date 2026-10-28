@@ -360,31 +360,52 @@ new class extends Component
     }
 
     /**
-     * Again/Good/Easy → SM-2's 0-5 quality scale (1/4/5), same mapping
-     * every other review flow in the app already uses, for the speaking,
-     * grammar-pattern and grammar-point cards. A speaking item needs a
-     * fresh recording first (see recordedThisTurn); the others need their
-     * answer revealed first (see $revealed) — both just guard against
-     * grading something without actually looking at or attempting it.
-     * Words have their own entry point, gradeWord().
+     * A grammar-point reminder card: the one card whose answer the app
+     * cannot check ("can you still say a sentence like this?"), so the
+     * learner grades themselves — Forget / I know → SM-2 quality 1 / 4,
+     * once the reminder has been revealed.
      */
     public function gradeSelf(int $quality): void
     {
         $item = $this->currentItem;
 
-        if (! $item || in_array($item['type'], ['word', 'note'], true)) {
-            return;
-        }
-
-        if ($item['type'] === 'speaking' && ! $this->recordedThisTurn) {
-            return;
-        }
-
-        if ($item['type'] !== 'speaking' && ! $this->revealed) {
+        if (! $item || $item['type'] !== 'grammar' || ! $this->revealed) {
             return;
         }
 
         $this->gradeCurrent($item['model'], $quality);
+    }
+
+    /**
+     * An error-pattern card, once the fix is shown: the app already knows
+     * whether the learner's own fix was right (FixChecker), so that decides
+     * the grade — right → Good, wrong or "just show the fix" → Again.
+     */
+    public function continueError(): void
+    {
+        $item = $this->currentItem;
+
+        if (! $item || $item['type'] !== 'error' || ! $this->revealed) {
+            return;
+        }
+
+        $this->gradeCurrent($item['model'], $this->attemptCorrect ? 4 : 1);
+    }
+
+    /**
+     * A speaking card, once a fresh recording is in: there is no right
+     * answer to check, and the AI line is only a comment, so doing the
+     * task counts as Good.
+     */
+    public function continueSpeaking(): void
+    {
+        $item = $this->currentItem;
+
+        if (! $item || $item['type'] !== 'speaking' || ! $this->recordedThisTurn) {
+            return;
+        }
+
+        $this->gradeCurrent($item['model'], 4);
     }
 
     /**
@@ -575,9 +596,10 @@ new class extends Component
 {{-- With a card open (the top bar is hidden then) the page is a fixed-height
      column, the screen minus the bottom nav: a long card scrolls inside itself
      while the grading buttons and the answer sheet stay in view. The end
-     screens keep the top bar, so they are only a minimum height and scroll as
-     a page — their Done button is never left under the nav. --}}
-<div @class(['mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6', 'h-[calc(100dvh-6rem)]' => $item, 'min-h-[calc(100dvh-6rem)]' => ! $item])>
+     screens keep the top bar (about 3rem), so they are a minimum height that
+     leaves room for it, and their Done button sticks above the nav instead of
+     being left under it. --}}
+<div @class(['mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6', 'h-[calc(100dvh-6rem)]' => $item, 'min-h-[calc(100dvh-9rem)]' => ! $item])>
     @if (! $item)
         @if ($this->hasSkippedEverything)
             <div class="flex flex-1 flex-col items-center justify-center gap-2 text-center">
@@ -603,7 +625,7 @@ new class extends Component
                     @endif
                 </div>
             </div>
-            <a href="{{ route('home') }}" wire:navigate class="w-full rounded-2xl bg-accent py-3.5 text-center text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark">Done</a>
+            <a href="{{ route('home') }}" wire:navigate class="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] w-full rounded-2xl bg-accent py-3.5 text-center text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark">Done</a>
         @else
             <div class="flex flex-1 flex-col items-center justify-center gap-2 text-center">
                 @svg('heroicon-o-check-badge', 'h-10 w-10 text-success dark:text-success-dark')
@@ -788,10 +810,7 @@ new class extends Component
                                 <div x-show="last" x-cloak class="mt-2"><x-audio-player :url="$previousRecordingUrl" /></div>
                             </div>
                         @endif
-                        <div class="flex gap-3">
-                            <button type="button" wire:click="gradeSelf(1)" class="{{ $forgetClass }}">✕ Forget</button>
-                            <button type="button" wire:click="gradeSelf(4)" class="{{ $knowClass }}">✓ I know</button>
-                        </div>
+                        <x-continue-button on-click="$wire.continueSpeaking()" wire-target="continueSpeaking" />
                     </div>
                 @endif
             @elseif ($type === 'error' || ($type === 'grammar' && ! $hasQuestion))
@@ -810,10 +829,14 @@ new class extends Component
                             <p class="text-base">{{ $model->rule_reminder }}</p>
                         @endif
                         <x-slot:actions>
-                            <div class="flex gap-3">
-                                <button type="button" wire:click="gradeSelf(1)" class="{{ $forgetClass }}">✕ Forget</button>
-                                <button type="button" wire:click="gradeSelf(4)" class="{{ $knowClass }}">✓ I know</button>
-                            </div>
+                            @if ($type === 'error')
+                                <x-continue-button on-click="$wire.continueError()" wire-target="continueError" />
+                            @else
+                                <div class="flex gap-3">
+                                    <button type="button" wire:click="gradeSelf(1)" class="{{ $forgetClass }}">✕ Forget</button>
+                                    <button type="button" wire:click="gradeSelf(4)" class="{{ $knowClass }}">✓ I know</button>
+                                </div>
+                            @endif
                         </x-slot:actions>
                     </x-answer-sheet>
                 @endif
