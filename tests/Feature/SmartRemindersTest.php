@@ -208,6 +208,19 @@ class SmartRemindersTest extends TestCase
         Notification::assertSentTo($me, PairBothFinished::class);
     }
 
+    public function test_with_friend_alerts_switched_off_a_learner_hears_nothing_about_friends_days(): void
+    {
+        Notification::fake();
+        $mission = $this->makeMission();
+        $me = $this->learner();
+        $friend = $this->makeMutualFriend($me);
+        $friend->update(['friend_alerts' => false]);
+
+        $this->answer($me, $mission, ['vocabulary_builder_1']);
+
+        Notification::assertNotSentTo($friend, FriendStudyingNow::class);
+    }
+
     public function test_after_studying_a_learner_hears_at_five_which_friends_have_not_yet(): void
     {
         Notification::fake();

@@ -39,7 +39,7 @@ new class extends Component
 <div class="space-y-3 card p-4">
     <div>
         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Daily review reminder</p>
-        <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">If you haven't reviewed by 20:30 your time and have reviews waiting, you get one phone alert. Nothing is sent on days you've already reviewed. At most one a day.</p>
+        <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">At 20:30, only when cards are waiting.</p>
     </div>
 
     <label class="flex cursor-pointer items-center gap-2 text-sm text-ink dark:text-ink-dark">
@@ -54,6 +54,6 @@ new class extends Component
     @endif
 
     @if (! $this->hasPhoneAlerts())
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Reminders arrive as phone alerts, and you haven’t turned those on yet — open the bell and tap “Get alerts on this phone”.</p>
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Turn on phone alerts first: bell › “Get alerts on this phone”.</p>
     @endif
 </div>

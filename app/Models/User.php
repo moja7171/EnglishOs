@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight'])]
+#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'friend_alerts', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight'])]
 #[Hidden(['password', 'remember_token', 'gemini_api_key', 'groq_api_key'])]
 class User extends Authenticatable
 {
@@ -55,6 +55,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'discoverable' => 'boolean',
+            'friend_alerts' => 'boolean',
             'is_admin' => 'boolean',
             'program_started_at' => 'datetime',
             'pi_onboarded_at' => 'datetime',

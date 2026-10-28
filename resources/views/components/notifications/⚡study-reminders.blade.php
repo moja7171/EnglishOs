@@ -71,7 +71,7 @@ new class extends Component
 <div class="space-y-3 card p-4">
     <div>
         <p class="text-sm font-semibold text-ink dark:text-ink-dark">Study times</p>
-        <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">A phone alert at up to two times a day to start your English, whether or not you've already studied. Off until you pick a time.</p>
+        <p class="mt-0.5 text-xs text-ink-faint dark:text-ink-faint-dark">Up to two alerts a day.</p>
     </div>
 
     @foreach ($times as $index => $slot)

@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Cache;
 /**
  * News about a friend's day — "studying now", "finished, your turn",
  * "hasn't studied yet, nudge them" — reaches a learner at most once per
- * friend per day, and never about a friend they muted.
+ * friend per day, never about a friend they muted, and not at all with
+ * Profile › Reminders › Friends switched off.
  */
 class FriendAlerts
 {
@@ -22,7 +23,7 @@ class FriendAlerts
      */
     public function claim(User $to, User $about): bool
     {
-        if ($to->hasMuted($about)) {
+        if ($to->friend_alerts === false || $to->hasMuted($about)) {
             return false;
         }
 
