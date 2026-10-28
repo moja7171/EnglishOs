@@ -1,6 +1,6 @@
 {{-- The mission's own words, green when the learner really used them. --}}
 <div class="flex flex-col gap-3">
-    <p class="text-2xl leading-tight font-extrabold text-ink dark:text-ink-dark">Words you used</p>
+    <p class="lesson-prompt text-ink dark:text-ink-dark">Words you used</p>
     <div class="flex flex-wrap gap-2">
         @foreach ($usage as $item)
             <span @class([

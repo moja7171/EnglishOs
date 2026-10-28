@@ -397,7 +397,7 @@ new class extends Component
 
     {{-- The only screen that scrolls: the passage, a tap on any word for its meaning. --}}
     <x-lesson-screen when="screen === 1">
-        <h2 class="font-display text-2xl leading-tight font-semibold text-ink dark:text-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
+        <h2 class="font-display lesson-title text-ink dark:text-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
         <p x-lookup class="text-base leading-loose text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
 
         <x-slot:actions>

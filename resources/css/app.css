@@ -784,3 +784,32 @@ select,
 ::highlight(eos-lookup) {
     background-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
 }
+
+/* The lesson text scale: one place for how big the words on a lesson screen
+   are, so a step hook, a question, a vocabulary word and its Persian meaning
+   keep the same sizes on every screen. */
+@utility lesson-title {
+    font-size: 1.25rem;
+    line-height: 1.45;
+    font-weight: 600;
+    text-wrap: balance;
+}
+
+@utility lesson-prompt {
+    font-size: 1.1875rem;
+    line-height: 1.4;
+    font-weight: 700;
+    text-wrap: pretty;
+}
+
+@utility lesson-word {
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+@utility lesson-meaning {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    font-weight: 500;
+}

@@ -1,7 +1,7 @@
 {{-- Day 1 → today: the comfort score from Get Ready against today's, and
      Day 1's recording next to Final Talk's. --}}
 <div class="flex flex-col gap-4">
-    <p class="text-2xl leading-tight font-extrabold text-ink dark:text-ink-dark">Day 1 → today</p>
+    <p class="lesson-prompt text-ink dark:text-ink-dark">Day 1 → today</p>
 
     @if ($briefScore && $afterScore)
         <div class="flex items-center justify-center gap-4 text-4xl">

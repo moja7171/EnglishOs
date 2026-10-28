@@ -471,7 +471,7 @@ new class extends Component
     $usedCount = collect($usage)->where('used', true)->count();
     $allRated = collect($scores)->every(fn ($pair) => (bool) $pair['after']);
     $chip = 'inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark';
-    $bigQuestion = 'text-2xl leading-tight font-extrabold text-ink dark:text-ink-dark';
+    $bigQuestion = 'lesson-prompt text-ink dark:text-ink-dark';
 @endphp
 
 @if ($readOnly)

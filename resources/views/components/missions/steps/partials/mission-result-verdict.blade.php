@@ -4,10 +4,10 @@
 <div class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
     @if ($status === 'complete')
         <span class="flex h-24 w-24 items-center justify-center rounded-full bg-success text-white shadow-[0_0_0_10px_var(--color-success-soft)] dark:bg-success-dark">@svg('heroicon-o-check', 'h-12 w-12')</span>
-        <h2 class="mt-2 font-display text-3xl font-semibold text-ink dark:text-ink-dark">{{ $run->mission->code }} complete!</h2>
+        <h2 class="mt-2 font-display text-2xl font-semibold text-ink dark:text-ink-dark">{{ $run->mission->code }} complete!</h2>
     @else
         <span class="flex h-24 w-24 items-center justify-center rounded-full bg-warning-soft text-warning-ink">@svg('heroicon-o-arrow-path', 'h-12 w-12')</span>
-        <h2 class="mt-2 font-display text-3xl font-semibold text-ink dark:text-ink-dark">{{ $status === 'needs_review' ? 'Almost there' : "Let's try that again" }}</h2>
+        <h2 class="mt-2 font-display text-2xl font-semibold text-ink dark:text-ink-dark">{{ $status === 'needs_review' ? 'Almost there' : "Let's try that again" }}</h2>
     @endif
 
     @if ($milestoneJustReached)

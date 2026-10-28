@@ -184,7 +184,7 @@ new class extends Component
         x-back-close="{ open: screen > 0, close: () => screen-- }"
     >
         <x-lesson-screen when="screen === 0">
-            <x-step-intro kind="Get Ready" :minutes="$run->mission->stepDuration('mission_brief')" :title="$brief['hook'] ?? null" :image="$this->heroImageUrl" />
+            <x-step-intro kind="Get Ready" :minutes="$run->mission->stepDuration('mission_brief')" :title="$brief['hook'] ?? null" :image="$this->heroImageUrl" centered />
 
             <x-slot:actions>
                 <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
