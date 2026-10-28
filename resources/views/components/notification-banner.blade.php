@@ -8,8 +8,10 @@
       except a live Pair Practice invite;
     - an alert about the page already on screen is never shown;
     - each one shown is reported back, which marks it read.
-    Frosted card that drops in, a thin bar running down the time it stays,
-    a tap opens it, a swipe up (or ×) dismisses it, and a touch pauses it.
+    A card that drops in — the friend's avatar (or the alert's icon) and one
+    short line, a thin bar running down the time it stays. A tap opens it, a
+    swipe up (or Esc) dismisses it, a touch pauses it; only a live Pair
+    Practice invite carries a green Join button.
 --}}
 @persist('notification-banner')
 <div
@@ -120,39 +122,25 @@
             x-on:touchend="touchEnd()"
             x-on:mouseenter="pause()"
             x-on:mouseleave="resume()"
+            x-on:keydown.escape.window="close()"
             role="status"
-            class="pointer-events-auto relative w-full max-w-md overflow-hidden rounded-[1.4rem] border border-white/60 bg-surface/80 shadow-[0_18px_50px_-12px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-surface-dark/80 dark:ring-white/5"
+            class="pointer-events-auto relative w-full max-w-md overflow-hidden rounded-[1.4rem] bg-surface shadow-[0_14px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 dark:bg-surface-dark dark:ring-white/10"
         >
-            {{-- A soft wash of the accent colour behind the content. --}}
-            <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-linear-to-br from-accent-soft/70 via-transparent to-transparent dark:from-accent-soft-dark/30"></div>
-
-            <div class="relative flex items-center gap-3 p-3 pr-2">
-                <a
-                    x-bind:href="current.url"
-                    wire:navigate
-                    x-on:click="close()"
-                    class="flex min-w-0 flex-1 items-center gap-3"
-                >
-                    <span class="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-accent to-accent-ink text-white shadow-lg shadow-accent/30 dark:from-accent-dark dark:to-accent-ink-dark [&_svg]:h-5 [&_svg]:w-5" x-html="current.icon"></span>
-                    <span class="min-w-0 flex-1">
-                        <span class="flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                            <span class="relative flex h-1.5 w-1.5">
-                                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75 motion-reduce:hidden dark:bg-accent-dark"></span>
-                                <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent dark:bg-accent-dark"></span>
-                            </span>
-                            <span x-text="current.urgent ? 'Live' : 'Now'"></span>
-                        </span>
-                        <span dir="auto" class="mt-0.5 line-clamp-2 block text-sm leading-snug font-semibold text-ink dark:text-ink-dark" x-text="current.title"></span>
-                    </span>
-                    <span class="shrink-0 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white shadow-sm dark:bg-accent-dark" x-text="current.urgent ? 'Join' : 'Open'"></span>
-                </a>
-                <button type="button" x-on:click="close()" aria-label="Close" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken/80 dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark/80">
-                    @svg('heroicon-o-x-mark', 'h-4 w-4')
-                </button>
-            </div>
+            <a
+                x-bind:href="current.url"
+                wire:navigate
+                x-on:click="close()"
+                x-bind:dir="/[\u0600-\u06FF]/.test(current.title) ? 'rtl' : 'ltr'"
+                class="flex items-center gap-3 px-3.5 py-3"
+            >
+                <span x-show="current.avatar" class="inline-flex shrink-0" x-html="current.avatar"></span>
+                <span x-show="! current.avatar" class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark" x-html="current.icon"></span>
+                <span class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-bold text-ink dark:text-ink-dark" x-text="current.title"></span>
+                <span x-show="current.urgent" class="shrink-0 rounded-full bg-success px-4 py-2 text-xs font-extrabold text-white dark:bg-success-dark">Join</span>
+            </a>
 
             {{-- How long it stays; stops while touched. --}}
-            <div class="relative h-0.5 bg-transparent">
+            <div class="absolute inset-x-3.5 bottom-0 h-0.5">
                 <div
                     x-ref="bar"
                     x-effect="if (current && ! paused) { $el.style.transition = 'none'; $el.style.width = (left / duration * 100) + '%'; requestAnimationFrame(() => requestAnimationFrame(() => { $el.style.transition = `width ${left}ms linear`; $el.style.width = '0%'; })); } else if (paused) { $el.style.transition = 'none'; $el.style.width = (left / duration * 100) + '%'; }"

@@ -448,6 +448,22 @@ new class extends Component
             <span class="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $user->cefr_level ?? 'A2+' }}@if ($user->target_band) · IELTS {{ $user->target_band }}@endif</span>
         </div>
 
+        @php
+            $plan = app(\App\Services\ProgramPlanner::class)->plan($user);
+            $programPercent = round(100 * $plan['programDay'] / $plan['totalDays']);
+        @endphp
+        <a href="{{ route('progress.index') }}" wire:navigate class="card flex items-center gap-3 p-3">
+            <span class="relative inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full" style="background: conic-gradient(var(--color-accent) {{ $programPercent }}%, var(--color-line) 0)">
+                <span class="absolute inset-1 rounded-full bg-surface dark:bg-surface-dark"></span>
+                @svg('heroicon-o-chart-bar', 'relative h-5 w-5 text-ink-soft dark:text-ink-soft-dark')
+            </span>
+            <span class="min-w-0 flex-1">
+                <span class="block text-sm font-extrabold text-ink dark:text-ink-dark">Progress</span>
+                <span class="block text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Day {{ $plan['programDay'] }} of {{ $plan['totalDays'] }}</span>
+            </span>
+            @svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
+        </a>
+
         <p class="{{ $groupTitle }}">Account</p>
         <div class="{{ $group }}">
             <button type="button" x-on:click="screen = 'info'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-user', 'h-4 w-4')</span><span class="flex-1">Name &amp; level</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
@@ -515,6 +531,9 @@ new class extends Component
             <button type="button" x-on:click="screen = 'ai-keys'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-sparkles', 'h-4 w-4')</span><span class="flex-1">My AI keys</span><span class="{{ $hint }}">Optional</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
             @if ($user->is_admin)
                 <button type="button" x-on:click="screen = 'ai-relay'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-server-stack', 'h-4 w-4')</span><span class="flex-1">AI relay</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
+            @endif
+            @if ($user->is_admin)
+                <a href="{{ route('admin.index') }}" wire:navigate class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-wrench-screwdriver', 'h-4 w-4')</span><span class="flex-1">Admin</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</a>
             @endif
         </div>
 
@@ -636,6 +655,29 @@ new class extends Component
 
     {{-- Reminders --}}
     <div x-show="screen === 'reminders'" x-cloak class="space-y-3">
+        <div
+            x-data="{ push: window.eosPush ?? {} }"
+            x-on:eos-push-state.window="push = $event.detail"
+            class="card flex items-center gap-3 p-4"
+        >
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Phone alerts</p>
+                <p
+                    class="text-xs text-ink-faint dark:text-ink-faint-dark"
+                    x-text="! push.ready ? '…' : (push.subscribed ? 'On' : (push.denied ? 'Blocked in your browser settings' : (! push.supported ? (push.iosNeedsInstall ? 'Add the app to your Home Screen first' : 'Not supported here') : 'Off')))"
+                ></p>
+            </div>
+            <button
+                type="button"
+                x-on:click="$dispatch(push.subscribed ? 'eos-push-disable' : 'eos-push-enable')"
+                x-bind:disabled="! push.ready || ! push.supported || push.denied || push.busy"
+                role="switch"
+                aria-label="Phone alerts"
+                x-bind:aria-checked="push.subscribed ? 'true' : 'false'"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                x-bind:class="push.subscribed ? 'bg-accent dark:bg-accent-dark' : 'bg-line dark:bg-line-dark'"
+            ><span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" x-bind:class="push.subscribed ? 'translate-x-6' : 'translate-x-1'"></span></button>
+        </div>
         <livewire:notifications.study-reminders />
         <livewire:notifications.review-reminder />
         <div class="card flex items-center gap-3 p-4">

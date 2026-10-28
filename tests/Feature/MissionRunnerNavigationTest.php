@@ -350,6 +350,36 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSee('Pick one'); // and its listening is still to do
     }
 
+    public function test_the_lesson_card_lists_the_days_steps_and_continue_goes_straight_in(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Evidence::create([
+            'mission_run_id' => $run->id,
+            'phase' => 'mission_brief',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => 'done',
+        ]);
+
+        $this->actingAs($learner);
+
+        $component = Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertSee('1 of 3 done')
+            ->assertSee('You are here')
+            ->assertSeeHtml('aria-label="Day 1 steps"')
+            ->assertSeeHtml('wire:key="day-1-step-vocabulary_builder_1"')
+            ->assertSeeHtml('href="'.route('missions.show', [$mission, 'vocabulary_builder_1']).'" wire:navigate x-on:click.stop');
+
+        $states = collect($component->instance()->missionDays[0]['steps'])->pluck('state', 'key');
+        $this->assertSame('done', $states['mission_brief']);
+        $this->assertSame('now', $states['vocabulary_builder_1']);
+        $this->assertSame('ahead', $states['listening']);
+    }
+
     public function test_the_header_line_is_full_while_reviewing_the_last_step_of_a_finished_day(): void
     {
         $this->seed(MissionSeeder::class);
@@ -496,7 +526,7 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('missions.runner', ['mission' => $locked])
-            ->assertSee("Preview only: this mission isn't unlocked yet", false)
+            ->assertSee('Preview only · unlocks after M01')
             ->assertSeeHtml('href="'.route('listening.show', ['M02', 1]).'"')
             ->assertSeeHtml('href="'.route('pi.practice', ['M02', 1]).'"')
             ->assertSeeInOrder(['Lesson', 'Preview', 'Listening', 'Preview', 'Daily talk', 'Preview']);

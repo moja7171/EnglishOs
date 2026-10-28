@@ -506,10 +506,10 @@ new class extends Component
 @if ($readOnly)
     <div class="flex flex-col gap-3 pt-2">
         @foreach ($words as $index => $entry)
-            <div class="flex flex-col gap-1 rounded-2xl bg-surface p-4 dark:bg-surface-dark">
-                <x-speak-word :word="$entry['phrase']" class="text-lg font-extrabold text-ink dark:text-ink-dark" />
+            <div class="flex flex-col gap-0.5 rounded-2xl bg-surface px-4 py-3 dark:bg-surface-dark">
+                <x-speak-word :word="$entry['phrase']" class="lesson-word text-ink dark:text-ink-dark" />
                 @if (filled($entry['meaning_fa'] ?? null))
-                    <p dir="rtl" class="font-fa text-sm font-bold text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning_fa'] }}</p>
+                    <p dir="rtl" class="font-fa lesson-meaning text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning_fa'] }}</p>
                 @else
                     <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
                 @endif
@@ -563,9 +563,9 @@ new class extends Component
                 @if (filled($entry['pos'] ?? null))
                     <span class="w-fit rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $entry['pos'] }}</span>
                 @endif
-                <x-speak-word :word="$entry['phrase']" class="text-3xl font-extrabold text-ink dark:text-ink-dark" />
+                <x-speak-word :word="$entry['phrase']" class="text-2xl font-bold text-ink dark:text-ink-dark" />
                 @if (filled($entry['meaning_fa'] ?? null))
-                    <p dir="rtl" class="font-fa text-lg font-bold text-ink dark:text-ink-dark">{{ $entry['meaning_fa'] }}</p>
+                    <p dir="rtl" class="font-fa text-base font-medium text-ink dark:text-ink-dark">{{ $entry['meaning_fa'] }}</p>
                     <button type="button" x-on:click="english[{{ $index }}] = ! english[{{ $index }}]" class="w-fit cursor-pointer text-xs font-bold text-ink-faint dark:text-ink-faint-dark">In English</button>
                     <p x-show="english[{{ $index }}]" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
                 @else
@@ -629,7 +629,7 @@ new class extends Component
         @endphp
         <x-lesson-screen when="screen === {{ $firstSentenceScreen + $index }}" wire:key="sentence-{{ $index }}">
             <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">About you · {{ $index + 1 }} of {{ $wordCount }}</span>
-            <x-speak-word :word="$word" class="text-2xl font-extrabold text-ink dark:text-ink-dark" />
+            <x-speak-word :word="$word" class="text-xl font-bold text-ink dark:text-ink-dark" />
 
             <x-type-or-say
                 model="examples.{{ $index }}"

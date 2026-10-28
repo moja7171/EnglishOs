@@ -29,7 +29,7 @@ class DictionarySheetTest extends TestCase
             ->assertSee('name="csrf-token"', false)
             ->assertSee('keydown.escape.window.capture', false)
             ->assertSee('x-back-close=', false)
-            ->assertSee('Other meanings (', false)
+            ->assertSee('more meaning', false)
             ->assertSee('pick(chip.index)', false)
             ->assertSee('usePhrase()', false)
             ->assertSee(addcslashes(route('dictionary.persian'), '/'), false);

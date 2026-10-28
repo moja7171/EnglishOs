@@ -131,14 +131,14 @@
                         x-bind:class="improving ? 'opacity-70' : ''"
                     >
                         <template x-for="(line, index) in persianLines" :key="index">
-                            <p class="text-xl font-semibold">
+                            <p class="text-2xl font-extrabold">
                                 <span x-show="line.label" class="ml-1.5 text-xs font-medium opacity-70" x-text="line.label + ':'"></span>
                                 <span x-text="line.words"></span>
                             </p>
                         </template>
                     </div>
 
-                    <p x-show="entry.persian_source === 'wiktionary'" class="-mt-2 text-[11px] text-ink-faint dark:text-ink-faint-dark">Persian: Wiktionary (CC BY-SA)</p>
+                    <p x-show="entry.persian_source === 'wiktionary'" class="-mt-2 flex items-center gap-1 text-[11px] text-ink-faint dark:text-ink-faint-dark" title="Persian: Wiktionary (CC BY-SA)">@svg('heroicon-o-information-circle', 'h-3.5 w-3.5')<span class="sr-only">Persian: Wiktionary (CC BY-SA)</span></p>
 
                     <div x-show="current" class="space-y-1.5">
                         <span class="inline-block rounded-full bg-surface-sunken px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-ink-soft uppercase dark:bg-surface-sunken-dark dark:text-ink-soft-dark" x-text="current?.pos"></span>
@@ -169,7 +169,7 @@
                             x-bind:aria-expanded="showOthers"
                             class="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark"
                         >
-                            <span x-text="showOthers ? 'Hide other meanings' : 'Other meanings (' + (senses.length - 1) + ')'"></span>
+                            <span x-text="showOthers ? 'Hide' : (senses.length - 1) + (senses.length === 2 ? ' more meaning' : ' more meanings')"></span>
                             <span x-bind:class="showOthers ? 'rotate-180' : ''" class="transition-transform">@svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')</span>
                         </button>
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -38,16 +39,27 @@ class RemindersPromptTest extends TestCase
         $this->assertSame('Europe/London', $user->fresh()->timezone);
     }
 
-    public function test_it_invites_in_persian_and_names_the_three_alerts(): void
+    public function test_the_invitation_sheet_is_in_persian_and_short(): void
+    {
+        $this->withPushKeys();
+        $user = User::factory()->create();
+        DayActivity::factory()->create(['learner_id' => $user->id]);
+        $this->actingAs($user);
+
+        Livewire::test('notifications.reminders-prompt', ['variant' => 'sheet'])
+            ->assertSee('فردا یادتان می‌اندازیم')
+            ->assertSee('روشن کن')
+            ->assertDontSee('زنجیره در خطر');
+    }
+
+    public function test_the_invitation_sheet_waits_for_the_first_lesson(): void
     {
         $this->withPushKeys();
         $this->actingAs(User::factory()->create());
 
         Livewire::test('notifications.reminders-prompt', ['variant' => 'sheet'])
-            ->assertSee('یادآورها را روشن کنید')
-            ->assertSee('ساعت مطالعه')
-            ->assertSee('مرور کلمه‌ها')
-            ->assertSee('زنجیره در خطر');
+            ->assertSet('hasStarted', false)
+            ->assertDontSee('فردا یادتان می‌اندازیم');
     }
 
     public function test_nothing_is_shown_when_phone_alerts_are_not_configured(): void
@@ -56,7 +68,7 @@ class RemindersPromptTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('notifications.reminders-prompt', ['variant' => 'sheet'])
-            ->assertDontSee('یادآورها را روشن کنید');
+            ->assertDontSee('فردا یادتان می‌اندازیم');
     }
 
     public function test_it_knows_whether_study_times_are_already_set(): void

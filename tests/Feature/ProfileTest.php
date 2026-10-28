@@ -401,6 +401,7 @@ class ProfileTest extends TestCase
             ->assertSee('Name &amp; level', false)
             ->assertSee('Blocked people')
             ->assertSee('My AI keys')
+            ->assertSee('Phone alerts')
             ->assertDontSee('AI relay')
             ->call('toggleFriendAlerts');
 

@@ -39,11 +39,12 @@ new class extends Component
 ?>
 
 {{--
-    The one place that talks to the browser's push service. Its state is
-    published on `window.eosPush` (and an `eos-push-state` event) so the
-    first-time sheet and the home-page cards in
-    <livewire:notifications.reminders-prompt> can show the right invitation,
-    and it turns alerts on when they fire `eos-push-enable`.
+    The one place that talks to the browser's push service, with no screen of
+    its own. Its state is published on `window.eosPush` (and an
+    `eos-push-state` event) so the bell's one-tap row, the first-time sheet
+    and home rows in <livewire:notifications.reminders-prompt> and the
+    Profile › Reminders switch can show the right thing. It turns alerts on
+    or off when they fire `eos-push-enable` / `eos-push-disable`.
 --}}
 @assets
 <script>
@@ -187,49 +188,8 @@ new class extends Component
         <div
             x-data="pushAlerts(@js(config('webpush.vapid.public_key')))"
             x-on:eos-push-enable.window="enable()"
-            dir="rtl"
-            class="border-t border-line px-3 py-2.5 text-xs dark:border-line-dark"
-        >
-            <p x-show="! supported" x-cloak class="text-ink-faint dark:text-ink-faint-dark">
-                <span x-show="iosNeedsInstall">در iPhone ابتدا برنامه را به صفحهٔ اصلی اضافه کنید (دکمهٔ Share ← Add to Home Screen) و از همان‌جا باز کنید تا یادآورها کار کنند.</span>
-                <span x-show="! iosNeedsInstall">یادآور روی گوشی در این مرورگر پشتیبانی نمی‌شود.</span>
-            </p>
-
-            <p x-show="supported && denied" x-cloak class="text-ink-faint dark:text-ink-faint-dark">اعلان‌ها برای English OS مسدود است؛ در تنظیمات مرورگر یا گوشی اجازه‌شان بدهید.</p>
-
-            <button
-                type="button"
-                x-show="supported && ! denied && ! subscribed"
-                x-cloak
-                x-on:click="enable()"
-                :disabled="busy"
-                class="flex w-full cursor-pointer items-center gap-2 font-semibold text-accent-ink transition-colors hover:underline disabled:pointer-events-none disabled:opacity-50 dark:text-accent-ink-dark"
-            >
-                @svg('heroicon-o-device-phone-mobile', 'h-4 w-4')
-                <span x-text="busy ? 'در حال روشن کردن…' : 'روشن کردن یادآورها روی گوشی'"></span>
-            </button>
-
-            <div x-show="supported && subscribed" x-cloak class="flex items-center justify-between gap-2">
-                <span class="inline-flex items-center gap-1.5 font-semibold text-success dark:text-success-dark">
-                    @svg('heroicon-o-device-phone-mobile', 'h-4 w-4') یادآورهای گوشی روشن است
-                </span>
-                <span class="flex items-center gap-3">
-                    <a
-                        href="{{ route('profile', ['tab' => 'reminders']) }}"
-                        wire:navigate
-                        x-on:click="open = false"
-                        class="font-semibold text-accent-ink transition-colors hover:underline dark:text-accent-ink-dark"
-                    >تنظیم ساعت‌ها</a>
-                    <button
-                        type="button"
-                        x-on:click="disable()"
-                        :disabled="busy"
-                        class="cursor-pointer font-semibold text-ink-faint transition-colors hover:underline disabled:pointer-events-none disabled:opacity-50 dark:text-ink-faint-dark"
-                    >خاموش کردن</button>
-                </span>
-            </div>
-
-            <p x-show="error" x-cloak x-text="error" class="mt-1.5 text-danger-ink"></p>
-        </div>
+            x-on:eos-push-disable.window="disable()"
+            hidden
+        ></div>
     @endif
 </div>

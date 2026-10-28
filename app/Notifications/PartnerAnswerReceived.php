@@ -22,6 +22,7 @@ class PartnerAnswerReceived extends Notification
             'icon' => 'heroicon-o-users',
             'title' => "جواب جدید از {$this->responder->name} در تمرین دونفره",
             'url' => route('partner-sessions.show', $this->session),
+            'sender_id' => $this->responder->id,
         ];
     }
 }

@@ -181,122 +181,147 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-4 sm:p-6">
-    <a href="{{ route('missions.show', $session->mission) }}" wire:navigate class="inline-flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-        @svg('heroicon-o-chevron-left', 'h-3.5 w-3.5')
-        {{ $session->mission->title }}
-    </a>
+@php
+    $prompts = $this->prompts;
+    $total = count($prompts);
+    $partner = $this->partner;
+    // Open on the first question the learner has not answered yet; a learner
+    // who has answered everything lands on the last screen.
+    $startAt = collect($prompts)->keys()->first(
+        fn ($index) => ! $this->answersByQuestion->get($index, collect())->contains('responder_id', auth()->id())
+    ) ?? $total;
+@endphp
 
-    <div>
-        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Partner Session</p>
-        <div class="flex items-start justify-between gap-3">
-            <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">You &amp; {{ $this->partner->name }}</h1>
-            <a
-                href="{{ route('friends.conversation', $this->partner) }}"
-                wire:navigate
-                class="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-line px-3 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-            >
-                @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4')
-                Message {{ $this->partner->name }}
-            </a>
+<div class="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col gap-4 px-4 pb-2" x-data="{ q: {{ $startAt }}, total: {{ $total }} }">
+    <div data-step-header wire:ignore class="sticky top-0 z-10 -mx-4 bg-ground px-4 pt-3 pb-2 dark:bg-ground-dark">
+        <x-lesson-header :close="route('missions.show', $session->mission)" progress-expr="total ? Math.min(q, total) / total : 0" />
+        <div class="mt-2 flex items-center justify-center gap-2 text-sm font-extrabold text-ink-soft dark:text-ink-soft-dark">
+            <x-user-avatar :user="auth()->user()" class="h-6 w-6 text-[10px]" />
+            <span>You &amp; {{ $partner->name }}</span>
+            <x-user-avatar :user="$partner" class="h-6 w-6 text-[10px]" />
+            <span x-show="q < total" class="text-xs font-bold text-ink-faint tabular-nums dark:text-ink-faint-dark" x-text="(q + 1) + '/' + total"></span>
         </div>
-        <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Go through every question together — answer in your own words, whenever you're both around. You'll see {{ $this->partner->name }}'s answer once you've given yours. Nothing here affects either of your missions.</p>
     </div>
 
-    <div wire:poll.5s="$refresh" class="space-y-4">
-        @forelse ($this->prompts as $index => $prompt)
+    <div wire:poll.5s="$refresh" class="flex flex-1 flex-col">
+        @forelse ($prompts as $index => $prompt)
             @php
                 $mine = $this->answersByQuestion->get($index, collect())->firstWhere('responder_id', auth()->id());
-                $partnerAnswer = $this->answersByQuestion->get($index, collect())->firstWhere('responder_id', $this->partner->id);
+                $partnerAnswer = $this->answersByQuestion->get($index, collect())->firstWhere('responder_id', $partner->id);
                 $isSaved = $mine && trim($textAnswers[$index] ?? '') === $mine->body;
             @endphp
-            <div class="card p-4" wire:key="question-{{ $index }}">
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Question {{ $index + 1 }} of {{ count($this->prompts) }}</p>
-                <div class="mt-1 flex items-start justify-between gap-2">
-                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">{{ $prompt }}</p>
+            <section wire:key="question-{{ $index }}" x-show="q === {{ $index }}" @if ($index !== $startAt) x-cloak @endif class="flex flex-1 flex-col gap-4">
+                <div class="flex items-start justify-center gap-2 pt-2 text-center">
+                    <p class="font-display text-2xl leading-snug font-bold text-ink dark:text-ink-dark">{{ $prompt }}</p>
                     <x-speak-button :text="$prompt" />
                 </div>
 
-                <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div>
-                        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Your answer</p>
-                        <form wire:submit="saveTextAnswer({{ $index }})" class="mt-1 flex items-center gap-2">
-                            <input
-                                type="text"
-                                wire:model="textAnswers.{{ $index }}"
-                                aria-label="Your answer to question {{ $index + 1 }}"
-                                placeholder="Write your answer…"
-                                wire:loading.attr="disabled"
-                                wire:target="saveTextAnswer({{ $index }}),saveVoiceAnswer({{ $index }})"
-                                class="w-full rounded-lg border border-line bg-transparent px-2 py-2 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
-                            >
+                <div class="space-y-2">
+                    <form wire:submit="saveTextAnswer({{ $index }})" class="space-y-2">
+                        <textarea
+                            wire:model="textAnswers.{{ $index }}"
+                            rows="3"
+                            aria-label="Your answer to question {{ $index + 1 }}"
+                            placeholder="Write your answer…"
+                            wire:loading.attr="disabled"
+                            wire:target="saveTextAnswer({{ $index }}),saveVoiceAnswer({{ $index }})"
+                            class="block w-full resize-none rounded-2xl border-2 border-line bg-surface px-4 py-3 text-base leading-relaxed text-ink focus:border-accent focus:ring-0 focus:outline-none disabled:opacity-50 dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark"
+                        ></textarea>
+                        <div class="flex items-center justify-between gap-3">
+                            @if ($isSaved)
+                                <p class="inline-flex items-center gap-1 text-sm font-bold text-success dark:text-success-dark">
+                                    @svg('heroicon-o-check-circle', 'h-4 w-4') Saved
+                                </p>
+                            @else
+                                <span></span>
+                            @endif
                             <button
                                 type="submit"
                                 wire:loading.attr="disabled"
                                 wire:target="saveTextAnswer({{ $index }}),saveVoiceAnswer({{ $index }})"
-                                class="h-10 shrink-0 cursor-pointer rounded-full border border-line px-3 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken disabled:pointer-events-none disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
+                                class="cursor-pointer rounded-full bg-accent px-5 py-2 text-sm font-extrabold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
                             >Save</button>
-                        </form>
-                        @if ($isSaved)
-                            <p class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-success dark:text-success-dark">
-                                @svg('heroicon-o-check-circle', 'h-3.5 w-3.5') Saved
-                            </p>
-                        @endif
-                        <div class="mt-2" wire:key="recorder-{{ $index }}">
-                            <x-voice-recorder
-                                field="voiceAnswer"
-                                :file="null"
-                                on-recorded="saveVoiceAnswer"
-                                :on-recorded-param="$index"
-                                file-name="answer.webm"
-                            />
                         </div>
-                        @if ($mine?->type === 'voice')
-                            <div class="mt-2">
-                                <p class="inline-flex items-center gap-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-                                    @svg('heroicon-o-microphone', 'h-3.5 w-3.5') Your recording
-                                </p>
-                                <x-audio-player :url="route('partner-sessions.attachment', $mine)" />
+                    </form>
+
+                    <div class="flex flex-col items-center gap-2" wire:key="recorder-{{ $index }}">
+                        <p class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">or say it</p>
+                        <x-voice-recorder
+                            field="voiceAnswer"
+                            :file="null"
+                            on-recorded="saveVoiceAnswer"
+                            :on-recorded-param="$index"
+                            file-name="answer.webm"
+                        />
+                    </div>
+
+                    @if ($mine?->type === 'voice')
+                        <div>
+                            <p class="inline-flex items-center gap-1 text-xs font-bold text-ink-faint dark:text-ink-faint-dark">
+                                @svg('heroicon-o-microphone', 'h-3.5 w-3.5') Your recording
+                            </p>
+                            <x-audio-player :url="route('partner-sessions.attachment', $mine)" />
+                        </div>
+                    @endif
+                </div>
+
+                {{-- What the partner said: hidden until this learner has answered too. --}}
+                @if ($partnerAnswer && $mine)
+                    <div class="rounded-2xl bg-success-soft px-4 py-3 dark:bg-success-soft-dark">
+                        <p class="text-xs font-extrabold text-success dark:text-success-dark">{{ $partner->name }}</p>
+                        <p class="mt-0.5 text-base text-ink dark:text-ink-dark">{{ $partnerAnswer->body }}</p>
+                        @if ($partnerAnswer->type === 'voice')
+                            <div class="mt-1">
+                                <x-audio-player :url="route('partner-sessions.attachment', $partnerAnswer)" />
                             </div>
                         @endif
                     </div>
-
-                    <div>
-                        <p class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">{{ $this->partner->name }}'s answer</p>
-                        @if ($partnerAnswer && $mine)
-                            <p class="mt-1 text-sm text-ink dark:text-ink-dark">{{ $partnerAnswer->body }}</p>
-                            @if ($partnerAnswer->type === 'voice')
-                                <div class="mt-1">
-                                    <x-audio-player :url="route('partner-sessions.attachment', $partnerAnswer)" />
-                                </div>
-                            @endif
-                        @elseif ($partnerAnswer)
-                            <p class="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
-                                @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0')
-                                {{ $this->partner->name }} has answered — give yours to see it.
-                            </p>
-                        @else
-                            <p class="mt-1 text-sm text-ink-faint italic dark:text-ink-faint-dark">Waiting for {{ $this->partner->name }}…</p>
-                        @endif
-                    </div>
-                </div>
-            </div>
+                @elseif ($partnerAnswer)
+                    <p class="flex items-center gap-2 rounded-2xl bg-surface-sunken px-4 py-3 text-sm font-bold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+                        @svg('heroicon-o-lock-closed', 'h-4 w-4 shrink-0')
+                        {{ $partner->name }} has answered — give yours to see it.
+                    </p>
+                @else
+                    <p class="px-1 text-sm font-semibold text-ink-faint italic dark:text-ink-faint-dark">Waiting for {{ $partner->name }}…</p>
+                @endif
+            </section>
         @empty
             <p class="text-sm text-ink-faint dark:text-ink-faint-dark">This step doesn't have practice questions yet.</p>
         @endforelse
 
-        @if ($this->bothFinished)
-            <div class="card-accent p-4 text-center">
-                <p class="font-display text-lg font-extrabold text-ink dark:text-ink-dark">You both finished! 🎉</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">Now go back and forth about your favourite answers — ask {{ $this->partner->name }} a follow-up question.</p>
+        {{-- The last screen. --}}
+        @if ($total > 0)
+            <section x-show="q >= total" @if ($startAt < $total) x-cloak @endif class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+                @if ($this->bothFinished)
+                    <span class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-success-soft text-4xl dark:bg-success-soft-dark">🎉</span>
+                    <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">You both finished!</p>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Ask {{ $partner->name }} a follow-up about their favourite answer.</p>
+                    <a
+                        href="{{ route('friends.conversation', $partner) }}"
+                        wire:navigate
+                        class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark"
+                    >
+                        @svg('heroicon-o-chat-bubble-left-right', 'h-5 w-5')
+                        Keep talking in chat
+                    </a>
+                @else
+                    <span class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-surface-sunken text-4xl dark:bg-surface-sunken-dark">⏳</span>
+                    <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Waiting for {{ $partner->name }}</p>
+                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">You will see their answers here.</p>
+                @endif
                 <a
-                    href="{{ route('friends.conversation', $this->partner) }}"
+                    href="{{ route('friends.conversation', $partner) }}"
                     wire:navigate
-                    class="mt-3 inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
+                    class="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-bold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                 >
                     @svg('heroicon-o-chat-bubble-left-right', 'h-4 w-4')
-                    Keep talking in chat
+                    Message {{ $partner->name }}
                 </a>
+            </section>
+
+            <div class="sticky bottom-20 -mx-4 flex gap-2 bg-ground px-4 py-3 dark:bg-ground-dark" x-show="q < total">
+                <button type="button" x-show="q > 0" x-on:click="q--" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-3 text-base font-extrabold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">Back</button>
+                <button type="button" x-on:click="q++" class="flex-1 cursor-pointer rounded-2xl bg-accent py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark" x-text="q === total - 1 ? 'Done' : 'Next'"></button>
             </div>
         @endif
     </div>

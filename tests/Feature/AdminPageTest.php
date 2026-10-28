@@ -61,7 +61,7 @@ class AdminPageTest extends TestCase
         Livewire::actingAs($learner)->test('admin.user', ['user' => $learner])->assertNotFound();
     }
 
-    public function test_an_admin_sees_the_dashboard_and_the_menu_link(): void
+    public function test_an_admin_sees_the_dashboard_and_the_profile_link(): void
     {
         $admin = $this->admin();
         $admin->forceFill(['last_seen_at' => now()])->save();
@@ -69,15 +69,20 @@ class AdminPageTest extends TestCase
         $this->actingAs($admin)->get(route('admin.index'))
             ->assertOk()
             ->assertSee('Active users')
-            ->assertSee('Needs attention')
-            ->assertSee(route('admin.index'));
+            ->assertSee('Needs attention');
+
+        Livewire::actingAs($admin)->test('profile')->assertSee(route('admin.index'));
     }
 
     public function test_the_admin_link_is_hidden_from_learners(): void
     {
-        $this->actingAs(User::factory()->create())->get(route('notebook.index'))
+        $learner = User::factory()->create();
+
+        $this->actingAs($learner)->get(route('notebook.index'))
             ->assertOk()
             ->assertDontSee(route('admin.index'));
+
+        Livewire::actingAs($learner)->test('profile')->assertDontSee(route('admin.index'));
     }
 
     public function test_the_users_tab_lists_each_learners_ai_usage(): void

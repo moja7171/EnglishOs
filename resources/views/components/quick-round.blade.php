@@ -213,7 +213,7 @@
                             @svg('heroicon-s-fire', 'h-3.5 w-3.5') <span x-text="correctStreak"></span>
                         </span>
                     </p>
-                    <p @class(['mt-1.5 font-display text-xl leading-snug font-bold text-ink dark:text-ink-dark' => ! $lesson, 'mt-4 text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark' => $lesson]) x-text="card.prompt"></p>
+                    <p @class(['mt-1.5 font-display text-xl leading-snug font-bold text-ink dark:text-ink-dark' => ! $lesson, 'mt-4 lesson-prompt text-ink dark:text-ink-dark' => $lesson]) x-text="card.prompt"></p>
 
                     <div class="mt-4 grid gap-2.5" :class="card.optionType === 'image' ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'">
                         <template x-for="(option, i) in card.options" :key="i">

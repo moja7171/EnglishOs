@@ -49,6 +49,17 @@ class AskInstructorTest extends TestCase
             ->assertSet('messages', []);
     }
 
+    public function test_a_new_chat_offers_three_one_tap_questions(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
+            ->assertSee('Ask about this step')
+            ->assertSee('What does this mean?')
+            ->assertSee('Give me an example')
+            ->assertSee('Say it in Persian');
+    }
+
     public function test_asking_a_question_grounds_the_ai_in_the_learner_and_current_step(): void
     {
         $run = $this->makeRun();
