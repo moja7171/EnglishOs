@@ -93,8 +93,7 @@ class MissionsPageTest extends TestCase
         $this->assertTrue($m03['built']);
         $this->assertSame(route('missions.show', ['M03', 'overview']), $m03['url']);
 
-        $this->actingAs($learner)->get($m03['url'])->assertSee("Preview only: this mission isn't unlocked yet", false)
-            ->assertSee('you finish M02.');
+        $this->actingAs($learner)->get($m03['url'])->assertSee('Preview only · unlocks after M02');
     }
 
     public function test_each_part_of_a_day_is_ticked_by_its_own_practice(): void

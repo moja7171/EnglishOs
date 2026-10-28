@@ -496,7 +496,7 @@ class MissionRunnerNavigationTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('missions.runner', ['mission' => $locked])
-            ->assertSee("Preview only: this mission isn't unlocked yet", false)
+            ->assertSee('Preview only · unlocks after M01')
             ->assertSeeHtml('href="'.route('listening.show', ['M02', 1]).'"')
             ->assertSeeHtml('href="'.route('pi.practice', ['M02', 1]).'"')
             ->assertSeeInOrder(['Lesson', 'Preview', 'Listening', 'Preview', 'Daily talk', 'Preview']);

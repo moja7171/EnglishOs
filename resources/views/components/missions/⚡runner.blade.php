@@ -601,31 +601,19 @@ new class extends Component
         />
 
         @if ($this->isPreviewing)
-            <div class="flex items-center gap-3 rounded-2xl border border-dashed border-accent bg-accent-soft px-4 py-3 text-sm dark:border-accent-dark dark:bg-accent-soft-dark" role="status">
-                <p class="flex flex-1 items-center gap-2 font-semibold text-accent-ink dark:text-accent-ink-dark">
-                    @svg('heroicon-o-eye', 'h-4 w-4 shrink-0')
-                    Preview only
-                </p>
-                @if ($this->missionLocked && $this->gatingMission)
-                    <a
-                        href="{{ route('missions.show', [$this->gatingMission, 'overview']) }}"
-                        wire:navigate
-                        class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
-                    >
-                        Go to {{ $this->gatingMission->code }}
-                        @svg('heroicon-o-chevron-right', 'h-3 w-3')
-                    </a>
-                @elseif ($this->currentPosition)
-                    <a
-                        href="{{ route('missions.show', [$mission, $this->currentPosition['stepKey']]) }}"
-                        wire:navigate
-                        class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-white transition-opacity hover:opacity-85 dark:bg-accent-dark"
-                    >
-                        Go to where I am
-                        @svg('heroicon-o-chevron-right', 'h-3 w-3')
-                    </a>
-                @endif
-            </div>
+            @if ($this->missionLocked && $this->gatingMission)
+                <x-preview-pill
+                    :label="'Preview only · unlocks after '.$this->gatingMission->code"
+                    :href="route('missions.show', [$this->gatingMission, 'overview'])"
+                />
+            @elseif ($this->currentPosition)
+                <x-preview-pill
+                    label="Preview only · Go to where I am"
+                    :href="route('missions.show', [$mission, $this->currentPosition['stepKey']])"
+                />
+            @else
+                <x-preview-pill label="Preview only" />
+            @endif
         @endif
 
         <div data-step-card>
