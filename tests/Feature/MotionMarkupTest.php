@@ -19,14 +19,13 @@ class MotionMarkupTest extends TestCase
         }
     }
 
-    public function test_the_account_menu_bell_and_streak_ring_are_swipe_to_close_sheets_on_phones(): void
+    public function test_the_bell_and_streak_ring_are_swipe_to_close_sheets_on_phones(): void
     {
         $this->actingAs(User::factory()->create());
 
         $html = $this->get(route('home'))->getContent();
 
-        $this->assertSame(3, substr_count($html, 'x-swipe-close="open = false"'));
-        $this->assertStringContainsString('aria-label="Account menu"', $html);
+        $this->assertSame(2, substr_count($html, 'x-swipe-close="open = false"'));
         $this->assertStringContainsString('aria-label="Notifications"', $html);
         $this->assertStringContainsString('aria-label="Daily streak"', $html);
     }

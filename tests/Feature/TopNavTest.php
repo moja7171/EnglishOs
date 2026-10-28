@@ -6,6 +6,7 @@ use App\Models\DirectMessage;
 use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class TopNavTest extends TestCase
@@ -89,26 +90,25 @@ class TopNavTest extends TestCase
             ->assertDontSee('aria-label="Primary"', false);
     }
 
-    public function test_the_account_menu_holds_only_progress_and_profile(): void
+    public function test_the_avatar_opens_profile_directly_with_no_menu(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $menu = (string) $this->blade('<x-account-menu />');
+        $avatar = (string) $this->blade('<x-account-menu />');
 
-        $this->assertSame(2, substr_count($menu, '<a '));
-        $this->assertStringContainsString('href="'.route('progress.index').'"', $menu);
-        $this->assertStringContainsString('Day 1 of 96', $menu);
-        $this->assertStringNotContainsString('href="'.route('friends.index').'"', $menu);
-        $this->assertStringContainsString('href="'.route('profile').'"', $menu);
-        $this->assertStringNotContainsString('Sign out', $menu);
-        $this->assertStringNotContainsString('dark mode', $menu);
+        $this->assertSame(1, substr_count($avatar, 'href='));
+        $this->assertStringContainsString('href="'.route('profile').'"', $avatar);
+        $this->assertStringNotContainsString('href="'.route('progress.index').'"', $avatar);
+        $this->assertStringNotContainsString('Sign out', $avatar);
     }
 
-    public function test_the_account_menu_shows_admin_to_an_admin(): void
+    public function test_profile_leads_with_a_progress_card(): void
     {
-        $this->actingAs(User::factory()->create(['is_admin' => true]));
+        $this->actingAs(User::factory()->create());
 
-        $this->blade('<x-account-menu />')->assertSee('href="'.route('admin.index').'"', false);
+        Livewire::test('profile')
+            ->assertSee('href="'.route('progress.index').'"', false)
+            ->assertSee('Day 1 of 96');
     }
 
     public function test_profile_and_settings_holds_the_guide_the_switches_and_sign_out(): void

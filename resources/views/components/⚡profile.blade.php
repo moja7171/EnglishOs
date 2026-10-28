@@ -448,6 +448,22 @@ new class extends Component
             <span class="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $user->cefr_level ?? 'A2+' }}@if ($user->target_band) · IELTS {{ $user->target_band }}@endif</span>
         </div>
 
+        @php
+            $plan = app(\App\Services\ProgramPlanner::class)->plan($user);
+            $programPercent = round(100 * $plan['programDay'] / $plan['totalDays']);
+        @endphp
+        <a href="{{ route('progress.index') }}" wire:navigate class="card flex items-center gap-3 p-3">
+            <span class="relative inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full" style="background: conic-gradient(var(--color-accent) {{ $programPercent }}%, var(--color-line) 0)">
+                <span class="absolute inset-1 rounded-full bg-surface dark:bg-surface-dark"></span>
+                @svg('heroicon-o-chart-bar', 'relative h-5 w-5 text-ink-soft dark:text-ink-soft-dark')
+            </span>
+            <span class="min-w-0 flex-1">
+                <span class="block text-sm font-extrabold text-ink dark:text-ink-dark">Progress</span>
+                <span class="block text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Day {{ $plan['programDay'] }} of {{ $plan['totalDays'] }}</span>
+            </span>
+            @svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
+        </a>
+
         <p class="{{ $groupTitle }}">Account</p>
         <div class="{{ $group }}">
             <button type="button" x-on:click="screen = 'info'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-user', 'h-4 w-4')</span><span class="flex-1">Name &amp; level</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
@@ -515,6 +531,9 @@ new class extends Component
             <button type="button" x-on:click="screen = 'ai-keys'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-sparkles', 'h-4 w-4')</span><span class="flex-1">My AI keys</span><span class="{{ $hint }}">Optional</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
             @if ($user->is_admin)
                 <button type="button" x-on:click="screen = 'ai-relay'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-server-stack', 'h-4 w-4')</span><span class="flex-1">AI relay</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
+            @endif
+            @if ($user->is_admin)
+                <a href="{{ route('admin.index') }}" wire:navigate class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-wrench-screwdriver', 'h-4 w-4')</span><span class="flex-1">Admin</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</a>
             @endif
         </div>
 
