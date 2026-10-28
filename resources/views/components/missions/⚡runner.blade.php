@@ -91,7 +91,7 @@ new class extends Component
      * Daily talk until the learner's program reaches the day ('ahead'). "Here" is the learner's day today, or else the run's
      * current day.
      *
-     * @return list<array{number: int, heading: string, estimatedMinutes: int, completedAt: ?\Carbon\Carbon, lesson: bool, listened: bool, talked: bool, here: bool, preview: bool, ahead: bool, started: bool, lessonUrl: ?string, listeningUrl: ?string, talkUrl: ?string, primary: ?string}>
+     * @return list<array{number: int, steps: list<array{key: string, label: string, minutes: int, url: string, state: string}>, heading: string, estimatedMinutes: int, completedAt: ?\Carbon\Carbon, lesson: bool, listened: bool, talked: bool, here: bool, preview: bool, ahead: bool, started: bool, lessonUrl: ?string, listeningUrl: ?string, talkUrl: ?string, primary: ?string}>
      */
     public function getMissionDaysProperty(): array
     {
@@ -112,6 +112,19 @@ new class extends Component
                 $entryStep = $current ? $this->currentStepKey : ($day['stepKeys'][0] ?? null);
                 $reached = ! $this->missionLocked && $number <= 4 && $picks->indexOf($code, $number) <= $reachedIndex;
 
+                $steps = collect($day['stepKeys'])->map(fn (string $key) => [
+                    'key' => $key,
+                    'label' => $this->mission->stepLabel($key),
+                    'minutes' => $this->mission->stepDuration($key),
+                    'url' => route('missions.show', [$this->mission, $key]),
+                    'state' => match (true) {
+                        $this->missionLocked => 'ahead',
+                        $key === $this->currentStepKey => 'now',
+                        in_array($key, $this->reachableStepKeys, true) => 'done',
+                        default => 'ahead',
+                    },
+                ])->all();
+
                 $parts = [
                     'lesson' => $day['done'],
                     'listening' => in_array($number, $listened, true),
@@ -128,6 +141,7 @@ new class extends Component
                     'heading' => Mission::dayHeading($number, $day['label']),
                     'estimatedMinutes' => $day['estimatedMinutes'],
                     'stepCount' => count($day['stepKeys']),
+                    'steps' => $steps,
                     'completedAt' => $day['completedAt'],
                     'lesson' => $parts['lesson'],
                     'listened' => $parts['listening'],
@@ -514,7 +528,8 @@ new class extends Component
             @foreach ($this->missionDays as $day)
                 @php
                     $number = $day['number'];
-                    $lessonNote = $day['lesson'] ? 'Done · tap to review' : ($day['preview'] ? 'Preview' : $day['stepCount'].' '.Str::plural('step', $day['stepCount']).($day['estimatedMinutes'] ? ' · ~'.Mission::formatDuration($day['estimatedMinutes']) : ''));
+                    $stepsDone = collect($day['steps'])->where('state', 'done')->count();
+                    $lessonNote = $day['lesson'] ? 'Done · tap to review' : ($day['preview'] ? 'Preview' : ($stepsDone > 0 ? $stepsDone.' of '.$day['stepCount'].' done' : $day['stepCount'].' '.Str::plural('step', $day['stepCount'])).($day['estimatedMinutes'] ? ' · ~'.Mission::formatDuration($day['estimatedMinutes']) : ''));
                     $parts = [
                         ['key' => 'listening', 'done' => $day['listened'], 'url' => $day['listeningUrl'], 'label' => 'Listening', 'icon' => 'speaker-wave', 'note' => $day['ahead'] ? 'Preview' : 'Pick one'],
                         ['key' => 'talk', 'done' => $day['talked'], 'url' => $day['talkUrl'], 'label' => 'Daily talk', 'icon' => 'microphone', 'note' => $day['ahead'] ? 'Preview' : 'with Pi'],
@@ -527,22 +542,68 @@ new class extends Component
                     @if ($openDay !== $number) x-cloak @endif
                     class="space-y-2"
                 >
-                    <{{ $day['lessonUrl'] ? 'a' : 'div' }}
-                        @if ($day['lessonUrl']) href="{{ $day['lessonUrl'] }}" wire:navigate @endif
-                        aria-label="Day {{ $number }} Lesson{{ $day['lesson'] ? ', done' : '' }}"
-                        class="{{ $card }} bg-accent-soft dark:bg-accent-soft-dark"
-                    >
-                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white dark:bg-accent-dark">@svg('heroicon-o-book-open', 'h-5 w-5')</span>
-                        <span class="min-w-0 flex-1">
-                            <span class="block text-base font-extrabold text-ink dark:text-ink-dark">Lesson</span>
-                            <span class="block truncate text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $lessonNote }}</span>
-                        </span>
-                        @if ($day['lesson'])
-                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
-                        @elseif ($day['lessonUrl'] && ! $day['preview'])
-                            <span class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">{{ $day['started'] ? 'Continue' : 'Start' }}</span>
-                        @endif
-                    </{{ $day['lessonUrl'] ? 'a' : 'div' }}>
+                    {{-- Tap the card: the day's steps open right here. Continue / Start
+                         goes straight into the current step. --}}
+                    <div x-data="{ steps: @js($day['here']) }" class="rounded-2xl bg-accent-soft dark:bg-accent-soft-dark">
+                        <div
+                            role="button"
+                            tabindex="0"
+                            x-on:click="steps = ! steps"
+                            x-on:keydown.enter.prevent="steps = ! steps"
+                            x-bind:aria-expanded="steps"
+                            aria-label="Day {{ $number }} Lesson{{ $day['lesson'] ? ', done' : '' }}"
+                            class="{{ $card }} cursor-pointer"
+                        >
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white dark:bg-accent-dark">@svg('heroicon-o-book-open', 'h-5 w-5')</span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-base font-extrabold text-ink dark:text-ink-dark">Lesson</span>
+                                <span class="block truncate text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $lessonNote }}</span>
+                            </span>
+                            @if ($day['lesson'])
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
+                            @elseif ($day['lessonUrl'] && ! $day['preview'])
+                                <a href="{{ $day['lessonUrl'] }}" wire:navigate x-on:click.stop class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">{{ $day['started'] ? 'Continue' : 'Start' }}</a>
+                            @endif
+                            <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="steps && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-5 w-5')</span>
+                        </div>
+
+                        <nav x-show="steps" x-cloak x-transition.opacity.duration.150ms class="px-2 pb-2" aria-label="Day {{ $number }} steps">
+                            <div class="rounded-xl bg-surface p-1 dark:bg-surface-dark">
+                                @foreach ($day['steps'] as $step)
+                                    <a
+                                        href="{{ $step['url'] }}"
+                                        wire:navigate
+                                        wire:key="day-{{ $number }}-step-{{ $step['key'] }}"
+                                        @class([
+                                            'flex items-center gap-3 rounded-lg px-2.5 py-2.5 text-sm font-bold transition-colors',
+                                            'bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark' => $step['state'] === 'now',
+                                            'text-ink-faint hover:bg-surface-sunken dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark' => $step['state'] === 'done',
+                                            'text-ink hover:bg-surface-sunken dark:text-ink-dark dark:hover:bg-surface-sunken-dark' => $step['state'] === 'ahead',
+                                        ])
+                                    >
+                                        <span @class([
+                                            'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-extrabold',
+                                            'border-success bg-success text-white dark:border-success-dark dark:bg-success-dark' => $step['state'] === 'done',
+                                            'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $step['state'] === 'now',
+                                            'border-line text-ink-faint dark:border-line-dark dark:text-ink-faint-dark' => $step['state'] === 'ahead',
+                                        ])>
+                                            @if ($step['state'] === 'done')
+                                                @svg('heroicon-s-check', 'h-3.5 w-3.5')
+                                            @else
+                                                {{ $loop->iteration }}
+                                            @endif
+                                        </span>
+                                        <span class="min-w-0 flex-1 truncate">{{ $step['label'] }}</span>
+                                        @if ($step['state'] === 'now' && ! $day['preview'])
+                                            <span class="shrink-0 text-xs font-extrabold">You are here</span>
+                                        @elseif ($step['minutes'])
+                                            <span class="shrink-0 text-xs font-semibold opacity-70">{{ Mission::formatDuration($step['minutes']) }}</span>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                        </nav>
+                    </div>
 
                     @foreach ($parts as $part)
                         <{{ $part['url'] ? 'a' : 'div' }}

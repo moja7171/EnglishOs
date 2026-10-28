@@ -11,7 +11,9 @@
     of the day is done until then.
 
     It is opaque on purpose, and has no backdrop blur or transform: either
-    would make the sheet's fixed positioning relative to this bar.
+    would make the sheet's fixed positioning relative to this bar. It sits
+    at z-40, above the bottom nav (z-30): the sheet lives inside this bar's
+    stacking context, so at z-30 the nav painted over the sheet's last rows.
 
     @param string $backUrl Where ✕ goes (the day overview).
     @param string $missionCode The mission's code, e.g. "M01".
@@ -32,7 +34,7 @@
 <div
     x-data="{ stepShare: null }"
     x-on:step-progress.window="stepShare = $event.detail.share"
-    class="sticky top-0 z-30 -mx-4 bg-ground px-3 pt-2 pb-1 sm:-mx-6 sm:px-5 dark:bg-ground-dark"
+    class="sticky top-0 z-40 -mx-4 bg-ground px-3 pt-2 pb-1 sm:-mx-6 sm:px-5 dark:bg-ground-dark"
     data-step-header
 >
     <x-lesson-header :close="$backUrl" :progress="$doneShare / 100" progress-expr="stepShare">
@@ -53,11 +55,11 @@
             type="button"
             x-on:click="open = ! open"
             aria-haspopup="menu"
-            class="inline-flex min-w-0 cursor-pointer items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink-soft dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-soft-dark"
+            class="inline-flex min-w-0 cursor-pointer items-center gap-1.5 rounded-full border-2 border-line bg-surface px-3.5 py-1 text-sm font-extrabold text-ink transition-colors hover:border-accent dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:hover:border-accent-dark"
         >
             <span class="truncate">Day {{ $dayNumber }} · {{ $stepLabel }}</span>
-            <span class="shrink-0 tabular-nums" aria-label="Step {{ $stepPosition }} of {{ count($steps) }}">· {{ $stepPosition }}/{{ count($steps) }}</span>
-            <span class="shrink-0 transition-transform" x-bind:class="open && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-3.5 w-3.5')</span>
+            <span class="shrink-0 tabular-nums text-ink-faint dark:text-ink-faint-dark" aria-label="Step {{ $stepPosition }} of {{ count($steps) }}">· {{ $stepPosition }}/{{ count($steps) }}</span>
+            <span class="shrink-0 transition-transform" x-bind:class="open && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-4 w-4')</span>
         </button>
 
         <x-menu-panel role="menu" aria-label="Steps of this day" width="sm:w-80" class="sm:py-1">
