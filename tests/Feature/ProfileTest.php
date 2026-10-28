@@ -402,6 +402,7 @@ class ProfileTest extends TestCase
             ->assertSee('Blocked people')
             ->assertSee('My AI keys')
             ->assertSee('Phone alerts')
+            ->assertSee('x-back-close="{ open: screen !== \'\'', false)
             ->assertDontSee('AI relay')
             ->call('toggleFriendAlerts');
 

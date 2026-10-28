@@ -36,7 +36,7 @@ new class extends Component
 
     /**
      * Where the learner is in the 96 program days, the mission they are on
-     * and the finish date at their current pace (see FinishLine).
+     * and the finish date if they do one program day a day from now on (see FinishLine).
      *
      * @return array{programDay: int, totalDays: int, daysDelta: int, started: bool, finished: bool, mission: ?Mission, finishDate: ?string}
      */
@@ -56,7 +56,7 @@ new class extends Component
             'started' => $plan['started'],
             'finished' => $finished,
             'mission' => $plan['today']['mission'] ?? null,
-            'finishDate' => $forecast === null ? null : $finishLine->persianDate($finishLine->headlineDate($forecast)),
+            'finishDate' => $forecast === null ? null : $finishLine->persianDate($forecast['steadyDate']),
         ];
     }
 
@@ -133,7 +133,8 @@ new class extends Component
      and the mistakes you fixed — a card only shows when it has something. --}}
 <div class="stagger-children mx-auto max-w-2xl space-y-3 p-4 sm:p-6">
     <header class="flex items-center gap-2">
-        <a href="{{ route('home') }}" wire:navigate aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
+        {{-- Back goes where the learner came from (Profile, the streak sheet, Home), not always Home. --}}
+        <a href="{{ route('home') }}" wire:navigate x-data x-on:click="if (history.length > 1) { $event.preventDefault(); history.back() }" aria-label="Back" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Progress</h1>
     </header>
 
