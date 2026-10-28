@@ -1,22 +1,27 @@
 <?php
 
+use App\Models\DayActivity;
 use Livewire\Component;
 
 new class extends Component
 {
     /**
      * 'sheet' is the first-time invitation (a bottom sheet on a phone, a
-     * dialog on a wide screen) mounted once in the layout; 'card' is the
-     * quiet card on the home page that stays until the learner acts.
+     * dialog on a wide screen), shown once after the first lesson; 'card' is
+     * the slim row on the home page that stays until the learner acts.
      */
     public string $variant = 'card';
 
     public bool $hasStudyTimes = false;
 
+    /** The sheet waits for the first real lesson activity. */
+    public bool $hasStarted = false;
+
     public function mount(string $variant = 'card'): void
     {
         $this->variant = $variant;
         $this->hasStudyTimes = auth()->user()->hasStudyReminderTimes();
+        $this->hasStarted = DayActivity::where('learner_id', auth()->id())->exists();
 
         // Scheduled alerts run with no browser, so they read the zone saved
         // here — kept fresh every time the learner opens the app.
@@ -54,7 +59,7 @@ new class extends Component
             try { localStorage.setItem(key, value); } catch (error) {}
         };
 
-        const register = () => Alpine.data('remindersPrompt', (variant) => ({
+        const register = () => Alpine.data('remindersPrompt', (variant, hasStarted) => ({
             push: { ready: false, supported: false, iosNeedsInstall: false, denied: false, subscribed: false, busy: false, error: '' },
             sheetOpen: false,
             cardDismissed: false,
@@ -76,7 +81,7 @@ new class extends Component
 
                 // The first-time invitation: a moment after the page settles,
                 // and only where turning alerts on can work.
-                if (variant === 'sheet' && ! this.sheetOpen && this.canInvite && ! this.push.denied && ! read('eosAlertsSheetSeen')) {
+                if (variant === 'sheet' && hasStarted && ! this.sheetOpen && this.canInvite && ! this.push.denied && ! read('eosAlertsSheetSeen')) {
                     setTimeout(() => {
                         if (this.canInvite) {
                             this.sheetOpen = true;
@@ -128,175 +133,120 @@ new class extends Component
 
 <div>
     @if (config('webpush.vapid.public_key'))
-        <div x-data="remindersPrompt(@js($variant))" dir="rtl">
+        <div x-data="remindersPrompt(@js($variant), @js($hasStarted))" dir="rtl">
             @if ($variant === 'sheet')
-                <div
-                    x-show="sheetOpen"
-                    x-cloak
-                    x-on:click="closeSheet()"
-                    x-transition.opacity.duration.200ms
-                    aria-hidden="true"
-                    class="fixed inset-0 z-40 bg-ink/40"
-                ></div>
-
-                <div
-                    x-show="sheetOpen"
-                    x-cloak
-                    x-on:keydown.escape.window="closeSheet()"
-                    x-transition:enter="transition duration-200 ease-out motion-reduce:duration-0"
-                    x-transition:enter-start="translate-y-full sm:translate-y-4 sm:opacity-0"
-                    x-transition:enter-end="translate-y-0 sm:opacity-100"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="reminders-sheet-title"
-                    class="fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-2xl border border-b-0 border-line bg-surface p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border-b dark:border-line-dark dark:bg-surface-dark"
-                >
-                    {{-- Not subscribed yet: the invitation. --}}
-                    <div x-show="! push.subscribed" class="space-y-4">
-                        <div class="flex items-start gap-3">
-                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                                @svg('heroicon-o-bell-alert', 'h-6 w-6')
+                @if ($hasStarted)
+                    <div
+                        x-show="sheetOpen"
+                        x-cloak
+                        x-on:click="closeSheet()"
+                        x-transition.opacity.duration.200ms
+                        aria-hidden="true"
+                        class="fixed inset-0 z-40 bg-ink/40"
+                    ></div>
+                    <div
+                        x-show="sheetOpen"
+                        x-cloak
+                        x-on:keydown.escape.window="closeSheet()"
+                        x-transition:enter="transition duration-200 ease-out motion-reduce:duration-0"
+                        x-transition:enter-start="translate-y-full sm:translate-y-4 sm:opacity-0"
+                        x-transition:enter-end="translate-y-0 sm:opacity-100"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="reminders-sheet-title"
+                        class="fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-3xl border border-b-0 border-line bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl sm:border-b dark:border-line-dark dark:bg-surface-dark"
+                    >
+                        {{-- Not subscribed yet: the invitation. --}}
+                        <div x-show="! push.subscribed" class="flex flex-col items-center gap-3 text-center">
+                            <span class="inline-flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-3xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                                @svg('heroicon-o-bell-alert', 'h-9 w-9')
                             </span>
-                            <div>
-                                <h2 id="reminders-sheet-title" class="font-display text-lg font-extrabold text-ink dark:text-ink-dark">یادآورها را روشن کنید</h2>
-                                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">تا انگلیسی را رها نکنید، به‌موقع برایتان پیام می‌فرستیم:</p>
-                            </div>
-                        </div>
-
-                        <ul class="space-y-2 text-sm text-ink dark:text-ink-dark">
-                            <li class="flex gap-2">@svg('heroicon-s-clock', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>ساعت مطالعه</b> — تا دو بار در روز، هر ساعتی که خودتان بخواهید</span></li>
-                            <li class="flex gap-2">@svg('heroicon-s-arrow-path', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>مرور کلمه‌ها</b> — وقتی چیزی برای مرور دارید</span></li>
-                            <li class="flex gap-2">@svg('heroicon-s-fire', 'mt-0.5 h-4 w-4 shrink-0 text-accent-ink dark:text-accent-ink-dark')<span><b>زنجیره در خطر</b> — پیش از آنکه زنجیرهٔ یادگیری‌تان بشکند</span></li>
-                        </ul>
-
-                        <p x-show="push.iosNeedsInstall" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                            در iPhone ابتدا برنامه را به صفحهٔ اصلی اضافه کنید: دکمهٔ <b>Share</b> را بزنید، <b>Add to Home Screen</b> را انتخاب کنید و برنامه را از آیکون جدید باز کنید. بعد دوباره همین‌جا یادآورها را روشن کنید.
-                        </p>
-
-                        <p x-show="push.denied" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                            اعلان‌ها برای English OS مسدود است. در تنظیمات مرورگر یا گوشی اجازه‌شان بدهید و دوباره امتحان کنید.
-                        </p>
-
-                        <p x-show="push.error" x-cloak x-text="push.error" class="text-xs text-danger-ink"></p>
-
-                        <div class="flex flex-col gap-2 sm:flex-row-reverse">
+                            <h2 id="reminders-sheet-title" class="text-xl font-extrabold text-ink dark:text-ink-dark">فردا یادتان می‌اندازیم</h2>
+                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">وقتی وقت درس یا مرور است، روی گوشی پیام می‌گیرید.</p>
+                            <p x-show="push.iosNeedsInstall" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+                                در iPhone ابتدا برنامه را به صفحهٔ اصلی اضافه کنید: <b>Share</b> ← <b>Add to Home Screen</b>، بعد از آیکون جدید باز کنید.
+                            </p>
+                            <p x-show="push.denied" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+                                اعلان‌ها برای English OS مسدود است؛ در تنظیمات مرورگر یا گوشی اجازه‌شان بدهید.
+                            </p>
+                            <p x-show="push.error" x-cloak x-text="push.error" class="text-xs text-danger-ink"></p>
                             <button
                                 type="button"
                                 x-show="! push.iosNeedsInstall && ! push.denied"
                                 x-on:click="enable()"
                                 :disabled="push.busy"
-                                class="flex-1 cursor-pointer rounded-full bg-accent px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                                x-text="push.busy ? 'در حال روشن کردن…' : 'روشن کردن یادآورها'"
+                                class="mt-1 w-full cursor-pointer rounded-full bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,#000)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                                x-text="push.busy ? 'در حال روشن کردن…' : 'روشن کن'"
                             ></button>
-                            <button
-                                type="button"
-                                x-on:click="closeSheet()"
-                                class="cursor-pointer rounded-full border border-line px-5 py-3 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                            >بعداً</button>
+                            <button type="button" x-on:click="closeSheet()" class="cursor-pointer text-sm font-bold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">بعداً</button>
                         </div>
-                    </div>
-
-                    {{-- Subscribed: confirm, then invite them to pick study times. --}}
-                    <div x-show="push.subscribed" x-cloak class="space-y-4">
-                        <div class="flex items-start gap-3">
-                            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
-                                @svg('heroicon-o-check-circle', 'h-6 w-6')
+                        {{-- Subscribed: confirm, then offer study times. --}}
+                        <div x-show="push.subscribed" x-cloak class="flex flex-col items-center gap-3 text-center">
+                            <span class="inline-flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-3xl bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
+                                @svg('heroicon-o-check-circle', 'h-9 w-9')
                             </span>
-                            <div>
-                                <h2 class="font-display text-lg font-extrabold text-ink dark:text-ink-dark">یادآورها روشن شد</h2>
-                                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">یادآور مرور و حفظ زنجیره خودکار کار می‌کنند.</p>
-                            </div>
-                        </div>
-
-                        <div x-show="! $wire.hasStudyTimes" class="space-y-3 rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                            <p class="text-sm text-ink dark:text-ink-dark">می‌خواهید ساعت مطالعه هم بگذارید؟ تا دو بار در روز یادتان می‌اندازیم.</p>
-                            <div class="flex flex-col gap-2 sm:flex-row-reverse">
+                            <h2 class="text-xl font-extrabold text-ink dark:text-ink-dark">یادآورها روشن شد</h2>
+                            <div x-show="! $wire.hasStudyTimes" class="flex w-full flex-col gap-2">
+                                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">ساعت مطالعه هم بگذاریم؟</p>
                                 <button
                                     type="button"
                                     wire:click="useSuggestedTimes"
                                     wire:loading.attr="disabled"
-                                    class="flex-1 cursor-pointer rounded-full bg-accent px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                                >ساعت ۱۲:۰۰ و ۲۰:۰۰ را روشن کن</button>
+                                    class="w-full cursor-pointer rounded-full bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,#000)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                                >۱۲:۰۰ و ۲۰:۰۰</button>
                                 <a
                                     href="{{ route('profile', ['tab' => 'reminders']) }}"
                                     wire:navigate
                                     x-on:click="closeSheet()"
-                                    class="rounded-full border border-line px-4 py-2.5 text-center text-sm font-semibold text-ink-soft transition-colors hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
-                                >انتخاب ساعت دلخواه</a>
+                                    class="text-sm font-bold text-accent-ink dark:text-accent-ink-dark"
+                                >ساعت دلخواه</a>
                             </div>
+                            <p x-show="$wire.hasStudyTimes" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">ساعت‌ها در Profile › Reminders قابل تغییر است.</p>
+                            <button type="button" x-on:click="closeSheet()" class="cursor-pointer text-sm font-bold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">بستن</button>
                         </div>
-
-                        <p x-show="$wire.hasStudyTimes" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">ساعت‌های مطالعه تنظیم شد. هر وقت خواستید از تب «Reminders» در پروفایل عوضشان کنید.</p>
-
-                        <button
-                            type="button"
-                            x-on:click="closeSheet()"
-                            class="w-full cursor-pointer rounded-full border border-line px-5 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >بستن</button>
                     </div>
-                </div>
+                @endif
             @else
                 {{-- Alerts are off: keep inviting, but quietly. --}}
-                <div x-show="showEnableCard" x-cloak x-transition class="card space-y-3 p-4">
-                    <div class="flex items-start gap-3">
-                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                            @svg('heroicon-o-bell-alert', 'h-5 w-5')
+                <div x-show="showEnableCard" x-cloak x-transition class="card space-y-2 p-2.5 ps-3">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                            @svg('heroicon-o-bell-alert', 'h-4 w-4')
                         </span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-semibold text-ink dark:text-ink-dark">یادآورهای گوشی خاموش است</p>
-                            <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">روشنشان کنید تا ساعت مطالعه، مرور کلمات و زنجیرهٔ یادگیری‌تان از یادتان نرود.</p>
-                        </div>
+                        <p class="min-w-0 flex-1 text-sm font-bold text-ink dark:text-ink-dark">یادآورهای گوشی خاموش است</p>
+                        <button
+                            type="button"
+                            x-show="! push.iosNeedsInstall && ! push.denied"
+                            x-on:click="enable()"
+                            :disabled="push.busy"
+                            class="shrink-0 cursor-pointer rounded-full bg-accent px-3.5 py-1.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                            x-text="push.busy ? '…' : 'روشن کن'"
+                        ></button>
                         <button type="button" x-on:click="dismissEnableCard()" aria-label="بستن" class="cursor-pointer text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
                             @svg('heroicon-o-x-mark', 'h-4 w-4')
                         </button>
                     </div>
-
-                    <p x-show="push.iosNeedsInstall" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                        در iPhone ابتدا برنامه را به صفحهٔ اصلی اضافه کنید: دکمهٔ <b>Share</b> ← <b>Add to Home Screen</b>، و برنامه را از آیکون جدید باز کنید.
+                    <p x-show="push.iosNeedsInstall" x-cloak class="text-xs text-ink-soft dark:text-ink-soft-dark">
+                        در iPhone ابتدا <b>Share</b> ← <b>Add to Home Screen</b> را بزنید و از آیکون جدید باز کنید.
                     </p>
-                    <p x-show="push.denied" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                        اعلان‌ها برای English OS مسدود است. در تنظیمات مرورگر یا گوشی اجازه‌شان بدهید.
-                    </p>
+                    <p x-show="push.denied" x-cloak class="text-xs text-ink-soft dark:text-ink-soft-dark">اعلان‌ها مسدود است؛ در تنظیمات مرورگر یا گوشی اجازه‌شان بدهید.</p>
                     <p x-show="push.error" x-cloak x-text="push.error" class="text-xs text-danger-ink"></p>
-
+                </div>
+                {{-- Alerts are on but no study time yet. --}}
+                <div x-show="showTimesCard" x-cloak x-transition class="card flex items-center gap-3 p-2.5 ps-3">
+                    <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                        @svg('heroicon-o-clock', 'h-4 w-4')
+                    </span>
+                    <p class="min-w-0 flex-1 text-sm font-bold text-ink dark:text-ink-dark">ساعت مطالعه بگذارید</p>
                     <button
                         type="button"
-                        x-show="! push.iosNeedsInstall && ! push.denied"
-                        x-on:click="enable()"
-                        :disabled="push.busy"
-                        class="w-full cursor-pointer rounded-full bg-accent px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                        x-text="push.busy ? 'در حال روشن کردن…' : 'روشن کردن یادآورها'"
-                    ></button>
-                </div>
-
-                {{-- Alerts are on but no study time yet. --}}
-                <div x-show="showTimesCard" x-cloak x-transition class="card space-y-3 p-4">
-                    <div class="flex items-start gap-3">
-                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                            @svg('heroicon-o-clock', 'h-5 w-5')
-                        </span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-semibold text-ink dark:text-ink-dark">ساعت مطالعه‌تان را تنظیم کنید</p>
-                            <p class="mt-0.5 text-xs text-ink-soft dark:text-ink-soft-dark">تا دو بار در روز، سر ساعتی که خودتان می‌گذارید، یادآوری می‌گیرید.</p>
-                        </div>
-                        <button type="button" x-on:click="dismissTimesCard()" aria-label="بستن" class="cursor-pointer text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
-                            @svg('heroicon-o-x-mark', 'h-4 w-4')
-                        </button>
-                    </div>
-
-                    <div class="flex flex-col gap-2 sm:flex-row-reverse">
-                        <button
-                            type="button"
-                            wire:click="useSuggestedTimes"
-                            wire:loading.attr="disabled"
-                            class="flex-1 cursor-pointer rounded-full bg-accent px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                        >ساعت ۱۲:۰۰ و ۲۰:۰۰ را روشن کن</button>
-                        <a
-                            href="{{ route('profile', ['tab' => 'reminders']) }}"
-                            wire:navigate
-                            class="rounded-full border border-line px-4 py-2.5 text-center text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                        >انتخاب ساعت دلخواه</a>
-                    </div>
+                        wire:click="useSuggestedTimes"
+                        wire:loading.attr="disabled"
+                        class="shrink-0 cursor-pointer rounded-full bg-accent px-3.5 py-1.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                    >۱۲:۰۰ و ۲۰:۰۰</button>
+                    <button type="button" x-on:click="dismissTimesCard()" aria-label="بستن" class="cursor-pointer text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+                        @svg('heroicon-o-x-mark', 'h-4 w-4')
+                    </button>
                 </div>
             @endif
         </div>

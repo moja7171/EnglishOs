@@ -636,6 +636,29 @@ new class extends Component
 
     {{-- Reminders --}}
     <div x-show="screen === 'reminders'" x-cloak class="space-y-3">
+        <div
+            x-data="{ push: window.eosPush ?? {} }"
+            x-on:eos-push-state.window="push = $event.detail"
+            class="card flex items-center gap-3 p-4"
+        >
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Phone alerts</p>
+                <p
+                    class="text-xs text-ink-faint dark:text-ink-faint-dark"
+                    x-text="! push.ready ? '…' : (push.subscribed ? 'On' : (push.denied ? 'Blocked in your browser settings' : (! push.supported ? (push.iosNeedsInstall ? 'Add the app to your Home Screen first' : 'Not supported here') : 'Off')))"
+                ></p>
+            </div>
+            <button
+                type="button"
+                x-on:click="$dispatch(push.subscribed ? 'eos-push-disable' : 'eos-push-enable')"
+                x-bind:disabled="! push.ready || ! push.supported || push.denied || push.busy"
+                role="switch"
+                aria-label="Phone alerts"
+                x-bind:aria-checked="push.subscribed ? 'true' : 'false'"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                x-bind:class="push.subscribed ? 'bg-accent dark:bg-accent-dark' : 'bg-line dark:bg-line-dark'"
+            ><span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" x-bind:class="push.subscribed ? 'translate-x-6' : 'translate-x-1'"></span></button>
+        </div>
         <livewire:notifications.study-reminders />
         <livewire:notifications.review-reminder />
         <div class="card flex items-center gap-3 p-4">

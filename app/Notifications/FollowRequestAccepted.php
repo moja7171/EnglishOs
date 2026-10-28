@@ -21,6 +21,7 @@ class FollowRequestAccepted extends Notification
             'icon' => 'heroicon-o-check-circle',
             'title' => "حالا با {$this->accepter->name} دوستید 🎉",
             'url' => route('friends.conversation', $this->accepter),
+            'sender_id' => $this->accepter->id,
         ];
     }
 }

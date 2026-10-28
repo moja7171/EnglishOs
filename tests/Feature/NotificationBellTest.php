@@ -101,6 +101,53 @@ class NotificationBellTest extends TestCase
         $this->assertSame(1, $someoneElse->notifications()->count());
     }
 
+    public function test_alerts_are_grouped_into_today_and_earlier(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create();
+        $bob = User::factory()->create();
+        $me->notify(new FollowRequestReceived($alice));
+        $me->notify(new FollowRequestReceived($bob));
+        $me->notifications()->get()->last()->forceFill(['created_at' => now()->subDays(3)])->save();
+
+        $this->actingAs($me);
+
+        $groups = Livewire::test('notifications.bell')
+            ->assertSee('Today')
+            ->assertSee('Earlier')
+            ->instance()->groups();
+
+        $this->assertCount(1, $groups['today']);
+        $this->assertCount(1, $groups['earlier']);
+    }
+
+    public function test_an_alert_about_a_friend_knows_who_the_friend_is(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create();
+        $me->notify(new FollowRequestReceived($alice));
+
+        $this->actingAs($me);
+
+        $people = Livewire::test('notifications.bell')->instance()->people();
+
+        $this->assertTrue($people->has($alice->id));
+    }
+
+    public function test_the_banner_carries_the_friends_avatar_and_a_live_invite_is_urgent(): void
+    {
+        $me = User::factory()->create();
+        $alice = User::factory()->create();
+        $me->notify(new FollowRequestReceived($alice));
+
+        $this->actingAs($me);
+
+        Livewire::test('notifications.bell')
+            ->call('checkNew')
+            ->assertDispatched('notification-banner', fn (string $event, array $params) => $params['items'][0]['avatar'] !== null
+                && $params['items'][0]['urgent'] === false);
+    }
+
     public function test_prune_command_removes_only_old_read_notifications(): void
     {
         $me = User::factory()->create();

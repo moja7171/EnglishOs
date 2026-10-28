@@ -27,6 +27,7 @@ class PartnerSessionStarted extends Notification
             'icon' => 'heroicon-o-users',
             'title' => "دعوت از {$this->inviter->name}: «{$this->session->mission->title}» رو با هم تمرین کنید",
             'url' => route('partner-sessions.show', $this->session),
+            'sender_id' => $this->inviter->id,
         ];
     }
 }
