@@ -121,6 +121,8 @@ class SentenceChecker
             .'EXCEPTION: if the issue is a spelling mistake, a missing/wrong capital letter, or missing end '
             .'punctuation, say directly what the fix is — that is a fact, not the answer to the exercise. '
             .'Phrase a spelling fix explicitly, e.g. \'"wrok" should be spelled "work".\' Keep the hint to ONE '
-            .'short, simple sentence, no more than 12 words, plain everyday words — no jargon.';
+            .'short, simple sentence, no more than 12 words, plain everyday words — no jargon. '
+            .'When the severity is "none", the hint is still never empty: one short, warm comment on what '
+            .'works well, no more than 8 words (e.g. "Clear and natural.").';
     }
 }

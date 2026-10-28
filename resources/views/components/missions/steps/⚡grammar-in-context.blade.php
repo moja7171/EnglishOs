@@ -606,7 +606,7 @@ new class extends Component
                 @break
 
             @case('quick')
-                <section x-show="screen === {{ $screenIndex }}" x-cloak>
+                <section x-show="screen === {{ $screenIndex }}" x-cloak class="animate-lesson-screen-in">
                     <x-quick-round
                         lesson
                         label="Fix the sentence"
@@ -619,7 +619,7 @@ new class extends Component
                 @break
 
             @case('order')
-                <section x-show="screen === {{ $screenIndex }}" x-cloak>
+                <section x-show="screen === {{ $screenIndex }}" x-cloak class="animate-lesson-screen-in">
                     <x-word-order-round
                         lesson
                         :cards="$this->wordOrderCards()"
@@ -659,7 +659,7 @@ new class extends Component
                     <x-slot:actions>
                         @if ($isChecked)
                             <x-answer-sheet when="! edited[{{ $index }}]" :tone="$sheetTone" :title="$sheetTitle">
-                                @if ($severity !== 'none' && filled($itemFeedback['hint'] ?? null))
+                                @if (filled($itemFeedback['hint'] ?? null))
                                     {{ $itemFeedback['hint'] }}
                                 @endif
                                 <x-almost-reveal-notice :show="$this->isAlmostRevealing($index)" />

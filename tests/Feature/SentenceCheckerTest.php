@@ -82,6 +82,25 @@ class SentenceCheckerTest extends TestCase
         );
     }
 
+    public function test_it_asks_for_a_short_comment_even_when_the_sentence_is_good(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, 'When the severity is "none", the hint is still never empty'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear and natural.']));
+        });
+
+        $result = app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I get up at six every day.',
+        );
+
+        $this->assertSame('Clear and natural.', $result['hint']);
+    }
+
     public function test_it_throws_on_malformed_ai_output(): void
     {
         $this->mock(GeminiClient::class, function ($mock) {

@@ -605,7 +605,7 @@ new class extends Component
         </x-slot:actions>
     </x-lesson-screen>
 
-    <section x-show="screen === {{ $quizScreen }}" x-cloak class="pt-2">
+    <section x-show="screen === {{ $quizScreen }}" x-cloak class="animate-lesson-screen-in pt-2">
         <x-quick-round
             lesson
             :cards="$this->quizCards()"
@@ -649,7 +649,7 @@ new class extends Component
                         :tone="$sheetTone"
                         :title="$sheetTitle"
                     >
-                        @if ($severity !== 'none' && filled($itemFeedback['hint'] ?? null))
+                        @if (filled($itemFeedback['hint'] ?? null))
                             {{ $itemFeedback['hint'] }}
                         @endif
                         <x-almost-reveal-notice :show="$this->isAlmostRevealing($word)" />

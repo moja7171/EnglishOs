@@ -2,7 +2,7 @@
     The bottom of a "write or say it, then Check" lesson screen (New Words,
     Grammar Time, Reading): a full-width Check while the answer is new or
     edited, and once it is checked, the answer sheet — ✓ Great! / Almost! /
-    Not quite with the one-line hint, then Continue (or Try again, plus
+    Not quite with the one-line comment (also when it is right), then Continue (or Try again, plus
     "Show me a right one" after enough tries, when it's not right yet).
 
     @param int|string $index The answer's key, as the page's Alpine
@@ -28,7 +28,7 @@
 
 @if ($checked)
     <x-answer-sheet when="! edited[{{ Illuminate\Support\Js::from($index) }}]" :tone="$tone" :title="$title">
-        @if ($severity !== 'none' && filled($feedback['hint'] ?? null))
+        @if (filled($feedback['hint'] ?? null))
             {{ $feedback['hint'] }}
         @endif
         @if ($severity === 'none' && isset($extra))

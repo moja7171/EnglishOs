@@ -406,7 +406,7 @@ new class extends Component
     </x-lesson-screen>
 
     @if ($quizScreen)
-        <section x-show="screen === {{ $quizScreen }}" x-cloak class="pt-2">
+        <section x-show="screen === {{ $quizScreen }}" x-cloak class="animate-lesson-screen-in pt-2">
             <x-quick-round
                 lesson
                 :cards="$cards"

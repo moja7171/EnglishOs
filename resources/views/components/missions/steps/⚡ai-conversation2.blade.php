@@ -599,7 +599,7 @@ new class extends Component
     </x-lesson-screen>
 
     {{-- The Q&A rounds and "Your turn — ask me" as one chat. --}}
-    <section x-show="screen === 1" x-cloak class="flex min-h-[calc(100dvh-11rem)] flex-col pt-2">
+    <section x-show="screen === 1" x-cloak class="animate-lesson-screen-in flex min-h-[calc(100dvh-11rem)] flex-col pt-2">
         @if ($this->run->mission->scaffoldLevel() === App\Models\Mission::SCAFFOLD_MINIMAL && ! $this->qaRoundsDone)
             <button type="button" x-on:click="noPrep = ! noPrep" class="flex w-fit cursor-pointer items-center gap-2 self-end rounded-full bg-surface px-3 py-1.5 text-xs font-extrabold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">
                 No-prep challenge
