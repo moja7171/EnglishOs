@@ -59,9 +59,6 @@
         second listen of a lesson).
     @param string|null $textPanelClass Classes for the inline text panel, e.g. a taller, larger one
         under the controls of the full-screen Listening player.
-    @param bool $textSheet With $podcast: the text opens as a bottom sheet
-        over the player, with a small play/pause and time on top of it,
-        behind one "Text" button (the /listening full-screen player).
 --}}
 @props([
     'url',
@@ -75,12 +72,11 @@
     'resumeKey' => null,
     'podcast' => false,
     'textOpenWhen' => null,
-    'textSheet' => false,
     'textPanelClass' => null,
 ])
 
 @php
-    $panelClass = $textSheet ? 'min-h-0 flex-1 text-base' : $textPanelClass;
+    $panelClass = $textPanelClass;
 @endphp
 
 @if (! empty($url))
@@ -362,11 +358,7 @@
         </div>
 
         @if ($resumeKey)
-            <p x-show="resumedFrom !== null" x-cloak @class([
-                'mt-1 text-center text-xs',
-                'text-ink-faint dark:text-ink-faint-dark' => ! $textSheet,
-                'mx-auto mt-3 w-fit rounded-full bg-accent-soft px-3 py-1 font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark' => $textSheet,
-            ])>
+            <p x-show="resumedFrom !== null" x-cloak class="mt-1 text-center text-xs text-ink-faint dark:text-ink-faint-dark">
                 Continue from <span x-text="formatTime(resumedFrom)"></span>
             </p>
         @endif
@@ -443,11 +435,7 @@
                     class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
                 >
                     @svg('heroicon-o-document-text', 'h-4 w-4')
-                    @if ($textSheet)
-                        <span>Text</span>
-                    @else
-                        <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
-                    @endif
+                    <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
                 </button>
 
                 @unless ($podcast)
@@ -473,35 +461,6 @@
                 </label>
                 @endunless
             </div>
-        @endif
-
-        @if ($textSheet && count($segments))
-            {{-- The text as a bottom sheet over the player, with its own
-                 small play/pause on top so it can be followed hands-free. --}}
-            <div x-show="showText" x-cloak x-on:click="showText = false" x-transition.opacity aria-hidden="true" class="fixed inset-0 z-[55] bg-ink/40"></div>
-            <div
-                x-show="showText"
-                x-cloak
-                x-swipe-close="showText = false"
-                x-back-close="{ open: showText, close: () => showText = false }"
-                x-on:keydown.escape.window="showText = false"
-                x-transition:enter="transition duration-200 ease-out motion-reduce:duration-0"
-                x-transition:enter-start="translate-y-full"
-                x-transition:enter-end="translate-y-0"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Text"
-                class="fixed inset-x-0 top-14 bottom-0 z-[56] mx-auto flex w-full max-w-lg flex-col gap-3 rounded-t-3xl border border-b-0 border-line bg-surface px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl dark:border-line-dark dark:bg-surface-dark"
-            >
-                <div class="mx-auto h-1 w-10 shrink-0 rounded-full bg-line dark:bg-line-dark" aria-hidden="true"></div>
-                <div class="flex shrink-0 items-center gap-3 rounded-2xl bg-surface-sunken px-2.5 py-2 dark:bg-surface-sunken-dark">
-                    <button type="button" x-on:click="togglePlay()" x-bind:aria-label="playing ? 'Pause' : 'Play'" class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">
-                        <span x-show="!playing">@svg('heroicon-s-play', 'ml-0.5 h-4 w-4')</span>
-                        <span x-show="playing" x-cloak>@svg('heroicon-s-pause', 'h-4 w-4')</span>
-                    </button>
-                    <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark"><div class="h-full rounded-full bg-accent dark:bg-accent-dark" :style="`width: ${progressPercent}%`"></div></div>
-                    <span class="shrink-0 text-xs font-extrabold text-ink-soft tabular-nums dark:text-ink-soft-dark" x-text="formatTime(currentTime)"></span>
-                </div>
         @endif
 
         @if (count($segments) && filled($segments[0]['speaker'] ?? null))
@@ -586,10 +545,6 @@
                             : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
                     >{{ $segment['text'] }}</p>
                 @endforeach
-            </div>
-        @endif
-
-        @if ($textSheet && count($segments))
             </div>
         @endif
 

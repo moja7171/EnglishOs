@@ -374,6 +374,8 @@ new class extends Component
                             {{ $sourceShort }}{{ $pick['min'] ? ' · '.$pick['min'].' min' : '' }}
                             @if ($listens > 0)
                                 <span class="rounded-full bg-success-soft px-1.5 font-extrabold text-success dark:bg-success-soft-dark dark:text-success-dark">✓ {{ $listens > 1 ? $listens.'×' : 'Heard' }}</span>
+                            @elseif (! $this->isAhead)
+                                <span class="rounded-full bg-surface-sunken px-1.5 font-extrabold text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">Not heard yet</span>
                             @endif
                         </span>
                         @if ($pick['local'])
@@ -423,7 +425,7 @@ new class extends Component
                         aria-label="{{ $pick['title'] }}"
                         class="fixed inset-0 z-50 overflow-y-auto bg-ground dark:bg-ground-dark"
                     >
-                        <div x-data="{ menu: false }" class="mx-auto flex min-h-full max-w-lg flex-col gap-4 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-8">
+                        <div x-data="{ menu: false, listens: {{ $listens }} }" class="mx-auto flex min-h-full max-w-lg flex-col gap-4 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-8">
                             <div class="relative flex items-center gap-2">
                                 <button type="button" x-on:click="open = null" aria-label="Back to the list" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-down', 'h-6 w-6')</button>
                                 <span class="flex-1 text-center text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $missionCode }} · Day {{ $day }}</span>
@@ -445,7 +447,8 @@ new class extends Component
                             </div>
                             <div>
                                 <p class="text-lg leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $pick['title'] }}</p>
-                                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $source }}@if ($listens > 0) · 🎧 {{ $listens }}×@endif</p>
+                                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $source }}</p>
+                                <p class="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-extrabold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-speaker-wave', 'h-3.5 w-3.5') Listens: <span class="tabular-nums" x-text="listens">{{ $listens }}</span></p>
                             </div>
 
                             <template x-if="loaded">
@@ -454,7 +457,7 @@ new class extends Component
                                     text-panel-class="mt-4 max-h-[45dvh] text-base"
                                     :url="$pick['local']['audioUrl']"
                                     :segments="$this->localSegments[$level] ?? []"
-                                    :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.')'"
+                                    :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.'); listens++'"
                                     :resume-key="$this->isAhead ? null : $resumeKey"
                                 />
                             </template>
