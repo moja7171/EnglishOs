@@ -814,4 +814,237 @@ class PairPracticeTest extends TestCase
             ->assertSee('4th time together')
             ->assertSee('🔥 2 days');
     }
+
+    /**
+     * A round on its first game card, started by user A.
+     *
+     * @param  array<string, mixed>  $card
+     */
+    private function gameRound(array $card): PairPracticeSession
+    {
+        $session = PairPracticeSession::factory()->create();
+        $session->update([
+            'deck' => [...$session->deck, PairPracticeSession::STAGE_GAME => [$card, $card]],
+            'stage' => PairPracticeSession::STAGE_GAME,
+            'stage_ends_at' => now()->addMinutes(3),
+        ]);
+
+        return $session->refresh();
+    }
+
+    public function test_a_round_ends_with_one_game_made_from_the_days_it_draws_from(): void
+    {
+        $mission = $this->makeMission();
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $this->finishDays($me, $mission, [1, 2]);
+        $this->finishDays($friend, $mission, [1, 2]);
+
+        $session = app(PairPractice::class)->start($me, $friend);
+        $cards = collect($session->deck['game']);
+
+        $this->assertContains($session->game(), PairPracticeSession::GAMES);
+        $this->assertNotEmpty($cards);
+        $this->assertCount(1, $cards->pluck('type')->unique());
+        $this->assertLessThanOrEqual(PairPractice::GAME_CARDS[$session->game()], $cards->count());
+    }
+
+    public function test_a_second_round_the_same_day_plays_a_different_game_until_all_four_were_played(): void
+    {
+        $mission = $this->makeMission();
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $other = $this->makeMutualFriend($me);
+        $this->finishDays($me, $mission, [1, 2]);
+        $this->finishDays($friend, $mission, [1, 2]);
+        $this->finishDays($other, $mission, [1, 2]);
+
+        $games = [];
+
+        foreach ([$friend, $other, $friend, $other] as $partner) {
+            $session = app(PairPractice::class)->start($me, $partner);
+            $games[] = $session->game();
+            $session->update(['results' => [['stage' => 'game', 'card' => 0, 'speaker_id' => $me->id, 'points' => 0, 'correct' => false, 'heard' => null, 'at' => now()->getTimestamp()]]]);
+        }
+
+        $this->assertEqualsCanonicalizing(PairPracticeSession::GAMES, $games);
+    }
+
+    public function test_a_game_nobody_played_is_not_used_up_by_a_round_that_ended_before_it(): void
+    {
+        $mission = $this->makeMission();
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $this->finishDays($me, $mission, [1, 2]);
+        $this->finishDays($friend, $mission, [1, 2]);
+
+        $games = collect(range(1, 8))->map(fn () => app(PairPractice::class)->start($me, $friend)->game())->unique();
+
+        $this->assertCount(1, $games);
+    }
+
+    public function test_the_game_follows_the_last_speaking_card(): void
+    {
+        $session = PairPracticeSession::factory()->create();
+        $session->update([
+            'deck' => [...$session->deck, PairPracticeSession::STAGE_GAME => [['type' => 'truths', 'topic' => 'Your morning', 'hint' => null, 'source' => 'Two truths and a lie', 'key' => 'u:Your morning']]],
+            'stage' => PairPracticeSession::STAGE_SPEAKING,
+        ]);
+        $session->refresh()->record(1, null, []);
+
+        $this->assertSame(PairPracticeSession::STAGE_GAME, $session->stage);
+        $this->assertEqualsWithDelta(now()->addSeconds(PairPracticeSession::STAGE_SECONDS[PairPracticeSession::STAGE_GAME])->getTimestamp(), $session->stage_ends_at->getTimestamp(), 3);
+    }
+
+    public function test_a_round_drawn_before_the_games_existed_finishes_after_speaking(): void
+    {
+        $session = PairPracticeSession::factory()->create();
+        $session->update(['stage' => PairPracticeSession::STAGE_SPEAKING]);
+        $session->refresh()->record(1, null, []);
+
+        $this->assertTrue($session->isFinished());
+        $this->assertNull($session->game());
+    }
+
+    public function test_taboo_hides_the_word_from_the_guesser_and_a_guess_scores_for_both(): void
+    {
+        $session = $this->gameRound(['type' => 'taboo', 'word' => 'morning person', 'banned' => ['morning', 'person'], 'hint' => 'someone with lots of energy early', 'source' => 'M01 · Day 1', 'key' => 't:morning person']);
+        [$speaker, $judge] = $session->players();
+
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('morning person')
+            ->assertSee('Don’t say');
+
+        $this->actingAs($judge);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('Guess the word!')
+            ->assertDontSee('morning person')
+            ->call('playGame', true, 0);
+
+        $session->refresh();
+        $this->assertSame(1, $session->scoreFor($speaker));
+        $this->assertSame(1, $session->scoreFor($judge));
+    }
+
+    public function test_taboo_skip_scores_nothing_and_only_the_guesser_can_score(): void
+    {
+        $session = $this->gameRound(['type' => 'taboo', 'word' => 'commute', 'banned' => ['commute'], 'hint' => null, 'source' => 'M01 · Day 1', 'key' => 't:commute']);
+        [$speaker, $judge] = $session->players();
+
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session])->call('playGame', true, 0);
+        $this->assertSame([], $session->refresh()->results);
+
+        $this->actingAs($judge);
+        Livewire::test('pair-practice.session', ['session' => $session])->call('playGame', false, 0);
+        $session->refresh();
+        $this->assertSame(0, $session->scoreFor($speaker) + $session->scoreFor($judge));
+        $this->assertCount(1, $session->results);
+    }
+
+    public function test_the_sound_duel_scores_both_when_the_listener_taps_the_word_that_was_said(): void
+    {
+        $card = ['type' => 'minimal', 'say' => 'ship', 'other' => 'sheep', 'options' => ['sheep', 'ship'], 'tip' => 'short i / long ee', 'source' => 'Pronunciation', 'key' => 'm:ship-sheep'];
+        $session = $this->gameRound($card);
+        [$speaker, $judge] = $session->players();
+
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session])->assertSee('ship')->assertSee('not “sheep”');
+
+        $this->actingAs($judge);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('Which word did you hear?')
+            ->call('pickWord', 'sheep', 0);
+
+        $session->refresh();
+        $this->assertFalse($session->results[0]['correct']);
+        $this->assertSame(0, $session->scoreFor($speaker) + $session->scoreFor($judge));
+
+        // Roles swapped: the first speaker listens now.
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session])->call('pickWord', 'ship', 1);
+        $session->refresh();
+        $this->assertSame(1, $session->scoreFor($speaker));
+        $this->assertSame(1, $session->scoreFor($judge));
+    }
+
+    public function test_role_play_shows_each_player_only_their_own_secret_goal(): void
+    {
+        $session = $this->gameRound([
+            'type' => 'role',
+            'scene' => 'At a restaurant',
+            'speaker' => ['role' => 'A customer who is vegetarian', 'goal' => 'Order a dish with no meat.'],
+            'judge' => ['role' => 'The waiter', 'goal' => 'Sell a dessert.'],
+            'source' => 'M04 · Role-play',
+            'key' => 'r:M04-0',
+        ]);
+        [$speaker, $judge] = $session->players();
+
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('Order a dish with no meat.')
+            ->assertDontSee('Sell a dessert.');
+
+        $this->actingAs($judge);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('Sell a dessert.')
+            ->assertDontSee('Order a dish with no meat.')
+            ->call('playGame', true, 0);
+
+        $session->refresh();
+        $this->assertSame(1, $session->scoreFor($speaker));
+        $this->assertSame(1, $session->scoreFor($judge));
+    }
+
+    public function test_two_truths_a_found_lie_scores_the_guesser_and_a_fooled_guesser_scores_the_speaker(): void
+    {
+        $session = $this->gameRound(['type' => 'truths', 'topic' => 'Your last weekend', 'hint' => null, 'source' => 'Two truths and a lie', 'key' => 'u:Your last weekend']);
+        [$speaker, $judge] = $session->players();
+
+        $this->actingAs($judge);
+        $component = Livewire::test('pair-practice.session', ['session' => $session])->assertSee('Find the lie!');
+
+        $component->call('playGame', true, 0);
+        $session->refresh();
+        $this->assertSame(0, $session->scoreFor($speaker));
+        $this->assertSame(1, $session->scoreFor($judge));
+
+        // Roles swapped: the first speaker now judges and is fooled.
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session])->call('playGame', false, 1);
+        $session->refresh();
+        $this->assertSame(2, $session->scoreFor($judge));
+        $this->assertSame(0, $session->scoreFor($speaker));
+    }
+
+    public function test_the_waiting_screen_names_the_game_of_the_day(): void
+    {
+        $session = PairPracticeSession::factory()->waiting()->create();
+        $session->update(['deck' => [...$session->deck, PairPracticeSession::STAGE_GAME => [['type' => 'taboo', 'word' => 'commute', 'banned' => ['commute'], 'hint' => null, 'source' => 'M01', 'key' => 't:commute']]]]);
+
+        $this->actingAs($session->userA);
+        Livewire::test('pair-practice.session', ['session' => $session->refresh()])->assertSee('Today’s game · Taboo');
+    }
+
+    public function test_two_truths_topics_only_use_grammar_the_rounds_missions_have_taught(): void
+    {
+        $service = app(PairPractice::class);
+        $topics = new \ReflectionMethod($service, 'truthCards');
+        $history = ['seen' => [], 'missed' => []];
+        config(['pair_games.truth_topics' => [['Your morning', 'hint', 1], ['Your last weekend', 'hint', 6], ['Your plans for next week', 'hint', 11]]]);
+
+        $this->assertSame(['Your morning'], collect($topics->invoke($service, $history, 1))->pluck('topic')->all());
+        $this->assertEqualsCanonicalizing(['Your morning', 'Your last weekend'], collect($topics->invoke($service, $history, 6))->pluck('topic')->all());
+    }
+
+    public function test_a_sound_duel_tip_names_the_sound_of_the_word_to_say(): void
+    {
+        config(['pair_games.minimal_pairs' => [['three', 'tree', 'th / t']]]);
+        $service = app(PairPractice::class);
+        $cards = (new \ReflectionMethod($service, 'minimalCards'))->invoke($service, ['seen' => [], 'missed' => []]);
+
+        $this->assertSame($cards[0]['say'] === 'three' ? 'th, not t' : 't, not th', $cards[0]['tip']);
+        $this->assertEqualsCanonicalizing(['three', 'tree'], [$cards[0]['say'], $cards[0]['other']]);
+    }
 }

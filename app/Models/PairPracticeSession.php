@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 /**
  * One Pair Practice round: two friends, each on their own phone (side by
- * side or on a video call), ~12 minutes of vocabulary, grammar and speaking
+ * side or on a video call), ~12 minutes of vocabulary, grammar, speaking and a game
  * cards. It waits until the invited friend joins. Roles swap on every card
  * — the speaker sees only the prompt and answers out loud, the judge sees
  * the answer and scores it.
@@ -30,6 +30,12 @@ class PairPracticeSession extends Model
 
     public const STAGE_SPEAKING = 'speaking';
 
+    /**
+     * The finale: one short game per round (see GAMES), played with the
+     * same speaker / judge turns as the other stages.
+     */
+    public const STAGE_GAME = 'game';
+
     public const STAGE_DONE = 'done';
 
     /**
@@ -44,8 +50,23 @@ class PairPracticeSession extends Model
     public const STAGE_SECONDS = [
         self::STAGE_VOCABULARY => 180,
         self::STAGE_GRAMMAR => 180,
-        self::STAGE_SPEAKING => 360,
+        self::STAGE_SPEAKING => 180,
+        self::STAGE_GAME => 180,
     ];
+
+    /**
+     * The games, in the order they take turns. Each game's cards have this
+     * as their 'type'.
+     */
+    public const GAME_TABOO = 'taboo';
+
+    public const GAME_MINIMAL = 'minimal';
+
+    public const GAME_ROLE = 'role';
+
+    public const GAME_TRUTHS = 'truths';
+
+    public const GAMES = [self::GAME_TABOO, self::GAME_MINIMAL, self::GAME_ROLE, self::GAME_TRUTHS];
 
     /**
      * How long the invited friend has to join before the invite expires.
@@ -298,13 +319,24 @@ class PairPracticeSession extends Model
     }
 
     /**
+     * Which game this round ends with, or null for a round drawn before
+     * the games existed.
+     */
+    public function game(): ?string
+    {
+        return $this->deck[self::STAGE_GAME][0]['type'] ?? null;
+    }
+
+    /**
      * Scores the current card for its speaker and moves on; the stage ends
      * early when its cards run out. $correct is null for speaking cards,
-     * which earn one point per target word the asker heard ($heard).
+     * which earn one point per target word the asker heard ($heard). The
+     * games are played as a team, so they can also give the judge points
+     * ($judgePoints).
      *
      * @param  list<string>  $heard
      */
-    public function record(int $points, ?bool $correct, array $heard = []): void
+    public function record(int $points, ?bool $correct, array $heard = [], int $judgePoints = 0): void
     {
         if ($this->isFinished() || $this->currentCard() === null) {
             return;
@@ -312,12 +344,14 @@ class PairPracticeSession extends Model
 
         $speaker = $this->speaker();
         $points = max(0, $points);
+        $judgePoints = max(0, $judgePoints);
 
         $this->results = [...($this->results ?? []), [
             'stage' => $this->stage,
             'card' => $this->positionInStage(),
             'speaker_id' => $speaker->id,
             'points' => $points,
+            'judge_points' => $judgePoints,
             'correct' => $correct,
             'heard' => $correct === null ? array_values($heard) : null,
             'at' => now()->getTimestamp(),
@@ -325,8 +359,10 @@ class PairPracticeSession extends Model
 
         if ($speaker->id === $this->user_a_id) {
             $this->score_a += $points;
+            $this->score_b += $judgePoints;
         } else {
             $this->score_b += $points;
+            $this->score_a += $judgePoints;
         }
 
         if ($this->currentCard() === null) {
@@ -340,7 +376,7 @@ class PairPracticeSession extends Model
 
     /**
      * Opens the next stage that has cards (with a fresh time box), or ends
-     * the round after speaking.
+     * the round after the game.
      */
     public function advanceStage(): void
     {

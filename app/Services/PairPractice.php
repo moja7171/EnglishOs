@@ -24,16 +24,27 @@ class PairPractice
 
     public const GRAMMAR_CARDS = 8;
 
-    public const SPEAKING_CARDS = 6;
+    public const SPEAKING_CARDS = 4;
 
     /**
      * Speaking cards that ask for a short talk using a few words from the
      * round's own word cards — a new mix every round, so speaking never
      * runs out. More fill in when a day has too few authored questions.
      */
-    public const WORD_TALK_CARDS = 2;
+    public const WORD_TALK_CARDS = 1;
 
     public const WORD_TALK_SIZE = 3;
+
+    /**
+     * Cards each game plays in its 3 minutes — a role scene or a lie takes
+     * longer than a word to guess.
+     */
+    public const GAME_CARDS = [
+        PairPracticeSession::GAME_TABOO => 4,
+        PairPracticeSession::GAME_MINIMAL => 6,
+        PairPracticeSession::GAME_ROLE => 2,
+        PairPracticeSession::GAME_TRUTHS => 2,
+    ];
 
     /**
      * Grammar cards per player taken from that player's own Error Log,
@@ -197,7 +208,8 @@ class PairPractice
      * ones. Either way cards either of the two saw in the last day go to
      * the back and the ones they missed come first; each player gets a
      * sentence from their own Error Log, and speaking adds "talk using
-     * these words" cards. Null when they share no finished day yet.
+     * these words" cards. The round ends with a game — the one the two
+     * have played least lately. Null when they share no finished day yet.
      *
      * @param  list<string>|null  $days
      */
@@ -239,6 +251,8 @@ class PairPractice
 
         $deck[PairPracticeSession::STAGE_GRAMMAR] = $this->withOwnErrors($deck[PairPracticeSession::STAGE_GRAMMAR], [$starter, $friend], $chosen->isNotEmpty() ? $chosen : $shared, $history);
         $deck[PairPracticeSession::STAGE_SPEAKING] = $this->withWordTalks($deck[PairPracticeSession::STAGE_SPEAKING], $deck[PairPracticeSession::STAGE_VOCABULARY]);
+
+        $deck[PairPracticeSession::STAGE_GAME] = $this->gameCards($starter, $friend, $chosen->isNotEmpty() ? $chosen : $shared, $latest['mission'], $deck[PairPracticeSession::STAGE_VOCABULARY], $history);
 
         [$lowId, $highId] = $starter->id < $friend->id ? [$starter->id, $friend->id] : [$friend->id, $starter->id];
 
@@ -546,5 +560,173 @@ class PairPractice
         }
 
         return [...$cards, ...$talks->all()];
+    }
+
+    /**
+     * The finale's cards: one game for the whole stage — the one either of
+     * the two played least in the last SEEN_HOURS (so a second round the
+     * same day is a different game), taking turns from the last one played
+     * when they are tied. A game with no cards to offer is skipped.
+     *
+     * @param  Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>  $days
+     * @param  list<array<string, mixed>>  $vocabulary
+     * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
+     * @return list<array<string, mixed>>
+     */
+    private function gameCards(User $a, User $b, Collection $days, Mission $latest, array $vocabulary, array $history): array
+    {
+        $played = $this->recentGames([$a->id, $b->id]);
+        $games = PairPracticeSession::GAMES;
+        $lastIndex = array_search($played->first(), $games, true);
+        $lastIndex = $lastIndex === false ? -1 : $lastIndex;
+
+        $order = collect($games)->sortBy(fn (string $game) => $played->filter(fn (string $name) => $name === $game)->count() * 10
+            + (array_search($game, $games, true) - $lastIndex - 1 + count($games)) % count($games));
+
+        foreach ($order as $game) {
+            $cards = match ($game) {
+                PairPracticeSession::GAME_TABOO => $this->tabooCards($vocabulary, $history),
+                PairPracticeSession::GAME_MINIMAL => $this->minimalCards($history),
+                PairPracticeSession::GAME_ROLE => $this->roleCards($days, $latest, $history),
+                PairPracticeSession::GAME_TRUTHS => $this->truthCards($history, $days->map(fn (array $day) => $day['mission']->number())->max() ?? 1),
+            };
+
+            if ($cards !== []) {
+                return $cards;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * The games either player actually played (at least one game card
+     * answered) in the last SEEN_HOURS with anyone, newest first.
+     *
+     * @param  list<int>  $ids
+     * @return Collection<int, string>
+     */
+    private function recentGames(array $ids): Collection
+    {
+        return PairPracticeSession::query()
+            ->where(fn ($query) => $query->whereIn('user_a_id', $ids)->orWhereIn('user_b_id', $ids))
+            ->where('created_at', '>=', now()->subHours(self::SEEN_HOURS))
+            ->latest()
+            ->get()
+            ->filter(fn (PairPracticeSession $session) => $session->game() !== null
+                && collect($session->results ?? [])->contains('stage', PairPracticeSession::STAGE_GAME))
+            ->map(fn (PairPracticeSession $session) => $session->game())
+            ->values();
+    }
+
+    /**
+     * Taboo: explain a word from this round's word cards without saying it
+     * (or any part of it); the other player guesses.
+     *
+     * @param  list<array<string, mixed>>  $vocabulary
+     * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
+     * @return list<array<string, mixed>>
+     */
+    private function tabooCards(array $vocabulary, array $history): array
+    {
+        $cards = collect($vocabulary)
+            ->filter(fn (array $card) => filled($card['answer'] ?? null))
+            ->map(function (array $card) {
+                $banned = collect(preg_split('/[\s\-]+/', mb_strtolower($card['answer'])))
+                    ->filter(fn (string $part) => mb_strlen($part) >= 3)
+                    ->unique()
+                    ->values();
+
+                return [
+                    'type' => PairPracticeSession::GAME_TABOO,
+                    'word' => $card['answer'],
+                    'banned' => $banned->isEmpty() ? [$card['answer']] : $banned->all(),
+                    'hint' => $card['meaning'] ?? null,
+                    'source' => $card['source'] ?? 'Words from this round',
+                    'key' => 't:'.mb_strtolower($card['answer']),
+                ];
+            })
+            ->shuffle();
+
+        return $this->prioritize($cards, $history)->take(self::GAME_CARDS[PairPracticeSession::GAME_TABOO])->values()->all();
+    }
+
+    /**
+     * Pronunciation duel: say one of two look-alike words, the other
+     * player taps the one they heard.
+     *
+     * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
+     * @return list<array<string, mixed>>
+     */
+    private function minimalCards(array $history): array
+    {
+        $cards = collect(config('pair_games.minimal_pairs', []))
+            ->shuffle()
+            ->map(function (array $pair) {
+                $say = random_int(0, 1);
+                $sounds = explode(' / ', $pair[2] ?? '');
+
+                return [
+                    'type' => PairPracticeSession::GAME_MINIMAL,
+                    'say' => $pair[$say],
+                    'other' => $pair[1 - $say],
+                    'options' => collect([$pair[0], $pair[1]])->shuffle()->all(),
+                    'tip' => count($sounds) === 2 ? $sounds[$say].', not '.$sounds[1 - $say] : null,
+                    'source' => 'Pronunciation',
+                    'key' => 'm:'.$pair[0].'-'.$pair[1],
+                ];
+            });
+
+        return $this->prioritize($cards, $history)->take(self::GAME_CARDS[PairPracticeSession::GAME_MINIMAL])->values()->all();
+    }
+
+    /**
+     * Secret-goal role-play from the round's missions: the newest mission's
+     * scenes first, then the rest.
+     *
+     * @param  Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>  $days
+     * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
+     * @return list<array<string, mixed>>
+     */
+    private function roleCards(Collection $days, Mission $latest, array $history): array
+    {
+        $codes = $days->map(fn (array $day) => $day['mission']->code)->unique()->reject(fn (string $code) => $code === $latest->code);
+        $scenes = fn (string $code) => collect(config('pair_games.roles.'.$code, []))
+            ->map(fn (array $scene, int $index) => [
+                'type' => PairPracticeSession::GAME_ROLE,
+                'scene' => $scene['scene'],
+                'speaker' => $scene['a'],
+                'judge' => $scene['b'],
+                'source' => $code.' · Role-play',
+                'key' => 'r:'.$code.'-'.$index,
+            ])
+            ->shuffle();
+
+        $cards = $scenes($latest->code)->concat($codes->shuffle()->flatMap($scenes));
+
+        return $this->prioritize($cards, $history)->take(self::GAME_CARDS[PairPracticeSession::GAME_ROLE])->values()->all();
+    }
+
+    /**
+     * Two truths and a lie: a topic to say three things about, one whose
+     * grammar the round's newest mission has already taught.
+     *
+     * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
+     * @return list<array<string, mixed>>
+     */
+    private function truthCards(array $history, int $missionNumber): array
+    {
+        $cards = collect(config('pair_games.truth_topics', []))
+            ->filter(fn (array $topic) => ($topic[2] ?? 1) <= $missionNumber)
+            ->shuffle()
+            ->map(fn (array $topic) => [
+                'type' => PairPracticeSession::GAME_TRUTHS,
+                'topic' => $topic[0],
+                'hint' => $topic[1] ?? null,
+                'source' => 'Two truths and a lie',
+                'key' => 'u:'.$topic[0],
+            ]);
+
+        return $this->prioritize($cards, $history)->take(self::GAME_CARDS[PairPracticeSession::GAME_TRUTHS])->values()->all();
     }
 }
