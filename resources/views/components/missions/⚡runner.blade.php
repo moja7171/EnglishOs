@@ -392,7 +392,6 @@ new class extends Component
             'error_log' => 'missions.steps.error-log',
             'ai_conversation_2' => 'missions.steps.ai-conversation2',
             'mission_result' => 'missions.steps.mission-result',
-            'partner_speaking_session' => 'missions.steps.partner-speaking-session',
         ];
     }
 
@@ -445,7 +444,6 @@ new class extends Component
             $key === 'writing' => 'heroicon-o-pencil-square',
             $key === 'error_log' => 'heroicon-o-magnifying-glass',
             $key === 'mission_result' => 'heroicon-o-flag',
-            $key === 'partner_speaking_session' => 'heroicon-o-user-group',
             default => 'heroicon-o-map-pin',
         };
     }

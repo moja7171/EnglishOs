@@ -101,9 +101,7 @@ class PartnerSession extends Model
      * something in this session — real activity, not just the session
      * existing. Falls back to when the session itself was started if the
      * partner hasn't answered anything yet, so a brand-new session never
-     * looks "stale" the instant it's created. Used to offer switching to
-     * solo practice when a partner has gone quiet (see
-     * partner-speaking-session.blade.php's 48h banner).
+     * looks "stale" the instant it's created.
      */
     public function partnerLastActivityAt(User $partner): Carbon
     {
