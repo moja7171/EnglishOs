@@ -300,7 +300,7 @@ new class extends Component
         wire:key="error-log-fixes"
         x-data="{ screen: 0, filled: @js(collect($newExamples)->map(fn ($e) => trim((string) $e) !== '')->all()) }"
         x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $total + 1 }} })"
-        x-back-close="{ open: screen > 0, close: () => screen-- }"
+        x-back-close.step="{ open: screen > 0, close: () => screen-- }"
     >
         @foreach ($mistakes as $i => $item)
             <x-lesson-screen when="screen === {{ $i }}">

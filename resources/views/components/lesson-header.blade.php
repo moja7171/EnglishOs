@@ -2,7 +2,8 @@
     The top row of anything that runs like a lesson — a mission step, the
     Daily Review, the placement test, a checkpoint: ✕ on the left, one
     progress bar, then a small "3/8" counter and/or the page's own icon
-    button (the slot) on the right. Only the row; the page decides whether
+    button (the slot) on the right. A ‹ appears after ✕ while a lesson step
+    has an earlier screen to go back to. Only the row; the page decides whether
     it is pinned (the mission step bar pins it with its day line).
 
     @param string|null $close Where ✕ goes.
@@ -25,6 +26,9 @@
     @else
         <a href="{{ $close }}" wire:navigate aria-label="Close" class="{{ $closeClass }}">@svg('heroicon-o-x-mark', 'h-6 w-6')</a>
     @endif
+
+    {{-- ‹ shows only while a lesson step has an earlier screen (x-back-close.step in app.js) and goes there like the phone's Back. --}}
+    <button type="button" x-data x-show="$store.stepBack.open" x-cloak x-on:click="history.back()" aria-label="Previous screen" class="{{ $closeClass }} -ml-2">@svg('heroicon-o-chevron-left', 'h-6 w-6')</button>
 
     <div class="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark" aria-hidden="true">
         <div

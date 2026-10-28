@@ -82,6 +82,25 @@ class SentenceCheckerTest extends TestCase
         );
     }
 
+    public function test_it_tells_the_ai_a_sentence_that_makes_no_sense_is_major(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, 'or it makes no sense (words that do not say anything meaningful'))
+                ->andReturn(json_encode(['severity' => 'major', 'hint' => 'Write a real sentence.']));
+        });
+
+        $result = app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'the word is missing',
+            context: 'a test context',
+            text: 'The morning person eats the sky.',
+        );
+
+        $this->assertSame('major', $result['severity']);
+    }
+
     public function test_it_asks_for_a_short_comment_even_when_the_sentence_is_good(): void
     {
         $this->mock(GeminiClient::class, function ($mock) {

@@ -230,7 +230,7 @@ new class extends Component
     }"
     x-effect="$dispatch('step-progress', { share }); if (screen !== 1) $el.querySelectorAll('[data-watch] video').forEach((v) => v.pause()); if (screen < {{ $firstLineScreen }}) $refs.clip?.pause()"
     x-on:quick-round-progress="quizShare = $event.detail.share"
-    x-back-close="{ open: screen > 0, close: () => screen-- }"
+    x-back-close.step="{ open: screen > 0, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="Video Shadowing" :minutes="$run->mission->stepDuration('video_shadowing')" :title="$video['hook'] ?? null" />

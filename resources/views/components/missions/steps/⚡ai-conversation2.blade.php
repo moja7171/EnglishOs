@@ -588,7 +588,7 @@ new class extends Component
 <div
     x-data="{ screen: {{ $startScreen }}, idea: false, noPrep: false }"
     x-effect="$dispatch('step-progress', { share: screen === 1 ? (1 + {{ $chatDone / $chatTotal }}) / 4 : (screen + 0.5) / 4 })"
-    x-back-close="{ open: screen === 1, close: () => screen-- }"
+    x-back-close.step="{ open: screen === 1, close: () => screen-- }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="Final Talk" :minutes="$run->mission->stepDuration('ai_conversation_2')" :title="$content['hook'] ?? null" />
