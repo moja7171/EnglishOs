@@ -19,7 +19,7 @@ class PiSetupTest extends TestCase
 
     public function test_guest_is_redirected_to_login(): void
     {
-        $this->get('/')->assertRedirect('/login');
+        $this->get('/')->assertRedirect('/welcome');
     }
 
     public function test_a_learner_who_has_not_seen_the_guide_reaches_home_with_a_one_line_offer(): void
