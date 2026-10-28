@@ -125,6 +125,16 @@ class DailyListenStepTest extends TestCase
             ->assertDontSee('Show transcript');
     }
 
+    public function test_the_whole_episode_comes_first_then_each_line_and_the_last_one_finishes(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSeeInOrder(['Listen first', 'Say it · 1 of', 'Say it · 2 of'])
+            ->assertSee('Listens:')
+            ->assertSee('Finish');
+    }
+
     public function test_does_not_show_a_pi_practice_card_inside_the_step(): void
     {
         $run = $this->makeRun();

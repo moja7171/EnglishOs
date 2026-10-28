@@ -246,7 +246,6 @@ new class extends Component
     <x-lesson-screen when="screen === 1">
         <div data-watch>
             <x-video-player
-                text-hidden
                 :url="$video['video_url'] ?? ''"
                 :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING, 'manual_report' => true]"
                 :captions-url="$video['captions_url'] ?? null"

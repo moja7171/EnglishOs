@@ -572,7 +572,10 @@ new class extends Component
 {{-- A5: the review runs like a short lesson — ✕, one bar and "3/8" on
      top, one full-screen card, two big buttons at the thumb ("✕ Forget" /
      "✓ I know"), a small Skip. --}}
-<div class="mx-auto flex min-h-[calc(100dvh-6rem)] max-w-2xl flex-col gap-4 p-4 sm:p-6">
+{{-- A fixed-height column (the screen minus the bottom nav): a long card
+     scrolls inside itself while the grading buttons and the answer sheet stay
+     in view, instead of the whole page growing and scrolling. --}}
+<div class="mx-auto flex h-[calc(100dvh-5rem)] max-w-2xl flex-col gap-4 p-4 sm:p-6">
     @if (! $item)
         @if ($this->hasSkippedEverything)
             <div class="flex flex-1 flex-col items-center justify-center gap-2 text-center">
@@ -634,9 +637,9 @@ new class extends Component
         <div
             wire:key="review-{{ $type }}-{{ $model->id }}"
             x-data="{ forgot: false, meaning: false }"
-            class="animate-review-card-in flex flex-1 flex-col gap-4"
+            class="animate-review-card-in flex min-h-0 flex-1 flex-col gap-4"
         >
-            <div class="flex flex-1 flex-col gap-4 rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
+            <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
                 <p class="flex items-center gap-2 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
                     {{ $label }}
                     @if ($type !== 'note')

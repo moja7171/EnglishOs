@@ -451,8 +451,7 @@ new class extends Component
                             <template x-if="loaded">
                                 <x-audio-player
                                     podcast
-                                    text-hidden
-                                    text-sheet
+                                    text-panel-class="mt-4 max-h-[45dvh] text-base"
                                     :url="$pick['local']['audioUrl']"
                                     :segments="$this->localSegments[$level] ?? []"
                                     :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.')'"

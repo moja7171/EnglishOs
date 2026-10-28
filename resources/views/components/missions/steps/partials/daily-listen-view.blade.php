@@ -5,12 +5,11 @@
     audio; shadowing lines and their real pause timestamps are this day's
     own (see DailyListenStep::shadowLines()/shadowTimestamps()).
 
-    Lesson design 4, one task per screen: the start, then each shadow line
+    One task per screen: the start, then the whole episode to LISTEN to first
+    (with its synced text and the "Listens: N" count), then each shadow line
     on its own screen — "▶ Hear it" plays only that line out of the episode
     (its real Whisper timing), the big mic, the check from the bottom, and
-    Continue after any take — then the whole episode with the synced text,
-    optional, and Finish. No more scrolling between a player and a list of
-    recorders below it.
+    Continue after any take. The last line's button is Finish.
 
     @param \App\Models\MissionRun $run
     @param bool $readOnly
@@ -20,7 +19,10 @@
     $shadowLines = $this->shadowLines();
     $shadowTimestamps = $this->shadowTimestamps();
     $lineCount = count($shadowLines);
-    $wholeTalkScreen = $lineCount + 1;
+    // Screens: 0 start · 1 the whole episode (listen first) · 2… one line each.
+    $wholeTalkScreen = 1;
+    $firstLineScreen = 2;
+    $screenCount = $lineCount + 2;
     $listenParams = $preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_LISTENING, 'day_number' => $this->dayNumber(), 'manual_report' => true];
 @endphp
 
@@ -53,7 +55,7 @@
             audio.play();
         },
     }"
-    x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $wholeTalkScreen + 1 }} }); if (screen !== {{ $wholeTalkScreen }}) $el.querySelector('[data-whole-talk] audio')?.pause()"
+    x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $screenCount }} }); if (screen !== {{ $wholeTalkScreen }}) $el.querySelector('[data-whole-talk] audio')?.pause()"
     x-back-close="{ open: screen > 0, close: () => screen-- }"
 >
     {{-- Plays one line at a time out of the episode for "Hear it". --}}
@@ -65,28 +67,12 @@
         <x-step-intro kind="Listen Again" :minutes="$run->mission->stepDuration($this->phaseKey())" :title="$this->hook()" :image="$this->heroImageUrl" />
 
         <x-slot:actions>
-            <x-continue-button on-click="screen = 1" wire-target="save">Start</x-continue-button>
+            <x-continue-button on-click="screen = {{ $wholeTalkScreen }}" wire-target="save">Start</x-continue-button>
         </x-slot:actions>
     </x-lesson-screen>
 
-    @foreach ($shadowLines as $index => $line)
-        <x-shadow-line-screen
-            when="screen === {{ $index + 1 }}"
-            :index="$index"
-            :line="$line"
-            kind="Say it · {{ $index + 1 }} of {{ $lineCount }}"
-            hear="$refs.clip.pause(); hear({{ $index }}, {{ \Illuminate\Support\Js::from(strip_tags(str_replace('**', '', $line))) }})"
-            :recording-url="$draftShadowUrls[$index] ?? null"
-            file-name="{{ $this->phaseKey() }}-shadow-{{ $index }}.webm"
-            :feedback="$feedback['shadow_'.$index] ?? null"
-            :error="$checkErrors['shadow_'.$index] ?? null"
-            next="$refs.clip.pause(); screen++"
-            wire-target="checkShadowLine,save"
-        />
-    @endforeach
-
     <x-lesson-screen when="screen === {{ $wholeTalkScreen }}">
-        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">The whole talk</span>
+        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Listen first</span>
         <div data-whole-talk>
             <x-audio-player
                 podcast
@@ -96,11 +82,27 @@
                 :resume-key="$preview ? null : $this->draftPrefix().'position'"
             />
         </div>
-
         <x-slot:actions>
-            <x-continue-button on-click="$wire.save()" wire-target="save" loading-label="Saving…" ready-when="{{ $this->shadowedCount() >= $lineCount ? 'true' : 'false' }}" hint="Say every line first">Finish</x-continue-button>
+            <x-continue-button on-click="screen = {{ $firstLineScreen }}" wire-target="save" />
         </x-slot:actions>
     </x-lesson-screen>
+    @foreach ($shadowLines as $index => $line)
+        <x-shadow-line-screen
+            when="screen === {{ $index + $firstLineScreen }}"
+            :index="$index"
+            :line="$line"
+            kind="Say it · {{ $index + 1 }} of {{ $lineCount }}"
+            hear="$refs.clip.pause(); hear({{ $index }}, {{ \Illuminate\Support\Js::from(strip_tags(str_replace('**', '', $line))) }})"
+            :recording-url="$draftShadowUrls[$index] ?? null"
+            file-name="{{ $this->phaseKey() }}-shadow-{{ $index }}.webm"
+            :feedback="$feedback['shadow_'.$index] ?? null"
+            :error="$checkErrors['shadow_'.$index] ?? null"
+            next="$refs.clip.pause(); {{ $index === $lineCount - 1 ? '$wire.save()' : 'screen++' }}"
+            :finish="$index === $lineCount - 1"
+            wire-target="checkShadowLine,save"
+        />
+    @endforeach
+
 
     @error('shadowRecordings')
         <p class="text-sm text-danger-ink">{{ $message }}</p>
