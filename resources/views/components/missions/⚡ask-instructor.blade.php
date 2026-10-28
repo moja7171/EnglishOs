@@ -357,26 +357,43 @@ new class extends Component
     <div
         x-show="open"
         x-cloak
-        x-transition.origin.top.right.scale.95.opacity.duration.150ms
-        x-on:click.outside="if (! $event.target.closest('[data-ask-instructor-trigger]')) open = false"
-        class="fixed top-14 right-3 z-40 flex h-[28rem] max-h-[calc(100dvh-5rem)] w-[23rem] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden card shadow-2xl sm:right-[max(1.5rem,calc((100vw-42rem)/2+1.5rem))]"
+        x-on:click="open = false"
+        x-transition.opacity.duration.200ms
+        aria-hidden="true"
+        class="fixed inset-0 z-[55] bg-ink/40"
+    ></div>
+
+    <div
+        x-show="open"
+        x-cloak
+        x-back-close="{ open: open, close: () => open = false }"
+        x-transition:enter="transition duration-200 ease-out motion-reduce:duration-0"
+        x-transition:enter-start="translate-y-full"
+        x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition duration-150 ease-in motion-reduce:duration-0"
+        x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Ask about this step"
+        class="fixed inset-x-0 bottom-0 z-[56] mx-auto flex h-[78dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-b-0 border-line bg-surface pb-[env(safe-area-inset-bottom)] shadow-2xl dark:border-line-dark dark:bg-surface-dark"
     >
-        <div class="flex shrink-0 items-center gap-2.5 border-b border-line px-4 py-3 dark:border-line-dark">
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                @svg('heroicon-o-sparkles', 'h-4 w-4')
+        <div class="mx-auto mt-2 mb-1 h-1 w-10 shrink-0 rounded-full bg-line dark:bg-line-dark" aria-hidden="true"></div>
+        <div class="flex shrink-0 items-center gap-2.5 px-4 pt-1 pb-3">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
+                @svg('heroicon-o-sparkles', 'h-5 w-5')
             </span>
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $this->topicLabel() }}</p>
-                <p class="truncate text-[11px] text-ink-faint dark:text-ink-faint-dark">Ask anything about English.</p>
+                <p class="text-base font-extrabold text-ink dark:text-ink-dark">Ask about this step</p>
+                <p class="truncate text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $this->topicLabel() }}</p>
             </div>
             <button
                 type="button"
                 x-on:click="open = false"
                 title="Close"
-                class="inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
+                class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark"
             >@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
         </div>
-
         <div
             x-ref="messages"
             class="chat-wallpaper flex-1 space-y-2 overflow-y-auto p-3"
@@ -405,9 +422,16 @@ new class extends Component
                     </div>
                 </div>
             @empty
-                <div class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
-                    @svg('heroicon-o-sparkles', 'h-6 w-6 text-ink-faint/50 dark:text-ink-faint-dark/50')
-                    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Type, record or attach a file.</p>
+                <div class="flex h-full flex-col items-end justify-end gap-2">
+                    @foreach (['What does this mean?', 'Give me an example', 'Say it in Persian'] as $suggestion)
+                        <button
+                            type="button"
+                            x-on:click="$wire.set('question', @js($suggestion), false); pendingMessage = @js($suggestion); $wire.ask().then(() => { pendingMessage = null })"
+                            wire:loading.attr="disabled"
+                            wire:target="ask,sendVoiceQuestion,sendFile"
+                            class="cursor-pointer rounded-full border-2 border-line bg-surface px-3.5 py-1.5 text-sm font-bold text-ink-soft transition-colors hover:border-accent hover:text-accent-ink disabled:pointer-events-none disabled:opacity-50 dark:border-line-dark dark:bg-surface-dark dark:text-ink-soft-dark"
+                        >{{ $suggestion }}</button>
+                    @endforeach
                 </div>
             @endforelse
 
@@ -428,7 +452,7 @@ new class extends Component
             </div>
         </div>
 
-        <div class="shrink-0 space-y-2 border-t border-line p-2 dark:border-line-dark">
+        <div class="shrink-0 space-y-2 border-t border-line p-2.5 dark:border-line-dark">
             @if ($error)
                 <p class="px-1 text-xs text-danger-ink">{{ $error }}</p>
             @endif
@@ -451,7 +475,7 @@ new class extends Component
 
             <div class="flex items-center gap-1">
                 <label title="Attach a file" class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">
-                    @svg('heroicon-o-paper-clip', 'h-4 w-4')
+                    @svg('heroicon-o-plus', 'h-5 w-5')
                     <input type="file" wire:model="fileAttachment" class="hidden">
                 </label>
 
@@ -475,19 +499,20 @@ new class extends Component
                         placeholder="Ask a question…"
                         wire:loading.attr="disabled"
                         wire:target="ask,sendVoiceQuestion,sendFile"
-                        class="w-full rounded-full border border-line bg-transparent px-3 py-1.5 text-sm text-ink disabled:opacity-50 dark:border-line-dark dark:text-ink-dark"
+                        class="w-full rounded-full border-0 bg-surface-sunken px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint disabled:opacity-50 dark:bg-surface-sunken-dark dark:text-ink-dark"
                     >
                     <button
                         type="submit"
                         title="Send"
-                        x-bind:disabled="! hasText"
+                        x-show="hasText"
+                        x-cloak
                         wire:loading.attr="disabled"
                         wire:target="ask,sendVoiceQuestion,sendFile"
                         class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
                     >@svg('heroicon-s-paper-airplane', 'h-4 w-4')</button>
                 </form>
 
-                <div wire:key="ask-voice-recorder-{{ count($messages) }}" class="shrink-0">
+                <div wire:key="ask-voice-recorder-{{ count($messages) }}" x-show="! hasText" class="shrink-0">
                     <x-voice-recorder
                         field="voiceQuestion"
                         :file="$voiceQuestion"
