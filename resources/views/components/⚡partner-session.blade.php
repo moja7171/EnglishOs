@@ -212,7 +212,7 @@ new class extends Component
             @endphp
             <section wire:key="question-{{ $index }}" x-show="q === {{ $index }}" @if ($index !== $startAt) x-cloak @endif class="flex flex-1 flex-col gap-4">
                 <div class="flex items-start justify-center gap-2 pt-2 text-center">
-                    <p class="font-display text-2xl leading-snug font-bold text-ink dark:text-ink-dark">{{ $prompt }}</p>
+                    <p class="font-display lesson-title text-ink dark:text-ink-dark">{{ $prompt }}</p>
                     <x-speak-button :text="$prompt" />
                 </div>
 

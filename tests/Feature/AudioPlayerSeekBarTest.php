@@ -25,4 +25,21 @@ class AudioPlayerSeekBarTest extends TestCase
             $this->assertStringNotContainsString('step="1"', $html);
         }
     }
+
+    /**
+     * "Full screen when I press play" is remembered on the device, but only
+     * the classic player has the checkbox and an Exit button. A podcast-style
+     * lesson player must never jump into that full screen (it had no way out
+     * and left its controls glued to the bottom edge).
+     */
+    public function test_a_podcast_player_never_switches_to_full_screen_on_play(): void
+    {
+        $segments = "[['text' => 'Hello.', 'start' => 0.0, 'end' => 1.0]]";
+
+        $podcast = Blade::render('<x-audio-player podcast url="/a.mp3" :segments="'.$segments.'" />');
+        $classic = Blade::render('<x-audio-player url="/a.mp3" :segments="'.$segments.'" />');
+
+        $this->assertStringContainsString('this.segments.length && false) this.focus = true', $podcast);
+        $this->assertStringContainsString('this.segments.length && true) this.focus = true', $classic);
+    }
 }

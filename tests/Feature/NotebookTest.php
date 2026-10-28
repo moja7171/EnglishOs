@@ -328,12 +328,15 @@ class NotebookTest extends TestCase
         $options = NotebookDrill::card($entry)['options'];
         $this->actingAs($learner);
 
-        $this->assertEqualsCanonicalizing(['What about you?', 'I like football.'], $options);
+        $this->assertEqualsCanonicalizing(['It was great! What about you?', 'It was great.'], $options);
 
         Livewire::test('review.index')
             ->assertSee('Ask back')
-            ->assertSee('Which one uses it?')
-            ->call('drillTap', $this->optionIndex($options, 'What about you?'))
+            ->assertSee('Which answer is better?')
+            ->assertSee('How was your weekend?')
+            ->assertSee('Someone says')
+            ->call('drillTap', $this->optionIndex($options, 'It was great! What about you?'))
+            ->assertSee('hands the conversation back')
             ->assertSee('Spot on!')
             ->assertSee('Listen, then say it out loud.');
     }

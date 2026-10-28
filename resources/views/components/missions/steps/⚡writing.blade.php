@@ -265,7 +265,7 @@ new class extends Component
                 @if ($imageUrl = $promptImages[$label] ?? null)
                     <x-zoomable-image :url="$imageUrl" :alt="$label" class="h-14 w-14 shrink-0 rounded-2xl object-cover" />
                 @endif
-                <p class="text-lg leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $label }}</p>
+                <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $label }}</p>
             </div>
             <textarea
                 x-model="parts[{{ $index }}]"

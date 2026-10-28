@@ -41,7 +41,7 @@ new class extends Component
     <div x-ref="track" x-on:scroll.debounce.50ms="track()" class="flex snap-x snap-mandatory gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <section wire:key="pi-card-0" class="flex min-h-[26rem] w-full shrink-0 snap-center flex-col items-center gap-3 rounded-3xl bg-linear-160 from-[#ff8f6b] via-[#c0527a] to-[#3a3466] p-6 text-center text-white">
             <span class="mt-4 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20">@svg('heroicon-o-microphone', 'h-10 w-10')</span>
-            <h2 class="text-2xl font-extrabold">Talk with a voice AI</h2>
+            <h2 class="text-xl font-extrabold">Talk with a voice AI</h2>
             <p class="text-base leading-7 font-semibold opacity-90">10 minutes at the end of your day.<br>Free, nothing to set up.</p>
             <div class="mt-auto flex w-full gap-2">
                 <a href="https://pi.ai" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }" class="flex-1 rounded-2xl bg-white/20 px-3 py-3 text-base font-extrabold">Pi</a>
@@ -51,7 +51,7 @@ new class extends Component
 
         <section wire:key="pi-card-1" class="flex min-h-[26rem] w-full shrink-0 snap-center flex-col gap-3 rounded-3xl bg-linear-160 from-[#4cceb0] via-[#1f7a8c] to-[#3a3466] p-6 text-white">
             <span class="mt-2 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">@svg('heroicon-o-clipboard-document', 'h-7 w-7')</span>
-            <h2 class="text-2xl font-extrabold">Copy, then talk</h2>
+            <h2 class="text-xl font-extrabold">Copy, then talk</h2>
             <ol class="mt-2 space-y-2.5 text-base font-bold">
                 <li class="flex items-center gap-3 rounded-2xl bg-white/15 px-4 py-3"><span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/25 text-sm">1</span>Copy today's prompt here</li>
                 <li class="flex items-center gap-3 rounded-2xl bg-white/15 px-4 py-3"><span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/25 text-sm">2</span>In the app, turn on voice mode first</li>
@@ -61,7 +61,7 @@ new class extends Component
 
         <section wire:key="pi-card-2" class="flex min-h-[26rem] w-full shrink-0 snap-center flex-col gap-3 rounded-3xl bg-linear-160 from-[#8b7ce0] via-[#5b4fa8] to-[#3a3466] p-6 text-white">
             <span class="mt-2 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">@svg('heroicon-o-chat-bubble-left-right', 'h-7 w-7')</span>
-            <h2 class="text-2xl font-extrabold">Talk, then fix</h2>
+            <h2 class="text-xl font-extrabold">Talk, then fix</h2>
             <p class="text-base leading-7 font-semibold opacity-90">About 10 minutes, then 2-3 short fixes. Say one of these on its own, any time:</p>
             <div class="grid grid-cols-2 gap-2">
                 @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)

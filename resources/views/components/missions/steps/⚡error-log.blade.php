@@ -269,7 +269,7 @@ new class extends Component
                     </button>
                 @else
                     <span class="h-16 w-16 animate-pulse rounded-full bg-[radial-gradient(circle_at_35%_35%,var(--color-accent-soft),var(--color-accent))]"></span>
-                    <p class="text-lg font-extrabold text-ink dark:text-ink-dark">Finding your top mistakes…</p>
+                    <p class="lesson-prompt text-ink dark:text-ink-dark">Finding your top mistakes…</p>
                     <p class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">From everything you said and wrote</p>
                 @endif
             </div>
@@ -286,7 +286,7 @@ new class extends Component
         <x-lesson-screen when="true">
             <div class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-o-check', 'h-8 w-8')</span>
-                <p class="text-lg font-extrabold text-ink dark:text-ink-dark">No recurring mistakes found — nice work!</p>
+                <p class="lesson-prompt text-ink dark:text-ink-dark">No recurring mistakes found — nice work!</p>
             </div>
 
             <x-slot:actions>
@@ -314,7 +314,7 @@ new class extends Component
                     @endif
                 </div>
 
-                <p class="text-lg leading-snug font-extrabold text-ink dark:text-ink-dark">Now a new sentence of your own, the right way</p>
+                <p class="lesson-prompt text-ink dark:text-ink-dark">Now a new sentence of your own, the right way</p>
 
                 <x-type-or-say
                     model="newExamples.{{ $i }}"
@@ -340,7 +340,7 @@ new class extends Component
         <x-lesson-screen when="screen === {{ $total }}">
             <div class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-o-check', 'h-8 w-8')</span>
-                <p class="font-fa text-lg font-extrabold text-ink dark:text-ink-dark" dir="rtl">{{ $total }} الگو رو اصلاح کردی؛ توی مرور دوباره میان.</p>
+                <p class="font-fa lesson-prompt text-ink dark:text-ink-dark" dir="rtl">{{ $total }} الگو رو اصلاح کردی؛ توی مرور دوباره میان.</p>
             </div>
 
             @error('newExamples')

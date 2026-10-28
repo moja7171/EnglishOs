@@ -154,7 +154,7 @@ new class extends Component
         <x-step-intro kind="Get Ready" :title="$brief['hook'] ?? null" :image="$this->heroImageUrl" />
 
         @if ($firstQuestion)
-            <p class="text-lg font-bold text-ink dark:text-ink-dark">{{ $firstQuestion }}</p>
+            <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $firstQuestion }}</p>
         @endif
 
         @if ($savedWarmUpRecordingUrl)
@@ -193,7 +193,7 @@ new class extends Component
 
         <x-lesson-screen when="screen === 1">
             <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Say it out loud</span>
-            <p class="text-xl leading-snug font-bold text-ink dark:text-ink-dark">{{ $firstQuestion }}</p>
+            <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $firstQuestion }}</p>
             <div class="mt-4 flex justify-center">
                 <x-voice-recorder big field="warmUpRecording" :file="$this->warmUpRecordingUrl()" file-name="mission-brief-warmup.webm" />
             </div>
@@ -208,7 +208,7 @@ new class extends Component
         </x-lesson-screen>
 
         <x-lesson-screen when="screen === 2">
-            <p class="text-xl leading-snug font-bold text-ink dark:text-ink-dark">How easy is it to talk about this now?</p>
+            <p class="lesson-prompt text-ink dark:text-ink-dark">How easy is it to talk about this now?</p>
             <div class="flex flex-col gap-2">
                 @foreach ($scoreChoices as $value => [$face, $label])
                     <button

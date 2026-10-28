@@ -588,7 +588,7 @@ new class extends Component
                 <span class="animate-trophy-pop inline-flex h-20 w-20 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
                     @svg('heroicon-o-check-badge', 'h-10 w-10')
                 </span>
-                <p class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Session done!</p>
+                <p class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">Session done!</p>
                 <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $sessionGraded }} {{ Str::plural('item', $sessionGraded) }} reviewed</p>
                 <div class="flex flex-wrap justify-center gap-2 text-sm font-semibold">
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-success dark:bg-success-soft-dark dark:text-success-dark">
@@ -654,7 +654,7 @@ new class extends Component
                 @if ($type === 'word')
                     <div role="button" tabindex="0" x-on:click="meaning = ! meaning" x-on:keydown.enter="meaning = ! meaning" class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 text-center">
                         <span x-show="! meaning" class="flex flex-col items-center gap-3">
-                            <x-speak-word :word="$model->word" class="font-display text-4xl font-semibold text-ink dark:text-ink-dark" />
+                            <x-speak-word :word="$model->word" class="font-display text-3xl font-semibold text-ink dark:text-ink-dark" />
                             @if (filled($model->pos))
                                 <span class="rounded-full bg-accent-soft px-3 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $model->pos }}</span>
                             @endif
@@ -682,7 +682,7 @@ new class extends Component
                         >
                     </form>
                 @elseif ($type === 'speaking')
-                    <p class="font-display text-2xl leading-snug font-semibold text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
+                    <p class="font-display lesson-title text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
                     <div class="mt-auto flex flex-col items-center gap-3">
                         <x-voice-recorder big field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
                     </div>

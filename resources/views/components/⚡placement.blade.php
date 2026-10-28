@@ -162,7 +162,7 @@ new class extends Component
             <section x-show="screen === 'start'" class="flex min-h-[calc(100dvh-11rem)] flex-col gap-4 pt-4">
                 <div class="flex flex-1 flex-col gap-3">
                     <span class="{{ $chip }}">~8 min</span>
-                    <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Where are you starting?</h1>
+                    <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Where are you starting?</h1>
                     <p class="text-base text-ink-soft dark:text-ink-soft-dark">So the lessons fit you.</p>
                     <div class="mt-2 space-y-2">
                         @foreach ([['📖', 'Words', count($vocabulary)], ['✏️', 'Grammar', count($grammar)], ['🎙', 'Speaking', '1 min']] as [$icon, $label, $size])
@@ -194,10 +194,10 @@ new class extends Component
                     <section wire:key="question-{{ $number }}" x-show="q === {{ $number }}" x-cloak class="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 pt-6">
                         <span class="{{ $chip }}">{{ $question['label'] }}</span>
                         @if ($question['part'] === 'vocabulary')
-                            <p class="font-display text-4xl font-extrabold text-ink dark:text-ink-dark">{{ $question['text'] }}</p>
+                            <p class="font-display text-3xl font-bold text-ink dark:text-ink-dark">{{ $question['text'] }}</p>
                             <p class="text-sm font-bold text-ink-faint dark:text-ink-faint-dark">What does it mean?</p>
                         @else
-                            <p class="text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $question['text'] }}</p>
+                            <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $question['text'] }}</p>
                         @endif
                         <div class="space-y-2.5">
                             @foreach ($question['options'] as $choice => $text)
@@ -216,7 +216,7 @@ new class extends Component
 
                 <section x-show="q === {{ $speakingAt }}" x-cloak class="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 pt-6">
                     <span class="{{ $chip }}">Speaking · ~{{ $speaking['seconds'] }}s</span>
-                    <p class="text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>
+                    <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>
                     <div class="flex flex-wrap gap-1.5">
                         @foreach ($speaking['bullets'] as $bullet)
                             <span wire:key="bullet-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1 text-xs font-bold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">{{ $bullet }}</span>
