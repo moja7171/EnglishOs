@@ -8,6 +8,7 @@ use App\Models\GrammarPoint;
 use App\Models\ListeningLog;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PiChatFeedback;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -184,6 +185,37 @@ class MissionsOverviewTest extends TestCase
         return $run;
     }
 
+    public function test_a_finished_day_behind_the_learner_is_a_whole_ring_without_listening_or_talk_ticks(): void
+    {
+        $learner = User::factory()->create();
+        $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        $days = Livewire::test('missions.overview')->instance()->missionDays;
+
+        $this->assertSame([true, true, true], [$days[0]['lesson'], $days[0]['listened'], $days[0]['talked']]);
+        $this->assertSame([false, false, false], [$days[1]['lesson'], $days[1]['listened'], $days[1]['talked']]);
+    }
+
+    public function test_daily_talk_done_on_an_earlier_day_leaves_no_minutes_for_it(): void
+    {
+        $learner = User::factory()->create();
+        $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        $before = Livewire::test('missions.overview')->instance();
+        $this->assertFalse($before->piPractice['practicedToday']);
+
+        PiChatFeedback::factory()->for($learner, 'learner')->create([
+            'chat' => '',
+            'mission_code' => 'M01',
+            'day_number' => $before->piPractice['dayNumber'],
+            'feedback' => ['practice_done' => true],
+        ]);
+
+        $this->assertTrue(Livewire::test('missions.overview')->instance()->piPractice['practicedToday']);
+    }
+
     public function test_the_banner_rings_pick_the_day_shown_under_the_banner(): void
     {
         $learner = User::factory()->create();
@@ -192,7 +224,7 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSeeHtml('data-mission-banner')
-            ->assertSeeHtml('aria-label="Day 1, 1 of 3 done"')
+            ->assertSeeHtml('aria-label="Day 1, done"')
             ->assertSeeHtml('aria-label="Day 2, today"')
             ->assertSeeHtml('aria-label="Day 3, not reached yet"')
             ->assertSeeHtml("\$dispatch('select-day', { day: 1 })")

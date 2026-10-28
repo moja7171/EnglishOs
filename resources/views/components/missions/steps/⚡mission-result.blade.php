@@ -296,7 +296,7 @@ new class extends Component
             // candidates in the first place — cheaper and cleaner than
             // just rejecting a bad pick after the fact (still done below
             // too, in case the AI ignores this list).
-            $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), Mission::isStepRedoable(...)));
+            $redoableStepKeys = implode(', ', array_filter($this->run->mission->stepKeys(), $this->isOfferedAsWeakStep(...)));
 
             // When every judge model has failed (GeminiClient has already
             // logged why) the learner must still be able to finish the
@@ -329,8 +329,16 @@ new class extends Component
                 // Never trust the AI's step key blindly — only a real,
                 // existing, redoable step in this mission is ever offered as a link.
                 $weakStep = $data['weak_step'] ?? null;
-                $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && Mission::isStepRedoable($weakStep))
+                $this->weakStep = (in_array($weakStep, $this->run->mission->stepKeys(), true) && $this->isOfferedAsWeakStep($weakStep))
                     ? $weakStep : null;
+
+                // A learner who did the Final Talk but missed some of its
+                // goals is "almost there", not stuck: needs_review still
+                // counts as done for progression and flags the run for a
+                // later look, so the next mission is never blocked by it.
+                if ($this->status === MissionRun::STATUS_RETRY_EVIDENCE && $this->hasFinalTalkEvidence()) {
+                    $this->status = MissionRun::STATUS_NEEDS_REVIEW;
+                }
             } catch (Throwable) {
                 $this->evaluationUnavailable = true;
                 $this->status = MissionRun::STATUS_NEEDS_REVIEW;
@@ -352,6 +360,23 @@ new class extends Component
         } finally {
             $this->loading = false;
         }
+    }
+
+    /**
+     * Mission Result itself is never the step to redo — it is the page
+     * asking, so a link to it would only reopen the same screen.
+     */
+    private function isOfferedAsWeakStep(string $stepKey): bool
+    {
+        return $stepKey !== 'mission_result' && Mission::isStepRedoable($stepKey);
+    }
+
+    private function hasFinalTalkEvidence(): bool
+    {
+        return $this->run->evidence()
+            ->where('phase', 'ai_conversation_2')
+            ->where('type', Evidence::TYPE_TRANSCRIPT)
+            ->exists();
     }
 
     /**
