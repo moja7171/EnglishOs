@@ -52,6 +52,10 @@ Schedule::call(fn () => Artisan::call('finish-line:send-shifts'))
     ->name('finish-line:send-shifts')
     ->everyMinute()
     ->withoutOverlapping();
+Schedule::call(fn () => Artisan::call('friends:send-nudge-hints'))
+    ->name('friends:send-nudge-hints')
+    ->everyMinute()
+    ->withoutOverlapping();
 
 Schedule::call(fn () => Artisan::call('ai:relay-sync-local-url'))
     ->name('ai:relay-sync-local-url')

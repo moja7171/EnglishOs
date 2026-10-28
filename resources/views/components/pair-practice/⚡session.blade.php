@@ -192,16 +192,20 @@ new class extends Component
             $myWords = collect($session->missedWordsFor($me))->pluck('answer')->concat($session->unusedWordsFor($me))->unique()->values();
             $mySentences = $session->missedSentencesFor($me);
             $next = $this->nextRound();
-            $streak = app(PairPractice::class)->pairStreak($me, $friend);
+            $together = app(PairPractice::class)->together($me, $friend);
         @endphp
 
         <div class="card space-y-5 p-6 text-center">
             <div>
                 <p class="animate-trophy-pop text-4xl" aria-hidden="true">🎉</p>
                 <h1 class="mt-2 font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Well done, both of you!</h1>
-                <p class="mt-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                    {{ $session->daysLabel() }}@if ($streak > 0) · 🔥 {{ $streak }}@endif
-                </p>
+                <div class="mt-2 flex flex-wrap justify-center gap-1.5 text-xs font-bold">
+                    <span class="rounded-full bg-success-soft px-2.5 py-0.5 text-success dark:bg-success-soft-dark dark:text-success-dark">👫 {{ Illuminate\Support\Number::ordinal($together['times']) }} time together</span>
+                    @if ($together['daysInRow'] > 1)
+                        <span class="rounded-full bg-accent-soft px-2.5 py-0.5 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">🔥 {{ $together['daysInRow'] }} days</span>
+                    @endif
+                </div>
+                <p class="mt-1.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $session->daysLabel() }}</p>
                 @if ($session->endedBy)
                     <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">{{ $session->endedBy->is($me) ? 'You' : $session->endedBy->name }} ended the round.</p>
                 @endif
@@ -293,17 +297,15 @@ new class extends Component
             $revealDelayMs = $revealCard && $lastResult['stage'] !== $stage ? PairPracticeSession::REVEAL_MILLISECONDS : 0;
         @endphp
 
-        <header class="space-y-2">
+        {{-- Like a lesson: ✕, one bar per part (Words · Grammar · Speaking), the part's timer — the app's top bar steps aside. --}}
+        <header data-step-header class="pt-1">
             <div class="flex items-center gap-3">
-                <a href="{{ route('pair-practice.index') }}" wire:navigate class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-faint hover:bg-surface-sunken dark:text-ink-faint-dark dark:hover:bg-surface-sunken-dark" title="Back">@svg('heroicon-o-chevron-left', 'h-5 w-5')</a>
-                <div class="grid flex-1 grid-cols-3 gap-1.5" aria-label="Progress">
+                <a href="{{ route('pair-practice.index') }}" wire:navigate aria-label="Close" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark dark:hover:text-ink-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</a>
+                <div class="flex flex-1 gap-1" role="progressbar" aria-label="{{ $stages[$stage]['label'] }} · part {{ $stageIndex + 1 }} of 3">
                     @foreach ($stages as $key => $info)
                         @php $index = array_search($key, $stageKeys, true); @endphp
-                        <div wire:key="bar-{{ $key }}">
-                            <div class="h-1.5 overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark">
-                                <div class="h-full rounded-full bg-accent transition-all duration-500 dark:bg-accent-dark" style="width: {{ $index < $stageIndex ? 100 : ($index === $stageIndex ? round($stageProgress * 100) : 0) }}%"></div>
-                            </div>
-                            <p class="mt-1 text-[11px] font-semibold {{ $index === $stageIndex ? 'text-ink dark:text-ink-dark' : 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $info['label'] }}</p>
+                        <div wire:key="bar-{{ $key }}" class="h-2.5 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark">
+                            <div class="h-full rounded-full bg-success transition-all duration-500 dark:bg-success-dark" style="width: {{ $index < $stageIndex ? 100 : ($index === $stageIndex ? round($stageProgress * 100) : 0) }}%"></div>
                         </div>
                     @endforeach
                 </div>
@@ -330,7 +332,7 @@ new class extends Component
                     }"
                     x-text="Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0')"
                     x-bind:class="left <= 15 ? 'bg-warning-soft text-warning-ink animate-pulse' : 'bg-surface-sunken text-ink dark:bg-surface-sunken-dark dark:text-ink-dark'"
-                    class="shrink-0 rounded-full px-3 py-1 font-mono text-sm font-semibold tabular-nums transition-colors"
+                    class="shrink-0 rounded-full px-2.5 py-1 text-sm font-extrabold tabular-nums transition-colors"
                 ></span>
             </div>
         </header>

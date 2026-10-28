@@ -84,7 +84,7 @@ class PiPracticePageTest extends TestCase
 
     public function test_visitors_who_are_not_logged_in_are_sent_to_login(): void
     {
-        $this->get(route('pi.practice'))->assertRedirect(route('login'));
+        $this->get(route('pi.practice'))->assertRedirect(route('welcome'));
     }
 
     public function test_a_new_learner_sees_the_about_you_chat_for_day_1(): void

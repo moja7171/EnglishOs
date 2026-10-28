@@ -12,7 +12,9 @@
 @props(['calendar' => [], 'caption' => 'Last 12 weeks'])
 
 <div {{ $attributes }}>
-    <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $caption }}</p>
+    @if (filled($caption))
+        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $caption }}</p>
+    @endif
     <div class="mt-2 overflow-x-auto">
         <div class="grid w-fit grid-flow-col grid-rows-7 gap-1">
             @foreach ($calendar as $day)

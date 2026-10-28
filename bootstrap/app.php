@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // learner's own timezone; it holds nothing sensitive, so skip encryption.
         $middleware->encryptCookies(except: ['eos_tz']);
 
+        // A visitor who isn't signed in starts at the welcome screen.
+        $middleware->redirectGuestsTo(fn () => route('welcome'));
+
         $middleware->web(append: [TouchLastSeen::class, MarkNotificationRead::class]);
 
         $middleware->alias([

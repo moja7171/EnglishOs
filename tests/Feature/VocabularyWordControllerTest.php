@@ -15,7 +15,7 @@ class VocabularyWordControllerTest extends TestCase
     public function test_a_guest_is_sent_to_the_login_page(): void
     {
         $this->post(route('vocabulary.store'), ['word' => 'sleep'])
-            ->assertRedirect(route('login'));
+            ->assertRedirect(route('welcome'));
     }
 
     public function test_it_adds_the_word_with_its_persian_meaning_and_a_first_review_tomorrow(): void

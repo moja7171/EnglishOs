@@ -150,19 +150,17 @@ class MistakesYouNoLongerMakeTest extends TestCase
 
         Livewire::actingAs($learner)
             ->test('progress.index')
-            ->assertSee('Mistakes you no longer make')
-            ->assertSee('Third person s')
+            ->assertSee('Mistakes you fixed')
             ->assertSee('She goes to work.');
     }
 
-    public function test_the_progress_page_shows_a_promising_empty_state_not_a_zero(): void
+    public function test_the_progress_page_hides_the_list_until_a_mistake_is_fixed(): void
     {
         $learner = User::factory()->create();
 
         Livewire::actingAs($learner)
             ->test('progress.index')
-            ->assertSee('Mistakes you no longer make')
-            ->assertSee('Nothing here yet');
+            ->assertDontSee('Mistakes you fixed');
     }
 
     public function test_the_list_never_shows_a_score_or_a_count(): void
@@ -171,7 +169,7 @@ class MistakesYouNoLongerMakeTest extends TestCase
         $this->trackedPattern($learner, 'third-person-s', User::MASTERED_ERROR_REPETITIONS);
 
         $html = Livewire::actingAs($learner)->test('progress.index')->html();
-        $section = Str::between($html, 'Mistakes you no longer make', 'More stats');
+        $section = Str::between($html, 'Mistakes you fixed', '</section>');
 
         // The whole point of this surface is that it is the one place in
         // the app with no measurement in it. A "3 fixed / 11 to go" line

@@ -40,6 +40,7 @@ class UserFactory extends Factory
             'avatar_style' => 'initial',
             'gender' => 'unspecified',
             'discoverable' => true,
+            'friend_alerts' => true,
             'celebrated_streak_milestone' => 0,
             // A factory user is a stand-in for an already-active learner
             // in most tests — only PiSetupTest (and anywhere else that

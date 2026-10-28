@@ -86,7 +86,7 @@ class ListeningLocalPicksTest extends TestCase
 
     public function test_audio_that_is_not_a_listed_pick_is_not_found_and_visitors_must_log_in(): void
     {
-        $this->get(route('listening.audio', ['M01', 'lee-fixture']))->assertRedirect(route('login'));
+        $this->get(route('listening.audio', ['M01', 'lee-fixture']))->assertRedirect(route('welcome'));
 
         $this->actingAs(User::factory()->create());
 

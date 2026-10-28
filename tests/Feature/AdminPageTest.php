@@ -32,7 +32,7 @@ class AdminPageTest extends TestCase
 
     public function test_a_guest_is_sent_to_sign_in(): void
     {
-        $this->get(route('admin.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.index'))->assertRedirect(route('welcome'));
     }
 
     /**

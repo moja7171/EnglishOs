@@ -212,6 +212,6 @@ class TopNavTest extends TestCase
 
         $this->get(route('progress.index'))
             ->assertOk()
-            ->assertSee('My Progress');
+            ->assertSee('This week');
     }
 }

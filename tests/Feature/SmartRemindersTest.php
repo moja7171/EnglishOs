@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Notifications\Channels\DeferredWebPushChannel;
 use App\Notifications\ComebackReminder;
 use App\Notifications\FriendFinishedDay;
+use App\Notifications\FriendNotStudiedYet;
+use App\Notifications\FriendStudyingNow;
 use App\Notifications\PairBothFinished;
 use App\Notifications\PairPracticeInvite;
 use App\Notifications\PairPracticeNudge;
@@ -152,7 +154,7 @@ class SmartRemindersTest extends TestCase
         $this->artisan('reminders:send-comeback')->assertSuccessful();
     }
 
-    public function test_friends_hear_when_a_learner_finishes_their_day_and_when_both_have(): void
+    public function test_friends_hear_once_a_day_when_a_learner_starts_studying_and_when_both_have_finished(): void
     {
         Notification::fake();
         $mission = $this->makeMission();
@@ -160,19 +162,92 @@ class SmartRemindersTest extends TestCase
         $friend = $this->makeMutualFriend($me);
 
         $this->answer($me, $mission, ['vocabulary_builder_1']);
+        Notification::assertSentTo($friend, FriendStudyingNow::class, fn (FriendStudyingNow $alert) => str_contains($alert->toArray($friend)['title'], 'M01 · New Words'));
+
+        // Finishing the day is a second alert about the same friend — one a day is enough.
+        $this->answer($me, $mission, ['listening_1']);
+        Notification::assertSentToTimes($friend, FriendStudyingNow::class, 1);
         Notification::assertNotSentTo($friend, FriendFinishedDay::class);
-
-        $this->answer($me, $mission, ['listening_1']);
-        Notification::assertSentToTimes($friend, FriendFinishedDay::class, 1);
-
-        // A redo of a step on the same day doesn't alert again.
-        $this->answer($me, $mission, ['listening_1']);
-        Notification::assertSentToTimes($friend, FriendFinishedDay::class, 1);
 
         $this->answer($friend, $mission, ['vocabulary_builder_1', 'listening_1']);
         Notification::assertSentTo($me, PairBothFinished::class);
         Notification::assertSentTo($friend, PairBothFinished::class);
         Notification::assertNotSentTo($me, FriendFinishedDay::class);
+    }
+
+    public function test_an_answer_that_finishes_the_day_says_your_turn_instead_of_studying_now(): void
+    {
+        Notification::fake();
+        $mission = $this->makeMission();
+        $me = $this->learner();
+        $friend = $this->makeMutualFriend($me);
+        $this->travel(-1)->days();
+        $this->answer($me, $mission, ['vocabulary_builder_1']);
+        $this->travelBack();
+
+        $this->answer($me, $mission, ['listening_1']);
+
+        Notification::assertSentToTimes($friend, FriendFinishedDay::class, 1);
+        Notification::assertSentToTimes($friend, FriendStudyingNow::class, 1);
+    }
+
+    public function test_a_muted_friend_sends_no_news_about_their_day(): void
+    {
+        Notification::fake();
+        $mission = $this->makeMission();
+        $me = $this->learner();
+        $friend = $this->makeMutualFriend($me);
+        $friend->setMuted($me, true);
+
+        $this->answer($me, $mission, ['vocabulary_builder_1', 'listening_1']);
+        $this->answer($friend, $mission, ['vocabulary_builder_1', 'listening_1']);
+
+        foreach ([FriendStudyingNow::class, FriendFinishedDay::class, PairBothFinished::class] as $alert) {
+            Notification::assertNotSentTo($friend, $alert);
+        }
+        Notification::assertSentTo($me, PairBothFinished::class);
+    }
+
+    public function test_with_friend_alerts_switched_off_a_learner_hears_nothing_about_friends_days(): void
+    {
+        Notification::fake();
+        $mission = $this->makeMission();
+        $me = $this->learner();
+        $friend = $this->makeMutualFriend($me);
+        $friend->update(['friend_alerts' => false]);
+
+        $this->answer($me, $mission, ['vocabulary_builder_1']);
+
+        Notification::assertNotSentTo($friend, FriendStudyingNow::class);
+    }
+
+    public function test_after_studying_a_learner_hears_at_five_which_friends_have_not_yet(): void
+    {
+        Notification::fake();
+        Carbon::setTestNow('2026-10-03 13:00:00'); // 16:30 in Tehran
+        $mission = $this->makeMission();
+        $me = $this->learner();
+        $lazy = $this->makeMutualFriend($me);
+        $muted = $this->makeMutualFriend($me);
+        $me->setMuted($muted, true);
+        $busy = $this->makeMutualFriend($me);
+        $this->answer($busy, $mission, ['grammar_in_context']);
+
+        $this->artisan('friends:send-nudge-hints');
+        Notification::assertNotSentTo($me, FriendNotStudiedYet::class);
+
+        Carbon::setTestNow('2026-10-03 13:31:00'); // 17:01
+        $this->artisan('friends:send-nudge-hints');
+        Notification::assertNotSentTo($me, FriendNotStudiedYet::class);
+
+        Carbon::setTestNow('2026-10-04 13:31:00');
+        $this->answer($me, $mission, ['grammar_in_context']);
+        $this->answer($busy, $mission, ['grammar_in_context']);
+        $this->artisan('friends:send-nudge-hints');
+        $this->artisan('friends:send-nudge-hints');
+
+        Notification::assertSentToTimes($me, FriendNotStudiedYet::class, 1);
+        Notification::assertSentTo($me, FriendNotStudiedYet::class, fn (FriendNotStudiedYet $alert) => $alert->toArray($me)['names'] === [$lazy->name]);
     }
 
     public function test_friend_alerts_go_to_the_bell_only_during_quiet_hours_but_a_live_invite_still_buzzes(): void

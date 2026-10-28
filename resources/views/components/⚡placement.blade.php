@@ -14,10 +14,13 @@ use Livewire\WithFileUploads;
  * content, the scoring, and (importantly) what the result does NOT
  * change: not the curriculum, not the order, not the pace.
  *
+ * Runs like a lesson: a start screen, then one question per screen under
+ * one bar for the whole test (a tap moves on, nothing is marked right or
+ * wrong, "I don't know" counts as wrong), the spoken answer, the result.
+ *
  * Skippable on purpose. A gate in front of the very first lesson costs
- * more learners than an unknown starting level does; skipping just
- * leaves the registration form's self-assessment in place and offers the
- * test again from the Missions page.
+ * more learners than an unknown starting level does; skipping just keeps
+ * the default level and offers the test again from Home.
  */
 new class extends Component
 {
@@ -33,6 +36,7 @@ new class extends Component
 
     public bool $completed = false;
 
+    /** @var array{level: string, recognitionLevel: string, spokenLevel: ?string, aboveRange: bool, bands: array<string, array{correct: int, total: int}>, provisional: bool, parts: array{vocabulary: array{level: string, share: float}, grammar: array{level: string, share: float}}}|null */
     public ?array $result = null;
 
     public ?string $transcript = null;
@@ -41,16 +45,6 @@ new class extends Component
     public function test(): PlacementTest
     {
         return app(PlacementTest::class);
-    }
-
-    public function answerVocabulary(int $index, int $option): void
-    {
-        $this->vocabularyAnswers[$index] = $option;
-    }
-
-    public function answerGrammar(int $index, int $option): void
-    {
-        $this->grammarAnswers[$index] = $option;
     }
 
     /**
@@ -76,7 +70,8 @@ new class extends Component
             [$this->transcript, $spokenLevel] = $this->test->gradeSpeakingRecording($this->recording->getRealPath());
         }
 
-        $this->result = $this->test->score($this->vocabularyAnswers, $this->grammarAnswers, $spokenLevel);
+        $this->result = $this->test->score($this->vocabularyAnswers, $this->grammarAnswers, $spokenLevel)
+            + ['parts' => $this->test->partLevels($this->vocabularyAnswers, $this->grammarAnswers)];
 
         PlacementTestResult::create([
             'learner_id' => auth()->id(),
@@ -119,165 +114,120 @@ new class extends Component
     $vocabulary = $this->test->vocabulary();
     $grammar = $this->test->grammar();
     $speaking = $this->test->speaking();
-    $totalObjective = count($vocabulary) + count($grammar);
+    $questions = [
+        ...collect($vocabulary)->map(fn (array $item, int $index) => ['part' => 'vocabulary', 'index' => $index, 'label' => 'Words', 'text' => $item['word'], 'options' => $item['options']]),
+        ...collect($grammar)->map(fn (array $item, int $index) => ['part' => 'grammar', 'index' => $index, 'label' => 'Grammar', 'text' => $item['prompt'], 'options' => $item['options']]),
+    ];
+    $total = count($questions) + 1;
+    $speakingAt = count($questions);
+    $option = 'w-full cursor-pointer rounded-2xl border-2 border-line bg-surface px-4 py-3.5 text-start text-base font-semibold text-ink transition-colors hover:border-accent active:bg-accent-soft dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark dark:hover:border-accent-dark';
+    $cta = 'block w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-center text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:bg-line disabled:text-ink-faint disabled:shadow-none dark:bg-accent-dark';
+    $chip = 'self-start rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark';
 @endphp
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
+<div class="mx-auto max-w-xl p-4 sm:p-6">
     @if ($completed)
-        @php $level = $result['level']; @endphp
-        <div class="space-y-5 card p-6 text-center">
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your starting level</p>
-            <p class="font-display text-5xl font-extrabold text-accent dark:text-accent-dark">{{ $level }}</p>
-            <p class="text-sm text-ink dark:text-ink-dark">{{ \App\Models\User::levelOptions()[$level] ?? $level }}</p>
+        @php
+            $level = $result['level'];
+            $bars = [
+                'Words' => [$result['parts']['vocabulary']['share'], $result['parts']['vocabulary']['level']],
+                'Grammar' => [$result['parts']['grammar']['share'], $result['parts']['grammar']['level']],
+                'Speaking' => [['below A1' => 0.15, 'A1' => 0.35, 'A2' => 0.65, 'B1' => 0.9, 'above B1' => 1][$result['spokenLevel']] ?? 0, $result['spokenLevel'] ?? '—'],
+            ];
+        @endphp
+        <section data-step-header class="flex min-h-[calc(100dvh-9rem)] flex-col items-center justify-center gap-4 text-center">
+            <p class="text-sm font-bold text-ink-faint dark:text-ink-faint-dark">You're starting at</p>
+            <p class="font-display text-7xl leading-none font-extrabold text-accent-ink dark:text-accent-ink-dark">{{ $level }}</p>
 
-            @if ($result['provisional'])
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Based on the written parts only — we couldn't listen to your recording just now.</p>
-            @elseif ($result['spokenLevel'] && $result['spokenLevel'] !== $result['recognitionLevel'])
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
-                    You recognise {{ $result['recognitionLevel'] }} English and speak at {{ $result['spokenLevel'] }} — normal, and exactly the gap this app is built to close.
-                </p>
-            @endif
+            <div class="w-full max-w-xs space-y-2.5 pt-2">
+                @foreach ($bars as $label => [$share, $barLevel])
+                    <div wire:key="bar-{{ $label }}" class="flex items-center gap-3 text-sm font-bold text-ink dark:text-ink-dark">
+                        <span class="w-20 text-start">{{ $label }}</span>
+                        <span class="h-2.5 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark"><span class="block h-full rounded-full bg-success dark:bg-success-dark" style="width: {{ round($share * 100) }}%"></span></span>
+                        <span class="w-14 text-end text-xs">{{ $barLevel }}</span>
+                    </div>
+                @endforeach
+            </div>
 
             @if ($result['aboveRange'])
-                <p class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                    You're already past B1. This program is built to take someone to a strong, real B1 — you're welcome to use it, but much of it will feel easy.
-                </p>
+                <p class="max-w-xs text-xs text-ink-faint dark:text-ink-faint-dark">You're past B1 — much of this will feel easy.</p>
             @endif
+            <p dir="rtl" class="font-fa max-w-xs text-sm leading-7 text-ink-soft dark:text-ink-soft-dark">{{ $result['provisional'] ? 'صدات الان بررسی نشد؛ سطح از دو بخش اول اومده.' : 'صدات ذخیره شد؛ آخر دوره دوباره می‌شنویش.' }}</p>
 
-            <div class="rounded-xl bg-surface-sunken p-4 text-left dark:bg-surface-sunken-dark">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">What happens now</p>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                    Everyone starts at Mission 1 and works through all 24 — that's how the vocabulary and grammar
-                    build on each other. Your level changes how the app talks to you, not what you get.
-                    The program is 100 days at one day a day; do two in a sitting and it's 50. Your pace, whatever
-                    your level.
-                </p>
-            </div>
-
-            <button
-                type="button"
-                wire:click="start"
-                wire:loading.attr="disabled"
-                wire:target="start"
-                class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-            >Start Mission 1 @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
-        </div>
+            <button type="button" wire:click="start" wire:loading.attr="disabled" wire:target="start" class="{{ $cta }} mt-2 max-w-xs">Start M01</button>
+        </section>
     @else
-        <div
-            data-total-objective="{{ $totalObjective }}"
-            x-data="{
-                part: 0,
-                answered: 0,
-                totalObjective: 0,
-                recorded: false,
-                init() { this.totalObjective = Number(this.$el.dataset.totalObjective) },
-            }"
-            x-on:placement-answered="answered++"
-            class="space-y-6"
-        >
-            <header class="border-b border-line pb-4 dark:border-line-dark">
-                <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Where are you starting?</h1>
-                <p class="mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">
-                    About 8 minutes, three short parts. It sets how the app talks to you — and gives you something
-                    real to measure against when you finish.
-                </p>
-                <div class="mt-3">
-                    <x-progress-bar>
-                        <div
-                            class="h-full rounded-full bg-accent transition-all duration-300 dark:bg-accent-dark"
-                            :style="`width: ${Math.min((answered / totalObjective) * 100, 100)}%`"
-                        ></div>
-                        <x-slot:label>
-                            <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">
-                                Part <span x-text="part + 1"></span> of 3
-                            </p>
-                        </x-slot:label>
-                    </x-progress-bar>
-                </div>
-            </header>
-
-            {{-- Part 1 — vocabulary --}}
-            <div x-show="part === 0" x-cloak class="space-y-3">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">What does each word mean?</p>
-                @foreach ($vocabulary as $index => $item)
-                    <div class="rounded-2xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $item['word'] }}</p>
-                        <div class="mt-2 grid gap-1.5">
-                            @foreach ($item['options'] as $option => $text)
-                                <button
-                                    type="button"
-                                    wire:click="answerVocabulary({{ $index }}, {{ $option }})"
-                                    x-on:click="if (!$el.dataset.counted) { $el.dataset.counted = 1; $dispatch('placement-answered') }"
-                                    data-state="{{ ($vocabularyAnswers[$index] ?? null) === $option ? 'selected' : 'idle' }}"
-                                    class="choice"
-                                >{{ $text }}</button>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-                <button
-                    type="button"
-                    x-on:click="part = 1; window.scrollTo(0, 0)"
-                    class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark"
-                >Next part @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
-            </div>
-
-            {{-- Part 2 — grammar --}}
-            <div x-show="part === 1" x-cloak class="space-y-3">
-                <p class="text-sm font-semibold text-ink dark:text-ink-dark">Choose the word that fits.</p>
-                @foreach ($grammar as $index => $item)
-                    <div class="rounded-2xl border border-line p-3 dark:border-line-dark">
-                        <p class="text-sm text-ink dark:text-ink-dark">{{ $item['prompt'] }}</p>
-                        <div class="mt-2 flex flex-wrap gap-1.5">
-                            @foreach ($item['options'] as $option => $text)
-                                <button
-                                    type="button"
-                                    wire:click="answerGrammar({{ $index }}, {{ $option }})"
-                                    x-on:click="if (!$el.dataset.counted) { $el.dataset.counted = 1; $dispatch('placement-answered') }"
-                                    data-state="{{ ($grammarAnswers[$index] ?? null) === $option ? 'selected' : 'idle' }}"
-                                    class="choice w-auto! rounded-full px-5"
-                                >{{ $text }}</button>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-                <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" x-on:click="part = 0; window.scrollTo(0, 0)" class="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-3.5 w-3.5') Back</button>
-                    <button type="button" x-on:click="part = 2; window.scrollTo(0, 0)" class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-accent-dark">Last part @svg('heroicon-o-chevron-right', 'h-3.5 w-3.5')</button>
-                </div>
-            </div>
-
-            {{-- Part 3 — the spoken answer --}}
-            <div x-show="part === 2" x-cloak class="space-y-4">
-                <div class="card p-4">
-                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speak for about {{ $speaking['seconds'] }} seconds</p>
-                    <p class="mt-1 text-lg font-semibold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>
-                    <ul class="mt-2 list-disc space-y-0.5 pl-5 text-sm text-ink-soft dark:text-ink-soft-dark">
-                        @foreach ($speaking['bullets'] as $bullet)
-                            <li>{{ $bullet }}</li>
+        <div x-data="{ screen: 'start', q: 0, recorded: false }">
+            {{-- Start --}}
+            <section x-show="screen === 'start'" class="flex min-h-[calc(100dvh-11rem)] flex-col gap-4 pt-4">
+                <div class="flex flex-1 flex-col gap-3">
+                    <span class="{{ $chip }}">~8 min</span>
+                    <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Where are you starting?</h1>
+                    <p class="text-base text-ink-soft dark:text-ink-soft-dark">So the lessons fit you.</p>
+                    <div class="mt-2 space-y-2">
+                        @foreach ([['📖', 'Words', count($vocabulary)], ['✏️', 'Grammar', count($grammar)], ['🎙', 'Speaking', '1 min']] as [$icon, $label, $size])
+                            <div wire:key="part-{{ $label }}" class="card flex items-center gap-3 rounded-2xl p-3 text-base font-bold text-ink dark:text-ink-dark">
+                                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft dark:bg-accent-soft-dark">{{ $icon }}</span>
+                                <span class="flex-1">{{ $label }}</span>
+                                <span class="text-sm text-ink-faint dark:text-ink-faint-dark">{{ $size }}</span>
+                            </div>
                         @endforeach
-                    </ul>
-                    <p class="mt-3 text-xs text-ink-faint dark:text-ink-faint-dark">
-                        Say as much as you can, in your own words. Mistakes are fine — they're what we're measuring.
-                    </p>
-                    <div class="mt-3" x-on:click="recorded = true">
-                        <x-voice-recorder field="recording" :file="$recording" file-name="placement.webm" />
                     </div>
                 </div>
+                <div class="space-y-3 pb-2">
+                    <button type="button" x-on:click="screen = 'test'" class="{{ $cta }}">Start</button>
+                    <button type="button" wire:click="skip" class="block w-full cursor-pointer py-1 text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
+                </div>
+            </section>
 
-                <x-continue-button
-                    on-click="$wire.finish()"
-                    wire-target="finish"
-                    loading-label="Listening to your answer…"
-                    ready-when="recorded"
-                    hint="Record your answer to finish"
-                />
+            {{-- The test: one bar for every question and the spoken answer --}}
+            <div x-show="screen === 'test'" x-cloak data-step-header>
+                {{-- Answers wait on the page until Finish; wire:ignore keeps the
+                     bar where Alpine put it when the recording upload re-renders. --}}
+                <div wire:ignore>
+                    <x-lesson-header close-click="screen = 'start'" progress-expr="q / {{ $total }}">
+                        <span class="shrink-0 text-sm font-extrabold text-ink-soft tabular-nums dark:text-ink-soft-dark" x-text="(q + 1) + '/{{ $total }}'"></span>
+                    </x-lesson-header>
+                </div>
+
+                @foreach ($questions as $number => $question)
+                    <section wire:key="question-{{ $number }}" x-show="q === {{ $number }}" x-cloak class="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 pt-6">
+                        <span class="{{ $chip }}">{{ $question['label'] }}</span>
+                        @if ($question['part'] === 'vocabulary')
+                            <p class="font-display text-4xl font-extrabold text-ink dark:text-ink-dark">{{ $question['text'] }}</p>
+                            <p class="text-sm font-bold text-ink-faint dark:text-ink-faint-dark">What does it mean?</p>
+                        @else
+                            <p class="text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $question['text'] }}</p>
+                        @endif
+                        <div class="space-y-2.5">
+                            @foreach ($question['options'] as $choice => $text)
+                                <button
+                                    type="button"
+                                    wire:key="question-{{ $number }}-{{ $choice }}"
+                                    x-on:click="$wire.$set('{{ $question['part'] === 'vocabulary' ? 'vocabularyAnswers' : 'grammarAnswers' }}.{{ $question['index'] }}', {{ $choice }}, false); q++"
+                                    class="{{ $option }}"
+                                >{{ $text }}</button>
+                            @endforeach
+                        </div>
+                        <div class="flex-1"></div>
+                        <button type="button" x-on:click="q++" class="cursor-pointer py-2 text-sm font-bold text-ink-faint dark:text-ink-faint-dark">I don't know</button>
+                    </section>
+                @endforeach
+
+                <section x-show="q === {{ $speakingAt }}" x-cloak class="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 pt-6">
+                    <span class="{{ $chip }}">Speaking · ~{{ $speaking['seconds'] }}s</span>
+                    <p class="text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        @foreach ($speaking['bullets'] as $bullet)
+                            <span wire:key="bullet-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1 text-xs font-bold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">{{ $bullet }}</span>
+                        @endforeach
+                    </div>
+                    <div class="flex flex-1 items-center justify-center">
+                        <x-voice-recorder big field="recording" :file="$recording" file-name="placement.webm" />
+                    </div>
+                    <x-continue-button on-click="$wire.finish()" wire-target="finish" loading-label="Listening to your answer…" ready-when="{{ $recording ? 'true' : 'false' }}">See my level</x-continue-button>
+                </section>
             </div>
-
-            <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">
-                <button type="button" wire:click="skip" class="cursor-pointer underline hover:text-ink dark:hover:text-ink-dark">Skip for now</button>
-                — you can take it later from the Missions page.
-            </p>
         </div>
     @endif
 </div>

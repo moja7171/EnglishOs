@@ -10,6 +10,9 @@
 
 @php
     $showNav = auth()->check() && ! $fill;
+    // The install offer waits for the first real lesson activity — never on
+    // the sign-in / sign-up screens or before the learner has tried the app.
+    $offerInstall = auth()->check() && \App\Models\DayActivity::where('learner_id', auth()->id())->exists();
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -136,7 +139,9 @@
          a forever-dismissed banner meant a reinstall was never offered again.
          The month matters too: when Chrome can only make a plain shortcut
          (no WebAPK) it keeps firing beforeinstallprompt, which would
-         otherwise bring the banner straight back in the browser tab. --}}
+         otherwise bring the banner straight back in the browser tab. It only
+         shows once the learner has done something in a lesson ($offerInstall);
+         it stays mounted so the browser's one-off event is still caught. --}}
     <div
         x-data="{
             deferredPrompt: null,
@@ -169,7 +174,7 @@
                 try { localStorage.setItem('eosInstallPromptDismissedUntil', Date.now() + days * 24 * 60 * 60 * 1000) } catch (e) {}
             },
         }"
-        x-show="deferredPrompt && !dismissed"
+        x-show="{{ $offerInstall ? 'true' : 'false' }} && deferredPrompt && !dismissed"
         x-cloak
         x-transition
         class="fixed inset-x-3 {{ $showNav ? 'bottom-20' : 'bottom-3' }} z-30 mx-auto flex max-w-2xl items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-xs shadow-lg sm:inset-x-6 dark:border-line-dark dark:bg-surface-dark"

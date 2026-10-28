@@ -390,4 +390,20 @@ class ProfileTest extends TestCase
 
         $this->assertFalse($me->fresh()->hasBlocked($bob));
     }
+
+    public function test_the_settings_list_and_the_friends_alerts_switch(): void
+    {
+        $learner = User::factory()->create(['cefr_level' => 'B1', 'target_band' => '6.5']);
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->assertSee('B1 · IELTS 6.5')
+            ->assertSee('Name &amp; level', false)
+            ->assertSee('Blocked people')
+            ->assertSee('My AI keys')
+            ->assertDontSee('AI relay')
+            ->call('toggleFriendAlerts');
+
+        $this->assertFalse($learner->fresh()->friend_alerts);
+    }
 }

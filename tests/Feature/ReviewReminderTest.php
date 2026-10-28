@@ -286,6 +286,6 @@ class ReviewReminderTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
 
-        Livewire::test('notifications.review-reminder')->assertSee('haven’t turned those on');
+        Livewire::test('notifications.review-reminder')->assertSee('Turn on phone alerts first');
     }
 }

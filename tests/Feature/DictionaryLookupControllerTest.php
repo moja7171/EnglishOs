@@ -24,7 +24,7 @@ class DictionaryLookupControllerTest extends TestCase
     public function test_a_guest_is_sent_to_the_login_page(): void
     {
         $this->get(route('dictionary.lookup', ['word' => 'sleep']))
-            ->assertRedirect(route('login'));
+            ->assertRedirect(route('welcome'));
     }
 
     public function test_it_returns_the_entry_of_a_word_the_learner_does_not_have_yet(): void
@@ -148,7 +148,7 @@ class DictionaryLookupControllerTest extends TestCase
     public function test_a_guest_cannot_ask_for_better_persian_meanings(): void
     {
         $this->get(route('dictionary.persian', ['word' => 'sleep']))
-            ->assertRedirect(route('login'));
+            ->assertRedirect(route('welcome'));
     }
 
     public function test_it_returns_the_better_persian_meanings_of_a_word_already_looked_up(): void

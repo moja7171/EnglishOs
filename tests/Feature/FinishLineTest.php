@@ -274,6 +274,8 @@ class FinishLineTest extends TestCase
         $this->finishDays($learner, $this->makeMission(), ['foundation']);
         $this->actingAs($learner);
 
-        Livewire::test('progress.index')->assertSee('🏁 خط پایان: ۵ بهمن ۱۴۰۵');
+        Livewire::test('progress.index')
+            ->assertSee('🏁 Finish:')
+            ->assertSee('۵ بهمن ۱۴۰۵');
     }
 }

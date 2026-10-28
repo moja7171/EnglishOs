@@ -78,11 +78,11 @@ class MissionJourneyTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('progress.index')
-            ->assertSee('Overview')
+            ->assertDontSee('Overview')
             ->assertDontSeeHtml("setTab('path')");
     }
 
-    public function test_the_summary_line_counts_missions_done_and_listens(): void
+    public function test_the_listens_tile_counts_only_the_learners_listens(): void
     {
         $learner = User::factory()->create();
         $this->finish(MissionRun::findOrStart($learner, $this->makeMission('M01')));
@@ -92,8 +92,7 @@ class MissionJourneyTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('progress.index')
-            ->assertSee('1 mission')
-            ->assertSee('3 listens');
+            ->assertSeeText('3 listens');
     }
 
     public function test_the_recap_shows_the_grammar_words_and_one_recording_per_step(): void

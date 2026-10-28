@@ -34,6 +34,7 @@ Route::get('/_diag/health', ServiceHealthController::class)->middleware('throttl
 Route::get('/_diag/ai-relay-use', AiRelayUseController::class)->middleware('throttle:6,1');
 
 Route::middleware('guest')->group(function () {
+    Route::get('/welcome', fn () => view('welcome'))->name('welcome');
     Route::get('/login', fn () => view('auth.login'))->name('login');
     Route::get('/register', fn () => view('auth.register'))->name('register');
 });
@@ -105,6 +106,9 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/pi/{missionCode?}/{day?}', function (?string $missionCode = null, ?int $day = null) {
         return view('pi-practice', compact('missionCode', 'day'));
     })->where(['missionCode' => 'M(0[1-9]|1[0-9]|2[0-4])', 'day' => '[1-4]'])->name('pi.practice');
+
+    // Right after sign-up: the three guide cards once, then the placement test.
+    Route::get('/onboarding', fn () => view('onboarding'))->name('onboarding');
 
     Route::get('/placement', function () {
         return view('placement');

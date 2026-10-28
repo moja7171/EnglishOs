@@ -136,103 +136,81 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-6 p-6">
-    @php $earlier = $this->earlier(); @endphp
+@php
+    $earlier = $this->earlier();
+    $speaking = $this->test->speaking();
+    $missionsIn = $this->mission->number();
+    $cta = 'block w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-center text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark';
+    $voiceLabel = 'text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark';
+@endphp
 
-    {{-- The mission's photo banner, the same as Listening and Daily talk:
-         this is the moment the learner hears how far they've come. No way
-         back on it — the page's own Skip / Back to today does that. --}}
-    <x-mission-banner
-        :mission-code="$this->mission->code"
-        :title="$completed ? 'Then and now' : 'Answer it again'"
-        icon="heroicon-o-microphone"
-        :back-label="'Your voice, '.$this->mission->code.' in · '.$this->mission->title"
-    >
-        <p class="mt-0.5 text-sm text-white/80">{{ $completed ? 'Same question you answered before. Listen to both.' : 'Your first question again — then hear both.' }}</p>
-    </x-mission-banner>
-
+{{-- Two lesson-style screens: say the first question again, then hear both
+     voices. No score, no gate — ✕ and Skip both go back to today with
+     nothing recorded. --}}
+<div class="mx-auto max-w-xl p-4 sm:p-6" data-step-header>
     @if ($completed)
-        <div class="space-y-5 card p-6">
-            @if ($earlier?->audio_url)
-                <div class="grid gap-3 sm:grid-cols-2">
+        <section class="flex min-h-[calc(100dvh-9rem)] flex-col gap-5 pt-8">
+            <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">You, then and now</h1>
+
+            <div class="space-y-3">
+                @if ($earlier?->audio_url)
                     <div>
-                        <p class="mb-1.5 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Then</p>
+                        <p class="{{ $voiceLabel }} mb-1.5">Placement test</p>
                         <x-audio-player :url="$earlier->audio_url" />
                     </div>
-                    <div>
-                        <p class="mb-1.5 text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Now</p>
-                        <x-audio-player :url="$newResult->audio_url" />
-                    </div>
-                </div>
-            @else
-                {{-- No earlier recording to play (the placement test was
-                     skipped, or predates audio_url) — still show today's,
-                     honestly, without pretending a comparison exists. --}}
-                <x-audio-player :url="$newResult->audio_url" />
-            @endif
-
-            @if ($comparison)
-                <div class="rounded-xl bg-success-soft p-4 dark:bg-success-soft-dark">
-                    <p class="text-xs font-semibold text-success uppercase dark:text-success-dark">What's different</p>
-                    <ul class="mt-1.5 space-y-1 text-sm text-ink dark:text-ink-dark">
-                        @foreach ($comparison['observations'] as $observation)
-                            <li>{{ $observation }}</li>
-                        @endforeach
-                    </ul>
-                    <p class="mt-2 border-t border-success/20 pt-2 text-sm text-ink-soft dark:border-success-dark/20 dark:text-ink-soft-dark">
-                        <span class="font-semibold text-ink dark:text-ink-dark">Next focus:</span> {{ $comparison['focus'] }}
-                    </p>
-                </div>
-            @elseif (! $earlier?->transcript)
-                <p class="rounded-xl bg-surface-sunken p-3 text-center text-sm text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                    There's nothing to compare this one to yet — this is the first recording saved for you. Next time, this is where you'll hear the difference.
-                </p>
-            @else
-                {{-- AI comparison failed (relay hiccup) — the recording is
-                     still saved; just no commentary right now. Never a
-                     bare error here, which would read as a bad result. --}}
-                <p class="rounded-xl bg-surface-sunken p-3 text-center text-sm text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                    Both recordings are saved. We couldn't compare them just now — you can always come back and listen from your Progress page.
-                </p>
-            @endif
-
-            <button
-                type="button"
-                wire:click="done"
-                wire:loading.attr="disabled"
-                wire:target="done"
-                class="w-full cursor-pointer rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-            >Back to today</button>
-        </div>
-    @else
-        <div x-data="{ recorded: false }">
-            <div class="card p-4">
-                @php $speaking = $this->test->speaking(); @endphp
-                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Speak for about {{ $speaking['seconds'] }} seconds</p>
-                <p class="mt-1 text-lg font-semibold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>
-                <ul class="mt-2 list-disc space-y-0.5 pl-5 text-sm text-ink-soft dark:text-ink-soft-dark">
-                    @foreach ($speaking['bullets'] as $bullet)
-                        <li>{{ $bullet }}</li>
-                    @endforeach
-                </ul>
-
-                <div class="mt-3" x-on:click="recorded = true">
-                    <x-voice-recorder field="recording" :file="$recording" file-name="checkpoint.webm" />
+                @endif
+                <div>
+                    <p class="{{ $voiceLabel }} mb-1.5">Today</p>
+                    <x-audio-player :url="$newResult->audio_url" />
                 </div>
             </div>
 
-            <x-continue-button
-                on-click="$wire.finish()"
-                wire-target="finish"
-                loading-label="Listening…"
-                ready-when="recorded"
-                hint="Record your answer to see the comparison"
-                class="mt-4"
-            />
+            @if ($comparison)
+                <div class="rounded-2xl bg-success-soft p-4 dark:bg-success-soft-dark">
+                    <p class="text-xs font-extrabold tracking-wide text-success uppercase dark:text-success-dark">What's different</p>
+                    <ul class="mt-1.5 space-y-1 text-sm leading-6 text-ink dark:text-ink-dark">
+                        @foreach (array_slice($comparison['observations'], 0, 3) as $observation)
+                            <li wire:key="observation-{{ $loop->index }}">• {{ $observation }}</li>
+                        @endforeach
+                    </ul>
+                    <p class="mt-2 border-t border-success/20 pt-2 text-sm text-ink-soft dark:border-success-dark/20 dark:text-ink-soft-dark">
+                        <span class="font-bold text-ink dark:text-ink-dark">Next focus:</span> {{ $comparison['focus'] }}
+                    </p>
+                </div>
+            @elseif (! $earlier?->transcript)
+                <p class="rounded-2xl bg-surface-sunken p-3 text-center text-sm text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">There's nothing to compare this one to yet — next time you'll hear the difference.</p>
+            @else
+                {{-- The AI comparison failed (relay hiccup): the recording is
+                     saved, just no commentary — never a bare error, which
+                     would read as a bad result. --}}
+                <p class="rounded-2xl bg-surface-sunken p-3 text-center text-sm text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">Both recordings are saved. We couldn't compare them just now.</p>
+            @endif
 
-            <p class="mt-3 text-center text-xs text-ink-faint dark:text-ink-faint-dark">
-                <button type="button" wire:click="skip" class="cursor-pointer underline hover:text-ink dark:hover:text-ink-dark">Skip this — take me back to today</button>
-            </p>
+            <div class="flex-1"></div>
+            <button type="button" wire:click="done" wire:loading.attr="disabled" wire:target="done" class="{{ $cta }}">Done</button>
+        </section>
+    @else
+        <div x-data="{ recorded: false }">
+            <x-lesson-header :close="route('home')" :progress="0.4" />
+
+            <section class="flex min-h-[calc(100dvh-10rem)] flex-col gap-4 pt-6">
+                <span class="self-start rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Your voice, {{ $missionsIn }} missions in · ~60s</span>
+                <p class="text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $speaking['prompt'] }}</p>
+                <div class="flex flex-wrap gap-1.5">
+                    @foreach ($speaking['bullets'] as $bullet)
+                        <span wire:key="bullet-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1 text-xs font-bold text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">{{ $bullet }}</span>
+                    @endforeach
+                </div>
+
+                <div class="flex flex-1 items-center justify-center" x-on:click="recorded = true">
+                    <x-voice-recorder big field="recording" :file="$recording" file-name="checkpoint.webm" />
+                </div>
+
+                <div class="space-y-3 pb-2">
+                    <x-continue-button on-click="$wire.finish()" wire-target="finish" loading-label="Listening…" ready-when="recorded" />
+                    <button type="button" wire:click="skip" class="block w-full cursor-pointer py-1 text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
+                </div>
+            </section>
         </div>
     @endif
 </div>
