@@ -722,4 +722,50 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertReturned(false)
             ->assertSee("Couldn't check this one");
     }
+
+    public function test_verdicts_survive_leaving_so_the_last_continue_does_not_check_everything_again(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(4)->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.'])));
+
+        $sentences = ['I usually wake up around 7.', 'I have a morning routine.', 'I get up straight away.', 'I commute by bus.'];
+        $first = $this->stepComponent($run);
+
+        foreach ($sentences as $index => $sentence) {
+            $first->set("examples.$index", $sentence)->call('checkOne', $index);
+        }
+
+        // A new visit: a fresh component whose boxes get their text back
+        // from the browser's draft. The four verdicts must still be there.
+        $second = $this->stepComponent($run);
+
+        foreach ($sentences as $index => $sentence) {
+            $second->set("examples.$index", $sentence);
+        }
+
+        $second->call('save')->assertHasNoErrors();
+    }
+
+    public function test_a_sentence_edited_after_its_check_is_still_checked_again_on_save(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->times(5)->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.'])));
+
+        $sentences = ['I usually wake up around 7.', 'I have a morning routine.', 'I get up straight away.', 'I commute by bus.'];
+        $first = $this->stepComponent($run);
+
+        foreach ($sentences as $index => $sentence) {
+            $first->set("examples.$index", $sentence)->call('checkOne', $index);
+        }
+
+        $second = $this->stepComponent($run);
+
+        foreach ($sentences as $index => $sentence) {
+            $second->set("examples.$index", $index === 2 ? 'I get up at six.' : $sentence);
+        }
+
+        $second->call('save')->assertHasNoErrors();
+    }
 }

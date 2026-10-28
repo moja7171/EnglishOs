@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Concerns\DictatesAnswers;
+use App\Livewire\Concerns\KeepsStepDraft;
 use App\Livewire\Concerns\PreviewsStep;
 use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
@@ -26,6 +27,7 @@ use Livewire\WithFileUploads;
 new class extends Component
 {
     use DictatesAnswers;
+    use KeepsStepDraft;
     use PreviewsStep;
     use TracksAiUsage;
     use TracksCheckAttempts;
@@ -50,6 +52,8 @@ new class extends Component
         $this->answers = array_fill(0, count($this->questions()), '');
 
         if (! $this->readOnly) {
+            $this->restoreStepDraft();
+
             return;
         }
 
@@ -64,6 +68,17 @@ new class extends Component
      *
      * @return list<array{phrase: string, definition: string, pos?: string, example?: string}>
      */
+    protected function draftPhase(): string
+    {
+        return 'reading_comprehension';
+    }
+
+    /** The verdicts are kept, so coming back never means checking every answer again on the last Continue. */
+    protected function draftedProperties(): array
+    {
+        return ['feedback', 'checkAttempts', 'offerReveal'];
+    }
+
     public function newWords(): array
     {
         return collect($this->run->mission->stepContent('reading_comprehension')['highlighted_phrases'] ?? [])
@@ -151,6 +166,7 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $text];
             $this->trackCheckAttempt($index, $data['severity']);
+            $this->keepStepDraft();
 
             return true;
         } catch (ConnectionException|RequestException) {
@@ -203,6 +219,7 @@ new class extends Component
             onCorrected: function (string $corrected) use ($index) {
                 $this->answers[$index] = $corrected;
                 $this->feedback[$index] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
+                $this->keepStepDraft();
             },
         );
     }
@@ -334,6 +351,7 @@ new class extends Component
         $this->initWordsToTrack();
         $this->addWordsToNotebook();
 
+        $this->forgetStepDraft();
         $this->dispatch('clear-draft', prefix: $this->draftPrefix());
         $this->redirect($this->run->urlAfterSavingAStep(), navigate: true);
     }

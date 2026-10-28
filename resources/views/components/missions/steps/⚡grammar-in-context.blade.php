@@ -157,9 +157,10 @@ new class extends Component
         return 'grammar_in_context';
     }
 
+    /** The verdicts stay too, so a learner who comes back is not re-checked sentence by sentence on the last Continue. */
     protected function draftedProperties(): array
     {
-        return ['practiceStarted'];
+        return ['practiceStarted', 'feedback', 'checkAttempts', 'offerReveal'];
     }
 
     /** Kept in the step's draft, so a learner who leaves comes back to practice, not the lesson. */
@@ -282,6 +283,7 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
             $this->trackCheckAttempt($index, $data['severity']);
+            $this->keepStepDraft();
 
             return true;
         } catch (ConnectionException|RequestException) {
@@ -324,6 +326,7 @@ new class extends Component
                 $continuation = $this->continuation($starter, $corrected);
                 $this->frequencySentences[$index] = $continuation;
                 $this->feedback[$index] = ['severity' => 'none', 'hint' => '', 'checkedText' => $continuation];
+                $this->keepStepDraft();
             },
         );
     }
