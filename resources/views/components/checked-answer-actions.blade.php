@@ -46,7 +46,7 @@
 @endphp
 
 @if ($error)
-    <div role="alert" class="rounded-2xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger-ink">{{ $error }}</div>
+    <x-error-card>{{ $error }}</x-error-card>
 @endif
 
 @if ($feedback)

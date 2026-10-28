@@ -35,12 +35,13 @@ class SpokenAnswerChecker
                 .'silent/inaudible, complete gibberish, or clearly about a totally different topic than what was '
                 .'asked — be lenient, a short or imperfect but genuine attempt is always "none". If "major", the '
                 .'hint must be one short, warm, encouraging sentence (never harsh or scolding) nudging them '
-                .'toward the topic — never write their exact answer for them.'
+                .'toward the topic — never write their exact answer for them. Never use double quote characters '
+                .'inside the hint.'
                 .$extraGuidance,
             profile: GeminiClient::PROFILE_JUDGE,
         );
 
-        $data = json_decode(trim($raw), true);
+        $data = AiJson::decode($raw);
 
         if (! is_array($data) || ! isset($data['severity'], $data['hint'])) {
             throw new RuntimeException('Unexpected AI response format.');
@@ -70,11 +71,12 @@ class SpokenAnswerChecker
                 .'"original": "for fix: the learner\'s words that are wrong, in English; else null", "corrected": '
                 .'"for fix: the corrected words, in English; else null", "why": "one short line in simple Persian — '
                 .'for fix the reason, for ok one specific thing they did well"}. Inside the Persian, keep English '
-                .'words in Latin letters inside «». Never ask a question.',
+                .'words in Latin letters inside «». Never ask a question. Never use double quote characters inside '
+                .'any text value.',
             profile: GeminiClient::PROFILE_JUDGE,
         );
 
-        $data = json_decode(preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($raw)), true);
+        $data = AiJson::decode($raw);
 
         if (! is_array($data) || ! in_array($data['status'] ?? null, ['ok', 'fix'], true) || ! is_string($data['why'] ?? null)) {
             throw new RuntimeException('Unexpected AI response format.');
@@ -136,11 +138,13 @@ class SpokenAnswerChecker
                 .'empty, silent/inaudible, or clearly a different sentence entirely (not just a few mismatched '
                 .'words) — be very lenient, a close or partial attempt is always "none". If "major", the hint '
                 .'must be one short, warm, encouraging sentence (never harsh) asking them to try that line again '
-                .'— never write the line for them.',
+                .'— never write the line for them. If "none", the hint is still never empty: one short, warm '
+                .'comment on what went well, at most 8 words (for example \'Good rhythm.\'). Never use double '
+                .'quote characters inside the hint.',
             profile: GeminiClient::PROFILE_JUDGE,
         );
 
-        $data = json_decode(trim($raw), true);
+        $data = AiJson::decode($raw);
 
         if (! is_array($data) || ! isset($data['severity'], $data['hint'])) {
             throw new RuntimeException('Unexpected AI response format.');
@@ -172,11 +176,11 @@ class SpokenAnswerChecker
                 .'gibberish, or not actually a question at all (e.g. a statement) — be lenient, a short or '
                 .'imperfect but genuine question attempt is always "none". If "major", the hint must be one '
                 .'short, warm, encouraging sentence nudging them to ask something about the topic — never write '
-                .'a question for them.',
+                .'a question for them. Never use double quote characters inside the hint.',
             profile: GeminiClient::PROFILE_JUDGE,
         );
 
-        $data = json_decode(trim($raw), true);
+        $data = AiJson::decode($raw);
 
         if (! is_array($data) || ! isset($data['severity'], $data['hint'])) {
             throw new RuntimeException('Unexpected AI response format.');

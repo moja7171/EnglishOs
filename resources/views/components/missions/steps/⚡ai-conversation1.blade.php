@@ -546,7 +546,7 @@ new class extends Component
             <x-voice-recorder big field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" />
         </div>
         @error('warmUpAudioFile')
-            <p class="text-sm text-danger-ink">{{ $message }}</p>
+            <x-error-card>{{ str_replace('warmUpAudioFile', 'recording', $message) }}</x-error-card>
         @enderror
 
         <x-slot:actions>
@@ -585,13 +585,13 @@ new class extends Component
 
             <x-ai-thinking wire:loading wire:target="submitAnswer" label="Listening to your answer…" />
             @error('audioFile')
-                <p class="text-sm text-danger-ink">{{ $message }}</p>
+                <x-error-card>{{ str_replace('audioFile', 'recording', $message) }}</x-error-card>
             @enderror
             @if ($notice)
                 <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
             @endif
             @if ($error)
-                <p class="text-sm text-danger-ink">{{ $error }}</p>
+                <x-error-card>{{ $error }}</x-error-card>
             @endif
         </div>
 

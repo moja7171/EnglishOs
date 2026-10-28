@@ -20,7 +20,7 @@ use Livewire\WithFileUploads;
 /**
  * Lesson design 13: the start, then the Q&A rounds and the role reversal
  * ("Your turn — ask me") as ONE chat, then the 3-minute challenge (a
- * timer ring, the goals ticked once it is checked, an optional Try again),
+ * timer ring, the goals ticked once it is checked, an optional "Record it again"),
  * then the shared feedback screen.
  */
 new class extends Component
@@ -648,13 +648,13 @@ new class extends Component
 
             <x-ai-thinking wire:loading wire:target="submitRoundAnswer,submitLearnerQuestion" label="Listening to your answer…" />
             @error('audioFile')
-                <p class="text-sm text-danger-ink">{{ $message }}</p>
+                <x-error-card>{{ str_replace('audioFile', 'recording', $message) }}</x-error-card>
             @enderror
             @if ($notice)
                 <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $notice }}</p>
             @endif
             @if ($error)
-                <p class="text-sm text-danger-ink">{{ $error }}</p>
+                <x-error-card>{{ $error }}</x-error-card>
             @endif
         </div>
 
@@ -742,10 +742,10 @@ new class extends Component
                 label="Want an example to help you get started?"
             />
             @error('audioFile')
-                <p class="text-sm text-danger-ink">{{ $message }}</p>
+                <x-error-card>{{ str_replace('audioFile', 'recording', $message) }}</x-error-card>
             @enderror
             @if ($error)
-                <p class="text-sm text-danger-ink">{{ $error }}</p>
+                <x-error-card>{{ $error }}</x-error-card>
             @endif
         @endif
 
@@ -756,7 +756,7 @@ new class extends Component
                 ready-when="{{ $checklist ? 'true' : 'false' }}"
             >See feedback</x-continue-button>
             @if ($checklist)
-                <button type="button" wire:click="retryFinalChallenge" class="cursor-pointer text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">↻ Try again</button>
+                <button type="button" wire:click="retryFinalChallenge" class="cursor-pointer text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">↻ Record it again</button>
             @endif
         </x-slot:actions>
     </x-lesson-screen>
