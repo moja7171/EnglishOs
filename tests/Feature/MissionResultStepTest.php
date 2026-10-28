@@ -130,6 +130,27 @@ class MissionResultStepTest extends TestCase
         $this->assertNull($run->currentStepKey());
     }
 
+    public function test_an_empty_before_score_is_saved_as_null_not_an_empty_string(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'status' => 'complete',
+                'reason' => 'You clearly improved and met the mission outcome.',
+            ]));
+        });
+
+        Livewire::test('missions.steps.mission-result', ['run' => $run])
+            ->set('scores.Speaking.before', '')->set('scores.Speaking.after', 4)
+            ->set('scores.Writing.before', '')->set('scores.Writing.after', 4)
+            ->call('getResult')
+            ->call('finish');
+
+        $this->assertDatabaseHas('self_assessments', ['skill' => 'Speaking', 'before' => null, 'after' => 4]);
+        $this->assertDatabaseCount('self_assessments', 2);
+    }
+
     public function test_getting_a_complete_result_triggers_the_confetti_burst_only_once(): void
     {
         $run = $this->makeRun();
