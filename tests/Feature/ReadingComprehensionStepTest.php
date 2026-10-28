@@ -430,4 +430,26 @@ class ReadingComprehensionStepTest extends TestCase
             ->assertDontSee('Quick check')
             ->assertDontSeeHtml('x-draft');
     }
+
+    public function test_verdicts_survive_leaving_so_save_does_not_check_the_answers_again(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->twice()->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.'])));
+
+        $answers = ['She wakes up early and never skips breakfast.', 'She works at a hospital in Manchester.'];
+        $first = Livewire::test('missions.steps.reading-comprehension', ['run' => $run]);
+
+        foreach ($answers as $index => $answer) {
+            $first->set("answers.$index", $answer)->call('checkOne', $index);
+        }
+
+        $second = Livewire::test('missions.steps.reading-comprehension', ['run' => $run]);
+
+        foreach ($answers as $index => $answer) {
+            $second->set("answers.$index", $answer);
+        }
+
+        $second->call('save')->assertHasNoErrors();
+    }
 }

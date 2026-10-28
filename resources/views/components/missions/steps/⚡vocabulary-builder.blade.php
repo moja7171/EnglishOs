@@ -266,9 +266,10 @@ new class extends Component
         return $this->stepKey;
     }
 
+    /** The verdicts stay too, so a learner who comes back is not re-checked sentence by sentence on the last Continue. */
     protected function draftedProperties(): array
     {
-        return ['practiceStarted'];
+        return ['practiceStarted', 'feedback', 'checkAttempts', 'offerReveal'];
     }
 
     /**
@@ -338,6 +339,7 @@ new class extends Component
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
             $this->trackCheckAttempt($word, $data['severity']);
+            $this->keepStepDraft();
 
             return true;
         } catch (ConnectionException|RequestException) {
@@ -375,6 +377,7 @@ new class extends Component
             onCorrected: function (string $corrected) use ($word, $index) {
                 $this->examples[$index] = $corrected;
                 $this->feedback[$word] = ['severity' => 'none', 'hint' => '', 'checkedText' => $corrected];
+                $this->keepStepDraft();
             },
         );
     }
