@@ -267,6 +267,26 @@ class DailyReviewTest extends TestCase
             ->assertDontSee("You're all caught up");
     }
 
+    public function test_after_todays_eight_the_review_says_how_many_more_are_waiting(): void
+    {
+        $learner = User::factory()->create();
+
+        foreach (range(1, 11) as $number) {
+            $this->makeDueWord($learner, ['word' => 'word'.$number, 'next_review_at' => now()->subMinutes($number)]);
+        }
+
+        $this->actingAs($learner);
+
+        $page = Livewire::test('review.index');
+
+        foreach (range(1, 8) as $ignored) {
+            $page->call('gradeWord', 4, true);
+        }
+
+        $page->assertSee('Session done!')
+            ->assertSee('3 more waiting · about 1 day');
+    }
+
     public function test_arriving_on_an_already_finished_day_still_just_says_all_caught_up(): void
     {
         $learner = User::factory()->create();

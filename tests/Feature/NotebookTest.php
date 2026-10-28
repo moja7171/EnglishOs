@@ -647,6 +647,78 @@ class NotebookTest extends TestCase
         $this->assertModelMissing($word);
     }
 
+    public function test_removing_a_word_can_be_undone_and_comes_back_as_it_was(): void
+    {
+        $learner = User::factory()->create();
+        $word = $learner->vocabularyWords()->create(['word' => 'commute', 'meaning_fa' => 'رفت‌وآمد', 'repetitions' => 3, 'interval_days' => 12, 'next_review_at' => now()->addDays(12)]);
+        $this->actingAs($learner);
+
+        $page = Livewire::test('notebook.index')
+            ->call('removeWord', $word->id)
+            ->assertSee('“commute” removed', false);
+
+        $this->assertModelMissing($word);
+
+        $page->call('undoRemove')->assertSet('removed', null);
+
+        $back = $learner->vocabularyWords()->sole();
+        $this->assertSame($word->id, $back->id);
+        $this->assertSame(3, $back->repetitions);
+        $this->assertSame(12, $back->interval_days);
+    }
+
+    public function test_a_removed_notebook_line_can_be_undone_and_someone_elses_cannot_be_removed(): void
+    {
+        $learner = User::factory()->create();
+        $entry = NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'She go home.', 'better' => 'She goes home.', 'times_seen' => 4]);
+        $stranger = NotebookEntry::factory()->for(User::factory()->create(), 'learner')->create();
+        $this->actingAs($learner);
+
+        $page = Livewire::test('notebook.index')->call('removeEntry', $entry->id);
+
+        $this->assertModelMissing($entry);
+
+        $page->call('undoRemove');
+
+        $this->assertSame(4, $learner->notebookEntries()->sole()->times_seen);
+
+        $this->expectException(ModelNotFoundException::class);
+        Livewire::test('notebook.index')->call('removeEntry', $stranger->id);
+    }
+
+    public function test_each_tab_folds_its_lines_into_groups_with_filters(): void
+    {
+        $learner = User::factory()->create();
+        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'I am agree.', 'better' => 'I agree.', 'times_seen' => 3]);
+        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'He go.', 'better' => 'He goes.', 'times_seen' => 1, 'last_seen_at' => now()->subDays(30)]);
+        NotebookEntry::factory()->for($learner, 'learner')->create(['kind' => NotebookEntry::KIND_TIP, 'original' => null, 'better' => 'Say well, first.', 'source' => 'pi']);
+        $learner->vocabularyWords()->create(['word' => 'commute', 'next_review_at' => now()]);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')
+            ->assertSee('Keeps coming back')
+            ->assertSee('Earlier')
+            ->assertSee('Pi')
+            ->assertSee('Added by you')
+            ->assertSee('Repeating')
+            ->assertSee('Not practised')
+            ->assertSee('In Review')
+            ->assertSee('Mine')
+            ->assertDontSee('wire:confirm', false);
+    }
+
+    public function test_a_word_is_new_until_reviewed_and_known_once_its_gap_is_long(): void
+    {
+        $learner = User::factory()->create();
+        $fresh = $learner->vocabularyWords()->create(['word' => 'fresh', 'next_review_at' => now()]);
+        $shaky = $learner->vocabularyWords()->create(['word' => 'shaky', 'repetitions' => 1, 'interval_days' => 1, 'last_reviewed_at' => now(), 'next_review_at' => now()->addDay()]);
+        $strong = $learner->vocabularyWords()->create(['word' => 'strong', 'repetitions' => 5, 'interval_days' => 30, 'last_reviewed_at' => now(), 'next_review_at' => now()->addDays(30)]);
+
+        $this->assertSame('new', $fresh->studyStatus());
+        $this->assertSame('learning', $shaky->studyStatus());
+        $this->assertSame('known', $strong->studyStatus());
+    }
+
     public function test_practice_this_one_starts_a_round_of_just_that_line(): void
     {
         $learner = User::factory()->create();

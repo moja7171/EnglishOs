@@ -160,6 +160,19 @@ class NotebookEntry extends Model
     }
 
     /**
+     * The status the Notebook's filter bar counts: not practised yet,
+     * practising, or learned.
+     */
+    public function studyStatus(): string
+    {
+        return match (true) {
+            $this->learned_at !== null => 'known',
+            $this->isUnpractised() => 'new',
+            default => 'learning',
+        };
+    }
+
+    /**
      * @param  Builder<NotebookEntry>  $query
      */
     public function scopeActive(Builder $query): void

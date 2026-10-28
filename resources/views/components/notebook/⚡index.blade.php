@@ -6,7 +6,10 @@ use App\Models\NotebookEntry;
 use App\Models\VocabularyWord;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use App\Services\FeedbackNotebook;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -38,6 +41,16 @@ new class extends Component
     public int $practiceSize = 0;
 
     public int $practiceAt = 0;
+
+    /**
+     * The last word or line taken off a list, kept for the "Undo" bar:
+     * its type ('word' or 'entry'), a label and its stored row. Locked, so
+     * the browser can't change what Undo puts back.
+     *
+     * @var array{type: string, label: string, attributes: array<string, mixed>}|null
+     */
+    #[Locked]
+    public ?array $removed = null;
 
     public int $practiceRight = 0;
 
@@ -94,11 +107,89 @@ new class extends Component
         return Mission::persianMeanings();
     }
 
+    /**
+     * Words grouped for the Words tab: the learner's own first, then one
+     * group per mission, newest first.
+     *
+     * @return Collection<int, array{title: string, words: Collection<int, VocabularyWord>}>
+     */
+    #[Computed]
+    public function wordGroups(): Collection
+    {
+        return $this->words
+            ->groupBy(fn (VocabularyWord $word) => $word->sourceMissionRun?->mission?->code ?? '')
+            ->map(fn (Collection $words, string $code) => [
+                'title' => $code === '' ? 'Added by you' : $code.' · '.$words->first()->sourceMissionRun->mission->title,
+                'words' => $words,
+            ])
+            ->sortBy(fn (array $group) => $group['title'] === 'Added by you' ? 0 : 1)
+            ->values();
+    }
+
+    /**
+     * The active lines of one notebook in the groups its tab folds by:
+     * mistakes by "keeps coming back" / this week / earlier, tips by where
+     * they came from.
+     *
+     * @return Collection<int, array{title: string, entries: Collection<int, NotebookEntry>}>
+     */
+    public function entryGroups(string $kind): Collection
+    {
+        $active = $this->entries->where('kind', $kind)->whereNull('learned_at');
+
+        $titleOf = fn (NotebookEntry $entry): string => match (true) {
+            $kind === NotebookEntry::KIND_TIP => FeedbackNotebook::SOURCES[$entry->source] ?? 'Other',
+            $entry->times_seen > 1 => 'Keeps coming back',
+            $entry->last_seen_at?->greaterThanOrEqualTo(now()->subDays(7)) => 'This week',
+            default => 'Earlier',
+        };
+
+        return $active
+            ->groupBy($titleOf)
+            ->map(fn (Collection $entries, string $title) => ['title' => $title, 'entries' => $entries])
+            ->values();
+    }
+
     public function removeWord(int $wordId): void
     {
-        auth()->user()->vocabularyWords()->findOrFail($wordId)->delete();
+        $word = auth()->user()->vocabularyWords()->findOrFail($wordId);
 
-        unset($this->words);
+        $this->removed = ['type' => 'word', 'label' => $word->word, 'attributes' => $word->getAttributes()];
+        $word->delete();
+
+        unset($this->words, $this->wordGroups);
+    }
+
+    public function removeEntry(int $entryId): void
+    {
+        $entry = auth()->user()->notebookEntries()->findOrFail($entryId);
+
+        $this->removed = ['type' => 'entry', 'label' => $entry->better, 'attributes' => $entry->getAttributes()];
+        $entry->delete();
+
+        unset($this->entries);
+    }
+
+    /**
+     * Puts the last removed word or line back, as it was.
+     */
+    public function undoRemove(): void
+    {
+        if ($this->removed === null || (int) ($this->removed['attributes']['learner_id'] ?? 0) !== auth()->id()) {
+            return;
+        }
+
+        $model = $this->removed['type'] === 'word' ? new VocabularyWord : new NotebookEntry;
+
+        try {
+            $model->forceFill($this->removed['attributes'])->save();
+        } catch (UniqueConstraintViolationException) {
+            // Feedback saved the same line again in the meantime.
+        }
+
+        $this->removed = null;
+
+        unset($this->words, $this->wordGroups, $this->entries);
     }
 
     /** "Practice this one", from a line's sheet. */
@@ -269,9 +360,30 @@ new class extends Component
 @else
 <div
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
-    x-data="{ notebookTab: @js($practiceKind === NotebookEntry::KIND_TIP && $roundDone ? 'tips' : (in_array(request()->query('tab'), ['tips', 'words'], true) ? request()->query('tab') : 'mistakes')), sheet: false, learned: false, search: '' }"
+    x-data="{
+        notebookTab: @js($practiceKind === NotebookEntry::KIND_TIP && $roundDone ? 'tips' : (in_array(request()->query('tab'), ['tips', 'words'], true) ? request()->query('tab') : 'mistakes')),
+        sheet: false,
+        learned: false,
+        search: '',
+        edit: false,
+        filter: { words: 'all', mistakes: 'all', tips: 'all' },
+        open: {},
+        expanded: {},
+        filtering(tab) { return this.filter[tab] !== 'all' || this.search !== ''; },
+        shows(tab, meta) {
+            const filter = this.filter[tab];
+            return (filter === 'all' || meta.s === filter || meta.f.includes(filter))
+                && (this.search === '' || meta.t.includes(this.search.toLowerCase()));
+        },
+        isOpen(tab, key, first) { return this.filtering(tab) || (key in this.open ? this.open[key] : first); },
+    }"
 >
-    <h1 class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Notebook</h1>
+    <div class="flex items-center justify-between">
+        <h1 class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Notebook</h1>
+        @if ($this->entries->isNotEmpty() || $this->words->isNotEmpty())
+            <button type="button" x-on:click="edit = ! edit" x-text="edit ? 'Done' : 'Edit'" class="cursor-pointer px-1 py-1.5 text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Edit</button>
+        @endif
+    </div>
 
     {{-- The practice card (or, after a round, today's score) for the open tab. --}}
     @foreach ($tabs as $tab => $kind)
@@ -305,43 +417,105 @@ new class extends Component
 
     <div class="flex gap-1 rounded-full bg-surface-sunken p-1 dark:bg-surface-sunken-dark" role="tablist">
         @foreach (['mistakes' => 'Mistakes', 'tips' => 'Tips', 'words' => 'Words'] as $tab => $label)
-            @php $count = $tab === 'words' ? $this->words->count() : $activeCount($tabs[$tab]); @endphp
+            @php
+                $count = $tab === 'words' ? $this->words->count() : $activeCount($tabs[$tab]);
+                $newCount = $tab === 'words' ? 0 : ($byKind->get($tabs[$tab]) ?? collect())->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
+            @endphp
             <button
                 type="button"
                 role="tab"
-                x-on:click="notebookTab = '{{ $tab }}'; learned = false"
+                x-on:click="notebookTab = '{{ $tab }}'; learned = false; search = ''; edit = false"
                 x-bind:aria-selected="notebookTab === '{{ $tab }}'"
                 class="{{ $pill }}"
                 x-bind:class="notebookTab === '{{ $tab }}' ? 'bg-surface text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
-            >{{ $label }} <span class="font-bold text-ink-faint dark:text-ink-faint-dark">{{ $count }}</span></button>
+            >{{ $label }} <span class="font-bold text-ink-faint dark:text-ink-faint-dark">{{ $count }}</span>@if ($newCount > 0) <span class="ml-0.5 inline-block min-w-4 rounded-full bg-accent px-1 align-middle text-[0.65rem] leading-4 font-extrabold text-white dark:bg-accent-dark" title="Not practised yet">{{ $newCount }}</span>@endif</button>
         @endforeach
     </div>
 
+    @php
+        $statusDot = fn (string $status) => match ($status) {
+            'known' => 'bg-success dark:bg-success-dark',
+            'learning' => 'bg-warning',
+            default => 'bg-ink-faint dark:bg-ink-faint-dark',
+        };
+        $removeSheetButton = 'mt-1 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-danger-line bg-danger-soft py-3 text-sm font-extrabold text-danger-ink';
+        $removeButton = 'inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-danger-soft text-danger-ink';
+    @endphp
+
     @foreach ($tabs as $tab => $kind)
-        @php [$active, $learnedEntries] = ($byKind->get($kind) ?? collect())->partition(fn (NotebookEntry $entry) => $entry->learned_at === null); @endphp
-        <div x-show="notebookTab === '{{ $tab }}'" @if ($tab !== 'mistakes') x-cloak @endif class="space-y-3">
-            @if ($active->isEmpty())
+        @php
+            [$active, $learnedEntries] = ($byKind->get($kind) ?? collect())->partition(fn (NotebookEntry $entry) => $entry->learned_at === null);
+            $groups = $this->entryGroups($kind);
+            $metaOf = fn (NotebookEntry $entry) => [
+                's' => $entry->studyStatus(),
+                'f' => array_values(array_filter([$entry->times_seen > 1 ? 'repeat' : null, $entry->starred_at ? 'star' : null])),
+                't' => mb_strtolower($entry->original.' '.$entry->better.' '.$entry->note),
+            ];
+            $allMetas = $active->map($metaOf)->values();
+            $statusCounts = $active->countBy(fn (NotebookEntry $entry) => $entry->studyStatus());
+            $segments = [
+                ['status' => 'new', 'label' => 'Not practised', 'count' => $statusCounts->get('new', 0)],
+                ['status' => 'learning', 'label' => 'Practising', 'count' => $statusCounts->get('learning', 0)],
+                ['status' => 'known', 'label' => 'Learned', 'count' => $learnedEntries->count(), 'learned' => true],
+            ];
+            $chips = $tab === 'mistakes'
+                ? [['all', 'All', $active->count()], ['repeat', 'Repeating', $active->where('times_seen', '>', 1)->count()], ['new', 'Not practised', $statusCounts->get('new', 0)]]
+                : [['all', 'All', $active->count()], ['new', 'Not practised', $statusCounts->get('new', 0)], ['learning', 'Practising', $statusCounts->get('learning', 0)], ['star', 'In Review', $active->whereNotNull('starred_at')->count()]];
+        @endphp
+        <div x-show="notebookTab === '{{ $tab }}'" @if ($tab !== 'mistakes') x-cloak @endif class="space-y-3" x-data="{ all: {{ \Illuminate\Support\Js::from($allMetas) }} }">
+            @if ($active->isEmpty() && $learnedEntries->isEmpty())
                 <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">{{ $tab === 'mistakes' ? 'No mistakes saved yet.' : 'No tips saved yet.' }}</p>
             @else
-                <div class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
-                    @foreach ($active as $entry)
-                        <button type="button" wire:key="notebook-row-{{ $entry->id }}" x-on:click="sheet = 'n{{ $entry->id }}'" class="flex w-full cursor-pointer items-center gap-2.5 py-3 text-left">
-                            <span @class(['h-2 w-2 shrink-0 rounded-full', 'bg-accent dark:bg-accent-dark' => $entry->isUnpractised(), 'bg-transparent' => ! $entry->isUnpractised()])></span>
-                            <span class="min-w-0 flex-1">
-                                @if ($entry->original)
-                                    <span class="block truncate text-xs text-ink-faint line-through dark:text-ink-faint-dark">{{ $entry->original }}</span>
-                                @endif
-                                <span class="block truncate text-sm font-bold text-ink dark:text-ink-dark">{{ $entry->better }}</span>
+                <input type="search" x-model="search" placeholder="Search your {{ $tab }}" aria-label="Search your {{ $tab }}" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark">
+                <x-notebook-filter-bar :tab="$tab" :segments="$segments" :chips="$chips" />
+
+                <p x-show="! all.some(meta => shows('{{ $tab }}', meta))" x-cloak class="py-6 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Nothing here.</p>
+
+                @foreach ($groups as $group)
+                    @php
+                        $key = $tab.'-'.$loop->index;
+                        $first = $loop->first ? 'true' : 'false';
+                        $metas = $group['entries']->map($metaOf)->values();
+                        $groupCounts = $group['entries']->countBy(fn (NotebookEntry $entry) => $entry->studyStatus());
+                    @endphp
+                    <div class="space-y-1.5" x-data="{ metas: {{ \Illuminate\Support\Js::from($metas) }} }" x-show="metas.some(meta => shows('{{ $tab }}', meta))">
+                        <button type="button" x-on:click="open['{{ $key }}'] = ! isOpen('{{ $tab }}', '{{ $key }}', {{ $first }})" x-bind:aria-expanded="isOpen('{{ $tab }}', '{{ $key }}', {{ $first }})" class="flex w-full cursor-pointer items-center gap-2 px-2 text-left text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
+                            <span class="transition-transform" x-bind:class="isOpen('{{ $tab }}', '{{ $key }}', {{ $first }}) ? 'rotate-90' : ''">@svg('heroicon-m-chevron-right', 'h-3.5 w-3.5')</span>
+                            <span>{{ $group['title'] }}</span>
+                            <span class="flex gap-0.5" aria-hidden="true">
+                                @foreach (['new', 'learning', 'known'] as $status)
+                                    @if ($groupCounts->get($status, 0) > 0)
+                                        <span class="{{ $statusDot($status) }} h-1.5 w-1.5 rounded-full"></span>
+                                    @endif
+                                @endforeach
                             </span>
-                            @if ($entry->starred_at)
-                                @svg('heroicon-s-star', 'h-3.5 w-3.5 shrink-0 text-warning')
-                            @endif
-                            @if ($entry->times_seen > 1)
-                                <span class="shrink-0 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-extrabold text-warning-ink">{{ $entry->times_seen }}×</span>
-                            @endif
+                            <span class="ml-auto font-bold tracking-normal">{{ $group['entries']->count() }}</span>
                         </button>
-                    @endforeach
-                </div>
+                        <div x-show="isOpen('{{ $tab }}', '{{ $key }}', {{ $first }})" @unless ($loop->first) x-cloak @endunless class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
+                            @foreach ($group['entries'] as $entry)
+                                <div wire:key="notebook-row-{{ $entry->id }}" role="button" tabindex="0" x-show="shows('{{ $tab }}', metas[{{ $loop->index }}]) && ({{ $loop->index }} < 4 || expanded['{{ $key }}'] || filtering('{{ $tab }}'))" x-on:click="if (! edit) { sheet = 'n{{ $entry->id }}' }" x-on:keydown.enter="if (! edit) { sheet = 'n{{ $entry->id }}' }" class="flex w-full cursor-pointer items-center gap-2.5 py-3 text-left">
+                                    <span @class(['h-2 w-2 shrink-0 rounded-full', 'bg-accent dark:bg-accent-dark' => $entry->isUnpractised(), 'bg-transparent' => ! $entry->isUnpractised()])></span>
+                                    <span class="min-w-0 flex-1">
+                                        @if ($entry->original)
+                                            <span class="block truncate text-xs text-ink-faint line-through dark:text-ink-faint-dark">{{ $entry->original }}</span>
+                                        @endif
+                                        <span class="block truncate text-sm font-bold text-ink dark:text-ink-dark">{{ $entry->better }}</span>
+                                    </span>
+                                    @if ($entry->starred_at)
+                                        @svg('heroicon-s-star', 'h-3.5 w-3.5 shrink-0 text-warning')
+                                    @endif
+                                    @if ($entry->times_seen > 1)
+                                        <span class="shrink-0 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-extrabold text-warning-ink">{{ $entry->times_seen }}×</span>
+                                    @endif
+                                    <button type="button" x-show="edit" x-cloak wire:click="removeEntry({{ $entry->id }})" x-on:click.stop aria-label="Remove" class="{{ $removeButton }}">@svg('heroicon-m-x-mark', 'h-4 w-4')</button>
+                                </div>
+                            @endforeach
+                            @if ($group['entries']->count() > 4)
+                                <button type="button" x-show="! filtering('{{ $tab }}')" x-on:click="expanded['{{ $key }}'] = ! expanded['{{ $key }}']" x-text="expanded['{{ $key }}'] ? 'Show less' : 'Show all {{ $group['entries']->count() }} ›'" class="w-full cursor-pointer py-3 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $group['entries']->count() }} ›</button>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
             @endif
 
             @if ($learnedEntries->isNotEmpty())
@@ -358,35 +532,80 @@ new class extends Component
         </div>
     @endforeach
 
-    {{-- Words: find a word and its meaning, newest mission first. --}}
+    {{-- Words: find a word and its meaning; mine first, then newest mission first. --}}
     <div x-show="notebookTab === 'words'" x-cloak class="space-y-3">
         @if ($this->words->isEmpty())
             <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">Words from your lessons and the ones you tap in a text show up here.</p>
         @else
-            <input type="search" x-model="search" placeholder="Search your words" aria-label="Search your words" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark">
-            @foreach ($this->words->groupBy(fn (VocabularyWord $word) => $word->sourceMissionRun?->mission?->code ?? '') as $code => $group)
-                @php
-                    $mission = $group->first()->sourceMissionRun?->mission;
-                    $groupWords = $group->map(fn (VocabularyWord $word) => mb_strtolower($word->word))->values()->all();
-                @endphp
-                <div x-show="! search || {{ \Illuminate\Support\Js::from($groupWords) }}.some(w => w.includes(search.toLowerCase()))">
-                    <p class="px-2 pb-1 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $mission ? $mission->code.' · '.$mission->title : 'Added by you' }}</p>
-                    <div class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
-                        @foreach ($group as $word)
-                            @php $meaningFa = $word->meaning_fa ?: ($this->courseMeaningsFa[mb_strtolower($word->word)] ?? null); @endphp
-                            <button type="button" wire:key="word-{{ $word->id }}" x-show="! search || {{ \Illuminate\Support\Js::from(mb_strtolower($word->word)) }}.includes(search.toLowerCase())" x-on:click="sheet = 'w{{ $word->id }}'" class="flex w-full cursor-pointer items-center gap-3 py-2.5 text-left">
-                                <span class="shrink-0 text-sm font-extrabold text-ink dark:text-ink-dark">{{ $word->word }}</span>
-                                <span dir="rtl" class="font-fa min-w-0 flex-1 truncate text-sm text-ink-soft dark:text-ink-soft-dark">{{ $meaningFa }}</span>
-                                <span class="flex shrink-0 gap-0.5" aria-hidden="true">
-                                    @for ($dot = 1; $dot <= 5; $dot++)
-                                        <span class="h-1 w-2 rounded-full {{ $dot <= $word->strengthLevel() ? 'bg-success dark:bg-success-dark' : 'bg-line dark:bg-line-dark' }}"></span>
-                                    @endfor
-                                </span>
-                            </button>
-                        @endforeach
+            @php
+                $wordMeta = fn (VocabularyWord $word) => [
+                    's' => $word->studyStatus(),
+                    'f' => $word->source_mission_run_id === null ? ['mine'] : [],
+                    't' => mb_strtolower($word->word.' '.$word->meaning.' '.($word->meaning_fa ?: ($this->courseMeaningsFa[mb_strtolower($word->word)] ?? ''))),
+                ];
+                $wordCounts = $this->words->countBy(fn (VocabularyWord $word) => $word->studyStatus());
+                $allWordMetas = $this->words->map($wordMeta)->values();
+            @endphp
+            <div x-data="{ all: {{ \Illuminate\Support\Js::from($allWordMetas) }} }" class="space-y-3">
+                <input type="search" x-model="search" placeholder="Search your words" aria-label="Search your words" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark">
+                <x-notebook-filter-bar
+                    tab="words"
+                    :segments="[
+                        ['status' => 'known', 'label' => 'Known', 'count' => $wordCounts->get('known', 0)],
+                        ['status' => 'learning', 'label' => 'Learning', 'count' => $wordCounts->get('learning', 0)],
+                        ['status' => 'new', 'label' => 'New', 'count' => $wordCounts->get('new', 0)],
+                    ]"
+                    :chips="array_values(array_filter([
+                        ['all', 'All', $this->words->count()],
+                        $this->words->contains(fn (VocabularyWord $word) => $word->source_mission_run_id === null) ? ['mine', 'Mine', $this->words->whereNull('source_mission_run_id')->count()] : null,
+                        ['new', 'New', $wordCounts->get('new', 0)],
+                        ['learning', 'Learning', $wordCounts->get('learning', 0)],
+                        ['known', 'Known', $wordCounts->get('known', 0)],
+                    ]))"
+                />
+
+                <p x-show="! all.some(meta => shows('words', meta))" x-cloak class="py-6 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Nothing here.</p>
+
+                @foreach ($this->wordGroups as $group)
+                    @php
+                        $key = 'words-'.$loop->index;
+                        $first = $loop->first ? 'true' : 'false';
+                        $metas = $group['words']->map($wordMeta)->values();
+                        $groupCounts = $group['words']->countBy(fn (VocabularyWord $word) => $word->studyStatus());
+                    @endphp
+                    <div class="space-y-1.5" x-data="{ metas: {{ \Illuminate\Support\Js::from($metas) }} }" x-show="metas.some(meta => shows('words', meta))">
+                        <button type="button" x-on:click="open['{{ $key }}'] = ! isOpen('words', '{{ $key }}', {{ $first }})" x-bind:aria-expanded="isOpen('words', '{{ $key }}', {{ $first }})" class="flex w-full cursor-pointer items-center gap-2 px-2 text-left text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
+                            <span class="transition-transform" x-bind:class="isOpen('words', '{{ $key }}', {{ $first }}) ? 'rotate-90' : ''">@svg('heroicon-m-chevron-right', 'h-3.5 w-3.5')</span>
+                            <span class="min-w-0 truncate">{{ $group['title'] }}</span>
+                            <span class="flex gap-0.5" aria-hidden="true">
+                                @foreach (['new', 'learning', 'known'] as $status)
+                                    @if ($groupCounts->get($status, 0) > 0)
+                                        <span class="{{ $statusDot($status) }} h-1.5 w-1.5 rounded-full"></span>
+                                    @endif
+                                @endforeach
+                            </span>
+                            <span class="ml-auto font-bold tracking-normal">{{ $group['words']->count() }}</span>
+                        </button>
+                        <div x-show="isOpen('words', '{{ $key }}', {{ $first }})" @unless ($loop->first) x-cloak @endunless class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
+                            @foreach ($group['words'] as $word)
+                                @php $meaningFa = $word->meaning_fa ?: ($this->courseMeaningsFa[mb_strtolower($word->word)] ?? null); @endphp
+                                <div wire:key="word-{{ $word->id }}" role="button" tabindex="0" x-show="shows('words', metas[{{ $loop->index }}]) && ({{ $loop->index }} < 4 || expanded['{{ $key }}'] || filtering('words'))" x-on:click="if (! edit) { sheet = 'w{{ $word->id }}' }" x-on:keydown.enter="if (! edit) { sheet = 'w{{ $word->id }}' }" class="flex w-full cursor-pointer items-center gap-3 py-2.5 text-left">
+                                    <span class="{{ $statusDot($word->studyStatus()) }} h-2 w-2 shrink-0 rounded-full" title="{{ $word->strengthLabel() }}"></span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm font-extrabold text-ink dark:text-ink-dark">{{ $word->word }}</span>
+                                        <span dir="rtl" class="font-fa block truncate text-left text-sm text-ink-soft dark:text-ink-soft-dark">{{ $meaningFa }}</span>
+                                    </span>
+                                    <button type="button" x-show="! edit" data-text="{{ $word->word }}" x-on:click.stop="window.eosVoice?.speak($el.dataset.text)" aria-label="Read aloud" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-speaker-wave', 'h-4 w-4')</button>
+                                    <button type="button" x-show="edit" x-cloak wire:click="removeWord({{ $word->id }})" x-on:click.stop aria-label="Remove {{ $word->word }}" class="{{ $removeButton }}">@svg('heroicon-m-x-mark', 'h-4 w-4')</button>
+                                </div>
+                            @endforeach
+                            @if ($group['words']->count() > 4)
+                                <button type="button" x-show="! filtering('words')" x-on:click="expanded['{{ $key }}'] = ! expanded['{{ $key }}']" x-text="expanded['{{ $key }}'] ? 'Show less' : 'Show all {{ $group['words']->count() }} ›'" class="w-full cursor-pointer py-3 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $group['words']->count() }} ›</button>
+                            @endif
+                        </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         @endif
     </div>
 
@@ -414,6 +633,7 @@ new class extends Component
                         <button type="button" wire:click="practiceOne({{ $entry->id }})" class="cursor-pointer rounded-2xl bg-success py-3 text-sm font-extrabold text-white dark:bg-success-dark">✎ Practice</button>
                     @endif
                 </div>
+                <button type="button" wire:click="removeEntry({{ $entry->id }})" x-on:click="sheet = false" class="{{ $removeSheetButton }}">@svg('heroicon-o-trash', 'h-4 w-4') Remove from my {{ $entry->isMistake() ? 'mistakes' : 'tips' }}</button>
             </div>
         @endforeach
         @foreach ($this->words as $word)
@@ -435,12 +655,25 @@ new class extends Component
                 @if (filled($word->example))
                     <p class="text-sm text-ink-soft italic dark:text-ink-soft-dark">{{ $word->highlightIn($word->example) }}</p>
                 @endif
-                <div class="mt-1 flex items-center justify-between text-sm font-bold">
-                    <span class="text-ink-faint dark:text-ink-faint-dark">{{ $word->strengthLabel() }}</span>
-                    <button type="button" wire:click="removeWord({{ $word->id }})" wire:confirm="Remove {{ $word->word }} from your words?" x-on:click="sheet = false" class="cursor-pointer text-danger-ink">Remove</button>
-                </div>
+                <p class="text-sm font-bold text-ink-faint dark:text-ink-faint-dark">{{ $word->strengthLabel() }}</p>
+                <button type="button" wire:click="removeWord({{ $word->id }})" x-on:click="sheet = false" class="{{ $removeSheetButton }}">@svg('heroicon-o-trash', 'h-4 w-4') Remove from my words</button>
             </div>
         @endforeach
     </x-bottom-sheet>
+
+    @if ($removed)
+        <div
+            wire:key="removed-{{ $removed['type'] }}-{{ $removed['attributes']['id'] }}"
+            x-data="{ show: true }"
+            x-init="setTimeout(() => show = false, 5000)"
+            x-show="show"
+            x-transition.opacity
+            role="status"
+            class="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[60] mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-hero px-4 py-3 text-sm font-bold text-white shadow-lg"
+        >
+            <span class="min-w-0 flex-1 truncate">“{{ $removed['label'] }}” removed</span>
+            <button type="button" wire:click="undoRemove" class="shrink-0 cursor-pointer px-1 font-extrabold text-accent-ink-dark">Undo</button>
+        </div>
+    @endif
 </div>
 @endif
