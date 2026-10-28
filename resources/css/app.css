@@ -358,6 +358,22 @@ body:has([data-step-header]) [data-app-topbar] {
     animation: review-card-in 0.24s ease-out both;
 }
 
+/* The next screen of a lesson step sliding in from the side. An x-show
+   that brings a screen back from display: none restarts CSS animations, so
+   this plays on every move to the next screen with no extra state, and not
+   on a Livewire update to the screen already showing. Same short, small
+   slide as the review card, for the same reason. */
+@keyframes lesson-screen-in {
+    from {
+        opacity: 0;
+        translate: 14px 0;
+    }
+}
+
+.animate-lesson-screen-in {
+    animation: lesson-screen-in 0.26s ease-out both;
+}
+
 /* Multiple-choice answers (<x-quick-round>, the placement test). A correct
    pick settles with a soft "pop"; a wrong one gives a short, low-amplitude
    wobble — felt, not startling. The finish badge reuses the same pop. */
@@ -548,6 +564,7 @@ a[aria-busy='true'] {
 
 @media (prefers-reduced-motion: reduce) {
     .animate-mic-breathe,
+    .animate-lesson-screen-in,
     .stagger-children > *,
     .animate-tab-pop,
     .animate-trophy-pop,

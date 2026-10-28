@@ -350,7 +350,7 @@ new class extends Component
 
     {{-- One player for both listens: the text stays closed the first time
          and opens by itself the second time. --}}
-    <section x-show="screen === 1 || screen === 3" x-cloak class="flex min-h-[calc(100dvh-11rem)] flex-col gap-5 pt-2">
+    <section x-show="screen === 1 || screen === 3" x-cloak class="animate-lesson-screen-in flex min-h-[calc(100dvh-11rem)] flex-col gap-5 pt-2">
         <div class="flex flex-1 flex-col gap-4">
             <span x-show="screen === 3" class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Listen again with the text</span>
             <div x-show="screen === 1" class="flex flex-col gap-4">
@@ -387,7 +387,7 @@ new class extends Component
     </section>
 
     @if ($questionsScreen)
-        <section x-show="screen === 2" x-cloak class="pt-2">
+        <section x-show="screen === 2" x-cloak class="animate-lesson-screen-in pt-2">
             <x-quick-round
                 lesson
                 :cards="$questionCards"

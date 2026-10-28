@@ -217,6 +217,15 @@ document.addEventListener('alpine:init', () => {
             const saved = localStorage.getItem(key);
             if (saved && !wire.get(field)) {
                 wire.set(field, saved);
+
+                // A restored text counts as typed: the page's own input
+                // handlers (e.g. a Check button that waits for something to
+                // be written) hear it too. After this directive pass, so the
+                // element's own x-on:input is already attached.
+                queueMicrotask(() => {
+                    el.value = saved;
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                });
             }
         } catch (e) {}
 

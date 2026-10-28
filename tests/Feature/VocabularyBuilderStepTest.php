@@ -667,6 +667,19 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Great!');
     }
 
+    public function test_a_good_sentence_still_shows_the_ais_short_comment(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear and natural.'])));
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I wake up at seven.')
+            ->call('checkOne', 0)
+            ->assertSee('Great!')
+            ->assertSee('Clear and natural.');
+    }
+
     public function test_a_major_issue_offers_try_again_instead_of_continue(): void
     {
         [, , $run] = $this->makeMissionAndRun();
