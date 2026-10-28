@@ -276,18 +276,73 @@ new class extends Component
     }
 
     /**
+     * Between missions Home stays on the mission just finished — its
+     * banner and days, the way the mission page shows them — with the
+     * next mission as one strip on top, until the learner taps Start. Null
+     * while a mission is open, once all 24 are done, or when the learner
+     * has not finished any yet.
+     *
+     * @return array{run: MissionRun, mission: Mission, doneLabel: string, dayCount: int}|null
+     */
+    #[Computed]
+    public function finishedView(): ?array
+    {
+        if (! in_array($this->program['today']['kind'], ['start_next', 'checkpoint'], true)) {
+            return null;
+        }
+
+        $run = auth()->user()->missionRuns()
+            ->with('mission')
+            ->whereIn('status', [MissionRun::STATUS_COMPLETE, MissionRun::STATUS_NEEDS_REVIEW])
+            ->get()
+            ->sortByDesc(fn (MissionRun $run) => $run->mission->number())
+            ->first();
+
+        if (! $run) {
+            return null;
+        }
+
+        return [
+            'run' => $run,
+            'mission' => $run->mission,
+            'doneLabel' => $run->status === MissionRun::STATUS_COMPLETE ? 'Mission done' : 'Done · review later',
+            'dayCount' => count($run->dayProgress()),
+        ];
+    }
+
+    /**
+     * The next mission as the strip on top of the finished one: only when
+     * it is built (otherwise Today says it is coming soon).
+     */
+    #[Computed]
+    public function nextMissionStrip(): ?Mission
+    {
+        return $this->finishedView ? $this->program['today']['nextMission'] : null;
+    }
+
+    /**
      * The top of home: the mission the learner is in (or about to start)
      * as the headline — on its photo banner when it is built — and one
      * line above it, "Mission N of 24" and the streak. The days are the
      * rings on the banner; the 100-day count, ahead/behind and memory
      * freshness live on the Progress page.
      *
-     * @return array{title: string, missionNumber: int, dayNumber: ?int, mission: ?Mission}
+     * @return array{title: string, missionNumber: int, dayNumber: ?int, mission: ?Mission, doneLabel?: string}
      */
     #[Computed]
     public function headline(): array
     {
         $today = $this->program['today'];
+
+        if (($finished = $this->finishedView) && $this->nextMissionStrip) {
+            return [
+                'title' => $finished['mission']->code.' · '.$finished['mission']->title,
+                'missionNumber' => $finished['mission']->number(),
+                'dayNumber' => $finished['dayCount'],
+                'mission' => $finished['mission'],
+                'doneLabel' => $finished['doneLabel'],
+            ];
+        }
 
         if ($today['kind'] === 'finished') {
             return ['title' => 'All 24 missions done', 'missionNumber' => Mission::TOTAL_ROADMAP_MISSIONS, 'dayNumber' => null, 'mission' => null];
@@ -330,28 +385,43 @@ new class extends Component
     {
         $today = $this->program['today'];
 
+        if ($this->nextMissionStrip) {
+            $finished = $this->finishedView;
+
+            return $this->daysOf($finished['mission'], $finished['run'], $finished['dayCount'], 'past');
+        }
+
         if ($today['kind'] !== 'mission_day') {
             return [];
         }
 
-        $mission = $today['mission'];
+        return $this->daysOf($today['mission'], $today['run'], $today['dayNumber'], null);
+    }
+
+    /**
+     * @param  'past'|null  $allState  'past' for every day of a finished mission, else each day's own state against $dayNumber
+     * @return list<array{number: int, state: string, lesson: bool, listened: bool, talked: bool, url: string}>
+     */
+    private function daysOf(Mission $mission, MissionRun $run, int $dayNumber, ?string $allState): array
+    {
         $listened = auth()->user()->listenedDaysOf($mission->code);
         $talked = auth()->user()->piPracticedDaysOf($mission->code);
 
-        return collect($today['run']->dayProgress())
+        return collect($run->dayProgress())
             ->map(fn (array $day, int $index) => [
                 'number' => $index + 1,
-                'state' => $state = match (true) {
-                    $index + 1 < $today['dayNumber'] => 'past',
-                    $index + 1 === $today['dayNumber'] => 'today',
+                'state' => $state = $allState ?? match (true) {
+                    $index + 1 < $dayNumber => 'past',
+                    $index + 1 === $dayNumber => 'today',
                     default => 'future',
                 },
-                'lesson' => $day['done'],
+                // Every day of a closed mission counts as done, as on the Missions page.
+                'lesson' => $lessonDone = $allState === 'past' || $day['done'],
                 // A day behind the learner with its Lesson done is finished:
                 // Listening and Daily talk are extras, never a reason to
                 // leave an old day half-ringed.
-                'listened' => ($state === 'past' && $day['done']) || in_array($index + 1, $listened, true),
-                'talked' => ($state === 'past' && $day['done']) || in_array($index + 1, $talked, true),
+                'listened' => ($state === 'past' && $lessonDone) || in_array($index + 1, $listened, true),
+                'talked' => ($state === 'past' && $lessonDone) || in_array($index + 1, $talked, true),
                 'url' => route('missions.show', [$mission, 'overview', 'day' => $index + 1]),
             ])
             ->all();
@@ -441,10 +511,30 @@ new class extends Component
          Daily talk — opens it on that day. Between missions it is the next
          one, without days; a plain headline when there is none to show. --}}
     @php $streakLine = 'inline-flex flex-wrap items-center gap-x-1.5 text-xs font-semibold transition-colors'; @endphp
+
+    {{-- Between missions: the next one as a strip above the mission just
+         finished. Tapping Start opens it, and Home becomes that mission. --}}
+    @if ($nextMission = $this->nextMissionStrip)
+        <a
+            href="{{ route('missions.show', [$nextMission, $nextMission->stepKeys()[0] ?? null]) }}"
+            wire:navigate
+            class="flex items-center gap-3 rounded-2xl border-2 border-accent bg-accent-soft p-2.5 ps-3 dark:border-accent-dark dark:bg-accent-soft-dark"
+        >
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white dark:bg-accent-dark">@svg('heroicon-s-play', 'h-5 w-5')</span>
+            <span class="min-w-0 flex-1">
+                <span class="block text-[11px] font-extrabold tracking-wide text-accent-ink uppercase dark:text-accent-ink-dark">Next mission</span>
+                <span class="block truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $nextMission->code }} · {{ $nextMission->title }}</span>
+                <span class="block text-xs font-bold text-ink-soft dark:text-ink-soft-dark">Day 1 · ~{{ \App\Models\Mission::formatDuration(collect($nextMission->phases[0]['steps'] ?? [])->sum(fn ($step) => (int) ($step['duration_minutes'] ?? 0))) }}</span>
+            </span>
+            <span class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white shadow-[0_3px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark">Start</span>
+        </a>
+    @endif
+
     @if ($bannerMission = $headline['mission'])
         <x-mission-banner
             :mission-code="$bannerMission->code"
             :title="$headline['title']"
+            :done-label="$headline['doneLabel'] ?? null"
             :title-href="route('missions.show', [$bannerMission, 'overview', 'day' => $headline['dayNumber']])"
         >
             <x-slot:top>
@@ -473,7 +563,7 @@ new class extends Component
                         ~{{ \App\Models\Mission::formatDuration($dayTime['minutes']) }} {{ $dayTime['started'] ? 'left' : 'today' }}
                     </p>
                 @endif
-                <nav class="mt-3 flex gap-1.5" aria-label="Days of {{ $bannerMission->code }}" x-data="{ day: {{ (int) ($today['dayNumber'] ?? 1) }} }">
+                <nav class="mt-3 flex gap-1.5" aria-label="Days of {{ $bannerMission->code }}" x-data="{ day: {{ (int) ($headline['dayNumber'] ?? 1) }} }">
                     @foreach ($missionDays as $missionDay)
                         @php $doneParts = collect([$missionDay['lesson'], $missionDay['listened'], $missionDay['talked']])->filter()->count(); @endphp
                         <button
@@ -514,7 +604,7 @@ new class extends Component
     @endif
 
     {{-- Today — the one thing this page must answer (see ProgramPlanner). --}}
-    @php $daysBelow = $today['kind'] === 'mission_day' && $this->missionDays !== []; @endphp
+    @php $daysBelow = $today['kind'] === 'mission_day' ? $this->missionDays !== [] : (bool) $this->nextMissionStrip && $today['kind'] === 'start_next'; @endphp
     <section @class(['rounded-3xl bg-surface p-3.5 dark:bg-surface-dark' => ! $daysBelow, 'space-y-3' => $daysBelow])>
         @if ($daysBelow)
             {{-- The Today box is gone: the time is a chip on the banner and the
@@ -696,7 +786,7 @@ new class extends Component
          with the Lesson's steps, Listening and Daily talk (the mission's own
          page, without its banner and tabs). --}}
     @if ($this->missionDays !== [])
-        <livewire:missions.runner :mission="$today['mission']" step="overview" :embedded="true" :key="'home-days-'.$today['mission']->code" />
+        <livewire:missions.runner :mission="$headline['mission']" step="overview" :embedded="true" :start-day="$this->nextMissionStrip ? $headline['dayNumber'] : null" :key="'home-days-'.$headline['mission']->code" />
     @endif
 
     @if ($this->justBenefitedFromGrace)
