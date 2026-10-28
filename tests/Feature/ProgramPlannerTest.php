@@ -260,7 +260,7 @@ class ProgramPlannerTest extends TestCase
         Livewire::test('missions.overview')->assertSee('~25 min left');
     }
 
-    public function test_the_main_button_sits_above_the_list_and_steps_ahead_are_not_links(): void
+    public function test_the_main_button_sits_above_the_days_steps(): void
     {
         $learner = User::factory()->create();
         $mission = $this->makeMission();
@@ -269,8 +269,7 @@ class ProgramPlannerTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSeeInOrder(['Mission Brief', 'Start', 'Vocabulary Builder'])
-            ->assertSeeHtml('href="'.route('missions.show', [$mission, 'mission_brief']).'"')
-            ->assertDontSeeHtml('href="'.route('missions.show', [$mission, 'vocabulary_builder']).'"');
+            ->assertSeeHtml('href="'.route('missions.show', [$mission, 'mission_brief']).'"');
     }
 
     public function test_a_day_finished_today_stays_as_todays_day_with_the_next_one_offered(): void

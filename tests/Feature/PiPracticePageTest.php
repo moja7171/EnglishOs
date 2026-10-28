@@ -500,31 +500,37 @@ class PiPracticePageTest extends TestCase
         Livewire::test('pi-practice.index')->set('day', 4);
     }
 
-    public function test_the_today_box_shows_the_voice_practice_row_below_the_days_steps(): void
+    public function test_home_shows_the_days_daily_talk_card_below_the_steps(): void
     {
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
         $this->get(route('home'))
-            ->assertSeeInOrder(['Build step', 'Start', 'Daily talk · Grammar Chat']);
+            ->assertSeeInOrder(['Build step', 'Start', 'Daily talk'])
+            ->assertSeeHtml('aria-label="Day 2 Daily talk"')
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 2]).'"');
     }
 
-    public function test_the_voice_practice_rows_circle_on_home_cannot_tick_it_by_hand(): void
+    public function test_the_daily_talk_card_on_home_cannot_be_ticked_by_hand(): void
     {
         $this->actingAs($this->learnerWhoFinishedDay1(yesterday: true));
 
-        Livewire::test('missions.overview')
-            ->assertSee('Daily talk · Grammar Chat')
+        $this->get(route('home'))
+            ->assertSeeHtml('aria-label="Day 2 Daily talk"')
             ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
-    public function test_the_today_box_row_shows_the_done_state_after_practicing(): void
+    public function test_the_daily_talk_card_on_home_shows_the_done_state_after_practicing(): void
     {
         $learner = $this->learnerWhoFinishedDay1(yesterday: true);
-        PiPracticeLog::factory()->for($learner, 'learner')->create(['practiced_on' => now()->toDateString()]);
+        PiPracticeLog::factory()->for($learner, 'learner')->create([
+            'practiced_on' => now()->toDateString(),
+            'mission_code' => 'M01',
+            'day_number' => 2,
+        ]);
         $this->actingAs($learner);
 
         $this->get(route('home'))
-            ->assertSee('Daily talk · Grammar Chat')
+            ->assertSeeHtml('aria-label="Day 2 Daily talk, done"')
             ->assertDontSeeHtml('wire:click="markPracticed"');
     }
 
