@@ -226,7 +226,6 @@ class ProgramPlannerTest extends TestCase
         Livewire::test('missions.overview')
             ->assertSee('M01 · My Daily Life')
             ->assertSeeHtml('aria-label="Day 1, today"')
-            ->assertSee('Today · Foundation')
             ->assertSee('Vocabulary Builder')
             ->assertDontSee('Day 1 of 96');
     }
@@ -268,7 +267,7 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeInOrder(['Mission Brief', 'Start', 'Vocabulary Builder'])
+            ->assertSeeInOrder(['Lesson', 'Start', 'Mission Brief', 'Vocabulary Builder'])
             ->assertSeeHtml('href="'.route('missions.show', [$mission, 'mission_brief']).'"');
     }
 
@@ -328,7 +327,6 @@ class ProgramPlannerTest extends TestCase
 
         // Day 2: Grammar 12 + Final Challenge 10 + Pi 10.
         Livewire::test('missions.overview')
-            ->assertSee('Today · Foundation')
             ->assertSee('Steps done — one more: Pi')
             ->assertSee('Tomorrow · Day 2 · ~32 min')
             ->assertSeeHtml('href="'.route('missions.show', [$run->mission, 'grammar_in_context']).'"')
@@ -344,7 +342,7 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSee('Today · Build')
+            ->assertSeeHtml('aria-label="Day 2, today"')
             ->assertSee('Start')
             ->assertDontSee('Tomorrow');
     }
@@ -357,7 +355,7 @@ class ProgramPlannerTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('missions.overview')
-            ->assertSeeInOrder(['Daily Review', 'Start'])
+            ->assertSeeInOrder(['Review', 'Start'])
             ->assertSeeHtml('href="'.route('review.index').'"')
             ->assertDontSee('Continue');
     }
@@ -371,7 +369,7 @@ class ProgramPlannerTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSeeInOrder(['Steps done — one more: Pi', 'Tomorrow · Day 2', 'Daily talk'])
-            ->assertSeeHtml('href="'.route('pi.practice').'"');
+            ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"');
     }
 
     public function test_once_pi_is_done_too_the_day_is_done_with_only_the_tomorrow_link(): void

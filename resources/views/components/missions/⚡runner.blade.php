@@ -553,7 +553,7 @@ new class extends Component
                 >
                     {{-- Tap the card: the day's steps open right here. Continue / Start
                          goes straight into the current step. --}}
-                    <div x-data="{ steps: @js($day['here']) }" class="rounded-2xl bg-accent-soft dark:bg-accent-soft-dark">
+                    <div x-data="{ steps: @js($day['here']) }" @class(['rounded-2xl', 'bg-accent-soft dark:bg-accent-soft-dark' => $day['primary'] === 'lesson', 'bg-surface dark:bg-surface-dark' => $day['primary'] !== 'lesson'])>
                         <div
                             role="button"
                             tabindex="0"
@@ -618,7 +618,7 @@ new class extends Component
                         <{{ $part['url'] ? 'a' : 'div' }}
                             @if ($part['url']) href="{{ $part['url'] }}" wire:navigate @endif
                             aria-label="Day {{ $number }} {{ $part['label'] }}{{ $part['done'] ? ', done' : '' }}"
-                            class="{{ $card }} bg-surface dark:bg-surface-dark"
+                            @class([$card, 'bg-accent-soft dark:bg-accent-soft-dark' => $day['primary'] === $part['key'], 'bg-surface dark:bg-surface-dark' => $day['primary'] !== $part['key']])
                         >
                             <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-'.$part['icon'], 'h-5 w-5')</span>
                             <span class="min-w-0 flex-1">
@@ -627,6 +627,8 @@ new class extends Component
                             </span>
                             @if ($part['done'])
                                 <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
+                            @elseif ($part['url'] && $day['primary'] === $part['key'])
+                                <span class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">Start</span>
                             @elseif ($part['url'])
                                 @svg('heroicon-o-chevron-right', 'h-5 w-5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
                             @endif
