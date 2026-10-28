@@ -413,8 +413,8 @@ new class extends Component
             SelfAssessment::create([
                 'mission_run_id' => $this->run->id,
                 'skill' => $skill,
-                'before' => $pair['before'] ?? null,
-                'after' => $pair['after'] ?? null,
+                'before' => filled($pair['before'] ?? null) ? (int) $pair['before'] : null,
+                'after' => filled($pair['after'] ?? null) ? (int) $pair['after'] : null,
             ]);
         }
 
