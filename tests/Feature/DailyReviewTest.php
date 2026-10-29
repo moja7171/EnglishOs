@@ -806,6 +806,21 @@ class DailyReviewTest extends TestCase
         $this->assertSame(3, $word->fresh()->repetitions);
     }
 
+    public function test_after_checking_a_spelling_the_full_word_card_is_shown(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeStrongWord($learner, ['meaning' => 'to travel to work', 'meaning_fa' => 'رفت‌وآمد', 'pos' => 'verb', 'example' => 'I commute by train.']);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])
+            ->set('spelling', 'commute')
+            ->call('checkSpelling')
+            ->assertSee('to travel to work')
+            ->assertSee('رفت‌وآمد')
+            ->assertSee('verb')
+            ->assertSee('by train');
+    }
+
     public function test_every_strong_word_that_can_be_spelled_is_a_dictation_with_no_daily_cap(): void
     {
         $learner = User::factory()->create();
@@ -863,17 +878,28 @@ class DailyReviewTest extends TestCase
         $this->assertSame($expected, (new VocabularyWord(['word' => $word]))->canBeDictated());
     }
 
-    public function test_a_curly_apostrophe_and_a_space_for_a_hyphen_are_still_right(): void
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function equivalentSpellings(): array
+    {
+        return [
+            'a curly apostrophe' => ["don't mind", 'Don’t mind'],
+            'a space for a hyphen' => ['ex-partner', 'ex partner'],
+        ];
+    }
+
+    #[DataProvider('equivalentSpellings')]
+    public function test_a_phone_keyboards_apostrophe_and_a_space_for_a_hyphen_are_still_right(string $word, string $typed): void
     {
         $learner = User::factory()->create();
-        $this->makeStrongWord($learner, ['word' => "don't mind"]);
-        $this->makeStrongWord($learner, ['word' => 'ex-partner']);
+        $this->makeStrongWord($learner, ['word' => $word]);
         $this->actingAs($learner);
-        $page = Livewire::test('review.index', ['track' => 'words']);
 
-        foreach (['Don’t mind', 'ex partner'] as $typed) {
-            $page->set('spelling', $typed)->call('checkSpelling')->assertSet('spellingCorrect', true)->call('continueDictation');
-        }
+        Livewire::test('review.index', ['track' => 'words'])
+            ->set('spelling', $typed)
+            ->call('checkSpelling')
+            ->assertSet('spellingCorrect', true);
     }
 
     public function test_not_being_able_to_listen_turns_the_card_into_a_plain_word_without_grading_it(): void

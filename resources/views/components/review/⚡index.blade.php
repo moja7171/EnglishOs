@@ -895,15 +895,13 @@ new class extends Component
                         $sheetTitle = $spellingCorrect ? "'Right!'" : "'Almost!'";
                     @endphp
                     <x-answer-sheet wire:key="dictation-sheet-{{ $model->id }}" when="true" :tone="$sheetTone" :title="$sheetTitle">
-                        <p class="text-lg font-extrabold">
-                            @unless ($spellingCorrect)
+                        @unless ($spellingCorrect)
+                            <p class="text-lg font-extrabold">
                                 <span class="font-bold text-ink-faint line-through dark:text-ink-faint-dark">{{ $spelling }}</span> →
-                            @endunless
-                            @foreach ($this->spellingPieces() as $piece)<span @class(['text-success dark:text-success-dark' => $piece['missed'] && ! $spellingCorrect])>{{ $piece['text'] }}</span>@endforeach
-                        </p>
-                        @if (filled($model->meaning_fa))
-                            <p dir="rtl" class="font-fa text-ink-soft dark:text-ink-soft-dark">{{ $model->meaning_fa }}</p>
-                        @endif
+                                @foreach ($this->spellingPieces() as $piece)<span @class(['text-success dark:text-success-dark' => $piece['missed']])>{{ $piece['text'] }}</span>@endforeach
+                            </p>
+                        @endunless
+                        <x-review-word-meaning :word="$model" />
                         <x-slot:actions>
                             <x-continue-button on-click="$wire.continueDictation()" wire-target="continueDictation" />
                         </x-slot:actions>

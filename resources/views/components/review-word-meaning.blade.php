@@ -1,6 +1,9 @@
-{{-- A word card's meaning: English, Persian, the example with the word in bold. --}}
+{{-- A word card's meaning: the word and its type, English, Persian, the example with the word in bold. --}}
 <span class="flex flex-col items-center gap-2 text-center">
     <x-speak-word :word="$word->word" class="font-display text-xl font-semibold text-ink dark:text-ink-dark" />
+    @if (filled($word->pos))
+        <span class="rounded-full bg-accent-soft px-3 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $word->pos }}</span>
+    @endif
     @if (filled($word->meaning))
         <span class="text-base font-semibold text-ink dark:text-ink-dark">{{ $word->meaning }}</span>
     @endif
