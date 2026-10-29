@@ -16,6 +16,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class DailyReviewTest extends TestCase
@@ -35,6 +36,19 @@ class DailyReviewTest extends TestCase
             'word' => 'commute',
             'meaning' => 'to travel to work',
             'next_review_at' => now()->subMinute(),
+        ], $attributes));
+    }
+
+    /**
+     * A word the learner has already remembered once (a six-day gap) —
+     * strong enough to come as a dictation card.
+     */
+    private function makeStrongWord(User $learner, array $attributes = []): VocabularyWord
+    {
+        return $this->makeDueWord($learner, array_merge([
+            'repetitions' => 2,
+            'interval_days' => 6,
+            'last_reviewed_at' => now()->subDays(6),
         ], $attributes));
     }
 
@@ -267,19 +281,19 @@ class DailyReviewTest extends TestCase
             ->assertDontSee("You're all caught up");
     }
 
-    public function test_after_todays_eight_the_review_says_how_many_more_are_waiting(): void
+    public function test_after_todays_ten_words_the_review_says_how_many_more_are_waiting(): void
     {
         $learner = User::factory()->create();
 
-        foreach (range(1, 11) as $number) {
+        foreach (range(1, 13) as $number) {
             $this->makeDueWord($learner, ['word' => 'word'.$number, 'next_review_at' => now()->subMinutes($number)]);
         }
 
         $this->actingAs($learner);
 
-        $page = Livewire::test('review.index');
+        $page = Livewire::test('review.index', ['track' => 'words']);
 
-        foreach (range(1, 8) as $ignored) {
+        foreach (range(1, 10) as $ignored) {
             $page->call('gradeWord', 4, true);
         }
 
@@ -534,41 +548,41 @@ class DailyReviewTest extends TestCase
             ->assertSeeInOrder(['Daily Review', '3 items']);
     }
 
-    public function test_todays_review_is_capped_at_the_daily_limit_with_the_most_overdue_first(): void
+    public function test_todays_words_are_capped_at_the_daily_limit_with_the_most_overdue_first(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 10) as $minutesOverdue) {
+        foreach (range(1, 12) as $minutesOverdue) {
             $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue)]);
         }
 
         $items = $learner->dailyReviewItems();
 
-        $this->assertCount(User::DAILY_REVIEW_LIMIT, $items);
-        $this->assertSame(8, $learner->dailyReviewCount());
+        $this->assertCount(User::DAILY_WORD_LIMIT, $items);
+        $this->assertSame(10, $learner->dailyReviewCount());
         $this->assertNotContains(
             VocabularyWord::where('word', 'word1')->value('id'),
             $items->pluck('id')->all(),
         );
 
-        Livewire::test('missions.overview')->assertSeeInOrder(['Daily Review', '8 items']);
+        Livewire::test('missions.overview')->assertSeeInOrder(['Daily Review', '10 items']);
     }
 
-    public function test_reviewing_an_item_uses_up_one_of_todays_eight_instead_of_pulling_in_a_ninth(): void
+    public function test_reviewing_a_word_uses_up_one_of_todays_ten_instead_of_pulling_in_an_eleventh(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 10) as $minutesOverdue) {
+        foreach (range(1, 12) as $minutesOverdue) {
             $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue), 'repetitions' => 1]);
         }
 
-        Livewire::test('review.index')->call('gradeWord', 4, true);
+        Livewire::test('review.index', ['track' => 'words'])->call('gradeWord', 4, true);
 
         $this->assertSame(1, $learner->reviewedTodayCount());
-        $this->assertCount(7, $learner->dailyReviewItems());
-        $this->assertSame(7, $learner->dailyReviewCount());
+        $this->assertCount(9, $learner->dailyReviewItems());
+        $this->assertSame(9, $learner->dailyReviewCount());
     }
 
     public function test_finishing_todays_batch_shows_reviewed_today_even_with_more_still_due(): void
@@ -576,8 +590,8 @@ class DailyReviewTest extends TestCase
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 9) as $i) {
-            $this->makeDueWord($learner, ['word' => "word{$i}", 'last_reviewed_at' => $i <= 8 ? now() : null, 'next_review_at' => $i <= 8 ? now()->addDay() : now()->subMinute()]);
+        foreach (range(1, 11) as $i) {
+            $this->makeDueWord($learner, ['word' => "word{$i}", 'last_reviewed_at' => $i <= 10 ? now() : null, 'next_review_at' => $i <= 10 ? now()->addDay() : now()->subMinute()]);
         }
 
         $this->assertSame(0, $learner->dailyReviewCount());
@@ -754,14 +768,14 @@ class DailyReviewTest extends TestCase
         $this->assertSame(0, $point->fresh()->repetitions);
     }
 
-    public function test_a_word_the_learner_added_themselves_comes_as_dictation(): void
+    public function test_a_strong_word_comes_as_dictation_whether_or_not_a_mission_taught_it(): void
     {
         $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner, ['source_mission_run_id' => null, 'meaning_fa' => 'رفت‌وآمد']);
+        $word = $this->makeStrongWord($learner, ['meaning_fa' => 'رفت‌وآمد']);
         $this->actingAs($learner);
 
-        Livewire::test('review.index')
-            ->assertSee('Dictation · My words')
+        Livewire::test('review.index', ['track' => 'words'])
+            ->assertSee('Dictation')
             ->assertSee('🐢 Slower')
             ->assertDontSee('✓ I know')
             ->set('spelling', 'comut')
@@ -779,30 +793,198 @@ class DailyReviewTest extends TestCase
     public function test_a_right_spelling_moves_the_word_up_a_box(): void
     {
         $learner = User::factory()->create();
-        $word = $this->makeDueWord($learner, ['source_mission_run_id' => null]);
+        $word = $this->makeStrongWord($learner);
         $this->actingAs($learner);
 
-        Livewire::test('review.index')
+        Livewire::test('review.index', ['track' => 'words'])
             ->set('spelling', 'Commute.')
             ->call('checkSpelling')
             ->assertSet('spellingCorrect', true)
             ->call('continueDictation')
             ->assertSet('sessionRemembered', 1);
 
-        $this->assertSame(1, $word->fresh()->repetitions);
+        $this->assertSame(3, $word->fresh()->repetitions);
     }
 
-    public function test_no_more_than_three_dictations_a_day(): void
+    public function test_every_strong_word_that_can_be_spelled_is_a_dictation_with_no_daily_cap(): void
     {
         $learner = User::factory()->create();
         foreach (['commute', 'oversleep', 'errand', 'hang out', 'chore'] as $text) {
-            $this->makeDueWord($learner, ['word' => $text, 'source_mission_run_id' => null]);
+            $this->makeStrongWord($learner, ['word' => $text]);
         }
         $this->actingAs($learner);
 
-        $queue = Livewire::test('review.index')->instance()->queue();
+        $queue = Livewire::test('review.index', ['track' => 'words'])->instance()->queue();
 
-        $this->assertSame(3, collect($queue)->where('type', 'dictation')->count());
-        $this->assertSame(2, collect($queue)->where('type', 'word')->count());
+        $this->assertSame(5, collect($queue)->where('type', 'dictation')->count());
+    }
+
+    public function test_a_word_still_being_met_for_the_first_time_gets_the_plain_card(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['source_mission_run_id' => null]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])
+            ->assertDontSee('Dictation')
+            ->assertSee('✓ I know');
+    }
+
+    public function test_a_word_that_cannot_be_spelled_from_hearing_it_keeps_the_plain_card(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeStrongWord($learner, ['word' => 'tell (someone) off']);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])
+            ->assertDontSee('Dictation')
+            ->assertSee('✓ I know');
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     */
+    public static function dictatableWords(): array
+    {
+        return [
+            'one word' => ['commute', true],
+            'a phrase of three' => ['a bit of', true],
+            'a hyphen' => ['work-life balance', true],
+            'an apostrophe' => ["don't mind", true],
+            'four words' => ['get on well with', false],
+            'a gap for a person' => ['get (someone) into (something)', false],
+            'a gap with a possessive' => ["open (someone's) eyes", false],
+        ];
+    }
+
+    #[DataProvider('dictatableWords')]
+    public function test_which_words_can_be_dictated(string $word, bool $expected): void
+    {
+        $this->assertSame($expected, (new VocabularyWord(['word' => $word]))->canBeDictated());
+    }
+
+    public function test_a_curly_apostrophe_and_a_space_for_a_hyphen_are_still_right(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeStrongWord($learner, ['word' => "don't mind"]);
+        $this->makeStrongWord($learner, ['word' => 'ex-partner']);
+        $this->actingAs($learner);
+        $page = Livewire::test('review.index', ['track' => 'words']);
+
+        foreach (['Don’t mind', 'ex partner'] as $typed) {
+            $page->set('spelling', $typed)->call('checkSpelling')->assertSet('spellingCorrect', true)->call('continueDictation');
+        }
+    }
+
+    public function test_not_being_able_to_listen_turns_the_card_into_a_plain_word_without_grading_it(): void
+    {
+        $learner = User::factory()->create();
+        $word = $this->makeStrongWord($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])
+            ->assertSee('Dictation')
+            ->call('cantListen')
+            ->assertDontSee('Dictation')
+            ->assertSee('✓ I know')
+            ->assertSet('sessionGraded', 0);
+
+        $this->assertSame(2, $word->fresh()->repetitions);
+        $this->assertSame(6, $word->fresh()->interval_days);
+    }
+
+    public function test_each_path_shows_only_its_own_items(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner);
+        $this->makeDuePrompt($learner);
+        $this->actingAs($learner);
+
+        $words = Livewire::test('review.index', ['track' => 'words'])->instance()->queue();
+        $talk = Livewire::test('review.index', ['track' => 'talk'])->instance()->queue();
+
+        $this->assertSame(['word'], collect($words)->pluck('type')->all());
+        $this->assertSame(['speaking'], collect($talk)->pluck('type')->all());
+    }
+
+    public function test_the_two_paths_have_their_own_daily_limits(): void
+    {
+        $learner = User::factory()->create();
+        foreach (range(1, 12) as $number) {
+            $this->makeDueWord($learner, ['word' => "word{$number}"]);
+        }
+        foreach (range(1, 10) as $ignored) {
+            $this->makeDuePrompt($learner);
+        }
+
+        $this->assertCount(10, $learner->dailyReviewItems('words'));
+        $this->assertCount(8, $learner->dailyReviewItems('talk'));
+        $this->assertSame(18, $learner->dailyReviewCount());
+    }
+
+    public function test_ten_more_words_brings_the_next_due_ones_and_then_the_ones_coming_up_soonest(): void
+    {
+        $learner = User::factory()->create();
+        foreach (range(1, 12) as $number) {
+            $this->makeDueWord($learner, ['word' => "due{$number}", 'next_review_at' => now()->subMinutes($number)]);
+        }
+        foreach (range(1, 12) as $number) {
+            $this->makeDueWord($learner, ['word' => "soon{$number}", 'next_review_at' => now()->addDays($number)]);
+        }
+        $this->actingAs($learner);
+
+        $page = Livewire::test('review.index', ['track' => 'words']);
+        foreach (range(1, 10) as $ignored) {
+            $page->call('gradeWord', 4, true);
+        }
+
+        $page->assertSee('Session done!')->assertSee('10 more words')->call('loadMore')->assertSet('more', 1);
+
+        $words = collect($page->instance()->queue())->map(fn (array $entry) => VocabularyWord::find($entry['id'])->word)->sort()->values()->all();
+
+        $this->assertSame(['due1', 'due2', 'soon1', 'soon2', 'soon3', 'soon4', 'soon5', 'soon6', 'soon7', 'soon8'], $words);
+    }
+
+    public function test_ten_more_is_not_offered_on_the_speaking_and_grammar_path(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'talk'])
+            ->assertDontSee('more words')
+            ->call('loadMore')
+            ->assertSet('more', 0);
+    }
+
+    public function test_finishing_one_path_fills_the_streak_ring_even_with_the_other_still_waiting(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDuePrompt($learner);
+        $this->makeDueWord($learner, ['repetitions' => 1]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])->call('gradeWord', 4, true);
+
+        $this->assertDatabaseHas('day_activities', ['learner_id' => $learner->id, 'activity' => 'review']);
+    }
+
+    public function test_the_review_page_offers_both_paths_with_what_is_left_in_each(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner);
+        $this->makeDuePrompt($learner);
+
+        $this->actingAs($learner)->get(route('review.index'))
+            ->assertOk()
+            ->assertSee('Words')
+            ->assertSee('Speaking &amp; grammar', false)
+            ->assertSee('1 left today')
+            ->assertSee(route('review.track', 'words'), false)
+            ->assertSee(route('review.track', 'talk'), false);
+    }
+
+    public function test_only_the_two_paths_exist(): void
+    {
+        $this->actingAs(User::factory()->create())->get('/review/everything')->assertNotFound();
     }
 }

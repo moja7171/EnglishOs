@@ -16,7 +16,7 @@ class ReviewReminder extends Notification
 {
     use WritesPersianNumbers;
 
-    public function __construct(private readonly int $dueCount) {}
+    public function __construct(private readonly int $dueCount, private readonly bool $forWords = true) {}
 
     /**
      * @return list<string>
@@ -33,7 +33,7 @@ class ReviewReminder extends Notification
     {
         return [
             'icon' => 'heroicon-s-arrow-path',
-            'title' => 'مرور کلمه‌ها — '.$this->body(),
+            'title' => $this->title().' — '.$this->body(),
             'url' => route('review.index'),
             'topic' => StudyReminder::TOPIC,
         ];
@@ -42,7 +42,7 @@ class ReviewReminder extends Notification
     public function toWebPush(object $notifiable, Notification $notification): WebPushMessage
     {
         return (new WebPushMessage)
-            ->title('مرور کلمه‌ها')
+            ->title($this->title())
             ->body($this->body())
             ->icon('/icon-192.png')
             ->badge('/badge-96.png')
@@ -54,8 +54,19 @@ class ReviewReminder extends Notification
             ]);
     }
 
+    private function title(): string
+    {
+        return $this->forWords ? 'مرور کلمه‌ها' : 'مرور گفتار و گرامر';
+    }
+
     private function body(): string
     {
+        if (! $this->forWords) {
+            return $this->dueCount === 1
+                ? 'یه تمرین گفتار و گرامر منتظره؛ یه دقیقه کافیه.'
+                : "{$this->persianNumber($this->dueCount)} تمرین گفتار و گرامر منتظره؛ چند دقیقه بیشتر نمی‌شه.";
+        }
+
         return $this->dueCount === 1
             ? 'یه کلمه منتظر مروره؛ یه دقیقه کافیه.'
             : "{$this->persianNumber($this->dueCount)} کلمه منتظر مرورن؛ چند دقیقه بیشتر نمی‌شه.";

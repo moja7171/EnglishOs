@@ -53,6 +53,18 @@ class VocabularyWord extends Model
     }
 
     /**
+     * Whether the word can be spelled from hearing it: one to three plain
+     * words, letters only (an apostrophe or hyphen inside is fine). A
+     * pattern like "get (someone) into (something)" can't be dictated.
+     */
+    public function canBeDictated(): bool
+    {
+        $part = "[A-Za-z]+(?:['’-][A-Za-z]+)*";
+
+        return preg_match("/^{$part}(?: {$part}){0,2}$/", trim($this->word)) === 1;
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function learner(): BelongsTo

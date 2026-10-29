@@ -89,15 +89,20 @@ class StreakRing
     }
 
     /**
-     * After any review: today's review counts once it is all done, or after
-     * REVIEW_CARDS_FOR_A_SLICE cards.
+     * After any review: today's review counts once either track (words, or
+     * speaking and grammar) is all done, or after REVIEW_CARDS_FOR_A_SLICE
+     * cards of it.
      */
     public function recordReview(User $learner): void
     {
-        $reviewed = $learner->reviewedTodayCount();
+        foreach (array_keys(User::REVIEW_TRACKS) as $track) {
+            $reviewed = $learner->reviewedTodayCount($track);
 
-        if ($reviewed > 0 && ($reviewed >= self::REVIEW_CARDS_FOR_A_SLICE || $learner->dailyReviewCount() === 0)) {
-            $this->record($learner, 'review');
+            if ($reviewed > 0 && ($reviewed >= self::REVIEW_CARDS_FOR_A_SLICE || $learner->dailyReviewCount($track) === 0)) {
+                $this->record($learner, 'review');
+
+                return;
+            }
         }
     }
 

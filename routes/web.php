@@ -139,8 +139,12 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
     Route::get('/speaking', fn () => redirect()->route('review.index'))->name('speaking.index');
 
     Route::get('/review', function () {
-        return view('review');
+        return view('review-tracks');
     })->name('review.index');
+
+    Route::get('/review/{track}', function (string $track) {
+        return view('review', ['track' => $track]);
+    })->whereIn('track', array_keys(User::REVIEW_TRACKS))->name('review.track');
 
     Route::get('/notebook', function () {
         return view('notebook');

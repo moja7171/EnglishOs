@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Notifications\ReviewReminder;
@@ -70,6 +71,21 @@ class ReviewReminderTest extends TestCase
         $this->runCommand();
 
         $this->assertSame('2026-10-03', $user->fresh()->last_review_reminder_on->toDateString());
+    }
+
+    public function test_a_learner_with_only_speaking_and_grammar_waiting_is_told_so(): void
+    {
+        Carbon::setTestNow(self::TEHRAN_EVENING);
+        $user = $this->learner(withDueWord: false);
+        SpeakingPrompt::create(['learner_id' => $user->id, 'prompt' => 'What time do you wake up?', 'next_review_at' => now()->subMinute()]);
+        $this->expectReminders(1);
+
+        $this->runCommand();
+
+        $this->assertSame('2026-10-03', $user->fresh()->last_review_reminder_on->toDateString());
+        $payload = (new ReviewReminder(1, forWords: false))->toWebPush($user, new ReviewReminder(1, forWords: false))->toArray();
+        $this->assertSame('مرور گفتار و گرامر', $payload['title']);
+        $this->assertStringContainsString('تمرین گفتار و گرامر', $payload['body']);
     }
 
     public function test_it_is_sent_at_most_once_a_day(): void

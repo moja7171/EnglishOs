@@ -438,29 +438,44 @@ class User extends Authenticatable
     }
 
     /**
+     * Daily Review's two tracks and the item types each one holds: the
+     * learner's words, and everything spoken or about grammar. Each track
+     * has its own daily limit and its own finish line.
+     */
+    public const REVIEW_TRACKS = [
+        'words' => ['word'],
+        'talk' => ['speaking', 'error', 'grammar', 'note'],
+    ];
+
+    /**
+     * How many items count as "today's review" in each track — a finishable
+     * amount, so a backlog of forty due items reads as ten things to do
+     * today, not as a wall. The rest stay due and roll into tomorrow's.
+     */
+    public const DAILY_WORD_LIMIT = 10;
+
+    public const DAILY_TALK_LIMIT = 8;
+
+    /**
      * The spaced-repetition systems Daily Review mixes, keyed by the type
-     * name its queue and the Today row use. Notebook lines are only the
-     * ones Daily Review may show (see NotebookEntry::scopeInReview()).
+     * name its queue and the Today row use — all of them, or only one
+     * track's. Notebook lines are only the ones Daily Review may show (see
+     * NotebookEntry::scopeInReview()).
      *
      * @return array<string, HasMany<VocabularyWord|SpeakingPrompt|ErrorPatternReview|GrammarPoint|NotebookEntry, $this>>
      */
-    private function reviewSources(): array
+    private function reviewSources(?string $track = null): array
     {
-        return [
+        $sources = [
             'word' => $this->vocabularyWords(),
             'speaking' => $this->speakingPrompts(),
             'error' => $this->errorPatternReviews(),
             'grammar' => $this->grammarPoints(),
             'note' => $this->notebookEntries()->inReview(),
         ];
-    }
 
-    /**
-     * How many items count as "today's review" — a finishable amount, so a
-     * backlog of forty due items reads as eight things to do today, not as
-     * a wall. The rest stay due and roll into tomorrow's eight.
-     */
-    public const DAILY_REVIEW_LIMIT = 8;
+        return $track === null ? $sources : array_intersect_key($sources, array_flip(self::REVIEW_TRACKS[$track]));
+    }
 
     /**
      * The moment the learner's current day began, as UTC for querying: their
@@ -475,21 +490,33 @@ class User extends Authenticatable
     /**
      * Items reviewed since the learner's own midnight, from any review flow
      * (Daily Review, My Words, Speaking Recall) — they all stamp
-     * last_reviewed_at.
+     * last_reviewed_at. Of one track, or of both.
      */
-    public function reviewedTodayCount(): int
+    public function reviewedTodayCount(?string $track = null): int
     {
         $dayStart = $this->localDayStart();
+        $types = $track === null ? null : self::REVIEW_TRACKS[$track];
 
         // Every notebook line, so one that became learned by this very
         // review still counts as reviewed today.
         return collect(['note' => $this->notebookEntries()] + $this->reviewSources())
+            ->when($types, fn ($sources) => $sources->only($types))
             ->sum(fn (HasMany $relation) => $relation->where('last_reviewed_at', '>=', $dayStart)->count());
     }
 
-    public function dailyReviewAllowance(): int
+    /**
+     * What is left of a track's daily limit (or of both). $more is how many
+     * extra batches of words the learner asked for with "10 more".
+     */
+    public function dailyReviewAllowance(?string $track = null, int $more = 0): int
     {
-        return max(0, self::DAILY_REVIEW_LIMIT - $this->reviewedTodayCount());
+        if ($track === null) {
+            return $this->dailyReviewAllowance('words') + $this->dailyReviewAllowance('talk');
+        }
+
+        $limit = $track === 'words' ? self::DAILY_WORD_LIMIT * (1 + $more) : self::DAILY_TALK_LIMIT;
+
+        return max(0, $limit - $this->reviewedTodayCount($track));
     }
 
     /**
@@ -504,24 +531,32 @@ class User extends Authenticatable
     }
 
     /**
-     * Today's review: the most overdue due items across every review
-     * system, up to what is left of the daily limit — of them at most
+     * Today's review: the most overdue due items of a track (or of both),
+     * up to what is left of its daily limit — of them at most
      * NotebookEntry::DAILY_REVIEW_SLOTS notebook lines, the most repeated
      * mistakes first; slots they leave go to the rest. Shrinks as items get
      * reviewed (a reviewed item leaves the due set while the allowance
-     * drops by one), so the same eight stay "today's eight" all day.
+     * drops by one), so the same ones stay "today's" all day.
+     *
+     * With $more batches asked for, the words track fills what the due
+     * words leave from the ones coming up soonest, so there is always
+     * something to practise early.
      *
      * @return Collection<int, array{type: string, id: int}>
      */
-    public function dailyReviewItems(): Collection
+    public function dailyReviewItems(?string $track = null, int $more = 0): Collection
     {
-        $allowance = $this->dailyReviewAllowance();
+        if ($track === null) {
+            return $this->dailyReviewItems('words')->concat($this->dailyReviewItems('talk'))->values();
+        }
+
+        $allowance = $this->dailyReviewAllowance($track, $more);
 
         if ($allowance === 0) {
             return collect();
         }
 
-        return collect($this->reviewSources())
+        $items = collect($this->reviewSources($track))
             ->flatMap(fn (HasMany $relation, string $type) => $relation
                 ->where('next_review_at', '<=', now())
                 ->when($type === 'note', fn ($notes) => $notes
@@ -534,30 +569,76 @@ class User extends Authenticatable
             ->take($allowance)
             ->map(fn (array $entry) => ['type' => $entry['type'], 'id' => $entry['id']])
             ->values();
+
+        if ($more > 0 && $track === 'words' && $items->count() < $allowance) {
+            $items = $items->concat($this->upcomingWordItems($allowance - $items->count()));
+        }
+
+        return $items;
+    }
+
+    /**
+     * The words coming due soonest that were not reviewed today — what
+     * "10 more" practises early when nothing else is due.
+     *
+     * @return Collection<int, array{type: string, id: int}>
+     */
+    private function upcomingWordItems(int $limit): Collection
+    {
+        return $this->vocabularyWords()
+            ->where('next_review_at', '>', now())
+            ->where(fn ($words) => $words->whereNull('last_reviewed_at')->orWhere('last_reviewed_at', '<', $this->localDayStart()))
+            ->orderBy('next_review_at')
+            ->orderBy('id')
+            ->limit($limit)
+            ->pluck('id')
+            ->map(fn (int $id) => ['type' => 'word', 'id' => $id]);
     }
 
     /**
      * Cheap, count-only twin of dailyReviewItems()->count() for the nav
      * badge, which renders on every page.
      */
-    public function dailyReviewCount(): int
+    public function dailyReviewCount(?string $track = null): int
     {
-        $due = collect($this->reviewSources())
+        if ($track === null) {
+            return $this->dailyReviewCount('words') + $this->dailyReviewCount('talk');
+        }
+
+        $due = collect($this->reviewSources($track))
             ->sum(fn (HasMany $relation, string $type) => $type === 'note'
                 ? min($relation->where('next_review_at', '<=', now())->count(), $this->notebookReviewAllowance())
                 : $relation->where('next_review_at', '<=', now())->count());
 
-        return $due === 0 ? 0 : min($due, $this->dailyReviewAllowance());
+        return $due === 0 ? 0 : min($due, $this->dailyReviewAllowance($track));
     }
 
     /**
      * Every item due now across every review system, with no daily limit —
      * the real backlog (the admin page shows it).
      */
-    public function dueReviewCount(): int
+    public function dueReviewCount(?string $track = null): int
     {
-        return collect($this->reviewSources())
+        return collect($this->reviewSources($track))
             ->sum(fn (HasMany $relation) => $relation->where('next_review_at', '<=', now())->count());
+    }
+
+    /**
+     * What one track's card on the review page needs: how many of today's
+     * items are left, how many were reviewed today, and how many more are
+     * due beyond today's batch.
+     *
+     * @return array{remaining: int, reviewedToday: int, waiting: int}
+     */
+    public function reviewTrackSummary(string $track): array
+    {
+        $remaining = $this->dailyReviewCount($track);
+
+        return [
+            'remaining' => $remaining,
+            'reviewedToday' => $this->reviewedTodayCount($track),
+            'waiting' => max(0, $this->dueReviewCount($track) - $remaining),
+        ];
     }
 
     /**
