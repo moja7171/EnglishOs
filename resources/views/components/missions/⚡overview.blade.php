@@ -410,18 +410,15 @@ new class extends Component
         return collect($run->dayProgress())
             ->map(fn (array $day, int $index) => [
                 'number' => $index + 1,
-                'state' => $state = $allState ?? match (true) {
+                'state' => $allState ?? match (true) {
                     $index + 1 < $dayNumber => 'past',
                     $index + 1 === $dayNumber => 'today',
                     default => 'future',
                 },
                 // Every day of a closed mission counts as done, as on the Missions page.
-                'lesson' => $lessonDone = $allState === 'past' || $day['done'],
-                // A day behind the learner with its Lesson done is finished:
-                // Listening and Daily talk are extras, never a reason to
-                // leave an old day half-ringed.
-                'listened' => ($state === 'past' && $lessonDone) || in_array($index + 1, $listened, true),
-                'talked' => ($state === 'past' && $lessonDone) || in_array($index + 1, $talked, true),
+                'lesson' => $allState === 'past' || $day['done'],
+                'listened' => in_array($index + 1, $listened, true),
+                'talked' => in_array($index + 1, $talked, true),
                 'url' => route('missions.show', [$mission, 'overview', 'day' => $index + 1]),
             ])
             ->all();
