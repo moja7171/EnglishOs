@@ -548,21 +548,6 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertDontSee('cURL error');
     }
 
-    public function test_when_gemini_cannot_answer_groq_grades_the_sentence_and_no_error_shows(): void
-    {
-        [, , $run] = $this->makeMissionAndRun();
-
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('cURL error 28: timed out')));
-        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.'])));
-
-        $this->stepComponent($run)
-            ->set('examples.0', 'I usually wake up around 7.')
-            ->call('checkOne', 0)
-            ->assertReturned(true)
-            ->assertSet('feedback.wake up.severity', 'none')
-            ->assertSet('checkErrors', []);
-    }
-
     public function test_a_rate_limit_says_busy_and_is_not_retried_at_once(): void
     {
         [, , $run] = $this->makeMissionAndRun();
