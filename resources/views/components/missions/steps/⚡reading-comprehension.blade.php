@@ -8,11 +8,8 @@ use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\AiFailure;
 use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -169,15 +166,9 @@ new class extends Component
             $this->keepStepDraft();
 
             return true;
-        } catch (ConnectionException|RequestException) {
-            // RequestException's message carries the raw HTTP response body
-            // (which can be an arbitrarily large error page, not a clean
-            // API message) — never show that to the learner.
-            $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
-
-            return false;
         } catch (Throwable $e) {
-            $this->checkErrors[$index] = AiFailure::message($e, "Couldn't check this one");
+            $this->failCheck($index, $e);
+            $this->keepStepDraft();
 
             return false;
         }
@@ -323,7 +314,8 @@ new class extends Component
         foreach ($filled as $index => $text) {
             $alreadyChecked = ($this->feedback[$index]['checkedText'] ?? null) === $text;
 
-            if (! $alreadyChecked) {
+            // An answer the AI already could not check is let through, not asked again.
+            if (! $alreadyChecked && ! isset($this->checkErrors[$index])) {
                 $this->runCheck($index, $text);
             }
         }

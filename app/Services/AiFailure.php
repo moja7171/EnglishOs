@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Throwable;
 
 /**
@@ -25,5 +27,32 @@ class AiFailure
         report($e);
 
         return "{$what} — please try again in a moment.";
+    }
+
+    /**
+     * The line under a sentence or answer whose AI check could not run.
+     * Says what kind of trouble it was (too many checks at once, the
+     * connection, today's quota gone) with a short tag, so a report from a
+     * learner's phone says which. The page also lets the learner go on
+     * without the check, so none of these is a dead end.
+     */
+    public static function checkMessage(Throwable $e): string
+    {
+        if ($e instanceof AiLimitReached) {
+            return "Couldn't check this one — you've used today's AI checks. You can continue.";
+        }
+
+        if (! $e instanceof ConnectionException && ! $e instanceof RequestException) {
+            return self::message($e, "Couldn't check this one");
+        }
+
+        // RequestException's message carries the raw HTTP response body,
+        // never shown to the learner; AiModelChain already logged the cause.
+        return match ((new AiModelChain)->classify($e)['kind']) {
+            AiModelChain::KIND_RATE_LIMIT => 'Too many checks at once — wait a minute, then try again. (busy)',
+            AiModelChain::KIND_DAILY_QUOTA => 'Checking is used up for now — try again later, or continue. (finished)',
+            AiModelChain::KIND_BAD_REQUEST => "Checking isn't working right now — you can continue. (setup)",
+            default => 'Connection problem — try again in a moment. (connection)',
+        };
     }
 }

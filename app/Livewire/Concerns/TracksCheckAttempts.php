@@ -4,8 +4,6 @@ namespace App\Livewire\Concerns;
 
 use App\Services\AiFailure;
 use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 
 /**
  * Shared "3 failed attempts, then offer to write it for them" behavior for
@@ -123,10 +121,20 @@ trait TracksCheckAttempts
             $this->run->increment('gemini_calls'); // see App\Livewire\Concerns\TracksAiUsage
             $onCorrected($corrected);
             $this->clearCheckAttempt($key);
-        } catch (ConnectionException|RequestException) {
-            $this->checkErrors[$errorBagKey] = "Couldn't reach the AI service — please try again.";
         } catch (\Throwable $e) {
-            $this->checkErrors[$errorBagKey] = AiFailure::message($e, "Couldn't check this one");
+            $this->checkErrors[$errorBagKey] = AiFailure::checkMessage($e);
         }
+    }
+
+    /**
+     * The AI could not judge this field: say why (see AiFailure::checkMessage())
+     * and drop its earlier verdict, which belonged to text that has since
+     * changed and would only contradict the box.
+     */
+    protected function failCheck(int|string $key, \Throwable $e): void
+    {
+        unset($this->feedback[$key]);
+
+        $this->checkErrors[$key] = AiFailure::checkMessage($e);
     }
 }

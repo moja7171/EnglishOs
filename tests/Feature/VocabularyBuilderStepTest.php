@@ -10,8 +10,11 @@ use App\Models\VocabularyWord;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
+use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -526,12 +529,12 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSet('examples.0', 'I usually wake up around 7.');
     }
 
-    public function test_a_connection_failure_shows_a_friendly_retry_message_not_a_raw_error(): void
+    public function test_a_connection_failure_is_tried_once_more_then_says_it_is_a_connection_problem(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andThrow(
+            $mock->shouldReceive('chat')->twice()->andThrow(
                 new ConnectionException('cURL error 7: Failed to connect() to host')
             );
         });
@@ -539,8 +542,120 @@ class VocabularyBuilderStepTest extends TestCase
         $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')
             ->call('checkOne', 0)
-            ->assertSet('checkErrors.wake up', "Couldn't reach the AI service — please try again.")
+            ->assertSet('checkErrors.wake up', 'Connection problem — try again in a moment. (connection)')
+            ->assertSee('Try again')
+            ->assertSee('Continue without check')
             ->assertDontSee('cURL error');
+    }
+
+    public function test_a_connection_blip_that_answers_on_the_second_try_never_shows_an_error(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('cURL error 28: timed out'));
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.']));
+        });
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I usually wake up around 7.')
+            ->call('checkOne', 0)
+            ->assertReturned(true)
+            ->assertSet('feedback.wake up.severity', 'none')
+            ->assertSet('checkErrors', []);
+    }
+
+    public function test_a_rate_limit_says_busy_and_is_not_retried_at_once(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(new RequestException(
+                new Response(new Psr7Response(429, [], json_encode(['error' => ['message' => 'Resource exhausted']])))
+            ));
+        });
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I usually wake up around 7.')
+            ->call('checkOne', 0)
+            ->assertSet('checkErrors.wake up', 'Too many checks at once — wait a minute, then try again. (busy)');
+    }
+
+    public function test_a_used_up_daily_quota_says_so_and_lets_the_learner_continue(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(new RequestException(
+                new Response(new Psr7Response(429, [], json_encode(['error' => ['details' => [[
+                    'violations' => [['quotaId' => 'GenerateRequestsPerDayPerProjectPerModel-FreeTier']],
+                ]]]])))
+            ));
+        });
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I usually wake up around 7.')
+            ->call('checkOne', 0)
+            ->assertSet('checkErrors.wake up', 'Checking is used up for now — try again later, or continue. (finished)')
+            ->assertSee('Continue without check');
+    }
+
+    public function test_the_page_keeps_its_screen_when_the_server_re_renders_after_a_check(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        // The opening screen in x-data follows the first empty box, so it
+        // changes after every first check; Alpine must not re-read it, or
+        // the page jumps to the next word before the verdict is seen.
+        $this->stepComponent($run)->call('startPractice')->assertSeeHtml('wire:ignore.self');
+    }
+
+    public function test_a_failed_check_replaces_the_old_verdict_instead_of_showing_it_beside_the_error(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'minor', 'hint' => "Add 'an' before 'old'."]));
+            $mock->shouldReceive('chat')->once()->andThrow(new RequestException(
+                new Response(new Psr7Response(429, [], json_encode(['error' => ['message' => 'Resource exhausted']])))
+            ));
+        });
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'He is a old friend.')
+            ->call('checkOne', 0)
+            ->assertSee("Add 'an' before 'old'.")
+            ->set('examples.0', 'He is an old friend.')
+            ->call('checkOne', 0)
+            ->assertSet('feedback.wake up', null)
+            ->assertDontSee("Add 'an' before 'old'.")
+            ->assertDontSee('Almost!')
+            ->assertSee('(busy)');
+    }
+
+    public function test_continuing_does_not_ask_the_ai_again_about_a_sentence_it_could_not_check(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andThrow(new RequestException(
+                new Response(new Psr7Response(403, [], 'blocked'))
+            ));
+            $mock->shouldReceive('chat')->times(3)->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.']));
+        });
+
+        $sentences = ['I usually wake up around 7.', 'I have a morning routine.', 'I get up straight away.', 'I commute by bus.'];
+        $component = $this->stepComponent($run);
+
+        foreach ($sentences as $index => $sentence) {
+            $component->set("examples.$index", $sentence)->call('checkOne', $index);
+        }
+
+        $component->assertSet('checkErrors.wake up', "Checking isn't working right now — you can continue. (setup)")
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('evidences', ['phase' => 'vocabulary_builder_1']);
     }
 
     public function test_read_only_mode_maps_saved_examples_back_to_the_right_word(): void

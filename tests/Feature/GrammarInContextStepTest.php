@@ -516,7 +516,7 @@ class GrammarInContextStepTest extends TestCase
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
             ->set('frequencySentences.0', 'I usually wake up at 7.')
             ->call('checkOne', 0)
-            ->assertSet('checkErrors.0', "Couldn't reach the AI service — please try again.");
+            ->assertSet('checkErrors.0', "Checking isn't working right now — you can continue. (setup)");
     }
 
     public function test_reviewing_a_completed_step_reloads_saved_sentences_and_quick_check_score(): void

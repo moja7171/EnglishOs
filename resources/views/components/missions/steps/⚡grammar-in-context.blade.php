@@ -7,10 +7,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
-use App\Services\AiFailure;
 use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -286,15 +283,9 @@ new class extends Component
             $this->keepStepDraft();
 
             return true;
-        } catch (ConnectionException|RequestException) {
-            // RequestException's message carries the raw HTTP response body
-            // (which can be an arbitrarily large error page, not a clean
-            // API message) — never show that to the learner.
-            $this->checkErrors[$index] = "Couldn't reach the AI service — please try again.";
-
-            return false;
         } catch (Throwable $e) {
-            $this->checkErrors[$index] = AiFailure::message($e, "Couldn't check this one");
+            $this->failCheck($index, $e);
+            $this->keepStepDraft();
 
             return false;
         }
@@ -401,7 +392,8 @@ new class extends Component
         foreach ($filledSentences as $item) {
             $alreadyChecked = ($this->feedback[$item['index']]['checkedText'] ?? null) === $item['text'];
 
-            if (! $alreadyChecked) {
+            // A sentence the AI already could not check is let through, not asked again.
+            if (! $alreadyChecked && ! isset($this->checkErrors[$item['index']])) {
                 $this->runCheck($item['index'], $item['starter'], $item['text']);
             }
         }
@@ -534,6 +526,7 @@ new class extends Component
     </div>
 @else
 <div
+    wire:ignore.self
     data-round-screens="{{ $roundScreens->toJson() }}"
     x-data="{
         screen: {{ $startScreen }},

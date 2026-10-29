@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use RuntimeException;
 
 /**
@@ -15,6 +17,10 @@ use RuntimeException;
  */
 class SentenceChecker
 {
+    private const RETRY_ONLY_IF_FAILED_WITHIN_SECONDS = 6;
+
+    private const RETRY_PAUSE_MICROSECONDS = 1_500_000;
+
     public function __construct(private readonly GeminiClient $gemini) {}
 
     /**
@@ -45,13 +51,39 @@ class SentenceChecker
         ?string $extraGuidance = null,
         ?string $feedbackDepth = null,
     ): array {
-        $raw = $this->gemini->chat(
+        $ask = fn (): string => $this->gemini->chat(
             [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
             systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth),
             profile: GeminiClient::PROFILE_JUDGE,
         );
 
-        return $this->parseVerdict($raw);
+        return $this->parseVerdict($this->askWithOneRetry($ask));
+    }
+
+    /**
+     * A blip (dropped connection, a 5xx) that failed fast is tried once
+     * more after a moment, so the learner never sees it. A slow failure,
+     * a rate limit or a quota is not: waiting would only repeat it.
+     *
+     * @param  callable(): string  $ask
+     */
+    private function askWithOneRetry(callable $ask): string
+    {
+        $startedAt = microtime(true);
+
+        try {
+            return $ask();
+        } catch (ConnectionException|RequestException $e) {
+            $isBlip = (new AiModelChain)->classify($e)['kind'] === AiModelChain::KIND_TRANSIENT;
+
+            if (! $isBlip || microtime(true) - $startedAt > self::RETRY_ONLY_IF_FAILED_WITHIN_SECONDS) {
+                throw $e;
+            }
+
+            usleep(self::RETRY_PAUSE_MICROSECONDS);
+
+            return $ask();
+        }
     }
 
     /**
