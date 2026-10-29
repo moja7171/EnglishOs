@@ -9,11 +9,8 @@ use App\Livewire\Concerns\TracksVocabularyNotebook;
 use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Models\VocabularyWord;
-use App\Services\AiFailure;
 use App\Services\PexelsClient;
 use App\Services\SentenceChecker;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -342,15 +339,9 @@ new class extends Component
             $this->keepStepDraft();
 
             return true;
-        } catch (ConnectionException|RequestException) {
-            // RequestException's message carries the raw HTTP response body
-            // (which can be an arbitrarily large error page, not a clean
-            // API message) — never show that to the learner.
-            $this->checkErrors[$word] = "Couldn't reach the AI service — please try again.";
-
-            return false;
         } catch (Throwable $e) {
-            $this->checkErrors[$word] = AiFailure::message($e, "Couldn't check this one");
+            $this->failCheck($word, $e);
+            $this->keepStepDraft();
 
             return false;
         }
@@ -418,7 +409,8 @@ new class extends Component
 
             $alreadyChecked = ($this->feedback[$item['word']]['checkedText'] ?? null) === $item['example'];
 
-            if (! $alreadyChecked) {
+            // A sentence the AI already could not check is let through, not asked again.
+            if (! $alreadyChecked && ! isset($this->checkErrors[$item['word']])) {
                 $this->runCheck($item['word'], $item['example']);
             }
         }
@@ -530,6 +522,7 @@ new class extends Component
     </div>
 @else
 <div
+    wire:ignore.self
     x-data="{
         screen: {{ $startScreen }},
         quizShare: 0,
