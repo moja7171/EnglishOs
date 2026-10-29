@@ -47,6 +47,9 @@ class AiModelChain
 
     private const TRANSIENT_SECONDS = 180;
 
+    /** A model that only answered too slowly is not dead: skipped for a short while, not minutes. */
+    private const TIMEOUT_SECONDS = 30;
+
     private const DEFAULT_RATE_LIMIT_SECONDS = 60;
 
     private const DEFAULT_DAILY_SECONDS = 21600;
@@ -200,9 +203,9 @@ class AiModelChain
 
     /**
      * The models this request may try, in order. Models marked unavailable
-     * are skipped; when every one is marked, the one that heals soonest is
-     * probed anyway so a stale mark can never turn a short blip into a
-     * longer outage.
+     * are skipped; when every one is marked, the whole chain is tried,
+     * the one that heals soonest first, so a stale mark can never turn a
+     * short blip into a longer outage.
      *
      * @param  list<array{model: string}>  $chain
      * @return list<array{model: string}>
@@ -226,7 +229,7 @@ class AiModelChain
 
         usort($chain, fn (array $a, array $b) => $healsAt($a) <=> $healsAt($b));
 
-        return [$chain[0]];
+        return $chain;
     }
 
     /**
@@ -277,7 +280,9 @@ class AiModelChain
     public function classify(Throwable $error): array
     {
         if ($error instanceof ConnectionException) {
-            return ['kind' => self::KIND_TRANSIENT, 'seconds' => self::TRANSIENT_SECONDS];
+            $timedOut = str_contains(strtolower($error->getMessage()), 'timed out');
+
+            return ['kind' => self::KIND_TRANSIENT, 'seconds' => $timedOut ? self::TIMEOUT_SECONDS : self::TRANSIENT_SECONDS];
         }
 
         if (! $error instanceof RequestException) {

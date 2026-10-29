@@ -3,9 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\AiLimitReached;
 use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use App\Services\SentenceChecker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -261,5 +264,69 @@ class SentenceCheckerTest extends TestCase
             context: 'a test context',
             text: 'I commute to work.',
         );
+    }
+
+    private function grade(): array
+    {
+        return app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I commute to work.',
+        );
+    }
+
+    public function test_when_gemini_cannot_answer_groq_gives_the_verdict(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('timed out')));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('{"severity": "minor", "hint": "Add a full stop."}'));
+
+        $this->assertSame(['severity' => 'minor', 'hint' => 'Add a full stop.'], $this->grade());
+    }
+
+    public function test_a_gemini_reply_that_is_not_a_verdict_also_falls_back_to_groq(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Sure! Here is my opinion.'));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('{"severity": "none", "hint": "Clear."}'));
+
+        $this->assertSame('none', $this->grade()['severity']);
+    }
+
+    public function test_when_both_fail_the_first_providers_error_is_the_one_reported(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('gemini timed out')));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new \RuntimeException('groq down')));
+
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('gemini timed out');
+
+        $this->grade();
+    }
+
+    public function test_the_admins_daily_cap_never_falls_back_to_groq(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new AiLimitReached('cap')));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $this->expectException(AiLimitReached::class);
+
+        $this->grade();
+    }
+
+    public function test_a_good_gemini_answer_never_touches_groq(): void
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('{"severity": "none", "hint": "Clear."}'));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $this->assertSame('none', $this->grade()['severity']);
+    }
+
+    public function test_groq_can_be_asked_first_and_gemini_is_then_the_fallback(): void
+    {
+        config(['services.groq.judge_first' => true]);
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('timed out')));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('{"severity": "none", "hint": "Clear."}'));
+
+        $this->assertSame('none', $this->grade()['severity']);
     }
 }

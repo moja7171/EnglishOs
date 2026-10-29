@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
+use Closure;
 use RuntimeException;
+use Throwable;
 
 /**
  * Shared AI sentence-check rules used by every mission step with free-text
@@ -17,11 +17,7 @@ use RuntimeException;
  */
 class SentenceChecker
 {
-    private const RETRY_ONLY_IF_FAILED_WITHIN_SECONDS = 6;
-
-    private const RETRY_PAUSE_MICROSECONDS = 1_500_000;
-
-    public function __construct(private readonly GeminiClient $gemini) {}
+    public function __construct(private readonly GeminiClient $gemini, private readonly GroqClient $groq) {}
 
     /**
      * @param  string  $judgment  This check's primary judgment, e.g. "Judge
@@ -51,38 +47,46 @@ class SentenceChecker
         ?string $extraGuidance = null,
         ?string $feedbackDepth = null,
     ): array {
-        $ask = fn (): string => $this->gemini->chat(
-            [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
-            systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth),
-            profile: GeminiClient::PROFILE_JUDGE,
-        );
+        $messages = [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]];
+        $systemPrompt = $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth);
 
-        return $this->parseVerdict($this->askWithOneRetry($ask));
+        $viaGemini = fn (): array => $this->parseVerdict($this->gemini->chat(
+            $messages,
+            systemPrompt: $systemPrompt,
+            profile: GeminiClient::PROFILE_JUDGE,
+        ));
+        $viaGroq = fn (): array => $this->parseVerdict($this->groq->chat($messages, systemPrompt: $systemPrompt, json: true));
+
+        return config('services.groq.judge_first')
+            ? $this->askWithFallback($viaGroq, $viaGemini)
+            : $this->askWithFallback($viaGemini, $viaGroq);
     }
 
     /**
-     * A blip (dropped connection, a 5xx) that failed fast is tried once
-     * more after a moment, so the learner never sees it. A slow failure,
-     * a rate limit or a quota is not: waiting would only repeat it.
+     * Asks one provider and, when it cannot answer (down, slow, rate
+     * limited, a reply that is not a verdict), the other — so a Gemini bad
+     * day never costs the learner their check. The first provider's error
+     * is the one reported when both fail. The admin's daily cap is not an
+     * outage and never falls back.
      *
-     * @param  callable(): string  $ask
+     * @param  Closure(): array{severity: string, hint: string}  $primary
+     * @param  Closure(): array{severity: string, hint: string}  $fallback
+     * @return array{severity: string, hint: string}
      */
-    private function askWithOneRetry(callable $ask): string
+    private function askWithFallback(Closure $primary, Closure $fallback): array
     {
-        $startedAt = microtime(true);
-
         try {
-            return $ask();
-        } catch (ConnectionException|RequestException $e) {
-            $isBlip = (new AiModelChain)->classify($e)['kind'] === AiModelChain::KIND_TRANSIENT;
-
-            if (! $isBlip || microtime(true) - $startedAt > self::RETRY_ONLY_IF_FAILED_WITHIN_SECONDS) {
+            return $primary();
+        } catch (Throwable $e) {
+            if ($e instanceof AiLimitReached) {
                 throw $e;
             }
 
-            usleep(self::RETRY_PAUSE_MICROSECONDS);
-
-            return $ask();
+            try {
+                return $fallback();
+            } catch (Throwable) {
+                throw $e;
+            }
         }
     }
 

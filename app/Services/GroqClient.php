@@ -21,6 +21,9 @@ class GroqClient
     /** How a transcription shows in the admin's usage log. */
     private const USAGE_PROFILE = 'whisper';
 
+    /** ...and a chat answer that grades the learner. */
+    private const JUDGE_PROFILE = 'judge';
+
     private readonly string $apiKey;
 
     /**
@@ -76,6 +79,109 @@ class GroqClient
             (string) config('services.groq.whisper_model', 'whisper-large-v3-turbo'),
             (string) config('services.groq.fallback_model', 'whisper-large-v3'),
         ]);
+    }
+
+    /**
+     * The chat models that grade a learner's text, best first
+     * (services.groq.judge_models) — empty when the fallback is turned off.
+     *
+     * @return list<array{model: string, thinking_level: ?string}>
+     */
+    public function judgeChain(): array
+    {
+        return AiModelChain::parseChain((array) config('services.groq.judge_models', []));
+    }
+
+    /**
+     * Sends a prompt to Groq's OpenAI-compatible chat endpoint and returns
+     * the model's text reply — the same call shape as GeminiClient::chat(),
+     * for the judge calls that fall back from Gemini to Groq. Walks the
+     * judge chain with the same rules (learner's own key first, then the
+     * app's; a model that fails is skipped for a while).
+     *
+     * @param  array<int, array{role: string, text: string}>  $messages  Oldest first. role is 'user' or 'model'.
+     * @param  bool  $json  Ask for a JSON object reply.
+     */
+    public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null, bool $json = false): string
+    {
+        if ($this->apiKey === '' && $this->personalKey === '') {
+            throw new RuntimeException('GROQ_API_KEY is not set.');
+        }
+
+        $payload = [
+            'messages' => [
+                ...($systemPrompt ? [['role' => 'system', 'content' => $systemPrompt]] : []),
+                ...collect($messages)->map(fn (array $m) => [
+                    'role' => $m['role'] === 'model' ? 'assistant' : 'user',
+                    'content' => $m['text'],
+                ])->all(),
+            ],
+            'temperature' => 0.2,
+        ];
+
+        if ($maxOutputTokens !== null) {
+            $payload['max_tokens'] = $maxOutputTokens;
+        }
+
+        if ($json) {
+            $payload['response_format'] = ['type' => 'json_object'];
+        }
+
+        $limits = [
+            'max_attempts' => (int) config('services.groq.judge_max_attempts', 2),
+            'budget' => (int) config('services.groq.judge_total_budget', 15),
+            'attempt_timeout' => (int) config('services.groq.judge_attempt_timeout', 10),
+        ];
+
+        $usage = new AiUsage;
+
+        if ($this->personalKey !== '') {
+            try {
+                return $usage->track(self::PROVIDER, self::JUDGE_PROFILE, AiUsageLog::KEY_OWN, fn () => $this->chain->walk(
+                    provider: self::PROVIDER,
+                    logLabel: 'GroqClient chat (personal key)',
+                    chain: $this->judgeChain(),
+                    attempt: fn (array $entry, int $timeout) => $this->chatAttempt($this->personalKey, $entry['model'], $payload, $timeout),
+                    limits: GeminiClient::personalKeyLimits($limits),
+                    tracked: false,
+                ));
+            } catch (Throwable $e) {
+                if ($this->apiKey === '') {
+                    throw $e;
+                }
+            }
+        }
+
+        $usage->ensureAppKeyAllowed(self::PROVIDER, self::JUDGE_PROFILE);
+
+        return $usage->track(self::PROVIDER, self::JUDGE_PROFILE, AiUsageLog::KEY_APP, fn () => $this->chain->walk(
+            provider: self::PROVIDER,
+            logLabel: 'GroqClient chat',
+            chain: $this->judgeChain(),
+            attempt: fn (array $entry, int $timeout) => $this->chatAttempt($this->apiKey, $entry['model'], $payload, $timeout),
+            limits: $limits,
+            chainName: 'Groq judge',
+        ));
+    }
+
+    /**
+     * One timeout-bounded chat attempt against a single model. Left to
+     * throw on failure — chat() decides whether to try the next model.
+     */
+    private function chatAttempt(string $apiKey, string $model, array $payload, int $timeoutSeconds): string
+    {
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
+
+        $response = $this->withOutboundProxy(
+            Http::withToken($apiKey)
+                ->timeout($timeoutSeconds)
+                ->retry(1, 500, throw: false),
+            $url,
+        )
+            ->post($this->outboundUrl($url), ['model' => $model] + $payload)
+            ->throw();
+
+        return (string) data_get($response->json(), 'choices.0.message.content', '');
     }
 
     /**

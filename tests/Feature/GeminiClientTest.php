@@ -340,6 +340,49 @@ class GeminiClientTest extends TestCase
         $this->assertSame(1, $this->sentTo('model-b'));
     }
 
+    public function test_when_every_model_is_marked_down_the_whole_chain_is_tried_soonest_healing_first(): void
+    {
+        Http::fake([
+            self::MODEL_A => Http::sequence()
+                ->push(['error' => 'down'], 503)
+                ->push(['error' => 'down'], 503),
+            self::MODEL_B => Http::sequence()
+                ->push(['error' => 'down'], 503)
+                ->push($this->textResponse('B recovered.')),
+        ]);
+        $client = $this->chatChain(['model-a', 'model-b']);
+
+        try {
+            $this->ask($client);
+        } catch (RequestException) {
+            // both marked down
+        }
+
+        $this->travel(1)->seconds();
+
+        $this->assertSame('B recovered.', $this->ask($client), 'A still-down first model must not stop the next one from being tried.');
+        $this->assertSame(2, $this->sentTo('model-a'));
+        $this->assertSame(2, $this->sentTo('model-b'));
+    }
+
+    public function test_a_model_that_only_timed_out_is_skipped_for_seconds_not_minutes(): void
+    {
+        Http::fake([
+            self::MODEL_A => Http::sequence()
+                ->pushFailedConnection('cURL error 28: Operation timed out after 10001 milliseconds')
+                ->push($this->textResponse('A is fine.')),
+            self::MODEL_B => Http::response($this->textResponse('B answered.')),
+        ]);
+        $client = $this->chatChain(['model-a', 'model-b']);
+
+        $this->assertSame('B answered.', $this->ask($client));
+        $this->assertSame('B answered.', $this->ask($client), 'Still skipped right after the timeout.');
+
+        $this->travel(31)->seconds();
+
+        $this->assertSame('A is fine.', $this->ask($client));
+    }
+
     public function test_judge_profile_walks_its_own_list(): void
     {
         config([
