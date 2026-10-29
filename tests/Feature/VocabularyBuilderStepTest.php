@@ -529,12 +529,12 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSet('examples.0', 'I usually wake up around 7.');
     }
 
-    public function test_a_connection_failure_is_tried_once_more_then_says_it_is_a_connection_problem(): void
+    public function test_a_connection_failure_says_it_is_a_connection_problem_when_groq_cannot_answer_either(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
         $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->twice()->andThrow(
+            $mock->shouldReceive('chat')->once()->andThrow(
                 new ConnectionException('cURL error 7: Failed to connect() to host')
             );
         });
@@ -548,14 +548,12 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertDontSee('cURL error');
     }
 
-    public function test_a_connection_blip_that_answers_on_the_second_try_never_shows_an_error(): void
+    public function test_when_gemini_cannot_answer_groq_grades_the_sentence_and_no_error_shows(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
-        $this->mock(GeminiClient::class, function ($mock) {
-            $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('cURL error 28: timed out'));
-            $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.']));
-        });
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('cURL error 28: timed out')));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear.'])));
 
         $this->stepComponent($run)
             ->set('examples.0', 'I usually wake up around 7.')

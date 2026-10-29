@@ -339,4 +339,50 @@ class GroqClientTest extends TestCase
 
         Log::shouldNotHaveReceived('error');
     }
+
+    public function test_chat_sends_the_prompt_to_the_judge_model_and_returns_its_reply(): void
+    {
+        config(['services.groq.judge_models' => ['judge-one']]);
+        Http::fake([
+            'api.groq.com/openai/v1/chat/completions' => Http::response(['choices' => [['message' => ['content' => '{"severity":"none","hint":"Clear."}']]]]),
+        ]);
+
+        $reply = (new GroqClient('test-key'))->chat(
+            [['role' => 'user', 'text' => 'Learner wrote: "I wake up."']],
+            systemPrompt: 'Judge it.',
+            json: true,
+        );
+
+        $this->assertSame('{"severity":"none","hint":"Clear."}', $reply);
+        Http::assertSent(fn ($request) => $request['model'] === 'judge-one'
+            && $request['messages'][0] === ['role' => 'system', 'content' => 'Judge it.']
+            && $request['messages'][1] === ['role' => 'user', 'content' => 'Learner wrote: "I wake up."']
+            && $request['response_format'] === ['type' => 'json_object']
+            && $request->hasHeader('Authorization', 'Bearer test-key'));
+    }
+
+    public function test_chat_moves_to_the_next_judge_model_when_one_fails(): void
+    {
+        config(['services.groq.judge_models' => ['judge-one', 'judge-two']]);
+        Http::fake(function ($request) {
+            return $request['model'] === 'judge-one'
+                ? Http::response(['error' => 'busy'], 503)
+                : Http::response(['choices' => [['message' => ['content' => 'from two']]]]);
+        });
+
+        $this->assertSame('from two', (new GroqClient('test-key'))->chat([['role' => 'user', 'text' => 'Hi']]));
+    }
+
+    public function test_chat_without_a_key_fails_at_once_without_calling_groq(): void
+    {
+        Http::fake();
+
+        $this->expectException(RuntimeException::class);
+
+        try {
+            (new GroqClient(''))->chat([['role' => 'user', 'text' => 'Hi']]);
+        } finally {
+            Http::assertNothingSent();
+        }
+    }
 }

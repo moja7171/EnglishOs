@@ -43,5 +43,8 @@
         <env name="AI_PROXY_SECRET_VPS" value=""/>
         <env name="AI_PROXY_URL_LOCAL" value=""/>
         <env name="AI_PROXY_SECRET_LOCAL" value=""/>
+        <!-- A failed Gemini check falls back to Groq; without a key there the
+             fallback fails at once instead of calling Groq for real. -->
+        <env name="GROQ_API_KEY" value=""/>
     </php>
 </phpunit>
