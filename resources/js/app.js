@@ -474,30 +474,6 @@ window.eosConnectionNotice = {
  * something a step depends on.
  */
 window.eosVoice = {
-    // Whether this phone has an English voice to speak with — the dictation
-    // card falls back to a plain word card when it hasn't. Asked once per
-    // page load; voices can arrive late, so it waits a couple of seconds.
-    hasVoice() {
-        this.voiceCheck ??= new Promise((resolve) => {
-            if (!('speechSynthesis' in window)) return resolve(false);
-
-            const found = () => window.speechSynthesis.getVoices().some((voice) => voice.lang.toLowerCase().startsWith('en'));
-
-            if (found()) return resolve(true);
-
-            const onChange = () => {
-                if (found()) {
-                    clearTimeout(timer);
-                    resolve(true);
-                }
-            };
-            const timer = setTimeout(() => resolve(found()), 2000);
-
-            window.speechSynthesis.addEventListener('voiceschanged', onChange);
-        });
-
-        return this.voiceCheck;
-    },
     // options.rate: slower for the dictation card's 🐢 (default 0.95).
     speak(text, options = {}) {
         try {
