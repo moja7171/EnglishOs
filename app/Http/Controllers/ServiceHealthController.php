@@ -291,7 +291,7 @@ class ServiceHealthController extends Controller
         $configured = [
             ['gemini', 'Gemini chat', $gemini->configuredChain(GeminiClient::PROFILE_CHAT)],
             ['gemini', 'Gemini judge', $gemini->configuredChain(GeminiClient::PROFILE_JUDGE)],
-            ['groq', 'Groq judge', (new GroqClient)->judgeChain()],
+            ['groq', 'Groq chat', (new GroqClient)->judgeChain()],
             ['groq', 'Groq Whisper', (new GroqClient)->configuredChain()],
         ];
 

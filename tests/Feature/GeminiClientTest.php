@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Services\AiLimitReached;
+use App\Services\AiUsage;
 use App\Services\GeminiClient;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -381,6 +383,106 @@ class GeminiClientTest extends TestCase
         $this->travel(31)->seconds();
 
         $this->assertSame('A is fine.', $this->ask($client));
+    }
+
+    /**
+     * Groq answering in Gemini's place: its chat endpoint is faked and the
+     * models are named so a test can tell which one was asked.
+     */
+    private function groqAnswers(string $text): void
+    {
+        config(['services.groq.key' => 'groq-key', 'services.groq.judge_models' => ['groq-model']]);
+        Http::fake([
+            'api.groq.com/openai/v1/chat/completions' => Http::response(['choices' => [['message' => ['content' => $text]]]]),
+        ]);
+    }
+
+    private function groqRequests(): int
+    {
+        return Http::recorded(fn ($request) => str_contains((string) $request->url(), 'api.groq.com'))->count();
+    }
+
+    public function test_when_every_gemini_model_fails_groq_answers_the_same_prompt(): void
+    {
+        $this->groqAnswers('Hello from Groq.');
+        Http::fake([self::MODEL_A => Http::response(['error' => 'down'], 503)]);
+        $client = $this->chatChain(['model-a']);
+
+        $this->assertSame('Hello from Groq.', $client->chat([['role' => 'user', 'text' => 'Hi'], ['role' => 'model', 'text' => 'Hello'], ['role' => 'user', 'text' => 'How are you?']], systemPrompt: 'Be brief.'));
+
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'api.groq.com')
+            && $request['model'] === 'groq-model'
+            && $request['messages'] === [
+                ['role' => 'system', 'content' => 'Be brief.'],
+                ['role' => 'user', 'content' => 'Hi'],
+                ['role' => 'assistant', 'content' => 'Hello'],
+                ['role' => 'user', 'content' => 'How are you?'],
+            ]
+            && ! isset($request['response_format']));
+    }
+
+    public function test_a_judge_prompt_that_asks_for_json_gets_a_json_reply_from_groq(): void
+    {
+        $this->groqAnswers('{"severity": "none"}');
+        Http::fake([self::MODEL_A => Http::response(['error' => 'down'], 503)]);
+        config(['services.gemini.judge_models' => ['model-a']]);
+
+        (new GeminiClient('test-key'))->chat([['role' => 'user', 'text' => 'Hi']], systemPrompt: 'Reply with ONLY valid JSON.', profile: GeminiClient::PROFILE_JUDGE);
+
+        Http::assertSent(fn ($request) => str_contains((string) $request->url(), 'api.groq.com')
+            && $request['response_format'] === ['type' => 'json_object']);
+    }
+
+    public function test_a_good_gemini_answer_never_contacts_groq(): void
+    {
+        $this->groqAnswers('Hello from Groq.');
+        Http::fake([self::MODEL_A => Http::response($this->textResponse('Hello from A.'))]);
+
+        $this->assertSame('Hello from A.', $this->ask($this->chatChain(['model-a'])));
+        $this->assertSame(0, $this->groqRequests());
+    }
+
+    public function test_when_groq_cannot_answer_either_geminis_error_is_the_one_thrown(): void
+    {
+        config(['services.groq.key' => 'groq-key', 'services.groq.judge_models' => ['groq-model']]);
+        Http::fake([
+            self::MODEL_A => Http::response(['error' => 'gemini down'], 503),
+            'api.groq.com/*' => Http::response(['error' => 'groq down'], 500),
+        ]);
+
+        try {
+            $this->ask($this->chatChain(['model-a']));
+            $this->fail('Expected Gemini\'s error.');
+        } catch (RequestException $e) {
+            $this->assertStringContainsString('generativelanguage.googleapis.com', (string) $e->response->effectiveUri());
+        }
+    }
+
+    public function test_the_admins_daily_cap_does_not_fall_back_to_groq(): void
+    {
+        $this->groqAnswers('Hello from Groq.');
+        Http::fake();
+
+        $this->expectException(AiLimitReached::class);
+
+        try {
+            (new AiUsage)->ownKeyOnly(fn () => $this->ask($this->chatChain(['model-a'])));
+        } finally {
+            $this->assertSame(0, $this->groqRequests());
+        }
+    }
+
+    public function test_an_admin_probe_with_pinned_models_never_falls_back_to_groq(): void
+    {
+        $this->groqAnswers('Hello from Groq.');
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response(['error' => 'down'], 503)]);
+
+        try {
+            (new GeminiClient('test-key', 'pinned-a', 'pinned-b'))->chat([['role' => 'user', 'text' => 'Hi']]);
+            $this->fail('Expected Gemini\'s error.');
+        } catch (RequestException) {
+            $this->assertSame(0, $this->groqRequests());
+        }
     }
 
     public function test_judge_profile_walks_its_own_list(): void

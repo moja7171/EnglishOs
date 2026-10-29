@@ -59,6 +59,44 @@ class GeminiClient
     }
 
     /**
+     * Sends a prompt and returns the model's text reply. When Gemini cannot
+     * answer at all (down, too slow, rate limited, quota gone), Groq's chat
+     * models answer the same prompt instead, so every AI feature in the
+     * app survives a Gemini bad day with one rule in one place (see
+     * GroqClient::chat()). Gemini's own error is the one thrown when Groq
+     * cannot answer either. Not for an admin probe (a pinned chain reports
+     * Gemini's own state), and the admin's daily cap is not an outage.
+     *
+     * @param  array<int, array{role: string, text: string}>  $messages  Chat history, oldest first. role is 'user' or 'model'.
+     * @param  int|null  $maxOutputTokens  A hard cap on reply length, e.g. for a chat persona that
+     *                                     must stay short (see ⚡ask-instructor's Sage prompt). Omit for callers that
+     *                                     need their full, uncapped answer (grading feedback, mission recaps, ...).
+     * @param  string  $profile  PROFILE_CHAT (default) or PROFILE_JUDGE — which model chain to walk.
+     */
+    public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null, string $profile = self::PROFILE_CHAT): string
+    {
+        try {
+            return $this->askGemini($messages, $systemPrompt, $maxOutputTokens, $profile);
+        } catch (Throwable $e) {
+            if ($this->pinnedChain !== null || $e instanceof AiLimitReached) {
+                throw $e;
+            }
+
+            try {
+                return app(GroqClient::class)->chat(
+                    $messages,
+                    $systemPrompt,
+                    $maxOutputTokens,
+                    json: $profile === self::PROFILE_JUDGE && str_contains(strtolower((string) $systemPrompt), 'json'),
+                    profile: $profile,
+                );
+            } catch (Throwable) {
+                throw $e;
+            }
+        }
+    }
+
+    /**
      * Sends a single-turn (or pre-built multi-turn) prompt and returns the
      * model's text reply.
      *
@@ -82,7 +120,7 @@ class GeminiClient
      *                                     uncapped answer (grading feedback, mission recaps, ...).
      * @param  string  $profile  PROFILE_CHAT (default) or PROFILE_JUDGE — which model chain to walk.
      */
-    public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null, string $profile = self::PROFILE_CHAT): string
+    private function askGemini(array $messages, ?string $systemPrompt, ?int $maxOutputTokens, string $profile): string
     {
         if ($this->apiKey === '' && $this->personalKey === '') {
             throw new RuntimeException('GEMINI_API_KEY is not set.');

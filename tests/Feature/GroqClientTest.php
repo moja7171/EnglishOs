@@ -385,4 +385,23 @@ class GroqClientTest extends TestCase
             Http::assertNothingSent();
         }
     }
+
+    public function test_a_gpt_oss_chat_gets_low_reasoning_effort_and_room_to_think_beyond_the_reply_cap(): void
+    {
+        config(['services.groq.judge_models' => ['openai/gpt-oss-120b', 'some-other-model']]);
+        Http::fake([
+            'api.groq.com/openai/v1/chat/completions' => Http::response(['error' => 'busy'], 503),
+        ]);
+
+        try {
+            (new GroqClient('test-key'))->chat([['role' => 'user', 'text' => 'Hi']], maxOutputTokens: 220);
+        } catch (RequestException) {
+            // both models fail; only the requests matter here
+        }
+
+        Http::assertSent(fn ($request) => $request['model'] === 'openai/gpt-oss-120b'
+            && $request['reasoning_effort'] === 'low'
+            && $request['max_completion_tokens'] === 1220);
+        Http::assertSent(fn ($request) => $request['model'] === 'some-other-model' && ! isset($request['reasoning_effort']));
+    }
 }

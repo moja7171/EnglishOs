@@ -94,14 +94,12 @@ return [
         'max_attempts' => (int) env('GROQ_MAX_ATTEMPTS', 3),
         'total_budget' => (int) env('GROQ_TOTAL_BUDGET', 25),
 
-        // Groq's chat models grade a learner's sentence when Gemini cannot
-        // answer (see App\Services\SentenceChecker): quick (2-4 s) and, on
-        // the sentences tried 2026-10-29, as accurate as Gemini's lite
-        // models. Ordered chain, best first, comma separated; set the
-        // variable empty to turn the fallback off. judge_first = true asks
-        // Groq before Gemini, for when Gemini is slow all day.
+        // Groq's chat models answer when Gemini cannot (see
+        // App\Services\GeminiClient::chat(): every AI feature falls back
+        // here): quick (2-4 s) and, on the sentences tried 2026-10-29, as
+        // accurate as Gemini's lite models. Ordered chain, best first,
+        // comma separated; set the variable empty to turn the fallback off.
         'judge_models' => array_values(array_filter(array_map('trim', explode(',', (string) env('GROQ_JUDGE_MODELS', 'openai/gpt-oss-120b,openai/gpt-oss-20b'))))),
-        'judge_first' => (bool) env('GROQ_JUDGE_FIRST', false),
         'judge_attempt_timeout' => (int) env('GROQ_JUDGE_ATTEMPT_TIMEOUT', 10),
         'judge_max_attempts' => (int) env('GROQ_JUDGE_MAX_ATTEMPTS', 2),
         'judge_total_budget' => (int) env('GROQ_JUDGE_TOTAL_BUDGET', 15),

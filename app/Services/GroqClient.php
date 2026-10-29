@@ -24,6 +24,13 @@ class GroqClient
     /** ...and a chat answer that grades the learner. */
     private const JUDGE_PROFILE = 'judge';
 
+    /**
+     * The gpt-oss models think before they answer, and that thinking is
+     * counted in the reply's token cap: a cap sized for the answer alone
+     * ends the reply empty. This much room is added on top of it.
+     */
+    private const REASONING_HEADROOM_TOKENS = 1000;
+
     private readonly string $apiKey;
 
     /**
@@ -82,7 +89,7 @@ class GroqClient
     }
 
     /**
-     * The chat models that grade a learner's text, best first
+     * The chat models that answer when Gemini cannot, best first
      * (services.groq.judge_models) — empty when the fallback is turned off.
      *
      * @return list<array{model: string, thinking_level: ?string}>
@@ -95,14 +102,15 @@ class GroqClient
     /**
      * Sends a prompt to Groq's OpenAI-compatible chat endpoint and returns
      * the model's text reply — the same call shape as GeminiClient::chat(),
-     * for the judge calls that fall back from Gemini to Groq. Walks the
-     * judge chain with the same rules (learner's own key first, then the
-     * app's; a model that fails is skipped for a while).
+     * which hands every prompt here when Gemini cannot answer. Walks the
+     * chain with the same rules (learner's own key first, then the app's; a
+     * model that fails is skipped for a while).
      *
      * @param  array<int, array{role: string, text: string}>  $messages  Oldest first. role is 'user' or 'model'.
-     * @param  bool  $json  Ask for a JSON object reply.
+     * @param  bool  $json  Ask for a JSON object reply (the prompt must say JSON).
+     * @param  string  $profile  How the call shows in the admin's usage log: the calling GeminiClient profile.
      */
-    public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null, bool $json = false): string
+    public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null, bool $json = false, string $profile = self::JUDGE_PROFILE): string
     {
         if ($this->apiKey === '' && $this->personalKey === '') {
             throw new RuntimeException('GROQ_API_KEY is not set.');
@@ -120,7 +128,7 @@ class GroqClient
         ];
 
         if ($maxOutputTokens !== null) {
-            $payload['max_tokens'] = $maxOutputTokens;
+            $payload['max_completion_tokens'] = $maxOutputTokens + self::REASONING_HEADROOM_TOKENS;
         }
 
         if ($json) {
@@ -137,7 +145,7 @@ class GroqClient
 
         if ($this->personalKey !== '') {
             try {
-                return $usage->track(self::PROVIDER, self::JUDGE_PROFILE, AiUsageLog::KEY_OWN, fn () => $this->chain->walk(
+                return $usage->track(self::PROVIDER, $profile, AiUsageLog::KEY_OWN, fn () => $this->chain->walk(
                     provider: self::PROVIDER,
                     logLabel: 'GroqClient chat (personal key)',
                     chain: $this->judgeChain(),
@@ -152,15 +160,15 @@ class GroqClient
             }
         }
 
-        $usage->ensureAppKeyAllowed(self::PROVIDER, self::JUDGE_PROFILE);
+        $usage->ensureAppKeyAllowed(self::PROVIDER, $profile);
 
-        return $usage->track(self::PROVIDER, self::JUDGE_PROFILE, AiUsageLog::KEY_APP, fn () => $this->chain->walk(
+        return $usage->track(self::PROVIDER, $profile, AiUsageLog::KEY_APP, fn () => $this->chain->walk(
             provider: self::PROVIDER,
             logLabel: 'GroqClient chat',
             chain: $this->judgeChain(),
             attempt: fn (array $entry, int $timeout) => $this->chatAttempt($this->apiKey, $entry['model'], $payload, $timeout),
             limits: $limits,
-            chainName: 'Groq judge',
+            chainName: 'Groq chat',
         ));
     }
 
@@ -172,13 +180,17 @@ class GroqClient
     {
         $url = 'https://api.groq.com/openai/v1/chat/completions';
 
+        // Low effort: a grade or a short reply does not need long thinking,
+        // and every second of it is the learner waiting.
+        $extra = str_starts_with($model, 'openai/gpt-oss') ? ['reasoning_effort' => 'low'] : [];
+
         $response = $this->withOutboundProxy(
             Http::withToken($apiKey)
                 ->timeout($timeoutSeconds)
                 ->retry(1, 500, throw: false),
             $url,
         )
-            ->post($this->outboundUrl($url), ['model' => $model] + $payload)
+            ->post($this->outboundUrl($url), ['model' => $model] + $extra + $payload)
             ->throw();
 
         return (string) data_get($response->json(), 'choices.0.message.content', '');
