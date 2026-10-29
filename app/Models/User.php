@@ -450,11 +450,12 @@ class User extends Authenticatable
     /**
      * How many items count as "today's review" in each track — a finishable
      * amount, so a backlog of forty due items reads as ten things to do
-     * today, not as a wall. The rest stay due and roll into tomorrow's.
+     * today, not as a wall. The rest stay due and roll into tomorrow's; a
+     * learner who wants more asks for another batch ("6 more").
      */
-    public const DAILY_WORD_LIMIT = 10;
+    public const DAILY_WORD_LIMIT = 6;
 
-    public const DAILY_TALK_LIMIT = 8;
+    public const DAILY_TALK_LIMIT = 6;
 
     /**
      * The spaced-repetition systems Daily Review mixes, keyed by the type
@@ -506,7 +507,7 @@ class User extends Authenticatable
 
     /**
      * What is left of a track's daily limit (or of both). $more is how many
-     * extra batches of words the learner asked for with "10 more".
+     * extra batches the learner asked for with "6 more".
      */
     public function dailyReviewAllowance(?string $track = null, int $more = 0): int
     {
@@ -514,20 +515,21 @@ class User extends Authenticatable
             return $this->dailyReviewAllowance('words') + $this->dailyReviewAllowance('talk');
         }
 
-        $limit = $track === 'words' ? self::DAILY_WORD_LIMIT * (1 + $more) : self::DAILY_TALK_LIMIT;
+        $limit = ($track === 'words' ? self::DAILY_WORD_LIMIT : self::DAILY_TALK_LIMIT) * (1 + $more);
 
         return max(0, $limit - $this->reviewedTodayCount($track));
     }
 
     /**
      * How many notebook lines today's review still has room for — see
-     * NotebookEntry::DAILY_REVIEW_SLOTS.
+     * NotebookEntry::DAILY_REVIEW_SLOTS, a batch more for each extra batch
+     * the learner asked for.
      */
-    private function notebookReviewAllowance(): int
+    private function notebookReviewAllowance(int $more = 0): int
     {
         $reviewedToday = $this->notebookEntries()->where('last_reviewed_at', '>=', $this->localDayStart())->count();
 
-        return max(0, NotebookEntry::DAILY_REVIEW_SLOTS - $reviewedToday);
+        return max(0, NotebookEntry::DAILY_REVIEW_SLOTS * (1 + $more) - $reviewedToday);
     }
 
     /**
@@ -538,9 +540,9 @@ class User extends Authenticatable
      * reviewed (a reviewed item leaves the due set while the allowance
      * drops by one), so the same ones stay "today's" all day.
      *
-     * With $more batches asked for, the words track fills what the due
-     * words leave from the ones coming up soonest, so there is always
-     * something to practise early.
+     * With $more batches asked for, the limit grows by a batch each time and
+     * the words track fills what the due words leave from the ones coming
+     * up soonest, so there is always something to practise early.
      *
      * @return Collection<int, array{type: string, id: int}>
      */
@@ -562,7 +564,7 @@ class User extends Authenticatable
                 ->when($type === 'note', fn ($notes) => $notes
                     ->orderByDesc('times_seen')
                     ->orderBy('next_review_at')
-                    ->limit($this->notebookReviewAllowance()))
+                    ->limit($this->notebookReviewAllowance($more)))
                 ->get(['id', 'next_review_at'])
                 ->map(fn ($item) => ['type' => $type, 'id' => $item->id, 'dueAt' => $item->next_review_at->getTimestamp()]))
             ->sortBy([['dueAt', 'asc'], ['type', 'asc'], ['id', 'asc']])
@@ -579,7 +581,7 @@ class User extends Authenticatable
 
     /**
      * The words coming due soonest that were not reviewed today — what
-     * "10 more" practises early when nothing else is due.
+     * "6 more" practises early when nothing else is due.
      *
      * @return Collection<int, array{type: string, id: int}>
      */

@@ -281,11 +281,11 @@ class DailyReviewTest extends TestCase
             ->assertDontSee("You're all caught up");
     }
 
-    public function test_after_todays_ten_words_the_review_says_how_many_more_are_waiting(): void
+    public function test_after_todays_six_words_the_review_says_how_many_more_are_waiting(): void
     {
         $learner = User::factory()->create();
 
-        foreach (range(1, 13) as $number) {
+        foreach (range(1, 9) as $number) {
             $this->makeDueWord($learner, ['word' => 'word'.$number, 'next_review_at' => now()->subMinutes($number)]);
         }
 
@@ -293,7 +293,7 @@ class DailyReviewTest extends TestCase
 
         $page = Livewire::test('review.index', ['track' => 'words']);
 
-        foreach (range(1, 10) as $ignored) {
+        foreach (range(1, 6) as $ignored) {
             $page->call('gradeWord', 4, true);
         }
 
@@ -553,36 +553,36 @@ class DailyReviewTest extends TestCase
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 12) as $minutesOverdue) {
+        foreach (range(1, 8) as $minutesOverdue) {
             $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue)]);
         }
 
         $items = $learner->dailyReviewItems();
 
         $this->assertCount(User::DAILY_WORD_LIMIT, $items);
-        $this->assertSame(10, $learner->dailyReviewCount());
+        $this->assertSame(6, $learner->dailyReviewCount());
         $this->assertNotContains(
             VocabularyWord::where('word', 'word1')->value('id'),
             $items->pluck('id')->all(),
         );
 
-        Livewire::test('missions.overview')->assertSeeInOrder(['Daily Review', '10 items']);
+        Livewire::test('missions.overview')->assertSeeInOrder(['Daily Review', '6 items']);
     }
 
-    public function test_reviewing_a_word_uses_up_one_of_todays_ten_instead_of_pulling_in_an_eleventh(): void
+    public function test_reviewing_a_word_uses_up_one_of_todays_six_instead_of_pulling_in_a_seventh(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 12) as $minutesOverdue) {
+        foreach (range(1, 8) as $minutesOverdue) {
             $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue), 'repetitions' => 1]);
         }
 
         Livewire::test('review.index', ['track' => 'words'])->call('gradeWord', 4, true);
 
         $this->assertSame(1, $learner->reviewedTodayCount());
-        $this->assertCount(9, $learner->dailyReviewItems());
-        $this->assertSame(9, $learner->dailyReviewCount());
+        $this->assertCount(5, $learner->dailyReviewItems());
+        $this->assertSame(5, $learner->dailyReviewCount());
     }
 
     public function test_finishing_todays_batch_shows_reviewed_today_even_with_more_still_due(): void
@@ -590,8 +590,8 @@ class DailyReviewTest extends TestCase
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 11) as $i) {
-            $this->makeDueWord($learner, ['word' => "word{$i}", 'last_reviewed_at' => $i <= 10 ? now() : null, 'next_review_at' => $i <= 10 ? now()->addDay() : now()->subMinute()]);
+        foreach (range(1, 7) as $i) {
+            $this->makeDueWord($learner, ['word' => "word{$i}", 'last_reviewed_at' => $i <= 6 ? now() : null, 'next_review_at' => $i <= 6 ? now()->addDay() : now()->subMinute()]);
         }
 
         $this->assertSame(0, $learner->dailyReviewCount());
@@ -910,48 +910,66 @@ class DailyReviewTest extends TestCase
     public function test_the_two_paths_have_their_own_daily_limits(): void
     {
         $learner = User::factory()->create();
-        foreach (range(1, 12) as $number) {
+        foreach (range(1, 8) as $number) {
             $this->makeDueWord($learner, ['word' => "word{$number}"]);
         }
-        foreach (range(1, 10) as $ignored) {
+        foreach (range(1, 8) as $ignored) {
             $this->makeDuePrompt($learner);
         }
 
-        $this->assertCount(10, $learner->dailyReviewItems('words'));
-        $this->assertCount(8, $learner->dailyReviewItems('talk'));
-        $this->assertSame(18, $learner->dailyReviewCount());
+        $this->assertCount(6, $learner->dailyReviewItems('words'));
+        $this->assertCount(6, $learner->dailyReviewItems('talk'));
+        $this->assertSame(12, $learner->dailyReviewCount());
     }
 
-    public function test_ten_more_words_brings_the_next_due_ones_and_then_the_ones_coming_up_soonest(): void
+    public function test_six_more_words_brings_the_next_due_ones_and_then_the_ones_coming_up_soonest(): void
     {
         $learner = User::factory()->create();
-        foreach (range(1, 12) as $number) {
+        foreach (range(1, 8) as $number) {
             $this->makeDueWord($learner, ['word' => "due{$number}", 'next_review_at' => now()->subMinutes($number)]);
         }
-        foreach (range(1, 12) as $number) {
+        foreach (range(1, 8) as $number) {
             $this->makeDueWord($learner, ['word' => "soon{$number}", 'next_review_at' => now()->addDays($number)]);
         }
         $this->actingAs($learner);
 
         $page = Livewire::test('review.index', ['track' => 'words']);
-        foreach (range(1, 10) as $ignored) {
+        foreach (range(1, 6) as $ignored) {
             $page->call('gradeWord', 4, true);
         }
 
-        $page->assertSee('Session done!')->assertSee('10 more words')->call('loadMore')->assertSet('more', 1);
+        $page->assertSee('Session done!')->assertSee('6 more words')->call('loadMore')->assertSet('more', 1);
 
         $words = collect($page->instance()->queue())->map(fn (array $entry) => VocabularyWord::find($entry['id'])->word)->sort()->values()->all();
 
-        $this->assertSame(['due1', 'due2', 'soon1', 'soon2', 'soon3', 'soon4', 'soon5', 'soon6', 'soon7', 'soon8'], $words);
+        $this->assertSame(['due1', 'due2', 'soon1', 'soon2', 'soon3', 'soon4'], $words);
     }
 
-    public function test_ten_more_is_not_offered_on_the_speaking_and_grammar_path(): void
+    public function test_six_more_on_the_speaking_and_grammar_path_brings_the_next_due_ones_only(): void
     {
         $learner = User::factory()->create();
+        foreach (range(1, 8) as $ignored) {
+            $this->makeDuePrompt($learner);
+        }
+        $this->actingAs($learner);
+
+        $page = Livewire::test('review.index', ['track' => 'talk']);
+
+        $this->assertCount(6, $page->instance()->queue());
+        $this->assertTrue($page->instance()->moreAvailable());
+
+        $page->call('loadMore')->assertSet('more', 1);
+
+        $this->assertCount(8, $page->instance()->queue());
+    }
+
+    public function test_six_more_is_not_offered_when_nothing_more_is_due_on_the_speaking_and_grammar_path(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDuePrompt($learner);
         $this->actingAs($learner);
 
         Livewire::test('review.index', ['track' => 'talk'])
-            ->assertDontSee('more words')
             ->call('loadMore')
             ->assertSet('more', 0);
     }

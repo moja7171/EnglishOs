@@ -129,15 +129,15 @@ new class extends Component
     public ?string $track = null;
 
     /**
-     * How many extra batches of ten words the learner asked for with
-     * "10 more" — kept in the address, so a reload stays in the same batch.
+     * How many extra batches the learner asked for with "6 more" — kept in
+     * the address, so a reload stays in the same batch.
      */
     #[Url(as: 'more')]
     public int $more = 0;
 
     /**
      * Ids of words whose dictation the learner couldn't listen to this
-     * session (or whose phone has no English voice) — they come as a
+     * session — they come as a
      * plain word card instead, ungraded as a miss.
      *
      * @var list<int>
@@ -147,7 +147,7 @@ new class extends Component
     public function mount(?string $track = null): void
     {
         $this->track = $track;
-        $this->more = $track === 'words' ? max(0, min($this->more, 20)) : 0;
+        $this->more = $track === null ? 0 : max(0, min($this->more, 20));
         $this->shuffleSeed = Str::random(16);
     }
 
@@ -245,33 +245,38 @@ new class extends Component
     }
 
     /**
-     * Whether "10 more" has words to bring — only on the words path, and
-     * only while a next batch would not be empty.
+     * Whether "6 more" has anything to bring — on either path, while a next
+     * batch would not be empty.
      */
     #[Computed]
-    public function moreWordsAvailable(): bool
+    public function moreAvailable(): bool
     {
-        return $this->track === 'words'
-            && auth()->user()->dailyReviewItems('words', $this->more + 1)->isNotEmpty();
+        if ($this->track === null) {
+            return false;
+        }
+
+        $user = auth()->user();
+
+        return $user->dailyReviewItems($this->track, $this->more + 1)->count() > $user->dailyReviewItems($this->track, $this->more)->count();
     }
 
     /**
-     * "10 more": opens the next batch of ten words — the due ones first,
-     * then the ones coming up soonest.
+     * "6 more": opens the next batch — the due items first, and on the
+     * words path the ones coming up soonest after them.
      */
     public function loadMore(): void
     {
-        if (! $this->moreWordsAvailable) {
+        if (! $this->moreAvailable) {
             return;
         }
 
         $this->more++;
-        unset($this->queue, $this->currentItem, $this->hasSkippedEverything, $this->waitingCount, $this->moreWordsAvailable);
+        unset($this->queue, $this->currentItem, $this->hasSkippedEverything, $this->waitingCount, $this->moreAvailable);
     }
 
     /**
      * A dictation card the learner can't listen to right now (no
-     * headphones, a noisy place, no English voice on the phone): the same
+     * headphones, a noisy place): the same
      * word comes as a plain word card, and nothing is graded.
      */
     public function cantListen(): void
@@ -718,8 +723,8 @@ new class extends Component
                         </span>
                     @endif
                 </div>
-                @if ($this->moreWordsAvailable)
-                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ User::DAILY_WORD_LIMIT }} more words</button>
+                @if ($this->moreAvailable)
+                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ $track === 'words' ? User::DAILY_WORD_LIMIT.' more words' : User::DAILY_TALK_LIMIT.' more' }}</button>
                 @endif
             </div>
             <a href="{{ route('home') }}" wire:navigate class="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] w-full rounded-2xl bg-accent py-3.5 text-center text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark">Done</a>
@@ -735,8 +740,8 @@ new class extends Component
                 @else
                     <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Nothing is due right now — come back later.</p>
                 @endif
-                @if ($this->moreWordsAvailable)
-                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ User::DAILY_WORD_LIMIT }} more words</button>
+                @if ($this->moreAvailable)
+                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ $track === 'words' ? User::DAILY_WORD_LIMIT.' more words' : User::DAILY_TALK_LIMIT.' more' }}</button>
                 @endif
             </div>
         @endif
@@ -791,7 +796,7 @@ new class extends Component
                         </span>
                     </div>
                 @elseif ($type === 'dictation')
-                    <div class="flex flex-1 flex-col items-center justify-center gap-3" x-data="{ say: (rate) => window.eosVoice?.speak(@js($model->word), { rate }) }" x-init="$nextTick(() => say(1)); window.eosVoice?.hasVoice().then((found) => found || $wire.cantListen())">
+                    <div class="flex flex-1 flex-col items-center justify-center gap-3" x-data="{ say: (rate) => window.eosVoice?.speak(@js($model->word), { rate }) }" x-init="$nextTick(() => say(1))">
                         <button type="button" x-on:click="say(1)" aria-label="Hear the word" class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-9 w-9')</button>
                         <button type="button" x-on:click="say(0.6)" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">🐢 Slower</button>
                     </div>
