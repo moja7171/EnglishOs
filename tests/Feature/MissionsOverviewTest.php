@@ -185,7 +185,7 @@ class MissionsOverviewTest extends TestCase
         return $run;
     }
 
-    public function test_a_finished_day_behind_the_learner_is_a_whole_ring_without_listening_or_talk_ticks(): void
+    public function test_a_finished_day_behind_the_learner_keeps_listening_and_talk_open_until_ticked(): void
     {
         $learner = User::factory()->create();
         $this->startOnDayTwo($learner);
@@ -193,7 +193,7 @@ class MissionsOverviewTest extends TestCase
 
         $days = Livewire::test('missions.overview')->instance()->missionDays;
 
-        $this->assertSame([true, true, true], [$days[0]['lesson'], $days[0]['listened'], $days[0]['talked']]);
+        $this->assertSame([true, false, false], [$days[0]['lesson'], $days[0]['listened'], $days[0]['talked']]);
         $this->assertSame([false, false, false], [$days[1]['lesson'], $days[1]['listened'], $days[1]['talked']]);
     }
 
@@ -224,7 +224,7 @@ class MissionsOverviewTest extends TestCase
 
         Livewire::test('missions.overview')
             ->assertSeeHtml('data-mission-banner')
-            ->assertSeeHtml('aria-label="Day 1, done"')
+            ->assertSeeHtml('aria-label="Day 1, 1 of 3 done"')
             ->assertSeeHtml('aria-label="Day 2, today"')
             ->assertSeeHtml('aria-label="Day 3, not reached yet"')
             ->assertSeeHtml("\$dispatch('select-day', { day: 1 })")
@@ -283,7 +283,7 @@ class MissionsOverviewTest extends TestCase
             ->assertSee('M02 · My Neighborhood')
             ->assertSeeHtml('href="'.route('missions.show', [$next, $next->stepKeys()[0]]).'"')
             ->assertSeeHtml('aria-label="Days of M01"')
-            ->assertSeeHtml('aria-label="Day 1, done"')
+            ->assertSeeHtml('aria-label="Day 1, 1 of 3 done"')
             ->assertDontSee('Start a new mission');
     }
 
