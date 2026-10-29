@@ -74,11 +74,11 @@ class Reminders
 
     /**
      * The quickest thing that adds a slice to today's streak ring: today's
-     * review when words are due, else the next step that's waiting.
+     * words when some are due, else the next step that's waiting.
      */
     public function quickestNext(User $user): ?string
     {
-        $due = $user->dailyReviewCount();
+        $due = $user->dailyReviewCount('words');
 
         if ($due > 0) {
             return "مرور {$this->persianNumber($due)} کلمه، حدود ۳ دقیقه";

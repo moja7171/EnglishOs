@@ -74,7 +74,7 @@ class SendStudyReminders extends Command
                 continue;
             }
 
-            $this->sendPush($user, new StudyReminder($time, $reminders->whatsWaiting($user), $user->dailyReviewCount()), 'Study reminder');
+            $this->sendPush($user, new StudyReminder($time, $reminders->whatsWaiting($user), $user->dailyReviewCount('words')), 'Study reminder');
             $reminders->countSent($user);
             $sent++;
         }

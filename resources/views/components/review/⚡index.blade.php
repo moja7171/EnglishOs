@@ -13,6 +13,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -121,24 +122,47 @@ new class extends Component
      */
     public ?string $previousRecordingUrl = null;
 
-    public function mount(): void
+    /**
+     * Which of Daily Review's two paths this is — 'words' or 'talk' (see
+     * User::REVIEW_TRACKS); null runs both in one queue.
+     */
+    public ?string $track = null;
+
+    /**
+     * How many extra batches of ten words the learner asked for with
+     * "10 more" — kept in the address, so a reload stays in the same batch.
+     */
+    #[Url(as: 'more')]
+    public int $more = 0;
+
+    /**
+     * Ids of words whose dictation the learner couldn't listen to this
+     * session (or whose phone has no English voice) — they come as a
+     * plain word card instead, ungraded as a miss.
+     *
+     * @var list<int>
+     */
+    public array $plainWordIds = [];
+
+    public function mount(?string $track = null): void
     {
+        $this->track = $track;
+        $this->more = $track === 'words' ? max(0, min($this->more, 20)) : 0;
         $this->shuffleSeed = Str::random(16);
     }
 
     /**
-     * At most this many of today's words come as a dictation card (hear
-     * it, type it) instead of a word card — only words the learner added
-     * to My Words themselves (no mission behind them).
+     * A word comes as a dictation card (hear it, type it) once it has been
+     * remembered at least once — see strengthLevel(): a word still being
+     * met for the first time gets the plain card.
      */
-    public const DICTATIONS_PER_DAY = 3;
+    public const DICTATION_FROM_STRENGTH = 2;
 
     /**
-     * A fast, mixed session across every review system the app has —
-     * vocabulary (My Words), Speaking Recall, recurring grammar-mistake
-     * patterns, and taught grammar points (Grammar in Context) —
-     * interleaved into one queue instead of four separate places to
-     * check. Most types use the LIGHT self-assessment interaction here
+     * A fast, mixed session across one path's review systems — the words
+     * (My Words), or Speaking Recall, recurring grammar-mistake patterns,
+     * taught grammar points (Grammar in Context) and notebook lines —
+     * interleaved into one queue instead of separate places to check. Most types use the LIGHT self-assessment interaction here
      * (Again/Good/Easy after a reveal, or after a fresh recording).
      *
      * @return list<array{type: string, id: int}>
@@ -146,11 +170,11 @@ new class extends Component
     #[Computed]
     public function queue(): array
     {
-        // Today's eight, not the whole backlog — see User::dailyReviewItems().
+        // Today's batch, not the whole backlog — see User::dailyReviewItems().
         // A seeded sort, not ->shuffle() — see $shuffleSeed for why this
         // has to stay stable across requests rather than re-randomizing
         // on every single one.
-        $all = auth()->user()->dailyReviewItems()
+        $all = auth()->user()->dailyReviewItems($this->track, $this->more)
             ->sortBy(fn (array $entry) => md5($this->shuffleSeed.$this->itemKey($entry['type'], $entry['id'])))
             ->concat(collect($this->retryKeys)->map(fn (string $key) => ['type' => 'note', 'id' => (int) Str::after($key, ':')]))
             ->unique(fn (array $entry) => $this->itemKey($entry['type'], $entry['id']))
@@ -169,30 +193,28 @@ new class extends Component
     }
 
     /**
-     * Turns up to DICTATIONS_PER_DAY of the learner's own words into
-     * dictation cards, in queue order (so the same ones every request).
+     * Turns the words that are strong enough and can be spelled from
+     * hearing them into dictation cards (see DICTATION_FROM_STRENGTH and
+     * VocabularyWord::canBeDictated()), except the ones the learner
+     * couldn't listen to.
      *
      * @param  \Illuminate\Support\Collection<int, array{type: string, id: int}>  $entries
      * @return \Illuminate\Support\Collection<int, array{type: string, id: int}>
      */
     private function withDictations($entries)
     {
-        $ownWordIds = VocabularyWord::query()
+        $dictatedIds = VocabularyWord::query()
             ->whereIn('id', $entries->where('type', 'word')->pluck('id'))
-            ->whereNull('source_mission_run_id')
+            ->get()
+            ->filter(fn (VocabularyWord $word) => $word->strengthLevel() >= self::DICTATION_FROM_STRENGTH
+                && $word->canBeDictated()
+                && ! in_array($word->id, $this->plainWordIds, true))
             ->pluck('id')
             ->all();
-        $picked = 0;
 
-        return $entries->map(function (array $entry) use ($ownWordIds, &$picked) {
-            if ($entry['type'] === 'word' && in_array($entry['id'], $ownWordIds, true) && $picked < self::DICTATIONS_PER_DAY) {
-                $picked++;
-
-                return ['type' => 'dictation', 'id' => $entry['id']];
-            }
-
-            return $entry;
-        });
+        return $entries->map(fn (array $entry) => $entry['type'] === 'word' && in_array($entry['id'], $dictatedIds, true)
+            ? ['type' => 'dictation', 'id' => $entry['id']]
+            : $entry);
     }
 
     /**
@@ -204,20 +226,65 @@ new class extends Component
      * silently re-showing the first skipped item.
      */
     /**
-     * Items due beyond today's eight — they roll into the next days, so
-     * the learner sees the size of the backlog, not just "8".
+     * Items due beyond today's batch — they roll into the next days, so
+     * the learner sees the size of the backlog, not just today's number.
      */
     #[Computed]
     public function waitingCount(): int
     {
-        return max(0, auth()->user()->dueReviewCount() - auth()->user()->dailyReviewCount());
+        return max(0, auth()->user()->dueReviewCount($this->track) - auth()->user()->dailyReviewCount($this->track));
     }
 
-    /** How many days of eight the waiting items make. */
+    /** How many days of a full batch the waiting items make. */
     #[Computed]
     public function waitingDays(): int
     {
-        return max(1, (int) ceil($this->waitingCount / User::DAILY_REVIEW_LIMIT));
+        $batch = $this->track === 'talk' ? User::DAILY_TALK_LIMIT : User::DAILY_WORD_LIMIT;
+
+        return max(1, (int) ceil($this->waitingCount / $batch));
+    }
+
+    /**
+     * Whether "10 more" has words to bring — only on the words path, and
+     * only while a next batch would not be empty.
+     */
+    #[Computed]
+    public function moreWordsAvailable(): bool
+    {
+        return $this->track === 'words'
+            && auth()->user()->dailyReviewItems('words', $this->more + 1)->isNotEmpty();
+    }
+
+    /**
+     * "10 more": opens the next batch of ten words — the due ones first,
+     * then the ones coming up soonest.
+     */
+    public function loadMore(): void
+    {
+        if (! $this->moreWordsAvailable) {
+            return;
+        }
+
+        $this->more++;
+        unset($this->queue, $this->currentItem, $this->hasSkippedEverything, $this->waitingCount, $this->moreWordsAvailable);
+    }
+
+    /**
+     * A dictation card the learner can't listen to right now (no
+     * headphones, a noisy place, no English voice on the phone): the same
+     * word comes as a plain word card, and nothing is graded.
+     */
+    public function cantListen(): void
+    {
+        $item = $this->currentItem;
+
+        if (! $item || $item['type'] !== 'dictation') {
+            return;
+        }
+
+        $this->plainWordIds[] = $item['model']->id;
+        $this->resetItemState();
+        unset($this->queue, $this->currentItem, $this->hasSkippedEverything);
     }
 
     #[Computed]
@@ -470,9 +537,15 @@ new class extends Component
         $this->gradeCurrent($item['model'], $this->spellingCorrect ? 4 : 1);
     }
 
+    /**
+     * Case, the full stop, a phone keyboard's curly apostrophe and a
+     * hyphen written as a space ("ex partner") don't make a spelling wrong.
+     */
     private function normalizeSpelling(string $text): string
     {
-        return trim(preg_replace('/\s+/', ' ', mb_strtolower(rtrim(trim($text), '.!?'))));
+        $text = str_replace(['’', '‘', '`'], "'", mb_strtolower(rtrim(trim($text), '.!?')));
+
+        return trim(preg_replace('/[\s-]+/u', ' ', $text));
     }
 
     /**
@@ -486,7 +559,7 @@ new class extends Component
     {
         $word = (string) ($this->currentItem['model']->word ?? '');
         $target = mb_str_split($word);
-        $typed = mb_str_split(mb_strtolower(trim($this->spelling)));
+        $typed = mb_str_split(str_replace(['’', '‘', '`'], "'", mb_strtolower(trim($this->spelling))));
         $lower = mb_str_split(mb_strtolower($word));
         $rows = count($lower);
         $cols = count($typed);
@@ -645,19 +718,25 @@ new class extends Component
                         </span>
                     @endif
                 </div>
+                @if ($this->moreWordsAvailable)
+                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ User::DAILY_WORD_LIMIT }} more words</button>
+                @endif
             </div>
             <a href="{{ route('home') }}" wire:navigate class="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] w-full rounded-2xl bg-accent py-3.5 text-center text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark">Done</a>
         @else
             <div class="flex flex-1 flex-col items-center justify-center gap-2 text-center">
                 @svg('heroicon-o-check-badge', 'h-10 w-10 text-success dark:text-success-dark')
                 <p class="text-lg font-extrabold text-ink dark:text-ink-dark">You're all caught up!</p>
-                @if (auth()->user()->reviewedTodayCount() > 0)
+                @if (auth()->user()->reviewedTodayCount($track) > 0)
                     <p class="text-sm text-ink-faint dark:text-ink-faint-dark">That's today's review done.</p>
                 @if ($this->waitingCount > 0)
                     <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">{{ $this->waitingCount }} more waiting · about {{ $this->waitingDays }} {{ Str::plural('day', $this->waitingDays) }}</p>
                 @endif
                 @else
                     <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Nothing is due right now — come back later.</p>
+                @endif
+                @if ($this->moreWordsAvailable)
+                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ User::DAILY_WORD_LIMIT }} more words</button>
                 @endif
             </div>
         @endif
@@ -669,7 +748,7 @@ new class extends Component
             $total = $sessionGraded + count($this->queue);
             $label = match ($type) {
                 'word' => 'Word',
-                'dictation' => 'Dictation · My words',
+                'dictation' => 'Dictation',
                 'speaking' => 'Speaking'.($model->mission_code ? ' · '.$model->mission_code : ''),
                 'note' => $model->isMistake() ? 'Your mistake' : 'Your tip',
                 'error' => 'Your mistake',
@@ -680,7 +759,7 @@ new class extends Component
             $strength = $model->strengthLevel();
         @endphp
 
-        <x-lesson-header data-step-header :close="route('home')" :progress="($position - 1) / max($total, 1)" :counter="$position.'/'.$total" />
+        <x-lesson-header data-step-header :close="route('review.index')" :progress="($position - 1) / max($total, 1)" :counter="$position.'/'.$total" />
 
         <div
             wire:key="review-{{ $type }}-{{ $model->id }}"
@@ -712,7 +791,7 @@ new class extends Component
                         </span>
                     </div>
                 @elseif ($type === 'dictation')
-                    <div class="flex flex-1 flex-col items-center justify-center gap-3" x-data="{ say: (rate) => window.eosVoice?.speak(@js($model->word), { rate }) }" x-init="$nextTick(() => say(1))">
+                    <div class="flex flex-1 flex-col items-center justify-center gap-3" x-data="{ say: (rate) => window.eosVoice?.speak(@js($model->word), { rate }) }" x-init="$nextTick(() => say(1)); window.eosVoice?.hasVoice().then((found) => found || $wire.cantListen())">
                         <button type="button" x-on:click="say(1)" aria-label="Hear the word" class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-9 w-9')</button>
                         <button type="button" x-on:click="say(0.6)" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">🐢 Slower</button>
                     </div>
@@ -729,6 +808,9 @@ new class extends Component
                             class="w-full rounded-2xl border-2 border-line bg-ground px-4 py-3 text-center text-lg font-bold text-ink focus:border-accent focus:outline-none dark:border-line-dark dark:bg-ground-dark dark:text-ink-dark dark:focus:border-accent-dark"
                         >
                     </form>
+                    @if ($spellingCorrect === null)
+                        <button type="button" wire:click="cantListen" class="cursor-pointer self-center text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">@svg('heroicon-o-speaker-x-mark', 'mr-1 inline h-4 w-4') I can't listen right now</button>
+                    @endif
                 @elseif ($type === 'speaking')
                     <p class="font-display lesson-title text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
                     <div class="mt-auto flex flex-col items-center gap-3">
@@ -812,7 +894,7 @@ new class extends Component
                             @unless ($spellingCorrect)
                                 <span class="font-bold text-ink-faint line-through dark:text-ink-faint-dark">{{ $spelling }}</span> →
                             @endunless
-                            @foreach ($this->spellingPieces() as $piece)<span @class(['text-success dark:text-success-dark' => $piece['missed']])>{{ $piece['text'] }}</span>@endforeach
+                            @foreach ($this->spellingPieces() as $piece)<span @class(['text-success dark:text-success-dark' => $piece['missed'] && ! $spellingCorrect])>{{ $piece['text'] }}</span>@endforeach
                         </p>
                         @if (filled($model->meaning_fa))
                             <p dir="rtl" class="font-fa text-ink-soft dark:text-ink-soft-dark">{{ $model->meaning_fa }}</p>

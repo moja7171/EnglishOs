@@ -68,7 +68,8 @@ class SendReviewReminders extends Command
             return false;
         }
 
-        $dueCount = $user->dailyReviewCount();
+        $wordCount = $user->dailyReviewCount('words');
+        $dueCount = $wordCount > 0 ? $wordCount : $user->dailyReviewCount('talk');
 
         if ($dueCount === 0) {
             return false;
@@ -78,7 +79,7 @@ class SendReviewReminders extends Command
         // must not be retried every minute for the rest of the window.
         $user->forceFill(['last_review_reminder_on' => $day])->save();
 
-        $this->sendPush($user, new ReviewReminder($dueCount), 'Review reminder');
+        $this->sendPush($user, new ReviewReminder($dueCount, forWords: $wordCount > 0), 'Review reminder');
         $reminders->countSent($user);
 
         return true;
