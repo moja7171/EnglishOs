@@ -124,6 +124,23 @@ class VideoShadowingStepTest extends TestCase
         $this->assertStringNotContainsString('It pauses after each line', $html);
     }
 
+    public function test_the_learner_can_say_they_watched_the_video_with_a_button_under_it(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
+            ->assertSee('I watched this video')
+            ->assertSeeHtml("listen-self-report', { missionCode: 'M01'");
+    }
+
+    public function test_the_video_leaves_its_full_screen_layouts_when_it_ends_so_continue_is_back_in_view(): void
+    {
+        $run = $this->makeRun();
+
+        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
+            ->assertSeeHtml("if (this.mode !== 'inline') this.mode = 'inline';");
+    }
+
     public function test_there_is_no_watched_checkbox_to_tick(): void
     {
         $run = $this->makeRun();

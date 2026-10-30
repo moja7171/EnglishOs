@@ -611,7 +611,7 @@ new class extends Component
                         label="Fix the sentence"
                         :cards="$this->quickCheckCards()"
                         :draft-key="$preview ? null : $draftPrefix.'quickCheck'"
-                        on-complete="$wire.set('quickCheckScore', { correct: correctCount, total: cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
+                        on-complete="$wire.set('quickCheckScore', { correct: this.correctCount, total: this.cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
                         on-skip="screen++"
                     />
                 </section>
@@ -623,7 +623,7 @@ new class extends Component
                         lesson
                         :cards="$this->wordOrderCards()"
                         :draft-key="$preview ? null : $draftPrefix.'wordOrder'"
-                        on-complete="$wire.set('wordOrderScore', { correct: correctCount, total: cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
+                        on-complete="$wire.set('wordOrderScore', { correct: this.correctCount, total: this.cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
                         on-skip="screen++"
                     />
                 </section>

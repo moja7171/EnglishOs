@@ -50,7 +50,7 @@
 
     <x-slot:actions>
         @if ($feedback)
-            <x-answer-sheet when="true" :tone="$sheetTone" :title="$sheetTitle">
+            <x-answer-sheet when="true" :tone="$sheetTone" :title="$sheetTitle" wire:key="shadow-sheet-{{ $index }}">
                 @if ($feedback['unchecked'] ?? false)
                     Couldn't check this one just now — your take is saved and it counts.
                 @elseif (filled($feedback['hint'] ?? null))
@@ -62,7 +62,9 @@
                 </x-slot:actions>
             </x-answer-sheet>
         @else
-            <x-continue-button :on-click="$next" :wire-target="$wireTarget" ready-when="false">{{ $finish ? 'Finish' : '' }}</x-continue-button>
+            <div wire:key="shadow-waiting-{{ $index }}">
+                <x-continue-button :on-click="$next" :wire-target="$wireTarget" ready-when="false">{{ $finish ? 'Finish' : '' }}</x-continue-button>
+            </div>
         @endif
     </x-slot:actions>
 </x-lesson-screen>
