@@ -179,7 +179,7 @@ new class extends Component
          question said out loud (the take comes back at Mission Result,
          next to the Final Talk), and the starting comfort score. --}}
     <div
-        x-data="{ screen: {{ $score !== null ? 2 : ($warmUpRecordingPath ? 1 : 0) }} }"
+        wire:ignore.self x-data="{ screen: {{ $score !== null ? 2 : ($warmUpRecordingPath ? 1 : 0) }} }"
         x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 3 })"
         x-back-close.step="{ open: screen > 0, close: () => screen-- }"
     >

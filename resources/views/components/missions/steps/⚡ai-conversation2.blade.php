@@ -586,7 +586,7 @@ new class extends Component
     </div>
 @else
 <div
-    x-data="{ screen: {{ $startScreen }}, idea: false, noPrep: false }"
+    wire:ignore.self x-data="{ screen: {{ $startScreen }}, idea: false, noPrep: false }"
     x-effect="$dispatch('step-progress', { share: screen === 1 ? (1 + {{ $chatDone / $chatTotal }}) / 4 : (screen + 0.5) / 4 })"
     x-back-close.step="{ open: screen === 1, close: () => screen-- }"
 >

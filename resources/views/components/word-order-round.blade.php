@@ -101,6 +101,10 @@
                 $dispatch('word-order-skipped');
                 {{ $onSkip }}
             },
+            // A finished round the learner came back to (‹) has no card left to tap: this is its way on.
+            proceed() {
+                {{ $onComplete }}
+            },
         }"
         x-show="!skipped"
         {{ $attributes->class([$lesson ? 'flex flex-col' : 'rounded-2xl border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark']) }}
@@ -226,10 +230,15 @@
         @endif
 
         <template x-if="finished">
-            <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-success dark:text-success-dark">
-                @svg('heroicon-o-check-circle', 'h-4 w-4')
-                <span x-text="correctCount === cards.length ? `All ${cards.length} — nice!` : `${correctCount} of ${cards.length} — nice!`"></span>
-            </p>
+            <div class="flex flex-col gap-5">
+                <p class="inline-flex items-center gap-1.5 text-sm font-semibold text-success dark:text-success-dark">
+                    @svg('heroicon-o-check-circle', 'h-4 w-4')
+                    <span x-text="correctCount === cards.length ? `All ${cards.length} — nice!` : `${correctCount} of ${cards.length} — nice!`"></span>
+                </p>
+                @if ($lesson && $onComplete)
+                    <button type="button" x-on:click="proceed()" class="w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 dark:bg-accent-dark">Continue</button>
+                @endif
+            </div>
         </template>
     </div>
 @endif

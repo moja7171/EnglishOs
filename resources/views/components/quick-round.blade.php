@@ -175,6 +175,10 @@
                 $dispatch('quick-round-skipped');
                 {{ $onSkip }}
             },
+            // A finished round the learner came back to (‹) has no card left to tap: this is its way on.
+            proceed() {
+                {{ $onComplete }}
+            },
         }"
         x-show="!skipped"
         {{ $attributes->class([$lesson ? 'flex flex-col' : 'card-sunken p-4 shadow-sm sm:p-5']) }}
@@ -255,11 +259,16 @@
         </template>
 
         <template x-if="finished">
-            <div class="flex items-center gap-3">
-                <span class="animate-badge-pop flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
-                    @svg('heroicon-s-check', 'h-6 w-6')
-                </span>
-                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark" x-text="correctCount === cards.length ? `All ${cards.length} — nice!` : `${correctCount} of ${cards.length} — nice!`"></p>
+            <div class="flex flex-col gap-5">
+                <div class="flex items-center gap-3">
+                    <span class="animate-badge-pop flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
+                        @svg('heroicon-s-check', 'h-6 w-6')
+                    </span>
+                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark" x-text="correctCount === cards.length ? `All ${cards.length} — nice!` : `${correctCount} of ${cards.length} — nice!`"></p>
+                </div>
+                @if ($lesson && $onComplete)
+                    <button type="button" x-on:click="proceed()" class="w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 dark:bg-accent-dark">Continue</button>
+                @endif
             </div>
         </template>
     </div>
