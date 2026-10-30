@@ -108,7 +108,13 @@
                     if (this.mode === 'inline' && this.hasSegments && this.showText) this.mode = 'focus';
                 });
                 video.addEventListener('pause', () => { this.playing = false; this.showControls() });
-                video.addEventListener('ended', () => { this.playing = false; this.showControls(); {{ $onEnded }} });
+                video.addEventListener('ended', () => {
+                    this.playing = false;
+                    this.showControls();
+                    // The full-screen layouts cover the step's Continue; the end of the video brings the page back.
+                    if (this.mode !== 'inline') this.mode = 'inline';
+                    {{ $onEnded }}
+                });
                 if (video.readyState >= 1) this.duration = video.duration;
 
                 @if ($listen)

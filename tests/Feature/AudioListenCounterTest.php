@@ -185,6 +185,20 @@ class AudioListenCounterTest extends TestCase
         $this->assertDatabaseHas('audio_listens', ['learner_id' => $learner->id, 'source' => AudioListen::SOURCE_LISTENING, 'self_reported' => true]);
     }
 
+    public function test_a_button_elsewhere_on_the_page_can_report_the_listen_for_the_matching_recording_only(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->counter($learner, source: AudioListen::SOURCE_VIDEO_SHADOWING, extra: ['allowManualReport' => true])
+            ->dispatch('listen-self-report', missionCode: 'M02', source: AudioListen::SOURCE_VIDEO_SHADOWING)
+            ->assertSeeHtml('data-testid="listen-count">0<')
+            ->dispatch('listen-self-report', missionCode: 'M01', source: AudioListen::SOURCE_VIDEO_SHADOWING)
+            ->assertSeeHtml('data-testid="listen-count">1<')
+            ->assertDispatched('listen-self-reported');
+
+        $this->assertDatabaseHas('audio_listens', ['learner_id' => $learner->id, 'source' => AudioListen::SOURCE_VIDEO_SHADOWING, 'self_reported' => true]);
+    }
+
     public function test_a_video_asks_if_the_learner_watched_it_not_listened(): void
     {
         $this->counter(User::factory()->create(), source: AudioListen::SOURCE_VIDEO_SHADOWING, extra: ['allowManualReport' => true])

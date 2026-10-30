@@ -71,6 +71,20 @@ new class extends Component
         $this->store(selfReported: false, minimumGapSeconds: $minimumGapSeconds);
     }
 
+    /**
+     * The same self-report, asked for from a button elsewhere on the page
+     * (e.g. under the video), so the learner need not find the small chip.
+     */
+    #[On('listen-self-report')]
+    public function reportListenFor(string $missionCode, string $source, ?string $pickKey = null): void
+    {
+        if ($missionCode !== $this->missionCode || $source !== $this->source || $pickKey !== $this->pickKey) {
+            return;
+        }
+
+        $this->reportListen();
+    }
+
     public function reportListen(): void
     {
         if (! $this->selfReportable && ! $this->allowManualReport) {

@@ -124,6 +124,17 @@ class GrammarInContextStepTest extends TestCase
             ->assertDontSee('chat in your voice AI app');
     }
 
+    public function test_a_finished_round_reads_its_own_score_with_this_so_it_can_move_on(): void
+    {
+        $run = $this->makeRun();
+
+        // A bare `correctCount` inside the round's methods is a JavaScript ReferenceError,
+        // which left the learner on "2 of 3 — nice!" with no way forward.
+        Livewire::test('missions.steps.grammar-in-context', ['run' => $run])
+            ->assertDontSeeHtml('correct: correctCount')
+            ->assertDontSeeHtml('total: cards.length');
+    }
+
     public function test_clicking_check_on_an_empty_frequency_sentence_shows_an_error(): void
     {
         $run = $this->makeRun();

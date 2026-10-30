@@ -254,6 +254,19 @@ new class extends Component
                 :resume-key="$preview ? null : $draftPrefix.'position'"
             />
         </div>
+        @unless ($preview)
+            <button
+                type="button"
+                x-data="{ done: false }"
+                x-on:listen-self-reported.window="done = true"
+                x-on:click="$dispatch('listen-self-report', { missionCode: '{{ $run->mission->code }}', source: '{{ \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING }}' })"
+                x-bind:disabled="done"
+                class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-line px-4 py-3 text-sm font-extrabold text-ink transition-colors hover:border-ink-faint disabled:cursor-default disabled:border-success disabled:text-success dark:border-line-dark dark:text-ink-dark dark:disabled:border-success-dark dark:disabled:text-success-dark"
+            >
+                @svg('heroicon-s-check', 'h-4 w-4')
+                <span x-text="done ? 'Counted — you watched it' : 'I watched this video'"></span>
+            </button>
+        @endunless
         @if (count($targetPhrases))
             <p class="rounded-2xl bg-accent-soft px-4 py-3 text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">🎯 Listen for “{{ $targetPhrases[0]['phrase'] }}”@if (isset($targetPhrases[1])) and “{{ $targetPhrases[1]['phrase'] }}”@endif.</p>
         @endif

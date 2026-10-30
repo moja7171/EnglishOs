@@ -217,6 +217,21 @@ class DailyListenStepTest extends TestCase
         $component->assertSee('Try that line again.')->assertSee('Almost!');
     }
 
+    public function test_the_verdict_sheet_and_the_waiting_continue_are_keyed_apart_so_a_re_render_cannot_merge_them(): void
+    {
+        $run = $this->makeRun();
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('completely unrelated'));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'major', 'hint' => 'Try that line again.'])));
+
+        Livewire::test('missions.steps.daily-listen-2', ['run' => $run])
+            ->assertSeeHtml('wire:key="shadow-waiting-0"')
+            ->assertDontSeeHtml('wire:key="shadow-sheet-0"')
+            ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
+            ->call('checkShadowLine', 0)
+            ->assertSeeHtml('wire:key="shadow-sheet-0"')
+            ->assertDontSeeHtml('wire:key="shadow-waiting-0"');
+    }
+
     public function test_an_unreachable_ai_does_not_block_a_shadowed_line_and_hides_its_error(): void
     {
         $run = $this->makeRun();
