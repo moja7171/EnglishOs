@@ -272,7 +272,7 @@ new class extends Component
      sequencing words and ONE recording of the whole story, then the
      feedback on a screen of its own. --}}
 <div
-    x-data="{ screen: {{ $completed ? 2 : ($recordingPath ? 1 : 0) }} }"
+    wire:ignore.self x-data="{ screen: {{ $completed ? 2 : ($recordingPath ? 1 : 0) }} }"
     x-effect="$dispatch('step-progress', { share: (screen + 0.5) / 3 })"
     x-back-close.step="{ open: screen === 1, close: () => screen-- }"
 >
@@ -288,7 +288,7 @@ new class extends Component
         <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Tell it · {{ $this->narration()['tense'] }}</span>
 
         @if (empty($sequenceImages))
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">We couldn't load the pictures for this story — refresh the page to try again.</p>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">The pictures aren't available right now — you can still tell the story from the words below.</p>
         @else
             <x-sequential-picture-story grid :images="$sequenceImages" />
         @endif

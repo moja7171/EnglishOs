@@ -221,6 +221,7 @@ new class extends Component
     </div>
 @else
 <div
+    wire:ignore.self
     x-data="{
         screen: {{ $completed ? $feedbackScreen : 0 }},
         parts: [],

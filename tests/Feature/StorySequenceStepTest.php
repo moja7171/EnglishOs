@@ -87,6 +87,17 @@ class StorySequenceStepTest extends TestCase
         $component->assertDontSee('She wakes up')->assertDontSee('She has breakfast');
     }
 
+    public function test_a_story_without_pictures_does_not_tell_the_learner_to_refresh(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+
+        Livewire::test('missions.steps.story-sequence', ['run' => $run])
+            ->assertSee("The pictures aren't available right now", false)
+            ->assertDontSee('refresh the page');
+    }
+
     public function test_saving_transcribes_reviews_and_stores_evidence_then_advances_the_run(): void
     {
         Storage::fake('public');

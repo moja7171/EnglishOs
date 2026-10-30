@@ -878,7 +878,7 @@ new class extends Component
                     <button type="button" x-on:click="forgot = true" class="{{ $forgetClass }}">✕ Forget</button>
                     <button type="button" wire:click="gradeWord(4, true)" wire:loading.attr="disabled" class="{{ $knowClass }}">✓ I know</button>
                 </div>
-                <x-answer-sheet when="forgot" tone="'almost'" title="'Here it is'">
+                <x-answer-sheet wire:key="review-forgot-{{ $model->id }}" when="forgot" tone="'almost'" title="'Here it is'">
                     <x-review-word-meaning :word="$model" />
                     <x-slot:actions>
                         <x-continue-button on-click="$wire.gradeWord(1, false)" wire-target="gradeWord" />
@@ -928,7 +928,7 @@ new class extends Component
                         $sheetTone = $type === 'error' && $attemptCorrect ? "'good'" : "'almost'";
                         $sheetTitle = $type !== 'error' ? "'Quick reminder'" : ($attemptCorrect ? "'Spot on!'" : (trim($attempt) !== '' ? "'Not quite'" : "'The fix'"));
                     @endphp
-                    <x-answer-sheet when="true" :tone="$sheetTone" :title="$sheetTitle">
+                    <x-answer-sheet wire:key="review-reveal-{{ $type }}-{{ $model->id }}" when="true" :tone="$sheetTone" :title="$sheetTitle">
                         @if ($type === 'error')
                             @if (trim($attempt) !== '' && ! $attemptCorrect)
                                 <p class="text-ink-soft dark:text-ink-soft-dark">You wrote: {{ $attempt }}</p>
@@ -955,7 +955,7 @@ new class extends Component
                     $sheetTone = $gotItRight ? "'good'" : "'almost'";
                     $sheetTitle = $gotItRight ? "'Yes — that\\'s right!'" : "'Not quite — the green one is correct.'";
                 @endphp
-                <x-answer-sheet when="true" :tone="$sheetTone" :title="$sheetTitle">
+                <x-answer-sheet wire:key="review-grammar-{{ $model->id }}" when="true" :tone="$sheetTone" :title="$sheetTitle">
                     @foreach ($grammarReview['rules'] as $rule)
                         <p>{!! $rule['text'] !!}</p>
                         @if ($rule['fa'])

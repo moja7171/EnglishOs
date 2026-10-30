@@ -252,7 +252,7 @@ new class extends Component
      (‹ › or tap a dot to move on), ONE recording for all of them, then
      the shared feedback screen. --}}
 <div
-    x-data="{ screen: {{ $completed ? 1 : 0 }}, question: 0, count: {{ max(count($questions), 1) }} }"
+    wire:ignore.self x-data="{ screen: {{ $completed ? 1 : 0 }}, question: 0, count: {{ max(count($questions), 1) }} }"
     x-effect="$dispatch('step-progress', { share: screen === 1 ? 0.9 : 0.15 + 0.5 * question / count })"
 >
     <x-lesson-screen when="screen === 0">
