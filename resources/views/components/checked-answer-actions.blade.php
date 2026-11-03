@@ -12,7 +12,13 @@
     - the AI could not answer: a red card saying why, Try again, and a quiet
       "Continue without check" — a busy or broken service never holds a
       learner back. The earlier verdict is not shown then: it belonged to
-      text that has since changed.
+      text that has since changed. The same card shows when the request
+      itself never came back (weak signal, the host cut it off), instead
+      of only the short "Connection problem" line at the top.
+
+    While a Check again runs, the last verdict goes away and a plain
+    "Checking…" button stands in for it: the old hint is about text that
+    has since changed.
 
     Check again wakes up once the learner changes the text; the sheet keeps
     showing the last hint while they fix it. After a change even a right
@@ -48,19 +54,35 @@
     $tone = $severity === 'none' ? "'good'" : "'almost'";
     $title = match ($severity) { 'none' => "'✓ Great!'", 'minor' => "'Almost!'", default => "'Not quite'" };
     $hasText = "(\$wire.get(".Illuminate\Support\Js::from($model).") || '').trim() !== ''";
-    $runCheck = "({$check}).then((ran) => { if (ran !== false) edited[{$key}] = false })";
+    $runCheck = "lost = false; checking = true; Promise.resolve({$check}).then((ran) => { if (ran !== false) edited[{$key}] = false }).catch(() => { lost = true; window.eosConnectionNotice?.skip() }).finally(() => { checking = false })";
     $changedAndReady = "edited[{$key}] && ({$hasText})";
 @endphp
 
+<div x-data="{ lost: false, checking: false }" class="flex flex-col gap-3">
+<template x-if="lost">
+    <div class="flex flex-col gap-3">
+        <x-error-card>Connection problem — check your internet and try again.</x-error-card>
+        <x-continue-button :on-click="$runCheck" :wire-target="$wireTarget" loading-label="Checking…" :ready-when="$hasText">Try again</x-continue-button>
+        <button type="button" x-on:click="lost = false; {{ $next }}" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Continue without check</button>
+    </div>
+</template>
+<div x-show="! lost" class="flex flex-col gap-3">
+@if ($error || $feedback)
+    <div x-show="checking" x-cloak class="flex flex-col gap-3">
+        <x-continue-button on-click="" :wire-target="$wireTarget" loading-label="Checking…" ready-when="false">Checking…</x-continue-button>
+    </div>
+@endif
 @if ($error)
+    <div x-show="! checking" class="flex flex-col gap-3" wire:key="answer-error-wrap-{{ $index }}">
     <x-error-card wire:key="answer-error-{{ $index }}">{{ $error }}</x-error-card>
     <div class="flex flex-col gap-3" wire:key="answer-error-actions-{{ $index }}">
         <x-continue-button :on-click="$runCheck" :wire-target="$wireTarget" loading-label="Checking…" :ready-when="$hasText">Try again</x-continue-button>
         <button type="button" x-on:click="{{ $next }}" wire:loading.attr="disabled" wire:target="{{ $wireTarget }}" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Continue without check</button>
     </div>
+    </div>
 @elseif ($feedback)
     {{-- Own keys for the two states: without them Livewire's morph reuses the Check wrapper's element for the sheet and the sheet's tone never applies. --}}
-    <x-answer-sheet when="true" :tone="$tone" :title="$title" wire:key="answer-sheet-{{ $index }}">
+    <x-answer-sheet when="! checking" :tone="$tone" :title="$title" wire:key="answer-sheet-{{ $index }}">
         @if (filled($feedback['hint'] ?? null))
             {{ $feedback['hint'] }}
         @endif
@@ -97,3 +119,5 @@
         <x-continue-button :on-click="$runCheck" :wire-target="$wireTarget" loading-label="Checking…" :ready-when="$hasText">Check</x-continue-button>
     </div>
 @endif
+</div>
+</div>

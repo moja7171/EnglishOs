@@ -790,8 +790,18 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Not quite')
             ->assertSee('Use the word with its real meaning.')
             ->assertSee('Check again')
-            ->assertDontSee('Try again')
+            ->assertDontSeeHtml('answer-error-actions')
             ->assertDontSee('Continue anyway');
+    }
+
+    public function test_a_check_whose_request_never_comes_back_can_be_tried_again_or_skipped(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->stepComponent($run)
+            ->assertSee('Connection problem — check your internet and try again.')
+            ->assertSee('lost = true; window.eosConnectionNotice?.skip()')
+            ->assertSee('Continue without check');
     }
 
     public function test_a_nearly_right_sentence_offers_check_again_and_a_quiet_continue_anyway(): void
