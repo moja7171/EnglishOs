@@ -49,6 +49,30 @@
         </div>
     @endif
 
+    @php $voice = App\Models\VoiceFeedback::existingFor($me, $pairGame); @endphp
+    @if ($voice)
+        <section class="space-y-2.5">
+            <h2 class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">Your sentences</h2>
+            @if (! $voice->isDone())
+                <div
+                    wire:key="voice-checking-{{ $voice->id }}"
+                    x-data
+                    x-init="window.eosGameVoice ? window.eosGameVoice.whenIdle(() => $wire.checkMyVoice()) : $wire.checkMyVoice()"
+                    class="flex items-center gap-3 rounded-2xl bg-surface px-4 py-3 shadow-sm dark:bg-surface-dark"
+                >
+                    <span class="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent dark:border-accent-dark dark:border-t-transparent"></span>
+                    <span class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Checking your sentences…</span>
+                </div>
+            @elseif ($voice->status === App\Models\VoiceFeedback::STATUS_READY)
+                <x-learner-feedback :feedback="$voice->feedback" :answers="$voice->answers()" />
+            @elseif ($voice->status === App\Models\VoiceFeedback::STATUS_EMPTY)
+                <p class="rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-ink-soft shadow-sm dark:bg-surface-dark dark:text-ink-soft-dark">Not enough was recorded to check this time.</p>
+            @else
+                <p class="rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-ink-soft shadow-sm dark:bg-surface-dark dark:text-ink-soft-dark">{{ $voice->error ?: 'Couldn’t check your sentences this time.' }}</p>
+            @endif
+        </section>
+    @endif
+
     <div class="space-y-2.5 pt-2">
         <button type="button" wire:click="playAgain" wire:loading.attr="disabled" wire:target="playAgain" class="block w-full cursor-pointer rounded-2xl bg-accent px-5 py-4 text-lg font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] disabled:opacity-50 dark:bg-accent-dark">
             {{ $next && $next->started_by_id !== $me->id ? 'Join '.$friend->name.'’s next game' : 'Play again' }}

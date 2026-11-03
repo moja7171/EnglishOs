@@ -27,6 +27,10 @@
         <div class="flex items-center justify-between" x-data="{ confirming: false }">
             <button type="button" x-on:click="confirming = true" aria-label="End game" class="-ms-2 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft-dark hover:bg-surface-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</button>
             <div class="flex items-center gap-2">
+                {{-- Shown while this phone is really recording its owner. --}}
+                <span x-data="{ rec: false, timer: null, init() { this.timer = setInterval(() => this.rec = !! window.eosGameVoice?.isRecording(), 500) }, destroy() { clearInterval(this.timer) } }" x-show="rec" x-cloak class="flex items-center gap-1.5 rounded-full bg-surface-dark px-2.5 py-1 text-xs font-extrabold text-accent-ink-dark">
+                    <span class="h-2 w-2 animate-pulse rounded-full bg-accent-dark"></span>REC
+                </span>
                 <span class="rounded-full bg-surface-dark px-3 py-1 text-xs font-extrabold text-ink-soft-dark">Turn {{ min($turnIndex + 1, $pairGame->plannedTurns()) }} / {{ $pairGame->plannedTurns() }}</span>
                 @if ($best !== null)
                     <span class="rounded-full bg-surface-dark px-3 py-1 text-xs font-extrabold">Best {{ App\Models\PairGame::formatPoints($best) }}</span>

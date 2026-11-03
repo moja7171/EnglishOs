@@ -7,11 +7,16 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PairGame;
 use App\Models\User;
+use App\Models\VoiceFeedback;
 use App\Notifications\PairGameInvite;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
 use App\Services\TabooDeck;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -317,5 +322,84 @@ class PairGameTest extends TestCase
 
         Livewire::test('notifications.bell')->call('checkNew')->assertNotDispatched('notification-banner');
         $this->assertSame(0, $friend->unreadNotifications()->count());
+    }
+
+    public function test_my_explaining_turn_is_kept_with_its_transcript_and_the_words_of_the_turn(): void
+    {
+        Storage::fake('local');
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('You eat it in morning before you go work.'));
+        $pairGame = $this->playingGame();
+        [$explainer, $guesser] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+        $pairGame->scoreCard($explainer, PairGame::RESULT_GOT, 0);
+        $clip = fn () => UploadedFile::fake()->create('turn-0.webm', 40, 'audio/webm');
+
+        // The guesser's phone never keeps a piece of a turn it did not explain.
+        $this->actingAs($guesser);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+        $this->assertNull(VoiceFeedback::existingFor($guesser, $pairGame));
+
+        $this->actingAs($explainer);
+        $component = Livewire::test('games.play', ['pairGame' => $pairGame]);
+        $component->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+        // Sent twice on a weak connection: kept once.
+        $component->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+
+        $voice = VoiceFeedback::existingFor($explainer, $pairGame);
+        $this->assertCount(1, $voice->clips);
+        $this->assertSame('Turn 1 · you explained: breakfast', $voice->clips[0]['label']);
+        $this->assertSame('You eat it in morning before you go work.', $voice->clips[0]['transcript']);
+        Storage::disk('local')->assertExists($voice->clips[0]['path']);
+
+        $this->actingAs($guesser)->get(route('voice-feedback.clip', ['voiceFeedback' => $voice, 'clip' => 0]))->assertForbidden();
+        $this->actingAs($explainer)->get(route('voice-feedback.clip', ['voiceFeedback' => $voice, 'clip' => 0]))->assertOk();
+    }
+
+    public function test_after_the_game_my_sentences_get_feedback_once(): void
+    {
+        $pairGame = PairGame::factory()->create(['stage' => PairGame::STAGE_DONE, 'finished_at' => now(), 'score' => 2]);
+        $me = $pairGame->startedBy;
+        $voice = VoiceFeedback::for($me, $pairGame);
+        $voice->update(['clips' => [['part' => 'turn-0', 'label' => 'Turn 1 · you explained: breakfast', 'path' => 'x.webm', 'transcript' => 'You eat it in morning before you go work.']]]);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'summary' => 'خوب توضیح دادی.',
+            'severity' => 'minor',
+            'sentences' => [['original' => 'You eat it in morning before you go work.', 'status' => 'fix', 'corrected' => 'You eat it in the morning before you go to work.', 'why' => 'the morning · go to work', 'answer' => 1]],
+            'positives' => [],
+            'negatives' => [],
+        ])));
+
+        $this->actingAs($me);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('Checking your sentences…')
+            ->call('checkMyVoice')
+            ->call('checkMyVoice')
+            ->assertSee('Your sentences')
+            ->assertSee('You eat it in the morning before you go to work.');
+
+        $this->assertSame(VoiceFeedback::STATUS_READY, $voice->refresh()->status);
+    }
+
+    public function test_too_little_said_gives_no_feedback_call(): void
+    {
+        $pairGame = PairGame::factory()->create(['stage' => PairGame::STAGE_DONE, 'finished_at' => now()]);
+        $me = $pairGame->startedBy;
+        VoiceFeedback::for($me, $pairGame)->update(['clips' => [['part' => 'turn-0', 'label' => 'Turn 1', 'path' => 'x.webm', 'transcript' => 'yes no']]]);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $this->actingAs($me);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->call('checkMyVoice')
+            ->assertSee('Not enough was recorded to check this time.');
+    }
+
+    public function test_the_feedback_switch_is_on_by_default_and_remembered(): void
+    {
+        $me = User::factory()->create();
+        $this->assertTrue($me->refresh()->game_voice_feedback);
+
+        $this->actingAs($me);
+        Livewire::test('games.setup', ['game' => 'taboo'])->call('setVoiceFeedback', false);
+
+        $this->assertFalse($me->refresh()->game_voice_feedback);
     }
 }

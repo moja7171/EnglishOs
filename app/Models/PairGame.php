@@ -30,7 +30,7 @@ class PairGame extends Model
      *
      * @var list<string>
      */
-    public const GAMES = [self::GAME_TABOO, 'who-am-i', 'picture-match', 'just-a-minute', 'story-chain', 'role-play', 'two-truths', 'would-you-rather'];
+    public const GAMES = [self::GAME_TABOO, 'who-am-i', 'just-a-minute', 'story-chain', 'role-play', 'two-truths', 'would-you-rather'];
 
     /** @var list<string> */
     public const PLAYABLE = [self::GAME_TABOO];
@@ -49,7 +49,6 @@ class PairGame extends Model
         [$name, $line, $tag] = match ($game) {
             self::GAME_TABOO => ['Taboo', 'Explain it, don’t say it', 'Words'],
             'who-am-i' => ['Who am I?', 'Guess with yes/no questions', 'Questions'],
-            'picture-match' => ['Picture Match', 'Describe it, they find it', 'Words'],
             'just-a-minute' => ['Just a Minute', 'Talk for a minute', 'Speaking'],
             'story-chain' => ['Story Chain', 'One sentence each', 'Speaking'],
             'role-play' => ['Role-play', 'Each has a secret goal', 'Speaking'],
@@ -102,6 +101,9 @@ class PairGame extends Model
 
     /** A turn's clock gets a little slack for a slow phone before it may be closed. */
     private const CLOCK_SLACK_SECONDS = 2;
+
+    /** @var array<string, mixed> */
+    protected $attributes = ['score' => 0];
 
     protected function casts(): array
     {

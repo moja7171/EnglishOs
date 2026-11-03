@@ -34,6 +34,7 @@ class FeedbackNotebook
         'partner_speaking' => 'Speaking',
         'friends_chat' => 'Chat',
         'pi' => 'Pi',
+        'games' => 'Games',
     ];
 
     /**

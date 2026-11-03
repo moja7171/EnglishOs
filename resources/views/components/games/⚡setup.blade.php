@@ -65,6 +65,14 @@ new class extends Component
             ->all();
     }
 
+    /**
+     * "Feedback on my sentences" on or off — kept for next time.
+     */
+    public function setVoiceFeedback(bool $on): void
+    {
+        auth()->user()->update(['game_voice_feedback' => $on]);
+    }
+
     public function updatedMinutes(): void
     {
         $this->minutes = in_array($this->minutes, PairGame::LENGTHS, true) ? $this->minutes : PairGame::LENGTHS[0];
@@ -167,6 +175,8 @@ new class extends Component
                     @endforeach
                 </div>
             </div>
+
+            @include('components.games.partials.voice-switch', ['me' => auth()->user()])
 
             <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Words: your missions + your notebooks</p>
 

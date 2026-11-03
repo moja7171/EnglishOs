@@ -1,14 +1,16 @@
 <?php
 
+use App\Livewire\Concerns\ChecksGameVoice;
 use App\Models\PairGame;
 use App\Notifications\PairGameInvite;
 use App\Services\PairGames;
-use App\Services\TabooDeck;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 new class extends Component
 {
+    use ChecksGameVoice;
+
     public PairGame $pairGame;
 
     /**
@@ -114,6 +116,45 @@ new class extends Component
     }
 
     /**
+     * Keeps one piece of my voice: the turn I explained ("turn-2"). Its
+     * label — the words of that turn — is made here, not sent by the phone.
+     */
+    public function saveVoiceClip(string $part): void
+    {
+        abort_unless($this->pairGame->isAccessibleBy(auth()->user()), 403);
+
+        $index = preg_match('/^turn-(\d+)$/', $part, $match) ? (int) $match[1] : null;
+        $turn = $index === null ? null : ($this->pairGame->refresh()->turns[$index] ?? null);
+
+        if ($turn === null || $turn['explainer_id'] !== auth()->id()) {
+            $this->voiceClip = null;
+
+            return;
+        }
+
+        $words = collect($turn['cards'])->map(fn (array $card) => $this->pairGame->deck[$card['card']]['word'] ?? null)->filter()->implode(', ');
+
+        $this->keepVoiceClip($this->pairGame, $part, 'Turn '.($index + 1).' · you explained: '.$words);
+    }
+
+    /**
+     * Once the game is over and every piece is sent: the sentence-by-
+     * sentence feedback on what I said while explaining (once).
+     */
+    public function checkMyVoice(): void
+    {
+        if (! $this->pairGame->refresh()->isFinished()) {
+            return;
+        }
+
+        $this->checkVoice(
+            $this->pairGame,
+            situation: 'These are a learner\'s spoken explanations in a Taboo game, transcribed by speech-to-text: in each turn they explained words to a friend without saying the word itself (the turn\'s words are given as the question). All the text is the learner\'s.',
+            guidance: 'Judge grammar and word choice of the explanations. The friend\'s guesses and short words like "yes", "no", "close" may appear in the transcript — ignore them. Never criticise the learner for not saying the hidden word.',
+        );
+    }
+
+    /**
      * A game of the same pair started after this one and still open.
      */
     public function nextGame(): ?PairGame
@@ -151,6 +192,13 @@ new class extends Component
 @endphp
 
 <div class="mx-auto max-w-xl" @if ($poll) wire:poll.{{ $poll }} @endif>
+    {{-- Tells this phone's recorder whether its owner is explaining right now. --}}
+    @php
+        $voiceOn = (bool) $me->game_voice_feedback;
+        $voicePart = $pairGame->isPlaying() && $pairGame->explainer()->is($me) ? 'turn-'.$pairGame->currentTurnIndex() : '';
+    @endphp
+    <span hidden wire:key="voice-{{ $voicePart }}-{{ (int) $voiceOn }}" x-data x-init="window.eosGameVoice?.sync($wire, @js($voiceOn), @js($voicePart), null); @js($voiceOn && ($pairGame->isWaiting() || $pairGame->stage === PairGame::STAGE_READY)) && window.eosGameVoice?.warmUp()"></span>
+
     @if ($pairGame->isCancelled())
         <div class="space-y-2 p-6 text-center">
             @php $endedBy = $pairGame->endedBy; @endphp
@@ -179,6 +227,7 @@ new class extends Component
                         @unless ($isStarter)
                             <button type="button" wire:click="join" wire:loading.attr="disabled" wire:target="join" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3.5 text-base font-extrabold text-white disabled:opacity-50 dark:bg-accent-dark">Join</button>
                         @endunless
+                        @include('components.games.partials.voice-switch')
                         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
                     </div>
                 </div>

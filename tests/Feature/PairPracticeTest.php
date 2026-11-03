@@ -9,11 +9,15 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PairPracticeSession;
 use App\Models\User;
+use App\Models\VoiceFeedback;
 use App\Notifications\PairPracticeInvite;
 use App\Notifications\PairPracticeNudge;
+use App\Services\GroqClient;
 use App\Services\PairPractice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -1174,5 +1178,32 @@ class PairPracticeTest extends TestCase
 
         $this->assertSame($cards[0]['say'] === 'three' ? 'th, not t' : 't, not th', $cards[0]['tip']);
         $this->assertEqualsCanonicalizing(['three', 'tree'], [$cards[0]['say'], $cards[0]['other']]);
+    }
+
+    public function test_a_speaking_card_i_answered_is_kept_for_my_feedback_and_my_partners_card_is_not(): void
+    {
+        Storage::fake('local');
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I usually wake up at seven.'));
+        $session = PairPracticeSession::factory()->create(['stage' => PairPracticeSession::STAGE_SPEAKING, 'stage_ends_at' => now()->addMinutes(3)]);
+        [$speaker, $listener] = $session->players();
+
+        $this->actingAs($listener);
+        Livewire::test('pair-practice.session', ['session' => $session])->assertSet('voiceClip', null);
+        $this->assertSame('', Livewire::test('pair-practice.session', ['session' => $session])->instance()->voicePart());
+
+        $this->actingAs($speaker);
+        $component = Livewire::test('pair-practice.session', ['session' => $session]);
+        $this->assertSame('speaking-0', $component->instance()->voicePart());
+
+        $session->record(1, null, ['wake up']);
+        $component->set('voiceClip', UploadedFile::fake()->create('speaking-0.webm', 40, 'audio/webm'))->call('saveVoiceClip', 'speaking-0');
+
+        $this->actingAs($listener);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->set('voiceClip', UploadedFile::fake()->create('speaking-0.webm', 40, 'audio/webm'))
+            ->call('saveVoiceClip', 'speaking-0');
+
+        $this->assertSame('What time do you wake up?', VoiceFeedback::existingFor($speaker, $session)->clips[0]['label']);
+        $this->assertNull(VoiceFeedback::existingFor($listener, $session));
     }
 }

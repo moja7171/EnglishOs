@@ -15,6 +15,7 @@ use App\Models\PairPracticeSession;
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
+use App\Models\VoiceFeedback;
 use App\Notifications\PartnerSessionStarted;
 use App\Services\MissionGrid;
 use Illuminate\Support\Facades\Auth;
@@ -197,6 +198,18 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
 
         return view('games-play', compact('pairGame'));
     })->name('games.play');
+
+    // A learner's own recorded piece from a game or Pair Practice round —
+    // private, for its learner only (the "play my voice" on a feedback card).
+    Route::get('/voice-feedback/{voiceFeedback}/clips/{clip}', function (VoiceFeedback $voiceFeedback, int $clip) {
+        abort_unless($voiceFeedback->learner_id === auth()->id(), 403);
+
+        $path = $voiceFeedback->clips[$clip]['path'] ?? null;
+
+        abort_unless($path && Storage::disk(VoiceFeedback::DISK)->exists($path), 404);
+
+        return Storage::disk(VoiceFeedback::DISK)->response($path);
+    })->name('voice-feedback.clip');
 
     Route::get('/games/{game}', function (string $game) {
         abort_unless(in_array($game, PairGame::PLAYABLE, true), 404);
