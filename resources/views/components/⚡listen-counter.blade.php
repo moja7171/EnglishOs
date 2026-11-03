@@ -50,6 +50,10 @@ new class extends Component
     #[Locked]
     public bool $allowManualReport = false;
 
+    /** The page shows its own big "I watched this" button (Video Shadowing), so the chip leaves its small one out. */
+    #[Locked]
+    public bool $ownReportButton = false;
+
     /**
      * @return array{total: int, selfReported: int, today: int, last: ?Illuminate\Support\Carbon, byDay: array<int, int>, recent: Illuminate\Support\Collection<int, AudioListen>}
      */
@@ -174,7 +178,7 @@ new class extends Component
             @endif
         </button>
 
-        @if ($canReport)
+        @if ($canReport && ! $ownReportButton)
             <button
                 type="button"
                 wire:click="reportListen"
@@ -184,13 +188,12 @@ new class extends Component
         @endif
     </div>
 
-    @if ($summary['total'] > 0)
-        <p class="text-xs text-ink-faint dark:text-ink-faint-dark" data-testid="listen-recency">
-            Today {{ $summary['today'] }}× · Last {{ $summary['last']->diffForHumans() }}
-        </p>
-    @endif
-
     <div x-show="open" x-cloak class="w-full max-w-xs space-y-2 rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
+        @if ($summary['total'] > 0)
+            <p class="font-semibold text-ink dark:text-ink-dark" data-testid="listen-recency">
+                Today {{ $summary['today'] }}× · Last {{ $summary['last']->diffForHumans() }}
+            </p>
+        @endif
         @if (count($summary['byDay']) > 0 && $pickKey === null)
             <p data-testid="listen-by-day">
                 <span class="font-semibold text-ink dark:text-ink-dark">By day:</span>

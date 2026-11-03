@@ -40,7 +40,7 @@
         cards only exist on its shadowing sub-step) pass an expression
         tied to that state so the pause-and-prompt never fires on a
         sub-step where "find this line below" wouldn't be true yet.
-    @param array{mission_code: string, source: string, day_number?: int, manual_report?: bool}|null $listen Counts
+    @param array{mission_code: string, source: string, day_number?: int, manual_report?: bool, own_report_button?: bool}|null $listen Counts
         real watches (at least 90% played through, never skipped to) and
         shows a "Listens: N" chip — see <x-audio-player>. null = no counting.
     @param string|null $resumeKey Comes back where the learner left the
@@ -315,6 +315,7 @@
                 :day-number="$listen['day_number'] ?? null"
                 :pick-key="$listen['pick_key'] ?? null"
                 :allow-manual-report="$listen['manual_report'] ?? false"
+                :own-report-button="$listen['own_report_button'] ?? false"
                 :key="'listen-counter-'.$listen['mission_code'].'-'.$listen['source']"
             />
         </div>

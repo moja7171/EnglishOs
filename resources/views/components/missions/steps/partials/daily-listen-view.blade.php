@@ -76,6 +76,7 @@
         <div data-whole-talk>
             <x-audio-player
                 podcast
+                text-hidden
                 :url="$listening['audio_url'] ?? null"
                 :listen="$listenParams"
                 :segments="$this->listeningSegments()"

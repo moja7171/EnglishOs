@@ -244,10 +244,14 @@ new class extends Component
     </x-lesson-screen>
 
     <x-lesson-screen when="screen === 1">
+        @if (count($targetPhrases))
+            <p class="rounded-2xl bg-accent-soft px-4 py-3 text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">🎯 Listen for “{{ $targetPhrases[0]['phrase'] }}”@if (isset($targetPhrases[1])) and “{{ $targetPhrases[1]['phrase'] }}”@endif.</p>
+        @endif
         <div data-watch>
             <x-video-player
                 :url="$video['video_url'] ?? ''"
-                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING, 'manual_report' => true]"
+                :listen="$preview ? null : ['mission_code' => $run->mission->code, 'source' => \App\Models\AudioListen::SOURCE_VIDEO_SHADOWING, 'manual_report' => true, 'own_report_button' => true]"
+                text-hidden
                 :captions-url="$video['captions_url'] ?? null"
                 :title="$video['source'] ?? 'Video'"
                 :segments="$video['video_segments'] ?? []"
@@ -267,9 +271,6 @@ new class extends Component
                 <span x-text="done ? 'Counted — you watched it' : 'I watched this video'"></span>
             </button>
         @endunless
-        @if (count($targetPhrases))
-            <p class="rounded-2xl bg-accent-soft px-4 py-3 text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">🎯 Listen for “{{ $targetPhrases[0]['phrase'] }}”@if (isset($targetPhrases[1])) and “{{ $targetPhrases[1]['phrase'] }}”@endif.</p>
-        @endif
 
         <x-slot:actions>
             <x-continue-button on-click="screen = {{ $afterWatch }}" wire-target="save" />
