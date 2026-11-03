@@ -58,11 +58,11 @@
             </div>
             @if ($turn)
                 <div
-                    wire:key="clock-{{ $turnIndex }}"
+                    wire:key="clock-{{ $turnIndex }}-{{ $pairGame->phase() }}"
                     x-data="{
                         endsAt: {{ $turn['ends_at'] * 1000 }},
-                        total: {{ $pairGame->turnSeconds() }},
-                        left: {{ $pairGame->turnSeconds() }},
+                        total: {{ $pairGame->phase() === App\Models\PairGame::PHASE_ASK ? App\Models\PairGame::ASK_SECONDS : $pairGame->turnSeconds() }},
+                        left: {{ $pairGame->phase() === App\Models\PairGame::PHASE_ASK ? App\Models\PairGame::ASK_SECONDS : $pairGame->turnSeconds() }},
                         fired: false,
                         warned: false,
                         timer: null,
@@ -90,7 +90,12 @@
         @if (! $turn)
             {{-- Between turns: who explains next, and their Start. --}}
             <div class="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
-                @if ($previousTurn && $pairGame->isOneCardPerTurn())
+                @if ($previousTurn && $pairGame->isJustAMinute())
+                    @php $lastTalk = collect($previousTurn['cards'])->last(); @endphp
+                    @if ($lastTalk)
+                        <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">{{ count($lastTalk['heard'] ?? []) }} / {{ count($pairGame->deck[$lastTalk['card']]['words'] ?? []) }} words used{{ $lastTalk['result'] === App\Models\PairGame::RESULT_GOT ? ' · question asked' : '' }}</p>
+                    @endif
+                @elseif ($previousTurn && $pairGame->isOneCardPerTurn())
                     @php $lastSecret = collect($previousTurn['cards'])->last(); @endphp
                     @if ($lastSecret)
                         <p @class(['animate-badge-pop rounded-full px-4 py-1.5 text-sm font-extrabold', 'bg-success-soft-dark text-success-dark' => $lastSecret['result'] === App\Models\PairGame::RESULT_GOT, 'bg-surface-dark text-ink-soft-dark' => $lastSecret['result'] !== App\Models\PairGame::RESULT_GOT])>
@@ -102,7 +107,15 @@
                     <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">+{{ $lastTurnWords }} {{ Str::plural('word', $lastTurnWords) }} last turn</p>
                 @endif
                 <x-user-avatar :user="$explainer" class="h-20 w-20 text-xl" />
-                @if ($isExplainer && $pairGame->isOneCardPerTurn())
+                @if ($pairGame->isJustAMinute())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'Your turn to talk' : $explainer->name.' talks next' }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $isExplainer ? $pairGame->turnSeconds().' s · '.$friend->name.' listens for your words' : 'Listen for the four words — then ask one question!' }}</p>
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
+                @elseif ($isExplainer && $pairGame->isOneCardPerTurn())
                     <div>
                         <p class="font-display text-3xl font-extrabold">You hold the secret</p>
                         <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $pairGame->turnSeconds() }} s · {{ $friend->name }} asks, you answer</p>
@@ -126,6 +139,8 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isJustAMinute())
+            @include('components.games.partials.minute-turn')
         @elseif ($pairGame->isOneCardPerTurn())
             @include('components.games.partials.who-turn')
         @elseif ($isExplainer)

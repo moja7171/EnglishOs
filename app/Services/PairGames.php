@@ -13,7 +13,7 @@ use App\Notifications\PairGameInvite;
  */
 class PairGames
 {
-    public function __construct(private readonly TabooDeck $taboo, private readonly WhoAmIDeck $whoAmI) {}
+    public function __construct(private readonly TabooDeck $taboo, private readonly WhoAmIDeck $whoAmI, private readonly JustAMinuteDeck $justAMinute) {}
 
     public function start(User $starter, User $friend, string $game, int $minutes): ?PairGame
     {
@@ -29,7 +29,11 @@ class PairGames
             return $open;
         }
 
-        $deckMaker = $game === PairGame::GAME_WHO ? $this->whoAmI : $this->taboo;
+        $deckMaker = match ($game) {
+            PairGame::GAME_WHO => $this->whoAmI,
+            PairGame::GAME_MINUTE => $this->justAMinute,
+            default => $this->taboo,
+        };
         $rules = $deckMaker->rulesFor($starter, $friend, $minutes);
         $deck = $deckMaker->cardsFor($starter, $friend, $rules);
 

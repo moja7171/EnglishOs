@@ -29,7 +29,7 @@
         <div class="relative mt-4 grid grid-cols-2 gap-2 text-start">
             @foreach ([$me, $friend] as $player)
                 <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-ground-dark/60 p-3">
-                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ $pairGame->isOneCardPerTurn() ? 'guessed' : 'explained' }}</p>
+                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_MINUTE => 'used (words)', default => 'explained' } }}</p>
                     <p class="text-xl font-extrabold tabular-nums">{{ $pairGame->creditFor($player) }}</p>
                 </div>
             @endforeach
@@ -41,7 +41,7 @@
 
     @if ($missed !== [])
         <div>
-            <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">{{ $pairGame->isOneCardPerTurn() ? 'Not guessed' : 'Missed words' }}</p>
+            <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">{{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'Not guessed', App\Models\PairGame::GAME_MINUTE => 'Words not used', default => 'Missed words' } }}</p>
             <div class="mt-2 flex flex-wrap gap-2">
                 @foreach ($missed as $word)
                     <span wire:key="missed-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1.5 text-sm font-bold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">{{ $word }}</span>

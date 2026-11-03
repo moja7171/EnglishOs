@@ -11,6 +11,7 @@ use App\Models\VoiceFeedback;
 use App\Notifications\PairGameInvite;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\JustAMinuteDeck;
 use App\Services\TabooDeck;
 use App\Services\WhoAmIDeck;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -86,10 +87,11 @@ class PairGameTest extends TestCase
             ->assertSee('Soon')
             ->assertSee(route('games.setup', 'taboo'), false)
             ->assertSee(route('games.setup', 'who-am-i'), false)
-            ->assertDontSee(route('games.setup', 'just-a-minute'), false);
+            ->assertDontSee(route('games.setup', 'story-chain'), false);
 
         $this->get(route('games.setup', 'who-am-i'))->assertOk();
-        $this->get(route('games.setup', 'just-a-minute'))->assertNotFound();
+        $this->get(route('games.setup', 'just-a-minute'))->assertOk();
+        $this->get(route('games.setup', 'story-chain'))->assertNotFound();
     }
 
     public function test_inviting_a_friend_creates_a_waiting_game_and_notifies_them(): void
@@ -520,5 +522,88 @@ class PairGameTest extends TestCase
         $this->actingAs($guesser);
         Livewire::test('games.play', ['pairGame' => $pairGame])->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
         $this->assertSame('Turn 1 · your questions (the secret: cat)', VoiceFeedback::existingFor($guesser, $pairGame)->clips[0]['label']);
+    }
+
+    /**
+     * A joined Just a Minute game whose first talk is running: user A
+     * talks about "Your favourite food", user B listens.
+     */
+    private function minuteGame(): PairGame
+    {
+        return $this->playingGame([
+            'game' => PairGame::GAME_MINUTE,
+            'rules' => ['turn_seconds' => 60, 'turns' => 2, 'skips' => null, 'bonus' => false, 'starters' => 0, 'level' => 5],
+            'deck' => [
+                ['word' => 'Your favourite food', 'words' => ['delicious', 'spicy', 'recipe', 'meal'], 'source' => 'M04 · Food & Lifestyle', 'bonus' => [], 'key' => 'jam:food'],
+                ['word' => 'A perfect weekend', 'words' => ['hang out', 'for fun', 'work out', 'into'], 'source' => 'M05 · Hobbies', 'bonus' => [], 'key' => 'jam:weekend'],
+            ],
+        ]);
+    }
+
+    public function test_just_a_minute_topics_come_with_four_words_of_their_mission(): void
+    {
+        $mission = $this->makeMission('M04', ['delicious', 'spicy', 'recipe', 'meal', 'snack']);
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        $this->finishDayOne($me, $mission);
+        $this->finishDayOne($friend, $mission);
+        $deck = app(JustAMinuteDeck::class);
+
+        $rules = $deck->rulesFor($me, $friend, 5);
+        $cards = collect($deck->cardsFor($me, $friend, $rules));
+
+        $this->assertSame(JustAMinuteDeck::BEGINNER_TALK_SECONDS, $rules['turn_seconds']);
+        $this->assertContains('Your favourite food', $cards->pluck('word'));
+        $this->assertCount(4, $cards->first()['words']);
+        $this->assertEmpty(array_diff($cards->first()['words'], ['delicious', 'spicy', 'recipe', 'meal', 'snack']));
+    }
+
+    public function test_the_listener_ticks_words_once_then_asks_one_question_and_the_two_swap(): void
+    {
+        $pairGame = $this->minuteGame();
+        [$talker, $listener] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $this->actingAs($talker);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('hear', 'spicy');
+        $this->assertSame(0, $pairGame->refresh()->score, 'The talker cannot tick their own words.');
+
+        $this->actingAs($listener);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('Your favourite food')
+            ->call('hear', 'spicy')
+            ->call('hear', 'spicy')
+            ->call('hear', 'pizza')
+            ->call('asked');
+        $this->assertSame(PairGame::POINTS_WORD, $pairGame->refresh()->score);
+        $this->assertTrue($pairGame->isPlaying(), 'No question before the talk is over.');
+
+        $this->actingAs($talker);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('doneTalking');
+        $this->assertSame(PairGame::PHASE_ASK, $pairGame->refresh()->phase());
+
+        $this->actingAs($listener);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('asked');
+
+        $pairGame->refresh();
+        $this->assertSame(2 * PairGame::POINTS_WORD, $pairGame->score);
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertTrue($pairGame->explainer()->is($listener));
+        $this->assertSame(1, $pairGame->creditFor($talker));
+        $this->assertEqualsCanonicalizing(['delicious', 'recipe', 'meal'], $pairGame->missedWords());
+    }
+
+    public function test_when_the_minute_is_up_the_question_comes_and_without_one_the_turn_still_ends(): void
+    {
+        $pairGame = $this->minuteGame();
+
+        $this->travel(61)->seconds();
+        $pairGame->timeUp(0);
+        $this->assertSame(PairGame::PHASE_ASK, $pairGame->refresh()->phase());
+
+        $this->travel(PairGame::ASK_SECONDS + 1)->seconds();
+        $pairGame->timeUp(0);
+
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->refresh()->stage);
+        $this->assertSame(0, $pairGame->score);
     }
 }
