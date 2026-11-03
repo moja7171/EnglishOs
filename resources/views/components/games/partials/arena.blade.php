@@ -90,7 +90,9 @@
         @if (! $turn)
             {{-- Between turns: who explains next, and their Start. --}}
             <div class="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
-                @if ($previousTurn && $pairGame->isJustAMinute())
+                @if ($previousTurn && $pairGame->isStoryChain())
+                    <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">Story {{ intdiv(count($pairGame->turns), $pairGame->storyTurns()) }} done!</p>
+                @elseif ($previousTurn && $pairGame->isJustAMinute())
                     @php $lastTalk = collect($previousTurn['cards'])->last(); @endphp
                     @if ($lastTalk)
                         <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">{{ count($lastTalk['heard'] ?? []) }} / {{ count($pairGame->deck[$lastTalk['card']]['words'] ?? []) }} words used{{ $lastTalk['result'] === App\Models\PairGame::RESULT_GOT ? ' · question asked' : '' }}</p>
@@ -107,7 +109,18 @@
                     <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">+{{ $lastTurnWords }} {{ Str::plural('word', $lastTurnWords) }} last turn</p>
                 @endif
                 <x-user-avatar :user="$explainer" class="h-20 w-20 text-xl" />
-                @if ($pairGame->isJustAMinute())
+                @if ($pairGame->isStoryChain())
+                    @php $nextStory = $pairGame->deck[intdiv(count($pairGame->turns ?? []), $pairGame->storyTurns()) * $pairGame->storyTurns()] ?? null; @endphp
+                    <div class="space-y-2">
+                        <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'You start the story' : $explainer->name.' starts the story' }}</p>
+                        @if ($nextStory)
+                            <p class="mx-auto max-w-sm text-sm font-semibold text-ink-soft-dark">“{{ $nextStory['line'] }}”</p>
+                        @endif
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
+                @elseif ($pairGame->isJustAMinute())
                     <div>
                         <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'Your turn to talk' : $explainer->name.' talks next' }}</p>
                         <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $isExplainer ? $pairGame->turnSeconds().' s · '.$friend->name.' listens for your words' : 'Listen for the four words — then ask one question!' }}</p>
@@ -139,6 +152,8 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isStoryChain())
+            @include('components.games.partials.story-turn')
         @elseif ($pairGame->isJustAMinute())
             @include('components.games.partials.minute-turn')
         @elseif ($pairGame->isOneCardPerTurn())

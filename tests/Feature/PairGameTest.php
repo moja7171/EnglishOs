@@ -12,6 +12,7 @@ use App\Notifications\PairGameInvite;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\JustAMinuteDeck;
+use App\Services\StoryChainDeck;
 use App\Services\TabooDeck;
 use App\Services\WhoAmIDeck;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -87,11 +88,12 @@ class PairGameTest extends TestCase
             ->assertSee('Soon')
             ->assertSee(route('games.setup', 'taboo'), false)
             ->assertSee(route('games.setup', 'who-am-i'), false)
-            ->assertDontSee(route('games.setup', 'story-chain'), false);
+            ->assertDontSee(route('games.setup', 'role-play'), false);
 
         $this->get(route('games.setup', 'who-am-i'))->assertOk();
         $this->get(route('games.setup', 'just-a-minute'))->assertOk();
-        $this->get(route('games.setup', 'story-chain'))->assertNotFound();
+        $this->get(route('games.setup', 'story-chain'))->assertOk();
+        $this->get(route('games.setup', 'role-play'))->assertNotFound();
     }
 
     public function test_inviting_a_friend_creates_a_waiting_game_and_notifies_them(): void
@@ -605,5 +607,91 @@ class PairGameTest extends TestCase
 
         $this->assertSame(PairGame::STAGE_READY, $pairGame->refresh()->stage);
         $this->assertSame(0, $pairGame->score);
+    }
+
+    /**
+     * A joined Story Chain game (one story of 4 turns) whose first turn is
+     * running: user A tells first.
+     */
+    private function storyGame(): PairGame
+    {
+        $line = 'Every morning, Lily wakes up at six — but today there is no coffee.';
+
+        return $this->playingGame([
+            'game' => PairGame::GAME_STORY,
+            'rules' => ['turn_seconds' => 30, 'turns' => 4, 'story_turns' => 4, 'skips' => null, 'bonus' => false, 'starters' => 0, 'level' => 5],
+            'deck' => collect(['wake up', 'commute', 'usually', 'tired'])->map(fn (string $word, int $i) => [
+                'word' => $word, 'story' => 0, 'line' => $line, 'image' => null, 'source' => 'M01 · My Daily Life', 'bonus' => [], 'key' => 'story:M01:'.$i,
+            ])->all(),
+        ]);
+    }
+
+    public function test_a_story_has_a_first_line_of_its_mission_and_one_mission_word_per_turn(): void
+    {
+        $mission = $this->makeMission('M01', ['wake up', 'commute', 'usually', 'tired', 'breakfast']);
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        $this->finishDayOne($me, $mission);
+        $this->finishDayOne($friend, $mission);
+        $deck = app(StoryChainDeck::class);
+
+        $cards = collect($deck->cardsFor($me, $friend, $deck->rulesFor($me, $friend, 10)));
+
+        $this->assertCount(2 * StoryChainDeck::STORY_TURNS, $cards);
+        $this->assertSame([0, 1], $cards->pluck('story')->unique()->values()->all());
+        $this->assertContains($cards->first()['line'], config('story_chain.M01'));
+        $this->assertEmpty($cards->pluck('word')->diff(['wake up', 'commute', 'usually', 'tired', 'breakfast']));
+    }
+
+    public function test_the_story_passes_on_by_itself_and_the_listener_ticks_the_word_once(): void
+    {
+        $pairGame = $this->storyGame();
+        [$first, $second] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $this->actingAs($first);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->assertSee('wake up')->call('used');
+        $this->assertSame(0, $pairGame->refresh()->score, 'The teller cannot tick their own word.');
+
+        $this->actingAs($second);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('used')->call('used');
+        $this->assertSame(PairGame::POINTS_WORD, $pairGame->refresh()->score);
+
+        $this->actingAs($first);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('doneTelling');
+
+        $pairGame->refresh();
+        $this->assertTrue($pairGame->isPlaying(), 'No Start between the turns of a story.');
+        $this->assertTrue($pairGame->explainer()->is($second));
+        $this->assertSame('commute', $pairGame->currentCard()['word']);
+
+        // Time up passes it on too; after the last turn the game is over.
+        $this->travel(31)->seconds();
+        $pairGame->timeUp(1);
+        $pairGame->refresh()->doneTelling($first);
+        $pairGame->refresh()->doneTelling($second);
+
+        $pairGame->refresh();
+        $this->assertTrue($pairGame->isFinished());
+        $this->assertSame(PairGame::POINTS_WORD, $pairGame->score);
+        $this->assertSame(1, $pairGame->creditFor($first));
+        $this->assertEqualsCanonicalizing(['commute', 'usually', 'tired'], $pairGame->missedWords());
+    }
+
+    public function test_the_result_tells_the_whole_story_from_both_phones(): void
+    {
+        $pairGame = $this->storyGame();
+        [$first, $second] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+        foreach (range(0, 3) as $turn) {
+            $pairGame->refresh()->doneTelling($pairGame->explainer());
+        }
+        VoiceFeedback::for($first, $pairGame)->update(['clips' => [['part' => 'turn-0', 'label' => 'x', 'path' => 'a.webm', 'transcript' => 'She woke up and went to the shop.']]]);
+        VoiceFeedback::for($second, $pairGame)->update(['clips' => [['part' => 'turn-1', 'label' => 'x', 'path' => 'b.webm', 'transcript' => 'The shop was closed.']]]);
+
+        $this->actingAs($first);
+        Livewire::test('games.play', ['pairGame' => $pairGame->refresh()])
+            ->assertSee('Your story')
+            ->assertSee('Every morning, Lily wakes up at six')
+            ->assertSee('She woke up and went to the shop.')
+            ->assertSee('The shop was closed.');
     }
 }

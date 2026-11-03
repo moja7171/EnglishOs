@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Services\PairGames;
 use App\Services\TabooDeck;
 use App\Services\JustAMinuteDeck;
+use App\Services\StoryChainDeck;
 use App\Services\WhoAmIDeck;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -47,6 +48,7 @@ new class extends Component
         $deck = match ($this->game) {
             PairGame::GAME_WHO => app(WhoAmIDeck::class),
             PairGame::GAME_MINUTE => app(JustAMinuteDeck::class),
+            PairGame::GAME_STORY => app(StoryChainDeck::class),
             default => app(TabooDeck::class),
         };
         $lastPartnerIds = PairGame::involving($me)->latest()->get(['user_a_id', 'user_b_id'])
@@ -121,6 +123,7 @@ new class extends Component
             <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
                 PairGame::GAME_WHO => 'Ask yes/no questions. Guess the secret.',
                 PairGame::GAME_MINUTE => 'Talk about a topic. Use the four words.',
+                PairGame::GAME_STORY => 'Tell a story together, a sentence or two each.',
                 default => 'Explain the word. Don’t say it.',
             } }}</p>
         </div>
@@ -191,6 +194,7 @@ new class extends Component
             <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
                 PairGame::GAME_WHO => 'Secrets: jobs, food, places… from your missions',
                 PairGame::GAME_MINUTE => 'Topics and words: your missions',
+                PairGame::GAME_STORY => '5 min = one story · 10 min = two',
                 default => 'Words: your missions + your notebooks',
             } }}</p>
 

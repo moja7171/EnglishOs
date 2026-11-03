@@ -87,6 +87,20 @@ new class extends Component
         $this->act(fn (PairGame $pairGame) => $pairGame->questionAsked(auth()->user()));
     }
 
+    /**
+     * Story Chain: the listener ticks that the teller used the word; the
+     * teller passes the story on.
+     */
+    public function used(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->wordUsed(auth()->user()));
+    }
+
+    public function doneTelling(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->doneTelling(auth()->user()));
+    }
+
     public function showLetter(int $seen): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->showLetter(auth()->user(), $seen));
@@ -175,6 +189,7 @@ new class extends Component
         $label = match ($this->pairGame->game) {
             PairGame::GAME_WHO => 'Turn '.($index + 1).' · your questions (the secret: '.$words.')',
             PairGame::GAME_MINUTE => 'Turn '.($index + 1).' · your talk: '.$words,
+            PairGame::GAME_STORY => 'Turn '.($index + 1).' · your part of the story (word: '.($this->pairGame->deck[$turn['cards'][0]['card'] ?? -1]['word'] ?? '').')',
             default => 'Turn '.($index + 1).' · you explained: '.$words,
         };
 
@@ -188,6 +203,16 @@ new class extends Component
     public function checkMyVoice(): void
     {
         if (! $this->pairGame->refresh()->isFinished()) {
+            return;
+        }
+
+        if ($this->pairGame->isStoryChain()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken parts of a story they told together with a friend in a "Story Chain" game, transcribed by speech-to-text: in each turn they added one or two sentences using a given word (in the question). All the text is the learner\'s.',
+                guidance: 'Judge grammar (especially the narrative tenses) and word choice. Short fragments of the friend\'s voice may appear — ignore them.',
+            );
+
             return;
         }
 

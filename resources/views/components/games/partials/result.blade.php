@@ -29,7 +29,7 @@
         <div class="relative mt-4 grid grid-cols-2 gap-2 text-start">
             @foreach ([$me, $friend] as $player)
                 <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-ground-dark/60 p-3">
-                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_MINUTE => 'used (words)', default => 'explained' } }}</p>
+                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
                     <p class="text-xl font-extrabold tabular-nums">{{ $pairGame->creditFor($player) }}</p>
                 </div>
             @endforeach
@@ -41,13 +41,48 @@
 
     @if ($missed !== [])
         <div>
-            <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">{{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'Not guessed', App\Models\PairGame::GAME_MINUTE => 'Words not used', default => 'Missed words' } }}</p>
+            <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">{{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'Not guessed', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'Words not used', default => 'Missed words' } }}</p>
             <div class="mt-2 flex flex-wrap gap-2">
                 @foreach ($missed as $word)
                     <span wire:key="missed-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1.5 text-sm font-bold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">{{ $word }}</span>
                 @endforeach
             </div>
         </div>
+    @endif
+
+    @if ($pairGame->isStoryChain())
+        {{-- The story the two told, from both phones' transcripts (text only — each voice stays its owner's). --}}
+        @php
+            $tellings = App\Models\VoiceFeedback::where('subject_type', $pairGame->getMorphClass())->where('subject_id', $pairGame->id)->get()
+                ->flatMap(fn ($voice) => collect($voice->clips)->mapWithKeys(fn (array $clip) => [$clip['part'] => $clip['transcript'] ?? null]));
+            $stories = collect($pairGame->turns ?? [])->map(fn (array $turn, int $index) => ['index' => $index, 'turn' => $turn])->groupBy(fn (array $entry) => intdiv($entry['index'], $pairGame->storyTurns()));
+        @endphp
+        @foreach ($stories as $storyIndex => $storyTurns)
+            @php $first = $pairGame->deck[$storyTurns->first()['turn']['cards'][0]['card'] ?? $storyIndex * $pairGame->storyTurns()] ?? null; @endphp
+            <section wire:key="story-{{ $storyIndex }}" class="overflow-hidden rounded-2xl bg-surface shadow-sm dark:bg-surface-dark">
+                @if (filled($first['image'] ?? null))
+                    <img src="{{ $first['image'] }}" alt="" class="h-28 w-full object-cover">
+                @endif
+                <div class="space-y-2 p-4">
+                    <h2 class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">Your story{{ $stories->count() > 1 ? ' '.($storyIndex + 1) : '' }}</h2>
+                    <p class="text-sm font-semibold text-ink-soft italic dark:text-ink-soft-dark">{{ $first['line'] ?? '' }}</p>
+                    @foreach ($storyTurns as $entry)
+                        @php
+                            $card = $entry['turn']['cards'][0] ?? null;
+                            $teller = $entry['turn']['explainer_id'] === $me->id ? 'You' : $friend->name;
+                            $said = $tellings->get('turn-'.$entry['index']);
+                        @endphp
+                        <p wire:key="story-line-{{ $entry['index'] }}" class="text-sm text-ink dark:text-ink-dark">
+                            <span class="font-bold text-ink-faint dark:text-ink-faint-dark">{{ $teller }}:</span>
+                            {{ $said ?: '…' }}
+                            @if ($card)
+                                <span @class(['ms-1 rounded-full px-2 py-0.5 text-[11px] font-extrabold', 'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $card['result'] === App\Models\PairGame::RESULT_GOT, 'bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark' => $card['result'] !== App\Models\PairGame::RESULT_GOT])>{{ $pairGame->deck[$card['card']]['word'] ?? '' }}</span>
+                            @endif
+                        </p>
+                    @endforeach
+                </div>
+            </section>
+        @endforeach
     @endif
 
     @php $voice = App\Models\VoiceFeedback::existingFor($me, $pairGame); @endphp
