@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\DirectMessage;
+use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Services\PairPractice;
 use Illuminate\Support\Collection;
@@ -157,6 +158,27 @@ new class extends Component
     /**
      * One-line inbox preview of the latest message in a thread.
      */
+    /**
+     * Pair Practice rounds still open for me: a friend's invite waiting for
+     * my Join, my own invite waiting for theirs, or a round to go back to.
+     *
+     * @return Collection<int, PairPracticeSession>
+     */
+    #[Computed]
+    public function liveRounds(): Collection
+    {
+        $me = auth()->user();
+
+        return PairPracticeSession::query()
+            ->where(fn ($query) => $query->where('user_a_id', $me->id)->orWhere('user_b_id', $me->id))
+            ->open()
+            ->with(['userA', 'userB', 'startedBy'])
+            ->latest()
+            ->get()
+            ->unique(fn (PairPracticeSession $session) => $session->user_a_id.'-'.$session->user_b_id)
+            ->values();
+    }
+
     public function preview(DirectMessage $message): string
     {
         $text = match ($message->type) {
@@ -259,6 +281,30 @@ new class extends Component
                 @endforeach
             </div>
         @endif
+
+        @foreach ($this->liveRounds as $round)
+            @php
+                $partner = $round->partnerFor(auth()->user());
+                $invitesMe = $round->isWaiting() && $round->started_by_id === $partner->id;
+            @endphp
+            <a
+                href="{{ $invitesMe ? route('pair-practice.show', ['session' => $round, 'join' => 1]) : route('pair-practice.show', $round) }}"
+                wire:navigate
+                wire:key="live-round-{{ $round->id }}"
+                class="flex items-center gap-3 rounded-2xl bg-success-soft px-3 py-2.5 shadow-sm dark:bg-success-soft-dark"
+            >
+                <x-user-avatar :user="$partner" class="h-10 w-10 text-xs" />
+                <p class="min-w-0 flex-1 text-sm font-extrabold text-ink dark:text-ink-dark">
+                    <span class="block truncate">{{ match (true) {
+                        $invitesMe => $partner->name.' is waiting for you',
+                        $round->isWaiting() => 'Waiting for '.$partner->name.'…',
+                        default => 'Round with '.$partner->name,
+                    } }}</span>
+                    <span class="block truncate text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Practice together · {{ $round->daysLabel() }}</span>
+                </p>
+                <span class="shrink-0 rounded-full bg-success px-4 py-2 text-xs font-extrabold text-white dark:bg-success-dark">{{ $invitesMe ? 'Join' : ($round->isWaiting() ? 'Open' : 'Continue') }}</span>
+            </a>
+        @endforeach
 
         @if ($this->friends->isNotEmpty())
             <a href="{{ route('pair-practice.index') }}" wire:navigate class="flex items-center gap-2.5 rounded-2xl bg-accent px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-90 dark:bg-accent-dark">

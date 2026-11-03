@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\FollowRequestReceived;
+use App\Notifications\PairPracticeInvite;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -146,6 +148,28 @@ class NotificationBellTest extends TestCase
             ->call('checkNew')
             ->assertDispatched('notification-banner', fn (string $event, array $params) => $params['items'][0]['avatar'] !== null
                 && $params['items'][0]['urgent'] === false);
+    }
+
+    public function test_a_live_invite_stays_up_until_its_round_is_joined(): void
+    {
+        $session = PairPracticeSession::factory()->waiting()->create();
+        [$starter, $friend] = $session->players();
+        $friend->notify(new PairPracticeInvite($session, $starter));
+
+        $this->actingAs($friend);
+
+        Livewire::test('notifications.bell')
+            ->call('checkNew')
+            ->assertDispatched('notification-banner', fn (string $event, array $params) => $params['items'][0]['urgent'] === true
+                && $params['items'][0]['staysMs'] > 9 * 60 * 1000);
+        $this->assertSame(1, $friend->unreadNotifications()->count());
+
+        $session->update(['stage' => PairPracticeSession::STAGE_VOCABULARY, 'joined_at' => now()]);
+
+        Livewire::test('notifications.bell')
+            ->call('checkNew')
+            ->assertNotDispatched('notification-banner');
+        $this->assertSame(0, $friend->unreadNotifications()->count());
     }
 
     public function test_prune_command_removes_only_old_read_notifications(): void

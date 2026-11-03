@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\PairPracticeInvite;
 use Illuminate\Database\Eloquent\Collection;
@@ -28,6 +29,9 @@ new class extends Component
      * and the unread alerts of the last BANNER_MINUTES go to
      * <x-notification-banner>, which shows them one at a time and reports
      * back each one it showed (markShown()). Until then they stay unread.
+     * A live Pair Practice invite is the exception: it stays unread (and
+     * its banner up) until the round is joined, called off or expires —
+     * then it is read and no longer pops up.
      */
     public function checkNew(): void
     {
@@ -41,6 +45,20 @@ new class extends Component
             ->limit(3)
             ->get();
 
+        $rounds = PairPracticeSession::whereIn('id', $fresh->where('type', PairPracticeInvite::class)->pluck('data.session_id')->filter())->get()->keyBy('id');
+
+        [$fresh, $over] = $fresh->partition(function (DatabaseNotification $notification) use ($rounds) {
+            if ($notification->type !== PairPracticeInvite::class || ! isset($notification->data['session_id'])) {
+                return true;
+            }
+
+            $round = $rounds->get($notification->data['session_id']);
+
+            return $round && $round->isWaiting() && ! $round->isExpired();
+        });
+
+        $over->each->markAsRead();
+
         if ($fresh->isNotEmpty()) {
             $people = $this->peopleFor($fresh);
 
@@ -53,6 +71,9 @@ new class extends Component
                     ? Blade::render('<x-user-avatar :user="$user" class="h-11 w-11 text-sm" />', ['user' => $person])
                     : null,
                 'urgent' => $notification->type === PairPracticeInvite::class,
+                'staysMs' => ($round = $rounds->get($notification->data['session_id'] ?? 0))
+                    ? max(0, $round->created_at->addMinutes(PairPracticeSession::INVITE_MINUTES)->getTimestampMs() - now()->getTimestampMs())
+                    : null,
             ])->values()->all());
         }
     }
