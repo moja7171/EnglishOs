@@ -101,6 +101,39 @@ class PairGame extends Model
         ];
     }
 
+    /**
+     * How to play, in three short Persian lines: your part, your friend's
+     * part, the points. Shown on the setup page and behind ⓘ in the game.
+     *
+     * @return list<string>
+     */
+    public static function guide(string $game): array
+    {
+        return match ($game) {
+            self::GAME_TABOO => [
+                'نوبت توست: کلمه رو فقط تو می‌بینی؛ بدون گفتن خودِ کلمه و بدون فارسی توضیحش بده.',
+                'دوستت حدس می‌زنه؛ درست گفت، «got it» رو بزن. گیر کردی؟ Skip یا «حرف اول».',
+                'هر کلمه +۱ (با حرف اول نصف). از M05: کلمه‌های جایزه رو نگی، +۱. بعد جاها عوض می‌شه.',
+            ],
+            self::GAME_WHO => [
+                'یکی راز رو می‌بینه (شغل، حیوان، غذا…) و فقط Yes / No / Sometimes جواب می‌ده.',
+                'اون یکی با سؤال بله/خیر حدس می‌زنه: Am I…? Do I…? Can I…?',
+                'حدس درست +۱، با ۵ سؤال یا کمتر +۱ جایزه. ۱۰ سؤال یا ۹۰ ثانیه، بعد جاها عوض.',
+            ],
+            self::GAME_MINUTE => [
+                'گوینده درباره‌ی موضوع حرف می‌زنه و سعی می‌کنه ۴ کلمه‌ی کارت رو به کار ببره.',
+                'شنونده هر کلمه رو که شنید روی گوشیش می‌زنه؛ هر کلمه +۱.',
+                'بعد شنونده یک سؤال می‌پرسه (+۱) و جاها عوض می‌شه.',
+            ],
+            self::GAME_STORY => [
+                'داستان با جمله‌ی اول شروع می‌شه؛ هر نوبت یکی‌تون ۱ یا ۲ جمله ادامه می‌ده.',
+                'کلمه‌ی نوبت رو توی جمله‌ت بیار؛ دوستت «used the word» می‌زنه (+۱).',
+                '«Done» داستان رو به دوستت می‌ده؛ نوبت آخر، داستان رو تموم کن.',
+            ],
+            default => [],
+        };
+    }
+
     public const STAGE_WAITING = 'waiting';
 
     /** Between turns: the next explainer starts their turn when ready. */

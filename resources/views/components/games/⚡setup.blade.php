@@ -128,6 +128,14 @@ new class extends Component
             } }}</p>
         </div>
 
+        <details class="group rounded-2xl bg-surface px-4 py-3 shadow-sm dark:bg-surface-dark">
+            <summary dir="rtl" class="font-fa flex cursor-pointer list-none items-center justify-between text-sm font-bold text-accent-ink dark:text-accent-ink-dark">
+                چطور بازی کنیم؟
+                <span class="transition-transform group-open:rotate-180">@svg('heroicon-o-chevron-down', 'h-4 w-4')</span>
+            </summary>
+            <div class="pt-2.5">@include('components.games.partials.guide', ['gameKey' => $game])</div>
+        </details>
+
         <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold text-ink dark:text-ink-dark">
             <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-surface p-3 shadow-sm dark:bg-surface-dark">
                 <span class="text-accent dark:text-accent-dark">@svg('heroicon-o-clock', 'h-6 w-6')</span>

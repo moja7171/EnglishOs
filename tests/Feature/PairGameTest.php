@@ -694,4 +694,22 @@ class PairGameTest extends TestCase
             ->assertSee('She woke up and went to the shop.')
             ->assertSee('The shop was closed.');
     }
+
+    public function test_every_playable_game_has_a_short_persian_guide_on_its_setup_and_game_screens(): void
+    {
+        foreach (PairGame::PLAYABLE as $game) {
+            $this->assertCount(3, PairGame::guide($game), $game.' needs its three guide lines.');
+        }
+
+        $this->actingAs(User::factory()->create());
+        $this->get(route('games.setup', PairGame::GAME_WHO))
+            ->assertSee('چطور بازی کنیم؟')
+            ->assertSee(PairGame::guide(PairGame::GAME_WHO)[0]);
+
+        $pairGame = $this->playingGame();
+        $this->actingAs($pairGame->startedBy);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSeeHtml('aria-label="How to play"')
+            ->assertSee(PairGame::guide(PairGame::GAME_TABOO)[0]);
+    }
 }

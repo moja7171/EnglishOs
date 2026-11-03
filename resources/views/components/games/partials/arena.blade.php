@@ -24,8 +24,11 @@
 
 <div class="dark fixed inset-0 z-[55] overflow-y-auto bg-ground-dark text-ink-dark">
     <div class="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div class="flex items-center justify-between" x-data="{ confirming: false }">
-            <button type="button" x-on:click="confirming = true" aria-label="End game" class="-ms-2 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft-dark hover:bg-surface-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</button>
+        <div class="flex items-center justify-between" x-data="{ confirming: false, guide: false }">
+            <div class="flex items-center">
+                <button type="button" x-on:click="confirming = true" aria-label="End game" class="-ms-2 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft-dark hover:bg-surface-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</button>
+                <button type="button" x-on:click="guide = true" aria-label="How to play" class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft-dark hover:bg-surface-dark">@svg('heroicon-o-information-circle', 'h-6 w-6')</button>
+            </div>
             <div class="flex items-center gap-2">
                 {{-- Shown while this phone is really recording its owner. --}}
                 <span x-data="{ rec: false, timer: null, init() { this.timer = setInterval(() => this.rec = !! window.eosGameVoice?.isRecording(), 500) }, destroy() { clearInterval(this.timer) } }" x-show="rec" x-cloak class="flex items-center gap-1.5 rounded-full bg-surface-dark px-2.5 py-1 text-xs font-extrabold text-accent-ink-dark">
@@ -36,6 +39,15 @@
                     <span class="rounded-full bg-surface-dark px-3 py-1 text-xs font-extrabold">Best {{ App\Models\PairGame::formatPoints($best) }}</span>
                 @endif
             </div>
+
+            <template x-teleport="body">
+                <div x-show="guide" x-cloak class="dark fixed inset-0 z-[70] flex items-end justify-center bg-black/50" x-on:click.self="guide = false" x-on:keydown.escape.window="guide = false">
+                    <div class="w-full max-w-lg space-y-4 rounded-t-2xl bg-surface-dark p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]" role="dialog" aria-modal="true" aria-label="How to play">
+                        @include('components.games.partials.guide', ['gameKey' => $pairGame->game, 'dark' => true])
+                        <button type="button" x-on:click="guide = false" class="w-full cursor-pointer rounded-full bg-accent-dark px-4 py-3 text-sm font-semibold text-white">OK</button>
+                    </div>
+                </div>
+            </template>
 
             <template x-teleport="body">
                 <div x-show="confirming" x-cloak class="dark fixed inset-0 z-[70] flex items-end justify-center bg-black/50" x-on:click.self="confirming = false" x-on:keydown.escape.window="confirming = false">
