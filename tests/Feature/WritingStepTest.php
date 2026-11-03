@@ -59,7 +59,7 @@ class WritingStepTest extends TestCase
                     'min_words' => 5,
                     'max_words' => 10,
                     'prompts' => [
-                        ['label' => 'Morning', 'image_query' => 'sunrise morning coffee'],
+                        ['label' => 'Morning', 'question' => 'What do you usually do in the morning?', 'image_query' => 'sunrise morning coffee'],
                         ['label' => 'Weekend', 'image_query' => 'weekend park friends'],
                     ],
                 ]],
@@ -69,6 +69,16 @@ class WritingStepTest extends TestCase
         $this->actingAs($learner);
 
         return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_an_idea_shows_its_question_and_next_waits_for_a_sentence_or_a_skip(): void
+    {
+        $run = $this->makeRunWithPromptImages();
+
+        Livewire::test('missions.steps.writing', ['run' => $run])
+            ->assertSee('What do you usually do in the morning?')
+            ->assertSeeHtml('x-bind:disabled="! (words(parts[0]) &gt; 0)"')
+            ->assertSee('Skip this idea');
     }
 
     public function test_prompts_with_an_image_query_show_a_thumbnail_each(): void

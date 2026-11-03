@@ -732,12 +732,12 @@ class MissionSeeder extends Seeder
                                 // PexelsClient pattern as Vocabulary Builder/Reading Comprehension
                                 // — never blocks writing.
                                 'prompts' => [
-                                    ['label' => 'Morning', 'image_query' => 'sunrise morning coffee'],
-                                    ['label' => 'Work / Study', 'image_query' => 'office desk work laptop'],
-                                    ['label' => 'Afternoon', 'image_query' => 'afternoon lunch break'],
-                                    ['label' => 'Evening', 'image_query' => 'evening dinner family'],
-                                    ['label' => 'Free Time', 'image_query' => 'relaxing hobby leisure'],
-                                    ['label' => 'Weekend', 'image_query' => 'weekend park friends'],
+                                    ['label' => 'Morning', 'question' => 'What do you usually do in the morning?', 'image_query' => 'sunrise morning coffee'],
+                                    ['label' => 'Work / Study', 'question' => 'What do you do at work or school?', 'image_query' => 'office desk work laptop'],
+                                    ['label' => 'Afternoon', 'question' => 'What do you usually do in the afternoon?', 'image_query' => 'afternoon lunch break'],
+                                    ['label' => 'Evening', 'question' => 'What do you do in the evening?', 'image_query' => 'evening dinner family'],
+                                    ['label' => 'Free Time', 'question' => 'What do you like doing in your free time?', 'image_query' => 'relaxing hobby leisure'],
+                                    ['label' => 'Weekend', 'question' => 'How are your weekends different?', 'image_query' => 'weekend park friends'],
                                 ],
                                 // Grammar connectors only — the mission's own vocabulary_builder
                                 // words are already threaded into Writing via <x-vocabulary-pills>
@@ -1493,10 +1493,10 @@ class MissionSeeder extends Seeder
                                 'title' => 'What makes a good friend?',
                                 'structure_note' => "Don't just list qualities. Build each idea as Opinion → Reason → Example.",
                                 'prompts' => [
-                                    ['label' => 'Trust', 'image_query' => 'two friends trust support'],
-                                    ['label' => 'Fun & Laughter', 'image_query' => 'friends laughing together'],
-                                    ['label' => 'Honesty', 'image_query' => 'friends honest conversation'],
-                                    ['label' => 'Support', 'image_query' => 'friend consoling friend holding hands'],
+                                    ['label' => 'Trust', 'question' => 'Why do you need to trust a good friend?', 'image_query' => 'two friends trust support'],
+                                    ['label' => 'Fun & Laughter', 'question' => 'What do you and your friends laugh about?', 'image_query' => 'friends laughing together'],
+                                    ['label' => 'Honesty', 'question' => 'Should a good friend always tell you the truth?', 'image_query' => 'friends honest conversation'],
+                                    ['label' => 'Support', 'question' => 'How does a good friend help you on a bad day?', 'image_query' => 'friend consoling friend holding hands'],
                                 ],
                                 // Kept the essay's own connectors (because, for example, in my
                                 // opinion — matching structure_note's Opinion → Reason →
