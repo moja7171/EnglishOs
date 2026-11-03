@@ -553,6 +553,163 @@ window.eosSound = {
 };
 
 /**
+ * The voice recorder of games and Pair Practice — no buttons. The page
+ * tells it, on every render, whether this phone's owner is speaking right
+ * now (sync(): a "part" name like "turn-2", or '' when not). It records
+ * that stretch only and, when it ends, sends it quietly in the
+ * background, one piece at a time, trying again on a weak connection
+ * (the page's Livewire component keeps it: upload into `voiceClip`, then
+ * saveVoiceClip(part, label)). If the mic can't be opened — refused, or
+ * busy with a phone or WhatsApp call — recording just stays off for this
+ * game. Lives on window so a re-render (or the game ending) never loses a
+ * piece still on its way.
+ */
+window.eosGameVoice = {
+    part: null,
+    label: null,
+    recorder: null,
+    stream: null,
+    queue: [],
+    busy: false,
+    off: false,
+    wire: null,
+    tries: 0,
+
+    /** Asks for the mic early (on the waiting screen), so no prompt pops up mid-turn. */
+    async warmUp() {
+        if (this.off || !navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) return;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach((track) => track.stop());
+        } catch (e) {
+            this.off = true;
+        }
+    },
+
+    sync(wire, enabled, part, label) {
+        this.wire = wire;
+        const wanted = enabled && !this.off ? part || '' : '';
+        if (wanted === (this.part || '')) {
+            this.pump();
+            return;
+        }
+        this.stop();
+        if (wanted) this.start(wanted, label);
+    },
+
+    async start(part, label) {
+        this.part = part;
+        this.label = label;
+        if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+            this.off = true;
+            this.part = null;
+            return;
+        }
+        let stream;
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (e) {
+            this.off = true;
+            this.part = null;
+            return;
+        }
+        if (this.part !== part) {
+            stream.getTracks().forEach((track) => track.stop());
+            return;
+        }
+        const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find((type) => MediaRecorder.isTypeSupported?.(type));
+        let recorder;
+        try {
+            recorder = new MediaRecorder(stream, { audioBitsPerSecond: 32000, ...(mimeType ? { mimeType } : {}) });
+        } catch (e) {
+            stream.getTracks().forEach((track) => track.stop());
+            this.off = true;
+            this.part = null;
+            return;
+        }
+        const chunks = [];
+        recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
+        recorder.onstop = () => {
+            stream.getTracks().forEach((track) => track.stop());
+            const type = (recorder.mimeType || 'audio/webm').split(';')[0];
+            const blob = new Blob(chunks, { type });
+            if (blob.size > 2000) this.enqueue({ part, label, blob, type });
+        };
+        this.stream = stream;
+        this.recorder = recorder;
+        recorder.start(1000);
+    },
+
+    stop() {
+        if (this.recorder && this.recorder.state !== 'inactive') {
+            this.recorder.stop();
+        } else {
+            this.stream?.getTracks().forEach((track) => track.stop());
+        }
+        this.recorder = null;
+        this.stream = null;
+        this.part = null;
+    },
+
+    isRecording() {
+        return !!this.recorder && this.recorder.state === 'recording';
+    },
+
+    enqueue(item) {
+        this.queue.push(item);
+        this.pump();
+    },
+
+    pump() {
+        if (this.busy || !this.queue.length || !this.wire) return;
+        this.busy = true;
+        const item = this.queue[0];
+        const extension = item.type.includes('mp4') ? 'm4a' : 'webm';
+        const file = new File([item.blob], `${item.part}.${extension}`, { type: item.type });
+        const retry = () => {
+            this.busy = false;
+            this.tries++;
+            if (this.tries >= 6) {
+                this.queue.shift();
+                this.tries = 0;
+            }
+            setTimeout(() => this.pump(), 4000);
+        };
+        this.wire.upload(
+            'voiceClip',
+            file,
+            () => {
+                this.wire
+                    .saveVoiceClip(item.part, item.label)
+                    .then(() => {
+                        this.queue.shift();
+                        this.tries = 0;
+                        this.busy = false;
+                        this.pump();
+                    })
+                    .catch(retry);
+            },
+            retry,
+        );
+    },
+
+    idle() {
+        return !this.recorder && !this.busy && this.queue.length === 0;
+    },
+
+    /** Runs cb once every piece is sent (or after timeoutMs, whatever is left). */
+    whenIdle(cb, timeoutMs = 25000) {
+        const started = Date.now();
+        const timer = setInterval(() => {
+            if (this.idle() || Date.now() - started > timeoutMs) {
+                clearInterval(timer);
+                cb();
+            }
+        }, 500);
+    },
+};
+
+/**
  * A pannable/zoomable square photo framer for the avatar upload flow — the
  * learner picks exactly what the server's center-crop (see
  * processAvatarUpload() in ⚡profile.blade.php) will otherwise guess blindly.

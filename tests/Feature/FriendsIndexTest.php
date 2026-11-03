@@ -8,6 +8,7 @@ use App\Models\Evidence;
 use App\Models\FriendBlock;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\PairPracticeNudge;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,6 +31,20 @@ class FriendsIndexTest extends TestCase
             ->set('search', 'bob')
             ->assertSee('Bob Smith')
             ->assertDontSee('Alice');
+    }
+
+    public function test_a_friends_waiting_invite_shows_at_the_top_with_a_one_tap_join(): void
+    {
+        $session = PairPracticeSession::factory()->waiting()->create();
+        [$starter, $friend] = $session->players();
+
+        $this->actingAs($friend);
+        Livewire::test('friends.index')
+            ->assertSee($starter->name.' is waiting for you')
+            ->assertSeeHtml(e(route('pair-practice.show', ['session' => $session, 'join' => 1])));
+
+        $this->actingAs($starter);
+        Livewire::test('friends.index')->assertSee('Waiting for '.$friend->name.'…');
     }
 
     public function test_following_someone_queues_a_pending_request_not_an_instant_follow(): void

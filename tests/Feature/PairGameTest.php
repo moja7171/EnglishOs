@@ -1,0 +1,405 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Evidence;
+use App\Models\Mission;
+use App\Models\MissionRun;
+use App\Models\PairGame;
+use App\Models\User;
+use App\Models\VoiceFeedback;
+use App\Notifications\PairGameInvite;
+use App\Services\GeminiClient;
+use App\Services\GroqClient;
+use App\Services\TabooDeck;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class PairGameTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Bonus words for notebook words are asked of the AI after the response.
+        Http::fake();
+    }
+
+    private function makeMission(string $code, array $words): Mission
+    {
+        return Mission::create([
+            'code' => $code,
+            'title' => 'Mission '.$code,
+            'module' => 'Me',
+            'outcome' => 'I can talk.',
+            'phases' => [['phase' => 'foundation', 'label' => 'Day 1', 'steps' => [
+                ['key' => 'vocabulary_builder_'.$code, 'words' => collect($words)->map(fn (string $word) => ['phrase' => $word, 'meaning_fa' => 'معنی '.$word])->all()],
+            ]]],
+        ]);
+    }
+
+    private function makeMutualFriend(User $me): User
+    {
+        $friend = User::factory()->create();
+        $me->follow($friend);
+        $friend->acceptFollowRequest($me);
+
+        return $friend;
+    }
+
+    private function finishDayOne(User $user, Mission $mission): void
+    {
+        $run = MissionRun::findOrStart($user, $mission);
+
+        foreach ($mission->phases[0]['steps'] as $step) {
+            Evidence::create(['mission_run_id' => $run->id, 'phase' => $step['key'], 'type' => Evidence::TYPE_TEXT, 'content_ref' => '[]']);
+        }
+    }
+
+    /**
+     * A joined game whose first turn (explained by user A) is running.
+     */
+    private function playingGame(array $attributes = []): PairGame
+    {
+        $pairGame = PairGame::factory()->create($attributes);
+        $pairGame->startTurn($pairGame->startedBy);
+
+        return $pairGame->refresh();
+    }
+
+    public function test_the_games_page_shows_every_game_and_only_taboo_can_be_opened(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('games.index'))
+            ->assertOk()
+            ->assertSee('Taboo')
+            ->assertSee('Would You Rather')
+            ->assertSee('Soon')
+            ->assertSee(route('games.setup', 'taboo'), false)
+            ->assertDontSee(route('games.setup', 'who-am-i'), false);
+
+        $this->get(route('games.setup', 'who-am-i'))->assertNotFound();
+    }
+
+    public function test_inviting_a_friend_creates_a_waiting_game_and_notifies_them(): void
+    {
+        Notification::fake();
+        $this->makeMission('M01', ['wake up', 'commute']);
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+
+        $this->actingAs($me);
+        Livewire::test('games.setup', ['game' => 'taboo'])
+            ->assertSee('Invite '.$friend->name.' · Play')
+            ->set('minutes', 10)
+            ->call('play')
+            ->assertRedirect(route('games.play', PairGame::sole()));
+
+        $pairGame = PairGame::sole();
+        $this->assertTrue($pairGame->isWaiting());
+        $this->assertSame(10, $pairGame->minutes);
+        // Two newcomers with no finished day yet play M01 Day 1's words.
+        $this->assertEqualsCanonicalizing(['wake up', 'commute'], collect($pairGame->deck)->pluck('word')->all());
+        Notification::assertSentTo($friend, PairGameInvite::class);
+    }
+
+    public function test_only_a_mutual_friend_can_be_invited(): void
+    {
+        $stranger = User::factory()->create();
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('games.setup', ['game' => 'taboo'])
+            ->set('friend', $stranger->id)
+            ->call('play')
+            ->assertForbidden();
+
+        $this->assertSame(0, PairGame::count());
+    }
+
+    public function test_beginners_get_longer_turns_and_free_skips_and_the_newer_learner_sets_the_level(): void
+    {
+        $m02 = $this->makeMission('M02', ['commute']);
+        $m06 = $this->makeMission('M06', ['fluent']);
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        $deck = app(TabooDeck::class);
+        MissionRun::findOrStart($me, $m06);
+        MissionRun::findOrStart($friend, $m02);
+
+        $beginner = $deck->rulesFor($me, $friend, 5);
+        $this->assertSame(TabooDeck::BEGINNER_TURN_SECONDS, $beginner['turn_seconds']);
+        $this->assertNull($beginner['skips']);
+        $this->assertFalse($beginner['bonus']);
+        $this->assertSame(0, $beginner['turns'] % 2);
+
+        $other = User::factory()->create();
+        MissionRun::findOrStart($other, $m06);
+        $later = $deck->rulesFor($me, $other, 5);
+        $this->assertSame(TabooDeck::TURN_SECONDS, $later['turn_seconds']);
+        $this->assertSame(TabooDeck::SKIPS_PER_TURN, $later['skips']);
+        $this->assertTrue($later['bonus']);
+        $this->assertGreaterThan($later['turns'], $deck->rulesFor($me, $other, 10)['turns']);
+    }
+
+    public function test_cards_come_from_shared_mission_days_and_both_notebooks_with_written_bonus_words(): void
+    {
+        $mission = $this->makeMission('M06', ['fluent', 'accent']);
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        $this->finishDayOne($me, $mission);
+        $this->finishDayOne($friend, $mission);
+        $me->vocabularyWords()->create(['word' => 'umbrella', 'next_review_at' => now()]);
+        $friend->vocabularyWords()->create(['word' => 'a whole sentence that is far too long for a card', 'next_review_at' => now()]);
+
+        $cards = collect(app(TabooDeck::class)->cardsFor($me, $friend, ['turns' => 2, 'bonus' => true]))->keyBy('word');
+
+        $this->assertEqualsCanonicalizing(['fluent', 'accent', 'umbrella'], $cards->keys()->all());
+        $this->assertSame(config('taboo_bonus.fluent'), $cards['fluent']['bonus']);
+        $this->assertSame('M06 · Mission M06', $cards['fluent']['source']);
+        $this->assertSame('Notebook', $cards['umbrella']['source']);
+    }
+
+    public function test_the_invited_friend_joins_in_one_tap_from_the_invite(): void
+    {
+        $pairGame = PairGame::factory()->waiting()->create();
+        [$starter, $friend] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+        $friend->notify(new PairGameInvite($pairGame, $starter));
+
+        $this->actingAs($starter)->get(route('games.play', ['pairGame' => $pairGame, 'join' => 1]))->assertOk();
+        $this->assertTrue($pairGame->refresh()->isWaiting());
+
+        $this->actingAs($friend)->get(route('games.play', ['pairGame' => $pairGame, 'join' => 1]))->assertOk();
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->refresh()->stage);
+        $this->assertSame(0, $friend->unreadNotifications()->count());
+
+        $this->actingAs(User::factory()->create())->get(route('games.play', $pairGame))->assertForbidden();
+    }
+
+    public function test_only_the_explainer_sees_the_card_and_scores_it(): void
+    {
+        $pairGame = $this->playingGame();
+        [$explainer, $guesser] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $this->actingAs($guesser);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('Only '.$explainer->name.' sees the card')
+            ->assertDontSee('breakfast')
+            ->call('got', 0);
+        $this->assertSame(0, $pairGame->refresh()->score);
+
+        $this->actingAs($explainer);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('breakfast')
+            ->assertSee('Don’t say: morning · eat')
+            ->call('got', 0)
+            ->call('got', 0);
+
+        // One word plus its kept bonus; the stale second tap changed nothing.
+        $this->assertSame(PairGame::POINTS_WORD + PairGame::POINTS_BONUS, $pairGame->refresh()->score);
+        $this->assertSame('kitchen', $pairGame->currentCard()['word']);
+    }
+
+    public function test_the_first_letter_halves_a_word_and_a_bonus_word_said_loses_the_bonus(): void
+    {
+        $pairGame = $this->playingGame();
+        $explainer = $pairGame->startedBy;
+
+        $this->actingAs($explainer);
+        $component = Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->call('showLetter', 0)
+            ->call('bonusSaid', 0);
+
+        $this->actingAs($pairGame->partnerFor($explainer));
+        Livewire::test('games.play', ['pairGame' => $pairGame->refresh()])->assertSee('b _ _ _ _ _ _ _ _');
+
+        $this->actingAs($explainer);
+        $component->call('got', 0);
+
+        $this->assertSame(PairGame::POINTS_WITH_LETTER, $pairGame->refresh()->score);
+        $this->assertSame('½', PairGame::formatPoints($pairGame->score));
+    }
+
+    public function test_skips_run_out_after_the_turns_limit(): void
+    {
+        $pairGame = $this->playingGame();
+        $explainer = $pairGame->startedBy;
+
+        foreach (range(0, 2) as $seen) {
+            $pairGame->refresh()->scoreCard($explainer, PairGame::RESULT_SKIP, $seen);
+        }
+
+        $this->assertCount(2, $pairGame->refresh()->currentTurn()['cards']);
+        $this->assertSame(0, $pairGame->skipsLeft());
+    }
+
+    public function test_time_up_ends_the_turn_and_the_two_swap_until_the_last_turn_ends_the_game(): void
+    {
+        $pairGame = $this->playingGame(['rules' => ['turn_seconds' => 60, 'turns' => 2, 'skips' => null, 'bonus' => false, 'starters' => 3, 'level' => 2]]);
+        [$first, $second] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $pairGame->timeUp(0);
+        $this->assertTrue($pairGame->refresh()->isPlaying(), 'An early call closes nothing.');
+
+        $this->travel(61)->seconds();
+        $pairGame->timeUp(0);
+        $pairGame->refresh();
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertTrue($pairGame->explainer()->is($second));
+        $this->assertSame(['breakfast'], $pairGame->missedWords());
+
+        $pairGame->startTurn($first);
+        $this->assertFalse($pairGame->refresh()->isPlaying(), 'Only the next explainer starts the turn.');
+        $pairGame->startTurn($second);
+        $this->assertSame('kitchen', $pairGame->refresh()->currentCard()['word']);
+        $pairGame->scoreCard($second, PairGame::RESULT_GOT, 0);
+
+        $this->travel(61)->seconds();
+        $pairGame->refresh()->timeUp(1);
+
+        $this->assertTrue($pairGame->refresh()->isFinished());
+        $this->assertSame(1, $pairGame->guessedWhileExplaining($second));
+        $this->assertSame(0, $pairGame->guessedWhileExplaining($first));
+    }
+
+    public function test_the_result_shows_the_team_score_a_new_record_and_the_missed_words(): void
+    {
+        $pairGame = $this->playingGame();
+        $explainer = $pairGame->startedBy;
+        PairGame::factory()->create([
+            'user_a_id' => $pairGame->user_a_id,
+            'user_b_id' => $pairGame->user_b_id,
+            'started_by_id' => $pairGame->user_a_id,
+            'stage' => PairGame::STAGE_DONE,
+            'score' => 2,
+            'finished_at' => now()->subDay(),
+        ]);
+
+        $pairGame->scoreCard($explainer, PairGame::RESULT_GOT, 0);
+        $pairGame->refresh()->scoreCard($explainer, PairGame::RESULT_SKIP, 1);
+        $pairGame->refresh()->endEarly($explainer);
+
+        $this->actingAs($explainer);
+        Livewire::test('games.play', ['pairGame' => $pairGame->refresh()])
+            ->assertSee('NEW RECORD!')
+            ->assertSee('points together · best was 1')
+            ->assertSee('Missed words')
+            ->assertSee('kitchen');
+    }
+
+    public function test_a_game_ended_before_any_card_does_not_count(): void
+    {
+        $pairGame = $this->playingGame();
+
+        $pairGame->endEarly($pairGame->startedBy);
+
+        $this->assertTrue($pairGame->refresh()->isCancelled());
+        $this->assertNull($pairGame->previousBest());
+    }
+
+    public function test_a_live_game_invite_stays_up_and_shows_on_the_friends_page_until_joined(): void
+    {
+        $pairGame = PairGame::factory()->waiting()->create();
+        [$starter, $friend] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+        $friend->notify(new PairGameInvite($pairGame, $starter));
+
+        $this->actingAs($friend);
+        Livewire::test('notifications.bell')
+            ->call('checkNew')
+            ->assertDispatched('notification-banner', fn (string $event, array $params) => $params['items'][0]['urgent'] === true);
+        Livewire::test('friends.index')
+            ->assertSee($starter->name.' is waiting for you')
+            ->assertSeeHtml(e(route('games.play', ['pairGame' => $pairGame, 'join' => 1])));
+
+        $pairGame->join($friend);
+
+        Livewire::test('notifications.bell')->call('checkNew')->assertNotDispatched('notification-banner');
+        $this->assertSame(0, $friend->unreadNotifications()->count());
+    }
+
+    public function test_my_explaining_turn_is_kept_with_its_transcript_and_the_words_of_the_turn(): void
+    {
+        Storage::fake('local');
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('You eat it in morning before you go work.'));
+        $pairGame = $this->playingGame();
+        [$explainer, $guesser] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+        $pairGame->scoreCard($explainer, PairGame::RESULT_GOT, 0);
+        $clip = fn () => UploadedFile::fake()->create('turn-0.webm', 40, 'audio/webm');
+
+        // The guesser's phone never keeps a piece of a turn it did not explain.
+        $this->actingAs($guesser);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+        $this->assertNull(VoiceFeedback::existingFor($guesser, $pairGame));
+
+        $this->actingAs($explainer);
+        $component = Livewire::test('games.play', ['pairGame' => $pairGame]);
+        $component->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+        // Sent twice on a weak connection: kept once.
+        $component->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+
+        $voice = VoiceFeedback::existingFor($explainer, $pairGame);
+        $this->assertCount(1, $voice->clips);
+        $this->assertSame('Turn 1 · you explained: breakfast', $voice->clips[0]['label']);
+        $this->assertSame('You eat it in morning before you go work.', $voice->clips[0]['transcript']);
+        Storage::disk('local')->assertExists($voice->clips[0]['path']);
+
+        $this->actingAs($guesser)->get(route('voice-feedback.clip', ['voiceFeedback' => $voice, 'clip' => 0]))->assertForbidden();
+        $this->actingAs($explainer)->get(route('voice-feedback.clip', ['voiceFeedback' => $voice, 'clip' => 0]))->assertOk();
+    }
+
+    public function test_after_the_game_my_sentences_get_feedback_once(): void
+    {
+        $pairGame = PairGame::factory()->create(['stage' => PairGame::STAGE_DONE, 'finished_at' => now(), 'score' => 2]);
+        $me = $pairGame->startedBy;
+        $voice = VoiceFeedback::for($me, $pairGame);
+        $voice->update(['clips' => [['part' => 'turn-0', 'label' => 'Turn 1 · you explained: breakfast', 'path' => 'x.webm', 'transcript' => 'You eat it in morning before you go work.']]]);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'summary' => 'خوب توضیح دادی.',
+            'severity' => 'minor',
+            'sentences' => [['original' => 'You eat it in morning before you go work.', 'status' => 'fix', 'corrected' => 'You eat it in the morning before you go to work.', 'why' => 'the morning · go to work', 'answer' => 1]],
+            'positives' => [],
+            'negatives' => [],
+        ])));
+
+        $this->actingAs($me);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('Checking your sentences…')
+            ->call('checkMyVoice')
+            ->call('checkMyVoice')
+            ->assertSee('Your sentences')
+            ->assertSee('You eat it in the morning before you go to work.');
+
+        $this->assertSame(VoiceFeedback::STATUS_READY, $voice->refresh()->status);
+    }
+
+    public function test_too_little_said_gives_no_feedback_call(): void
+    {
+        $pairGame = PairGame::factory()->create(['stage' => PairGame::STAGE_DONE, 'finished_at' => now()]);
+        $me = $pairGame->startedBy;
+        VoiceFeedback::for($me, $pairGame)->update(['clips' => [['part' => 'turn-0', 'label' => 'Turn 1', 'path' => 'x.webm', 'transcript' => 'yes no']]]);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $this->actingAs($me);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->call('checkMyVoice')
+            ->assertSee('Not enough was recorded to check this time.');
+    }
+
+    public function test_the_feedback_switch_is_on_by_default_and_remembered(): void
+    {
+        $me = User::factory()->create();
+        $this->assertTrue($me->refresh()->game_voice_feedback);
+
+        $this->actingAs($me);
+        Livewire::test('games.setup', ['game' => 'taboo'])->call('setVoiceFeedback', false);
+
+        $this->assertFalse($me->refresh()->game_voice_feedback);
+    }
+}

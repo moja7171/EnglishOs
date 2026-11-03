@@ -6,8 +6,11 @@
     - on a focus screen (<body data-no-interrupt>: a mission step, a Pair
       Practice round, shadowing) it waits until the learner leaves it,
       except a live Pair Practice invite;
-    - an alert about the page already on screen is never shown;
-    - each one shown is reported back, which marks it read.
+    - an alert about the page already on screen is never shown, and one
+      still up closes once its page is opened some other way;
+    - each one shown is reported back, which marks it read — except a
+      live Pair Practice invite, which stays up until it expires and stays
+      unread until the round is joined (the bell decides that).
     A card that drops in — the friend's avatar (or the alert's icon) and one
     short line, a thin bar running down the time it stays. A tap opens it, a
     swipe up (or Esc) dismisses it, a touch pauses it; only a live Pair
@@ -48,14 +51,16 @@
                 return;
             }
             const item = this.queue.splice(index, 1)[0];
-            Livewire.dispatch('notification-shown', { id: item.id });
+            if (! item.urgent) {
+                Livewire.dispatch('notification-shown', { id: item.id });
+            }
             if (new URL(item.url, location.origin).pathname === location.pathname) {
                 this.next();
                 return;
             }
             this.current = item;
             this.dragY = 0;
-            this.duration = item.urgent ? 15000 : 6000;
+            this.duration = item.urgent ? Math.max(15000, item.staysMs ?? 0) : 6000;
             navigator.vibrate?.(item.urgent ? [80, 60, 80] : 40);
             this.run(this.duration);
         },
@@ -105,7 +110,7 @@
         },
     }"
     x-on:notification-banner.window="add($event.detail.items)"
-    x-on:livewire:navigated.document="next()"
+    x-on:livewire:navigated.document="if (current && new URL(current.url, location.origin).pathname === location.pathname) { close(); } else { next(); }"
     class="pointer-events-none fixed inset-x-0 top-0 z-[80] flex justify-center px-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]"
 >
     <template x-if="current">

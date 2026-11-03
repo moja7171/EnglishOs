@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\ChecksGameVoice;
 use App\Models\PairPracticeSession;
 use App\Notifications\PairPracticeInvite;
 use App\Services\PairPractice;
@@ -8,14 +9,31 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use ChecksGameVoice;
+
     public PairPracticeSession $session;
 
     /** @var list<string> Speaking: target words the asker heard. */
     public array $heardWords = [];
 
+    /**
+     * Opened from an invite's Join (?join=1), the invited friend is in the
+     * round with that one tap — no second Join on the waiting screen. The
+     * invite has done its job once its round is open on their phone.
+     */
     public function mount(PairPracticeSession $session): void
     {
         abort_unless($session->isAccessibleBy(auth()->user()), 403);
+
+        if (request()->boolean('join')) {
+            $session->joinWithLock(auth()->user());
+        }
+
+        auth()->user()->unreadNotifications()
+            ->where('type', PairPracticeInvite::class)
+            ->get()
+            ->filter(fn ($notification) => ($notification->data['session_id'] ?? null) === $session->id)
+            ->each->markAsRead();
 
         $this->session = $session;
     }
@@ -62,8 +80,9 @@ new class extends Component
     }
 
     /**
-     * The judge scores a game card: the guesser got the word (Taboo), the
-     * two reached their goals (role-play), or found the lie (two truths).
+     * A game card is scored: the guesser got the word (Taboo — tapped by
+     * the one explaining, the only one who sees the word), the two reached
+     * their goals (role-play), or the judge found the lie (two truths).
      * The games are played as a team, so a win scores for both — except a
      * lie nobody found, which is the speaker's.
      */
@@ -72,7 +91,9 @@ new class extends Component
         $this->authorizePlayer();
 
         $this->withLockedSession(function (PairPracticeSession $session) use ($success, $card) {
-            if (! $this->canScore($session, $card) || $session->stage !== PairPracticeSession::STAGE_GAME) {
+            $isTaboo = ($session->currentCard()['type'] ?? null) === PairPracticeSession::GAME_TABOO;
+
+            if (! $this->canScore($session, $card, scoredBySpeaker: $isTaboo) || $session->stage !== PairPracticeSession::STAGE_GAME) {
                 return;
             }
 
@@ -162,6 +183,8 @@ new class extends Component
             $friend->notify(new PairPracticeInvite($next, $me));
         }
 
+        $next?->joinWithLock($me);
+
         if ($next) {
             $this->redirectRoute('pair-practice.show', $next, navigate: true);
         }
@@ -178,11 +201,83 @@ new class extends Component
     }
 
     /**
-     * Only the current judge scores, and only the card they were shown.
+     * The card on which this phone's owner speaks — a Speaking question or
+     * a game card where they are the speaker — as a recording "part"
+     * ("speaking-2"), or '' when they listen. A sound-duel card is one
+     * word: nothing to give feedback on.
      */
-    private function canScore(PairPracticeSession $session, int $card): bool
+    public function voicePart(): string
     {
-        return $session->judge()->is(auth()->user()) && count($session->results ?? []) === $card;
+        $session = $this->session;
+        $card = $session->currentCard();
+
+        if ($card === null || ! in_array($session->stage, [PairPracticeSession::STAGE_SPEAKING, PairPracticeSession::STAGE_GAME], true)
+            || ($card['type'] ?? null) === PairPracticeSession::GAME_MINIMAL || ! $session->speaker()->is(auth()->user())) {
+            return '';
+        }
+
+        return $session->stage.'-'.$session->positionInStage();
+    }
+
+    /**
+     * Keeps one piece of my voice — a card I spoke on. Its label is the
+     * card, read from the deck here, not sent by the phone.
+     */
+    public function saveVoiceClip(string $part): void
+    {
+        $this->authorizePlayer();
+
+        [$stage, $position] = array_pad(explode('-', $part, 2), 2, null);
+        $session = $this->session->refresh();
+        $card = $session->deck[$stage][(int) $position] ?? null;
+        $result = collect($session->results ?? [])->first(fn (array $result) => $result['stage'] === $stage && $result['card'] === (int) $position);
+
+        if (! in_array($stage, [PairPracticeSession::STAGE_SPEAKING, PairPracticeSession::STAGE_GAME], true) || $card === null
+            || ($result !== null && $result['speaker_id'] !== auth()->id())) {
+            $this->voiceClip = null;
+
+            return;
+        }
+
+        $label = match ($card['type'] ?? null) {
+            'talk' => 'Talk using: '.implode(', ', $card['words'] ?? []),
+            PairPracticeSession::GAME_TABOO => 'Taboo · you explained: '.$card['word'],
+            PairPracticeSession::GAME_ROLE => 'Role-play · '.$card['scene'],
+            PairPracticeSession::GAME_TRUTHS => 'Two truths, one lie · '.$card['topic'],
+            default => $card['question'] ?? 'Speaking',
+        };
+
+        $this->keepVoiceClip($session, $part, $label);
+    }
+
+    /**
+     * Once the round is over and every piece is sent: the sentence-by-
+     * sentence feedback on what I said (once).
+     */
+    public function checkMyVoice(): void
+    {
+        $this->authorizePlayer();
+
+        if (! $this->session->refresh()->isFinished()) {
+            return;
+        }
+
+        $this->checkVoice(
+            $this->session,
+            situation: 'These are a learner\'s spoken answers in a Pair Practice round with a friend, transcribed by speech-to-text: answers to speaking questions and their turns in a short game (the question or card is given). All the text is the learner\'s.',
+            guidance: 'Judge grammar and word choice. The friend\'s short replies ("yes", "why?", guesses) may appear in the transcript — ignore them. In Taboo the learner must not say the hidden word — never criticise them for not saying it.',
+        );
+    }
+
+    /**
+     * Only the current judge scores (the speaker, for a card only the
+     * speaker can check), and only the card they were shown.
+     */
+    private function canScore(PairPracticeSession $session, int $card, bool $scoredBySpeaker = false): bool
+    {
+        $scorer = $scoredBySpeaker ? $session->speaker() : $session->judge();
+
+        return $scorer->is(auth()->user()) && count($session->results ?? []) === $card;
     }
 
     /**
@@ -222,6 +317,13 @@ new class extends Component
 @endphp
 
 <div class="mx-auto max-w-xl space-y-4 p-4 sm:p-6" @unless ($session->isCancelled()) wire:poll.{{ $session->isFinished() ? '4s' : '2s' }} @endunless>
+    {{-- Tells this phone's recorder whether its owner is speaking right now. --}}
+    @php
+        $voiceOn = (bool) $me->game_voice_feedback;
+        $voicePart = $session->isFinished() || $session->isCancelled() || $session->isWaiting() ? '' : $this->voicePart();
+    @endphp
+    <span hidden wire:key="voice-{{ $voicePart }}-{{ (int) $voiceOn }}" x-data x-init="window.eosGameVoice?.sync($wire, @js($voiceOn), @js($voicePart), null); @js($voiceOn && $session->isWaiting()) && window.eosGameVoice?.warmUp()"></span>
+
     @if ($session->isCancelled())
         @php
             $endedBy = $session->endedBy;
@@ -238,12 +340,19 @@ new class extends Component
         </div>
     @elseif ($session->isFinished())
         @php
-            [$first, $second] = $session->players();
             $friend = $session->partnerFor($me);
             $myWords = collect($session->missedWordsFor($me))->pluck('answer')->concat($session->unusedWordsFor($me))->unique()->values();
             $mySentences = $session->missedSentencesFor($me);
             $next = $this->nextRound();
             $together = app(PairPractice::class)->together($me, $friend);
+            $gameSummary = $session->gameSummary();
+            $gameWonLabel = match ($gameSummary['game'] ?? null) {
+                PairPracticeSession::GAME_TABOO => 'guessed',
+                PairPracticeSession::GAME_MINIMAL => 'heard right',
+                PairPracticeSession::GAME_ROLE => 'goals reached',
+                PairPracticeSession::GAME_TRUTHS => 'lies found',
+                default => '',
+            };
         @endphp
 
         <div class="card space-y-5 p-6 text-center">
@@ -262,17 +371,19 @@ new class extends Component
                 @endif
             </div>
 
-            <div class="flex items-center justify-center gap-6">
-                @foreach ([$first, $second] as $player)
-                    <div wire:key="score-{{ $player->id }}" class="min-w-0">
-                        <p class="font-display text-4xl font-extrabold text-accent-ink tabular-nums dark:text-accent-ink-dark">{{ $session->scoreFor($player) }}</p>
-                        <p class="truncate text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }}</p>
-                    </div>
-                    @if ($loop->first)
-                        <span class="text-ink-faint dark:text-ink-faint-dark" aria-hidden="true">·</span>
-                    @endif
-                @endforeach
+            {{-- One team score: the two played together, not against each other. --}}
+            <div>
+                <p class="font-display text-5xl font-extrabold text-accent-ink tabular-nums dark:text-accent-ink-dark">{{ $session->teamScore() }}</p>
+                <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">points together</p>
             </div>
+
+            @if ($gameSummary)
+                <div class="flex items-center gap-3 rounded-xl bg-accent-soft px-4 py-3 text-start dark:bg-accent-soft-dark">
+                    <span class="text-2xl" aria-hidden="true">🎲</span>
+                    <p class="min-w-0 flex-1 text-sm font-bold text-ink dark:text-ink-dark">{{ $gameInfo['label'] }}</p>
+                    <p class="shrink-0 text-sm font-extrabold text-accent-ink tabular-nums dark:text-accent-ink-dark">{{ $gameSummary['won'] }} / {{ $gameSummary['played'] }} {{ $gameWonLabel }}</p>
+                </div>
+            @endif
 
             @if ($myWords->isNotEmpty() || $mySentences !== [])
                 <div class="space-y-2 rounded-xl bg-surface-sunken p-4 text-start dark:bg-surface-sunken-dark">
@@ -286,8 +397,27 @@ new class extends Component
                 </div>
             @endif
 
+            @php $voice = App\Models\VoiceFeedback::existingFor($me, $session); @endphp
+            @if ($voice)
+                <section class="space-y-2.5 text-start">
+                    <h2 class="font-display text-lg font-extrabold text-ink dark:text-ink-dark">Your sentences</h2>
+                    @if (! $voice->isDone())
+                        <div wire:key="voice-checking-{{ $voice->id }}" x-data x-init="window.eosGameVoice ? window.eosGameVoice.whenIdle(() => $wire.checkMyVoice()) : $wire.checkMyVoice()" class="flex items-center gap-3 rounded-2xl bg-surface-sunken px-4 py-3 dark:bg-surface-sunken-dark">
+                            <span class="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-accent border-t-transparent dark:border-accent-dark dark:border-t-transparent"></span>
+                            <span class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Checking your sentences…</span>
+                        </div>
+                    @elseif ($voice->status === App\Models\VoiceFeedback::STATUS_READY)
+                        <x-learner-feedback :feedback="$voice->feedback" :answers="$voice->answers()" />
+                    @elseif ($voice->status === App\Models\VoiceFeedback::STATUS_EMPTY)
+                        <p class="rounded-2xl bg-surface-sunken px-4 py-3 text-sm font-semibold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">Not enough was recorded to check this time.</p>
+                    @else
+                        <p class="rounded-2xl bg-surface-sunken px-4 py-3 text-sm font-semibold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $voice->error ?: 'Couldn’t check your sentences this time.' }}</p>
+                    @endif
+                </section>
+            @endif
+
             <div class="space-y-2">
-                <button type="button" wire:click="anotherRound" wire:loading.attr="disabled" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">
+                <button type="button" wire:click="anotherRound" wire:loading.attr="disabled" wire:target="anotherRound" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">
                     {{ $next && $next->started_by_id !== $me->id ? 'Join '.$friend->name.'’s next round' : 'Another round' }}
                 </button>
                 <a href="{{ route('pair-practice.index') }}" wire:navigate class="block py-1 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Done</a>
@@ -324,9 +454,10 @@ new class extends Component
                 </div>
 
                 @unless ($isStarter)
-                    <button type="button" wire:click="join" wire:loading.attr="disabled" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">Join</button>
+                    <button type="button" wire:click="join" wire:loading.attr="disabled" wire:target="join" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">Join</button>
                 @endunless
 
+                @include('components.games.partials.voice-switch')
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
             </div>
 
@@ -363,12 +494,11 @@ new class extends Component
             $stageKeys = array_keys($stages);
             $stageIndex = array_search($stage, $stageKeys, true);
             $stageProgress = $session->cardsInStage() > 0 ? $session->positionInStage() / $session->cardsInStage() : 0;
-            $stageElapsed = $session->stage_ends_at ? PairPracticeSession::STAGE_SECONDS[$stage] - now()->diffInSeconds($session->stage_ends_at, false) : 0;
+            $introLeftMs = $session->introMillisecondsLeft();
             $lastResult = collect($session->results ?? [])->last();
             $revealCard = $lastResult && now()->getTimestamp() - ($lastResult['at'] ?? 0) <= PairPracticeSession::REVEAL_WINDOW_SECONDS
                 ? ($session->deck[$lastResult['stage']][$lastResult['card']] ?? null)
                 : null;
-            $revealDelayMs = $revealCard && $lastResult['stage'] !== $stage ? PairPracticeSession::REVEAL_MILLISECONDS : 0;
         @endphp
 
         {{-- Like a lesson: ✕, one bar per part (Words · Grammar · Speaking · Game), the part's timer — the app's top bar steps aside. --}}
@@ -399,7 +529,7 @@ new class extends Component
                             clearInterval(this.timer);
                         },
                         tick() {
-                            this.left = Math.max(0, Math.round((this.endsAt - Date.now()) / 1000));
+                            this.left = Math.min({{ PairPracticeSession::STAGE_SECONDS[$stage] ?? 0 }}, Math.max(0, Math.round((this.endsAt - Date.now()) / 1000)));
                             if (this.left > 0 && this.left <= 15 && ! this.warned) { this.warned = true; navigator.vibrate?.(200); }
                             if (this.left === 0 && ! this.fired) { this.fired = true; this.$wire.timeUp(@js($stage)); }
                         },
@@ -411,12 +541,13 @@ new class extends Component
             </div>
         </header>
 
-        @if ($stageElapsed < 2 + $revealDelayMs / 1000)
-            {{-- A short "Part 2 of 4" card as each stage opens — after the last card's result. --}}
+        @if ($introLeftMs > 0)
+            {{-- A short "Part 2 of 4" card as each stage opens — after the last card's result. The part's clock waits for it. --}}
+            @php $showIntroInMs = max(0, $introLeftMs - PairPracticeSession::INTRO_SECONDS * 1000); @endphp
             <div
                 wire:key="intro-{{ $stage }}"
-                x-data="{ show: @js($revealDelayMs === 0) }"
-                x-init="setTimeout(() => show = true, {{ max(0, $revealDelayMs - (int) ($stageElapsed * 1000)) }}); setTimeout(() => show = false, {{ max(0, (int) ((2 - $stageElapsed) * 1000) + $revealDelayMs) }})"
+                x-data="{ show: @js($showIntroInMs === 0) }"
+                x-init="setTimeout(() => show = true, {{ $showIntroInMs }}); setTimeout(() => show = false, {{ $introLeftMs }})"
                 x-show="show"
                 x-transition.opacity.duration.300ms
                 class="fixed inset-0 z-[60] flex items-center justify-center bg-ground/95 p-6 dark:bg-ground-dark/95"
@@ -483,7 +614,7 @@ new class extends Component
                         <p class="mt-2 font-display text-2xl font-bold text-ink dark:text-ink-dark">{{ $revealCard['answer'] }}</p>
                     @endif
                     <p class="mt-4 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                        {{ $wasMyAnswer ? '' : 'Saved · ' }}🔄 {{ $isJudge ? 'Next: you listen' : 'Next: your turn' }}
+                        🔄 {{ $isJudge ? 'Next: you listen' : 'Next: your turn' }}
                     </p>
                 </button>
             @endif
@@ -511,7 +642,7 @@ new class extends Component
                     @elseif ($gameType === PairPracticeSession::GAME_TABOO)
                         @if ($isJudge)
                             <p class="text-center font-display text-2xl font-bold text-ink dark:text-ink-dark">Guess the word!</p>
-                            <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">Ask “Is it…?” if you are not sure.</p>
+                            <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">Say your guess out loud. {{ $speaker->name }} taps when you get it.</p>
                         @else
                             <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Explain this word</p>
                             <p class="text-center font-display text-3xl font-bold text-ink dark:text-ink-dark">{{ $card['word'] }}</p>
@@ -609,14 +740,14 @@ new class extends Component
             </div>
 
             @if ($isJudge && $stage === PairPracticeSession::STAGE_SPEAKING)
-                <button type="button" wire:click="nextQuestion({{ $answered }})" wire:loading.attr="disabled" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">Next · swap</button>
+                <button type="button" wire:click="nextQuestion({{ $answered }})" wire:loading.attr="disabled" wire:target="nextQuestion" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">Next · swap</button>
             @elseif ($isJudge && $gameType === PairPracticeSession::GAME_MINIMAL)
                 <div class="grid grid-cols-2 gap-2">
                     @foreach ($card['options'] as $option)
-                        <button type="button" wire:key="option-{{ $answered }}-{{ $loop->index }}" wire:click="pickWord(@js($option), {{ $answered }})" wire:loading.attr="disabled" class="cursor-pointer rounded-full border border-line px-4 py-3 font-display text-lg font-bold text-ink hover:bg-surface-sunken disabled:opacity-50 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark">{{ $option }}</button>
+                        <button type="button" wire:key="option-{{ $answered }}-{{ $loop->index }}" wire:click="pickWord(@js($option), {{ $answered }})" wire:loading.attr="disabled" wire:target="pickWord" class="cursor-pointer rounded-full border border-line px-4 py-3 font-display text-lg font-bold text-ink hover:bg-surface-sunken disabled:opacity-50 dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark">{{ $option }}</button>
                     @endforeach
                 </div>
-            @elseif ($isJudge && $isGame)
+            @elseif ($isGame && ($gameType === PairPracticeSession::GAME_TABOO ? ! $isJudge : $isJudge))
                 @php
                     [$noLabel, $yesLabel] = match ($gameType) {
                         PairPracticeSession::GAME_TABOO => ['✗ Skip', '✓ Got it'],
@@ -625,15 +756,15 @@ new class extends Component
                     };
                 @endphp
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button" wire:click="playGame(false, {{ $answered }})" wire:loading.attr="disabled" class="cursor-pointer rounded-full border border-line px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-surface-sunken disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">{{ $noLabel }}</button>
-                    <button type="button" wire:click="playGame(true, {{ $answered }})" wire:loading.attr="disabled" class="cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">{{ $yesLabel }}</button>
+                    <button type="button" wire:click="playGame(false, {{ $answered }})" wire:loading.attr="disabled" wire:target="playGame" class="cursor-pointer rounded-full border border-line px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-surface-sunken disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">{{ $noLabel }}</button>
+                    <button type="button" wire:click="playGame(true, {{ $answered }})" wire:loading.attr="disabled" wire:target="playGame" class="cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">{{ $yesLabel }}</button>
                 </div>
-            @elseif ($isJudge)
+            @elseif ($isJudge && ! $isGame)
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button" wire:click="judge(false, {{ $answered }})" wire:loading.attr="disabled" class="cursor-pointer rounded-full border border-line px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-surface-sunken disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">✗ Not yet</button>
-                    <button type="button" wire:click="judge(true, {{ $answered }})" wire:loading.attr="disabled" class="cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">✓ Right</button>
+                    <button type="button" wire:click="judge(false, {{ $answered }})" wire:loading.attr="disabled" wire:target="judge" class="cursor-pointer rounded-full border border-line px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-surface-sunken disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">✗ Not yet</button>
+                    <button type="button" wire:click="judge(true, {{ $answered }})" wire:loading.attr="disabled" wire:target="judge" class="cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">✓ Right</button>
                 </div>
-            @else
+            @elseif (! $isJudge)
                 <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">{{ $gameType === PairPracticeSession::GAME_ROLE ? 'Talk it through — '.$judge->name.' taps when you are done' : $judge->name.' checks on their phone' }}</p>
             @endif
 
@@ -668,7 +799,7 @@ new class extends Component
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" x-on:click="confirming = false" class="cursor-pointer rounded-full border border-line px-4 py-3 text-sm font-semibold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">Keep going</button>
-                        <button type="button" wire:click="end" x-on:click="confirming = false" wire:loading.attr="disabled" class="cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">End</button>
+                        <button type="button" wire:click="end" x-on:click="confirming = false" wire:loading.attr="disabled" wire:target="end" class="cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">End</button>
                     </div>
                 </div>
             </div>

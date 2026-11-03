@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * One Pair Practice round: two friends, each on their own phone (side by
@@ -102,6 +103,13 @@ class PairPracticeSession extends Model
      * goes straight to the next card instead of replaying an old result.
      */
     public const REVEAL_WINDOW_SECONDS = 8;
+
+    /**
+     * How long the "Part 2 of 4" card covers the screen as a stage opens.
+     * The stage's clock waits for it (and for the last card's result,
+     * when one is still on screen), so no part loses its first seconds.
+     */
+    public const INTRO_SECONDS = 2;
 
     protected function casts(): array
     {
@@ -220,6 +228,24 @@ class PairPracticeSession extends Model
 
         $this->joined_at = now();
         $this->advanceStage();
+    }
+
+    /**
+     * join() under a row lock, for a tap that lands from outside the round
+     * (Join on an invite banner, the Friends page or "Join next round"):
+     * a no-op for the one who started it or an invite no longer open.
+     */
+    public function joinWithLock(User $user): void
+    {
+        if (! $this->isWaiting() || $user->id === $this->started_by_id) {
+            return;
+        }
+
+        DB::transaction(function () use ($user) {
+            $locked = self::lockForUpdate()->findOrFail($this->id);
+            $locked->join($user);
+            $this->setRawAttributes($locked->getAttributes(), true);
+        });
     }
 
     /**
@@ -384,10 +410,14 @@ class PairPracticeSession extends Model
         $next = array_search($this->stage, $stages, true);
         $next = $next === false ? 0 : $next + 1;
 
+        $lastResult = collect($this->results ?? [])->last();
+        $revealStillOn = $lastResult !== null && now()->getTimestamp() - ($lastResult['at'] ?? 0) <= self::REVEAL_WINDOW_SECONDS;
+        $leadSeconds = self::INTRO_SECONDS + ($revealStillOn ? (int) ceil(self::REVEAL_MILLISECONDS / 1000) : 0);
+
         foreach (array_slice($stages, $next) as $stage) {
             if (($this->deck[$stage] ?? []) !== []) {
                 $this->stage = $stage;
-                $this->stage_ends_at = now()->addSeconds(self::STAGE_SECONDS[$stage]);
+                $this->stage_ends_at = now()->addSeconds(self::STAGE_SECONDS[$stage] + $leadSeconds);
                 $this->save();
 
                 return;
@@ -502,6 +532,51 @@ class PairPracticeSession extends Model
     public function scoreFor(User $user): int
     {
         return $user->id === $this->user_a_id ? $this->score_a : $this->score_b;
+    }
+
+    /**
+     * The round is played as a team: both players' points together.
+     */
+    public function teamScore(): int
+    {
+        return $this->score_a + $this->score_b;
+    }
+
+    /**
+     * Milliseconds the stage's intro (and the result before it) still
+     * holds the clock: the stage's time box minus what is left of it.
+     */
+    public function introMillisecondsLeft(): int
+    {
+        if ($this->stage_ends_at === null || ! isset(self::STAGE_SECONDS[$this->stage])) {
+            return 0;
+        }
+
+        $left = $this->stage_ends_at->getTimestampMs() - now()->getTimestampMs();
+
+        return max(0, $left - self::STAGE_SECONDS[$this->stage] * 1000);
+    }
+
+    /**
+     * How the round's game went, for the result screen: the cards played
+     * and how many were won (a word guessed, a word heard right, a goal
+     * reached, a lie found). Null when no game card was played.
+     *
+     * @return array{game: string, played: int, won: int}|null
+     */
+    public function gameSummary(): ?array
+    {
+        $results = collect($this->results ?? [])->where('stage', self::STAGE_GAME);
+
+        if ($this->game() === null || $results->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'game' => $this->game(),
+            'played' => $results->count(),
+            'won' => $results->where('correct', true)->count(),
+        ];
     }
 
     /**

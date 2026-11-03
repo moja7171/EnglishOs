@@ -3,6 +3,7 @@
 use App\Models\AiUsageLog;
 use App\Models\ShadowDraft;
 use App\Models\StepDraft;
+use App\Models\VoiceFeedback;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -27,6 +28,9 @@ Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [StepDraft::c
     ->daily();
 Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [AiUsageLog::class]]))
     ->name('ai-usage-logs:prune')
+    ->daily();
+Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [VoiceFeedback::class]]))
+    ->name('voice-feedback:prune')
     ->daily();
 Schedule::call(fn () => Artisan::call('review:send-reminders'))
     ->name('review:send-reminders')

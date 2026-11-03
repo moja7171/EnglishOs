@@ -77,7 +77,8 @@ new class extends Component
     }
 
     /**
-     * Picks up the pair's open round (or joins the friend's invite), or
+     * Picks up the pair's open round (or joins the friend's invite in the
+     * same tap), or
      * draws a new one — from the chosen days, or the newest shared day
      * plus review when $days is null — and invites the friend to join on
      * their phone.
@@ -96,6 +97,8 @@ new class extends Component
         if (! $session && $session = app(PairPractice::class)->start(auth()->user(), $friend, $days ?: null)) {
             $friend->notify(new PairPracticeInvite($session, auth()->user()));
         }
+
+        $session?->joinWithLock(auth()->user());
 
         if ($session) {
             $this->redirectRoute('pair-practice.show', $session, navigate: true);
@@ -175,6 +178,7 @@ new class extends Component
                     type="button"
                     wire:click="start({{ $friend->id }})"
                     wire:loading.attr="disabled"
+                    wire:target="start"
                     class="block w-full cursor-pointer truncate rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
                 >{{ match (true) {
                     $open->isWaiting() && $open->started_by_id === $friend->id => 'Join '.$friend->name,

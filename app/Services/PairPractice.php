@@ -59,6 +59,18 @@ class PairPractice
     public const SEEN_HOURS = 24;
 
     /**
+     * Most cards per stage either friend already had in the last
+     * SEEN_HOURS (the ones they got wrong first). A mission day has only a
+     * handful of grammar sentences, so a second round the same day would
+     * otherwise be mostly the first one again — the stage is shorter
+     * instead. A stage left with fewer than MIN_STAGE_CARDS new cards may
+     * repeat up to that many.
+     */
+    public const MAX_REPEATS = 2;
+
+    public const MIN_STAGE_CARDS = 3;
+
+    /**
      * Share of each stage's cards drawn from the recent shared days; the
      * rest review older ones.
      */
@@ -243,9 +255,9 @@ class PairPractice
                 || ($lastPosition !== null && $positions[$key] > $lastPosition));
 
             $deck = [
-                PairPracticeSession::STAGE_VOCABULARY => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'vocabulary'), $history), $this->prioritize($this->contentOf($olderDays, 'vocabulary')->shuffle(), $history), self::VOCABULARY_CARDS),
-                PairPracticeSession::STAGE_GRAMMAR => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'grammar'), $history), $this->prioritize($this->contentOf($olderDays, 'grammar')->shuffle(), $history), self::GRAMMAR_CARDS),
-                PairPracticeSession::STAGE_SPEAKING => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'speaking'), $history), $this->prioritize($this->contentOf($olderDays, 'speaking')->shuffle(), $history), $authoredSpeaking, shuffle: false),
+                PairPracticeSession::STAGE_VOCABULARY => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'vocabulary'), $history), $this->prioritize($this->contentOf($olderDays, 'vocabulary')->shuffle(), $history), self::VOCABULARY_CARDS, $history),
+                PairPracticeSession::STAGE_GRAMMAR => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'grammar'), $history), $this->prioritize($this->contentOf($olderDays, 'grammar')->shuffle(), $history), self::GRAMMAR_CARDS, $history),
+                PairPracticeSession::STAGE_SPEAKING => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'speaking'), $history), $this->prioritize($this->contentOf($olderDays, 'speaking')->shuffle(), $history), $authoredSpeaking, $history, shuffle: false),
             ];
         }
 
@@ -373,27 +385,64 @@ class PairPractice
 
     /**
      * $count cards, about RECENT_SHARE of them from $recent (taken from its
-     * front); when one pool runs short the other fills the gap.
+     * front); when one pool runs short the other fills the gap. Cards the
+     * two have not had lately come first; at most repeatsAllowed() of the
+     * others.
      *
      * @param  Collection<int, array<string, mixed>>  $recent
      * @param  Collection<int, array<string, mixed>>  $older
+     * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
      * @return list<array<string, mixed>>
      */
-    private function draw(Collection $recent, Collection $older, int $count, bool $shuffle = true): array
+    private function draw(Collection $recent, Collection $older, int $count, array $history, bool $shuffle = true): array
     {
-        $fromOlder = min($older->count(), $count - (int) ceil($count * self::RECENT_SHARE));
-        $fromRecent = min($recent->count(), $count - $fromOlder);
-        $fromOlder = min($older->count(), $count - $fromRecent);
+        [$recentRepeats, $recentFresh] = $recent->partition(fn (array $card) => $this->wasSeen($card, $history));
+        [$olderRepeats, $olderFresh] = $older->partition(fn (array $card) => $this->wasSeen($card, $history));
 
-        $cards = $recent->take($fromRecent)->concat($older->take($fromOlder));
+        $fresh = $this->takeShares($recentFresh->values(), $olderFresh->values(), $count);
+        $repeats = $this->takeShares($recentRepeats->values(), $olderRepeats->values(), $this->repeatsAllowed($fresh->count(), $count));
+        $cards = $fresh->concat($repeats);
 
         return ($shuffle ? $cards->shuffle() : $cards)->values()->all();
     }
 
     /**
+     * @param  Collection<int, array<string, mixed>>  $recent
+     * @param  Collection<int, array<string, mixed>>  $older
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function takeShares(Collection $recent, Collection $older, int $count): Collection
+    {
+        $fromOlder = min($older->count(), $count - (int) ceil($count * self::RECENT_SHARE));
+        $fromRecent = min($recent->count(), $count - $fromOlder);
+        $fromOlder = min($older->count(), $count - $fromRecent);
+
+        return $recent->take($fromRecent)->concat($older->take($fromOlder))->values();
+    }
+
+    /**
+     * How many already-seen cards may join $fresh new ones in a stage of
+     * $count: MAX_REPEATS, or enough to reach MIN_STAGE_CARDS.
+     */
+    private function repeatsAllowed(int $fresh, int $count): int
+    {
+        return max(0, min($count - $fresh, max(self::MAX_REPEATS, self::MIN_STAGE_CARDS - $fresh)));
+    }
+
+    /**
+     * @param  array<string, mixed>  $card
+     * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
+     */
+    private function wasSeen(array $card, array $history): bool
+    {
+        return isset($history['seen'][$card['key'] ?? '']);
+    }
+
+    /**
      * Cards from the chosen days taken one day at a time in turn, so every
      * day gets its share however many are picked; a day that runs out
-     * leaves its turn to the others.
+     * leaves its turn to the others. New cards first, then at most
+     * repeatsAllowed() already-seen ones.
      *
      * @param  Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>  $days
      * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
@@ -401,7 +450,23 @@ class PairPractice
      */
     private function drawInTurn(Collection $days, string $kind, int $count, array $history, bool $shuffle = true): array
     {
-        $pools = $days->map(fn (array $day) => $this->prioritize(collect($this->dayContent($day['mission'], $day['day'])[$kind])->shuffle(), $history)->all())->values()->all();
+        $pools = $days->map(fn (array $day) => $this->prioritize(collect($this->dayContent($day['mission'], $day['day'])[$kind])->shuffle(), $history))->values();
+
+        $fresh = $this->inTurn($pools->map(fn (Collection $pool) => $pool->reject(fn (array $card) => $this->wasSeen($card, $history))->values()->all())->all(), $count);
+        $repeats = $this->inTurn($pools->map(fn (Collection $pool) => $pool->filter(fn (array $card) => $this->wasSeen($card, $history))->values()->all())->all(), $this->repeatsAllowed(count($fresh), $count));
+        $cards = [...$fresh, ...$repeats];
+
+        return $shuffle ? collect($cards)->shuffle()->values()->all() : $cards;
+    }
+
+    /**
+     * Up to $count cards, one from each pool in turn.
+     *
+     * @param  list<list<array<string, mixed>>>  $pools
+     * @return list<array<string, mixed>>
+     */
+    private function inTurn(array $pools, int $count): array
+    {
         $cards = [];
 
         while (count($cards) < $count && array_filter($pools) !== []) {
@@ -413,7 +478,7 @@ class PairPractice
             unset($pool);
         }
 
-        return $shuffle ? collect($cards)->shuffle()->values()->all() : $cards;
+        return $cards;
     }
 
     /**
@@ -585,7 +650,7 @@ class PairPractice
 
         foreach ($order as $game) {
             $cards = match ($game) {
-                PairPracticeSession::GAME_TABOO => $this->tabooCards($vocabulary, $history),
+                PairPracticeSession::GAME_TABOO => $this->tabooCards($days, $vocabulary, $history),
                 PairPracticeSession::GAME_MINIMAL => $this->minimalCards($history),
                 PairPracticeSession::GAME_ROLE => $this->roleCards($days, $latest, $history),
                 PairPracticeSession::GAME_TRUTHS => $this->truthCards($history, $days->map(fn (array $day) => $day['mission']->number())->max() ?? 1),
@@ -620,16 +685,31 @@ class PairPractice
     }
 
     /**
-     * Taboo: explain a word from this round's word cards without saying it
-     * (or any part of it); the other player guesses.
+     * Taboo: explain a word from the two's shared days without saying it
+     * (or any part of it); the other player guesses. Not one of this
+     * round's own word cards — those were just said a few minutes ago —
+     * unless the days have too few other words.
      *
+     * @param  Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>  $days
      * @param  list<array<string, mixed>>  $vocabulary
      * @param  array{seen: array<string, true>, missed: array<string, true>}  $history
      * @return list<array<string, mixed>>
      */
-    private function tabooCards(array $vocabulary, array $history): array
+    private function tabooCards(Collection $days, array $vocabulary, array $history): array
     {
-        $cards = collect($vocabulary)
+        $wanted = self::GAME_CARDS[PairPracticeSession::GAME_TABOO];
+        $inRound = collect($vocabulary)->map(fn (array $card) => mb_strtolower($card['answer'] ?? ''))->flip();
+
+        $words = $this->contentOf($days, 'vocabulary')
+            ->unique(fn (array $card) => mb_strtolower($card['answer'] ?? ''))
+            ->reject(fn (array $card) => $inRound->has(mb_strtolower($card['answer'] ?? '')))
+            ->shuffle();
+
+        if ($words->count() < $wanted) {
+            $words = $words->concat(collect($vocabulary)->shuffle());
+        }
+
+        $cards = $words
             ->filter(fn (array $card) => filled($card['answer'] ?? null))
             ->map(function (array $card) {
                 $banned = collect(preg_split('/[\s\-]+/', mb_strtolower($card['answer'])))
@@ -646,9 +726,10 @@ class PairPractice
                     'key' => 't:'.mb_strtolower($card['answer']),
                 ];
             })
-            ->shuffle();
+            ->unique('key')
+            ->values();
 
-        return $this->prioritize($cards, $history)->take(self::GAME_CARDS[PairPracticeSession::GAME_TABOO])->values()->all();
+        return $this->prioritize($cards, $history)->take($wanted)->values()->all();
     }
 
     /**

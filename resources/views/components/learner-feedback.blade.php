@@ -22,8 +22,9 @@
 
     @param array|null $feedback A LearnerFeedback::normalize()-able array;
         null still shows the answers (e.g. when the AI was down).
-    @param list<array{question: ?string, text: string}> $answers The
-        learner's answers in order, matched to each sentence's 'answer'.
+    @param list<array{question: ?string, text: string, audio?: string}> $answers The
+        learner's answers in order, matched to each sentence's 'answer'
+        (audio: the learner's own recording of it, played under the text).
     @param bool $foldTechniques Puts "Next time" inside "More" (the
         lesson's feedback screen, <x-feedback-screen>, keeps the first view
         to the summary and the fixes).
@@ -92,6 +93,9 @@
                 @endif
             </div>
             <p class="text-sm text-ink dark:text-ink-dark {{ $english }}" dir="ltr">{{ $answer['text'] }}</p>
+            @if (filled($answer['audio'] ?? null))
+                <div dir="ltr"><x-audio-player-compact :url="$answer['audio']" /></div>
+            @endif
             @foreach ($answerIssues as $sentence)
                 <x-learner-feedback-sentence :sentence="$sentence" />
             @endforeach

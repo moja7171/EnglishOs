@@ -9,11 +9,15 @@ use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PairPracticeSession;
 use App\Models\User;
+use App\Models\VoiceFeedback;
 use App\Notifications\PairPracticeInvite;
 use App\Notifications\PairPracticeNudge;
+use App\Services\GroqClient;
 use App\Services\PairPractice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -274,7 +278,49 @@ class PairPracticeTest extends TestCase
         $session->refresh();
         $this->assertSame(PairPracticeSession::STAGE_VOCABULARY, $session->stage);
         $this->assertNotNull($session->joined_at);
-        $this->assertNotNull($session->stage_ends_at);
+        // The first part's clock waits for its 2-second intro.
+        $this->assertEqualsWithDelta(now()->addSeconds(PairPracticeSession::STAGE_SECONDS[PairPracticeSession::STAGE_VOCABULARY] + PairPracticeSession::INTRO_SECONDS)->getTimestamp(), $session->stage_ends_at->getTimestamp(), 1);
+    }
+
+    public function test_opening_an_invite_from_its_join_joins_in_one_tap_and_reads_the_invite(): void
+    {
+        $session = PairPracticeSession::factory()->waiting()->create();
+        [$starter, $friend] = $session->players();
+        $friend->notify(new PairPracticeInvite($session, $starter));
+
+        $this->actingAs($starter)->get(route('pair-practice.show', ['session' => $session, 'join' => 1]))->assertOk();
+        $this->assertTrue($session->refresh()->isWaiting());
+
+        $this->actingAs($friend)->get(route('pair-practice.show', ['session' => $session, 'join' => 1]))->assertOk();
+
+        $this->assertSame(PairPracticeSession::STAGE_VOCABULARY, $session->refresh()->stage);
+        $this->assertSame(0, $friend->unreadNotifications()->count());
+    }
+
+    public function test_join_on_the_practice_page_joins_the_friends_invite_in_one_tap(): void
+    {
+        $mission = $this->makeMission();
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $this->finishDays($me, $mission, [1]);
+        $this->finishDays($friend, $mission, [1]);
+        $session = app(PairPractice::class)->start($friend, $me);
+
+        $this->actingAs($me);
+        Livewire::test('pair-practice.index')->call('start', $friend->id)->assertRedirect(route('pair-practice.show', $session));
+
+        $this->assertSame(PairPracticeSession::STAGE_VOCABULARY, $session->refresh()->stage);
+    }
+
+    public function test_the_poll_does_not_disable_the_join_button(): void
+    {
+        $session = PairPracticeSession::factory()->waiting()->create();
+        [, $friend] = $session->players();
+
+        $this->actingAs($friend);
+
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSeeHtml('wire:click="join" wire:loading.attr="disabled" wire:target="join"');
     }
 
     public function test_an_invite_expires_after_ten_minutes(): void
@@ -410,7 +456,8 @@ class PairPracticeTest extends TestCase
             ->call('judge', false, 0)
             ->assertSee('Not yet — the answer')
             ->assertSee('wake up')
-            ->assertSee('Saved · 🔄 Next: your turn');
+            ->assertSee('🔄 Next: your turn')
+            ->assertDontSee('Saved ·');
 
         $this->actingAs($speaker);
         Livewire::test('pair-practice.session', ['session' => $session->refresh()])
@@ -650,6 +697,84 @@ class PairPracticeTest extends TestCase
         $this->assertCount(PairPractice::VOCABULARY_CARDS, $pairPractice->start($friend, $me)->deck['vocabulary']);
     }
 
+    public function test_a_second_round_the_same_day_repeats_only_a_few_grammar_sentences(): void
+    {
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [['phase' => 'build', 'label' => 'Day 1', 'steps' => [
+                ['key' => 'grammar_in_context', 'quick_check' => collect(range(1, 6))
+                    ->map(fn (int $i) => ['wrong' => "She go {$i}.", 'options' => ["She goes {$i}."], 'correct' => 0])
+                    ->all()],
+            ]]],
+        ]);
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $this->finishDays($me, $mission, [1]);
+        $this->finishDays($friend, $mission, [1]);
+        $pairPractice = app(PairPractice::class);
+
+        $first = $pairPractice->start($me, $friend);
+        $this->assertCount(6, $first->deck['grammar']);
+        $first->update([
+            'stage' => PairPracticeSession::STAGE_DONE,
+            'finished_at' => now(),
+            'results' => collect($first->deck['grammar'])->keys()->map(fn (int $card) => ['stage' => 'grammar', 'card' => $card, 'speaker_id' => $me->id, 'points' => 0, 'correct' => $card !== 0])->all(),
+        ]);
+
+        $again = collect($pairPractice->start($me, $friend)->deck['grammar']);
+
+        // Every sentence was just played: the stage keeps only a few, the missed one among them.
+        $this->assertCount(PairPractice::MIN_STAGE_CARDS, $again);
+        $this->assertContains($first->deck['grammar'][0]['prompt'], $again->pluck('prompt'));
+    }
+
+    public function test_taboo_words_are_not_the_rounds_own_word_cards(): void
+    {
+        $mission = $this->makeWordyMission(days: 1, words: 16);
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $this->finishDays($me, $mission, [1]);
+        $this->finishDays($friend, $mission, [1]);
+
+        foreach (range(1, 4) as $ignored) {
+            $session = app(PairPractice::class)->start($me, $friend);
+            $session->update(['results' => [['stage' => 'game', 'card' => 0, 'speaker_id' => $me->id, 'points' => 0, 'correct' => false, 'heard' => null, 'at' => now()->getTimestamp()]]]);
+
+            if ($session->game() === PairPracticeSession::GAME_TABOO) {
+                break;
+            }
+        }
+
+        $this->assertSame(PairPracticeSession::GAME_TABOO, $session->game());
+        $this->assertEmpty(collect($session->deck['game'])->pluck('word')->intersect(collect($session->deck['vocabulary'])->pluck('answer')));
+    }
+
+    public function test_the_result_shows_one_team_score_and_how_the_game_went(): void
+    {
+        $session = $this->gameRound(['type' => 'taboo', 'word' => 'commute', 'banned' => ['commute'], 'hint' => null, 'source' => 'M01 · Day 1', 'key' => 't:commute']);
+        $session->update([
+            'score_a' => 10,
+            'score_b' => 9,
+            'stage' => PairPracticeSession::STAGE_DONE,
+            'finished_at' => now(),
+            'results' => [
+                ['stage' => 'game', 'card' => 0, 'speaker_id' => $session->user_a_id, 'points' => 1, 'judge_points' => 1, 'correct' => true, 'heard' => null, 'at' => now()->getTimestamp()],
+                ['stage' => 'game', 'card' => 1, 'speaker_id' => $session->user_b_id, 'points' => 0, 'judge_points' => 0, 'correct' => false, 'heard' => null, 'at' => now()->getTimestamp()],
+            ],
+        ]);
+
+        $this->actingAs($session->userA);
+
+        Livewire::test('pair-practice.session', ['session' => $session->refresh()])
+            ->assertSee('19')
+            ->assertSee('points together')
+            ->assertSee('Taboo')
+            ->assertSee('1 / 2 guessed');
+    }
+
     public function test_each_player_answers_a_sentence_from_their_own_error_log(): void
     {
         $mission = $this->makeMission();
@@ -752,6 +877,8 @@ class PairPracticeTest extends TestCase
             ->call('anotherRound')
             ->assertRedirect(route('pair-practice.show', $next));
         $this->assertSame(2, PairPracticeSession::count());
+        // That one tap joined it — no second Join on the waiting screen.
+        $this->assertSame(PairPracticeSession::STAGE_VOCABULARY, $next->refresh()->stage);
     }
 
     public function test_a_finished_mission_day_links_to_practising_it_with_a_friend(): void
@@ -893,7 +1020,9 @@ class PairPracticeTest extends TestCase
         $session->refresh()->record(1, null, []);
 
         $this->assertSame(PairPracticeSession::STAGE_GAME, $session->stage);
-        $this->assertEqualsWithDelta(now()->addSeconds(PairPracticeSession::STAGE_SECONDS[PairPracticeSession::STAGE_GAME])->getTimestamp(), $session->stage_ends_at->getTimestamp(), 3);
+        // The clock waits for the last answer's result and the part's intro.
+        $lead = PairPracticeSession::INTRO_SECONDS + (int) ceil(PairPracticeSession::REVEAL_MILLISECONDS / 1000);
+        $this->assertEqualsWithDelta(now()->addSeconds(PairPracticeSession::STAGE_SECONDS[PairPracticeSession::STAGE_GAME] + $lead)->getTimestamp(), $session->stage_ends_at->getTimestamp(), 1);
     }
 
     public function test_a_round_drawn_before_the_games_existed_finishes_after_speaking(): void
@@ -911,15 +1040,18 @@ class PairPracticeTest extends TestCase
         $session = $this->gameRound(['type' => 'taboo', 'word' => 'morning person', 'banned' => ['morning', 'person'], 'hint' => 'someone with lots of energy early', 'source' => 'M01 · Day 1', 'key' => 't:morning person']);
         [$speaker, $judge] = $session->players();
 
-        $this->actingAs($speaker);
-        Livewire::test('pair-practice.session', ['session' => $session])
-            ->assertSee('morning person')
-            ->assertSee('Don’t say');
-
         $this->actingAs($judge);
         Livewire::test('pair-practice.session', ['session' => $session])
             ->assertSee('Guess the word!')
             ->assertDontSee('morning person')
+            ->assertDontSee('✓ Got it');
+
+        // Only the one explaining sees the word, so they tap Got it.
+        $this->actingAs($speaker);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->assertSee('morning person')
+            ->assertSee('Don’t say')
+            ->assertSee('✓ Got it')
             ->call('playGame', true, 0);
 
         $session->refresh();
@@ -927,16 +1059,16 @@ class PairPracticeTest extends TestCase
         $this->assertSame(1, $session->scoreFor($judge));
     }
 
-    public function test_taboo_skip_scores_nothing_and_only_the_guesser_can_score(): void
+    public function test_taboo_skip_scores_nothing_and_only_the_one_explaining_can_score(): void
     {
         $session = $this->gameRound(['type' => 'taboo', 'word' => 'commute', 'banned' => ['commute'], 'hint' => null, 'source' => 'M01 · Day 1', 'key' => 't:commute']);
         [$speaker, $judge] = $session->players();
 
-        $this->actingAs($speaker);
+        $this->actingAs($judge);
         Livewire::test('pair-practice.session', ['session' => $session])->call('playGame', true, 0);
         $this->assertSame([], $session->refresh()->results);
 
-        $this->actingAs($judge);
+        $this->actingAs($speaker);
         Livewire::test('pair-practice.session', ['session' => $session])->call('playGame', false, 0);
         $session->refresh();
         $this->assertSame(0, $session->scoreFor($speaker) + $session->scoreFor($judge));
@@ -1046,5 +1178,32 @@ class PairPracticeTest extends TestCase
 
         $this->assertSame($cards[0]['say'] === 'three' ? 'th, not t' : 't, not th', $cards[0]['tip']);
         $this->assertEqualsCanonicalizing(['three', 'tree'], [$cards[0]['say'], $cards[0]['other']]);
+    }
+
+    public function test_a_speaking_card_i_answered_is_kept_for_my_feedback_and_my_partners_card_is_not(): void
+    {
+        Storage::fake('local');
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I usually wake up at seven.'));
+        $session = PairPracticeSession::factory()->create(['stage' => PairPracticeSession::STAGE_SPEAKING, 'stage_ends_at' => now()->addMinutes(3)]);
+        [$speaker, $listener] = $session->players();
+
+        $this->actingAs($listener);
+        Livewire::test('pair-practice.session', ['session' => $session])->assertSet('voiceClip', null);
+        $this->assertSame('', Livewire::test('pair-practice.session', ['session' => $session])->instance()->voicePart());
+
+        $this->actingAs($speaker);
+        $component = Livewire::test('pair-practice.session', ['session' => $session]);
+        $this->assertSame('speaking-0', $component->instance()->voicePart());
+
+        $session->record(1, null, ['wake up']);
+        $component->set('voiceClip', UploadedFile::fake()->create('speaking-0.webm', 40, 'audio/webm'))->call('saveVoiceClip', 'speaking-0');
+
+        $this->actingAs($listener);
+        Livewire::test('pair-practice.session', ['session' => $session])
+            ->set('voiceClip', UploadedFile::fake()->create('speaking-0.webm', 40, 'audio/webm'))
+            ->call('saveVoiceClip', 'speaking-0');
+
+        $this->assertSame('What time do you wake up?', VoiceFeedback::existingFor($speaker, $session)->clips[0]['label']);
+        $this->assertNull(VoiceFeedback::existingFor($listener, $session));
     }
 }
