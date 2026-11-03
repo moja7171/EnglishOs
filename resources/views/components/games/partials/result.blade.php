@@ -1,7 +1,8 @@
 {{--
-    The end of a Taboo game: one team score (and a new record when it
-    beats the pair's best for this game and length), how many words each
-    explained, and the words nobody got — shown here only, never saved.
+    The end of a game: one team score (and a new record when it beats the
+    pair's best for this game and length), how many words each explained
+    (Taboo) or secrets each guessed (Who am I), the words nobody got —
+    shown here only, never saved — and "Your sentences".
     Needs $pairGame, $me, $friend, $best from the play page.
 --}}
 @php
@@ -28,8 +29,8 @@
         <div class="relative mt-4 grid grid-cols-2 gap-2 text-start">
             @foreach ([$me, $friend] as $player)
                 <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-ground-dark/60 p-3">
-                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} explained</p>
-                    <p class="text-xl font-extrabold tabular-nums">{{ $pairGame->guessedWhileExplaining($player) }}</p>
+                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ $pairGame->isOneCardPerTurn() ? 'guessed' : 'explained' }}</p>
+                    <p class="text-xl font-extrabold tabular-nums">{{ $pairGame->creditFor($player) }}</p>
                 </div>
             @endforeach
         </div>
@@ -40,7 +41,7 @@
 
     @if ($missed !== [])
         <div>
-            <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Missed words</p>
+            <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">{{ $pairGame->isOneCardPerTurn() ? 'Not guessed' : 'Missed words' }}</p>
             <div class="mt-2 flex flex-wrap gap-2">
                 @foreach ($missed as $word)
                     <span wire:key="missed-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1.5 text-sm font-bold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">{{ $word }}</span>

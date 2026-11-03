@@ -12,6 +12,7 @@ use App\Notifications\PairGameInvite;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\TabooDeck;
+use App\Services\WhoAmIDeck;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -74,7 +75,7 @@ class PairGameTest extends TestCase
         return $pairGame->refresh();
     }
 
-    public function test_the_games_page_shows_every_game_and_only_taboo_can_be_opened(): void
+    public function test_the_games_page_shows_every_game_and_only_the_built_ones_open(): void
     {
         $this->actingAs(User::factory()->create());
 
@@ -84,9 +85,11 @@ class PairGameTest extends TestCase
             ->assertSee('Would You Rather')
             ->assertSee('Soon')
             ->assertSee(route('games.setup', 'taboo'), false)
-            ->assertDontSee(route('games.setup', 'who-am-i'), false);
+            ->assertSee(route('games.setup', 'who-am-i'), false)
+            ->assertDontSee(route('games.setup', 'just-a-minute'), false);
 
-        $this->get(route('games.setup', 'who-am-i'))->assertNotFound();
+        $this->get(route('games.setup', 'who-am-i'))->assertOk();
+        $this->get(route('games.setup', 'just-a-minute'))->assertNotFound();
     }
 
     public function test_inviting_a_friend_creates_a_waiting_game_and_notifies_them(): void
@@ -401,5 +404,121 @@ class PairGameTest extends TestCase
         Livewire::test('games.setup', ['game' => 'taboo'])->call('setVoiceFeedback', false);
 
         $this->assertFalse($me->refresh()->game_voice_feedback);
+    }
+
+    /**
+     * A joined Who am I game whose first turn is running: user A holds
+     * "cat", user B asks.
+     */
+    private function whoAmIGame(): PairGame
+    {
+        return $this->playingGame([
+            'game' => PairGame::GAME_WHO,
+            'rules' => ['turn_seconds' => 90, 'turns' => 2, 'skips' => null, 'bonus' => false, 'starters' => 0, 'level' => 2, 'show_category' => true],
+            'deck' => [
+                ['word' => 'cat', 'category' => 'an animal', 'source' => 'An animal', 'bonus' => [], 'key' => 'who:cat'],
+                ['word' => 'teacher', 'category' => 'a job', 'source' => 'A job', 'bonus' => [], 'key' => 'who:teacher'],
+            ],
+        ]);
+    }
+
+    public function test_who_am_i_secrets_open_with_the_missions_that_teach_them(): void
+    {
+        $m02 = $this->makeMission('M02', ['commute']);
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        MissionRun::findOrStart($me, $m02);
+        MissionRun::findOrStart($friend, $this->makeMission('M06', ['fluent']));
+        $deck = app(WhoAmIDeck::class);
+
+        $rules = $deck->rulesFor($me, $friend, 5);
+        $words = collect($deck->cardsFor($me, $friend, ['turns' => 40, 'level' => $rules['level']]))->pluck('word');
+
+        $this->assertTrue($rules['show_category']);
+        $this->assertContains('airport', $words);
+        $this->assertNotContains('teacher', $words, 'Jobs come with M03.');
+        $this->assertNotContains('pizza', $words, 'Food comes with M04.');
+    }
+
+    public function test_only_the_holder_sees_the_secret_and_answers_and_the_guesser_sees_the_answer(): void
+    {
+        $pairGame = $this->whoAmIGame();
+        [$holder, $guesser] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $this->actingAs($guesser);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee($holder->name.' holds the secret')
+            ->assertSee('It’s an animal')
+            ->assertDontSee('cat')
+            ->call('answer', 'yes', 0);
+        $this->assertSame(0, $pairGame->refresh()->questionsAsked());
+
+        $this->actingAs($holder);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('cat')
+            ->call('answer', 'no', 0)
+            ->call('answer', 'no', 0);
+        $this->assertSame(1, $pairGame->refresh()->questionsAsked());
+
+        $this->actingAs($guesser);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->assertSee('QUESTIONS 1 / 10');
+    }
+
+    public function test_a_quick_guess_earns_the_bonus_and_ends_the_turn_and_the_two_swap(): void
+    {
+        $pairGame = $this->whoAmIGame();
+        [$holder, $guesser] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $pairGame->answerQuestion($holder, 'yes', 0);
+        $pairGame->refresh()->scoreCard($holder, PairGame::RESULT_GOT, 0);
+
+        $pairGame->refresh();
+        $this->assertSame(PairGame::POINTS_WORD + PairGame::POINTS_BONUS, $pairGame->score);
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertTrue($pairGame->explainer()->is($guesser));
+        $this->assertSame(1, $pairGame->creditFor($guesser));
+
+        $pairGame->startTurn($guesser);
+        $this->assertSame('teacher', $pairGame->refresh()->currentCard()['word']);
+        foreach (range(0, PairGame::QUICK_GUESS_QUESTIONS) as $asked) {
+            $pairGame->refresh()->answerQuestion($guesser, 'no', $asked);
+        }
+        $pairGame->refresh()->scoreCard($guesser, PairGame::RESULT_GOT, 0);
+
+        $this->assertTrue($pairGame->refresh()->isFinished());
+        $this->assertSame(2 * PairGame::POINTS_WORD + PairGame::POINTS_BONUS, $pairGame->score);
+    }
+
+    public function test_ten_questions_without_a_guess_end_the_turn(): void
+    {
+        $pairGame = $this->whoAmIGame();
+        $holder = $pairGame->startedBy;
+
+        foreach (range(0, PairGame::MAX_QUESTIONS - 1) as $asked) {
+            $pairGame->refresh()->answerQuestion($holder, 'no', $asked);
+        }
+
+        $pairGame->refresh();
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertSame(['cat'], $pairGame->missedWords());
+        $this->assertSame(0, $pairGame->score);
+    }
+
+    public function test_in_who_am_i_the_guessers_questions_are_recorded_not_the_holders_answers(): void
+    {
+        Storage::fake('local');
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('Am I an animal? Do I live in a house?'));
+        $pairGame = $this->whoAmIGame();
+        [$holder, $guesser] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+        $pairGame->scoreCard($holder, PairGame::RESULT_GOT, 0);
+        $clip = fn () => UploadedFile::fake()->create('turn-0.webm', 40, 'audio/webm');
+
+        $this->actingAs($holder);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+        $this->assertNull(VoiceFeedback::existingFor($holder, $pairGame));
+
+        $this->actingAs($guesser);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->set('voiceClip', $clip())->call('saveVoiceClip', 'turn-0');
+        $this->assertSame('Turn 1 · your questions (the secret: cat)', VoiceFeedback::existingFor($guesser, $pairGame)->clips[0]['label']);
     }
 }

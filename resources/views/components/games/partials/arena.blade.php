@@ -1,5 +1,5 @@
 {{--
-    Taboo while it is played: a dark full screen over the app. Between
+    A game while it is played (Taboo here; Who am I's turn is in who-turn): a dark full screen over the app. Between
     turns the next explainer taps Start; during a turn the explainer sees
     the card and taps what happened, the guesser sees only the clock, the
     first letter once it is shown and the words of this turn. Needs
@@ -90,12 +90,30 @@
         @if (! $turn)
             {{-- Between turns: who explains next, and their Start. --}}
             <div class="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
-                @if ($previousTurn)
+                @if ($previousTurn && $pairGame->isOneCardPerTurn())
+                    @php $lastSecret = collect($previousTurn['cards'])->last(); @endphp
+                    @if ($lastSecret)
+                        <p @class(['animate-badge-pop rounded-full px-4 py-1.5 text-sm font-extrabold', 'bg-success-soft-dark text-success-dark' => $lastSecret['result'] === App\Models\PairGame::RESULT_GOT, 'bg-surface-dark text-ink-soft-dark' => $lastSecret['result'] !== App\Models\PairGame::RESULT_GOT])>
+                            {{ $lastSecret['result'] === App\Models\PairGame::RESULT_GOT ? 'Guessed in '.$lastSecret['questions'].' · +'.App\Models\PairGame::formatPoints($lastSecret['points']) : 'Not guessed' }} — {{ $pairGame->deck[$lastSecret['card']]['word'] ?? '' }}
+                        </p>
+                    @endif
+                @elseif ($previousTurn)
                     @php $lastTurnWords = collect($previousTurn['cards'])->where('result', App\Models\PairGame::RESULT_GOT)->count(); @endphp
                     <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">+{{ $lastTurnWords }} {{ Str::plural('word', $lastTurnWords) }} last turn</p>
                 @endif
                 <x-user-avatar :user="$explainer" class="h-20 w-20 text-xl" />
-                @if ($isExplainer)
+                @if ($isExplainer && $pairGame->isOneCardPerTurn())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">You hold the secret</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $pairGame->turnSeconds() }} s · {{ $friend->name }} asks, you answer</p>
+                    </div>
+                    <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                @elseif ($pairGame->isOneCardPerTurn())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">{{ $explainer->name }} holds a secret</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">Get ready to ask yes/no questions!</p>
+                    </div>
+                @elseif ($isExplainer)
                     <div>
                         <p class="font-display text-3xl font-extrabold">Your turn to explain</p>
                         <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $pairGame->turnSeconds() }} s · {{ $friend->name }} guesses</p>
@@ -108,6 +126,8 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isOneCardPerTurn())
+            @include('components.games.partials.who-turn')
         @elseif ($isExplainer)
             <div class="flex items-center gap-2.5 rounded-2xl bg-accent-dark px-4 py-3 text-sm font-extrabold tracking-wide text-white">
                 @svg('heroicon-o-microphone', 'h-5 w-5')

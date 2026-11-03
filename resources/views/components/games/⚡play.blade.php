@@ -59,6 +59,15 @@ new class extends Component
         $this->act(fn (PairGame $pairGame) => $pairGame->scoreCard(auth()->user(), PairGame::RESULT_SKIP, $seen));
     }
 
+    /**
+     * Who am I: the secret's holder answers the question just asked.
+     * $asked is how many answers their phone had seen.
+     */
+    public function answer(string $answer, int $asked): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->answerQuestion(auth()->user(), $answer, $asked));
+    }
+
     public function showLetter(int $seen): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->showLetter(auth()->user(), $seen));
@@ -116,7 +125,18 @@ new class extends Component
     }
 
     /**
-     * Keeps one piece of my voice: the turn I explained ("turn-2"). Its
+     * Who speaks in a turn: the explainer in Taboo, the one asking the
+     * questions in Who am I.
+     */
+    public function speaksIn(array $turn): bool
+    {
+        $isHolder = $turn['explainer_id'] === auth()->id();
+
+        return $this->pairGame->isOneCardPerTurn() ? ! $isHolder : $isHolder;
+    }
+
+    /**
+     * Keeps one piece of my voice: a turn I spoke in ("turn-2"). Its
      * label — the words of that turn — is made here, not sent by the phone.
      */
     public function saveVoiceClip(string $part): void
@@ -126,15 +146,18 @@ new class extends Component
         $index = preg_match('/^turn-(\d+)$/', $part, $match) ? (int) $match[1] : null;
         $turn = $index === null ? null : ($this->pairGame->refresh()->turns[$index] ?? null);
 
-        if ($turn === null || $turn['explainer_id'] !== auth()->id()) {
+        if ($turn === null || ! $this->speaksIn($turn)) {
             $this->voiceClip = null;
 
             return;
         }
 
         $words = collect($turn['cards'])->map(fn (array $card) => $this->pairGame->deck[$card['card']]['word'] ?? null)->filter()->implode(', ');
+        $label = $this->pairGame->isOneCardPerTurn()
+            ? 'Turn '.($index + 1).' · your questions (the secret: '.$words.')'
+            : 'Turn '.($index + 1).' · you explained: '.$words;
 
-        $this->keepVoiceClip($this->pairGame, $part, 'Turn '.($index + 1).' · you explained: '.$words);
+        $this->keepVoiceClip($this->pairGame, $part, $label);
     }
 
     /**
@@ -144,6 +167,16 @@ new class extends Component
     public function checkMyVoice(): void
     {
         if (! $this->pairGame->refresh()->isFinished()) {
+            return;
+        }
+
+        if ($this->pairGame->isOneCardPerTurn()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken yes/no questions in a "Who am I?" guessing game, transcribed by speech-to-text: in each turn they asked a friend questions (Am I…? Do I…? Can I…?) to guess a secret job, animal, food, place or thing (the secret is given as the question). All the text is the learner\'s.',
+                guidance: 'Judge above all the question forms (word order, do/does/am/is/can, articles). The friend\'s answers ("yes", "no", "sometimes") may appear in the transcript — ignore them.',
+            );
+
             return;
         }
 
@@ -195,7 +228,7 @@ new class extends Component
     {{-- Tells this phone's recorder whether its owner is explaining right now. --}}
     @php
         $voiceOn = (bool) $me->game_voice_feedback;
-        $voicePart = $pairGame->isPlaying() && $pairGame->explainer()->is($me) ? 'turn-'.$pairGame->currentTurnIndex() : '';
+        $voicePart = $pairGame->isPlaying() && $this->speaksIn($pairGame->currentTurn()) ? 'turn-'.$pairGame->currentTurnIndex() : '';
     @endphp
     <span hidden wire:key="voice-{{ $voicePart }}-{{ (int) $voiceOn }}" x-data x-init="window.eosGameVoice?.sync($wire, @js($voiceOn), @js($voicePart), null); @js($voiceOn && ($pairGame->isWaiting() || $pairGame->stage === PairGame::STAGE_READY)) && window.eosGameVoice?.warmUp()"></span>
 
@@ -235,8 +268,8 @@ new class extends Component
             @endif
         </div>
     @elseif ($pairGame->isFinished())
-        @include('components.games.partials.taboo-result')
+        @include('components.games.partials.result')
     @else
-        @include('components.games.partials.taboo-arena')
+        @include('components.games.partials.arena')
     @endif
 </div>
