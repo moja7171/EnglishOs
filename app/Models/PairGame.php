@@ -25,15 +25,29 @@ class PairGame extends Model
     public const GAME_TABOO = 'taboo';
 
     /**
+     * One player is secretly someone or something; the other asks yes/no
+     * questions to guess it. One secret per turn.
+     */
+    public const GAME_WHO = 'who-am-i';
+
+    /** Questions a guesser may ask about one secret. */
+    public const MAX_QUESTIONS = 10;
+
+    /** A secret guessed within this many questions earns the bonus. */
+    public const QUICK_GUESS_QUESTIONS = 5;
+
+    public const ANSWERS = ['yes', 'no', 'sometimes'];
+
+    /**
      * Every game on the Games page, in the order of its tiles. Only the
      * playable ones can be picked; the others are shown as coming soon.
      *
      * @var list<string>
      */
-    public const GAMES = [self::GAME_TABOO, 'who-am-i', 'just-a-minute', 'story-chain', 'role-play', 'two-truths', 'would-you-rather'];
+    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, 'just-a-minute', 'story-chain', 'role-play', 'two-truths', 'would-you-rather'];
 
     /** @var list<string> */
-    public const PLAYABLE = [self::GAME_TABOO];
+    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO];
 
     /** @var list<int> */
     public const LENGTHS = [5, 10];
@@ -48,7 +62,7 @@ class PairGame extends Model
     {
         [$name, $line, $tag] = match ($game) {
             self::GAME_TABOO => ['Taboo', 'Explain it, don’t say it', 'Words'],
-            'who-am-i' => ['Who am I?', 'Guess with yes/no questions', 'Questions'],
+            self::GAME_WHO => ['Who am I?', 'Guess with yes/no questions', 'Questions'],
             'just-a-minute' => ['Just a Minute', 'Talk for a minute', 'Speaking'],
             'story-chain' => ['Story Chain', 'One sentence each', 'Speaking'],
             'role-play' => ['Role-play', 'Each has a secret goal', 'Speaking'],
@@ -362,7 +376,7 @@ class PairGame extends Model
             'started_at' => now()->getTimestamp(),
             'ends_at' => now()->addSeconds($this->turnSeconds())->getTimestamp(),
             'cards' => [],
-            'current' => ['card' => $card, 'letter' => false, 'bonus_said' => false],
+            'current' => self::freshCurrent($card),
         ]];
         $this->stage = self::STAGE_PLAYING;
         $this->save();
@@ -402,16 +416,70 @@ class PairGame extends Model
             return;
         }
 
-        if (! in_array($result, [self::RESULT_GOT, self::RESULT_SKIP], true)) {
+        if (! in_array($result, [self::RESULT_GOT, self::RESULT_SKIP], true) || ($this->isOneCardPerTurn() && $result !== self::RESULT_GOT)) {
             return;
         }
 
         $this->closeCard($result);
 
+        if ($this->isOneCardPerTurn()) {
+            $this->endTurn();
+
+            return;
+        }
+
         $turns = $this->turns;
-        $turns[array_key_last($turns)]['current'] = ['card' => $this->nextCardIndex(), 'letter' => false, 'bonus_said' => false];
+        $turns[array_key_last($turns)]['current'] = self::freshCurrent($this->nextCardIndex());
         $this->turns = $turns;
         $this->save();
+    }
+
+    /**
+     * @return array{card: int, letter: bool, bonus_said: bool, answers: list<string>}
+     */
+    private static function freshCurrent(int $card): array
+    {
+        return ['card' => $card, 'letter' => false, 'bonus_said' => false, 'answers' => []];
+    }
+
+    /**
+     * Who am I has one secret per turn: once it is guessed, the turn is over.
+     */
+    public function isOneCardPerTurn(): bool
+    {
+        return $this->game === self::GAME_WHO;
+    }
+
+    /**
+     * Who am I: the one holding the secret answers the guesser's question
+     * — yes, no or sometimes. The guesser's phone shows the answer; after
+     * MAX_QUESTIONS the secret counts as missed and the turn is over.
+     */
+    public function answerQuestion(User $user, string $answer, int $asked): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isOneCardPerTurn() || ! $this->explainer()->is($user) || ! in_array($answer, self::ANSWERS, true)
+            || count($turn['current']['answers'] ?? []) !== $asked || now()->getTimestamp() > $turn['ends_at'] + self::CLOCK_SLACK_SECONDS) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $turns[array_key_last($turns)]['current']['answers'][] = $answer;
+        $this->turns = $turns;
+
+        if (count($turns[array_key_last($turns)]['current']['answers']) >= self::MAX_QUESTIONS) {
+            $this->closeTurn();
+
+            return;
+        }
+
+        $this->save();
+    }
+
+    public function questionsAsked(): int
+    {
+        return count($this->currentTurn()['current']['answers'] ?? []);
     }
 
     /**
@@ -426,7 +494,9 @@ class PairGame extends Model
         $card = $this->deck[$current['card']] ?? [];
         $points = 0;
 
-        if ($result === self::RESULT_GOT) {
+        if ($result === self::RESULT_GOT && $this->isOneCardPerTurn()) {
+            $points = self::POINTS_WORD + (count($current['answers'] ?? []) <= self::QUICK_GUESS_QUESTIONS ? self::POINTS_BONUS : 0);
+        } elseif ($result === self::RESULT_GOT) {
             $points = $current['letter'] ? self::POINTS_WITH_LETTER : self::POINTS_WORD;
 
             if (($card['bonus'] ?? []) !== [] && ! $current['bonus_said']) {
@@ -439,6 +509,7 @@ class PairGame extends Model
             'result' => $result,
             'letter' => $current['letter'],
             'bonus_said' => $current['bonus_said'],
+            'questions' => count($current['answers'] ?? []),
             'points' => $points,
             'at' => now()->getTimestamp(),
         ];
@@ -498,7 +569,15 @@ class PairGame extends Model
     private function closeTurn(): void
     {
         $this->closeCard(self::RESULT_MISSED);
+        $this->endTurn();
+    }
 
+    /**
+     * The turn is over (its card already closed): the next one waits for
+     * its explainer, or the game ends after the last.
+     */
+    private function endTurn(): void
+    {
         $turns = $this->turns;
         unset($turns[array_key_last($turns)]['current']);
         $this->turns = $turns;
@@ -623,6 +702,19 @@ class PairGame extends Model
     public function guessedWhileExplaining(User $user): int
     {
         return collect($this->playedCards())->where('explainer_id', $user->id)->where('result', self::RESULT_GOT)->count();
+    }
+
+    /**
+     * What the result screen counts for each player: words they explained
+     * that were guessed (Taboo), or secrets they guessed (Who am I).
+     */
+    public function creditFor(User $user): int
+    {
+        if (! $this->isOneCardPerTurn()) {
+            return $this->guessedWhileExplaining($user);
+        }
+
+        return collect($this->playedCards())->where('explainer_id', '!=', $user->id)->where('result', self::RESULT_GOT)->count();
     }
 
     /**

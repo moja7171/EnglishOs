@@ -67,7 +67,10 @@ class TabooDeck
         ];
     }
 
-    private function missionNumberOf(User $user): int
+    /**
+     * The mission the learner is on — or the last one they finished.
+     */
+    public function missionNumberOf(User $user): int
     {
         $current = $user->currentInProgressMissionRun()?->mission;
 

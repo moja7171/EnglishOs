@@ -4,6 +4,7 @@ use App\Models\PairGame;
 use App\Models\User;
 use App\Services\PairGames;
 use App\Services\TabooDeck;
+use App\Services\WhoAmIDeck;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -42,7 +43,7 @@ new class extends Component
     public function friends(): array
     {
         $me = auth()->user();
-        $deck = app(TabooDeck::class);
+        $deck = $this->game === PairGame::GAME_WHO ? app(WhoAmIDeck::class) : app(TabooDeck::class);
         $lastPartnerIds = PairGame::involving($me)->latest()->get(['user_a_id', 'user_b_id'])
             ->flatMap(fn (PairGame $pairGame) => [$pairGame->user_a_id, $pairGame->user_b_id])
             ->reject(fn (int $id) => $id === $me->id)
@@ -112,7 +113,7 @@ new class extends Component
     <div class="relative -mt-6 space-y-5 rounded-t-3xl bg-ground px-4 pt-5 sm:px-6 dark:bg-ground-dark">
         <div>
             <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">{{ $info['name'] }}</h1>
-            <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">Explain the word. Don’t say it.</p>
+            <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $game === PairGame::GAME_WHO ? 'Ask yes/no questions. Guess the secret.' : 'Explain the word. Don’t say it.' }}</p>
         </div>
 
         <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold text-ink dark:text-ink-dark">
@@ -178,7 +179,7 @@ new class extends Component
 
             @include('components.games.partials.voice-switch', ['me' => auth()->user()])
 
-            <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Words: your missions + your notebooks</p>
+            <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $game === PairGame::GAME_WHO ? 'Secrets: jobs, food, places… from your missions' : 'Words: your missions + your notebooks' }}</p>
 
             <button
                 type="button"
