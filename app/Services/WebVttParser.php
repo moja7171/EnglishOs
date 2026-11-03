@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Closure;
+
 /**
  * Minimal WebVTT cue reader — just enough to feed real caption timing
  * into ShadowLineTimestampMatcher for Video Shadowing (see
@@ -66,5 +68,32 @@ class WebVttParser
             2 => $parts[0] * 60 + $parts[1],
             default => 0.0,
         };
+    }
+
+    /**
+     * Groups timed caption chunks into sentences, for a transcript that
+     * reads as prose: a chunk often stops mid-sentence ("…conversations
+     * in" / "easy English…"), so a new group starts only after a chunk
+     * that ends a sentence.
+     *
+     * @template TItem
+     *
+     * @param  list<TItem>  $items
+     * @param  Closure(TItem): string  $text
+     * @return list<list<TItem>>
+     */
+    public static function sentences(array $items, Closure $text): array
+    {
+        $groups = [[]];
+
+        foreach ($items as $item) {
+            $groups[array_key_last($groups)][] = $item;
+
+            if (preg_match('/[.?!…]["”’)]*$/u', trim($text($item)))) {
+                $groups[] = [];
+            }
+        }
+
+        return array_values(array_filter($groups));
     }
 }

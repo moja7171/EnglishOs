@@ -480,15 +480,20 @@
             :class="mode === 'focus' ? 'min-h-32 flex-1 text-base' : 'max-h-40 text-sm'"
             class="relative mt-3 space-y-1.5 overflow-y-auto card-sunken p-3"
         >
-            @foreach ($segments as $index => $segment)
-                <p
-                    x-ref="segment-{{ $index }}"
-                    x-on:click="seekTo({{ (float) $segment['start'] }}); $refs.video.currentTime = {{ (float) $segment['start'] }}"
-                    class="cursor-pointer rounded-lg px-1.5 py-0.5 transition-colors"
-                    :class="activeSegmentIndex === {{ $index }}
-                        ? 'bg-accent/15 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark'
-                        : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
-                >{{ $segment['text'] }}</p>
+            {{-- Chunks flow inside their sentence; a new line only where a sentence ends. --}}
+            @foreach (\App\Services\WebVttParser::sentences(collect($segments)->map(fn ($segment, $index) => ['index' => $index, 'segment' => $segment])->all(), fn ($line) => $line['segment']['text']) as $sentence)
+                <p class="leading-relaxed">
+                    @foreach ($sentence as $line)
+                        <span
+                            x-ref="segment-{{ $line['index'] }}"
+                            x-on:click="seekTo({{ (float) $line['segment']['start'] }}); $refs.video.currentTime = {{ (float) $line['segment']['start'] }}"
+                            class="cursor-pointer rounded-md px-0.5 transition-colors [box-decoration-break:clone]"
+                            :class="activeSegmentIndex === {{ $line['index'] }}
+                                ? 'bg-accent/15 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark'
+                                : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
+                        >{{ $line['segment']['text'] }}</span>
+                    @endforeach
+                </p>
             @endforeach
         </div>
     @endif
