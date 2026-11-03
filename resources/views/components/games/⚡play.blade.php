@@ -68,6 +68,53 @@ new class extends Component
         $this->act(fn (PairGame $pairGame) => $pairGame->answerQuestion(auth()->user(), $answer, $asked));
     }
 
+    /**
+     * Just a Minute: the listener ticks a target word they heard; the
+     * talker stops early; the listener asked their one question.
+     */
+    public function hear(string $word): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->hearWord(auth()->user(), $word));
+    }
+
+    public function doneTalking(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->finishTalking(auth()->user()));
+    }
+
+    public function asked(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->questionAsked(auth()->user()));
+    }
+
+    /**
+     * Story Chain: the listener ticks that the teller used the word; the
+     * teller passes the story on.
+     */
+    public function used(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->wordUsed(auth()->user()));
+    }
+
+    public function doneTelling(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->doneTelling(auth()->user()));
+    }
+
+    /**
+     * Role-play: either player ends the talk; each then sends their guess
+     * of the friend's goal and whether they reached their own.
+     */
+    public function endTalk(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->endTalk(auth()->user()));
+    }
+
+    public function guess(int $option, bool $reached): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->submitGuess(auth()->user(), $option, $reached));
+    }
+
     public function showLetter(int $seen): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->showLetter(auth()->user(), $seen));
@@ -132,7 +179,11 @@ new class extends Component
     {
         $isHolder = $turn['explainer_id'] === auth()->id();
 
-        return $this->pairGame->isOneCardPerTurn() ? ! $isHolder : $isHolder;
+        if ($this->pairGame->isRolePlay()) {
+            return true;
+        }
+
+        return $this->pairGame->holderSpeaks() ? $isHolder : ! $isHolder;
     }
 
     /**
@@ -153,9 +204,13 @@ new class extends Component
         }
 
         $words = collect($turn['cards'])->map(fn (array $card) => $this->pairGame->deck[$card['card']]['word'] ?? null)->filter()->implode(', ');
-        $label = $this->pairGame->isOneCardPerTurn()
-            ? 'Turn '.($index + 1).' · your questions (the secret: '.$words.')'
-            : 'Turn '.($index + 1).' · you explained: '.$words;
+        $label = match ($this->pairGame->game) {
+            PairGame::GAME_WHO => 'Turn '.($index + 1).' · your questions (the secret: '.$words.')',
+            PairGame::GAME_MINUTE => 'Turn '.($index + 1).' · your talk: '.$words,
+            PairGame::GAME_ROLE => 'Scene '.($index + 1).' · '.$words.' — you were: '.($this->pairGame->roleOf(auth()->user(), $this->pairGame->deck[$turn['cards'][0]['card'] ?? -1] ?? null, $index)['role'] ?? ''),
+            PairGame::GAME_STORY => 'Turn '.($index + 1).' · your part of the story (word: '.($this->pairGame->deck[$turn['cards'][0]['card'] ?? -1]['word'] ?? '').')',
+            default => 'Turn '.($index + 1).' · you explained: '.$words,
+        };
 
         $this->keepVoiceClip($this->pairGame, $part, $label);
     }
@@ -170,7 +225,37 @@ new class extends Component
             return;
         }
 
-        if ($this->pairGame->isOneCardPerTurn()) {
+        if ($this->pairGame->isRolePlay()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken lines in a role-play with a friend, transcribed by speech-to-text: in each scene (given as the question, with the learner\'s role) they talked to reach a secret goal. Both voices may be in the transcript; judge only lines that fit the learner\'s role.',
+                guidance: 'Judge grammar, word choice and whether the requests, offers and questions sound natural and polite.',
+            );
+
+            return;
+        }
+
+        if ($this->pairGame->isStoryChain()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken parts of a story they told together with a friend in a "Story Chain" game, transcribed by speech-to-text: in each turn they added one or two sentences using a given word (in the question). All the text is the learner\'s.',
+                guidance: 'Judge grammar (especially the narrative tenses) and word choice. Short fragments of the friend\'s voice may appear — ignore them.',
+            );
+
+            return;
+        }
+
+        if ($this->pairGame->isJustAMinute()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken talks in a "Just a Minute" game, transcribed by speech-to-text: in each turn they talked for up to a minute about a topic (given as the question), trying to use four target words, and then answered one question from their friend. All the text is the learner\'s.',
+                guidance: 'Judge grammar, word choice and how the ideas are linked. The friend\'s question may appear in the transcript — ignore it.',
+            );
+
+            return;
+        }
+
+        if ($this->pairGame->game === PairGame::GAME_WHO) {
             $this->checkVoice(
                 $this->pairGame,
                 situation: 'These are a learner\'s spoken yes/no questions in a "Who am I?" guessing game, transcribed by speech-to-text: in each turn they asked a friend questions (Am I…? Do I…? Can I…?) to guess a secret job, animal, food, place or thing (the secret is given as the question). All the text is the learner\'s.',

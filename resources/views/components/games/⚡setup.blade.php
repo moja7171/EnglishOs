@@ -4,6 +4,9 @@ use App\Models\PairGame;
 use App\Models\User;
 use App\Services\PairGames;
 use App\Services\TabooDeck;
+use App\Services\JustAMinuteDeck;
+use App\Services\RolePlayDeck;
+use App\Services\StoryChainDeck;
 use App\Services\WhoAmIDeck;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -43,7 +46,13 @@ new class extends Component
     public function friends(): array
     {
         $me = auth()->user();
-        $deck = $this->game === PairGame::GAME_WHO ? app(WhoAmIDeck::class) : app(TabooDeck::class);
+        $deck = match ($this->game) {
+            PairGame::GAME_WHO => app(WhoAmIDeck::class),
+            PairGame::GAME_MINUTE => app(JustAMinuteDeck::class),
+            PairGame::GAME_STORY => app(StoryChainDeck::class),
+            PairGame::GAME_ROLE => app(RolePlayDeck::class),
+            default => app(TabooDeck::class),
+        };
         $lastPartnerIds = PairGame::involving($me)->latest()->get(['user_a_id', 'user_b_id'])
             ->flatMap(fn (PairGame $pairGame) => [$pairGame->user_a_id, $pairGame->user_b_id])
             ->reject(fn (int $id) => $id === $me->id)
@@ -113,8 +122,22 @@ new class extends Component
     <div class="relative -mt-6 space-y-5 rounded-t-3xl bg-ground px-4 pt-5 sm:px-6 dark:bg-ground-dark">
         <div>
             <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">{{ $info['name'] }}</h1>
-            <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $game === PairGame::GAME_WHO ? 'Ask yes/no questions. Guess the secret.' : 'Explain the word. Don’t say it.' }}</p>
+            <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
+                PairGame::GAME_WHO => 'Ask yes/no questions. Guess the secret.',
+                PairGame::GAME_MINUTE => 'Talk about a topic. Use the four words.',
+                PairGame::GAME_STORY => 'Tell a story together, a sentence or two each.',
+                PairGame::GAME_ROLE => 'Play a scene. Each has a secret goal.',
+                default => 'Explain the word. Don’t say it.',
+            } }}</p>
         </div>
+
+        <details class="group rounded-2xl bg-surface px-4 py-3 shadow-sm dark:bg-surface-dark">
+            <summary dir="rtl" class="font-fa flex cursor-pointer list-none items-center justify-between text-sm font-bold text-accent-ink dark:text-accent-ink-dark">
+                چطور بازی کنیم؟
+                <span class="transition-transform group-open:rotate-180">@svg('heroicon-o-chevron-down', 'h-4 w-4')</span>
+            </summary>
+            <div class="pt-2.5">@include('components.games.partials.guide', ['gameKey' => $game])</div>
+        </details>
 
         <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold text-ink dark:text-ink-dark">
             <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-surface p-3 shadow-sm dark:bg-surface-dark">
@@ -179,7 +202,13 @@ new class extends Component
 
             @include('components.games.partials.voice-switch', ['me' => auth()->user()])
 
-            <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $game === PairGame::GAME_WHO ? 'Secrets: jobs, food, places… from your missions' : 'Words: your missions + your notebooks' }}</p>
+            <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
+                PairGame::GAME_WHO => 'Secrets: jobs, food, places… from your missions',
+                PairGame::GAME_MINUTE => 'Topics and words: your missions',
+                PairGame::GAME_STORY => '5 min = one story · 10 min = two',
+                PairGame::GAME_ROLE => 'Scenes from your missions · 5 min = 2 · 10 min = 4',
+                default => 'Words: your missions + your notebooks',
+            } }}</p>
 
             <button
                 type="button"

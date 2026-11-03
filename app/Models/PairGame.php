@@ -39,15 +39,47 @@ class PairGame extends Model
     public const ANSWERS = ['yes', 'no', 'sometimes'];
 
     /**
+     * One talks about a topic for up to a minute, using four of the
+     * mission's words that the listener ticks as they hear them; then the
+     * listener asks one question about it.
+     */
+    public const GAME_MINUTE = 'just-a-minute';
+
+    /** After the talk: time for the listener's one question and its answer. */
+    public const ASK_SECONDS = 30;
+
+    public const PHASE_TALK = 'talk';
+
+    public const PHASE_ASK = 'ask';
+
+    /**
+     * The two tell one story together, a sentence or two each turn, each
+     * turn using one word of the mission; the turns pass on by themselves
+     * within a story.
+     */
+    public const GAME_STORY = 'story-chain';
+
+    /**
+     * Each player has a role and a secret goal in one scene; they talk,
+     * then each guesses the other's goal and says if they reached their own.
+     */
+    public const GAME_ROLE = 'role-play';
+
+    /** After the talk: time to guess the friend's goal. */
+    public const GUESS_SECONDS = 45;
+
+    public const PHASE_GUESS = 'guess';
+
+    /**
      * Every game on the Games page, in the order of its tiles. Only the
      * playable ones can be picked; the others are shown as coming soon.
      *
      * @var list<string>
      */
-    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, 'just-a-minute', 'story-chain', 'role-play', 'two-truths', 'would-you-rather'];
+    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, 'two-truths', 'would-you-rather'];
 
     /** @var list<string> */
-    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO];
+    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE];
 
     /** @var list<int> */
     public const LENGTHS = [5, 10];
@@ -63,9 +95,9 @@ class PairGame extends Model
         [$name, $line, $tag] = match ($game) {
             self::GAME_TABOO => ['Taboo', 'Explain it, don’t say it', 'Words'],
             self::GAME_WHO => ['Who am I?', 'Guess with yes/no questions', 'Questions'],
-            'just-a-minute' => ['Just a Minute', 'Talk for a minute', 'Speaking'],
-            'story-chain' => ['Story Chain', 'One sentence each', 'Speaking'],
-            'role-play' => ['Role-play', 'Each has a secret goal', 'Speaking'],
+            self::GAME_MINUTE => ['Just a Minute', 'Talk for a minute', 'Speaking'],
+            self::GAME_STORY => ['Story Chain', 'One sentence each', 'Speaking'],
+            self::GAME_ROLE => ['Role-play', 'Each has a secret goal', 'Speaking'],
             'two-truths' => ['Two Truths', 'Find the lie', 'Questions'],
             'would-you-rather' => ['Would You Rather', 'Pick a side, say why', 'Speaking'],
             default => ['Game', '', 'Speaking'],
@@ -78,6 +110,44 @@ class PairGame extends Model
             'image' => asset('images/games/'.$game.'.jpg'),
             'playable' => in_array($game, self::PLAYABLE, true),
         ];
+    }
+
+    /**
+     * How to play, in three short Persian lines: your part, your friend's
+     * part, the points. Shown on the setup page and behind ⓘ in the game.
+     *
+     * @return list<string>
+     */
+    public static function guide(string $game): array
+    {
+        return match ($game) {
+            self::GAME_TABOO => [
+                'نوبت توست: کلمه رو فقط تو می‌بینی؛ بدون گفتن خودِ کلمه و بدون فارسی توضیحش بده.',
+                'دوستت حدس می‌زنه؛ درست گفت، «got it» رو بزن. گیر کردی؟ Skip یا «حرف اول».',
+                'هر کلمه +۱ (با حرف اول نصف). از M05: کلمه‌های جایزه رو نگی، +۱. بعد جاها عوض می‌شه.',
+            ],
+            self::GAME_WHO => [
+                'یکی راز رو می‌بینه (شغل، حیوان، غذا…) و فقط Yes / No / Sometimes جواب می‌ده.',
+                'اون یکی با سؤال بله/خیر حدس می‌زنه: Am I…? Do I…? Can I…?',
+                'حدس درست +۱، با ۵ سؤال یا کمتر +۱ جایزه. ۱۰ سؤال یا ۹۰ ثانیه، بعد جاها عوض.',
+            ],
+            self::GAME_MINUTE => [
+                'گوینده درباره‌ی موضوع حرف می‌زنه و سعی می‌کنه ۴ کلمه‌ی کارت رو به کار ببره.',
+                'شنونده هر کلمه رو که شنید روی گوشیش می‌زنه؛ هر کلمه +۱.',
+                'بعد شنونده یک سؤال می‌پرسه (+۱) و جاها عوض می‌شه.',
+            ],
+            self::GAME_STORY => [
+                'داستان با جمله‌ی اول شروع می‌شه؛ هر نوبت یکی‌تون ۱ یا ۲ جمله ادامه می‌ده.',
+                'کلمه‌ی نوبت رو توی جمله‌ت بیار؛ دوستت «used the word» می‌زنه (+۱).',
+                '«Done» داستان رو به دوستت می‌ده؛ نوبت آخر، داستان رو تموم کن.',
+            ],
+            self::GAME_ROLE => [
+                'هر کدوم یک نقش و یک هدف مخفی دارید — صفحه‌ت رو نشون نده. جمله‌های کمکی زیرش هست.',
+                '۲ دقیقه با هم حرف بزنید و هر کدوم سعی کنه به هدفش برسه.',
+                'بعد هدف دوستت رو از بین ۳ تا حدس بزن (+۱) و صادقانه بگو به هدف خودت رسیدی یا نه (+۱).',
+            ],
+            default => [],
+        };
     }
 
     public const STAGE_WAITING = 'waiting';
@@ -369,6 +439,11 @@ class PairGame extends Model
             return;
         }
 
+        $this->beginTurn($user);
+    }
+
+    private function beginTurn(User $user): void
+    {
         $card = $this->nextCardIndex();
 
         $this->turns = [...($this->turns ?? []), [
@@ -416,7 +491,7 @@ class PairGame extends Model
             return;
         }
 
-        if (! in_array($result, [self::RESULT_GOT, self::RESULT_SKIP], true) || ($this->isOneCardPerTurn() && $result !== self::RESULT_GOT)) {
+        if (! in_array($result, [self::RESULT_GOT, self::RESULT_SKIP], true) || ($this->isOneCardPerTurn() && $result !== self::RESULT_GOT) || $this->isJustAMinute()) {
             return;
         }
 
@@ -439,15 +514,226 @@ class PairGame extends Model
      */
     private static function freshCurrent(int $card): array
     {
-        return ['card' => $card, 'letter' => false, 'bonus_said' => false, 'answers' => []];
+        return ['card' => $card, 'letter' => false, 'bonus_said' => false, 'answers' => [], 'heard' => [], 'phase' => self::PHASE_TALK];
     }
 
     /**
-     * Who am I has one secret per turn: once it is guessed, the turn is over.
+     * Who am I and Just a Minute have one card per turn: once it is
+     * guessed (or talked about and asked about), the turn is over.
      */
     public function isOneCardPerTurn(): bool
     {
-        return $this->game === self::GAME_WHO;
+        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE], true);
+    }
+
+    public function isRolePlay(): bool
+    {
+        return $this->game === self::GAME_ROLE;
+    }
+
+    /**
+     * Role-play: $user's side of the scene on screen — the turn's holder
+     * plays 'a', the other 'b'.
+     *
+     * @return array{role: string, goal: string, help: list<string>}|null
+     */
+    public function roleOf(User $user, ?array $card = null, ?int $turnIndex = null): ?array
+    {
+        $card ??= $this->currentCard();
+        $holder = $this->explainerOf($turnIndex ?? $this->currentTurnIndex());
+
+        return $card[$holder->is($user) ? 'a' : 'b'] ?? null;
+    }
+
+    /**
+     * Role-play: the three goals $user picks from when guessing the
+     * friend's goal (the real one and two that fit the scene too).
+     *
+     * @return list<string>
+     */
+    public function guessOptionsFor(User $user, ?array $card = null, ?int $turnIndex = null): array
+    {
+        $card ??= $this->currentCard();
+        $holder = $this->explainerOf($turnIndex ?? $this->currentTurnIndex());
+
+        return $card[$holder->is($user) ? 'options_b' : 'options_a'] ?? [];
+    }
+
+    /**
+     * Role-play: either player ends the talk — now both guess.
+     */
+    public function endTalk(User $user): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isRolePlay() || ! $this->isAccessibleBy($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_TALK) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $last = array_key_last($turns);
+        $turns[$last]['current']['phase'] = self::PHASE_GUESS;
+        $turns[$last]['ends_at'] = now()->addSeconds(self::GUESS_SECONDS)->getTimestamp();
+        $this->turns = $turns;
+        $this->save();
+    }
+
+    /**
+     * Role-play: $user's guess of the friend's goal (an index into their
+     * options) and whether they honestly reached their own. Once both have
+     * answered, the scene is over.
+     */
+    public function submitGuess(User $user, int $option, bool $reached): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isRolePlay() || ! $this->isAccessibleBy($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_GUESS
+            || isset($turn['current']['guesses'][$user->id]) || ! isset($this->guessOptionsFor($user)[$option])) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $last = array_key_last($turns);
+        $turns[$last]['current']['guesses'][$user->id] = ['option' => $option, 'reached' => $reached];
+        $this->turns = $turns;
+
+        if (count($turns[$last]['current']['guesses']) >= 2) {
+            $this->closeCard(self::RESULT_GOT);
+            $this->endTurn();
+
+            return;
+        }
+
+        $this->save();
+    }
+
+    public function isStoryChain(): bool
+    {
+        return $this->game === self::GAME_STORY;
+    }
+
+    /** Turns in one story. */
+    public function storyTurns(): int
+    {
+        return (int) ($this->rules['story_turns'] ?? 8);
+    }
+
+    /**
+     * Story Chain: the listener ticks that the teller used this turn's
+     * word — one point, once.
+     */
+    public function wordUsed(User $user): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isStoryChain() || $this->explainer()->is($user) || ! $this->isAccessibleBy($user)
+            || ($turn['current']['used'] ?? false) || now()->getTimestamp() > $turn['ends_at'] + self::CLOCK_SLACK_SECONDS) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $turns[array_key_last($turns)]['current']['used'] = true;
+        $this->turns = $turns;
+        $this->score += self::POINTS_WORD;
+        $this->save();
+    }
+
+    /**
+     * Story Chain: the teller is done with their sentence or two — the
+     * story passes to the other player straight away.
+     */
+    public function doneTelling(User $user): void
+    {
+        if ($this->currentTurn() === null || ! $this->isStoryChain() || ! $this->explainer()->is($user)) {
+            return;
+        }
+
+        $this->closeTurn();
+    }
+
+    public function isJustAMinute(): bool
+    {
+        return $this->game === self::GAME_MINUTE;
+    }
+
+    /**
+     * Who talks in a turn of $user's: the card holder in Taboo (explains)
+     * and Just a Minute (talks), the other player in Who am I (asks).
+     */
+    public function holderSpeaks(): bool
+    {
+        return $this->game !== self::GAME_WHO;
+    }
+
+    /**
+     * Just a Minute: the listener ticks a target word as they hear it —
+     * one point each, once.
+     */
+    public function hearWord(User $user, string $word): void
+    {
+        $turn = $this->currentTurn();
+        $card = $this->currentCard();
+
+        if ($turn === null || ! $this->isJustAMinute() || $this->explainer()->is($user) || ! $this->isAccessibleBy($user)
+            || ($turn['current']['phase'] ?? null) !== self::PHASE_TALK || ! in_array($word, $card['words'] ?? [], true)
+            || in_array($word, $turn['current']['heard'] ?? [], true) || now()->getTimestamp() > $turn['ends_at'] + self::CLOCK_SLACK_SECONDS) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $turns[array_key_last($turns)]['current']['heard'][] = $word;
+        $this->turns = $turns;
+        $this->score += self::POINTS_WORD;
+        $this->save();
+    }
+
+    /**
+     * Just a Minute: the talker stops before the minute is up, or the
+     * minute ran out — the listener now asks their one question.
+     */
+    public function startQuestion(): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isJustAMinute() || ($turn['current']['phase'] ?? null) !== self::PHASE_TALK) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $last = array_key_last($turns);
+        $turns[$last]['current']['phase'] = self::PHASE_ASK;
+        $turns[$last]['ends_at'] = now()->addSeconds(self::ASK_SECONDS)->getTimestamp();
+        $this->turns = $turns;
+        $this->save();
+    }
+
+    public function finishTalking(User $user): void
+    {
+        if ($this->explainer()->is($user)) {
+            $this->startQuestion();
+        }
+    }
+
+    /**
+     * Just a Minute: the listener asked their question (and heard the
+     * answer) — one more point, and the turn is over.
+     */
+    public function questionAsked(User $user): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isJustAMinute() || $this->explainer()->is($user) || ! $this->isAccessibleBy($user)
+            || ($turn['current']['phase'] ?? null) !== self::PHASE_ASK) {
+            return;
+        }
+
+        $this->closeCard(self::RESULT_GOT);
+        $this->endTurn();
+    }
+
+    public function phase(): ?string
+    {
+        return $this->currentTurn()['current']['phase'] ?? null;
     }
 
     /**
@@ -494,7 +780,22 @@ class PairGame extends Model
         $card = $this->deck[$current['card']] ?? [];
         $points = 0;
 
-        if ($result === self::RESULT_GOT && $this->isOneCardPerTurn()) {
+        $alreadyCounted = 0;
+
+        if ($this->isRolePlay()) {
+            $points = collect($current['guesses'] ?? [])->map(function (array $guess, int $userId) use ($card) {
+                $guesser = $this->user_a_id === $userId ? $this->userA : $this->userB;
+                $options = $this->guessOptionsFor($guesser, $card, count($this->turns) - 1);
+                $friendGoal = $this->roleOf($this->partnerFor($guesser), $card, count($this->turns) - 1)['goal'] ?? null;
+
+                return (($options[$guess['option']] ?? null) === $friendGoal ? self::POINTS_WORD : 0) + ($guess['reached'] ? self::POINTS_WORD : 0);
+            })->sum();
+        } elseif ($this->isStoryChain()) {
+            $result = ($current['used'] ?? false) ? self::RESULT_GOT : self::RESULT_MISSED;
+            $points = $alreadyCounted = $result === self::RESULT_GOT ? self::POINTS_WORD : 0;
+        } elseif ($this->isJustAMinute()) {
+            $points = $result === self::RESULT_GOT ? self::POINTS_WORD : 0;
+        } elseif ($result === self::RESULT_GOT && $this->isOneCardPerTurn()) {
             $points = self::POINTS_WORD + (count($current['answers'] ?? []) <= self::QUICK_GUESS_QUESTIONS ? self::POINTS_BONUS : 0);
         } elseif ($result === self::RESULT_GOT) {
             $points = $current['letter'] ? self::POINTS_WITH_LETTER : self::POINTS_WORD;
@@ -510,12 +811,14 @@ class PairGame extends Model
             'letter' => $current['letter'],
             'bonus_said' => $current['bonus_said'],
             'questions' => count($current['answers'] ?? []),
+            'heard' => $current['heard'] ?? [],
+            'guesses' => $current['guesses'] ?? [],
             'points' => $points,
             'at' => now()->getTimestamp(),
         ];
 
         $this->turns = $turns;
-        $this->score += $points;
+        $this->score += $points - $alreadyCounted;
     }
 
     /**
@@ -563,12 +866,28 @@ class PairGame extends Model
             return;
         }
 
+        if ($this->isJustAMinute() && ($turn['current']['phase'] ?? null) === self::PHASE_TALK) {
+            $this->startQuestion();
+
+            return;
+        }
+
+        if ($this->isRolePlay() && ($turn['current']['phase'] ?? null) === self::PHASE_TALK) {
+            $turns = $this->turns;
+            $turns[array_key_last($turns)]['current']['phase'] = self::PHASE_GUESS;
+            $turns[array_key_last($turns)]['ends_at'] = now()->addSeconds(self::GUESS_SECONDS)->getTimestamp();
+            $this->turns = $turns;
+            $this->save();
+
+            return;
+        }
+
         $this->closeTurn();
     }
 
     private function closeTurn(): void
     {
-        $this->closeCard(self::RESULT_MISSED);
+        $this->closeCard($this->isRolePlay() ? self::RESULT_GOT : self::RESULT_MISSED);
         $this->endTurn();
     }
 
@@ -589,6 +908,15 @@ class PairGame extends Model
         }
 
         $this->stage = self::STAGE_READY;
+
+        // A story goes on by itself to the other teller; only a new story
+        // waits for its Start.
+        if ($this->isStoryChain() && count($turns) % $this->storyTurns() !== 0) {
+            $this->beginTurn($this->explainerOf(count($turns)));
+
+            return;
+        }
+
         $this->save();
     }
 
@@ -710,6 +1038,20 @@ class PairGame extends Model
      */
     public function creditFor(User $user): int
     {
+        if ($this->isStoryChain()) {
+            return collect($this->playedCards())->where('explainer_id', $user->id)->where('result', self::RESULT_GOT)->count();
+        }
+
+        if ($this->isRolePlay()) {
+            return collect($this->turns ?? [])->sum(fn (array $turn) => collect($turn['cards'])->sum(fn (array $card) => ($card['guesses'][$user->id]['reached'] ?? false) ? 1 : 0));
+        }
+
+        if ($this->isJustAMinute()) {
+            return collect($this->turns ?? [])
+                ->where('explainer_id', $user->id)
+                ->sum(fn (array $turn) => collect($turn['cards'])->sum(fn (array $card) => count($card['heard'] ?? [])));
+        }
+
         if (! $this->isOneCardPerTurn()) {
             return $this->guessedWhileExplaining($user);
         }
@@ -718,13 +1060,25 @@ class PairGame extends Model
     }
 
     /**
-     * Words skipped or left when the time ran out — shown at the end only,
-     * never saved anywhere.
+     * Words skipped or left when the time ran out (Just a Minute: target
+     * words never heard) — shown at the end only, never saved anywhere.
      *
      * @return list<string>
      */
     public function missedWords(): array
     {
+        if ($this->isRolePlay()) {
+            return [];
+        }
+
+        if ($this->isJustAMinute()) {
+            return collect($this->turns ?? [])
+                ->flatMap(fn (array $turn) => collect($turn['cards'])->flatMap(fn (array $card) => array_diff($this->deck[$card['card']]['words'] ?? [], $card['heard'] ?? [])))
+                ->unique()
+                ->values()
+                ->all();
+        }
+
         return collect($this->playedCards())
             ->where('result', '!=', self::RESULT_GOT)
             ->pluck('word')

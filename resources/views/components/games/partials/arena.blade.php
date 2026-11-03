@@ -24,8 +24,11 @@
 
 <div class="dark fixed inset-0 z-[55] overflow-y-auto bg-ground-dark text-ink-dark">
     <div class="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div class="flex items-center justify-between" x-data="{ confirming: false }">
-            <button type="button" x-on:click="confirming = true" aria-label="End game" class="-ms-2 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft-dark hover:bg-surface-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</button>
+        <div class="flex items-center justify-between" x-data="{ confirming: false, guide: false }">
+            <div class="flex items-center">
+                <button type="button" x-on:click="confirming = true" aria-label="End game" class="-ms-2 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft-dark hover:bg-surface-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</button>
+                <button type="button" x-on:click="guide = true" aria-label="How to play" class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft-dark hover:bg-surface-dark">@svg('heroicon-o-information-circle', 'h-6 w-6')</button>
+            </div>
             <div class="flex items-center gap-2">
                 {{-- Shown while this phone is really recording its owner. --}}
                 <span x-data="{ rec: false, timer: null, init() { this.timer = setInterval(() => this.rec = !! window.eosGameVoice?.isRecording(), 500) }, destroy() { clearInterval(this.timer) } }" x-show="rec" x-cloak class="flex items-center gap-1.5 rounded-full bg-surface-dark px-2.5 py-1 text-xs font-extrabold text-accent-ink-dark">
@@ -36,6 +39,15 @@
                     <span class="rounded-full bg-surface-dark px-3 py-1 text-xs font-extrabold">Best {{ App\Models\PairGame::formatPoints($best) }}</span>
                 @endif
             </div>
+
+            <template x-teleport="body">
+                <div x-show="guide" x-cloak class="dark fixed inset-0 z-[70] flex items-end justify-center bg-black/50" x-on:click.self="guide = false" x-on:keydown.escape.window="guide = false">
+                    <div class="w-full max-w-lg space-y-4 rounded-t-2xl bg-surface-dark p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]" role="dialog" aria-modal="true" aria-label="How to play">
+                        @include('components.games.partials.guide', ['gameKey' => $pairGame->game, 'dark' => true])
+                        <button type="button" x-on:click="guide = false" class="w-full cursor-pointer rounded-full bg-accent-dark px-4 py-3 text-sm font-semibold text-white">OK</button>
+                    </div>
+                </div>
+            </template>
 
             <template x-teleport="body">
                 <div x-show="confirming" x-cloak class="dark fixed inset-0 z-[70] flex items-end justify-center bg-black/50" x-on:click.self="confirming = false" x-on:keydown.escape.window="confirming = false">
@@ -58,11 +70,11 @@
             </div>
             @if ($turn)
                 <div
-                    wire:key="clock-{{ $turnIndex }}"
+                    wire:key="clock-{{ $turnIndex }}-{{ $pairGame->phase() }}"
                     x-data="{
                         endsAt: {{ $turn['ends_at'] * 1000 }},
-                        total: {{ $pairGame->turnSeconds() }},
-                        left: {{ $pairGame->turnSeconds() }},
+                        total: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, default => $pairGame->turnSeconds() } }},
+                        left: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, default => $pairGame->turnSeconds() } }},
                         fired: false,
                         warned: false,
                         timer: null,
@@ -90,7 +102,16 @@
         @if (! $turn)
             {{-- Between turns: who explains next, and their Start. --}}
             <div class="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
-                @if ($previousTurn && $pairGame->isOneCardPerTurn())
+                @if ($previousTurn && $pairGame->isRolePlay())
+                    @include('components.games.partials.role-reveal', ['revealTurn' => $previousTurn, 'revealIndex' => count($pairGame->turns) - 1])
+                @elseif ($previousTurn && $pairGame->isStoryChain())
+                    <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">Story {{ intdiv(count($pairGame->turns), $pairGame->storyTurns()) }} done!</p>
+                @elseif ($previousTurn && $pairGame->isJustAMinute())
+                    @php $lastTalk = collect($previousTurn['cards'])->last(); @endphp
+                    @if ($lastTalk)
+                        <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">{{ count($lastTalk['heard'] ?? []) }} / {{ count($pairGame->deck[$lastTalk['card']]['words'] ?? []) }} words used{{ $lastTalk['result'] === App\Models\PairGame::RESULT_GOT ? ' · question asked' : '' }}</p>
+                    @endif
+                @elseif ($previousTurn && $pairGame->isOneCardPerTurn())
                     @php $lastSecret = collect($previousTurn['cards'])->last(); @endphp
                     @if ($lastSecret)
                         <p @class(['animate-badge-pop rounded-full px-4 py-1.5 text-sm font-extrabold', 'bg-success-soft-dark text-success-dark' => $lastSecret['result'] === App\Models\PairGame::RESULT_GOT, 'bg-surface-dark text-ink-soft-dark' => $lastSecret['result'] !== App\Models\PairGame::RESULT_GOT])>
@@ -102,7 +123,34 @@
                     <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">+{{ $lastTurnWords }} {{ Str::plural('word', $lastTurnWords) }} last turn</p>
                 @endif
                 <x-user-avatar :user="$explainer" class="h-20 w-20 text-xl" />
-                @if ($isExplainer && $pairGame->isOneCardPerTurn())
+                @if ($pairGame->isRolePlay())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">Scene {{ count($pairGame->turns ?? []) + 1 }} of {{ $pairGame->plannedTurns() }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $isExplainer ? 'You start · 2 min to talk' : $explainer->name.' starts · get ready' }}</p>
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
+                @elseif ($pairGame->isStoryChain())
+                    @php $nextStory = $pairGame->deck[intdiv(count($pairGame->turns ?? []), $pairGame->storyTurns()) * $pairGame->storyTurns()] ?? null; @endphp
+                    <div class="space-y-2">
+                        <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'You start the story' : $explainer->name.' starts the story' }}</p>
+                        @if ($nextStory)
+                            <p class="mx-auto max-w-sm text-sm font-semibold text-ink-soft-dark">“{{ $nextStory['line'] }}”</p>
+                        @endif
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
+                @elseif ($pairGame->isJustAMinute())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'Your turn to talk' : $explainer->name.' talks next' }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $isExplainer ? $pairGame->turnSeconds().' s · '.$friend->name.' listens for your words' : 'Listen for the four words — then ask one question!' }}</p>
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
+                @elseif ($isExplainer && $pairGame->isOneCardPerTurn())
                     <div>
                         <p class="font-display text-3xl font-extrabold">You hold the secret</p>
                         <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $pairGame->turnSeconds() }} s · {{ $friend->name }} asks, you answer</p>
@@ -126,6 +174,12 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isRolePlay())
+            @include('components.games.partials.role-turn')
+        @elseif ($pairGame->isStoryChain())
+            @include('components.games.partials.story-turn')
+        @elseif ($pairGame->isJustAMinute())
+            @include('components.games.partials.minute-turn')
         @elseif ($pairGame->isOneCardPerTurn())
             @include('components.games.partials.who-turn')
         @elseif ($isExplainer)
