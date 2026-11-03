@@ -320,7 +320,7 @@ class MissionSeeder extends Seeder
                                                 [
                                                     'type' => 'rule',
                                                     'text' => 'With <strong>he / she / it</strong>, add <strong>-s</strong> to the verb.',
-                                                    'fa' => 'برای he / she / it، به آخر فعل «s» اضافه می‌کنیم.',
+                                                    'fa' => 'برای he / she / it، به آخر فعل «s» اضافه می‌کنیم. بعضی فعل‌ها «es» یا «ies» می‌گیرند و have می‌شود has.',
                                                 ],
                                                 [
                                                     'type' => 'formula',
@@ -329,6 +329,12 @@ class MissionSeeder extends Seeder
                                                         ['text' => 'She', 'caption' => 'he / she / it'],
                                                         ['text' => 'wakes', 'caption' => 'verb + s'],
                                                         ['text' => 'up early', 'caption' => 'the rest'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Watch the spelling', 'words' => ['go → goes', 'watch → watches', 'study → studies', 'have → has']],
                                                     ],
                                                 ],
                                                 [

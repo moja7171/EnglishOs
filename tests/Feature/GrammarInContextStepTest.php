@@ -824,7 +824,21 @@ class GrammarInContextStepTest extends TestCase
             ->assertSee('verb + s')
             ->assertSee('She wake up.')
             ->assertSee('She wakes up.')
-            ->assertSee('Do not forget the -s.');
+            ->assertSee('Do not forget the -s.')
+            ->assertDontSeeHtml('showFa');
+    }
+
+    public function test_m01_teaches_the_he_she_it_spelling_changes(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $firstSection = Mission::where('code', 'M01')->first()->stepContent('grammar_in_context')['lesson']['sections'][0];
+        $words = collect($firstSection['blocks'])->where('type', 'chips')->flatMap(fn (array $chips) => collect($chips['groups'])->flatMap(fn (array $group) => $group['words']));
+
+        $this->assertContains('go → goes', $words);
+        $this->assertContains('watch → watches', $words);
+        $this->assertContains('study → studies', $words);
+        $this->assertContains('have → has', $words);
     }
 
     public function test_every_seeded_grammar_lesson_follows_the_one_idea_per_section_shape(): void

@@ -1,6 +1,6 @@
 {{--
     One lesson section as a short rule screen (lesson design 5): the
-    section's name, its one-line rule (Persian behind a tap), the formula as
+    section's name, its one-line rule with its Persian line under it, the formula as
     colour-coded tiles and any word scale. Examples are left out — the
     formula carries one, and the "Which one is right?" screen after it is
     the section's example in action. Also lists every rule in the 💡 Rule
@@ -29,11 +29,10 @@
 
     @foreach ($blocks->where('type', 'rule') as $rule)
         {{-- Trusted, developer-authored seed content, light <strong>/<em> allowed. --}}
-        <div x-data="{ showFa: false }" class="flex flex-col gap-2 rounded-3xl bg-accent-soft p-4 dark:bg-accent-soft-dark">
+        <div class="flex flex-col gap-2 rounded-3xl bg-accent-soft p-4 dark:bg-accent-soft-dark">
             <p class="text-lg leading-snug font-semibold text-ink dark:text-ink-dark [&_strong]:text-accent-ink dark:[&_strong]:text-accent-ink-dark">{!! $rule['text'] !!}</p>
             @if (! empty($rule['fa']))
-                <button type="button" x-on:click="showFa = ! showFa" class="font-fa w-fit cursor-pointer rounded-full border border-accent/30 px-3 py-0.5 text-xs font-bold text-accent-ink dark:border-accent-dark/40 dark:text-accent-ink-dark">فارسی</button>
-                <p x-show="showFa" x-cloak dir="rtl" class="font-fa text-base leading-loose text-ink-soft dark:text-ink-soft-dark">{!! $rule['fa'] !!}</p>
+                <p dir="rtl" class="font-fa border-t border-accent/20 pt-2 text-sm leading-loose text-ink-soft dark:border-accent-dark/30 dark:text-ink-soft-dark">{!! $rule['fa'] !!}</p>
             @endif
         </div>
     @endforeach
