@@ -46,8 +46,11 @@
         72px stop whose ring breathes while recording) instead of the
         labeled pill buttons. Review and the saved take look the same as
         always.
+    @param int|null $target Seconds the learner is asked to talk for (e.g. 120
+        for "Talk alone · 2 min"): the big recorder shows a filling bar and
+        "01:12 / 02:00" while recording, green once the target is reached.
 --}}
-@props(['field', 'file' => null, 'onRecorded' => null, 'onRecordedParam' => null, 'onUploaded' => null, 'onProcessed' => null, 'fileName' => 'recording.webm', 'compact' => false, 'big' => false])
+@props(['field', 'file' => null, 'onRecorded' => null, 'onRecordedParam' => null, 'onUploaded' => null, 'onProcessed' => null, 'fileName' => 'recording.webm', 'compact' => false, 'big' => false, 'target' => null])
 
 <div
     x-data="{
@@ -62,6 +65,7 @@
             document.addEventListener('visibilitychange', this.onVisibilityChange);
         },
         MAX_SECONDS: 180,
+        TARGET_SECONDS: {{ (int) $target }},
         // idle | recording | paused | review
         state: 'idle',
         cancelled: false,
@@ -492,8 +496,13 @@
                         <span x-show="state === 'paused'" x-cloak>@svg('heroicon-s-microphone', 'h-5 w-5 text-danger')</span>
                     </button>
                 </div>
+                @if ($target)
+                    <div class="h-1.5 w-48 overflow-hidden rounded-full bg-line dark:bg-line-dark" aria-hidden="true">
+                        <div class="h-full rounded-full transition-[width] duration-500" x-bind:class="seconds >= TARGET_SECONDS ? 'bg-success dark:bg-success-dark' : 'bg-accent dark:bg-accent-dark'" x-bind:style="`width: ${Math.min(100, (seconds / TARGET_SECONDS) * 100)}%`"></div>
+                    </div>
+                @endif
                 <div class="inline-flex items-center gap-2 text-sm font-bold text-ink tabular-nums dark:text-ink-dark">
-                    <span x-bind:class="{ 'animate-pulse': state === 'paused', 'text-warning-ink': nearLimit }" x-text="formattedTime"></span>
+                    <span x-bind:class="{ 'animate-pulse': state === 'paused', 'text-warning-ink': nearLimit, 'text-success dark:text-success-dark': TARGET_SECONDS && seconds >= TARGET_SECONDS && ! nearLimit }" x-text="formattedTime + (TARGET_SECONDS ? ' / ' + clock(TARGET_SECONDS) : '')"></span>
                     <span class="flex h-5 items-center gap-0.5" aria-hidden="true">
                         <template x-for="(level, index) in levels" :key="index">
                             <span

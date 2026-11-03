@@ -543,7 +543,7 @@ new class extends Component
             @endforeach
         </div>
         <div class="flex justify-center">
-            <x-voice-recorder big field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" />
+            <x-voice-recorder big field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" :target="120" />
         </div>
         @error('warmUpAudioFile')
             <x-error-card>{{ str_replace('warmUpAudioFile', 'recording', $message) }}</x-error-card>

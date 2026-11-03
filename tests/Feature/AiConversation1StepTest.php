@@ -118,6 +118,13 @@ class AiConversation1StepTest extends TestCase
             ->assertDontSee('Words you picked');
     }
 
+    public function test_the_two_minute_talk_alone_recorder_counts_towards_two_minutes(): void
+    {
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $this->makeRun()])
+            ->assertSee('Talk alone · 2 min')
+            ->assertSeeHtml('TARGET_SECONDS: 120,');
+    }
+
     public function test_the_warm_up_does_not_show_a_pi_practice_card(): void
     {
         $run = $this->makeRun();
