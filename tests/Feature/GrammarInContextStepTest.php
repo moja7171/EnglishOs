@@ -333,6 +333,22 @@ class GrammarInContextStepTest extends TestCase
             ->assertSee('He/she/it needs the -s ending.');
     }
 
+    public function test_each_section_is_topped_up_to_three_questions_from_the_practice_config(): void
+    {
+        $run = $this->makeRun();
+        config(['grammar_practice.M01' => [0 => [
+            ['wrong' => 'He go home.', 'right' => 'He goes home.', 'why' => 'he → goes.'],
+            ['wrong' => 'She watchs TV.', 'right' => 'She watches TV.', 'why' => 'ch → -es.'],
+            ['wrong' => 'It rain a lot.', 'right' => 'It rains a lot.', 'why' => 'it → rains.'],
+        ]]]);
+
+        $html = Livewire::test('missions.steps.grammar-in-context', ['run' => $run])->html();
+
+        $this->assertSame(3, substr_count($html, 'Which one is right?'));
+        $this->assertStringContainsString('She watches TV.', $html);
+        $this->assertStringNotContainsString('It rains a lot.', $html);
+    }
+
     public function test_the_lesson_is_visible_in_read_only_review_mode(): void
     {
         $run = $this->makeRun();
