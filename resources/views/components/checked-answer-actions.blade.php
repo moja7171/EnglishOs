@@ -5,10 +5,12 @@
 
     - nothing checked yet: Check;
     - right: the green sheet (✓ Great! + a short comment) and Continue;
-    - nearly right (Almost!): the hint, Check again, and a quiet
-      "Continue anyway" link;
-    - not right (Not quite): the hint and Check again — no way on until the
-      sentence is better ("Show me a right one" after enough tries);
+    - nearly right (Almost!): the sentence written right, one Persian line
+      on why (the English hint when the AI gave no fix), Check again, and a
+      quiet "Continue anyway" link;
+    - not right (Not quite): the same, and Check again — no way on until
+      the sentence is better ("Show me a right one" after enough tries, only
+      when no fixed sentence was given);
     - the AI could not answer: a red card saying why, Try again, and a quiet
       "Continue without check" — a busy or broken service never holds a
       learner back. The earlier verdict is not shown then: it belonged to
@@ -87,13 +89,18 @@
 @elseif ($feedback)
     {{-- Own keys for the two states: without them Livewire's morph reuses the Check wrapper's element for the sheet and the sheet's tone never applies. --}}
     <x-answer-sheet when="! checking" :tone="$tone" :title="$title" wire:key="answer-sheet-{{ $index }}">
-        @if (filled($feedback['hint'] ?? null))
+        @if (filled($feedback['corrected'] ?? null))
+            <span class="block text-base font-extrabold text-success dark:text-success-dark">{{ $feedback['corrected'] }}</span>
+            @if (filled($feedback['why_fa'] ?? null))
+                <span class="mt-1 block font-fa" dir="rtl">{{ $feedback['why_fa'] }}</span>
+            @endif
+        @elseif (filled($feedback['hint'] ?? null))
             {{ $feedback['hint'] }}
         @endif
         @if ($severity === 'none' && isset($extra))
             {{ $extra }}
         @endif
-        <x-almost-reveal-notice :show="$almostRevealing" />
+        <x-almost-reveal-notice :show="$almostRevealing && blank($feedback['corrected'] ?? null)" />
 
         <x-slot:actions>
             @if ($severity === 'none')
@@ -112,7 +119,7 @@
                 <x-continue-button :on-click="$runCheck" :wire-target="$wireTarget" loading-label="Checking…" :ready-when="$changedAndReady">Check again</x-continue-button>
                 @if ($severity === 'minor')
                     <button type="button" x-show="! edited[{{ $key }}]" x-on:click="{{ $next }}" wire:loading.attr="disabled" wire:target="{{ $wireTarget }}" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Continue anyway</button>
-                @elseif ($offerReveal)
+                @elseif ($offerReveal && blank($feedback['corrected'] ?? null))
                     <button type="button" wire:click="{{ $reveal }}({{ $key }})" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Show me a right one</button>
                 @endif
             @endif

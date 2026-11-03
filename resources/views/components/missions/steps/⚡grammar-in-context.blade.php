@@ -280,6 +280,7 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
             $this->trackCheckAttempt($index, $data['severity']);
+            $this->noteCheckedMistake($this->fullSentence($starter, $sentence), $data, 'grammar_in_context');
             $this->keepStepDraft();
 
             return true;

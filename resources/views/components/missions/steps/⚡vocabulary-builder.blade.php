@@ -338,6 +338,7 @@ new class extends Component
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
             $this->trackCheckAttempt($word, $data['severity']);
+            $this->noteCheckedMistake($example, $data, 'vocabulary_builder');
             $this->keepStepDraft();
 
             return true;

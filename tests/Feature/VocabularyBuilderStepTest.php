@@ -778,6 +778,33 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Clear and natural.');
     }
 
+    public function test_a_wrong_sentence_shows_the_fix_with_a_persian_why_and_lands_in_the_notebook(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'severity' => 'minor',
+            'hint' => "Use 'up' after wake.",
+            'corrected' => 'I wake up at seven every day.',
+            'why_fa' => 'فعل «wake» همیشه با «up» می‌آید.',
+        ])));
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I wake at seven every days.')
+            ->call('checkOne', 0)
+            ->assertSee('I wake up at seven every day.')
+            ->assertSee('فعل «wake» همیشه با «up» می‌آید.')
+            ->assertDontSee('One more try');
+
+        $this->assertDatabaseHas('notebook_entries', [
+            'learner_id' => $learner->id,
+            'kind' => 'mistake',
+            'original' => 'I wake at seven every days.',
+            'better' => 'I wake up at seven every day.',
+            'source' => 'vocabulary_builder',
+        ]);
+    }
+
     public function test_a_major_issue_offers_only_check_again_not_continue(): void
     {
         [, , $run] = $this->makeMissionAndRun();

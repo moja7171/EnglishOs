@@ -163,6 +163,7 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $text];
             $this->trackCheckAttempt($index, $data['severity']);
+            $this->noteCheckedMistake($text, $data, 'reading_comprehension');
             $this->keepStepDraft();
 
             return true;

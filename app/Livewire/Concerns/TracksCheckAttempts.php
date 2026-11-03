@@ -3,6 +3,7 @@
 namespace App\Livewire\Concerns;
 
 use App\Services\AiFailure;
+use App\Services\FeedbackNotebook;
 use App\Services\SentenceChecker;
 
 /**
@@ -81,6 +82,27 @@ trait TracksCheckAttempts
     public function isAlmostRevealing(int|string $key): bool
     {
         return ($this->checkAttempts[$key] ?? 0) === $this->revealThreshold() - 1;
+    }
+
+    /**
+     * A verdict that came with a fixed sentence goes into the learner's
+     * mistakes notebook (see FeedbackNotebook::recordCheck()) — the box is
+     * usually put right a moment later, and the mistake must not vanish
+     * with it. Never lets a notebook problem touch the check.
+     *
+     * @param  array{severity: string, corrected?: ?string, why_fa?: ?string}  $verdict
+     */
+    protected function noteCheckedMistake(string $text, array $verdict, string $source): void
+    {
+        if ($verdict['severity'] === 'none' || blank($verdict['corrected'] ?? null)) {
+            return;
+        }
+
+        try {
+            app(FeedbackNotebook::class)->recordCheck($this->run->learner, $text, $verdict['corrected'], $verdict['why_fa'] ?? null, $source);
+        } catch (\Throwable) {
+            // The notebook line is a bonus; the verdict already reached the learner.
+        }
     }
 
     protected function clearCheckAttempt(int|string $key): void

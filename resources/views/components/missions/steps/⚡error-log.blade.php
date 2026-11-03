@@ -108,6 +108,14 @@ new class extends Component
 
         try {
             $text = $this->run->allLearnerText();
+            $slips = collect($this->run->checkedSlips())
+                ->map(fn (array $slip) => "- \"{$slip['original']}\" (fixed later: \"{$slip['better']}\")")
+                ->implode("\n");
+
+            if ($slips !== '') {
+                $text = trim($text."\n\nShort exercise sentences the learner first got wrong (they were shown the fix, but the "
+                    ."pattern is worth practising):\n".$slips);
+            }
 
             if (trim($text) === '') {
                 $this->mistakes = [];

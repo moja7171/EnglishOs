@@ -8,10 +8,10 @@ use RuntimeException;
  * Shared AI sentence-check rules used by every mission step with free-text
  * sentence input (Vocabulary Builder, Listening, and any future step — see
  * EOS-009 §8 "الگوی چک جمله"). Handles the boilerplate every such check
- * needs — spelling, capitalization, end punctuation, word form; guiding
- * hints only, except a narrow exception for purely mechanical fixes — so
- * each caller only supplies what makes ITS check different: the actual
- * judgment being made.
+ * needs — spelling, capitalization, end punctuation, word form; with a
+ * problem, the sentence written right plus one Persian line on why (a B1
+ * learner could not act on an English-only nudge) — so each caller only
+ * supplies what makes ITS check different: the actual judgment being made.
  */
 class SentenceChecker
 {
@@ -35,7 +35,7 @@ class SentenceChecker
      * @param  string|null  $feedbackDepth  Mission::feedbackDepth() — where the "none"/"minor"
      *                                      line falls at this point in the roadmap (S5). Never touches
      *                                      what counts as "major", tone, or hint length.
-     * @return array{severity: string, hint: string}
+     * @return array{severity: string, hint: string, corrected: ?string, why_fa: ?string}
      */
     public function check(
         string $judgment,
@@ -55,7 +55,10 @@ class SentenceChecker
     }
 
     /**
-     * @return array{severity: string, hint: string}
+     * The fixed sentence and the Persian why only come with a real
+     * problem: a "none" verdict carries neither.
+     *
+     * @return array{severity: string, hint: string, corrected: ?string, why_fa: ?string}
      */
     private function parseVerdict(string $raw): array
     {
@@ -65,7 +68,14 @@ class SentenceChecker
             throw new RuntimeException('Unexpected AI response format.');
         }
 
-        return ['severity' => $data['severity'], 'hint' => (string) ($data['hint'] ?? '')];
+        $filled = fn (string $field) => $data['severity'] !== 'none' && filled($data[$field] ?? null) ? trim((string) $data[$field]) : null;
+
+        return [
+            'severity' => $data['severity'],
+            'hint' => (string) ($data['hint'] ?? ''),
+            'corrected' => $filled('corrected'),
+            'why_fa' => $filled('why_fa'),
+        ];
     }
 
     /**
@@ -109,7 +119,7 @@ class SentenceChecker
             .'every word; that the sentence starts with a capital letter and ends with proper punctuation '
             .'(. ? or !); and that any word is used in the right grammatical form (e.g. not a noun used as a '
             .'verb). Reply with ONLY valid JSON, no markdown fences, shaped exactly like: {"severity": "major" '
-            .'or "minor" or "none", "hint": "..."}. Use "major" only for real problems: '.$majorCriteria.', or '
+            .'or "minor" or "none", "hint": "...", "corrected": "...", "why_fa": "..."}. Use "major" only for real problems: '.$majorCriteria.', or '
             .'it is not real English, or it makes no sense (words that do not say anything meaningful, even if each '
             .'word is spelled correctly). Use "minor" for small slips: spelling mistakes, a missing capital letter '
             .'or end punctuation, a wrong word form, or article/preposition/tense mistakes — things that do '
@@ -124,15 +134,15 @@ class SentenceChecker
         }
 
         return $prompt
-            .' For a grammar, meaning, or wording problem, the hint must be a short nudge — a statement, never '
-            .'a question — that points at what to fix so the learner fixes it themselves; never write the '
-            .'corrected sentence for them. '
-            .'EXCEPTION: if the issue is a spelling mistake, a missing/wrong capital letter, or missing end '
-            .'punctuation, say directly what the fix is — that is a fact, not the answer to the exercise. '
-            .'Phrase a spelling fix explicitly, e.g. \'wrok\' should be spelled \'work\'. Never use double quote '
-            .'characters inside the hint — quote a word with single quotes only, so the JSON stays valid. Keep the hint to ONE '
-            .'short, simple sentence, no more than 12 words, plain everyday words — no jargon. '
-            .'When the severity is "none", the hint is still never empty: one short, warm comment on what '
-            .'works well, no more than 8 words (e.g. \'Clear and natural.\').';
+            .' For "major" or "minor": the hint is a short English nudge — a statement, never a question — '
+            .'naming what to fix, ONE short simple sentence, no more than 12 words, plain everyday words, no '
+            .'jargon; "corrected" is the learner\'s whole sentence written correctly and naturally, changing as '
+            .'little as possible and keeping their own meaning; "why_fa" is ONE short sentence in PERSIAN '
+            .'(Farsi), at most 15 words, saying why — plain Persian, any English word quoted in Latin letters '
+            .'inside «», e.g. «for» — never spell an English word in Persian letters. Never use double quote '
+            .'characters inside any value — quote with single quotes or «» only, so the JSON stays valid. '
+            .'When the severity is "none", "corrected" and "why_fa" are empty strings and the hint is still '
+            .'never empty: one short, warm comment on what works well, no more than 8 words (e.g. '
+            .'\'Clear and natural.\').';
     }
 }
