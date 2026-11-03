@@ -45,6 +45,18 @@ class QuickRoundComponentTest extends TestCase
         $this->assertStringNotContainsString('x-on:click="proceed()"', $plain);
     }
 
+    public function test_a_wrong_answer_waits_for_continue_and_its_card_comes_back_once(): void
+    {
+        $cards = [['prompt' => 'word', 'options' => ['a', 'b'], 'correct' => 0]];
+
+        $html = Blade::render('<x-quick-round lesson on-complete="screen++" :cards="$cards" />', ['cards' => $cards]);
+
+        $this->assertStringContainsString('if (! this.card.again) this.cards.push({ ...this.card, again: true });', $html);
+        $this->assertStringContainsString('Not quite — the right one is green. It comes back at the end.', $html);
+        $this->assertStringContainsString('x-on:click="advance()"', $html);
+        $this->assertStringContainsString('right on the first try', $html);
+    }
+
     public function test_on_complete_and_on_skip_alpine_statements_are_embedded(): void
     {
         $cards = [['prompt' => 'word', 'options' => ['a', 'b'], 'correct' => 0]];

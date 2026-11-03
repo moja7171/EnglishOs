@@ -614,7 +614,7 @@ new class extends Component
                         label="Fix the sentence"
                         :cards="$this->quickCheckCards()"
                         :draft-key="$preview ? null : $draftPrefix.'quickCheck'"
-                        on-complete="$wire.set('quickCheckScore', { correct: this.correctCount, total: this.cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
+                        on-complete="$wire.set('quickCheckScore', { correct: this.correctCount, total: this.firstTries }, false); if (screen === {{ $screenIndex }}) screen++"
                         on-skip="screen++"
                     />
                 </section>
