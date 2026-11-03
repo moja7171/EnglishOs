@@ -249,7 +249,7 @@ class MissionSeeder extends Seeder
                         'label' => 'Day 2',
                         'mode' => 'solo',
                         'pair_speaking' => [
-                            ['question' => 'What do you do first every morning?', 'answer' => 'I usually have a shower first, and then I clean my teeth.', 'words' => ['have a shower', 'clean my teeth', 'usually']],
+                            ['question' => 'What do you do first every morning?', 'answer' => 'I usually have a shower first, and then I brush my teeth.', 'words' => ['have a shower', 'brush my teeth', 'usually']],
                             ['question' => 'What do you usually have for breakfast?', 'answer' => 'I often have cereal with milk, and I never drink coffee in the morning.', 'words' => ['cereal', 'often', 'never']],
                             ['question' => 'How often do you get a takeaway?', 'answer' => 'We get a takeaway about once a week, usually on Friday night.', 'words' => ['takeaway', 'once a week']],
                             ['question' => 'Who does the shopping in your family?', 'answer' => 'My mum usually does the shopping, but I sometimes buy a snack on the way home.', 'words' => ['does the shopping', 'snack']],
@@ -261,14 +261,14 @@ class MissionSeeder extends Seeder
                                 'duration_minutes' => 10,
                                 'hook' => 'A few more everyday words — the kind you actually reach for at home.',
                                 'story' => 'For breakfast I usually have **cereal**. In the morning I **have a '
-                                    .'shower** and **clean my teeth** before I leave. In the afternoon I have a '
+                                    .'shower** and **brush my teeth** before I leave. In the afternoon I have a '
                                     .'**snack** if I\'m hungry. If I\'m tired in the evening, we sometimes order '
                                     .'a **takeaway** instead of cooking. On Saturdays we **do the shopping** '
                                     .'together.',
                                 'words' => [
                                     ['phrase' => 'cereal', 'meaning' => 'a breakfast food made from grain, eaten with milk', 'meaning_fa' => 'غلات صبحانه (کورن‌فلکس و مانند آن)', 'pos' => 'noun', 'example' => 'I had a bowl of cereal for breakfast.', 'image_query' => 'bowl of cereal breakfast', 'difficulty' => 'easy'],
                                     ['phrase' => 'have a shower', 'meaning' => 'to wash your whole body under running water', 'meaning_fa' => 'دوش گرفتن', 'pos' => 'verb phrase', 'synonym' => 'shower (verb)', 'example' => 'I have a shower every morning before work.', 'image_query' => 'man showering bathroom', 'difficulty' => 'easy'],
-                                    ['phrase' => 'clean my teeth', 'meaning' => 'to brush your teeth', 'meaning_fa' => 'مسواک زدن', 'pos' => 'verb phrase', 'synonym' => 'brush my teeth', 'example' => 'Remember to clean your teeth before bed.', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy'],
+                                    ['phrase' => 'brush my teeth', 'meaning' => 'to clean your teeth with a toothbrush', 'meaning_fa' => 'مسواک زدن', 'pos' => 'verb phrase', 'synonym' => 'clean my teeth (British)', 'example' => 'I always brush my teeth before bed.', 'image_query' => 'man brushing his teeth toothbrush', 'difficulty' => 'easy'],
                                     ['phrase' => 'snack', 'meaning' => 'a small amount of food eaten between meals', 'meaning_fa' => 'میان‌وعده', 'pos' => 'noun', 'synonym' => 'nibble', 'example' => 'I had a snack around four o\'clock.', 'image_query' => 'healthy snack food', 'difficulty' => 'easy'],
                                     ['phrase' => 'takeaway', 'meaning' => 'a meal bought from a restaurant but eaten at home', 'meaning_fa' => 'غذای بیرون‌بر', 'pos' => 'noun', 'synonym' => 'takeout', 'example' => 'We ordered a takeaway on Friday night.', 'image_query' => 'takeaway food box', 'difficulty' => 'medium'],
                                     ['phrase' => 'do the shopping', 'meaning' => 'to buy food and other things you need', 'meaning_fa' => 'خرید کردن (خرید خانه)', 'pos' => 'verb phrase', 'synonym' => 'go shopping', 'example' => 'I do the shopping every Saturday morning.', 'image_query' => 'grocery shopping', 'difficulty' => 'easy'],
