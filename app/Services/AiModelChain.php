@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
@@ -54,6 +55,9 @@ class AiModelChain
 
     private const DEFAULT_DAILY_SECONDS = 21600;
 
+    /** The hidden Context key holding when this web request's AI time runs out (see requestSecondsLeft()). */
+    private const REQUEST_DEADLINE_CONTEXT = 'ai-request-deadline';
+
     /**
      * Parses "model" / "model:thinkingLevel" entries (the level only means something to Gemini).
      *
@@ -90,8 +94,9 @@ class AiModelChain
      * made, and a failure that is the model's own (quota, retired, 5xx,
      * timeout) marks it unavailable for a while and moves on to the next. A
      * failure that is ours (400, 401, 403) is thrown at once — another
-     * model would fail the same way. Bounded by max_attempts and a total
-     * time budget so a learner never waits long on a hard outage.
+     * model would fail the same way. Bounded by max_attempts, a total
+     * time budget, and the web request's shared AI time (see
+     * requestSecondsLeft()) so a learner never waits long on a hard outage.
      *
      * @param  list<array{model: string}>  $chain  Best first; entries may carry extra keys the attempt reads.
      * @param  Closure(array, int): mixed  $attempt  Called with the chain entry and the timeout (seconds) to use.
@@ -108,12 +113,19 @@ class AiModelChain
         $failures = [];
         $lastError = null;
 
+        if ($this->requestSecondsLeft() < 2) {
+            throw new ConnectionException("{$logLabel}: this request's AI time ran out (timed out).");
+        }
+
         foreach ($this->candidates($provider, $chain, $tracked) as $entry) {
             if (count($failures) >= max(1, $limits['max_attempts'])) {
                 break;
             }
 
-            $remaining = max(1, $limits['budget']) - (microtime(true) - $startedAt);
+            $remaining = min(
+                max(1, $limits['budget']) - (microtime(true) - $startedAt),
+                $this->requestSecondsLeft(),
+            );
 
             if ($failures !== [] && $remaining < 2) {
                 break;
@@ -160,6 +172,31 @@ class AiModelChain
         $this->logFailure($logLabel, $failures, $lastError, $logContext);
 
         throw $lastError;
+    }
+
+    /**
+     * Seconds of AI time this web request has left. Every AI call in one
+     * request (Gemini, then the Groq fallback, then any second call the
+     * page makes) shares services.ai.request_budget, so a learner waiting
+     * on a Check never sits longer than that — a stuck chain ends in the
+     * normal "try again / continue without check" card instead of the
+     * host cutting the request off. Console jobs are not bounded: they
+     * have no one waiting on them.
+     */
+    private function requestSecondsLeft(): float
+    {
+        if (app()->runningInConsole() && ! app()->runningUnitTests()) {
+            return PHP_INT_MAX;
+        }
+
+        $deadline = Context::getHidden(self::REQUEST_DEADLINE_CONTEXT);
+
+        if ($deadline === null) {
+            $deadline = microtime(true) + max(1, (int) config('services.ai.request_budget', 25));
+            Context::addHidden(self::REQUEST_DEADLINE_CONTEXT, $deadline);
+        }
+
+        return $deadline - microtime(true);
     }
 
     /**

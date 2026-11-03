@@ -72,9 +72,12 @@ return [
         // provider call at 30 s anyway), a request tries at most
         // max_attempts models, and total_budget seconds is the ceiling
         // across all of them.
-        'attempt_timeout' => (int) env('GEMINI_ATTEMPT_TIMEOUT', 10),
+        // 6 s, not more: through the relay a struggling Gemini model used
+        // to hold a Check for 20 s before Groq (2 s) got a turn — measured
+        // 2026-11-03. Groq's fallback answers within the same request.
+        'attempt_timeout' => (int) env('GEMINI_ATTEMPT_TIMEOUT', 6),
         'max_attempts' => (int) env('GEMINI_MAX_ATTEMPTS', 3),
-        'total_budget' => (int) env('GEMINI_TOTAL_BUDGET', 20),
+        'total_budget' => (int) env('GEMINI_TOTAL_BUDGET', 6),
     ],
 
     // Speech-to-text for recorded Evidence audio — EOS-009 §11.
@@ -103,6 +106,13 @@ return [
         'judge_attempt_timeout' => (int) env('GROQ_JUDGE_ATTEMPT_TIMEOUT', 10),
         'judge_max_attempts' => (int) env('GROQ_JUDGE_MAX_ATTEMPTS', 2),
         'judge_total_budget' => (int) env('GROQ_JUDGE_TOTAL_BUDGET', 15),
+    ],
+
+    // The most AI time one web request may spend across every call it
+    // makes (see App\Services\AiModelChain::walk()), so a Check ends in a
+    // clear "try again" card well before the host cuts the request off.
+    'ai' => [
+        'request_budget' => (int) env('AI_REQUEST_BUDGET', 25),
     ],
 
     'pexels' => [
