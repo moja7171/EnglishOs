@@ -482,19 +482,20 @@ class MissionSeeder extends Seeder
                                 // just taught. Placed right after it on purpose — fresh applied
                                 // practice for the tense, before Activation's personal speaking.
                                 'duration_minutes' => 10,
-                                'hook' => 'You just learned how Present Simple works. Now use it to tell someone '
-                                    .'else\'s morning, one picture at a time.',
+                                'hook' => 'You just learned how Present Simple works. Now use it to tell Sara\'s '
+                                    .'morning, one picture at a time.',
                                 // Captions are ground truth for the AI feedback prompt only —
-                                // never rendered to the learner (see the step's own docblock).
+                                // never rendered to the learner (see the step's own docblock);
+                                // 'hint' is the one verb phrase shown under each picture.
                                 // 'alt_description' is a neutral scene description for screen
                                 // readers — unlike 'caption', it never gives away the sequencing
                                 // verb, so it can safely reach the learner (see story-sequence's
                                 // own docblock on why 'caption' itself must not).
                                 'sequence_images' => [
-                                    ['image_query' => 'alarm clock ringing bedroom morning', 'caption' => 'She wakes up', 'alt_description' => 'An alarm clock on a nightstand in a bedroom'],
-                                    ['image_query' => 'woman brushing teeth bathroom mirror', 'caption' => 'She has a shower and gets ready', 'alt_description' => 'A woman at a bathroom mirror getting ready'],
-                                    ['image_query' => 'woman eating breakfast kitchen table', 'caption' => 'She has breakfast', 'alt_description' => 'A woman at a kitchen table with breakfast'],
-                                    ['image_query' => 'woman commuting to work walking', 'caption' => 'She leaves for work', 'alt_description' => 'A woman walking outside on her way to work'],
+                                    ['image_query' => 'alarm clock ringing bedroom morning', 'caption' => 'She wakes up', 'hint' => 'wake up', 'alt_description' => 'An alarm clock on a nightstand in a bedroom'],
+                                    ['image_query' => 'woman brushing teeth bathroom mirror', 'caption' => 'She has a shower and gets ready', 'hint' => 'get ready', 'alt_description' => 'A woman at a bathroom mirror getting ready'],
+                                    ['image_query' => 'woman eating breakfast kitchen table', 'caption' => 'She has breakfast', 'hint' => 'have breakfast', 'alt_description' => 'A woman at a kitchen table with breakfast'],
+                                    ['image_query' => 'woman commuting to work walking', 'caption' => 'She leaves for work', 'hint' => 'leave for work', 'alt_description' => 'A woman walking outside on her way to work'],
                                 ],
                                 'sequencing_words' => ['First', 'Then', 'After that', 'Finally'],
                             ],
@@ -3887,10 +3888,10 @@ class MissionSeeder extends Seeder
                                 // Each query was checked against its real first Pexels result
                                 // (square), so the picture matches its caption.
                                 'sequence_images' => [
-                                    ['image_query' => 'tired student studying books', 'caption' => 'She was tired of her grammar books', 'alt_description' => 'A young woman lying on the floor among open books'],
-                                    ['image_query' => 'woman with headphones', 'caption' => 'She listened to English songs and podcasts every day', 'alt_description' => 'A smiling woman wearing white headphones'],
-                                    ['image_query' => 'women talking coffee shop', 'caption' => 'She practised speaking with a conversation partner at a café', 'alt_description' => 'Two women talking at a café table'],
-                                    ['image_query' => 'woman graduation diploma', 'caption' => 'She passed her exam and got her certificate', 'alt_description' => 'A smiling graduate holding up a certificate'],
+                                    ['image_query' => 'tired student studying books', 'caption' => 'She was tired of her grammar books', 'hint' => 'be tired of', 'alt_description' => 'A young woman lying on the floor among open books'],
+                                    ['image_query' => 'woman with headphones', 'caption' => 'She listened to English songs and podcasts every day', 'hint' => 'listen to', 'alt_description' => 'A smiling woman wearing white headphones'],
+                                    ['image_query' => 'women talking coffee shop', 'caption' => 'She practised speaking with a conversation partner at a café', 'hint' => 'practise speaking', 'alt_description' => 'Two women talking at a café table'],
+                                    ['image_query' => 'woman graduation diploma', 'caption' => 'She passed her exam and got her certificate', 'hint' => 'pass the exam', 'alt_description' => 'A smiling graduate holding up a certificate'],
                                 ],
                                 // Vocabulary in Use unit 92 (Time and sequence), D and E.
                                 'sequencing_words' => ['First', 'Then', 'After a while', 'In the end'],
@@ -4651,10 +4652,10 @@ class MissionSeeder extends Seeder
                                 // Each query was checked against its real first Pexels result
                                 // (square), so the picture matches its caption.
                                 'sequence_images' => [
-                                    ['image_query' => 'grandmother baking in kitchen', 'caption' => 'Grandma was making bread in the kitchen', 'alt_description' => 'Old hands kneading dough on a table'],
-                                    ['image_query' => 'grandfather reading newspaper', 'caption' => 'Grandpa was reading his newspaper by the window', 'alt_description' => 'An old man reading a newspaper by a window with the sea outside'],
-                                    ['image_query' => 'kids playing in backyard', 'caption' => 'Little Leo was playing catch outside', 'alt_description' => 'A small boy playing catch with a ball in front of a house'],
-                                    ['image_query' => 'family lunch table grandparents', 'caption' => 'In the end, the whole family was having lunch together outside', 'alt_description' => 'Grandparents and grandchildren having a meal at a table outside'],
+                                    ['image_query' => 'grandmother baking in kitchen', 'caption' => 'Grandma was making bread in the kitchen', 'hint' => 'make bread', 'alt_description' => 'Old hands kneading dough on a table'],
+                                    ['image_query' => 'grandfather reading newspaper', 'caption' => 'Grandpa was reading his newspaper by the window', 'hint' => 'read the newspaper', 'alt_description' => 'An old man reading a newspaper by a window with the sea outside'],
+                                    ['image_query' => 'kids playing in backyard', 'caption' => 'Little Leo was playing catch outside', 'hint' => 'play catch', 'alt_description' => 'A small boy playing catch with a ball in front of a house'],
+                                    ['image_query' => 'family lunch table grandparents', 'caption' => 'In the end, the whole family was having lunch together outside', 'hint' => 'have lunch', 'alt_description' => 'Grandparents and grandchildren having a meal at a table outside'],
                                 ],
                                 // Vocabulary in Use unit 92 (Time and sequence), D and E.
                                 'sequencing_words' => ['First', 'Meanwhile', 'At the same time', 'In the end'],
@@ -7526,10 +7527,10 @@ class MissionSeeder extends Seeder
                                 // Each query was checked against its real first Pexels result
                                 // (square), so the picture matches its caption.
                                 'sequence_images' => [
-                                    ['image_query' => 'woman first day office desk', 'caption' => 'On Monday, Mina is starting her new job, and a colleague is showing her the files', 'alt_description' => 'A young woman at an office desk with papers and a blue folder, listening to a colleague'],
-                                    ['image_query' => 'business team meeting office', 'caption' => 'On Tuesday, she is meeting the sales team', 'alt_description' => 'Four people in shirts talking around a white office table'],
-                                    ['image_query' => 'businesswoman airport suitcase', 'caption' => 'On Thursday, she is flying to Istanbul for a conference', 'alt_description' => 'Planes parked at an airport at sunset'],
-                                    ['image_query' => 'family dinner celebration', 'caption' => 'On Friday evening, she is having her daughter\'s birthday dinner with the family', 'alt_description' => 'A family round a table while a little girl blows out the candles on her birthday cake'],
+                                    ['image_query' => 'woman first day office desk', 'caption' => 'On Monday, Mina is starting her new job, and a colleague is showing her the files', 'hint' => 'start a new job', 'alt_description' => 'A young woman at an office desk with papers and a blue folder, listening to a colleague'],
+                                    ['image_query' => 'business team meeting office', 'caption' => 'On Tuesday, she is meeting the sales team', 'hint' => 'meet the team', 'alt_description' => 'Four people in shirts talking around a white office table'],
+                                    ['image_query' => 'businesswoman airport suitcase', 'caption' => 'On Thursday, she is flying to Istanbul for a conference', 'hint' => 'fly to Istanbul', 'alt_description' => 'Planes parked at an airport at sunset'],
+                                    ['image_query' => 'family dinner celebration', 'caption' => 'On Friday evening, she is having her daughter\'s birthday dinner with the family', 'hint' => 'have a birthday dinner', 'alt_description' => 'A family round a table while a little girl blows out the candles on her birthday cake'],
                                 ],
                                 'sequencing_words' => ['On Monday', 'Then, on Tuesday', 'After that', 'At the end of the week'],
                                 'narration_tense' => 'Present Continuous for the future',

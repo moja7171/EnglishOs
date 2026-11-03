@@ -69,16 +69,16 @@ new class extends Component
     }
 
     /**
-     * Deliberately no 'caption' key — <x-sequential-picture-story> would
-     * render it under the image, and the whole point is the learner
-     * produces the narration themselves (see this file's own docblock).
-     * The real captions stay in stepContent, read only by
-     * transcribeAndReview() below for the AI's ground truth. 'alt' is a
-     * separate, neutral scene description (never the caption) so a screen
-     * reader user can still tell what's in each picture without being
-     * handed the narration.
+     * Under each picture only its seeded 'hint' — one verb phrase ("wake
+     * up") so a learner who can't find the verb is not stuck, never the
+     * whole caption: the learner still builds the sentence themselves (see
+     * this file's own docblock). The real captions stay in stepContent,
+     * read only by transcribeAndReview() below for the AI's ground truth.
+     * 'alt' is a separate, neutral scene description (never the caption)
+     * so a screen reader user can still tell what's in each picture
+     * without being handed the narration.
      *
-     * @return list<array{url: string, alt: string|null}>
+     * @return list<array{url: string, alt: string|null, caption: string|null}>
      */
     public function sequenceImages(): array
     {
@@ -89,6 +89,7 @@ new class extends Component
             ->map(fn ($item, $index) => [
                 'url' => $client->imageUrlFor($this->run->mission->code.'-story-'.$index, $item['image_query'] ?? ''),
                 'alt' => $item['alt_description'] ?? null,
+                'caption' => $item['hint'] ?? null,
             ])
             ->filter(fn ($item) => $item['url'])
             ->values()
@@ -286,6 +287,7 @@ new class extends Component
 
     <x-lesson-screen when="screen === 1">
         <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Tell it · {{ $this->narration()['tense'] }}</span>
+        <p class="lesson-prompt text-ink dark:text-ink-dark">Tell the story, picture 1 to {{ max(1, count($sequenceImages)) }}, in one recording.</p>
 
         @if (empty($sequenceImages))
             <p class="text-sm text-ink-soft dark:text-ink-soft-dark">The pictures aren't available right now — you can still tell the story from the words below.</p>

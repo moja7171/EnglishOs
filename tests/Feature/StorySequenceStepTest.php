@@ -36,8 +36,8 @@ class StorySequenceStepTest extends TestCase
                     [
                         'key' => 'story_sequence',
                         'sequence_images' => [
-                            ['image_query' => 'alarm clock morning', 'caption' => 'She wakes up'],
-                            ['image_query' => 'breakfast kitchen', 'caption' => 'She has breakfast'],
+                            ['image_query' => 'alarm clock morning', 'caption' => 'She wakes up', 'hint' => 'wake up'],
+                            ['image_query' => 'breakfast kitchen', 'caption' => 'She has breakfast', 'hint' => 'have breakfast'],
                         ],
                         'sequencing_words' => ['First', 'Then'],
                         ...$storyExtras,
@@ -83,8 +83,11 @@ class StorySequenceStepTest extends TestCase
             ->assertSee('First')
             ->assertSee('Then');
 
-        // Captions are ground truth for the AI prompt only — never shown to the learner.
-        $component->assertDontSee('She wakes up')->assertDontSee('She has breakfast');
+        // Captions are ground truth for the AI prompt only — never shown to the learner;
+        // only each picture's one verb hint is, with one line saying what to do.
+        $component->assertDontSee('She wakes up')->assertDontSee('She has breakfast')
+            ->assertSee('wake up')->assertSee('have breakfast')
+            ->assertSee('Tell the story, picture 1 to 2, in one recording.');
     }
 
     public function test_a_story_without_pictures_does_not_tell_the_learner_to_refresh(): void
