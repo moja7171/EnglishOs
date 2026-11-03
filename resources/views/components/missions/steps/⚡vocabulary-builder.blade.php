@@ -213,32 +213,40 @@ new class extends Component
 
     /**
      * "Which picture means this word?" for a word with an image_query —
-     * quizCards() swaps some meaning cards for these.
+     * quizCards() swaps some meaning cards for these. Like the meaning
+     * cards, the wrong pictures come from the mission's OTHER days' words
+     * first, so a card can't be answered by elimination.
      *
      * @return list<array{prompt: string, options: list<string>, correct: int, optionType: string}>
      */
     public function imageMatchCards(): array
     {
         $words = collect($this->words());
-        $imageWords = $words->filter(fn ($w) => $w['image_query'] ?? null);
+        $todaysPhrases = $words->pluck('phrase');
+        $hasImage = fn (array $word) => filled($word['image_query'] ?? null);
+        $otherDaysImageWords = collect($this->run->mission->vocabularyEntries())
+            ->reject(fn (array $other) => $todaysPhrases->contains($other['phrase']))
+            ->filter($hasImage)
+            ->unique('phrase')
+            ->values();
+        $todaysImageWords = $words->filter($hasImage);
         $client = app(PexelsClient::class);
 
-        return $words
-            ->filter(fn (array $entry) => $entry['image_query'] ?? null)
-            ->filter(fn (array $entry) => $imageWords->where('phrase', '!=', $entry['phrase'])->count() >= 2)
-            ->map(function (array $entry) use ($imageWords, $client) {
+        return $todaysImageWords
+            ->filter(fn (array $entry) => $otherDaysImageWords->count() + $todaysImageWords->where('phrase', '!=', $entry['phrase'])->count() >= 2)
+            ->map(function (array $entry) use ($otherDaysImageWords, $todaysImageWords, $client) {
                 $correctImage = $client->imageUrlFor($entry['phrase'], $entry['image_query'], null);
 
                 if (! $correctImage) {
                     return null;
                 }
 
-                $distractorImages = $imageWords
-                    ->where('phrase', '!=', $entry['phrase'])
-                    ->shuffle()
-                    ->take(2)
+                $distractorImages = $otherDaysImageWords->shuffle()
+                    ->concat($todaysImageWords->where('phrase', '!=', $entry['phrase'])->shuffle())
                     ->map(fn ($w) => $client->imageUrlFor($w['phrase'], $w['image_query'], null))
-                    ->filter();
+                    ->filter(fn (?string $url) => $url && $url !== $correctImage)
+                    ->unique()
+                    ->take(2);
 
                 if ($distractorImages->count() < 2) {
                     return null;

@@ -307,6 +307,55 @@ class VocabularyBuilderStepTest extends TestCase
         }
     }
 
+    public function test_picture_cards_take_their_wrong_pictures_from_other_days(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [
+                    [
+                        'key' => 'vocabulary_builder_1',
+                        'story' => 'A short story.',
+                        'words' => [
+                            ['phrase' => 'cereal', 'meaning' => 'a breakfast food', 'image_query' => 'bowl of cereal'],
+                            ['phrase' => 'shower', 'meaning' => 'to wash', 'image_query' => 'shower bathroom'],
+                            ['phrase' => 'ironing', 'meaning' => 'smoothing clothes', 'image_query' => 'ironing clothes'],
+                        ],
+                    ],
+                    [
+                        'key' => 'vocabulary_builder_2',
+                        'story' => 'Another story.',
+                        'words' => [
+                            ['phrase' => 'bus', 'meaning' => 'a big car for many people', 'image_query' => 'city bus'],
+                            ['phrase' => 'kettle', 'meaning' => 'it boils water', 'image_query' => 'kettle'],
+                        ],
+                    ],
+                ],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')
+                ->andReturnUsing(fn (string $word, string $query) => "http://localhost/storage/{$word}.jpg");
+        });
+
+        $cards = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
+            ->instance()->imageMatchCards();
+
+        $this->assertCount(3, $cards);
+
+        foreach ($cards as $card) {
+            $wrongPictures = collect($card['options'])->except($card['correct'])->sort()->values()->all();
+            $this->assertSame(['http://localhost/storage/bus.jpg', 'http://localhost/storage/kettle.jpg'], $wrongPictures);
+        }
+    }
+
     public function test_a_word_card_shows_the_words_picture(): void
     {
         $learner = User::factory()->create();
