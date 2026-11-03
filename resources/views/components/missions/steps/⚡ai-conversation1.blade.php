@@ -511,7 +511,7 @@ new class extends Component
                 @if ($warmUpAudioUrl)
                     <x-slot:more>
                         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
-                        <x-audio-player :url="$warmUpAudioUrl" />
+                        <x-own-take :url="$warmUpAudioUrl" />
                     </x-slot:more>
                 @endif
             </x-learner-feedback>
@@ -560,7 +560,8 @@ new class extends Component
     </x-lesson-screen>
 
     <section x-show="screen === 2" x-cloak class="animate-lesson-screen-in flex min-h-[calc(100dvh-11rem)] flex-col pt-2">
-        <div class="flex flex-1 flex-col justify-end gap-4">
+        {{-- The chat starts at the top (bottom-anchored, the first question sat under an empty screen). --}}
+        <div class="flex flex-1 flex-col gap-4">
             @foreach ($turns as $turn)
                 <x-conversation-turn chat :prompt="$turn['question']" :answer="$turn['answer']" :check="$turn['check'] ?? null" />
             @endforeach
@@ -622,7 +623,7 @@ new class extends Component
         @if ($warmUpAudioUrl)
             <x-slot:said>
                 <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
-                <x-audio-player :url="$warmUpAudioUrl" />
+                <x-own-take :url="$warmUpAudioUrl" />
             </x-slot:said>
         @endif
 

@@ -442,12 +442,17 @@ new class extends Component
     /**
      * Offered once, on the home page, to anyone who skipped the placement
      * test at registration — the app would otherwise run on the
-     * self-assessed level from the form for the whole 100 days.
+     * self-assessed level from the form for the whole 100 days. Only
+     * before the first finished step: a learner already working through
+     * the missions has found their level by doing.
      */
     #[Computed]
     public function needsPlacement(): bool
     {
-        return auth()->user()->latestPlacementTest() === null;
+        $learner = auth()->user();
+
+        return $learner->latestPlacementTest() === null
+            && ! $learner->missionRuns()->whereHas('evidence')->exists();
     }
 
     /**

@@ -576,13 +576,16 @@ new class extends Component
                 <x-speak-word :word="$entry['phrase']" class="text-2xl font-bold text-ink dark:text-ink-dark" />
                 @if (filled($entry['meaning_fa'] ?? null))
                     <p dir="rtl" class="font-fa text-base font-medium text-ink dark:text-ink-dark">{{ $entry['meaning_fa'] }}</p>
-                    <button type="button" x-on:click="english[{{ $index }}] = ! english[{{ $index }}]" class="w-fit cursor-pointer text-xs font-bold text-ink-faint dark:text-ink-faint-dark">In English</button>
-                    <p x-show="english[{{ $index }}]" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
+                    <button type="button" x-on:click="english[{{ $index }}] = ! english[{{ $index }}]" class="inline-flex w-fit cursor-pointer items-center gap-1 rounded-full border border-line px-2.5 py-0.5 text-xs font-bold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">Meaning in English <span x-text="english[{{ $index }}] ? '▴' : '▾'">▾</span></button>
+                    <p x-show="english[{{ $index }}]" x-cloak class="-mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
                 @else
                     <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $entry['meaning'] }}</p>
                 @endif
                 @if (filled($entry['example'] ?? null))
-                    <p class="text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! preg_replace('/'.preg_quote(e($entry['phrase']), '/').'/i', '<b class="rounded bg-accent-soft px-1 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">$0</b>', e($entry['example']), 1) !!}</p>
+                    <div class="flex flex-col gap-1 border-t border-line pt-3 dark:border-line-dark">
+                        <span class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Example</span>
+                        <x-speak-word :word="$entry['example']" block top class="text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! preg_replace('/'.preg_quote(e($entry['phrase']), '/').'/i', '<b class="rounded bg-accent-soft px-1 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">$0</b>', e($entry['example']), 1) !!}</x-speak-word>
+                    </div>
                 @endif
             </div>
             <div class="flex justify-center gap-1.5" aria-hidden="true">
@@ -602,15 +605,7 @@ new class extends Component
             <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Read it</span>
             <x-listen-aloud :text="collect($storySegments)->pluck('value')->implode('')" />
         </div>
-        <p x-lookup class="rounded-3xl bg-surface p-4 text-base leading-loose text-ink dark:bg-surface-dark dark:text-ink-dark">
-            @foreach ($storySegments as $segment)
-                @if ($segment['type'] === 'text')
-                    {{ $segment['value'] }}
-                @else
-                    <mark class="rounded bg-accent-soft px-1 font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $segment['value'] }}</mark>
-                @endif
-            @endforeach
-        </p>
+        <p x-lookup class="rounded-3xl bg-surface p-4 text-base leading-loose text-ink dark:bg-surface-dark dark:text-ink-dark">{!! collect($storySegments)->map(fn (array $segment) => $segment['type'] === 'text' ? e($segment['value']) : '<mark class="rounded bg-accent-soft px-1 font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">'.e($segment['value']).'</mark>')->implode('') !!}</p>
         <p class="text-center text-xs font-bold text-ink-faint dark:text-ink-faint-dark">Tap a word to see it again</p>
 
         <x-slot:actions>

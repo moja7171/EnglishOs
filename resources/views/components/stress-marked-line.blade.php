@@ -10,14 +10,13 @@
 --}}
 @props(['text'])
 
-<span {{ $attributes }}>
-    @foreach (preg_split('/\*\*(.+?)\*\*/', $text, -1, PREG_SPLIT_DELIM_CAPTURE) as $index => $part)
-        @if ($part !== '')
-            @if ($index % 2 === 1)
-                <strong class="font-bold text-accent-ink dark:text-accent-ink-dark">{{ $part }}</strong>
-            @else
-                {{ $part }}
-            @endif
-        @endif
-    @endforeach
-</span>
+@php
+    // Built as one string on purpose: Blade's newlines between the pieces
+    // would show as a space before a full stop or a closing quote.
+    $html = collect(preg_split('/\*\*(.+?)\*\*/', $text, -1, PREG_SPLIT_DELIM_CAPTURE))
+        ->map(fn (string $part, int $index) => $index % 2 === 1
+            ? '<strong class="font-bold text-accent-ink dark:text-accent-ink-dark">'.e($part).'</strong>'
+            : e($part))
+        ->implode('');
+@endphp
+<span {{ $attributes }}>{!! $html !!}</span>

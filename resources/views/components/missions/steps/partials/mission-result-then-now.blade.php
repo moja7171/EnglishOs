@@ -14,13 +14,13 @@
     @if ($warmUpRecordingUrl)
         <div class="flex flex-col gap-1.5">
             <p class="text-xs font-extrabold text-ink-faint uppercase dark:text-ink-faint-dark">Day 1</p>
-            <x-audio-player :url="$warmUpRecordingUrl" />
+            <x-own-take :url="$warmUpRecordingUrl" />
         </div>
     @endif
     @if ($finalTalkRecordingUrl)
         <div class="flex flex-col gap-1.5">
             <p class="text-xs font-extrabold text-ink-faint uppercase dark:text-ink-faint-dark">Today</p>
-            <x-audio-player :url="$finalTalkRecordingUrl" />
+            <x-own-take :url="$finalTalkRecordingUrl" />
         </div>
     @endif
 

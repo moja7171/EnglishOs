@@ -8,7 +8,8 @@
     Home / Missions / Review / Notebook / Friends are the places a learner
     returns to every day. Listening and Daily talk live inside the missions
     (each day's sheet on the Missions page, and the Today box on Home), so
-    the Missions tab stays lit on their pages too; Practice together lights
+    the Missions tab stays lit on their pages too — except the mission Home
+    is showing (the one in progress) and its lessons, which light Home; Practice together lights
     Friends. Progress and profile live behind the avatar in the header, see
     <x-account-menu>. Review counts due cards, Friends counts unread
     conversations plus follow requests (the same unit the bell uses), and
@@ -27,9 +28,16 @@
     $hasUnpractisedNotes = $user->notebookEntries()->unpractised()->exists();
     $friendsBadge = $user->friendsBadgeCount();
 
+    // The mission Home shows (and its lessons) lights Home, not Missions:
+    // the learner got there from Home.
+    $openMission = request()->route('mission');
+    $isHomeMission = request()->routeIs('missions.show')
+        && $openMission instanceof \App\Models\Mission
+        && $user->currentInProgressMissionRun()?->mission_id === $openMission->id;
+
     $tabs = [
-        ['label' => 'Home', 'route' => 'home', 'active' => request()->routeIs('home'), 'icon' => 'home'],
-        ['label' => 'Missions', 'route' => 'missions.index', 'active' => request()->routeIs('missions.*', 'listening.*', 'pi.practice'), 'icon' => 'squares-2x2'],
+        ['label' => 'Home', 'route' => 'home', 'active' => request()->routeIs('home') || $isHomeMission, 'icon' => 'home'],
+        ['label' => 'Missions', 'route' => 'missions.index', 'active' => ! $isHomeMission && request()->routeIs('missions.*', 'listening.*', 'pi.practice'), 'icon' => 'squares-2x2'],
         ['label' => 'Review', 'route' => 'review.index', 'active' => request()->routeIs('review.*'), 'icon' => 'bolt', 'badge' => $dueReviewCount],
         ['label' => 'Notebook', 'route' => 'notebook.index', 'active' => request()->routeIs('notebook.*'), 'icon' => 'book-open', 'dot' => $hasUnpractisedNotes],
         ['label' => 'Friends', 'route' => 'friends.index', 'active' => request()->routeIs('friends.*', 'pair-practice.*'), 'icon' => 'user-group', 'badge' => $friendsBadge, 'badgeLabel' => 'new in Friends'],

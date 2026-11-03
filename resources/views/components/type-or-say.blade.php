@@ -4,7 +4,7 @@
     under the box says what is happening (sending, then turning it into
     text), the words land in the same box by the component's $method (see
     DictatesAnswers) and are then checked like a typed answer. One line
-    under it says either.
+    under it says either. The box grows with a long answer.
 
     @param string $model The wire:model path, e.g. "examples.2".
     @param string $method The component method that turns the take into
@@ -25,13 +25,16 @@
         @if (filled($starter))
             <p class="px-4 pt-3 text-base font-extrabold text-ink dark:text-ink-dark">{{ $starter }} <span class="font-normal text-ink-faint dark:text-ink-faint-dark">…</span></p>
         @endif
+        {{-- Grows with its text (a long spoken answer stays readable), up to 20rem, then scrolls. --}}
         <textarea
             wire:model="{{ $model }}"
             rows="{{ $rows }}"
             placeholder="{{ $placeholder }}"
-            @if ($onInput) x-on:input="{{ $onInput }}" @endif
+            x-data="{ fit() { this.$el.style.height = 'auto'; this.$el.style.height = Math.min(this.$el.scrollHeight, 320) + 'px' } }"
+            x-effect="$wire.get('{{ $model }}'); $nextTick(() => fit())"
+            x-on:input="fit(); {{ $onInput }}"
             @if ($draftKey) x-draft="{ key: '{{ $draftKey }}', field: '{{ $model }}' }" @endif
-            class="block w-full resize-none rounded-2xl border-0 bg-transparent px-4 py-3 pr-14 text-base leading-relaxed text-ink focus:ring-0 focus:outline-none dark:text-ink-dark"
+            class="block max-h-80 w-full resize-none overflow-y-auto rounded-2xl border-0 bg-transparent px-4 py-3 pr-14 text-base leading-relaxed text-ink focus:ring-0 focus:outline-none dark:text-ink-dark"
         ></textarea>
         <div class="absolute right-2 bottom-3">
             <x-voice-recorder compact field="dictation" :on-recorded="$method" :on-recorded-param="$param" file-name="answer.webm" />

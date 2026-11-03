@@ -576,7 +576,7 @@ new class extends Component
             @include('components.missions.steps.partials.final-talk-goals')
         @endif
         @if ($url = $this->finalAudioUrl())
-            <x-audio-player :url="$url" />
+            <x-own-take :url="$url" />
         @endif
         @if ($feedback)
             <x-learner-feedback :feedback="$feedback" :answers="$this->answers()" />
@@ -607,7 +607,8 @@ new class extends Component
             </button>
         @endif
 
-        <div class="flex flex-1 flex-col justify-end gap-4">
+        {{-- The chat starts at the top (bottom-anchored, the first question sat under an empty screen). --}}
+        <div class="flex flex-1 flex-col gap-4">
             @foreach ($turns as $turn)
                 <x-conversation-turn chat :prompt="$turn['prompt']" :answer="$turn['answer']" :followup="$turn['followup']" />
             @endforeach
@@ -713,7 +714,7 @@ new class extends Component
 
         @if ($checklist)
             @if ($url = $this->finalAudioUrl())
-                <x-audio-player :url="$url" />
+                <x-own-take :url="$url" />
             @endif
         @else
             <div class="flex justify-center" wire:loading.remove wire:target="submitFinalChallenge">

@@ -294,6 +294,12 @@ body:has([data-step-header]) [data-app-topbar] {
     display: none;
 }
 
+/* Anything scrolled into view on a step (a field, a feedback card) stops
+   below the pinned step header instead of under it. */
+html:has([data-step-header]) {
+    scroll-padding-top: 6rem;
+}
+
 /* A gentle typing-dot pulse for AI "thinking" indicators — Tailwind's
    built-in animate-bounce arcs too high/hard for small dots. Scales/fades
    in place (no vertical translation) so a tight container never clips it. */

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\DirectMessage;
 use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -164,6 +165,19 @@ class TopNavTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $this->get(route('home'))->assertDontSee('new in Friends');
+    }
+
+    public function test_a_lesson_of_the_mission_home_shows_lights_home_and_another_mission_lights_missions(): void
+    {
+        $phases = [['phase' => 'foundation', 'steps' => [['key' => 'mission_brief']]]];
+        $current = Mission::create(['code' => 'M01', 'title' => 'My Daily Life', 'module' => 'Me', 'outcome' => 'x', 'phases' => $phases]);
+        $other = Mission::create(['code' => 'M02', 'title' => 'People', 'module' => 'Me', 'outcome' => 'x', 'phases' => $phases]);
+        $learner = User::factory()->create();
+        MissionRun::findOrStart($learner, $current);
+        $this->actingAs($learner);
+
+        $this->get(route('missions.show', [$current, 'mission_brief']))->assertSee('style="translate: 0% 0"', false);
+        $this->get(route('missions.show', $other))->assertSee('style="translate: 100% 0"', false);
     }
 
     public function test_a_mission_keeps_the_bottom_nav_but_holds_new_alerts_back(): void

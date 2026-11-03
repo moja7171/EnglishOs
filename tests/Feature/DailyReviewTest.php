@@ -337,6 +337,18 @@ class DailyReviewTest extends TestCase
             ->assertSee('✓ I know');
     }
 
+    public function test_skip_steps_aside_once_the_answer_sheet_is_open(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueGrammarPoint($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSeeHtml('wire:click="skip"')
+            ->call('reveal')
+            ->assertDontSeeHtml('wire:click="skip"');
+    }
+
     public function test_an_error_pattern_requires_revealing_the_fix_before_grading(): void
     {
         $learner = User::factory()->create();

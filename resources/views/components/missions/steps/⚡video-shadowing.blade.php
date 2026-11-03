@@ -197,7 +197,7 @@ new class extends Component
             <div class="flex flex-col gap-2 rounded-2xl bg-surface p-4 dark:bg-surface-dark">
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">“<x-stress-marked-line :text="$line" />”</p>
                 @if ($url = $savedShadowUrls[$index] ?? null)
-                    <x-audio-player :url="$url" />
+                    <x-own-take :url="$url" />
                 @else
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Not shadowed.</p>
                 @endif

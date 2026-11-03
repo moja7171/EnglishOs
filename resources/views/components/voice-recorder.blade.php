@@ -607,7 +607,7 @@
                     <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Listen back — not happy with it? Just record again.</p>
                 @endunless
                 <div class="mt-1">
-                    <x-audio-player :url="is_string($file) ? $file : $file->temporaryUrl()" />
+                    <x-own-take :url="is_string($file) ? $file : $file->temporaryUrl()" />
                 </div>
             </div>
         @endif

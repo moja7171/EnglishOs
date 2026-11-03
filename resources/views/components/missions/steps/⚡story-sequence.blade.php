@@ -253,7 +253,7 @@ new class extends Component
         <x-step-intro kind="Picture Story" :title="$content['hook'] ?? null" />
         <x-sequential-picture-story grid :images="$sequenceImages" />
         @if ($savedAudioUrl)
-            <x-audio-player :url="$savedAudioUrl" />
+            <x-own-take :url="$savedAudioUrl" />
         @endif
         @if ($feedback)
             <x-learner-feedback :feedback="$feedback">
