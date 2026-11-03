@@ -86,6 +86,15 @@ class VocabularyBuilderStepTest extends TestCase
         ]);
     }
 
+    public function test_the_story_can_be_heard_with_the_device_voice_without_its_markers(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->stepComponent($run)
+            ->assertSee('Listen')
+            ->assertSeeHtml('data-text="I usually wake up early and follow my routine. I get up, then commute to work."');
+    }
+
     public function test_the_story_shows_every_word_highlighted_with_its_meaning_inline(): void
     {
         [, , $run] = $this->makeMissionAndRun();
@@ -295,6 +304,55 @@ class VocabularyBuilderStepTest extends TestCase
             $this->assertSame('image', $card['optionType']);
             $this->assertCount(3, $card['options']);
             $this->assertSame("http://localhost/storage/{$card['prompt']}.jpg", $card['options'][$card['correct']]);
+        }
+    }
+
+    public function test_picture_cards_take_their_wrong_pictures_from_other_days(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [
+                    [
+                        'key' => 'vocabulary_builder_1',
+                        'story' => 'A short story.',
+                        'words' => [
+                            ['phrase' => 'cereal', 'meaning' => 'a breakfast food', 'image_query' => 'bowl of cereal'],
+                            ['phrase' => 'shower', 'meaning' => 'to wash', 'image_query' => 'shower bathroom'],
+                            ['phrase' => 'ironing', 'meaning' => 'smoothing clothes', 'image_query' => 'ironing clothes'],
+                        ],
+                    ],
+                    [
+                        'key' => 'vocabulary_builder_2',
+                        'story' => 'Another story.',
+                        'words' => [
+                            ['phrase' => 'bus', 'meaning' => 'a big car for many people', 'image_query' => 'city bus'],
+                            ['phrase' => 'kettle', 'meaning' => 'it boils water', 'image_query' => 'kettle'],
+                        ],
+                    ],
+                ],
+            ]],
+        ]);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')
+                ->andReturnUsing(fn (string $word, string $query) => "http://localhost/storage/{$word}.jpg");
+        });
+
+        $cards = Livewire::test('missions.steps.vocabulary-builder', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
+            ->instance()->imageMatchCards();
+
+        $this->assertCount(3, $cards);
+
+        foreach ($cards as $card) {
+            $wrongPictures = collect($card['options'])->except($card['correct'])->sort()->values()->all();
+            $this->assertSame(['http://localhost/storage/bus.jpg', 'http://localhost/storage/kettle.jpg'], $wrongPictures);
         }
     }
 
@@ -750,19 +808,19 @@ class VocabularyBuilderStepTest extends TestCase
         $this->stepComponent($run)->assertSet('practiceStarted', true);
     }
 
-    public function test_a_said_sentence_becomes_the_boxs_text_and_is_checked(): void
+    public function test_a_said_sentence_shows_in_the_box_first_and_the_page_then_checks_it(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->never());
 
         $this->stepComponent($run)
             ->set('dictation', UploadedFile::fake()->create('answer.webm', 10, 'audio/webm'))
             ->call('dictateExample', 0)
             ->assertSet('examples.0', 'I wake up at seven.')
-            ->assertSet('feedback.wake up.severity', 'none')
-            ->assertSee('Great!');
+            ->assertSet('feedback', [])
+            ->assertDispatched('eos-dictated', key: 0);
     }
 
     public function test_a_good_sentence_still_shows_the_ais_short_comment(): void
@@ -778,6 +836,33 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Clear and natural.');
     }
 
+    public function test_a_wrong_sentence_shows_the_fix_with_a_persian_why_and_lands_in_the_notebook(): void
+    {
+        [$learner, , $run] = $this->makeMissionAndRun();
+
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            'severity' => 'minor',
+            'hint' => "Use 'up' after wake.",
+            'corrected' => 'I wake up at seven every day.',
+            'why_fa' => 'فعل «wake» همیشه با «up» می‌آید.',
+        ])));
+
+        $this->stepComponent($run)
+            ->set('examples.0', 'I wake at seven every days.')
+            ->call('checkOne', 0)
+            ->assertSee('I wake up at seven every day.')
+            ->assertSee('فعل «wake» همیشه با «up» می‌آید.')
+            ->assertDontSee('One more try');
+
+        $this->assertDatabaseHas('notebook_entries', [
+            'learner_id' => $learner->id,
+            'kind' => 'mistake',
+            'original' => 'I wake at seven every days.',
+            'better' => 'I wake up at seven every day.',
+            'source' => 'vocabulary_builder',
+        ]);
+    }
+
     public function test_a_major_issue_offers_only_check_again_not_continue(): void
     {
         [, , $run] = $this->makeMissionAndRun();
@@ -790,8 +875,28 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertSee('Not quite')
             ->assertSee('Use the word with its real meaning.')
             ->assertSee('Check again')
-            ->assertDontSee('Try again')
+            ->assertDontSeeHtml('answer-error-actions')
             ->assertDontSee('Continue anyway');
+    }
+
+    public function test_a_sentence_screen_offers_the_meaning_and_an_example_for_a_stuck_learner(): void
+    {
+        [, $mission, $run] = $this->makeMissionAndRun();
+        $steps = $mission->phases;
+        $steps[0]['steps'][1]['words'][0] += ['meaning_fa' => 'بیدار شدن', 'example' => 'I wake up at seven.'];
+        $mission->update(['phases' => $steps]);
+
+        $this->stepComponent($run->fresh())->assertSee('💡 See an example')->assertSee('I wake up at seven.')->assertSee('بیدار شدن');
+    }
+
+    public function test_a_check_whose_request_never_comes_back_can_be_tried_again_or_skipped(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->stepComponent($run)
+            ->assertSee('Connection problem — check your internet and try again.')
+            ->assertSee('lost = true; window.eosConnectionNotice?.skip()')
+            ->assertSee('Continue without check');
     }
 
     public function test_a_nearly_right_sentence_offers_check_again_and_a_quiet_continue_anyway(): void

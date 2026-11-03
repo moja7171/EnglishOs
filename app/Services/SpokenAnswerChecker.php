@@ -154,6 +154,24 @@ class SpokenAnswerChecker
     }
 
     /**
+     * The line's words that are not in what was heard, in line order, so
+     * the learner knows which ones to say more clearly. Empty when they
+     * said almost nothing of it — then it is simply a different sentence.
+     *
+     * @return list<string>
+     */
+    public static function missedWords(string $target, string $transcript): array
+    {
+        $words = fn (string $text) => array_values(array_filter(preg_split('/\s+/', preg_replace("/[^\p{L}\p{N}' ]+/u", ' ', str_replace('’', "'", mb_strtolower(strip_tags(str_replace('**', '', $text))))))));
+
+        $lineWords = $words($target);
+        $heard = array_flip($words($transcript));
+        $missed = array_values(array_unique(array_filter($lineWords, fn (string $word) => ! isset($heard[$word]))));
+
+        return $lineWords !== [] && count($missed) <= count($lineWords) / 2 ? $missed : [];
+    }
+
+    /**
      * Judges the role-reversal round (mission structure redesign, Epic
      * E) — here the learner is the one asking a question, not answering
      * one, so this checks the transcript is a genuine, on-topic

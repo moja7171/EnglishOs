@@ -100,6 +100,16 @@ class GroqClient
     }
 
     /**
+     * True when chat() has a key and a model chain to answer with — so
+     * GeminiClient knows whether a failed walk is really a learner left
+     * without an answer.
+     */
+    public function canChat(): bool
+    {
+        return ($this->apiKey !== '' || $this->personalKey !== '') && $this->judgeChain() !== [];
+    }
+
+    /**
      * Sends a prompt to Groq's OpenAI-compatible chat endpoint and returns
      * the model's text reply — the same call shape as GeminiClient::chat(),
      * which hands every prompt here when Gemini cannot answer. Walks the

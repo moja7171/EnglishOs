@@ -23,6 +23,9 @@ class FeedbackNotebook
 {
     /** @var array<string, string> source => label shown in the notebook */
     public const SOURCES = [
+        'vocabulary_builder' => 'New Words',
+        'grammar_in_context' => 'Grammar',
+        'reading_comprehension' => 'Reading',
         'writing' => 'Writing',
         'story_sequence' => 'Picture Story',
         'picture_description' => 'Picture Description',
@@ -73,6 +76,26 @@ class FeedbackNotebook
         }
 
         return ['mistakes' => $mistakes, 'tips' => $tips];
+    }
+
+    /**
+     * One checked lesson sentence that was wrong (New Words, Grammar,
+     * Reading — see SentenceChecker): kept as a mistake line, the
+     * learner's words above the fixed ones, so it comes back in Review and
+     * in the day's My Fixes even after the box was put right.
+     */
+    public function recordCheck(User $learner, string $original, string $corrected, ?string $why, string $source): void
+    {
+        if (self::sentenceKey($original) === self::sentenceKey($corrected)) {
+            return;
+        }
+
+        $this->keep($learner, NotebookEntry::KIND_MISTAKE, 'm:'.self::key($corrected), [
+            'label' => null,
+            'original' => $original,
+            'better' => $corrected,
+            'note' => $why,
+        ], $source);
     }
 
     /**

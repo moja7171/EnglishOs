@@ -160,7 +160,7 @@ new class extends Component
         @if ($savedWarmUpRecordingUrl)
             <div>
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Your Day 1 answer</p>
-                <div class="mt-1"><x-audio-player :url="$savedWarmUpRecordingUrl" /></div>
+                <div class="mt-1"><x-own-take :url="$savedWarmUpRecordingUrl" /></div>
             </div>
         @endif
 

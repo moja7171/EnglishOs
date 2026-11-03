@@ -7,6 +7,7 @@ use App\Models\ErrorPatternReview;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\NotebookEntry;
 use App\Models\User;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
@@ -84,6 +85,31 @@ class ErrorLogStepTest extends TestCase
                 'why' => 'فعل نیاز به s سوم شخص دارد.',
                 'category' => null,
             ]]);
+    }
+
+    public function test_sentences_first_got_wrong_in_short_exercises_reach_the_review(): void
+    {
+        $run = $this->makeRunWithEvidence();
+        NotebookEntry::create([
+            'learner_id' => $run->learner_id,
+            'kind' => NotebookEntry::KIND_MISTAKE,
+            'dedupe_key' => 'm:i eat cereal for breakfast',
+            'source' => 'vocabulary_builder',
+            'original' => 'I eat cereal in breakfast.',
+            'better' => 'I eat cereal for breakfast.',
+            'last_seen_at' => now(),
+            'next_review_at' => now()->addDay(),
+        ]);
+
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturnUsing(function (array $messages) {
+                $this->assertStringContainsString('I eat cereal in breakfast.', $messages[0]['text']);
+
+                return '[]';
+            });
+        });
+
+        Livewire::test('missions.steps.error-log', ['run' => $run])->call('generate')->assertSet('error', null);
     }
 
     public function test_the_learner_can_skip_the_step_when_the_review_cannot_be_generated(): void

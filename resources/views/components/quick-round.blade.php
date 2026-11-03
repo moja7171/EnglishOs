@@ -4,8 +4,12 @@
     Words' meaning check, Vocabulary Builder's pre-writing warm-up,
     Listening's comprehension check, Grammar in Context's Quick Check,
     Mission Brief's confidence check — see EOS-009 §8). One card at a
-    time, tap an answer, instant color feedback, auto-advances after a
-    beat — no submit button, no form, no AI call (a plain index-match).
+    time, tap an answer, instant color feedback: a right answer moves on
+    by itself after a beat; a wrong one stays, shows the right answer and
+    waits for Continue, and that card comes back once at the end of the
+    round — no form, no AI call (a plain index-match). The score counts
+    first tries only; in a lesson it shows on its own screen with
+    Continue before the caller's $onComplete runs.
     Always skippable and never itself creates Evidence or blocks
     progress; a caller that wants to react to the result (e.g. "only
     require a written sentence after 2 misses") listens for the
@@ -57,6 +61,7 @@
     <div
         x-data="{
             cards: @js($cards),
+            firstTries: {{ count($cards) }},
             shown: [],
             index: 0,
             selected: null,
@@ -75,7 +80,10 @@
             // unshown card comes first in authored order if none of the
             // preferred levels have anything left.
             pickNextIndex(levels) {
-                const remaining = this.cards.map((_, i) => i).filter(i => !this.shown.includes(i));
+                const unshown = this.cards.map((_, i) => i).filter(i => !this.shown.includes(i));
+                // A missed card's second go waits until every first try is done.
+                const firstGoes = unshown.filter(i => !this.cards[i].again);
+                const remaining = firstGoes.length ? firstGoes : unshown;
                 for (const level of levels) {
                     const match = remaining.find(i => this.difficultyOf(i) === level);
                     if (match !== undefined) return match;
@@ -93,13 +101,14 @@
                 if (! this.draftKey) return;
                 let saved = null;
                 try { saved = JSON.parse(localStorage.getItem(this.draftKey)); } catch (e) {}
-                if (! saved || saved.total !== this.cards.length) return;
+                if (! saved || saved.total !== this.firstTries) return;
+                this.cards.push(...(saved.again ?? []));
                 this.shown = saved.shown;
                 this.index = saved.index;
                 this.correctCount = saved.correctCount;
                 this.correctStreak = saved.correctStreak;
                 this.finished = saved.finished;
-                if (this.finished) {
+                if (this.finished && ! @js($lesson)) {
                     {{ $onComplete }}
                 }
             },
@@ -107,7 +116,8 @@
                 if (! this.draftKey) return;
                 try {
                     localStorage.setItem(this.draftKey, JSON.stringify({
-                        total: this.cards.length,
+                        total: this.firstTries,
+                        again: this.cards.slice(this.firstTries),
                         shown: this.shown,
                         index: this.index,
                         correctCount: this.correctCount,
@@ -121,14 +131,16 @@
                 this.selected = i;
                 $dispatch('quick-round-answered', { key: this.card.key ?? null, correct: i === this.card.correct });
                 if (i === this.card.correct) {
-                    this.correctCount++;
+                    if (! this.card.again) this.correctCount++;
                     this.correctStreak++;
                     window.eosSound?.playSuccess();
+                    setTimeout(() => this.advance(), 900);
                 } else {
                     this.correctStreak = 0;
+                    if (! this.card.again) this.cards.push({ ...this.card, again: true });
                 }
-                setTimeout(() => this.advance(), 900);
             },
+            get missed() { return this.selected !== null && this.selected !== this.card.correct },
             // The next card fades/slides in: flip `entering` on for one
             // frame so the transition has a start state to animate from.
             settle() {
@@ -144,10 +156,7 @@
             advance() {
                 if (this.adaptive) {
                     if (this.shown.length >= this.cards.length) {
-                        this.finished = true;
-                        this.saveDraft();
-                        $dispatch('quick-round-completed', { correct: this.correctCount, total: this.cards.length });
-                        {{ $onComplete }}
+                        this.finish();
                         return;
                     }
                     const levels = this.correctStreak >= 2 ? ['hard', 'medium', 'easy'] : ['easy', 'medium', 'hard'];
@@ -159,16 +168,22 @@
                     return;
                 }
                 if (this.isLast) {
-                    this.finished = true;
-                    this.saveDraft();
-                    $dispatch('quick-round-completed', { correct: this.correctCount, total: this.cards.length });
-                    {{ $onComplete }}
+                    this.finish();
                     return;
                 }
                 this.index++;
                 this.selected = null;
                 this.saveDraft();
                 this.settle();
+            },
+            finish() {
+                this.finished = true;
+                this.saveDraft();
+                $dispatch('quick-round-progress', { share: 1 });
+                $dispatch('quick-round-completed', { correct: this.correctCount, total: this.firstTries });
+                if (! @js($lesson)) {
+                    {{ $onComplete }}
+                }
             },
             skip() {
                 this.skipped = true;
@@ -252,19 +267,24 @@
                     </div>
                 </div>
 
+                <div x-show="missed" x-cloak class="mt-4 flex flex-col gap-3 rounded-2xl bg-accent-soft p-4 dark:bg-accent-soft-dark">
+                    <p class="text-base font-extrabold text-accent-ink dark:text-accent-ink-dark">Not quite — the right one is green. It comes back at the end.</p>
+                    <button type="button" x-on:click="advance()" class="w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 dark:bg-accent-dark">Continue</button>
+                </div>
+
                 @if ($lesson)
-                    <button type="button" x-on:click="skip" class="cursor-pointer pt-4 pb-2 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
+                    <button type="button" x-show="! missed" x-on:click="skip" class="cursor-pointer pt-4 pb-2 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
                 @endif
             </div>
         </template>
 
         <template x-if="finished">
-            <div class="flex flex-col gap-5">
-                <div class="flex items-center gap-3">
+            <div @class(['flex flex-col gap-5', 'min-h-[calc(100dvh-13rem)] justify-between pt-10' => $lesson])>
+                <div @class(['flex items-center gap-3', 'flex-col text-center' => $lesson])>
                     <span class="animate-badge-pop flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
                         @svg('heroicon-s-check', 'h-6 w-6')
                     </span>
-                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark" x-text="correctCount === cards.length ? `All ${cards.length} — nice!` : `${correctCount} of ${cards.length} — nice!`"></p>
+                    <p class="font-display text-lg font-bold text-ink dark:text-ink-dark" x-text="correctCount === firstTries ? `All ${firstTries} right — nice!` : `${correctCount} of ${firstTries} right on the first try`"></p>
                 </div>
                 @if ($lesson && $onComplete)
                     <button type="button" x-on:click="proceed()" class="w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 dark:bg-accent-dark">Continue</button>

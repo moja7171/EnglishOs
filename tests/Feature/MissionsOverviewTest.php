@@ -430,6 +430,16 @@ class MissionsOverviewTest extends TestCase
             ->assertDontSee('Practice with a friend');
     }
 
+    public function test_a_learner_who_has_finished_a_step_is_not_asked_to_find_their_level(): void
+    {
+        $learner = User::factory()->create();
+        $run = MissionRun::findOrStart($learner, $this->makeMission());
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_TEXT, 'content_ref' => '{}']);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')->assertDontSee('Find your level');
+    }
+
     public function test_with_the_days_below_home_has_no_extra_listening_row_but_the_days_listening_card(): void
     {
         $learner = User::factory()->create();

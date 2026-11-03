@@ -155,6 +155,30 @@ class MissionRun extends Model
     }
 
     /**
+     * The sentences this learner got wrong in this run's short checked
+     * exercises (New Words, Grammar, Reading — kept in the notebook by
+     * FeedbackNotebook::recordCheck()), as they first wrote them with the
+     * fix. The boxes themselves end up right, so My Fixes would never see
+     * these mistakes otherwise.
+     *
+     * @return list<array{original: string, better: string}>
+     */
+    public function checkedSlips(): array
+    {
+        return NotebookEntry::query()
+            ->where('learner_id', $this->learner_id)
+            ->where('kind', NotebookEntry::KIND_MISTAKE)
+            ->whereIn('source', ['vocabulary_builder', 'grammar_in_context', 'reading_comprehension'])
+            ->where('last_seen_at', '>=', $this->started_at ?? $this->created_at)
+            ->whereNotNull('original')
+            ->orderBy('last_seen_at')
+            ->get(['original', 'better'])
+            // getAttribute(): inside a model, $entry->original is Eloquent's own protected $original array.
+            ->map(fn (NotebookEntry $entry) => ['original' => $entry->getAttribute('original'), 'better' => $entry->better])
+            ->all();
+    }
+
+    /**
      * Every substantial piece of English the learner actually produced
      * across this run — AI Conversation transcripts, Writing, Picture
      * Description, Picture Story, and the warm-up round (was the

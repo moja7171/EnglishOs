@@ -33,6 +33,40 @@ class SentenceCheckerTest extends TestCase
         $this->assertSame('Try "I commute to work."', $result['hint']);
     }
 
+    public function test_a_problem_comes_with_the_fixed_sentence_and_a_persian_why(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'severity' => 'minor',
+                'hint' => "Use 'for' with breakfast.",
+                'corrected' => 'I eat cereal for breakfast every day.',
+                'why_fa' => 'با «breakfast» از «for» استفاده می‌کنیم.',
+            ]));
+        });
+
+        $result = app(SentenceChecker::class)->check('Judge the sentence.', 'it makes no sense', 'a test context', 'I eat cereal in breakfast every days.');
+
+        $this->assertSame('I eat cereal for breakfast every day.', $result['corrected']);
+        $this->assertSame('با «breakfast» از «for» استفاده می‌کنیم.', $result['why_fa']);
+    }
+
+    public function test_a_good_sentence_carries_no_fix(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+                'severity' => 'none',
+                'hint' => 'Clear and natural.',
+                'corrected' => 'I eat cereal for breakfast.',
+                'why_fa' => 'خوب است.',
+            ]));
+        });
+
+        $result = app(SentenceChecker::class)->check('Judge the sentence.', 'it makes no sense', 'a test context', 'I eat cereal for breakfast.');
+
+        $this->assertNull($result['corrected']);
+        $this->assertNull($result['why_fa']);
+    }
+
     public function test_grading_a_sentence_walks_the_judge_chain_not_the_chat_chain(): void
     {
         config([
@@ -106,7 +140,7 @@ class SentenceCheckerTest extends TestCase
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')
                 ->once()
-                ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, 'When the severity is "none", the hint is still never empty'))
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains($systemPrompt, 'the hint is still never empty'))
                 ->andReturn(json_encode(['severity' => 'none', 'hint' => 'Clear and natural.']));
         });
 
@@ -173,7 +207,7 @@ class SentenceCheckerTest extends TestCase
                     return str_contains($systemPrompt, 'spelling')
                         && str_contains($systemPrompt, 'capital letter')
                         && str_contains($systemPrompt, 'end punctuation')
-                        && str_contains($systemPrompt, 'never write the corrected sentence for them')
+                        && str_contains($systemPrompt, '"corrected" is the learner\'s whole sentence written correctly')
                         && str_contains($systemPrompt, 'no more than 12 words');
                 })
                 ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));

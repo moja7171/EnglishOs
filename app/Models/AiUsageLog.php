@@ -45,6 +45,9 @@ class AiUsageLog extends Model
     /** Every model on that key failed. */
     public const OUTCOME_FAILED = 'failed';
 
+    /** Every model on that key failed, but another provider was standing by to answer instead (see GeminiClient::chat()). */
+    public const OUTCOME_FELL_BACK = 'fell_back';
+
     /** Refused by the app's own hourly cap (see GivesConversationFeedback) — no request was made. */
     public const OUTCOME_LIMITED = 'limited';
 

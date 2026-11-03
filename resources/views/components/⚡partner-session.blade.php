@@ -260,7 +260,7 @@ new class extends Component
                             <p class="inline-flex items-center gap-1 text-xs font-bold text-ink-faint dark:text-ink-faint-dark">
                                 @svg('heroicon-o-microphone', 'h-3.5 w-3.5') Your recording
                             </p>
-                            <x-audio-player :url="route('partner-sessions.attachment', $mine)" />
+                            <x-own-take :url="route('partner-sessions.attachment', $mine)" />
                         </div>
                     @endif
                 </div>
@@ -272,7 +272,7 @@ new class extends Component
                         <p class="mt-0.5 text-base text-ink dark:text-ink-dark">{{ $partnerAnswer->body }}</p>
                         @if ($partnerAnswer->type === 'voice')
                             <div class="mt-1">
-                                <x-audio-player :url="route('partner-sessions.attachment', $partnerAnswer)" />
+                                <x-own-take :url="route('partner-sessions.attachment', $partnerAnswer)" />
                             </div>
                         @endif
                     </div>

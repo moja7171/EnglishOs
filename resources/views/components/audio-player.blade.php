@@ -507,16 +507,21 @@
                     <div class="max-w-[90%] {{ $turn['alignRight'] ? 'ml-auto' : '' }}">
                         <p class="mb-0.5 px-1.5 text-xs font-semibold {{ $turn['palette']['name'] }} {{ $turn['alignRight'] ? 'text-right' : '' }}">{{ $turn['speaker'] }}</p>
 
-                        <div class="space-y-0.5 rounded-2xl bg-surface p-1.5 dark:bg-surface-dark">
-                            @foreach ($turn['lines'] as $line)
-                                <p
-                                    x-ref="segment-{{ $line['index'] }}"
-                                    x-on:click="seekTo({{ (float) $line['segment']['start'] }}); $refs.audio.currentTime = {{ (float) $line['segment']['start'] }}"
-                                    class="cursor-pointer rounded-lg px-1.5 py-0.5 transition-colors"
-                                    :class="activeSegmentIndex === {{ $line['index'] }}
-                                        ? '{{ $turn['palette']['active'] }} font-semibold text-ink dark:text-ink-dark'
-                                        : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
-                                >{{ $line['segment']['text'] }}</p>
+                        {{-- Chunks flow inside their sentence (a timing chunk often ends mid-sentence); a new line only where a sentence ends. --}}
+                        <div class="space-y-1 rounded-2xl bg-surface p-1.5 leading-relaxed dark:bg-surface-dark">
+                            @foreach (\App\Services\WebVttParser::sentences($turn['lines'], fn ($line) => $line['segment']['text']) as $sentence)
+                                <p class="px-1">
+                                    @foreach ($sentence as $line)
+                                        <span
+                                            x-ref="segment-{{ $line['index'] }}"
+                                            x-on:click="seekTo({{ (float) $line['segment']['start'] }}); $refs.audio.currentTime = {{ (float) $line['segment']['start'] }}"
+                                            class="cursor-pointer rounded-md px-0.5 transition-colors [box-decoration-break:clone]"
+                                            :class="activeSegmentIndex === {{ $line['index'] }}
+                                                ? '{{ $turn['palette']['active'] }} font-semibold text-ink dark:text-ink-dark'
+                                                : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
+                                        >{{ $line['segment']['text'] }}</span>
+                                    @endforeach
+                                </p>
                             @endforeach
                         </div>
                     </div>
@@ -535,15 +540,19 @@
                 class="space-y-1.5 overflow-y-auto card-sunken p-3"
                 :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : '{{ $panelClass ?? 'mt-4 max-h-56 text-sm' }}'"
             >
-                @foreach ($segments as $index => $segment)
-                    <p
-                        x-ref="segment-{{ $index }}"
-                        x-on:click="seekTo({{ (float) $segment['start'] }}); $refs.audio.currentTime = {{ (float) $segment['start'] }}"
-                        class="cursor-pointer rounded-lg px-1.5 py-0.5 transition-colors"
-                        :class="activeSegmentIndex === {{ $index }}
-                            ? 'bg-accent/15 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark'
-                            : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
-                    >{{ $segment['text'] }}</p>
+                @foreach (\App\Services\WebVttParser::sentences(collect($segments)->map(fn ($segment, $index) => ['index' => $index, 'segment' => $segment])->all(), fn ($line) => $line['segment']['text']) as $sentence)
+                    <p class="leading-relaxed">
+                        @foreach ($sentence as $line)
+                            <span
+                                x-ref="segment-{{ $line['index'] }}"
+                                x-on:click="seekTo({{ (float) $line['segment']['start'] }}); $refs.audio.currentTime = {{ (float) $line['segment']['start'] }}"
+                                class="cursor-pointer rounded-md px-0.5 transition-colors [box-decoration-break:clone]"
+                                :class="activeSegmentIndex === {{ $line['index'] }}
+                                    ? 'bg-accent/15 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark'
+                                    : 'text-ink-soft hover:text-ink dark:text-ink-soft-dark dark:hover:text-ink-dark'"
+                            >{{ $line['segment']['text'] }}</span>
+                        @endforeach
+                    </p>
                 @endforeach
             </div>
         @endif

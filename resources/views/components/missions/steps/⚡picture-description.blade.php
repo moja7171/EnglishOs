@@ -231,7 +231,7 @@ new class extends Component
             <x-zoomable-image :url="$imageUrl" alt="A picture to describe" class="h-52 w-full rounded-3xl object-cover" />
         @endif
         @if ($savedAudioUrl)
-            <x-audio-player :url="$savedAudioUrl" />
+            <x-own-take :url="$savedAudioUrl" />
         @endif
         @if ($feedback)
             <x-learner-feedback :feedback="$feedback">

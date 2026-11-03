@@ -75,8 +75,12 @@ class GeminiClient
      */
     public function chat(array $messages, ?string $systemPrompt = null, ?int $maxOutputTokens = null, string $profile = self::PROFILE_CHAT): string
     {
+        $ask = fn () => $this->askGemini($messages, $systemPrompt, $maxOutputTokens, $profile);
+
         try {
-            return $this->askGemini($messages, $systemPrompt, $maxOutputTokens, $profile);
+            return $this->pinnedChain === null && app(GroqClient::class)->canChat()
+                ? (new AiUsage)->standingBy($ask)
+                : $ask();
         } catch (Throwable $e) {
             if ($this->pinnedChain !== null || $e instanceof AiLimitReached) {
                 throw $e;

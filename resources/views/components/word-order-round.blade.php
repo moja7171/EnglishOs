@@ -13,7 +13,11 @@
         content author wrote it — never reshuffled here, so a Livewire
         re-render never changes the puzzle mid-attempt. `answer` is the
         correct sentence, compared case-insensitively against the tray
-        joined with single spaces.
+        joined with single spaces. Tiles never give the order away: the end
+        punctuation is left off every tile (it shows after the tray
+        instead), and the sentence's first word is shown in lower case
+        when it is an everyday word (She, Does…), not a name; the tray
+        capitalises whichever word the learner puts first.
     @param string|null $onComplete Raw Alpine statement(s) run when the
         round finishes naturally.
     @param string|null $onSkip Raw Alpine statement(s) run when skipped.
@@ -67,6 +71,18 @@
             get card() { return this.cards[this.index] ?? null },
             get isLast() { return this.index >= this.cards.length - 1 },
             get built() { return this.tray.join(' ') },
+            // Everyday sentence openers — a name (Monday, Spain) keeps its capital.
+            openers: ['a', 'an', 'the', 'he', 'she', 'it', 'we', 'they', 'you', 'my', 'his', 'her', 'our', 'their', 'your', 'this', 'that', 'there', 'do', 'does', 'did', 'is', 'are', 'was', 'were', 'can', 'what', 'where', 'when', 'who', 'how', 'why', 'have', 'has', 'after', 'before', 'on', 'in', 'at', 'every', 'sometimes', 'usually', 'often'],
+            get ending() { return (this.card.answer.trim().match(/[.?!]+$/) ?? [''])[0] },
+            label(word) {
+                const bare = word.replace(/[.?!]+$/, '');
+                const first = this.card.answer.trim().split(/\s+/)[0].replace(/[.?!,]+$/, '');
+                return bare === first && this.openers.includes(bare.toLowerCase()) ? bare.toLowerCase() : bare;
+            },
+            trayLabel(word, pos) {
+                const text = this.label(word);
+                return pos === 0 ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+            },
             tap(i) {
                 if (this.checked) return;
                 this.tray.push(this.card.words[i]);
@@ -116,8 +132,9 @@
                     <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Build the sentence</span>
                     <div class="flex min-h-14 flex-wrap items-end gap-2 border-b-2 border-line pb-2 dark:border-line-dark">
                         <template x-for="(word, pos) in tray" :key="pos">
-                            <button type="button" x-on:click="untap(pos)" :disabled="checked" class="cursor-pointer rounded-xl border-2 border-b-4 border-line bg-surface px-3 py-1.5 text-base font-bold text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark" x-text="word"></button>
+                            <button type="button" x-on:click="untap(pos)" :disabled="checked" class="cursor-pointer rounded-xl border-2 border-b-4 border-line bg-surface px-3 py-1.5 text-base font-bold text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark" x-text="trayLabel(word, pos)"></button>
                         </template>
+                        <span x-show="tray.length" class="pb-1.5 text-xl font-extrabold text-ink dark:text-ink-dark" x-text="ending"></span>
                     </div>
                     <div class="flex flex-wrap justify-center gap-2">
                         <template x-for="(word, i) in card.words" :key="i">
@@ -127,7 +144,7 @@
                                 :disabled="checked || bankUsed.includes(i)"
                                 :class="bankUsed.includes(i) ? 'border-line bg-line text-transparent dark:border-line-dark dark:bg-line-dark' : 'border-line bg-surface text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark'"
                                 class="cursor-pointer rounded-xl border-2 border-b-4 px-3 py-1.5 text-base font-bold"
-                                x-text="word"
+                                x-text="label(word)"
                             ></button>
                         </template>
                     </div>
@@ -179,7 +196,7 @@
                             x-on:click="untap(pos)"
                             :disabled="checked"
                             class="cursor-pointer rounded-full border border-accent bg-accent-soft px-3 py-1 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed dark:border-accent-dark dark:bg-accent-soft-dark dark:text-accent-ink-dark"
-                            x-text="word"
+                            x-text="trayLabel(word, pos)"
                         ></button>
                     </template>
                 </div>
@@ -192,7 +209,7 @@
                             x-on:click="tap(i)"
                             :disabled="checked"
                             class="cursor-pointer rounded-full border border-line px-3 py-1 text-sm font-semibold text-ink hover:bg-surface-sunken disabled:cursor-not-allowed dark:border-line-dark dark:text-ink-dark dark:hover:bg-surface-sunken-dark"
-                            x-text="word"
+                            x-text="label(word)"
                         ></button>
                     </template>
                 </div>

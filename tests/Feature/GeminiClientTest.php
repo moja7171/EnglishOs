@@ -458,6 +458,22 @@ class GeminiClientTest extends TestCase
         }
     }
 
+    public function test_once_the_requests_ai_time_is_used_up_nothing_more_is_sent(): void
+    {
+        $this->groqAnswers('Hello from Groq.');
+        Http::fake([self::MODEL_A => Http::response($this->textResponse('Hello from A.'))]);
+        config(['services.ai.request_budget' => 1]);
+
+        try {
+            $this->ask($this->chatChain(['model-a']));
+            $this->fail('Expected the request to run out of AI time.');
+        } catch (ConnectionException $e) {
+            $this->assertStringContainsString('timed out', $e->getMessage());
+        }
+
+        Http::assertNothingSent();
+    }
+
     public function test_the_admins_daily_cap_does_not_fall_back_to_groq(): void
     {
         $this->groqAnswers('Hello from Groq.');

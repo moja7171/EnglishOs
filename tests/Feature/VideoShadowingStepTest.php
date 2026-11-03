@@ -209,14 +209,19 @@ class VideoShadowingStepTest extends TestCase
         $this->assertSame(4, Evidence::where('phase', 'video_shadowing')->where('type', Evidence::TYPE_AUDIO)->count());
     }
 
-    public function test_the_watch_counter_offers_an_i_watched_this_button(): void
+    public function test_there_is_one_i_watched_this_button_and_the_text_starts_closed(): void
     {
         $run = $this->makeRun();
 
-        Livewire::test('missions.steps.video-shadowing', ['run' => $run])
+        $html = Livewire::test('missions.steps.video-shadowing', ['run' => $run])
             ->assertSeeHtml('eosListenTracker')
-            ->assertSeeHtml('wire:click="reportListen"')
-            ->assertSee('I watched this');
+            ->assertDontSeeHtml('wire:click="reportListen"')
+            ->assertSee('I watched this video')
+            ->assertSeeHtml('showText: false')
+            ->html();
+
+        // The 🎯 line comes before the video, so it is read before playing.
+        $this->assertLessThan(strpos($html, '<div data-watch>'), strpos($html, '🎯 Listen for'));
     }
 
     public function test_there_is_no_stress_tip_line(): void

@@ -1,7 +1,12 @@
-{{-- A word card's meaning: the word and its type, English, Persian, the example with the word in bold. --}}
+{{-- A word card's meaning: the word and its type, English, Persian, the example with the word in bold.
+     $withWord false leaves the word and its type out, for a sheet under a card that already shows them. --}}
+@props(['word', 'withWord' => true])
+
 <span class="flex flex-col items-center gap-2 text-center">
-    <x-speak-word :word="$word->word" class="font-display text-xl font-semibold text-ink dark:text-ink-dark" />
-    @if (filled($word->pos))
+    @if ($withWord)
+        <x-speak-word :word="$word->word" class="font-display text-xl font-semibold text-ink dark:text-ink-dark" />
+    @endif
+    @if ($withWord && filled($word->pos))
         <span class="rounded-full bg-accent-soft px-3 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $word->pos }}</span>
     @endif
     @if (filled($word->meaning))

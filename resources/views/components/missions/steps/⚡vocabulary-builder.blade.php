@@ -213,32 +213,40 @@ new class extends Component
 
     /**
      * "Which picture means this word?" for a word with an image_query —
-     * quizCards() swaps some meaning cards for these.
+     * quizCards() swaps some meaning cards for these. Like the meaning
+     * cards, the wrong pictures come from the mission's OTHER days' words
+     * first, so a card can't be answered by elimination.
      *
      * @return list<array{prompt: string, options: list<string>, correct: int, optionType: string}>
      */
     public function imageMatchCards(): array
     {
         $words = collect($this->words());
-        $imageWords = $words->filter(fn ($w) => $w['image_query'] ?? null);
+        $todaysPhrases = $words->pluck('phrase');
+        $hasImage = fn (array $word) => filled($word['image_query'] ?? null);
+        $otherDaysImageWords = collect($this->run->mission->vocabularyEntries())
+            ->reject(fn (array $other) => $todaysPhrases->contains($other['phrase']))
+            ->filter($hasImage)
+            ->unique('phrase')
+            ->values();
+        $todaysImageWords = $words->filter($hasImage);
         $client = app(PexelsClient::class);
 
-        return $words
-            ->filter(fn (array $entry) => $entry['image_query'] ?? null)
-            ->filter(fn (array $entry) => $imageWords->where('phrase', '!=', $entry['phrase'])->count() >= 2)
-            ->map(function (array $entry) use ($imageWords, $client) {
+        return $todaysImageWords
+            ->filter(fn (array $entry) => $otherDaysImageWords->count() + $todaysImageWords->where('phrase', '!=', $entry['phrase'])->count() >= 2)
+            ->map(function (array $entry) use ($otherDaysImageWords, $todaysImageWords, $client) {
                 $correctImage = $client->imageUrlFor($entry['phrase'], $entry['image_query'], null);
 
                 if (! $correctImage) {
                     return null;
                 }
 
-                $distractorImages = $imageWords
-                    ->where('phrase', '!=', $entry['phrase'])
-                    ->shuffle()
-                    ->take(2)
+                $distractorImages = $otherDaysImageWords->shuffle()
+                    ->concat($todaysImageWords->where('phrase', '!=', $entry['phrase'])->shuffle())
                     ->map(fn ($w) => $client->imageUrlFor($w['phrase'], $w['image_query'], null))
-                    ->filter();
+                    ->filter(fn (?string $url) => $url && $url !== $correctImage)
+                    ->unique()
+                    ->take(2);
 
                 if ($distractorImages->count() < 2) {
                     return null;
@@ -270,8 +278,9 @@ new class extends Component
     }
 
     /**
-     * The mic in a sentence box: what was said becomes that box's text and
-     * is checked straight away, like a typed sentence.
+     * The mic in a sentence box: what was said becomes that box's text —
+     * shown at once — and the page then checks it like a typed sentence
+     * (see <x-checked-answer-actions>, event eos-dictated).
      */
     public function dictateExample(int $index): void
     {
@@ -283,7 +292,8 @@ new class extends Component
         }
 
         $this->examples[$index] = $text;
-        $this->runCheck($word, $text);
+        $this->keepStepDraft();
+        $this->dispatch('eos-dictated', key: $index);
     }
 
     /** Kept in the step's draft, so a learner who leaves comes back to practice, not the story. */
@@ -336,6 +346,7 @@ new class extends Component
 
             $this->feedback[$word] = $data + ['checkedText' => $example];
             $this->trackCheckAttempt($word, $data['severity']);
+            $this->noteCheckedMistake($example, $data, 'vocabulary_builder');
             $this->keepStepDraft();
 
             return true;
@@ -565,13 +576,16 @@ new class extends Component
                 <x-speak-word :word="$entry['phrase']" class="text-2xl font-bold text-ink dark:text-ink-dark" />
                 @if (filled($entry['meaning_fa'] ?? null))
                     <p dir="rtl" class="font-fa text-base font-medium text-ink dark:text-ink-dark">{{ $entry['meaning_fa'] }}</p>
-                    <button type="button" x-on:click="english[{{ $index }}] = ! english[{{ $index }}]" class="w-fit cursor-pointer text-xs font-bold text-ink-faint dark:text-ink-faint-dark">In English</button>
-                    <p x-show="english[{{ $index }}]" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
+                    <button type="button" x-on:click="english[{{ $index }}] = ! english[{{ $index }}]" class="inline-flex w-fit cursor-pointer items-center gap-1 rounded-full border border-line px-2.5 py-0.5 text-xs font-bold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">Meaning in English <span x-text="english[{{ $index }}] ? '▴' : '▾'">▾</span></button>
+                    <p x-show="english[{{ $index }}]" x-cloak class="-mt-1 text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning'] }}</p>
                 @else
                     <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $entry['meaning'] }}</p>
                 @endif
                 @if (filled($entry['example'] ?? null))
-                    <p class="text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! preg_replace('/'.preg_quote(e($entry['phrase']), '/').'/i', '<b class="rounded bg-accent-soft px-1 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">$0</b>', e($entry['example']), 1) !!}</p>
+                    <div class="flex flex-col gap-1 border-t border-line pt-3 dark:border-line-dark">
+                        <span class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Example</span>
+                        <x-speak-word :word="$entry['example']" block top class="text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">{!! preg_replace('/'.preg_quote(e($entry['phrase']), '/').'/i', '<b class="rounded bg-accent-soft px-1 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">$0</b>', e($entry['example']), 1) !!}</x-speak-word>
+                    </div>
                 @endif
             </div>
             <div class="flex justify-center gap-1.5" aria-hidden="true">
@@ -587,16 +601,11 @@ new class extends Component
     @endforeach
 
     <x-lesson-screen when="screen === {{ $storyScreen }}">
-        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Read it</span>
-        <p x-lookup class="rounded-3xl bg-surface p-4 text-base leading-loose text-ink dark:bg-surface-dark dark:text-ink-dark">
-            @foreach ($storySegments as $segment)
-                @if ($segment['type'] === 'text')
-                    {{ $segment['value'] }}
-                @else
-                    <mark class="rounded bg-accent-soft px-1 font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $segment['value'] }}</mark>
-                @endif
-            @endforeach
-        </p>
+        <div class="flex items-center justify-between gap-3">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Read it</span>
+            <x-listen-aloud :text="collect($storySegments)->pluck('value')->implode('')" />
+        </div>
+        <p x-lookup class="rounded-3xl bg-surface p-4 text-base leading-loose text-ink dark:bg-surface-dark dark:text-ink-dark">{!! collect($storySegments)->map(fn (array $segment) => $segment['type'] === 'text' ? e($segment['value']) : '<mark class="rounded bg-accent-soft px-1 font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">'.e($segment['value']).'</mark>')->implode('') !!}</p>
         <p class="text-center text-xs font-bold text-ink-faint dark:text-ink-faint-dark">Tap a word to see it again</p>
 
         <x-slot:actions>
@@ -625,6 +634,16 @@ new class extends Component
         <x-lesson-screen when="screen === {{ $firstSentenceScreen + $index }}" wire:key="sentence-{{ $index }}">
             <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">About you · {{ $index + 1 }} of {{ $wordCount }}</span>
             <x-speak-word :word="$word" class="text-xl font-bold text-ink dark:text-ink-dark" />
+            {{-- For a learner who is stuck: the meaning, and the card's example behind one tap. --}}
+            @if (filled($entry['meaning_fa'] ?? null))
+                <p dir="rtl" class="-mt-3 font-fa text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning_fa'] }}</p>
+            @endif
+            @if (filled($entry['example'] ?? null))
+                <div x-data="{ example: false }" class="-mt-2">
+                    <button type="button" x-show="! example" x-on:click="example = true" class="cursor-pointer text-sm font-bold text-accent-ink dark:text-accent-ink-dark">💡 See an example</button>
+                    <p x-show="example" x-cloak class="rounded-2xl bg-surface px-3 py-2 text-sm text-ink-soft italic dark:bg-surface-dark dark:text-ink-soft-dark">{{ $entry['example'] }}</p>
+                </div>
+            @endif
 
             <x-type-or-say
                 model="examples.{{ $index }}"
@@ -635,7 +654,7 @@ new class extends Component
                 on-input="edited[{{ $index }}] = true"
                 :error="$dictationErrors[$index] ?? null"
             />
-            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateExample, revealCorrection({{ $index }}), save" />
+            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" />
 
             <x-slot:actions>
                 <x-checked-answer-actions

@@ -121,6 +121,9 @@ new class extends Component
      */
     public const REQUIRED_SENTENCES = 3;
 
+    /** "Which one is right?" questions after each rule (see sectionPairs()). */
+    public const PAIRS_PER_SECTION = 3;
+
     /** Exposed for the Blade template — a bare `self::CONST` isn't reachable there. */
     public function requiredSentences(): int
     {
@@ -280,6 +283,7 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $sentence];
             $this->trackCheckAttempt($index, $data['severity']);
+            $this->noteCheckedMistake($this->fullSentence($starter, $sentence), $data, 'grammar_in_context');
             $this->keepStepDraft();
 
             return true;
@@ -324,7 +328,8 @@ new class extends Component
 
     /**
      * The mic in a sentence box: what was said (minus the starter, if it
-     * was said too) becomes the box's text and is checked straight away.
+     * was said too) becomes the box's text — shown at once — and the page then checks
+     * it (see <x-checked-answer-actions>, event eos-dictated).
      */
     public function dictateSentence(int $index): void
     {
@@ -336,33 +341,43 @@ new class extends Component
         }
 
         $this->frequencySentences[$index] = $this->continuation($starter, $text);
-        $this->runCheck($index, $starter, $this->frequencySentences[$index]);
+        $this->keepStepDraft();
+        $this->dispatch('eos-dictated', key: $index);
     }
 
     /**
-     * Each lesson section's "Which one is right?" pair — its spot-the-
-     * mistake block, or else its first don't/do pair. Null when the
-     * section has neither.
+     * A lesson section's "Which one is right?" pairs, up to three: its
+     * spot-the-mistake block and don't/do pairs from the mission's seed
+     * first, then config/grammar_practice.php's extra pairs for that
+     * section. Empty when the section has none (e.g. "Make it personal").
      *
-     * @return array{wrong: string, right: string, why: ?string}|null
+     * @return list<array{wrong: string, right: string, why: ?string}>
      */
-    public function sectionPair(array $section): ?array
+    public function sectionPairs(array $section, int $sectionIndex): array
     {
+        $pairs = [];
+
         foreach ($section['blocks'] ?? [] as $block) {
             if (($block['type'] ?? null) === 'mistake_fix' && filled($block['wrong'] ?? null)) {
-                return ['wrong' => $block['wrong'], 'right' => $block['right'], 'why' => $block['explanation'] ?? null];
+                $pairs[] = ['wrong' => $block['wrong'], 'right' => $block['right'], 'why' => $block['explanation'] ?? null];
             }
         }
 
         foreach ($section['blocks'] ?? [] as $block) {
-            if (($block['type'] ?? null) === 'do_dont' && filled($block['items'][0]['wrong'] ?? null)) {
-                $item = $block['items'][0];
-
-                return ['wrong' => $item['wrong'], 'right' => $item['right'], 'why' => $item['note'] ?? null];
+            if (($block['type'] ?? null) === 'do_dont') {
+                foreach ($block['items'] ?? [] as $item) {
+                    if (filled($item['wrong'] ?? null)) {
+                        $pairs[] = ['wrong' => $item['wrong'], 'right' => $item['right'], 'why' => $item['note'] ?? null];
+                    }
+                }
             }
         }
 
-        return null;
+        foreach (config("grammar_practice.{$this->run->mission->code}.{$sectionIndex}", []) as $pair) {
+            $pairs[] = $pair + ['why' => null];
+        }
+
+        return array_slice($pairs, 0, self::PAIRS_PER_SECTION);
     }
 
     public function declineReveal(int $index): void
@@ -485,7 +500,7 @@ new class extends Component
     $screens = [['type' => 'intro']];
     foreach ($sections as $sectionIndex => $section) {
         $screens[] = ['type' => 'rule', 'section' => $sectionIndex];
-        if ($pair = $this->sectionPair($section)) {
+        foreach ($this->sectionPairs($section, $sectionIndex) as $pair) {
             $screens[] = ['type' => 'pick', 'section' => $sectionIndex, 'pair' => $pair];
         }
     }
@@ -578,7 +593,8 @@ new class extends Component
             @case('pick')
                 @php
                     $pair = $screen['pair'];
-                    $options = crc32($pair['wrong']) % 2 === 0 ? [[$pair['wrong'], false], [$pair['right'], true]] : [[$pair['right'], true], [$pair['wrong'], false]];
+                    // The right one is first or second by chance (fixed per learner, so a re-render never swaps them).
+                    $options = crc32($run->id.'|'.$pair['wrong']) % 2 === 0 ? [[$pair['wrong'], false], [$pair['right'], true]] : [[$pair['right'], true], [$pair['wrong'], false]];
                 @endphp
                 <x-lesson-screen when="screen === {{ $screenIndex }}">
                     <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Which one is right?</span>
@@ -611,7 +627,7 @@ new class extends Component
                         label="Fix the sentence"
                         :cards="$this->quickCheckCards()"
                         :draft-key="$preview ? null : $draftPrefix.'quickCheck'"
-                        on-complete="$wire.set('quickCheckScore', { correct: this.correctCount, total: this.cards.length }, false); if (screen === {{ $screenIndex }}) screen++"
+                        on-complete="$wire.set('quickCheckScore', { correct: this.correctCount, total: this.firstTries }, false); if (screen === {{ $screenIndex }}) screen++"
                         on-skip="screen++"
                     />
                 </section>
@@ -649,7 +665,7 @@ new class extends Component
                         on-input="edited[{{ $index }}] = true"
                         :error="$dictationErrors[$index] ?? null"
                     />
-                    <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateSentence, revealCorrection({{ $index }}), save" />
+                    <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" />
 
                     <x-slot:actions>
                         <x-checked-answer-actions

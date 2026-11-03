@@ -39,7 +39,7 @@ class RemindersPromptTest extends TestCase
         $this->assertSame('Europe/London', $user->fresh()->timezone);
     }
 
-    public function test_the_invitation_sheet_is_in_persian_and_short(): void
+    public function test_the_invitation_sheet_is_in_english_like_the_app_and_short(): void
     {
         $this->withPushKeys();
         $user = User::factory()->create();
@@ -47,9 +47,32 @@ class RemindersPromptTest extends TestCase
         $this->actingAs($user);
 
         Livewire::test('notifications.reminders-prompt', ['variant' => 'sheet'])
-            ->assertSee('فردا یادتان می‌اندازیم')
-            ->assertSee('روشن کن')
+            ->assertSee("We'll remind you tomorrow", false)
+            ->assertSee('Turn on')
             ->assertDontSee('زنجیره در خطر');
+    }
+
+    public function test_the_home_card_waits_a_day_after_the_sheet_and_later_quiets_it(): void
+    {
+        $this->withPushKeys();
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $this->get(route('home'))
+            ->assertSee('Date.now() - sheetSeen > DAY', false)
+            ->assertSee("write('eosAlertsCardDismissedUntil', Date.now() + 3 * DAY);", false);
+    }
+
+    public function test_the_install_banner_waits_for_the_day_after_the_first_lesson(): void
+    {
+        $user = User::factory()->create();
+        DayActivity::factory()->create(['learner_id' => $user->id, 'created_at' => now()]);
+
+        $this->actingAs($user)->get(route('home'))->assertSee('x-show="false && deferredPrompt', false);
+
+        DayActivity::factory()->create(['learner_id' => $user->id, 'on_date' => today()->subDay(), 'created_at' => now()->subDay()]);
+
+        $this->actingAs($user)->get(route('home'))->assertSee('x-show="true && deferredPrompt', false);
     }
 
     public function test_the_invitation_sheet_waits_for_the_first_lesson(): void
@@ -59,7 +82,7 @@ class RemindersPromptTest extends TestCase
 
         Livewire::test('notifications.reminders-prompt', ['variant' => 'sheet'])
             ->assertSet('hasStarted', false)
-            ->assertDontSee('فردا یادتان می‌اندازیم');
+            ->assertDontSee("We'll remind you tomorrow", false);
     }
 
     public function test_nothing_is_shown_when_phone_alerts_are_not_configured(): void
@@ -68,7 +91,7 @@ class RemindersPromptTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('notifications.reminders-prompt', ['variant' => 'sheet'])
-            ->assertDontSee('فردا یادتان می‌اندازیم');
+            ->assertDontSee("We'll remind you tomorrow", false);
     }
 
     public function test_it_knows_whether_study_times_are_already_set(): void

@@ -163,6 +163,7 @@ new class extends Component
 
             $this->feedback[$index] = $data + ['checkedText' => $text];
             $this->trackCheckAttempt($index, $data['severity']);
+            $this->noteCheckedMistake($text, $data, 'reading_comprehension');
             $this->keepStepDraft();
 
             return true;
@@ -179,8 +180,9 @@ new class extends Component
      * AI to just write the corrected version — see TracksCheckAttempts.
      */
     /**
-     * The mic in an answer box: what was said becomes the answer and is
-     * checked straight away.
+     * The mic in an answer box: what was said becomes the answer — the
+     * learner sees it at once — and the page then checks it (see
+     * <x-checked-answer-actions>, event eos-dictated).
      */
     public function dictateAnswer(int $index): void
     {
@@ -191,7 +193,8 @@ new class extends Component
         }
 
         $this->answers[$index] = $text;
-        $this->runCheck($index, $text);
+        $this->keepStepDraft();
+        $this->dispatch('eos-dictated', key: $index);
     }
 
     public function revealCorrection(int $index): void
@@ -362,6 +365,7 @@ new class extends Component
 @php
     $reading = $run->mission->stepContent('reading_comprehension');
     $passageHtml = $this->highlightedPassageHtml();
+    $highlightTypes = collect($reading['highlighted_phrases'] ?? [])->map(fn (array $phrase) => $phrase['type'] ?? 'reused')->unique();
     $draftPrefix = $this->draftPrefix();
     $questions = $this->questions();
     $cards = $readOnly ? [] : $this->comprehensionCards();
@@ -410,6 +414,15 @@ new class extends Component
     {{-- The only screen that scrolls: the passage, a tap on any word for its meaning. --}}
     <x-lesson-screen when="screen === 1">
         <h2 class="font-display lesson-title text-ink dark:text-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <x-listen-aloud :text="$reading['passage'] ?? ''" />
+            @if ($highlightTypes->contains('reused'))
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="h-2.5 w-2.5 rounded-full bg-success dark:bg-success-dark"></span>From New Words</span>
+            @endif
+            @if ($highlightTypes->contains('new'))
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="h-2.5 w-2.5 rounded-full bg-accent dark:bg-accent-dark"></span>New word</span>
+            @endif
+        </div>
         <p x-lookup class="text-base leading-loose text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
 
         <x-slot:actions>
@@ -448,7 +461,7 @@ new class extends Component
                 on-input="edited[{{ $index }}] = true"
                 :error="$dictationErrors[$index] ?? null"
             />
-            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateAnswer, revealCorrection({{ $index }}), save" />
+            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" />
 
             <x-slot:actions>
                 <x-checked-answer-actions

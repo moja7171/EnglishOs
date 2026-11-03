@@ -156,12 +156,12 @@ new class extends Component
                 @if ($earlier?->audio_url)
                     <div>
                         <p class="{{ $voiceLabel }} mb-1.5">Placement test</p>
-                        <x-audio-player :url="$earlier->audio_url" />
+                        <x-own-take :url="$earlier->audio_url" />
                     </div>
                 @endif
                 <div>
                     <p class="{{ $voiceLabel }} mb-1.5">Today</p>
-                    <x-audio-player :url="$newResult->audio_url" />
+                    <x-own-take :url="$newResult->audio_url" />
                 </div>
             </div>
 

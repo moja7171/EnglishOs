@@ -11,15 +11,7 @@
     @param list<array{type: string, value: string}> $segments
     @param list<array{phrase: string, meaning: string, pos?: string, example?: string}> $words
 --}}
-<p x-lookup class="text-sm leading-loose text-ink dark:text-ink-dark">
-    @foreach ($segments as $segment)
-        @if ($segment['type'] === 'text')
-            {{ $segment['value'] }}
-        @else
-            <mark class="rounded bg-accent/15 px-1 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">{{ $segment['value'] }}</mark>
-        @endif
-    @endforeach
-</p>
+<p x-lookup class="text-sm leading-loose text-ink dark:text-ink-dark">{!! collect($segments)->map(fn (array $segment) => $segment['type'] === 'text' ? e($segment['value']) : '<mark class="rounded bg-accent/15 px-1 font-semibold text-accent-ink dark:bg-accent-dark/25 dark:text-accent-ink-dark">'.e($segment['value']).'</mark>')->implode('') !!}</p>
 
 <div class="mt-4 space-y-2.5 border-t border-line pt-4 dark:border-line-dark">
     @foreach ($words as $word)

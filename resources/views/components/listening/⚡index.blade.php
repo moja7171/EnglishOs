@@ -419,7 +419,7 @@ new class extends Component
                         x-cloak
                         x-back-close="{ open: open === {{ $level }}, close: () => open = null }"
                         x-on:keydown.escape.window="if (open === {{ $level }}) open = null"
-                        x-on:loadedmetadata.capture="try { localStorage.setItem({{ Illuminate\Support\Js::from($resumeKey.':length') }}, $event.target.duration) } catch (e) {}"
+                        x-on:loadedmetadata.capture="(() => { try { localStorage.setItem({{ Illuminate\Support\Js::from($resumeKey.':length') }}, $event.target.duration) } catch (e) {} })()"
                         role="dialog"
                         aria-modal="true"
                         aria-label="{{ $pick['title'] }}"

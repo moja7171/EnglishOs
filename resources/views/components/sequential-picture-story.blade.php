@@ -32,7 +32,7 @@
                     </span>
                 </div>
                 @if ($image['caption'] ?? null)
-                    <p class="mt-1 text-xs text-ink-faint dark:text-ink-faint-dark">{{ $image['caption'] }}</p>
+                    <p @class(['mt-1', 'text-xs text-ink-faint dark:text-ink-faint-dark' => ! $grid, 'text-center text-sm font-bold text-ink-soft dark:text-ink-soft-dark' => $grid])>{{ $image['caption'] }}</p>
                 @endif
             </div>
         @endforeach

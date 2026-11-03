@@ -19,7 +19,7 @@ use Throwable;
  */
 trait ChecksShadowLines
 {
-    /** @var array<string, array{severity: string, hint: string, unchecked?: bool}> keyed by "shadow_{index}" */
+    /** @var array<string, array{severity: string, hint: string, missed?: list<string>, unchecked?: bool}> keyed by "shadow_{index}" */
     public array $feedback = [];
 
     /** @var array<string, string> keyed by "shadow_{index}" — per-line check failure message */
@@ -69,7 +69,7 @@ trait ChecksShadowLines
             );
             $this->recordGeminiCall();
 
-            $this->feedback[$key] = $data;
+            $this->feedback[$key] = $data + ['missed' => SpokenAnswerChecker::missedWords($target, $transcript)];
             $this->trackCheckAttempt($key, $data['severity']);
         } catch (Throwable $e) {
             // The AI being unreachable says nothing about the learner's

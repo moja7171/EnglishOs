@@ -193,6 +193,8 @@ new class extends Component
     $writing = $run->mission->stepContent('writing');
     $draftPrefix = $this->draftPrefix();
     $prompts = collect($writing['prompts'] ?? [])->map(fn ($prompt) => is_array($prompt) ? ($prompt['label'] ?? '') : $prompt)->filter()->values();
+    // A one-word idea ("Morning") comes with a question to answer, so the learner knows what to write.
+    $questions = collect($writing['prompts'] ?? [])->map(fn ($prompt) => is_array($prompt) ? ($prompt['question'] ?? null) : null)->values();
     $promptImages = $this->promptImageUrls();
     $minWords = $writing['min_words'] ?? 100;
     $paragraphScreen = $prompts->count() + 1;
@@ -266,7 +268,12 @@ new class extends Component
                 @if ($imageUrl = $promptImages[$label] ?? null)
                     <x-zoomable-image :url="$imageUrl" :alt="$label" class="h-14 w-14 shrink-0 rounded-2xl object-cover" />
                 @endif
-                <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $label }}</p>
+                <div class="min-w-0">
+                    <p class="lesson-prompt text-ink dark:text-ink-dark">{{ $label }}</p>
+                    @if (filled($questions[$index] ?? null))
+                        <p class="text-base font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $questions[$index] }}</p>
+                    @endif
+                </div>
             </div>
             <textarea
                 x-model="parts[{{ $index }}]"
@@ -276,8 +283,10 @@ new class extends Component
             ></textarea>
 
             <x-slot:actions>
+                {{-- Something written first; a quiet Skip keeps an idea the learner has nothing to say about from blocking them. --}}
                 @if ($index + 1 < $prompts->count())
-                    <x-continue-button on-click="screen++" wire-target="save">Next idea</x-continue-button>
+                    <x-continue-button on-click="screen++" wire-target="save" ready-when="words(parts[{{ $index }}]) > 0">Next idea</x-continue-button>
+                    <button type="button" x-show="words(parts[{{ $index }}]) === 0" x-on:click="screen++" class="cursor-pointer text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip this idea</button>
                 @else
                     <x-continue-button on-click="toParagraph()" wire-target="save" />
                 @endif
