@@ -628,6 +628,16 @@ new class extends Component
         <x-lesson-screen when="screen === {{ $firstSentenceScreen + $index }}" wire:key="sentence-{{ $index }}">
             <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">About you · {{ $index + 1 }} of {{ $wordCount }}</span>
             <x-speak-word :word="$word" class="text-xl font-bold text-ink dark:text-ink-dark" />
+            {{-- For a learner who is stuck: the meaning, and the card's example behind one tap. --}}
+            @if (filled($entry['meaning_fa'] ?? null))
+                <p dir="rtl" class="-mt-3 font-fa text-sm text-ink-soft dark:text-ink-soft-dark">{{ $entry['meaning_fa'] }}</p>
+            @endif
+            @if (filled($entry['example'] ?? null))
+                <div x-data="{ example: false }" class="-mt-2">
+                    <button type="button" x-show="! example" x-on:click="example = true" class="cursor-pointer text-sm font-bold text-accent-ink dark:text-accent-ink-dark">💡 See an example</button>
+                    <p x-show="example" x-cloak class="rounded-2xl bg-surface px-3 py-2 text-sm text-ink-soft italic dark:bg-surface-dark dark:text-ink-soft-dark">{{ $entry['example'] }}</p>
+                </div>
+            @endif
 
             <x-type-or-say
                 model="examples.{{ $index }}"

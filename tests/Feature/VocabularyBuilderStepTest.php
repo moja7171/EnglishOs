@@ -821,6 +821,16 @@ class VocabularyBuilderStepTest extends TestCase
             ->assertDontSee('Continue anyway');
     }
 
+    public function test_a_sentence_screen_offers_the_meaning_and_an_example_for_a_stuck_learner(): void
+    {
+        [, $mission, $run] = $this->makeMissionAndRun();
+        $steps = $mission->phases;
+        $steps[0]['steps'][1]['words'][0] += ['meaning_fa' => 'بیدار شدن', 'example' => 'I wake up at seven.'];
+        $mission->update(['phases' => $steps]);
+
+        $this->stepComponent($run->fresh())->assertSee('💡 See an example')->assertSee('I wake up at seven.')->assertSee('بیدار شدن');
+    }
+
     public function test_a_check_whose_request_never_comes_back_can_be_tried_again_or_skipped(): void
     {
         [, , $run] = $this->makeMissionAndRun();
