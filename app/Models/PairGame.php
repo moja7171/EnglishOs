@@ -60,15 +60,26 @@ class PairGame extends Model
     public const GAME_STORY = 'story-chain';
 
     /**
+     * Each player has a role and a secret goal in one scene; they talk,
+     * then each guesses the other's goal and says if they reached their own.
+     */
+    public const GAME_ROLE = 'role-play';
+
+    /** After the talk: time to guess the friend's goal. */
+    public const GUESS_SECONDS = 45;
+
+    public const PHASE_GUESS = 'guess';
+
+    /**
      * Every game on the Games page, in the order of its tiles. Only the
      * playable ones can be picked; the others are shown as coming soon.
      *
      * @var list<string>
      */
-    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, 'role-play', 'two-truths', 'would-you-rather'];
+    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, 'two-truths', 'would-you-rather'];
 
     /** @var list<string> */
-    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY];
+    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE];
 
     /** @var list<int> */
     public const LENGTHS = [5, 10];
@@ -86,7 +97,7 @@ class PairGame extends Model
             self::GAME_WHO => ['Who am I?', 'Guess with yes/no questions', 'Questions'],
             self::GAME_MINUTE => ['Just a Minute', 'Talk for a minute', 'Speaking'],
             self::GAME_STORY => ['Story Chain', 'One sentence each', 'Speaking'],
-            'role-play' => ['Role-play', 'Each has a secret goal', 'Speaking'],
+            self::GAME_ROLE => ['Role-play', 'Each has a secret goal', 'Speaking'],
             'two-truths' => ['Two Truths', 'Find the lie', 'Questions'],
             'would-you-rather' => ['Would You Rather', 'Pick a side, say why', 'Speaking'],
             default => ['Game', '', 'Speaking'],
@@ -129,6 +140,11 @@ class PairGame extends Model
                 'داستان با جمله‌ی اول شروع می‌شه؛ هر نوبت یکی‌تون ۱ یا ۲ جمله ادامه می‌ده.',
                 'کلمه‌ی نوبت رو توی جمله‌ت بیار؛ دوستت «used the word» می‌زنه (+۱).',
                 '«Done» داستان رو به دوستت می‌ده؛ نوبت آخر، داستان رو تموم کن.',
+            ],
+            self::GAME_ROLE => [
+                'هر کدوم یک نقش و یک هدف مخفی دارید — صفحه‌ت رو نشون نده. جمله‌های کمکی زیرش هست.',
+                '۲ دقیقه با هم حرف بزنید و هر کدوم سعی کنه به هدفش برسه.',
+                'بعد هدف دوستت رو از بین ۳ تا حدس بزن (+۱) و صادقانه بگو به هدف خودت رسیدی یا نه (+۱).',
             ],
             default => [],
         };
@@ -507,7 +523,88 @@ class PairGame extends Model
      */
     public function isOneCardPerTurn(): bool
     {
-        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY], true);
+        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE], true);
+    }
+
+    public function isRolePlay(): bool
+    {
+        return $this->game === self::GAME_ROLE;
+    }
+
+    /**
+     * Role-play: $user's side of the scene on screen — the turn's holder
+     * plays 'a', the other 'b'.
+     *
+     * @return array{role: string, goal: string, help: list<string>}|null
+     */
+    public function roleOf(User $user, ?array $card = null, ?int $turnIndex = null): ?array
+    {
+        $card ??= $this->currentCard();
+        $holder = $this->explainerOf($turnIndex ?? $this->currentTurnIndex());
+
+        return $card[$holder->is($user) ? 'a' : 'b'] ?? null;
+    }
+
+    /**
+     * Role-play: the three goals $user picks from when guessing the
+     * friend's goal (the real one and two that fit the scene too).
+     *
+     * @return list<string>
+     */
+    public function guessOptionsFor(User $user, ?array $card = null, ?int $turnIndex = null): array
+    {
+        $card ??= $this->currentCard();
+        $holder = $this->explainerOf($turnIndex ?? $this->currentTurnIndex());
+
+        return $card[$holder->is($user) ? 'options_b' : 'options_a'] ?? [];
+    }
+
+    /**
+     * Role-play: either player ends the talk — now both guess.
+     */
+    public function endTalk(User $user): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isRolePlay() || ! $this->isAccessibleBy($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_TALK) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $last = array_key_last($turns);
+        $turns[$last]['current']['phase'] = self::PHASE_GUESS;
+        $turns[$last]['ends_at'] = now()->addSeconds(self::GUESS_SECONDS)->getTimestamp();
+        $this->turns = $turns;
+        $this->save();
+    }
+
+    /**
+     * Role-play: $user's guess of the friend's goal (an index into their
+     * options) and whether they honestly reached their own. Once both have
+     * answered, the scene is over.
+     */
+    public function submitGuess(User $user, int $option, bool $reached): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isRolePlay() || ! $this->isAccessibleBy($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_GUESS
+            || isset($turn['current']['guesses'][$user->id]) || ! isset($this->guessOptionsFor($user)[$option])) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $last = array_key_last($turns);
+        $turns[$last]['current']['guesses'][$user->id] = ['option' => $option, 'reached' => $reached];
+        $this->turns = $turns;
+
+        if (count($turns[$last]['current']['guesses']) >= 2) {
+            $this->closeCard(self::RESULT_GOT);
+            $this->endTurn();
+
+            return;
+        }
+
+        $this->save();
     }
 
     public function isStoryChain(): bool
@@ -685,7 +782,15 @@ class PairGame extends Model
 
         $alreadyCounted = 0;
 
-        if ($this->isStoryChain()) {
+        if ($this->isRolePlay()) {
+            $points = collect($current['guesses'] ?? [])->map(function (array $guess, int $userId) use ($card) {
+                $guesser = $this->user_a_id === $userId ? $this->userA : $this->userB;
+                $options = $this->guessOptionsFor($guesser, $card, count($this->turns) - 1);
+                $friendGoal = $this->roleOf($this->partnerFor($guesser), $card, count($this->turns) - 1)['goal'] ?? null;
+
+                return (($options[$guess['option']] ?? null) === $friendGoal ? self::POINTS_WORD : 0) + ($guess['reached'] ? self::POINTS_WORD : 0);
+            })->sum();
+        } elseif ($this->isStoryChain()) {
             $result = ($current['used'] ?? false) ? self::RESULT_GOT : self::RESULT_MISSED;
             $points = $alreadyCounted = $result === self::RESULT_GOT ? self::POINTS_WORD : 0;
         } elseif ($this->isJustAMinute()) {
@@ -707,6 +812,7 @@ class PairGame extends Model
             'bonus_said' => $current['bonus_said'],
             'questions' => count($current['answers'] ?? []),
             'heard' => $current['heard'] ?? [],
+            'guesses' => $current['guesses'] ?? [],
             'points' => $points,
             'at' => now()->getTimestamp(),
         ];
@@ -766,12 +872,22 @@ class PairGame extends Model
             return;
         }
 
+        if ($this->isRolePlay() && ($turn['current']['phase'] ?? null) === self::PHASE_TALK) {
+            $turns = $this->turns;
+            $turns[array_key_last($turns)]['current']['phase'] = self::PHASE_GUESS;
+            $turns[array_key_last($turns)]['ends_at'] = now()->addSeconds(self::GUESS_SECONDS)->getTimestamp();
+            $this->turns = $turns;
+            $this->save();
+
+            return;
+        }
+
         $this->closeTurn();
     }
 
     private function closeTurn(): void
     {
-        $this->closeCard(self::RESULT_MISSED);
+        $this->closeCard($this->isRolePlay() ? self::RESULT_GOT : self::RESULT_MISSED);
         $this->endTurn();
     }
 
@@ -926,6 +1042,10 @@ class PairGame extends Model
             return collect($this->playedCards())->where('explainer_id', $user->id)->where('result', self::RESULT_GOT)->count();
         }
 
+        if ($this->isRolePlay()) {
+            return collect($this->turns ?? [])->sum(fn (array $turn) => collect($turn['cards'])->sum(fn (array $card) => ($card['guesses'][$user->id]['reached'] ?? false) ? 1 : 0));
+        }
+
         if ($this->isJustAMinute()) {
             return collect($this->turns ?? [])
                 ->where('explainer_id', $user->id)
@@ -947,6 +1067,10 @@ class PairGame extends Model
      */
     public function missedWords(): array
     {
+        if ($this->isRolePlay()) {
+            return [];
+        }
+
         if ($this->isJustAMinute()) {
             return collect($this->turns ?? [])
                 ->flatMap(fn (array $turn) => collect($turn['cards'])->flatMap(fn (array $card) => array_diff($this->deck[$card['card']]['words'] ?? [], $card['heard'] ?? [])))

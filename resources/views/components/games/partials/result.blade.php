@@ -29,7 +29,7 @@
         <div class="relative mt-4 grid grid-cols-2 gap-2 text-start">
             @foreach ([$me, $friend] as $player)
                 <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-ground-dark/60 p-3">
-                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
+                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
                     <p class="text-xl font-extrabold tabular-nums">{{ $pairGame->creditFor($player) }}</p>
                 </div>
             @endforeach
@@ -47,6 +47,14 @@
                     <span wire:key="missed-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1.5 text-sm font-bold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">{{ $word }}</span>
                 @endforeach
             </div>
+        </div>
+    @endif
+
+    @if ($pairGame->isRolePlay())
+        <div class="dark space-y-3 rounded-3xl bg-ground-dark p-4">
+            @foreach ($pairGame->turns ?? [] as $index => $sceneTurn)
+                @include('components.games.partials.role-reveal', ['revealTurn' => $sceneTurn, 'revealIndex' => $index])
+            @endforeach
         </div>
     @endif
 

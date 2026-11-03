@@ -73,8 +73,8 @@
                     wire:key="clock-{{ $turnIndex }}-{{ $pairGame->phase() }}"
                     x-data="{
                         endsAt: {{ $turn['ends_at'] * 1000 }},
-                        total: {{ $pairGame->phase() === App\Models\PairGame::PHASE_ASK ? App\Models\PairGame::ASK_SECONDS : $pairGame->turnSeconds() }},
-                        left: {{ $pairGame->phase() === App\Models\PairGame::PHASE_ASK ? App\Models\PairGame::ASK_SECONDS : $pairGame->turnSeconds() }},
+                        total: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, default => $pairGame->turnSeconds() } }},
+                        left: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, default => $pairGame->turnSeconds() } }},
                         fired: false,
                         warned: false,
                         timer: null,
@@ -102,7 +102,9 @@
         @if (! $turn)
             {{-- Between turns: who explains next, and their Start. --}}
             <div class="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
-                @if ($previousTurn && $pairGame->isStoryChain())
+                @if ($previousTurn && $pairGame->isRolePlay())
+                    @include('components.games.partials.role-reveal', ['revealTurn' => $previousTurn, 'revealIndex' => count($pairGame->turns) - 1])
+                @elseif ($previousTurn && $pairGame->isStoryChain())
                     <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">Story {{ intdiv(count($pairGame->turns), $pairGame->storyTurns()) }} done!</p>
                 @elseif ($previousTurn && $pairGame->isJustAMinute())
                     @php $lastTalk = collect($previousTurn['cards'])->last(); @endphp
@@ -121,7 +123,15 @@
                     <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">+{{ $lastTurnWords }} {{ Str::plural('word', $lastTurnWords) }} last turn</p>
                 @endif
                 <x-user-avatar :user="$explainer" class="h-20 w-20 text-xl" />
-                @if ($pairGame->isStoryChain())
+                @if ($pairGame->isRolePlay())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">Scene {{ count($pairGame->turns ?? []) + 1 }} of {{ $pairGame->plannedTurns() }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $isExplainer ? 'You start · 2 min to talk' : $explainer->name.' starts · get ready' }}</p>
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
+                @elseif ($pairGame->isStoryChain())
                     @php $nextStory = $pairGame->deck[intdiv(count($pairGame->turns ?? []), $pairGame->storyTurns()) * $pairGame->storyTurns()] ?? null; @endphp
                     <div class="space-y-2">
                         <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'You start the story' : $explainer->name.' starts the story' }}</p>
@@ -164,6 +174,8 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isRolePlay())
+            @include('components.games.partials.role-turn')
         @elseif ($pairGame->isStoryChain())
             @include('components.games.partials.story-turn')
         @elseif ($pairGame->isJustAMinute())

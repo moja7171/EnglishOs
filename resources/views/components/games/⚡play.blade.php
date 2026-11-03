@@ -101,6 +101,20 @@ new class extends Component
         $this->act(fn (PairGame $pairGame) => $pairGame->doneTelling(auth()->user()));
     }
 
+    /**
+     * Role-play: either player ends the talk; each then sends their guess
+     * of the friend's goal and whether they reached their own.
+     */
+    public function endTalk(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->endTalk(auth()->user()));
+    }
+
+    public function guess(int $option, bool $reached): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->submitGuess(auth()->user(), $option, $reached));
+    }
+
     public function showLetter(int $seen): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->showLetter(auth()->user(), $seen));
@@ -165,6 +179,10 @@ new class extends Component
     {
         $isHolder = $turn['explainer_id'] === auth()->id();
 
+        if ($this->pairGame->isRolePlay()) {
+            return true;
+        }
+
         return $this->pairGame->holderSpeaks() ? $isHolder : ! $isHolder;
     }
 
@@ -189,6 +207,7 @@ new class extends Component
         $label = match ($this->pairGame->game) {
             PairGame::GAME_WHO => 'Turn '.($index + 1).' · your questions (the secret: '.$words.')',
             PairGame::GAME_MINUTE => 'Turn '.($index + 1).' · your talk: '.$words,
+            PairGame::GAME_ROLE => 'Scene '.($index + 1).' · '.$words.' — you were: '.($this->pairGame->roleOf(auth()->user(), $this->pairGame->deck[$turn['cards'][0]['card'] ?? -1] ?? null, $index)['role'] ?? ''),
             PairGame::GAME_STORY => 'Turn '.($index + 1).' · your part of the story (word: '.($this->pairGame->deck[$turn['cards'][0]['card'] ?? -1]['word'] ?? '').')',
             default => 'Turn '.($index + 1).' · you explained: '.$words,
         };
@@ -203,6 +222,16 @@ new class extends Component
     public function checkMyVoice(): void
     {
         if (! $this->pairGame->refresh()->isFinished()) {
+            return;
+        }
+
+        if ($this->pairGame->isRolePlay()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken lines in a role-play with a friend, transcribed by speech-to-text: in each scene (given as the question, with the learner\'s role) they talked to reach a secret goal. Both voices may be in the transcript; judge only lines that fit the learner\'s role.',
+                guidance: 'Judge grammar, word choice and whether the requests, offers and questions sound natural and polite.',
+            );
+
             return;
         }
 

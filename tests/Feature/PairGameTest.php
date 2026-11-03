@@ -12,6 +12,7 @@ use App\Notifications\PairGameInvite;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\JustAMinuteDeck;
+use App\Services\RolePlayDeck;
 use App\Services\StoryChainDeck;
 use App\Services\TabooDeck;
 use App\Services\WhoAmIDeck;
@@ -88,12 +89,13 @@ class PairGameTest extends TestCase
             ->assertSee('Soon')
             ->assertSee(route('games.setup', 'taboo'), false)
             ->assertSee(route('games.setup', 'who-am-i'), false)
-            ->assertDontSee(route('games.setup', 'role-play'), false);
+            ->assertDontSee(route('games.setup', 'two-truths'), false);
 
         $this->get(route('games.setup', 'who-am-i'))->assertOk();
         $this->get(route('games.setup', 'just-a-minute'))->assertOk();
         $this->get(route('games.setup', 'story-chain'))->assertOk();
-        $this->get(route('games.setup', 'role-play'))->assertNotFound();
+        $this->get(route('games.setup', 'role-play'))->assertOk();
+        $this->get(route('games.setup', 'two-truths'))->assertNotFound();
     }
 
     public function test_inviting_a_friend_creates_a_waiting_game_and_notifies_them(): void
@@ -711,5 +713,105 @@ class PairGameTest extends TestCase
         Livewire::test('games.play', ['pairGame' => $pairGame])
             ->assertSeeHtml('aria-label="How to play"')
             ->assertSee(PairGame::guide(PairGame::GAME_TABOO)[0]);
+    }
+
+    /**
+     * A joined Role-play game (2 scenes) whose first scene is running:
+     * user A plays 'a' (the customer), user B plays 'b' (the waiter).
+     */
+    private function roleGame(): PairGame
+    {
+        return $this->playingGame([
+            'game' => PairGame::GAME_ROLE,
+            'rules' => ['turn_seconds' => 120, 'turns' => 2, 'skips' => null, 'bonus' => false, 'starters' => 0, 'level' => 4],
+            'deck' => [[
+                'word' => 'At a restaurant',
+                'a' => ['role' => 'A vegetarian customer', 'goal' => 'Order a dish with no meat.', 'help' => ['Is there any meat in this?', 'Can I have…?', 'I’d like…']],
+                'b' => ['role' => 'The waiter', 'goal' => 'Sell a dessert.', 'help' => ['Would you like…?', 'Today we have…', 'How about…?']],
+                'options_a' => ['Book a table.', 'Order a dish with no meat.', 'Get a free dessert.'],
+                'options_b' => ['Sell a dessert.', 'Close the kitchen early.', 'Find a food blogger.'],
+                'source' => 'M04 · Role-play', 'bonus' => [], 'key' => 'role:M04:restaurant',
+            ], [
+                'word' => 'Dinner for guests',
+                'a' => ['role' => 'A host', 'goal' => 'Get a menu.', 'help' => ['a', 'b', 'c']],
+                'b' => ['role' => 'A cook', 'goal' => 'Share a recipe.', 'help' => ['a', 'b', 'c']],
+                'options_a' => ['Get a menu.', 'x', 'y'], 'options_b' => ['Share a recipe.', 'x', 'y'],
+                'source' => 'M04 · Role-play', 'bonus' => [], 'key' => 'role:M04:dinner',
+            ]],
+        ]);
+    }
+
+    public function test_every_mission_has_four_role_play_scenes_with_a_real_goal_among_the_options(): void
+    {
+        foreach (config('role_play') as $code => $scenes) {
+            $this->assertCount(4, $scenes, $code);
+        }
+
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        $card = app(RolePlayDeck::class)->cardsFor($me, $friend, ['turns' => 2, 'level' => 1])[0];
+
+        $this->assertContains($card['a']['goal'], $card['options_a']);
+        $this->assertContains($card['b']['goal'], $card['options_b']);
+        $this->assertCount(3, $card['a']['help']);
+    }
+
+    public function test_each_player_sees_only_their_own_secret_goal(): void
+    {
+        $pairGame = $this->roleGame();
+        [$customer, $waiter] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $this->actingAs($customer);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->assertSee('Order a dish with no meat.')->assertDontSee('Sell a dessert.');
+
+        $this->actingAs($waiter);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->assertSee('Sell a dessert.')->assertDontSee('Order a dish with no meat.');
+    }
+
+    public function test_after_the_talk_both_guess_and_points_come_for_right_guesses_and_reached_goals(): void
+    {
+        $pairGame = $this->roleGame();
+        [$customer, $waiter] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $pairGame->submitGuess($customer, 0, true);
+        $this->assertSame([], $pairGame->refresh()->currentTurn()['current']['guesses'] ?? [], 'No guessing while still talking.');
+
+        $this->actingAs($waiter);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('endTalk');
+        $this->assertSame(PairGame::PHASE_GUESS, $pairGame->refresh()->phase());
+
+        // The customer guesses the waiter's goal right and reached theirs;
+        // the waiter guesses wrong and didn't reach theirs.
+        $this->actingAs($customer);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('guess', 0, true)->call('guess', 1, false);
+        $this->actingAs($waiter);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('guess', 0, false);
+
+        $pairGame->refresh();
+        $this->assertSame(2 * PairGame::POINTS_WORD, $pairGame->score);
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertSame(1, $pairGame->creditFor($customer));
+        $this->assertSame(0, $pairGame->creditFor($waiter));
+
+        $this->actingAs($customer);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('Sell a dessert.')
+            ->assertSee('Reached ✓');
+    }
+
+    public function test_when_the_guess_time_runs_out_the_scene_ends_with_the_guesses_given(): void
+    {
+        $pairGame = $this->roleGame();
+        $customer = $pairGame->startedBy;
+
+        $this->travel(121)->seconds();
+        $pairGame->timeUp(0);
+        $pairGame->refresh()->submitGuess($customer, 0, true);
+        $this->travel(PairGame::GUESS_SECONDS + 1)->seconds();
+        $pairGame->refresh()->timeUp(0);
+
+        $pairGame->refresh();
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertSame(2 * PairGame::POINTS_WORD, $pairGame->score);
     }
 }
