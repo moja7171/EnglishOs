@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\PairGame;
 use App\Models\PairPracticeSession;
 use App\Models\User;
+use App\Notifications\PairGameInvite;
 use App\Notifications\PairPracticeInvite;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\DatabaseNotification;
@@ -45,17 +47,9 @@ new class extends Component
             ->limit(3)
             ->get();
 
-        $rounds = PairPracticeSession::whereIn('id', $fresh->where('type', PairPracticeInvite::class)->pluck('data.session_id')->filter())->get()->keyBy('id');
+        $invites = $fresh->mapWithKeys(fn (DatabaseNotification $notification) => [$notification->id => $this->liveInviteFor($notification)]);
 
-        [$fresh, $over] = $fresh->partition(function (DatabaseNotification $notification) use ($rounds) {
-            if ($notification->type !== PairPracticeInvite::class || ! isset($notification->data['session_id'])) {
-                return true;
-            }
-
-            $round = $rounds->get($notification->data['session_id']);
-
-            return $round && $round->isWaiting() && ! $round->isExpired();
-        });
+        [$fresh, $over] = $fresh->partition(fn (DatabaseNotification $notification) => ! $this->isInvite($notification) || $invites->get($notification->id) !== null);
 
         $over->each->markAsRead();
 
@@ -70,12 +64,37 @@ new class extends Component
                 'avatar' => ($person = $people->get($this->personId($notification)))
                     ? Blade::render('<x-user-avatar :user="$user" class="h-11 w-11 text-sm" />', ['user' => $person])
                     : null,
-                'urgent' => $notification->type === PairPracticeInvite::class,
-                'staysMs' => ($round = $rounds->get($notification->data['session_id'] ?? 0))
-                    ? max(0, $round->created_at->addMinutes(PairPracticeSession::INVITE_MINUTES)->getTimestampMs() - now()->getTimestampMs())
+                'urgent' => $this->isInvite($notification),
+                'staysMs' => ($invite = $invites->get($notification->id))
+                    ? max(0, $invite->created_at->copy()->addMinutes($invite::INVITE_MINUTES)->getTimestampMs() - now()->getTimestampMs())
                     : null,
             ])->values()->all());
         }
+    }
+
+    /**
+     * A live invite: a friend waiting right now for a Pair Practice round
+     * or a game.
+     */
+    private function isInvite(DatabaseNotification $notification): bool
+    {
+        return in_array($notification->type, [PairPracticeInvite::class, PairGameInvite::class], true);
+    }
+
+    /**
+     * The round or game an invite is for, while it still waits for this
+     * learner to join — null once joined, called off or expired (or for an
+     * invite from before invites carried their id).
+     */
+    private function liveInviteFor(DatabaseNotification $notification): PairPracticeSession|PairGame|null
+    {
+        $invite = match ($notification->type) {
+            PairPracticeInvite::class => isset($notification->data['session_id']) ? PairPracticeSession::find($notification->data['session_id']) : null,
+            PairGameInvite::class => isset($notification->data['game_id']) ? PairGame::find($notification->data['game_id']) : null,
+            default => null,
+        };
+
+        return $invite && $invite->isWaiting() && ! $invite->isExpired() ? $invite : null;
     }
 
     /**

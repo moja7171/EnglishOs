@@ -10,6 +10,7 @@ use App\Http\Controllers\VocabularyWordController;
 use App\Models\DirectMessage;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
+use App\Models\PairGame;
 use App\Models\PairPracticeSession;
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
@@ -183,6 +184,25 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
 
         return view('pair-practice-session', compact('session'));
     })->name('pair-practice.show');
+
+    // Games: two friends, each on their own phone, 5 or 10 minutes of one
+    // game. The photo-tile list, one game's setup (friend + length) and
+    // one game being played, which belongs to both friends.
+    Route::get('/games', function () {
+        return view('games');
+    })->name('games.index');
+
+    Route::get('/games/play/{pairGame}', function (PairGame $pairGame) {
+        abort_unless($pairGame->isAccessibleBy(auth()->user()), 403);
+
+        return view('games-play', compact('pairGame'));
+    })->name('games.play');
+
+    Route::get('/games/{game}', function (string $game) {
+        abort_unless(in_array($game, PairGame::PLAYABLE, true), 404);
+
+        return view('games-setup', compact('game'));
+    })->name('games.setup');
 
     Route::get('/friends/{user}/conversation', function (User $user) {
         return view('friends-conversation', compact('user'));
