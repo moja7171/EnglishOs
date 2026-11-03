@@ -350,6 +350,23 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSee('Pick one'); // and its listening is still to do
     }
 
+    public function test_a_half_done_lesson_shows_the_time_left_and_continue(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        $run = MissionRun::findOrStart($learner, $mission);
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_TEXT, 'content_ref' => 'done']);
+        $left = $mission->stepDuration('vocabulary_builder_1') + $mission->stepDuration('listening');
+
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertSee('1 of 3 done · ~'.Mission::formatDuration($left).' left')
+            ->assertSee('Continue');
+    }
+
     public function test_the_lesson_card_lists_the_days_steps_and_continue_goes_straight_in(): void
     {
         $this->seed(MissionSeeder::class);

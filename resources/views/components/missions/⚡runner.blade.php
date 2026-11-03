@@ -545,7 +545,9 @@ new class extends Component
                 @php
                     $number = $day['number'];
                     $stepsDone = collect($day['steps'])->where('state', 'done')->count();
-                    $lessonNote = $day['lesson'] ? 'Done · tap to review' : ($day['preview'] ? 'Preview' : ($stepsDone > 0 ? $stepsDone.' of '.$day['stepCount'].' done' : $day['stepCount'].' '.Str::plural('step', $day['stepCount'])).($day['estimatedMinutes'] ? ' · ~'.Mission::formatDuration($day['estimatedMinutes']) : ''));
+                    // Once a step is done, the time still ahead, not the whole lesson's.
+                    $minutesLeft = $stepsDone > 0 ? collect($day['steps'])->where('state', '!=', 'done')->sum('minutes') : $day['estimatedMinutes'];
+                    $lessonNote = $day['lesson'] ? 'Done · tap to review' : ($day['preview'] ? 'Preview' : ($stepsDone > 0 ? $stepsDone.' of '.$day['stepCount'].' done' : $day['stepCount'].' '.Str::plural('step', $day['stepCount'])).($minutesLeft ? ' · ~'.Mission::formatDuration($minutesLeft).($stepsDone > 0 ? ' left' : '') : ''));
                     $parts = [
                         ['key' => 'listening', 'done' => $day['listened'], 'url' => $day['listeningUrl'], 'label' => 'Listening', 'icon' => 'speaker-wave', 'note' => $day['ahead'] ? 'Preview' : 'Pick one'],
                         ['key' => 'talk', 'done' => $day['talked'], 'url' => $day['talkUrl'], 'label' => 'Daily talk', 'icon' => 'microphone', 'note' => $day['ahead'] ? 'Preview' : 'with Pi'],
@@ -578,7 +580,7 @@ new class extends Component
                             @if ($day['lesson'])
                                 <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
                             @elseif ($day['lessonUrl'] && ! $day['preview'])
-                                <a href="{{ $day['lessonUrl'] }}" wire:navigate x-on:click.stop class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">{{ $day['started'] ? 'Continue' : 'Start' }}</a>
+                                <a href="{{ $day['lessonUrl'] }}" wire:navigate x-on:click.stop class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">{{ $day['started'] || $stepsDone > 0 ? 'Continue' : 'Start' }}</a>
                             @endif
                             <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="steps && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-5 w-5')</span>
                         </div>
