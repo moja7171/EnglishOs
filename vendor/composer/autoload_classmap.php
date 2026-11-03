@@ -156,6 +156,7 @@ return array(
     'App\\Services\\StreakRing' => $baseDir . '/app/Services/StreakRing.php',
     'App\\Services\\TabooDeck' => $baseDir . '/app/Services/TabooDeck.php',
     'App\\Services\\WebVttParser' => $baseDir . '/app/Services/WebVttParser.php',
+    'App\\Services\\WhoAmIDeck' => $baseDir . '/app/Services/WhoAmIDeck.php',
     'App\\Services\\WiktionaryClient' => $baseDir . '/app/Services/WiktionaryClient.php',
     'App\\Services\\WordLookup' => $baseDir . '/app/Services/WordLookup.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
