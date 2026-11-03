@@ -133,7 +133,7 @@ new class extends Component
                     await this.save(subscription);
                     this.subscribed = true;
                 } catch (error) {
-                    this.error = 'مرورگر شما به سرویس اعلان دسترسی پیدا نکرد. بعضی شبکه‌ها آن را مسدود می‌کنند؛ شبکه یا VPN را عوض کنید و دوباره امتحان کنید.';
+                    this.error = "Your browser couldn't reach the notification service. Some networks block it — try another network or VPN, then try again.";
                 } finally {
                     this.busy = false;
                     this.publish();
@@ -156,7 +156,7 @@ new class extends Component
 
                     this.subscribed = false;
                 } catch (error) {
-                    this.error = 'خاموش کردن انجام نشد. دوباره امتحان کنید.';
+                    this.error = "Couldn't turn them off. Please try again.";
                 } finally {
                     this.busy = false;
                     this.publish();

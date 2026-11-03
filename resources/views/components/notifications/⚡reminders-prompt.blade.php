@@ -8,7 +8,9 @@ new class extends Component
     /**
      * 'sheet' is the first-time invitation (a bottom sheet on a phone, a
      * dialog on a wide screen), shown once after the first lesson; 'card' is
-     * the slim row on the home page that stays until the learner acts.
+     * the slim row on the home page that stays until the learner acts. Only
+     * one asks at a time: the card waits a day after the sheet was shown,
+     * and "Later" on the sheet quiets the card for three days.
      */
     public string $variant = 'card';
 
@@ -85,8 +87,8 @@ new class extends Component
                     setTimeout(() => {
                         if (this.canInvite) {
                             this.sheetOpen = true;
-                            // Shown once, ever: ignoring it leaves the home-page card.
-                            write('eosAlertsSheetSeen', '1');
+                            // Shown once, ever: ignoring it leaves the home-page card (from tomorrow).
+                            write('eosAlertsSheetSeen', Date.now());
                         }
                     }, 1200);
                 }
@@ -98,8 +100,11 @@ new class extends Component
                 return this.push.ready && ! this.push.subscribed && (this.push.supported || this.push.iosNeedsInstall);
             },
 
+            // Never on the day the sheet asked (or before it has): one ask at a time.
             get showEnableCard() {
-                return variant === 'card' && ! this.cardDismissed && this.canInvite;
+                const sheetSeen = read('eosAlertsSheetSeen');
+
+                return variant === 'card' && ! this.cardDismissed && this.canInvite && sheetSeen > 0 && Date.now() - sheetSeen > DAY;
             },
 
             get showTimesCard() {
@@ -112,7 +117,8 @@ new class extends Component
 
             closeSheet() {
                 this.sheetOpen = false;
-                write('eosAlertsSheetSeen', '1');
+                if (! read('eosAlertsSheetSeen')) write('eosAlertsSheetSeen', Date.now());
+                write('eosAlertsCardDismissedUntil', Date.now() + 3 * DAY);
             },
 
             dismissEnableCard() {
@@ -133,7 +139,7 @@ new class extends Component
 
 <div>
     @if (config('webpush.vapid.public_key'))
-        <div x-data="remindersPrompt(@js($variant), @js($hasStarted))" dir="rtl">
+        <div x-data="remindersPrompt(@js($variant), @js($hasStarted))">
             @if ($variant === 'sheet')
                 @if ($hasStarted)
                     <div
@@ -161,13 +167,13 @@ new class extends Component
                             <span class="inline-flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-3xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                                 @svg('heroicon-o-bell-alert', 'h-9 w-9')
                             </span>
-                            <h2 id="reminders-sheet-title" class="text-xl font-extrabold text-ink dark:text-ink-dark">فردا یادتان می‌اندازیم</h2>
-                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">وقتی وقت درس یا مرور است، روی گوشی پیام می‌گیرید.</p>
+                            <h2 id="reminders-sheet-title" class="text-xl font-extrabold text-ink dark:text-ink-dark">We'll remind you tomorrow</h2>
+                            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">A message on your phone when it's time to study or review.</p>
                             <p x-show="push.iosNeedsInstall" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                                در iPhone ابتدا برنامه را به صفحهٔ اصلی اضافه کنید: <b>Share</b> ← <b>Add to Home Screen</b>، بعد از آیکون جدید باز کنید.
+                                On iPhone, first add the app to your Home Screen: <b>Share</b> → <b>Add to Home Screen</b>, then open it from the new icon.
                             </p>
                             <p x-show="push.denied" x-cloak class="rounded-xl bg-surface-sunken p-3 text-xs text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
-                                اعلان‌ها برای English OS مسدود است؛ در تنظیمات مرورگر یا گوشی اجازه‌شان بدهید.
+                                Notifications are blocked for English OS — allow them in your browser or phone settings.
                             </p>
                             <p x-show="push.error" x-cloak x-text="push.error" class="text-xs text-danger-ink"></p>
                             <button
@@ -176,33 +182,33 @@ new class extends Component
                                 x-on:click="enable()"
                                 :disabled="push.busy"
                                 class="mt-1 w-full cursor-pointer rounded-full bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,#000)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                                x-text="push.busy ? 'در حال روشن کردن…' : 'روشن کن'"
+                                x-text="push.busy ? 'Turning on…' : 'Turn on'"
                             ></button>
-                            <button type="button" x-on:click="closeSheet()" class="cursor-pointer text-sm font-bold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">بعداً</button>
+                            <button type="button" x-on:click="closeSheet()" class="cursor-pointer text-sm font-bold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Later</button>
                         </div>
                         {{-- Subscribed: confirm, then offer study times. --}}
                         <div x-show="push.subscribed" x-cloak class="flex flex-col items-center gap-3 text-center">
                             <span class="inline-flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-3xl bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark">
                                 @svg('heroicon-o-check-circle', 'h-9 w-9')
                             </span>
-                            <h2 class="text-xl font-extrabold text-ink dark:text-ink-dark">یادآورها روشن شد</h2>
+                            <h2 class="text-xl font-extrabold text-ink dark:text-ink-dark">Reminders are on</h2>
                             <div x-show="! $wire.hasStudyTimes" class="flex w-full flex-col gap-2">
-                                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">ساعت مطالعه هم بگذاریم؟</p>
+                                <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Set study times too?</p>
                                 <button
                                     type="button"
                                     wire:click="useSuggestedTimes"
                                     wire:loading.attr="disabled"
                                     class="w-full cursor-pointer rounded-full bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,#000)] transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                                >۱۲:۰۰ و ۲۰:۰۰</button>
+                                >12:00 and 20:00</button>
                                 <a
                                     href="{{ route('profile', ['tab' => 'reminders']) }}"
                                     wire:navigate
                                     x-on:click="closeSheet()"
                                     class="text-sm font-bold text-accent-ink dark:text-accent-ink-dark"
-                                >ساعت دلخواه</a>
+                                >Choose my times</a>
                             </div>
-                            <p x-show="$wire.hasStudyTimes" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">ساعت‌ها در Profile › Reminders قابل تغییر است.</p>
-                            <button type="button" x-on:click="closeSheet()" class="cursor-pointer text-sm font-bold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">بستن</button>
+                            <p x-show="$wire.hasStudyTimes" x-cloak class="text-sm text-ink-soft dark:text-ink-soft-dark">Change them any time in Profile › Reminders.</p>
+                            <button type="button" x-on:click="closeSheet()" class="cursor-pointer text-sm font-bold text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Close</button>
                         </div>
                     </div>
                 @endif
@@ -213,23 +219,23 @@ new class extends Component
                         <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                             @svg('heroicon-o-bell-alert', 'h-4 w-4')
                         </span>
-                        <p class="min-w-0 flex-1 text-sm font-bold text-ink dark:text-ink-dark">یادآورهای گوشی خاموش است</p>
+                        <p class="min-w-0 flex-1 text-sm font-bold text-ink dark:text-ink-dark">Phone reminders are off</p>
                         <button
                             type="button"
                             x-show="! push.iosNeedsInstall && ! push.denied"
                             x-on:click="enable()"
                             :disabled="push.busy"
                             class="shrink-0 cursor-pointer rounded-full bg-accent px-3.5 py-1.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                            x-text="push.busy ? '…' : 'روشن کن'"
+                            x-text="push.busy ? '…' : 'Turn on'"
                         ></button>
-                        <button type="button" x-on:click="dismissEnableCard()" aria-label="بستن" class="cursor-pointer text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+                        <button type="button" x-on:click="dismissEnableCard()" aria-label="Close" class="cursor-pointer text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
                             @svg('heroicon-o-x-mark', 'h-4 w-4')
                         </button>
                     </div>
                     <p x-show="push.iosNeedsInstall" x-cloak class="text-xs text-ink-soft dark:text-ink-soft-dark">
-                        در iPhone ابتدا <b>Share</b> ← <b>Add to Home Screen</b> را بزنید و از آیکون جدید باز کنید.
+                        On iPhone, first tap <b>Share</b> → <b>Add to Home Screen</b>, then open it from the new icon.
                     </p>
-                    <p x-show="push.denied" x-cloak class="text-xs text-ink-soft dark:text-ink-soft-dark">اعلان‌ها مسدود است؛ در تنظیمات مرورگر یا گوشی اجازه‌شان بدهید.</p>
+                    <p x-show="push.denied" x-cloak class="text-xs text-ink-soft dark:text-ink-soft-dark">Notifications are blocked — allow them in your browser or phone settings.</p>
                     <p x-show="push.error" x-cloak x-text="push.error" class="text-xs text-danger-ink"></p>
                 </div>
                 {{-- Alerts are on but no study time yet. --}}
@@ -237,14 +243,14 @@ new class extends Component
                     <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
                         @svg('heroicon-o-clock', 'h-4 w-4')
                     </span>
-                    <p class="min-w-0 flex-1 text-sm font-bold text-ink dark:text-ink-dark">ساعت مطالعه بگذارید</p>
+                    <p class="min-w-0 flex-1 text-sm font-bold text-ink dark:text-ink-dark">Set your study times</p>
                     <button
                         type="button"
                         wire:click="useSuggestedTimes"
                         wire:loading.attr="disabled"
                         class="shrink-0 cursor-pointer rounded-full bg-accent px-3.5 py-1.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                    >۱۲:۰۰ و ۲۰:۰۰</button>
-                    <button type="button" x-on:click="dismissTimesCard()" aria-label="بستن" class="cursor-pointer text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
+                    >12:00 and 20:00</button>
+                    <button type="button" x-on:click="dismissTimesCard()" aria-label="Close" class="cursor-pointer text-ink-faint transition-colors hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">
                         @svg('heroicon-o-x-mark', 'h-4 w-4')
                     </button>
                 </div>

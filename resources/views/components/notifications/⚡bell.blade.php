@@ -241,11 +241,10 @@ new class extends Component
             x-on:eos-push-state.window="push = $event.detail"
             x-show="push.ready && push.supported && ! push.subscribed && ! push.denied"
             x-cloak
-            dir="rtl"
             class="mx-3 mb-1 flex items-center gap-2 rounded-2xl bg-accent-soft px-3 py-2.5 text-xs font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark"
         >
-            <span class="flex-1">یادآورهای گوشی خاموش است</span>
-            <button type="button" x-on:click="$dispatch('eos-push-enable')" :disabled="push.busy" class="cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">روشن کن</button>
+            <span class="flex-1">Phone reminders are off</span>
+            <button type="button" x-on:click="$dispatch('eos-push-enable')" :disabled="push.busy" class="cursor-pointer rounded-full bg-accent px-3 py-1 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">Turn on</button>
         </div>
 
         <div class="max-h-96 overflow-y-auto pb-2">

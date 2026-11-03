@@ -12,7 +12,8 @@
     $showNav = auth()->check() && ! $fill;
     // The install offer waits for the first real lesson activity — never on
     // the sign-in / sign-up screens or before the learner has tried the app.
-    $offerInstall = auth()->check() && \App\Models\DayActivity::where('learner_id', auth()->id())->exists();
+    // From the day after the first lesson: the first day already asks about reminders.
+    $offerInstall = auth()->check() && \App\Models\DayActivity::where('learner_id', auth()->id())->where('created_at', '<', today())->exists();
 @endphp
 <!DOCTYPE html>
 <html lang="en">
