@@ -750,19 +750,19 @@ class VocabularyBuilderStepTest extends TestCase
         $this->stepComponent($run)->assertSet('practiceStarted', true);
     }
 
-    public function test_a_said_sentence_becomes_the_boxs_text_and_is_checked(): void
+    public function test_a_said_sentence_shows_in_the_box_first_and_the_page_then_checks_it(): void
     {
         [, , $run] = $this->makeMissionAndRun();
 
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribe')->once()->andReturn('I wake up at seven.'));
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['severity' => 'none', 'hint' => ''])));
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->never());
 
         $this->stepComponent($run)
             ->set('dictation', UploadedFile::fake()->create('answer.webm', 10, 'audio/webm'))
             ->call('dictateExample', 0)
             ->assertSet('examples.0', 'I wake up at seven.')
-            ->assertSet('feedback.wake up.severity', 'none')
-            ->assertSee('Great!');
+            ->assertSet('feedback', [])
+            ->assertDispatched('eos-dictated', key: 0);
     }
 
     public function test_a_good_sentence_still_shows_the_ais_short_comment(): void

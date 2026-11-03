@@ -324,7 +324,8 @@ new class extends Component
 
     /**
      * The mic in a sentence box: what was said (minus the starter, if it
-     * was said too) becomes the box's text and is checked straight away.
+     * was said too) becomes the box's text — shown at once — and the page then checks
+     * it (see <x-checked-answer-actions>, event eos-dictated).
      */
     public function dictateSentence(int $index): void
     {
@@ -336,7 +337,8 @@ new class extends Component
         }
 
         $this->frequencySentences[$index] = $this->continuation($starter, $text);
-        $this->runCheck($index, $starter, $this->frequencySentences[$index]);
+        $this->keepStepDraft();
+        $this->dispatch('eos-dictated', key: $index);
     }
 
     /**
@@ -649,7 +651,7 @@ new class extends Component
                         on-input="edited[{{ $index }}] = true"
                         :error="$dictationErrors[$index] ?? null"
                     />
-                    <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateSentence, revealCorrection({{ $index }}), save" />
+                    <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" />
 
                     <x-slot:actions>
                         <x-checked-answer-actions

@@ -179,8 +179,9 @@ new class extends Component
      * AI to just write the corrected version — see TracksCheckAttempts.
      */
     /**
-     * The mic in an answer box: what was said becomes the answer and is
-     * checked straight away.
+     * The mic in an answer box: what was said becomes the answer — the
+     * learner sees it at once — and the page then checks it (see
+     * <x-checked-answer-actions>, event eos-dictated).
      */
     public function dictateAnswer(int $index): void
     {
@@ -191,7 +192,8 @@ new class extends Component
         }
 
         $this->answers[$index] = $text;
-        $this->runCheck($index, $text);
+        $this->keepStepDraft();
+        $this->dispatch('eos-dictated', key: $index);
     }
 
     public function revealCorrection(int $index): void
@@ -448,7 +450,7 @@ new class extends Component
                 on-input="edited[{{ $index }}] = true"
                 :error="$dictationErrors[$index] ?? null"
             />
-            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateAnswer, revealCorrection({{ $index }}), save" />
+            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" />
 
             <x-slot:actions>
                 <x-checked-answer-actions

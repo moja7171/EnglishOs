@@ -5,11 +5,12 @@
 
     Works like a real voice recorder: Record → Pause/Resume as often as
     needed (a live level meter shows the mic is really hearing you) →
-    Stop → listen back → Send/Save, re-record, or throw the take away.
-    Nothing is uploaded until the learner chooses to send it, so a fumbled
-    sentence never reaches the AI check. A take auto-stops into review at
-    MAX_SECONDS, and auto-pauses if the page is hidden (a phone call, an
-    app switch) instead of silently recording on.
+    Stop, which sends the take straight away (one tap less; the learner
+    hears it back afterwards and can always Record again). A take that
+    could not be sent comes back to review — listen, Send again, re-record
+    or throw it away — so a weak connection never eats it. A take
+    auto-stops (and sends) at MAX_SECONDS, and auto-pauses if the page is
+    hidden (a phone call, an app switch) instead of silently recording on.
 
     @param string $field The Livewire property to upload the recording into.
     @param mixed $file The current value of that property (pass `:file="$audioFile"`)
@@ -114,6 +115,7 @@
                     this.pendingFile = new File([blob], name, { type });
                     this.previewUrl = URL.createObjectURL(blob);
                     this.state = 'review';
+                    this.sendRecording();
                 };
                 this.mediaRecorder.start();
                 this.startMeter();
@@ -453,10 +455,10 @@
             @endif
 
             <span x-show="uploading" x-cloak class="inline-flex items-center gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
-                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Uploading…
+                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Sending your voice…
             </span>
             <span x-show="processing" x-cloak class="inline-flex items-center gap-1.5 text-sm text-ink-soft dark:text-ink-soft-dark">
-                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Processing…
+                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Working on it…
             </span>
             <span x-show="!uploading && !processing && {{ $file && ! $big ? 'true' : 'false' }}" class="inline-flex items-center gap-1 text-sm text-success dark:text-success-dark">
                 @svg('heroicon-o-check-circle', 'h-4 w-4')

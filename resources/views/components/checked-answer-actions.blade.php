@@ -16,6 +16,10 @@
       itself never came back (weak signal, the host cut it off), instead
       of only the short "Connection problem" line at the top.
 
+    A dictated answer (the mic in the box) is checked by itself as soon as
+    its words land in the box (event eos-dictated from DictatesAnswers'
+    callers), so the learner reads what was heard first, then the verdict.
+
     While a Check again runs, the last verdict goes away and a plain
     "Checking…" button stands in for it: the old hint is about text that
     has since changed.
@@ -58,7 +62,7 @@
     $changedAndReady = "edited[{$key}] && ({$hasText})";
 @endphp
 
-<div x-data="{ lost: false, checking: false }" class="flex flex-col gap-3">
+<div x-data="{ lost: false, checking: false }" x-on:eos-dictated.window="if ($event.detail.key == {{ $key }}) { {{ $runCheck }} }" class="flex flex-col gap-3">
 <template x-if="lost">
     <div class="flex flex-col gap-3">
         <x-error-card>Connection problem — check your internet and try again.</x-error-card>

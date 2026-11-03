@@ -1,8 +1,10 @@
 {{--
     The answer box of a one-task lesson screen: the learner types, or taps
-    the mic in its corner and says it — the take is turned into text in the
-    same box by the component's $method (see DictatesAnswers) and then
-    checked like a typed answer. One line under it says either.
+    the mic in its corner and says it — Stop sends the take, a clear line
+    under the box says what is happening (sending, then turning it into
+    text), the words land in the same box by the component's $method (see
+    DictatesAnswers) and are then checked like a typed answer. One line
+    under it says either.
 
     @param string $model The wire:model path, e.g. "examples.2".
     @param string $method The component method that turns the take into
@@ -36,11 +38,14 @@
         </div>
     </div>
 
-    <div wire:loading wire:target="{{ $method }}" class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">Turning your voice into text…</div>
+    <p wire:loading.flex wire:target="dictation" class="flex items-center justify-center gap-2 rounded-2xl bg-surface-sunken px-4 py-3 text-sm font-bold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Sending your voice…</p>
+    <p wire:loading.flex wire:target="{{ $method }}" class="flex items-center justify-center gap-2 rounded-2xl bg-surface-sunken px-4 py-3 text-sm font-bold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin') Turning your voice into text…</p>
 
-    @if ($error)
-        <p class="text-sm text-danger-ink">{{ $error }}</p>
-    @else
-        <p class="text-center text-xs font-bold text-ink-faint dark:text-ink-faint-dark">Type or tap the mic to say it</p>
-    @endif
+    <div wire:loading.remove wire:target="dictation, {{ $method }}">
+        @if ($error)
+            <p class="text-sm text-danger-ink">{{ $error }}</p>
+        @else
+            <p class="text-center text-xs font-bold text-ink-faint dark:text-ink-faint-dark">Type or tap the mic to say it</p>
+        @endif
+    </div>
 </div>

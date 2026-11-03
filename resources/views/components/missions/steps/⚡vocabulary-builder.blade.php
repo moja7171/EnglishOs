@@ -270,8 +270,9 @@ new class extends Component
     }
 
     /**
-     * The mic in a sentence box: what was said becomes that box's text and
-     * is checked straight away, like a typed sentence.
+     * The mic in a sentence box: what was said becomes that box's text —
+     * shown at once — and the page then checks it like a typed sentence
+     * (see <x-checked-answer-actions>, event eos-dictated).
      */
     public function dictateExample(int $index): void
     {
@@ -283,7 +284,8 @@ new class extends Component
         }
 
         $this->examples[$index] = $text;
-        $this->runCheck($word, $text);
+        $this->keepStepDraft();
+        $this->dispatch('eos-dictated', key: $index);
     }
 
     /** Kept in the step's draft, so a learner who leaves comes back to practice, not the story. */
@@ -635,7 +637,7 @@ new class extends Component
                 on-input="edited[{{ $index }}] = true"
                 :error="$dictationErrors[$index] ?? null"
             />
-            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), dictateExample, revealCorrection({{ $index }}), save" />
+            <x-ai-thinking wire:loading wire:target="checkOne({{ $index }}), revealCorrection({{ $index }}), save" />
 
             <x-slot:actions>
                 <x-checked-answer-actions
