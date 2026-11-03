@@ -86,6 +86,15 @@ class VocabularyBuilderStepTest extends TestCase
         ]);
     }
 
+    public function test_the_story_can_be_heard_with_the_device_voice_without_its_markers(): void
+    {
+        [, , $run] = $this->makeMissionAndRun();
+
+        $this->stepComponent($run)
+            ->assertSee('Listen')
+            ->assertSeeHtml('data-text="I usually wake up early and follow my routine. I get up, then commute to work."');
+    }
+
     public function test_the_story_shows_every_word_highlighted_with_its_meaning_inline(): void
     {
         [, , $run] = $this->makeMissionAndRun();

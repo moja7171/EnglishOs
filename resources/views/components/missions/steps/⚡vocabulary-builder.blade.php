@@ -590,7 +590,10 @@ new class extends Component
     @endforeach
 
     <x-lesson-screen when="screen === {{ $storyScreen }}">
-        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Read it</span>
+        <div class="flex items-center justify-between gap-3">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Read it</span>
+            <x-listen-aloud :text="collect($storySegments)->pluck('value')->implode('')" />
+        </div>
         <p x-lookup class="rounded-3xl bg-surface p-4 text-base leading-loose text-ink dark:bg-surface-dark dark:text-ink-dark">
             @foreach ($storySegments as $segment)
                 @if ($segment['type'] === 'text')
