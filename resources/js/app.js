@@ -475,14 +475,34 @@ window.eosConnectionNotice = {
  */
 window.eosVoice = {
     // options.rate: slower for the dictation card's 🐢 (default 0.95).
+    // options.onEnd: called once the whole text has been read (or stopped).
+    // A long text (a reading passage, a story) is queued sentence by
+    // sentence — some browsers cut one long utterance off after ~15 s.
     speak(text, options = {}) {
         try {
-            if (!('speechSynthesis' in window) || !text) return;
+            if (!('speechSynthesis' in window) || !text) {
+                options.onEnd?.();
+                return;
+            }
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.rate = options.rate ?? 0.95;
-            window.speechSynthesis.speak(utterance);
+            const pieces = text.length > 180 ? text.match(/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/g) ?? [text] : [text];
+            pieces.forEach((piece, i) => {
+                const utterance = new SpeechSynthesisUtterance(piece.trim());
+                utterance.lang = 'en-US';
+                utterance.rate = options.rate ?? 0.95;
+                if (i === pieces.length - 1 && options.onEnd) {
+                    utterance.onend = () => options.onEnd();
+                    utterance.onerror = () => options.onEnd();
+                }
+                window.speechSynthesis.speak(utterance);
+            });
+        } catch (e) {
+            options.onEnd?.();
+        }
+    },
+    stop() {
+        try {
+            window.speechSynthesis?.cancel();
         } catch (e) {}
     },
 };

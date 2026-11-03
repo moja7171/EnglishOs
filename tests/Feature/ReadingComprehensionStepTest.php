@@ -342,7 +342,19 @@ class ReadingComprehensionStepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
-            ->assertDontSeeHtml('<mark');
+            ->assertDontSeeHtml('<mark')
+            ->assertDontSee('From New Words');
+    }
+
+    public function test_the_passage_has_a_colour_legend_and_a_listen_button(): void
+    {
+        $run = $this->makeRunWithNewWords();
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSee('From New Words')
+            ->assertSee('New word')
+            ->assertSee('Listen')
+            ->assertSeeHtml('data-text="Aisha wakes up at six and feels exhausted after a long shift."');
     }
 
     private function makeRunWithNewWords(): MissionRun

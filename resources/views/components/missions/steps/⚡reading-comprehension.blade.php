@@ -365,6 +365,7 @@ new class extends Component
 @php
     $reading = $run->mission->stepContent('reading_comprehension');
     $passageHtml = $this->highlightedPassageHtml();
+    $highlightTypes = collect($reading['highlighted_phrases'] ?? [])->map(fn (array $phrase) => $phrase['type'] ?? 'reused')->unique();
     $draftPrefix = $this->draftPrefix();
     $questions = $this->questions();
     $cards = $readOnly ? [] : $this->comprehensionCards();
@@ -413,6 +414,15 @@ new class extends Component
     {{-- The only screen that scrolls: the passage, a tap on any word for its meaning. --}}
     <x-lesson-screen when="screen === 1">
         <h2 class="font-display lesson-title text-ink dark:text-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <x-listen-aloud :text="$reading['passage'] ?? ''" />
+            @if ($highlightTypes->contains('reused'))
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="h-2.5 w-2.5 rounded-full bg-success dark:bg-success-dark"></span>From New Words</span>
+            @endif
+            @if ($highlightTypes->contains('new'))
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="h-2.5 w-2.5 rounded-full bg-accent dark:bg-accent-dark"></span>New word</span>
+            @endif
+        </div>
         <p x-lookup class="text-base leading-loose text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
 
         <x-slot:actions>
