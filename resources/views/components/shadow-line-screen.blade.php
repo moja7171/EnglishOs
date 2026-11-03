@@ -2,8 +2,9 @@
     One shadowing line on its own lesson screen (lesson designs 4 and 7):
     the line big with its stress marks, a "▶ Hear it" that plays only that
     line, the big mic, and the check coming up from the bottom once the take
-    is in — Continue is there after any take ("Almost" too), the mic stays
-    for another try. The component wires the recorder to checkShadowLine
+    is in — Continue is there after any take ("Try again" too), the mic
+    stays for another try. Words of the line that were not heard show as
+    "Say clearer" chips. The component wires the recorder to checkShadowLine
     (see ChecksShadowLines).
 
     @param string $when Raw Alpine expression for when this screen shows.
@@ -25,7 +26,8 @@
 @php
     $isGood = ($feedback['severity'] ?? null) === 'none';
     $sheetTone = $isGood ? "'good'" : "'almost'";
-    $sheetTitle = $isGood ? "'✓ Nice!'" : "'Almost!'";
+    $sheetTitle = $isGood ? "'✓ Nice!'" : "'Try again'";
+    $missed = $feedback['missed'] ?? [];
 @endphp
 
 <x-lesson-screen :when="$when" wire:key="shadow-screen-{{ $index }}">
@@ -55,6 +57,14 @@
                     Couldn't check this one just now — your take is saved and it counts.
                 @elseif (filled($feedback['hint'] ?? null))
                     {{ $feedback['hint'] }}
+                @endif
+                @if ($missed !== [])
+                    <span class="mt-2 flex flex-wrap items-center gap-1.5">
+                        <span class="text-xs font-bold text-ink-soft dark:text-ink-soft-dark">Say clearer:</span>
+                        @foreach ($missed as $word)
+                            <span class="rounded-full bg-surface px-2.5 py-0.5 text-sm font-bold text-warning-ink dark:bg-surface-dark">{{ $word }}</span>
+                        @endforeach
+                    </span>
                 @endif
 
                 <x-slot:actions>

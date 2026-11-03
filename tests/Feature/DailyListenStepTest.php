@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\PexelsClient;
+use App\Services\SpokenAnswerChecker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -212,9 +213,15 @@ class DailyListenStepTest extends TestCase
             ->set('shadowRecordings.0', UploadedFile::fake()->create('shadow-0.webm', 200, 'audio/webm'))
             ->call('checkShadowLine', 0);
 
-        // Lesson design 4: any take moves the learner on ("Almost" included).
+        // Lesson design 4: any take moves the learner on ("Try again" included).
         $this->assertSame(1, $component->instance()->shadowedCount());
-        $component->assertSee('Try that line again.')->assertSee('Almost!');
+        $component->assertSee('Try that line again.')->assertSee('Try again')->assertDontSee('Almost!');
+    }
+
+    public function test_the_words_of_the_line_that_were_not_heard_are_named(): void
+    {
+        $this->assertSame(['always', 'leave'], SpokenAnswerChecker::missedWords('I **always** have breakfast before I **leave** the house.', 'I have breakfast before I the house'));
+        $this->assertSame([], SpokenAnswerChecker::missedWords('I always have breakfast before I leave the house.', 'we are thirty one so we have been married'));
     }
 
     public function test_the_verdict_sheet_and_the_waiting_continue_are_keyed_apart_so_a_re_render_cannot_merge_them(): void
