@@ -7,6 +7,7 @@ use App\Models\DirectMessage;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\AdminInsights;
 use App\Services\AiFailure;
 use App\Services\AiLimitReached;
 use App\Services\GeminiClient;
@@ -69,7 +70,7 @@ class AiUsageTest extends TestCase
         ]);
     }
 
-    public function test_a_failing_own_key_is_logged_as_failed_and_the_app_key_fallback_as_ok(): void
+    public function test_a_failing_own_key_is_logged_as_fell_back_and_the_app_key_fallback_as_ok(): void
     {
         Http::preventStrayRequests();
         Http::fake([self::GEMINI_URL => fn (Request $request) => $request->header('x-goog-api-key') === ['my-key']
@@ -82,9 +83,48 @@ class AiUsageTest extends TestCase
         $this->askGemini();
 
         $this->assertSame(
-            [['own', 'failed'], ['app', 'ok']],
+            [['own', 'fell_back'], ['app', 'ok']],
             $learner->aiUsageLogs()->orderBy('id')->get()->map(fn (AiUsageLog $log) => [$log->key_source, $log->outcome])->all(),
         );
+    }
+
+    public function test_gemini_failing_while_groq_answers_is_not_counted_as_a_failure_for_the_admin(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            self::GEMINI_URL => Http::response(['error' => 'down'], 503),
+            'api.groq.com/openai/v1/chat/completions' => Http::response(['choices' => [['message' => ['content' => 'From Groq.']]]]),
+        ]);
+        config(['services.groq.judge_models' => ['groq-model']]);
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        $this->assertSame('From Groq.', $this->askGemini());
+
+        $this->assertSame(
+            [['gemini', 'fell_back'], ['groq', 'ok']],
+            $learner->aiUsageLogs()->orderBy('id')->get()->map(fn (AiUsageLog $log) => [$log->provider, $log->outcome])->all(),
+        );
+        $this->assertSame(0, app(AdminInsights::class)->aiUsageFor($learner)['failed']);
+    }
+
+    public function test_a_request_neither_provider_could_answer_counts_as_one_failure(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            self::GEMINI_URL => Http::response(['error' => 'down'], 503),
+            'api.groq.com/openai/v1/chat/completions' => Http::response(['error' => 'down'], 500),
+        ]);
+        config(['services.groq.judge_models' => ['groq-model']]);
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        try {
+            $this->askGemini();
+        } catch (\Throwable) {
+        }
+
+        $this->assertSame(1, app(AdminInsights::class)->aiUsageFor($learner)['failed']);
     }
 
     public function test_a_groq_transcription_is_logged_as_whisper(): void

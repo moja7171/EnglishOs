@@ -30,6 +30,25 @@ class AiUsage
     /** The hidden Context key set while only the learner's own key may answer (see ownKeyOnly()). */
     public const OWN_KEY_ONLY_CONTEXT = 'ai_usage_own_key_only';
 
+    /** The hidden Context key set while another provider stands by to answer if this one fails (see standingBy()). */
+    public const FALLBACK_CONTEXT = 'ai_usage_fallback_standing_by';
+
+    /**
+     * Runs the call while another provider stands by: a walk that fails in
+     * it is logged as fell_back, not failed, so the admin's Failed count is
+     * only the answers a learner really did not get (the fallback's own
+     * failure is logged as failed by its own walk).
+     *
+     * @template TResult
+     *
+     * @param  Closure(): TResult  $call
+     * @return TResult
+     */
+    public function standingBy(Closure $call): mixed
+    {
+        return Context::scope($call, hidden: [self::FALLBACK_CONTEXT => true]);
+    }
+
     /**
      * Runs the call with the app's key held back: the learner's own key
      * still answers, but a fallback to the app's key is refused like a
@@ -59,7 +78,8 @@ class AiUsage
         try {
             $result = $call();
         } catch (Throwable $e) {
-            $this->record($provider, $profile, $keySource, AiUsageLog::OUTCOME_FAILED, (new AiModelChain)->classify($e)['kind']);
+            $outcome = Context::getHidden(self::FALLBACK_CONTEXT) === true ? AiUsageLog::OUTCOME_FELL_BACK : AiUsageLog::OUTCOME_FAILED;
+            $this->record($provider, $profile, $keySource, $outcome, (new AiModelChain)->classify($e)['kind']);
 
             throw $e;
         }
