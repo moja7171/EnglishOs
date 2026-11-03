@@ -151,6 +151,18 @@ class DailyReviewTest extends TestCase
             ->assertSee('Skip');
     }
 
+    public function test_i_know_shows_the_meaning_with_a_way_to_say_it_was_wrong(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['repetitions' => 2]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')
+            ->assertSeeHtml('x-on:click="knew = true"')
+            ->assertSee('Was this it?')
+            ->assertSee('No — I was wrong');
+    }
+
     public function test_grading_a_word_advances_its_schedule_and_the_session_progress(): void
     {
         $learner = User::factory()->create();

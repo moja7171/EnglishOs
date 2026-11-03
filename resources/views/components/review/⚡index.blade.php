@@ -768,7 +768,7 @@ new class extends Component
 
         <div
             wire:key="review-{{ $type }}-{{ $model->id }}"
-            x-data="{ forgot: false, meaning: false }"
+            x-data="{ forgot: false, knew: false, meaning: false }"
             class="animate-review-card-in flex min-h-0 flex-1 flex-col gap-4"
         >
             <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
@@ -874,14 +874,22 @@ new class extends Component
 
             {{-- The bottom of the screen: what to do next for this card. --}}
             @if ($type === 'word')
-                <div x-show="! forgot" class="flex gap-3">
+                {{-- "I know" shows the meaning too, so the learner checks themselves before moving on. --}}
+                <div x-show="! forgot && ! knew" class="flex gap-3">
                     <button type="button" x-on:click="forgot = true" class="{{ $forgetClass }}">✕ Forget</button>
-                    <button type="button" wire:click="gradeWord(4, true)" wire:loading.attr="disabled" class="{{ $knowClass }}">✓ I know</button>
+                    <button type="button" x-on:click="knew = true" class="{{ $knowClass }}">✓ I know</button>
                 </div>
                 <x-answer-sheet wire:key="review-forgot-{{ $model->id }}" when="forgot" tone="'almost'" title="'Here it is'">
                     <x-review-word-meaning :word="$model" />
                     <x-slot:actions>
                         <x-continue-button on-click="$wire.gradeWord(1, false)" wire-target="gradeWord" />
+                    </x-slot:actions>
+                </x-answer-sheet>
+                <x-answer-sheet wire:key="review-knew-{{ $model->id }}" when="knew" tone="'good'" title="'✓ Was this it?'">
+                    <x-review-word-meaning :word="$model" />
+                    <x-slot:actions>
+                        <x-continue-button on-click="$wire.gradeWord(4, true)" wire-target="gradeWord" />
+                        <button type="button" x-on:click="$wire.gradeWord(1, false)" wire:loading.attr="disabled" wire:target="gradeWord" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">No — I was wrong</button>
                     </x-slot:actions>
                 </x-answer-sheet>
             @elseif ($type === 'dictation')
