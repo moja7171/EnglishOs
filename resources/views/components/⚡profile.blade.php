@@ -673,8 +673,8 @@ new class extends Component
         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">{{ $user->ai_keys_required ? '' : 'Optional. ' }}Your key is used first; if it fails, the app's key takes over. Making a key needs a VPN.</p>
 
         @foreach ([
-            'gemini' => ['label' => 'Gemini', 'help' => 'aistudio.google.com/apikey'],
-            'groq' => ['label' => 'Groq', 'help' => 'console.groq.com/keys'],
+            'gemini' => ['label' => 'Gemini', 'help' => 'aistudio.google.com/apikey', 'url' => GeminiClient::KEY_PAGE_URL],
+            'groq' => ['label' => 'Groq', 'help' => 'console.groq.com/keys', 'url' => 'https://console.groq.com/keys'],
         ] as $provider => $info)
             @php
                 $ending = $this->savedAiKeyEnding($provider);
@@ -722,7 +722,7 @@ new class extends Component
                         <p class="text-sm text-danger-ink">{{ $message }}</p>
                     @enderror
                     <div class="flex items-center justify-between gap-2">
-                        <a href="https://{{ $info['help'] }}" target="_blank" rel="noopener" class="text-xs text-accent underline dark:text-accent-dark">Get a key: {{ $info['help'] }}</a>
+                        <a href="{{ $info['url'] }}" target="_blank" rel="noopener" class="text-xs text-accent underline dark:text-accent-dark">Get a key: {{ $info['help'] }}</a>
                         <button
                             type="submit"
                             wire:loading.attr="disabled"

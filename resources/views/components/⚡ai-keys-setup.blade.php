@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Concerns\SavesAiKeys;
+use App\Services\GeminiClient;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -37,7 +38,7 @@ new class extends Component
         'gemini' => [
             'number' => '۱',
             'name' => 'Gemini',
-            'url' => 'https://aistudio.google.com/apikey',
+            'url' => GeminiClient::KEY_PAGE_URL,
             'steps' => [
                 'VPN رو روشن کن.',
                 'دکمه‌ی پایین رو بزن و با حساب گوگلت وارد شو.',
