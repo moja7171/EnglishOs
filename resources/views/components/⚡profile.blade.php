@@ -5,10 +5,12 @@ use App\Models\User;
 use App\Services\AiModelChain;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
+use App\Services\Usernames;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -18,6 +20,8 @@ new class extends Component
     use SavesAiKeys, WithFileUploads;
 
     public string $name = '';
+
+    public string $username = '';
 
     public string $cefr_level = 'A2+';
 
@@ -42,6 +46,7 @@ new class extends Component
         $user = auth()->user();
 
         $this->name = $user->name;
+        $this->username = $user->username;
         $this->cefr_level = $user->cefr_level ?? 'A2+';
         $this->target_band = $user->target_band ?? '';
         $this->gender = $user->gender ?? 'unspecified';
@@ -51,16 +56,24 @@ new class extends Component
     {
         $this->basicInfoSaved = false;
 
+        $user = auth()->user();
+        $this->username = app(Usernames::class)->normalize($this->username);
+
         $data = $this->validate([
             'name' => 'required|string|max:255',
+            'username' => ['required', 'string', 'min:'.Usernames::MIN_LENGTH, 'max:'.Usernames::MAX_LENGTH, Rule::notIn(Usernames::RESERVED), Rule::unique('users', 'username')->ignore($user->id)],
             'cefr_level' => 'required|in:A1,A2,A2+,B1,B2,C1',
             'target_band' => 'nullable|string|max:10',
             'gender' => 'required|in:male,female,unspecified',
+        ], [
+            'username.required' => 'Use English or Persian letters and numbers.',
+            'username.unique' => 'That username is taken.',
+            'username.not_in' => 'That username is taken.',
         ]);
 
-        $user = auth()->user();
         $updates = [
             'name' => $data['name'],
+            'username' => $data['username'],
             'cefr_level' => $data['cefr_level'],
             'target_band' => $data['target_band'] ?: null,
             'gender' => $data['gender'],
@@ -496,6 +509,17 @@ new class extends Component
                 class="mt-1 w-full rounded-lg border border-line bg-transparent px-2 py-1 text-sm text-ink dark:border-line-dark dark:text-ink-dark"
             >
             @error('name')
+                <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label for="profile-username" class="text-xs font-semibold text-ink-faint uppercase dark:text-ink-faint-dark">Username</label>
+            <div class="mt-1 flex items-center gap-1 rounded-lg border border-line px-2 py-1 dark:border-line-dark">
+                <span class="text-sm text-ink-faint dark:text-ink-faint-dark">@</span>
+                <input id="profile-username" type="text" wire:model="username" maxlength="{{ \App\Services\Usernames::MAX_LENGTH }}" autocapitalize="none" autocomplete="off" spellcheck="false" class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-ink focus:ring-0 focus:outline-none dark:text-ink-dark">
+            </div>
+            @error('username')
                 <p class="mt-1 text-sm text-danger-ink">{{ $message }}</p>
             @enderror
         </div>

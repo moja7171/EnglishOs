@@ -20,6 +20,7 @@ use App\Services\WhoAmIDeck;
 use App\Services\WouldYouRatherDeck;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
@@ -1013,5 +1014,35 @@ class PairGameTest extends TestCase
             ->assertSee('guessed right')
             ->assertSee('Cook dinner every night')
             ->assertSee('No pick');
+    }
+
+    public function test_many_friends_show_eight_tiles_and_a_friend_picked_from_all_keeps_their_tile(): void
+    {
+        $me = User::factory()->create();
+        $friends = collect(range(1, 10))->map(fn () => $this->makeMutualFriend($me));
+        $farDown = $me->friendsForPicking()->last();
+        $this->actingAs($me);
+
+        $page = Livewire::test('games.setup', ['game' => 'taboo'])->assertSee('All (10)');
+        $this->assertCount(8, $page->instance()->friends);
+
+        $page->set('friend', $farDown->id);
+        $this->assertSame($farDown->id, $page->instance()->friends[0]['user']->id);
+        $this->assertCount(8, $page->instance()->friends);
+    }
+
+    public function test_friends_in_the_app_come_first_then_the_latest_partner(): void
+    {
+        $me = User::factory()->create();
+        $partner = $this->makeMutualFriend($me);
+        $online = $this->makeMutualFriend($me);
+        $other = $this->makeMutualFriend($me);
+        $this->playingGame(['user_a_id' => $me->id, 'user_b_id' => $partner->id]);
+        Cache::put('in-app:'.$online->id, true, 60);
+        $this->actingAs($me);
+
+        $page = Livewire::test('games.setup', ['game' => 'taboo']);
+
+        $this->assertSame([$online->id, $partner->id, $other->id], array_map(fn (array $row) => $row['user']->id, $page->instance()->friends));
     }
 }

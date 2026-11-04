@@ -27,7 +27,9 @@ new class extends Component
             request()->session()->put('auth_login_at', now()->timestamp);
         }
 
-        $this->redirect('/');
+        $inviteCode = session()->pull('friend_invite_code');
+
+        $this->redirect($inviteCode ? route('friends.index', ['invite' => $inviteCode]) : '/');
     }
 };
 ?>

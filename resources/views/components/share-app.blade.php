@@ -1,10 +1,10 @@
 {{--
-    Sends the app's link to a friend: the phone's own share sheet (SMS,
+    Sends the learner's own invite link to a friend: the phone's own share sheet (SMS,
     Telegram, WhatsApp, ...), or a copy of the same message where there is
     none. The slot can use `copied` (true for two seconds after a copy).
 --}}
 @php
-    $message = 'من با English OS هر روز انگلیسی تمرین می‌کنم. تو هم امتحانش کن: '.route('welcome');
+    $message = 'من با English OS هر روز انگلیسی تمرین می‌کنم. تو هم امتحانش کن: '.auth()->user()->inviteUrl();
 @endphp
 
 <button

@@ -10,6 +10,7 @@ use App\Services\StoryChainDeck;
 use App\Services\TwoTruthsDeck;
 use App\Services\WhoAmIDeck;
 use App\Services\WouldYouRatherDeck;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -17,6 +18,9 @@ use Livewire\Component;
 new class extends Component
 {
     public string $game;
+
+    /** Friend tiles on the page; the rest wait in the All friends sheet. */
+    public const TILES_SHOWN = 8;
 
     /** The friend picked to play with ("Again" from the Games page sets it). */
     #[Url]
@@ -38,7 +42,20 @@ new class extends Component
     }
 
     /**
-     * Mutual friends, the one I last played with first: each with their
+     * Every mutual friend: whoever is in the app now, then the latest
+     * partners.
+     *
+     * @return Collection<int, User>
+     */
+    #[Computed]
+    public function allFriends(): Collection
+    {
+        return auth()->user()->friendsForPicking()->sortBy(fn (User $friend) => $friend->isInApp() ? 0 : 1)->values();
+    }
+
+    /**
+     * The friends on tiles, the picked one included even if far down the
+     * list: each with their
      * turn length (the newer learner of the two sets the level), our best
      * score in this game and whether they are in the app now.
      *
@@ -57,14 +74,14 @@ new class extends Component
             PairGame::GAME_RATHER => app(WouldYouRatherDeck::class),
             default => app(TabooDeck::class),
         };
-        $lastPartnerIds = PairGame::involving($me)->latest()->get(['user_a_id', 'user_b_id'])
-            ->flatMap(fn (PairGame $pairGame) => [$pairGame->user_a_id, $pairGame->user_b_id])
-            ->reject(fn (int $id) => $id === $me->id)
-            ->unique()
-            ->values();
+        $picked = $this->allFriends->firstWhere('id', $this->friend);
+        $shown = $this->allFriends->take(self::TILES_SHOWN);
 
-        return $me->mutualFriends()
-            ->sortBy(fn (User $friend) => [$lastPartnerIds->search($friend->id) === false ? PHP_INT_MAX : $lastPartnerIds->search($friend->id), strtolower($friend->name)])
+        if ($picked && ! $shown->contains('id', $picked->id)) {
+            $shown = $shown->take(self::TILES_SHOWN - 1)->prepend($picked);
+        }
+
+        return $shown
             ->map(function (User $friend) use ($me, $deck) {
                 $best = PairGame::forPair($me, $friend)->where('game', $this->game)->where('minutes', $this->minutes)->where('stage', PairGame::STAGE_DONE)->max('score');
 
@@ -90,6 +107,11 @@ new class extends Component
     public function updatedMinutes(): void
     {
         $this->minutes = in_array($this->minutes, PairGame::LENGTHS, true) ? $this->minutes : PairGame::LENGTHS[0];
+        unset($this->friends);
+    }
+
+    public function updatedFriend(): void
+    {
         unset($this->friends);
     }
 
@@ -159,7 +181,7 @@ new class extends Component
                 <a href="{{ route('friends.index') }}" wire:navigate class="mt-2 inline-block text-sm font-bold text-accent-ink dark:text-accent-ink-dark">Find friends ›</a>
             </div>
         @else
-            <div class="space-y-2">
+            <div class="space-y-2" x-data="{ allFriends: false }">
                 <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Play with</p>
                 <div class="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
                     @foreach ($this->friends as $row)
@@ -183,7 +205,14 @@ new class extends Component
                             } }}</span>
                         </button>
                     @endforeach
+                    @if ($this->allFriends->count() > self::TILES_SHOWN)
+                        <button type="button" x-on:click="allFriends = true" class="flex w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface px-2 py-2.5 text-ink-soft shadow-sm dark:bg-surface-dark dark:text-ink-soft-dark">
+                            @svg('heroicon-o-user-group', 'h-6 w-6')
+                            <span class="text-[13px] font-bold">All ({{ $this->allFriends->count() }})</span>
+                        </button>
+                    @endif
                 </div>
+                <x-friend-sheet show="allFriends" label="All friends" :friends="$this->allFriends" :action-for="fn ($friend) => '$set(\'friend\', '.$friend->id.')'" />
             </div>
 
             <div class="space-y-2">

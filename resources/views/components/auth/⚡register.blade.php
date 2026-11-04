@@ -32,6 +32,12 @@ new class extends Component
 
         Auth::login($user);
 
+        $inviteCode = session()->pull('friend_invite_code');
+
+        if ($inviteCode && $inviter = User::where('invite_code', $inviteCode)->first()) {
+            $user->follow($inviter);
+        }
+
         if (request()->hasSession()) {
             request()->session()->regenerate();
             request()->session()->put('auth_login_at', now()->timestamp);

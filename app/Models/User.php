@@ -7,6 +7,7 @@ use App\Notifications\DirectMessageReceived;
 use App\Notifications\FollowRequestAccepted;
 use App\Notifications\FollowRequestReceived;
 use App\Services\StreakRing;
+use App\Services\Usernames;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -23,8 +24,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-#[Fillable(['name', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'friend_alerts', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight', 'game_voice_feedback'])]
-#[Hidden(['password', 'remember_token', 'gemini_api_key', 'groq_api_key'])]
+#[Fillable(['name', 'username', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'friend_alerts', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight', 'game_voice_feedback'])]
+#[Hidden(['password', 'remember_token', 'gemini_api_key', 'groq_api_key', 'invite_code'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -32,6 +33,23 @@ class User extends Authenticatable
 
     /** The provider of each personal AI key, and the column that holds it. */
     public const AI_KEY_COLUMNS = ['gemini' => 'gemini_api_key', 'groq' => 'groq_api_key'];
+
+    /** How many past games and rounds friendsForPicking() looks back over. */
+    private const RECENT_PARTNER_ROUNDS = 100;
+
+    /**
+     * Every account gets its @username and invite code as it is created,
+     * from any path: sign-up, seeder or factory.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            $usernames = app(Usernames::class);
+
+            $user->username ??= $usernames->forName($user->name);
+            $user->invite_code ??= $usernames->newInviteCode();
+        });
+    }
 
     /**
      * Explicit, not left to the migration's DB column default — Eloquent
@@ -2012,6 +2030,86 @@ class User extends Authenticatable
         return $this->isMutualWith($user)
             && ! $this->hasBlocked($user)
             && ! $this->isBlockedBy($user);
+    }
+
+    /**
+     * Mutual friends for a "pick a friend" list: whoever this learner last
+     * played or practised with first, then A–Z.
+     *
+     * @return Collection<int, User>
+     */
+    public function friendsForPicking(): Collection
+    {
+        $partnerIds = $this->recentPartnerIds();
+
+        return $this->mutualFriends()
+            ->sortBy(fn (User $friend) => [
+                $partnerIds->search($friend->id) === false ? PHP_INT_MAX : $partnerIds->search($friend->id),
+                mb_strtolower($friend->name),
+            ])
+            ->values();
+    }
+
+    /**
+     * Everyone this learner played a game or a practice round with, the
+     * latest first.
+     *
+     * @return Collection<int, int>
+     */
+    public function recentPartnerIds(): Collection
+    {
+        $games = PairGame::involving($this)->latest()->limit(self::RECENT_PARTNER_ROUNDS)->get(['user_a_id', 'user_b_id', 'created_at']);
+        $rounds = PairPracticeSession::query()
+            ->where(fn (Builder $query) => $query->where('user_a_id', $this->id)->orWhere('user_b_id', $this->id))
+            ->latest()
+            ->limit(self::RECENT_PARTNER_ROUNDS)
+            ->get(['user_a_id', 'user_b_id', 'created_at']);
+
+        return collect($games->all())->concat($rounds->all())
+            ->sortByDesc('created_at')
+            ->flatMap(fn (Model $round) => [$round->user_a_id, $round->user_b_id])
+            ->reject(fn (int $id) => $id === $this->id)
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * People whose name or @username contains $term. Lowered by hand and
+     * with one spelling for ی and ک, so it finds the same people on MySQL
+     * and Postgres, however the name was typed.
+     *
+     * @param  Builder<User>  $query
+     */
+    public function scopeMatchingSearch(Builder $query, string $term): void
+    {
+        $usernames = app(Usernames::class);
+        $term = ltrim(trim($term), '@');
+        $nameLike = '%'.addcslashes(mb_strtolower($usernames->unifyLetters($term)), '\\%_').'%';
+        $username = addcslashes($usernames->normalize($term), '\\%_');
+
+        $query->where(function (Builder $query) use ($nameLike, $username) {
+            $query->whereRaw("REPLACE(REPLACE(REPLACE(LOWER(name), 'ي', 'ی'), 'ى', 'ی'), 'ك', 'ک') LIKE ?", [$nameLike]);
+
+            if ($username !== '') {
+                $query->orWhere('username', 'like', "%{$username}%");
+            }
+        });
+    }
+
+    /**
+     * "@ali_rezaei", as shown next to a name.
+     */
+    public function handle(): string
+    {
+        return '@'.$this->username;
+    }
+
+    /**
+     * This learner's personal invite link (see the 'invite' route).
+     */
+    public function inviteUrl(): string
+    {
+        return route('invite', $this->invite_code);
     }
 
     /**
