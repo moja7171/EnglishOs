@@ -115,6 +115,39 @@ new class extends Component
         $this->act(fn (PairGame $pairGame) => $pairGame->submitGuess(auth()->user(), $option, $reached));
     }
 
+    /**
+     * Two Truths: the teller marks their lie and says they're done; the
+     * listener picks the lie.
+     */
+    public function markLie(int $statement): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->markLie(auth()->user(), $statement));
+    }
+
+    public function doneSaying(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->doneSaying(auth()->user()));
+    }
+
+    public function pickLie(int $statement): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->pickLie(auth()->user(), $statement));
+    }
+
+    /**
+     * Would You Rather: my side and my guess of my friend's; then either
+     * of us says we both gave our reasons.
+     */
+    public function pickSide(string $mine, string $theirs): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->pickSide(auth()->user(), $mine, $theirs));
+    }
+
+    public function doneWhy(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->doneWhy(auth()->user()));
+    }
+
     public function showLetter(int $seen): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->showLetter(auth()->user(), $seen));
@@ -179,7 +212,7 @@ new class extends Component
     {
         $isHolder = $turn['explainer_id'] === auth()->id();
 
-        if ($this->pairGame->isRolePlay()) {
+        if ($this->pairGame->isRolePlay() || $this->pairGame->isWouldYouRather()) {
             return true;
         }
 
@@ -207,6 +240,8 @@ new class extends Component
         $label = match ($this->pairGame->game) {
             PairGame::GAME_WHO => 'Turn '.($index + 1).' · your questions (the secret: '.$words.')',
             PairGame::GAME_MINUTE => 'Turn '.($index + 1).' · your talk: '.$words,
+            PairGame::GAME_TRUTHS => 'Turn '.($index + 1).' · two truths and a lie about: '.$words,
+            PairGame::GAME_RATHER => 'Question '.($index + 1).' · '.$words.' — you picked: '.($this->pairGame->deck[$turn['cards'][0]['card'] ?? -1][$turn['cards'][0]['picks'][auth()->id()]['mine'] ?? ''] ?? 'no side'),
             PairGame::GAME_ROLE => 'Scene '.($index + 1).' · '.$words.' — you were: '.($this->pairGame->roleOf(auth()->user(), $this->pairGame->deck[$turn['cards'][0]['card'] ?? -1] ?? null, $index)['role'] ?? ''),
             PairGame::GAME_STORY => 'Turn '.($index + 1).' · your part of the story (word: '.($this->pairGame->deck[$turn['cards'][0]['card'] ?? -1]['word'] ?? '').')',
             default => 'Turn '.($index + 1).' · you explained: '.$words,
@@ -222,6 +257,26 @@ new class extends Component
     public function checkMyVoice(): void
     {
         if (! $this->pairGame->refresh()->isFinished()) {
+            return;
+        }
+
+        if ($this->pairGame->isWouldYouRather()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken reasons in a "Would you rather…?" game with a friend, transcribed by speech-to-text: for each question (given as the question, with the side the learner picked) they said which side they would rather and why. Both voices may be in the transcript; judge only lines that fit the learner\'s side.',
+                guidance: 'Judge grammar and word choice, above all "I\'d rather + base verb", "because…" and how the reasons are linked.',
+            );
+
+            return;
+        }
+
+        if ($this->pairGame->isTwoTruths()) {
+            $this->checkVoice(
+                $this->pairGame,
+                situation: 'These are a learner\'s spoken turns in a "Two truths and a lie" game, transcribed by speech-to-text: in each turn they said three things about themselves on a topic (given as the question), one of them a lie, then answered up to two questions from their friend. All the text is the learner\'s.',
+                guidance: 'Judge grammar and word choice, above all the tense the topic asks for. Never point out which statement might be the lie. The friend\'s questions may appear in the transcript — ignore them.',
+            );
+
             return;
         }
 

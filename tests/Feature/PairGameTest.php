@@ -15,7 +15,9 @@ use App\Services\JustAMinuteDeck;
 use App\Services\RolePlayDeck;
 use App\Services\StoryChainDeck;
 use App\Services\TabooDeck;
+use App\Services\TwoTruthsDeck;
 use App\Services\WhoAmIDeck;
+use App\Services\WouldYouRatherDeck;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -78,24 +80,18 @@ class PairGameTest extends TestCase
         return $pairGame->refresh();
     }
 
-    public function test_the_games_page_shows_every_game_and_only_the_built_ones_open(): void
+    public function test_the_games_page_shows_every_game_and_each_one_opens(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('games.index'))
-            ->assertOk()
-            ->assertSee('Taboo')
-            ->assertSee('Would You Rather')
-            ->assertSee('Soon')
-            ->assertSee(route('games.setup', 'taboo'), false)
-            ->assertSee(route('games.setup', 'who-am-i'), false)
-            ->assertDontSee(route('games.setup', 'two-truths'), false);
+        $page = $this->get(route('games.index'))->assertOk()->assertDontSee('Soon');
 
-        $this->get(route('games.setup', 'who-am-i'))->assertOk();
-        $this->get(route('games.setup', 'just-a-minute'))->assertOk();
-        $this->get(route('games.setup', 'story-chain'))->assertOk();
-        $this->get(route('games.setup', 'role-play'))->assertOk();
-        $this->get(route('games.setup', 'two-truths'))->assertNotFound();
+        foreach (PairGame::GAMES as $game) {
+            $page->assertSee(PairGame::info($game)['name'])->assertSee(route('games.setup', $game), false);
+            $this->get(route('games.setup', $game))->assertOk();
+        }
+
+        $this->get(route('games.setup', 'picture-match'))->assertNotFound();
     }
 
     public function test_inviting_a_friend_creates_a_waiting_game_and_notifies_them(): void
@@ -813,5 +809,209 @@ class PairGameTest extends TestCase
         $pairGame->refresh();
         $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
         $this->assertSame(2 * PairGame::POINTS_WORD, $pairGame->score);
+    }
+
+    /**
+     * A joined Two Truths game (2 turns) whose first turn is running: user
+     * A tells, user B finds the lie.
+     */
+    private function truthsGame(): PairGame
+    {
+        return $this->playingGame([
+            'game' => PairGame::GAME_TRUTHS,
+            'rules' => ['turn_seconds' => 60, 'turns' => 2, 'skips' => null, 'bonus' => false, 'starters' => 0, 'level' => 6],
+            'deck' => [
+                ['word' => 'Your last weekend', 'hint' => 'Past simple: I went… I ate…', 'source' => 'Two Truths', 'bonus' => [], 'key' => 'truths:Your last weekend'],
+                ['word' => 'Your family', 'hint' => 'My brother is…', 'source' => 'Two Truths', 'bonus' => [], 'key' => 'truths:Your family'],
+            ],
+        ]);
+    }
+
+    public function test_two_truths_topics_open_with_the_missions_that_teach_their_grammar(): void
+    {
+        config(['pair_games.truth_topics' => [['Your morning', 'I get up…', 1], ['Your last weekend', 'I went…', 6], ['Your plans', 'I am going to…', 11]]]);
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        $deck = app(TwoTruthsDeck::class);
+
+        $rules = $deck->rulesFor($me, $friend, 5);
+        $this->assertSame(TwoTruthsDeck::BEGINNER_TELL_SECONDS, $rules['turn_seconds']);
+        $this->assertSame(['Your morning'], collect($deck->cardsFor($me, $friend, $rules))->pluck('word')->all());
+        $this->assertEqualsCanonicalizing(['Your morning', 'Your last weekend'], collect($deck->cardsFor($me, $friend, [...$rules, 'level' => 6]))->pluck('word')->all());
+    }
+
+    public function test_only_the_teller_marks_the_lie_and_the_listener_finds_it_for_a_point(): void
+    {
+        $pairGame = $this->truthsGame();
+        [$teller, $listener] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $this->actingAs($listener);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('Your last weekend')
+            ->assertDontSee('WHICH ONE IS YOUR LIE?')
+            ->call('markLie', 1)
+            ->call('pickLie', 1);
+        $this->assertArrayNotHasKey('lie', $pairGame->refresh()->currentTurn()['current']);
+
+        $this->actingAs($teller);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('WHICH ONE IS YOUR LIE?')
+            ->call('doneSaying');
+        $this->assertSame(PairGame::PHASE_TALK, $pairGame->refresh()->phase(), 'Done needs a marked lie.');
+
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('markLie', 2)->call('doneSaying');
+        $this->assertSame(PairGame::PHASE_GUESS, $pairGame->refresh()->phase());
+
+        $this->actingAs($listener);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('WHICH ONE IS THE LIE?')
+            ->call('pickLie', 2)
+            ->assertSee('Lie found! It was #2');
+
+        $pairGame->refresh();
+        $this->assertSame(PairGame::POINTS_WORD, $pairGame->score);
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertSame(1, $pairGame->creditFor($listener));
+        $this->assertTrue($pairGame->explainer()->is($listener), 'The two swap.');
+    }
+
+    public function test_a_wrong_pick_scores_nothing_and_the_result_lists_each_topic(): void
+    {
+        $pairGame = $this->truthsGame();
+        [$teller, $listener] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $pairGame->markLie($teller, 3);
+        $pairGame->refresh()->doneSaying($teller);
+        $pairGame->refresh()->pickLie($listener, 1);
+
+        $pairGame->refresh()->startTurn($listener);
+        $pairGame->refresh()->markLie($listener, 1);
+        $pairGame->refresh()->doneSaying($listener);
+        $pairGame->refresh()->pickLie($teller, 1);
+
+        $pairGame->refresh();
+        $this->assertTrue($pairGame->isFinished());
+        $this->assertSame(PairGame::POINTS_WORD, $pairGame->score);
+
+        $this->actingAs($teller);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('found (lies)')
+            ->assertSee('Your family')
+            ->assertSee('the lie was #3')
+            ->assertSee('Fooled');
+    }
+
+    public function test_when_time_runs_out_a_marked_lie_goes_to_the_guess_and_no_lie_ends_the_turn(): void
+    {
+        $pairGame = $this->truthsGame();
+        $teller = $pairGame->startedBy;
+
+        $pairGame->markLie($teller, 2);
+        $this->travel(61)->seconds();
+        $pairGame->refresh()->timeUp(0);
+        $this->assertSame(PairGame::PHASE_GUESS, $pairGame->refresh()->phase());
+
+        $this->travel(PairGame::GUESS_SECONDS + 1)->seconds();
+        $pairGame->refresh()->timeUp(0);
+        $pairGame->refresh();
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertSame(0, $pairGame->score);
+
+        $listener = $pairGame->partnerFor($teller);
+        $pairGame->startTurn($listener);
+        $this->travel(61)->seconds();
+        $pairGame->refresh()->timeUp(1);
+        $this->assertTrue($pairGame->refresh()->isFinished(), 'Without a marked lie the turn just ends.');
+    }
+
+    /**
+     * A joined Would You Rather game (2 questions) whose first question is
+     * open: user A opened it.
+     */
+    private function ratherGame(): PairGame
+    {
+        return $this->playingGame([
+            'game' => PairGame::GAME_RATHER,
+            'rules' => ['turn_seconds' => 60, 'turns' => 2, 'skips' => null, 'bonus' => false, 'starters' => 0, 'level' => 4],
+            'deck' => [
+                ['word' => 'Would you rather cook dinner every night or wash the dishes every night?', 'a' => 'cook dinner every night', 'b' => 'wash the dishes every night', 'source' => 'M04 · Would you rather', 'bonus' => [], 'key' => 'rather:M04:cook'],
+                ['word' => 'Would you rather eat only pizza or eat only rice?', 'a' => 'eat only pizza', 'b' => 'eat only rice', 'source' => 'M04 · Would you rather', 'bonus' => [], 'key' => 'rather:M04:pizza'],
+            ],
+        ]);
+    }
+
+    public function test_every_mission_has_four_would_you_rather_questions_from_the_shared_missions(): void
+    {
+        foreach (config('would_you_rather') as $code => $questions) {
+            $this->assertCount(4, $questions, $code);
+        }
+
+        $me = User::factory()->create();
+        $friend = User::factory()->create();
+        $cards = app(WouldYouRatherDeck::class)->cardsFor($me, $friend, ['turns' => 4, 'level' => 1]);
+
+        $this->assertCount(4, $cards);
+        $this->assertSame(['M01 · Would you rather'], collect($cards)->pluck('source')->unique()->values()->all());
+        $this->assertStringStartsWith('Would you rather '.$cards[0]['a'].' or '.$cards[0]['b'], $cards[0]['word']);
+    }
+
+    public function test_picks_stay_secret_until_both_picked_then_right_guesses_score(): void
+    {
+        $pairGame = $this->ratherGame();
+        [$opener, $friend] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        // The opener would rather cook and guesses the friend washes; the
+        // friend would rather wash and guesses the opener washes too.
+        $this->actingAs($opener);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('pickSide', 'a', 'b')->call('pickSide', 'b', 'b')->assertSee('Waiting for');
+        $this->assertSame(['mine' => 'a', 'guess' => 'b'], $pairGame->refresh()->currentTurn()['current']['picks'][$opener->id]);
+
+        $this->actingAs($friend);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('PICK A SIDE')
+            ->assertDontSee('didn’t guess it')
+            ->call('pickSide', 'b', 'b')
+            ->assertSee('SAY WHY')
+            ->assertSee('Wash the dishes every night')
+            ->assertSee('guessed it ✓');
+
+        $pairGame->refresh();
+        $this->assertSame(PairGame::PHASE_TALK, $pairGame->phase());
+        $this->assertSame(PairGame::POINTS_WORD, $pairGame->score);
+
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('doneWhy');
+        $pairGame->refresh();
+        $this->assertSame(PairGame::STAGE_READY, $pairGame->stage);
+        $this->assertSame(PairGame::POINTS_WORD, $pairGame->score, 'Points are counted once.');
+        $this->assertSame(1, $pairGame->creditFor($opener));
+        $this->assertSame(0, $pairGame->creditFor($friend));
+        $this->assertTrue($pairGame->explainer()->is($friend), 'The friend opens the next question.');
+    }
+
+    public function test_when_pick_time_runs_out_the_picks_so_far_are_shown_and_no_pick_ends_the_question(): void
+    {
+        $pairGame = $this->ratherGame();
+        [$opener, $friend] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+
+        $pairGame->pickSide($opener, 'a', 'a');
+        $this->travel(PairGame::PICK_SECONDS + 1)->seconds();
+        $pairGame->refresh()->timeUp(0);
+        $this->assertSame(PairGame::PHASE_TALK, $pairGame->refresh()->phase());
+        $this->assertSame(0, $pairGame->score);
+
+        $this->travel(61)->seconds();
+        $pairGame->refresh()->timeUp(0);
+        $pairGame->refresh()->startTurn($friend);
+        $this->travel(PairGame::PICK_SECONDS + 1)->seconds();
+        $pairGame->refresh()->timeUp(1);
+
+        $pairGame->refresh();
+        $this->assertTrue($pairGame->isFinished());
+
+        $this->actingAs($opener);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee('guessed right')
+            ->assertSee('Cook dinner every night')
+            ->assertSee('No pick');
     }
 }

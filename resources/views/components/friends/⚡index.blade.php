@@ -378,15 +378,15 @@ new class extends Component
             <div class="-mx-2">
                 @foreach ($this->rows as $row)
                     @php $friend = $row['friend']; @endphp
-                    {{-- The whole row opens the chat; only Nudge sits above it. --}}
+                    {{-- The whole row opens the chat; the avatar opens the friend's page, and Nudge sits above it too. --}}
                     <div wire:key="friend-{{ $friend->id }}" class="relative flex items-center gap-3 rounded-2xl px-2 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
                         <a href="{{ route('friends.conversation', $friend) }}" wire:navigate aria-label="Open chat with {{ $friend->name }}" class="absolute inset-0 rounded-2xl"></a>
-                        <span class="pointer-events-none relative shrink-0">
+                        <a href="{{ route('friends.profile', $friend) }}" wire:navigate aria-label="{{ $friend->name }}’s page" class="relative shrink-0">
                             <x-user-avatar :user="$friend" class="h-12 w-12 text-sm" />
                             @if ($row['streak'] > 0)
                                 <span class="absolute -right-1 -bottom-1 rounded-full bg-surface px-1 text-[10px] font-extrabold text-accent-ink shadow-sm dark:bg-surface-dark dark:text-accent-ink-dark">🔥{{ $row['streak'] }}</span>
                             @endif
-                        </span>
+                        </a>
                         <div class="pointer-events-none min-w-0 flex-1">
                             <p class="flex items-baseline gap-1.5 truncate text-sm font-extrabold text-ink dark:text-ink-dark">
                                 {{ $friend->name }}
