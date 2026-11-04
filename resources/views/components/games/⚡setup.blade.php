@@ -124,7 +124,8 @@ new class extends Component
     </div>
 
     <div class="relative -mt-6 space-y-5 rounded-t-3xl bg-ground px-4 pt-5 sm:px-6 dark:bg-ground-dark">
-        <div>
+        <div class="relative pe-10">
+            <x-usage-guide-button label="How to play" class="absolute end-0 top-0" />
             <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">{{ $info['name'] }}</h1>
             <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
                 PairGame::GAME_WHO => 'Ask yes/no questions. Guess the secret.',
@@ -136,14 +137,6 @@ new class extends Component
                 default => 'Explain the word. Don’t say it.',
             } }}</p>
         </div>
-
-        <details class="group rounded-2xl bg-surface px-4 py-3 shadow-sm dark:bg-surface-dark">
-            <summary dir="rtl" class="font-fa flex cursor-pointer list-none items-center justify-between text-sm font-bold text-accent-ink dark:text-accent-ink-dark">
-                چطور بازی کنیم؟
-                <span class="transition-transform group-open:rotate-180">@svg('heroicon-o-chevron-down', 'h-4 w-4')</span>
-            </summary>
-            <div class="pt-2.5">@include('components.games.partials.guide', ['gameKey' => $game])</div>
-        </details>
 
         <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold text-ink dark:text-ink-dark">
             <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-surface p-3 shadow-sm dark:bg-surface-dark">

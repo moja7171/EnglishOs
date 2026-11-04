@@ -68,6 +68,7 @@ new class extends Component
                     <span class="rounded-2xl bg-white/15 px-3 py-2 text-sm leading-5"><b class="block text-base">{{ $word }}</b><span class="opacity-80">{{ $meaning }}</span></span>
                 @endforeach
             </div>
+            <p class="text-sm font-semibold opacity-90">Talking too much? Say "Shorter, please."</p>
         </section>
     </div>
 

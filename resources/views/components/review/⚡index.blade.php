@@ -764,7 +764,9 @@ new class extends Component
             $strength = $model->strengthLevel();
         @endphp
 
-        <x-lesson-header data-step-header :close="route('review.index')" :progress="($position - 1) / max($total, 1)" :counter="$position.'/'.$total" />
+        <x-lesson-header data-step-header :close="route('review.index')" :progress="($position - 1) / max($total, 1)" :counter="$position.'/'.$total">
+            <x-usage-guide-button />
+        </x-lesson-header>
 
         <div
             wire:key="review-{{ $type }}-{{ $model->id }}"

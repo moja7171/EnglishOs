@@ -533,12 +533,17 @@ new class extends Component
     @endif
 
     @if ($bannerMission = $headline['mission'])
+        <livewire:usage-guide guide="mission" />
+
         <x-mission-banner
             :mission-code="$bannerMission->code"
             :title="$headline['title']"
             :done-label="$headline['doneLabel'] ?? null"
             :title-href="route('missions.show', [$bannerMission, 'overview', 'day' => $headline['dayNumber']])"
         >
+            <x-slot:actions>
+                <x-usage-guide-button on-photo />
+            </x-slot:actions>
             <x-slot:top>
                 <a href="{{ route('progress.index') }}" wire:navigate class="{{ $streakLine }} text-white/85 hover:text-white">
                     <span>Mission {{ $headline['missionNumber'] }} of {{ \App\Models\Mission::TOTAL_ROADMAP_MISSIONS }}</span>

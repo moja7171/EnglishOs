@@ -101,11 +101,11 @@ class PiPracticePageTest extends TestCase
             ->assertSee('Be my warm, fun English buddy');
     }
 
-    public function test_the_page_links_to_both_voice_apps_in_a_new_tab(): void
+    public function test_the_full_guide_links_to_both_voice_apps_in_a_new_tab(): void
     {
         $this->actingAs(User::factory()->create());
 
-        $this->get(route('pi.practice'))
+        $this->get(route('pi.setup'))
             ->assertSeeHtml('href="https://pi.ai"')
             ->assertSeeHtml('href="https://gemini.google.com/app"')
             ->assertSeeHtml('target="_blank"')

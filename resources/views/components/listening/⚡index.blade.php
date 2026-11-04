@@ -281,6 +281,9 @@ new class extends Component
         :back-label="$missionCode.' · '.$this->mission['title'].' · Day '.$day"
         :done-label="$listenedThisDay ? 'Listened' : null"
     >
+        <x-slot:actions>
+            <x-usage-guide-button on-photo />
+        </x-slot:actions>
         <x-mission-day-pills :mission-code="$missionCode" route-name="listening.show" :days="$this->missionDays" />
     </x-mission-banner>
 

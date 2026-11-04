@@ -278,7 +278,7 @@ new class extends Component
 };
 ?>
 
-<div class="mx-auto max-w-2xl space-y-5 p-6" x-data="{ showInfo: false }">
+<div class="mx-auto max-w-2xl space-y-5 p-6">
     {{-- The mission's photo banner, the same as /listening: the way back
          to this day on the mission's page (where Daily talk sits beside
          the day's Lesson and Listening), the four days, and whether
@@ -294,16 +294,7 @@ new class extends Component
         :done-label="$this->isPracticed ? 'Practiced' : null"
     >
         <x-slot:actions>
-            <button
-                type="button"
-                x-on:click="showInfo = ! showInfo"
-                x-bind:aria-expanded="showInfo"
-                aria-controls="pi-practice-info"
-                aria-label="How it works"
-                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/85 transition-colors hover:bg-white/15 hover:text-white"
-            >
-                @svg('heroicon-o-information-circle', 'h-6 w-6')
-            </button>
+            <x-usage-guide-button on-photo />
         </x-slot:actions>
         <p class="mt-0.5 text-sm text-white/80">{{ $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</p>
         <x-mission-day-pills :mission-code="$missionCode" route-name="pi.practice" :days="$this->missionDays" />
@@ -318,39 +309,6 @@ new class extends Component
     @if ($this->isAhead)
         <x-preview-only-note />
     @endif
-
-    {{-- How-to and tips stay behind the ⓘ on the banner, so the page itself
-         is just the two cards: talk, then feedback. --}}
-    <section id="pi-practice-info" x-show="showInfo" x-cloak x-transition class="card space-y-3 p-4 text-sm text-ink-soft dark:text-ink-soft-dark" aria-label="How it works">
-        <p>{{ $this->task['goal'] }}</p>
-        <ol class="list-decimal space-y-1.5 ps-5">
-            <li>
-                Open the voice AI app you like best —
-                <a href="https://pi.ai" target="_blank" rel="noopener noreferrer" x-data x-on:click="if (/Android/i.test(navigator.userAgent)) { $event.preventDefault(); window.location.href = {{ App\Services\PiPrompts::piAndroidIntentJs() }} }" class="text-accent-ink underline dark:text-accent-ink-dark">Pi</a>,
-                <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="text-accent-ink underline dark:text-accent-ink-dark">Gemini Live</a>,
-                or any other one you already use.
-            </li>
-            <li>Turn on voice mode first.</li>
-            <li>Copy the prompt, send it, and talk out loud.</li>
-        </ol>
-        <div class="space-y-1 text-xs text-ink-faint dark:text-ink-faint-dark">
-            <p>
-                Say one on its own, any time:
-                @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)
-                    <span class="text-ink-soft dark:text-ink-soft-dark">{{ $word }}</span> ({{ $meaning }}){{ $loop->last ? '.' : ',' }}
-                @endforeach
-            </p>
-            <p>Talking too much? Say <span class="text-ink-soft dark:text-ink-soft-dark">"Shorter, please."</span></p>
-            @if ($day === 4)
-                <p>Afterwards, save the fixes you want to remember in My Words.</p>
-            @endif
-            <p>The last thing of your day, after the mission steps. It is never a step and never blocks anything.</p>
-            <p>
-                First time?
-                <a href="{{ route('pi.setup') }}" wire:navigate class="underline">How Daily talk works</a>
-            </p>
-        </div>
-    </section>
 
     @php
         $copiedKey = 'eos-pi-copied:'.$missionCode.':'.$day;
@@ -517,6 +475,7 @@ new class extends Component
         {{-- What Pi will do: the day's plan, the full prompt one tap further. --}}
         <x-bottom-sheet show="showPrompt" label="What Pi will do">
             <x-slot:title>What Pi will do</x-slot:title>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $this->task['goal'] }}</p>
             <ol class="space-y-2">
                 @foreach ($this->task['plan'] as $planStep)
                     <li class="flex items-start gap-2.5 rounded-xl bg-surface-sunken px-3 py-2 text-sm font-semibold text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">

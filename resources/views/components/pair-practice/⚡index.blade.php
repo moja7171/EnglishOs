@@ -112,12 +112,13 @@ new class extends Component
 <div class="stagger-children mx-auto max-w-2xl space-y-3 p-4 sm:p-6">
     <header class="flex items-center gap-2">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
-        <div class="min-w-0">
+        <div class="min-w-0 flex-1">
             <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Practice together</h1>
             @if ($day)
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ PairPracticeSession::describeDays([$day]) }} · pick a friend</p>
             @endif
         </div>
+        <x-usage-guide-button />
     </header>
 
     @forelse ($this->pairs as $pair)
