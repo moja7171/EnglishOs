@@ -39,6 +39,17 @@
         @endif
     </div>
 
+    @foreach (app(App\Services\GameBadges::class)->newWith($me, $pairGame) as $badge)
+        <div wire:key="new-badge-{{ $badge['key'] }}" class="animate-badge-pop flex items-center gap-3 rounded-2xl bg-accent-soft px-4 py-3 shadow-sm dark:bg-accent-soft-dark">
+            <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">@svg($badge['icon'], 'h-7 w-7')</span>
+            <div class="min-w-0">
+                <p class="text-[11px] font-extrabold tracking-widest text-accent-ink dark:text-accent-ink-dark">NEW BADGE</p>
+                <p class="font-display text-lg leading-tight font-extrabold text-ink dark:text-ink-dark">{{ $badge['name'] }}</p>
+                <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $badge['line'] }}</p>
+            </div>
+        </div>
+    @endforeach
+
     @if ($missed !== [])
         <div>
             <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">{{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'Not guessed', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'Words not used', default => 'Missed words' } }}</p>
