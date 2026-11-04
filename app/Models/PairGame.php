@@ -71,15 +71,24 @@ class PairGame extends Model
     public const PHASE_GUESS = 'guess';
 
     /**
+     * One says three things about a topic, one of them a lie (marked on
+     * their own phone); the other may ask two questions, then picks the lie.
+     */
+    public const GAME_TRUTHS = 'two-truths';
+
+    /** Statements in one Two Truths turn: two true, one lie. */
+    public const STATEMENTS = 3;
+
+    /**
      * Every game on the Games page, in the order of its tiles. Only the
      * playable ones can be picked; the others are shown as coming soon.
      *
      * @var list<string>
      */
-    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, 'two-truths', 'would-you-rather'];
+    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, 'would-you-rather'];
 
     /** @var list<string> */
-    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE];
+    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS];
 
     /** @var list<int> */
     public const LENGTHS = [5, 10];
@@ -98,7 +107,7 @@ class PairGame extends Model
             self::GAME_MINUTE => ['Just a Minute', 'Talk for a minute', 'Speaking'],
             self::GAME_STORY => ['Story Chain', 'One sentence each', 'Speaking'],
             self::GAME_ROLE => ['Role-play', 'Each has a secret goal', 'Speaking'],
-            'two-truths' => ['Two Truths', 'Find the lie', 'Questions'],
+            self::GAME_TRUTHS => ['Two Truths', 'Find the lie', 'Questions'],
             'would-you-rather' => ['Would You Rather', 'Pick a side, say why', 'Speaking'],
             default => ['Game', '', 'Speaking'],
         };
@@ -145,6 +154,11 @@ class PairGame extends Model
                 'هر کدوم یک نقش و یک هدف مخفی دارید — صفحه‌ت رو نشون نده. جمله‌های کمکی زیرش هست.',
                 '۲ دقیقه با هم حرف بزنید و هر کدوم سعی کنه به هدفش برسه.',
                 'بعد هدف دوستت رو از بین ۳ تا حدس بزن (+۱) و صادقانه بگو به هدف خودت رسیدی یا نه (+۱).',
+            ],
+            self::GAME_TRUTHS => [
+                'نوبت توست: درباره‌ی موضوع ۳ جمله بگو — ۲ تا راست، ۱ دروغ — و شماره‌ی دروغ رو روی گوشیت بزن.',
+                'دوستت می‌تونه ۲ سؤال بپرسه، بعد دروغ رو از بین ۱، ۲، ۳ انتخاب می‌کنه.',
+                'دروغ پیدا شد +۱. بعد جاها عوض می‌شه.',
             ],
             default => [],
         };
@@ -491,7 +505,7 @@ class PairGame extends Model
             return;
         }
 
-        if (! in_array($result, [self::RESULT_GOT, self::RESULT_SKIP], true) || ($this->isOneCardPerTurn() && $result !== self::RESULT_GOT) || $this->isJustAMinute()) {
+        if (! in_array($result, [self::RESULT_GOT, self::RESULT_SKIP], true) || ($this->isOneCardPerTurn() && $result !== self::RESULT_GOT) || ! in_array($this->game, [self::GAME_TABOO, self::GAME_WHO], true)) {
             return;
         }
 
@@ -523,7 +537,79 @@ class PairGame extends Model
      */
     public function isOneCardPerTurn(): bool
     {
-        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE], true);
+        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS], true);
+    }
+
+    public function isTwoTruths(): bool
+    {
+        return $this->game === self::GAME_TRUTHS;
+    }
+
+    /**
+     * Two Truths: the teller marks which of their three statements (1–3)
+     * is the lie — only their phone knows it. They can change it while
+     * telling.
+     */
+    public function markLie(User $user, int $statement): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isTwoTruths() || ! $this->explainer()->is($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_TALK
+            || $statement < 1 || $statement > self::STATEMENTS) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $turns[array_key_last($turns)]['current']['lie'] = $statement;
+        $this->turns = $turns;
+        $this->save();
+    }
+
+    /**
+     * Two Truths: the teller said their three things (and marked the lie)
+     * — the listener now asks and picks.
+     */
+    public function doneSaying(User $user): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isTwoTruths() || ! $this->explainer()->is($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_TALK
+            || ! isset($turn['current']['lie'])) {
+            return;
+        }
+
+        $this->startGuessing();
+    }
+
+    private function startGuessing(): void
+    {
+        $turns = $this->turns;
+        $last = array_key_last($turns);
+        $turns[$last]['current']['phase'] = self::PHASE_GUESS;
+        $turns[$last]['ends_at'] = now()->addSeconds(self::GUESS_SECONDS)->getTimestamp();
+        $this->turns = $turns;
+        $this->save();
+    }
+
+    /**
+     * Two Truths: the listener picks the statement they think is the lie
+     * — found, one point — and the turn is over.
+     */
+    public function pickLie(User $user, int $statement): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isTwoTruths() || $this->explainer()->is($user) || ! $this->isAccessibleBy($user)
+            || ($turn['current']['phase'] ?? null) !== self::PHASE_GUESS || $statement < 1 || $statement > self::STATEMENTS) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $turns[array_key_last($turns)]['current']['guess'] = $statement;
+        $this->turns = $turns;
+
+        $this->closeCard($statement === ($turn['current']['lie'] ?? null) ? self::RESULT_GOT : self::RESULT_MISSED);
+        $this->endTurn();
     }
 
     public function isRolePlay(): bool
@@ -570,12 +656,7 @@ class PairGame extends Model
             return;
         }
 
-        $turns = $this->turns;
-        $last = array_key_last($turns);
-        $turns[$last]['current']['phase'] = self::PHASE_GUESS;
-        $turns[$last]['ends_at'] = now()->addSeconds(self::GUESS_SECONDS)->getTimestamp();
-        $this->turns = $turns;
-        $this->save();
+        $this->startGuessing();
     }
 
     /**
@@ -745,7 +826,7 @@ class PairGame extends Model
     {
         $turn = $this->currentTurn();
 
-        if ($turn === null || ! $this->isOneCardPerTurn() || ! $this->explainer()->is($user) || ! in_array($answer, self::ANSWERS, true)
+        if ($turn === null || $this->game !== self::GAME_WHO || ! $this->explainer()->is($user) || ! in_array($answer, self::ANSWERS, true)
             || count($turn['current']['answers'] ?? []) !== $asked || now()->getTimestamp() > $turn['ends_at'] + self::CLOCK_SLACK_SECONDS) {
             return;
         }
@@ -793,7 +874,7 @@ class PairGame extends Model
         } elseif ($this->isStoryChain()) {
             $result = ($current['used'] ?? false) ? self::RESULT_GOT : self::RESULT_MISSED;
             $points = $alreadyCounted = $result === self::RESULT_GOT ? self::POINTS_WORD : 0;
-        } elseif ($this->isJustAMinute()) {
+        } elseif ($this->isJustAMinute() || $this->isTwoTruths()) {
             $points = $result === self::RESULT_GOT ? self::POINTS_WORD : 0;
         } elseif ($result === self::RESULT_GOT && $this->isOneCardPerTurn()) {
             $points = self::POINTS_WORD + (count($current['answers'] ?? []) <= self::QUICK_GUESS_QUESTIONS ? self::POINTS_BONUS : 0);
@@ -813,6 +894,8 @@ class PairGame extends Model
             'questions' => count($current['answers'] ?? []),
             'heard' => $current['heard'] ?? [],
             'guesses' => $current['guesses'] ?? [],
+            'lie' => $current['lie'] ?? null,
+            'guess' => $current['guess'] ?? null,
             'points' => $points,
             'at' => now()->getTimestamp(),
         ];
@@ -872,12 +955,10 @@ class PairGame extends Model
             return;
         }
 
-        if ($this->isRolePlay() && ($turn['current']['phase'] ?? null) === self::PHASE_TALK) {
-            $turns = $this->turns;
-            $turns[array_key_last($turns)]['current']['phase'] = self::PHASE_GUESS;
-            $turns[array_key_last($turns)]['ends_at'] = now()->addSeconds(self::GUESS_SECONDS)->getTimestamp();
-            $this->turns = $turns;
-            $this->save();
+        // Role-play always goes on to the guesses; Two Truths only once the
+        // teller has marked their lie (without one there is nothing to find).
+        if (($turn['current']['phase'] ?? null) === self::PHASE_TALK && ($this->isRolePlay() || ($this->isTwoTruths() && isset($turn['current']['lie'])))) {
+            $this->startGuessing();
 
             return;
         }
@@ -1067,7 +1148,7 @@ class PairGame extends Model
      */
     public function missedWords(): array
     {
-        if ($this->isRolePlay()) {
+        if ($this->isRolePlay() || $this->isTwoTruths()) {
             return [];
         }
 

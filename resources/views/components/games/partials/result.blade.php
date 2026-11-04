@@ -29,7 +29,7 @@
         <div class="relative mt-4 grid grid-cols-2 gap-2 text-start">
             @foreach ([$me, $friend] as $player)
                 <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-ground-dark/60 p-3">
-                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
+                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_TRUTHS => 'found (lies)', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
                     <p class="text-xl font-extrabold tabular-nums">{{ $pairGame->creditFor($player) }}</p>
                 </div>
             @endforeach
@@ -47,6 +47,23 @@
                     <span wire:key="missed-{{ $loop->index }}" class="rounded-full bg-surface px-3 py-1.5 text-sm font-bold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">{{ $word }}</span>
                 @endforeach
             </div>
+        </div>
+    @endif
+
+    @if ($pairGame->isTwoTruths())
+        <div class="space-y-2">
+            @foreach ($pairGame->turns ?? [] as $index => $toldTurn)
+                @php $told = $toldTurn['cards'][0] ?? null; @endphp
+                @if ($told)
+                    <div wire:key="told-{{ $index }}" class="flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3 shadow-sm dark:bg-surface-dark">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-bold text-ink dark:text-ink-dark">{{ $pairGame->deck[$told['card']]['word'] ?? '' }}</p>
+                            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $toldTurn['explainer_id'] === $me->id ? 'You' : $friend->name }} told{{ $told['lie'] ? ' · the lie was #'.$told['lie'] : '' }}</p>
+                        </div>
+                        <span @class(['shrink-0 rounded-full px-2.5 py-1 text-xs font-extrabold', 'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $told['result'] === App\Models\PairGame::RESULT_GOT, 'bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark' => $told['result'] !== App\Models\PairGame::RESULT_GOT])>{{ $told['result'] === App\Models\PairGame::RESULT_GOT ? 'Found ✓' : 'Fooled' }}</span>
+                    </div>
+                @endif
+            @endforeach
         </div>
     @endif
 

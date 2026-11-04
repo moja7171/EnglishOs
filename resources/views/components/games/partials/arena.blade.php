@@ -111,6 +111,18 @@
                     @if ($lastTalk)
                         <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">{{ count($lastTalk['heard'] ?? []) }} / {{ count($pairGame->deck[$lastTalk['card']]['words'] ?? []) }} words used{{ $lastTalk['result'] === App\Models\PairGame::RESULT_GOT ? ' · question asked' : '' }}</p>
                     @endif
+                @elseif ($previousTurn && $pairGame->isTwoTruths())
+                    @php $lastTold = collect($previousTurn['cards'])->last(); @endphp
+                    @if ($lastTold)
+                        <p @class(['animate-badge-pop rounded-full px-4 py-1.5 text-sm font-extrabold', 'bg-success-soft-dark text-success-dark' => $lastTold['result'] === App\Models\PairGame::RESULT_GOT, 'bg-surface-dark text-ink-soft-dark' => $lastTold['result'] !== App\Models\PairGame::RESULT_GOT])>
+                            {{ match (true) {
+                                $lastTold['lie'] === null => 'No lie marked',
+                                $lastTold['result'] === App\Models\PairGame::RESULT_GOT => 'Lie found! It was #'.$lastTold['lie'].' · +1',
+                                $lastTold['guess'] === null => 'Time’s up — the lie was #'.$lastTold['lie'],
+                                default => 'Fooled! The lie was #'.$lastTold['lie'],
+                            } }}
+                        </p>
+                    @endif
                 @elseif ($previousTurn && $pairGame->isOneCardPerTurn())
                     @php $lastSecret = collect($previousTurn['cards'])->last(); @endphp
                     @if ($lastSecret)
@@ -138,6 +150,14 @@
                         @if ($nextStory)
                             <p class="mx-auto max-w-sm text-sm font-semibold text-ink-soft-dark">“{{ $nextStory['line'] }}”</p>
                         @endif
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
+                @elseif ($pairGame->isTwoTruths())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'Your turn: two truths, one lie' : $explainer->name.' tells next' }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $isExplainer ? $pairGame->turnSeconds().' s · then '.$friend->name.' finds the lie' : 'Listen for the lie — you can ask two questions!' }}</p>
                     </div>
                     @if ($isExplainer)
                         <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
@@ -174,6 +194,8 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isTwoTruths())
+            @include('components.games.partials.truths-turn')
         @elseif ($pairGame->isRolePlay())
             @include('components.games.partials.role-turn')
         @elseif ($pairGame->isStoryChain())
