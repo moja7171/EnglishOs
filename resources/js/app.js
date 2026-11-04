@@ -1195,35 +1195,54 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
  * (App\Services\AppShell). When the friend lists' fingerprint moves, the open
  * list redraws (eos-friends-changed).
  *
- * Back shows Livewire's copy of the page as it was left, which is instant but
- * old. So the store is NOT seeded from that copy, and right after it lands the
- * page is drawn again from the server. Livewire has one way to do that without
- * adding a history entry: a Back to a page it has no copy of. refreshPage()
- * reports exactly that with a popstate carrying an unknown snapshot id. Pages
- * mid-task ([data-step-header]) or that poll by themselves ([data-stay]) are
- * left alone, so nothing typed or recorded is lost. The same redraw runs when
- * a page comes out of the browser's own back cache, and after a while away
- * from the app on the overview pages ([data-refresh-on-return]).
+ * Back shows Livewire's copy of the page as it was left: instant, but maybe
+ * old. So the store is NOT seeded from that copy, and the copy is drawn again
+ * from the server only if it can be out of date: something changed since the
+ * page was left (dataVersion: an action of the learner's, or new numbers from
+ * the server), or it was left over a minute ago. Plain browsing back and forth
+ * stays instant. Each page writes down the moment it is left on its own
+ * history entry (eosLeft).
+ *
+ * Livewire has one way to redraw without adding a history entry: a Back to a
+ * page it has no copy of. refreshPage() reports exactly that with a popstate
+ * carrying an unknown snapshot id. Any return through history is quiet: no
+ * entrance animation (body[data-quiet]) and no progress bar for the redraw
+ * (html[data-refreshing]). Pages mid-task ([data-step-header]) or that poll by
+ * themselves ([data-stay]) are left alone, so nothing typed or recorded is
+ * lost. The same redraw runs when a page comes out of the browser's own back
+ * cache, and after a while away from the app on the overview pages
+ * ([data-refresh-on-return]).
  */
 (() => {
     const redrawAfterAway = 60000;
     const checkAfterAway = 5000;
     const longestBellWait = 1500;
 
+    /** Their requests only keep the page current, so they aren't a change. */
+    const backgroundComponents = ['notifications.bell', 'streak.ring'];
+
+    let dataVersion = 0;
+    let throughHistory = false;
     let cameFromSnapshot = false;
     let refreshing = false;
-    let refreshAfterBell = null;
+    let copyToCheck = null;
     let scrollToKeep = null;
     let hiddenAt = null;
+
+    const takeShellValues = (values) => {
+        const shell = Alpine.store('shell');
+
+        if (Object.keys(values).some((key) => key !== 'avatar' && shell[key] !== values[key])) dataVersion++;
+
+        Object.assign(shell, values);
+    };
 
     const seedShell = () => {
         const seed = document.body.dataset.shell;
 
         if (!seed) return;
 
-        Object.assign(Alpine.store('shell'), JSON.parse(seed), {
-            avatar: document.querySelector('[data-shell-avatar]')?.innerHTML ?? null,
-        });
+        takeShellValues({ ...JSON.parse(seed), avatar: document.querySelector('[data-shell-avatar]')?.innerHTML ?? null });
     };
 
     const isMidTask = () => document.body.hasAttribute('data-stay') || document.querySelector('[data-step-header]') !== null;
@@ -1240,23 +1259,28 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
 
         window.dispatchEvent(new PopStateEvent('popstate', { state: { alpine: { snapshotIdx: 'eos-refresh', url: location.href } } }));
         refreshing = true;
+        document.documentElement.setAttribute('data-refreshing', '');
     };
 
-    const stopWaitingForBell = () => {
-        clearTimeout(refreshAfterBell);
-        refreshAfterBell = null;
+    const isOutOfDate = (left) => !left || left.version !== dataVersion || Date.now() - left.at >= redrawAfterAway;
+
+    const stopCheckingCopy = () => {
+        clearTimeout(copyToCheck?.timer);
+        copyToCheck = null;
     };
 
     /**
-     * The restored copy's bell asks the server as it wakes up. Swapping the
-     * page under that request would land its answer on a removed component,
-     * so the redraw waits for the answer; pages without a bell don't wait long.
+     * The restored copy's bell asks the server as it wakes up. Its answer can
+     * show the copy is old, and swapping the page under that request would
+     * land the answer on a removed component, so the decision waits for it;
+     * pages without a bell don't wait long.
      */
-    const refreshOnceBellAnswers = () => {
-        refreshAfterBell = setTimeout(() => {
-            stopWaitingForBell();
-            refreshPage();
-        }, longestBellWait);
+    const checkCopy = () => {
+        const left = copyToCheck.left;
+
+        stopCheckingCopy();
+
+        if (isOutOfDate(left)) refreshPage();
     };
 
     document.addEventListener('alpine:init', () => {
@@ -1264,36 +1288,51 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
         seedShell();
     });
 
+    document.addEventListener('livewire:init', () => {
+        Livewire.interceptAction(({ action }) => {
+            const isBackground = action.metadata.type === 'poll' || action.name === '$refresh' || backgroundComponents.includes(action.component.name);
+
+            if (!isBackground) dataVersion++;
+        });
+    });
+
+    window.addEventListener('eos-word-saved', () => dataVersion++);
+
     window.addEventListener('shell-state', ({ detail }) => {
-        const shell = Alpine.store('shell');
-        const listsMoved = detail.live !== shell.live;
+        const listsMoved = detail.live !== Alpine.store('shell').live;
 
-        Object.assign(shell, detail);
+        takeShellValues(detail);
 
-        if (refreshAfterBell !== null) {
-            stopWaitingForBell();
-            refreshPage();
+        if (copyToCheck !== null) {
+            checkCopy();
         } else if (listsMoved) {
             window.dispatchEvent(new CustomEvent('eos-friends-changed'));
         }
     });
 
     document.addEventListener('livewire:navigate', ({ detail }) => {
-        stopWaitingForBell();
+        stopCheckingCopy();
         refreshing = false;
+        document.documentElement.removeAttribute('data-refreshing');
+        throughHistory = detail.history;
         cameFromSnapshot = detail.history && detail.cached;
     });
 
     document.addEventListener('livewire:navigating', ({ detail }) => {
         if (refreshing) scrollToKeep = window.scrollY;
 
+        // After Back the browser is already on the entry of the next page.
+        if (!throughHistory) history.replaceState({ ...history.state, eosLeft: { version: dataVersion, at: Date.now() } }, '');
+
         detail.onSwap(() => {
             if (!cameFromSnapshot) seedShell();
+            if (throughHistory) document.body.setAttribute('data-quiet', '');
         });
     });
 
     document.addEventListener('livewire:navigated', () => {
         refreshing = false;
+        document.documentElement.removeAttribute('data-refreshing');
 
         if (scrollToKeep !== null) {
             const top = scrollToKeep;
@@ -1306,7 +1345,9 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
 
         cameFromSnapshot = false;
 
-        if (!isMidTask()) refreshOnceBellAnswers();
+        if (isMidTask()) return;
+
+        copyToCheck = { left: history.state?.eosLeft, timer: setTimeout(checkCopy, longestBellWait) };
     });
 
     window.addEventListener('pageshow', ({ persisted }) => {

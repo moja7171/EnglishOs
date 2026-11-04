@@ -10,6 +10,9 @@
     Light on a phone: whatever is behind it (a photo) shows first, and the
     clip is only fetched once the page is up, then fades in when it really
     plays. Never on Save-Data or with reduced motion asked for.
+
+    x-persist keeps the same clip playing when the page around it is redrawn,
+    so coming back doesn't restart it.
 --}}
 @props(['url' => null])
 
@@ -23,8 +26,9 @@
         playsinline
         preload="none"
         aria-hidden="true"
+        x-persist="ambient-{{ md5($url) }}"
         x-data
-        x-init="if (! navigator.connection?.saveData && ! matchMedia('(prefers-reduced-motion: reduce)').matches) { $el.src = $el.dataset.src }"
+        x-init="if (! $el.hasAttribute('src') && ! navigator.connection?.saveData && ! matchMedia('(prefers-reduced-motion: reduce)').matches) { $el.src = $el.dataset.src }"
         x-on:playing="$el.classList.remove('opacity-0')"
     ></video>
 @endif
