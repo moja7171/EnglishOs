@@ -451,7 +451,12 @@ new class extends Component
 
         <p class="{{ $groupTitle }}">AI</p>
         <div class="{{ $group }}">
-            <button type="button" x-on:click="screen = 'ai-keys'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-sparkles', 'h-4 w-4')</span><span class="flex-1">My AI keys</span>@unless ($user->ai_keys_required)<span class="{{ $hint }}">Optional</span>@endunless@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
+            <button type="button" x-on:click="screen = 'ai-keys'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-sparkles', 'h-4 w-4')</span><span class="flex-1">My AI keys</span>
+                @unless ($user->ai_keys_required)
+                    <span class="{{ $hint }}">Optional</span>
+                @endunless
+                @svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')
+            </button>
             @if ($user->is_admin)
                 <button type="button" x-on:click="screen = 'ai-relay'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-server-stack', 'h-4 w-4')</span><span class="flex-1">AI relay</span>@svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
             @endif
