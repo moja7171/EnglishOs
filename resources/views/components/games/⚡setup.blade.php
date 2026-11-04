@@ -9,6 +9,7 @@ use App\Services\RolePlayDeck;
 use App\Services\StoryChainDeck;
 use App\Services\TwoTruthsDeck;
 use App\Services\WhoAmIDeck;
+use App\Services\WouldYouRatherDeck;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -53,6 +54,7 @@ new class extends Component
             PairGame::GAME_STORY => app(StoryChainDeck::class),
             PairGame::GAME_ROLE => app(RolePlayDeck::class),
             PairGame::GAME_TRUTHS => app(TwoTruthsDeck::class),
+            PairGame::GAME_RATHER => app(WouldYouRatherDeck::class),
             default => app(TabooDeck::class),
         };
         $lastPartnerIds = PairGame::involving($me)->latest()->get(['user_a_id', 'user_b_id'])
@@ -130,6 +132,7 @@ new class extends Component
                 PairGame::GAME_STORY => 'Tell a story together, a sentence or two each.',
                 PairGame::GAME_ROLE => 'Play a scene. Each has a secret goal.',
                 PairGame::GAME_TRUTHS => 'Say three things, one is a lie. Find the lie.',
+                PairGame::GAME_RATHER => 'Pick a side, guess your friend’s, say why.',
                 default => 'Explain the word. Don’t say it.',
             } }}</p>
         </div>
@@ -211,6 +214,7 @@ new class extends Component
                 PairGame::GAME_STORY => '5 min = one story · 10 min = two',
                 PairGame::GAME_ROLE => 'Scenes from your missions · 5 min = 2 · 10 min = 4',
                 PairGame::GAME_TRUTHS => 'Topics: your life, with your missions’ grammar',
+                PairGame::GAME_RATHER => 'Questions from your missions’ topics',
                 default => 'Words: your missions + your notebooks',
             } }}</p>
 

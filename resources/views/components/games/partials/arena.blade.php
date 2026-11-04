@@ -73,8 +73,8 @@
                     wire:key="clock-{{ $turnIndex }}-{{ $pairGame->phase() }}"
                     x-data="{
                         endsAt: {{ $turn['ends_at'] * 1000 }},
-                        total: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, default => $pairGame->turnSeconds() } }},
-                        left: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, default => $pairGame->turnSeconds() } }},
+                        total: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, App\Models\PairGame::PHASE_PICK => App\Models\PairGame::PICK_SECONDS, default => $pairGame->turnSeconds() } }},
+                        left: {{ match ($pairGame->phase()) { App\Models\PairGame::PHASE_ASK => App\Models\PairGame::ASK_SECONDS, App\Models\PairGame::PHASE_GUESS => App\Models\PairGame::GUESS_SECONDS, App\Models\PairGame::PHASE_PICK => App\Models\PairGame::PICK_SECONDS, default => $pairGame->turnSeconds() } }},
                         fired: false,
                         warned: false,
                         timer: null,
@@ -110,6 +110,12 @@
                     @php $lastTalk = collect($previousTurn['cards'])->last(); @endphp
                     @if ($lastTalk)
                         <p class="animate-badge-pop rounded-full bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success-dark">{{ count($lastTalk['heard'] ?? []) }} / {{ count($pairGame->deck[$lastTalk['card']]['words'] ?? []) }} words used{{ $lastTalk['result'] === App\Models\PairGame::RESULT_GOT ? ' · question asked' : '' }}</p>
+                    @endif
+                @elseif ($previousTurn && $pairGame->isWouldYouRather())
+                    @php $lastQuestion = collect($previousTurn['cards'])->last(); @endphp
+                    @if ($lastQuestion)
+                        @php $rightGuesses = intdiv($lastQuestion['points'], App\Models\PairGame::POINTS_WORD); @endphp
+                        <p @class(['animate-badge-pop rounded-full px-4 py-1.5 text-sm font-extrabold', 'bg-success-soft-dark text-success-dark' => $rightGuesses > 0, 'bg-surface-dark text-ink-soft-dark' => $rightGuesses === 0])>{{ $rightGuesses }} / 2 right guesses{{ $rightGuesses > 0 ? ' · +'.$rightGuesses : '' }}</p>
                     @endif
                 @elseif ($previousTurn && $pairGame->isTwoTruths())
                     @php $lastTold = collect($previousTurn['cards'])->last(); @endphp
@@ -154,6 +160,14 @@
                     @if ($isExplainer)
                         <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
                     @endif
+                @elseif ($pairGame->isWouldYouRather())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">Question {{ count($pairGame->turns ?? []) + 1 }} of {{ $pairGame->plannedTurns() }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft-dark">{{ $isExplainer ? 'You open it · then you say why first' : $explainer->name.' opens it · get ready to pick' }}</p>
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-[0_4px_0_rgba(0,0,0,0.35)] disabled:opacity-50">Start</button>
+                    @endif
                 @elseif ($pairGame->isTwoTruths())
                     <div>
                         <p class="font-display text-3xl font-extrabold">{{ $isExplainer ? 'Your turn: two truths, one lie' : $explainer->name.' tells next' }}</p>
@@ -194,6 +208,8 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isWouldYouRather())
+            @include('components.games.partials.rather-turn')
         @elseif ($pairGame->isTwoTruths())
             @include('components.games.partials.truths-turn')
         @elseif ($pairGame->isRolePlay())

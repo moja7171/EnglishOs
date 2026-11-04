@@ -80,15 +80,29 @@ class PairGame extends Model
     public const STATEMENTS = 3;
 
     /**
+     * Both secretly pick a side of one question and guess the friend's
+     * pick; after the reveal both say why.
+     */
+    public const GAME_RATHER = 'would-you-rather';
+
+    /** Time for both to pick their side and guess the friend's. */
+    public const PICK_SECONDS = 30;
+
+    public const PHASE_PICK = 'pick';
+
+    /** @var list<string> */
+    public const SIDES = ['a', 'b'];
+
+    /**
      * Every game on the Games page, in the order of its tiles. Only the
      * playable ones can be picked; the others are shown as coming soon.
      *
      * @var list<string>
      */
-    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, 'would-you-rather'];
+    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER];
 
     /** @var list<string> */
-    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS];
+    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER];
 
     /** @var list<int> */
     public const LENGTHS = [5, 10];
@@ -108,7 +122,7 @@ class PairGame extends Model
             self::GAME_STORY => ['Story Chain', 'One sentence each', 'Speaking'],
             self::GAME_ROLE => ['Role-play', 'Each has a secret goal', 'Speaking'],
             self::GAME_TRUTHS => ['Two Truths', 'Find the lie', 'Questions'],
-            'would-you-rather' => ['Would You Rather', 'Pick a side, say why', 'Speaking'],
+            self::GAME_RATHER => ['Would You Rather', 'Pick a side, say why', 'Speaking'],
             default => ['Game', '', 'Speaking'],
         };
 
@@ -159,6 +173,11 @@ class PairGame extends Model
                 'نوبت توست: درباره‌ی موضوع ۳ جمله بگو — ۲ تا راست، ۱ دروغ — و شماره‌ی دروغ رو روی گوشیت بزن.',
                 'دوستت می‌تونه ۲ سؤال بپرسه، بعد دروغ رو از بین ۱، ۲، ۳ انتخاب می‌کنه.',
                 'دروغ پیدا شد +۱. بعد جاها عوض می‌شه.',
+            ],
+            self::GAME_RATHER => [
+                'یک سؤال «Would you rather…?» میاد؛ مخفیانه برای خودت A یا B رو بزن و حدس بزن دوستت کدوم رو انتخاب می‌کنه.',
+                'بعد جواب‌ها رو می‌بینید و هر کدوم دلیلش رو می‌گه: I’d rather… because…',
+                'هر حدس درست +۱. بعد سؤال بعدی.',
             ],
             default => [],
         };
@@ -459,13 +478,19 @@ class PairGame extends Model
     private function beginTurn(User $user): void
     {
         $card = $this->nextCardIndex();
+        $current = self::freshCurrent($card);
+
+        // Would You Rather starts with both picking; the talk comes after.
+        if ($this->isWouldYouRather()) {
+            $current['phase'] = self::PHASE_PICK;
+        }
 
         $this->turns = [...($this->turns ?? []), [
             'explainer_id' => $user->id,
             'started_at' => now()->getTimestamp(),
-            'ends_at' => now()->addSeconds($this->turnSeconds())->getTimestamp(),
+            'ends_at' => now()->addSeconds($this->isWouldYouRather() ? self::PICK_SECONDS : $this->turnSeconds())->getTimestamp(),
             'cards' => [],
-            'current' => self::freshCurrent($card),
+            'current' => $current,
         ]];
         $this->stage = self::STAGE_PLAYING;
         $this->save();
@@ -537,7 +562,84 @@ class PairGame extends Model
      */
     public function isOneCardPerTurn(): bool
     {
-        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS], true);
+        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER], true);
+    }
+
+    public function isWouldYouRather(): bool
+    {
+        return $this->game === self::GAME_RATHER;
+    }
+
+    /**
+     * Would You Rather: $user's own side and their guess of the friend's
+     * ('a' or 'b'), once. When both have picked, the picks are shown and
+     * each right guess scores.
+     */
+    public function pickSide(User $user, string $mine, string $theirs): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isWouldYouRather() || ! $this->isAccessibleBy($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_PICK
+            || isset($turn['current']['picks'][$user->id]) || ! in_array($mine, self::SIDES, true) || ! in_array($theirs, self::SIDES, true)) {
+            return;
+        }
+
+        $turns = $this->turns;
+        $turns[array_key_last($turns)]['current']['picks'][$user->id] = ['mine' => $mine, 'guess' => $theirs];
+        $this->turns = $turns;
+
+        if (count($turns[array_key_last($turns)]['current']['picks']) >= 2) {
+            $this->revealPicks();
+
+            return;
+        }
+
+        $this->save();
+    }
+
+    /**
+     * Would You Rather: the picks are shown on both phones, right guesses
+     * score straight away and the two say why.
+     */
+    private function revealPicks(): void
+    {
+        $turns = $this->turns;
+        $last = array_key_last($turns);
+        $turns[$last]['current']['phase'] = self::PHASE_TALK;
+        $turns[$last]['ends_at'] = now()->addSeconds($this->turnSeconds())->getTimestamp();
+        $this->turns = $turns;
+        $this->score += $this->rightGuessPoints($turns[$last]['current']['picks'] ?? []);
+        $this->save();
+    }
+
+    /**
+     * @param  array<int, array{mine: string, guess: string}>  $picks
+     */
+    private function rightGuessPoints(array $picks): int
+    {
+        return collect($picks)
+            ->filter(fn (array $pick, int $userId) => $pick['guess'] === ($picks[$this->otherPlayerId($userId)]['mine'] ?? null))
+            ->count() * self::POINTS_WORD;
+    }
+
+    private function otherPlayerId(int $userId): int
+    {
+        return $userId === $this->user_a_id ? $this->user_b_id : $this->user_a_id;
+    }
+
+    /**
+     * Would You Rather: either player says they both gave their reasons —
+     * on to the next question.
+     */
+    public function doneWhy(User $user): void
+    {
+        $turn = $this->currentTurn();
+
+        if ($turn === null || ! $this->isWouldYouRather() || ! $this->isAccessibleBy($user) || ($turn['current']['phase'] ?? null) !== self::PHASE_TALK) {
+            return;
+        }
+
+        $this->closeTurn();
     }
 
     public function isTwoTruths(): bool
@@ -871,6 +973,12 @@ class PairGame extends Model
 
                 return (($options[$guess['option']] ?? null) === $friendGoal ? self::POINTS_WORD : 0) + ($guess['reached'] ? self::POINTS_WORD : 0);
             })->sum();
+        } elseif ($this->isWouldYouRather()) {
+            // Right guesses were counted at the reveal; a question nobody
+            // finished picking scores nothing.
+            $revealed = ($current['phase'] ?? null) === self::PHASE_TALK;
+            $points = $alreadyCounted = $revealed ? $this->rightGuessPoints($current['picks'] ?? []) : 0;
+            $result = $revealed ? self::RESULT_GOT : self::RESULT_MISSED;
         } elseif ($this->isStoryChain()) {
             $result = ($current['used'] ?? false) ? self::RESULT_GOT : self::RESULT_MISSED;
             $points = $alreadyCounted = $result === self::RESULT_GOT ? self::POINTS_WORD : 0;
@@ -895,6 +1003,7 @@ class PairGame extends Model
             'heard' => $current['heard'] ?? [],
             'guesses' => $current['guesses'] ?? [],
             'lie' => $current['lie'] ?? null,
+            'picks' => $current['picks'] ?? [],
             'guess' => $current['guess'] ?? null,
             'points' => $points,
             'at' => now()->getTimestamp(),
@@ -951,6 +1060,18 @@ class PairGame extends Model
 
         if ($this->isJustAMinute() && ($turn['current']['phase'] ?? null) === self::PHASE_TALK) {
             $this->startQuestion();
+
+            return;
+        }
+
+        // Would You Rather: the picks so far are shown once the pick time is
+        // up (a question nobody picked just ends).
+        if ($this->isWouldYouRather() && ($turn['current']['phase'] ?? null) === self::PHASE_PICK) {
+            if (($turn['current']['picks'] ?? []) === []) {
+                $this->closeTurn();
+            } else {
+                $this->revealPicks();
+            }
 
             return;
         }
@@ -1123,6 +1244,14 @@ class PairGame extends Model
             return collect($this->playedCards())->where('explainer_id', $user->id)->where('result', self::RESULT_GOT)->count();
         }
 
+        if ($this->isWouldYouRather()) {
+            return collect($this->turns ?? [])->sum(fn (array $turn) => collect($turn['cards'])->sum(function (array $card) use ($user) {
+                $picks = $card['picks'] ?? [];
+
+                return isset($picks[$user->id]) && $picks[$user->id]['guess'] === ($picks[$this->otherPlayerId($user->id)]['mine'] ?? null) ? 1 : 0;
+            }));
+        }
+
         if ($this->isRolePlay()) {
             return collect($this->turns ?? [])->sum(fn (array $turn) => collect($turn['cards'])->sum(fn (array $card) => ($card['guesses'][$user->id]['reached'] ?? false) ? 1 : 0));
         }
@@ -1148,7 +1277,7 @@ class PairGame extends Model
      */
     public function missedWords(): array
     {
-        if ($this->isRolePlay() || $this->isTwoTruths()) {
+        if ($this->isRolePlay() || $this->isTwoTruths() || $this->isWouldYouRather()) {
             return [];
         }
 
