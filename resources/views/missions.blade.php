@@ -1,4 +1,4 @@
-<x-layouts.app>
+<x-layouts.app :refresh-on-return="true">
     {{-- A2: the mission the learner is on as one big card on top (one tap
          to go on), then every other mission in a grid — ✓ when finished,
          🔒 when not unlocked yet (a preview still opens). --}}

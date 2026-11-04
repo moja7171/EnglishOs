@@ -148,7 +148,7 @@ new class extends Component
 
 {{-- Like the other Friends screens: ‹ title, then one card per friend with
      how often the two practised together and the one button. --}}
-<div class="stagger-children mx-auto max-w-2xl space-y-3 p-4 sm:p-6">
+<div class="stagger-children mx-auto max-w-2xl space-y-3 p-4 sm:p-6" x-data x-on:eos-friends-changed.window="$wire.$refresh()">
     <header class="flex items-center gap-2">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
         <div class="min-w-0 flex-1">

@@ -355,7 +355,7 @@ new class extends Component
      requests, then one row per chat. The search box swaps the page for
      Find friends (search, invite link, "They follow you"); Mute, Unfollow, Block and Report live
      in each chat's ⋯. --}}
-<div class="mx-auto max-w-2xl px-4 pt-3 pb-6 sm:px-6" x-data="{ adding: @js(trim($search) !== '') }" x-back-close="{ open: adding, close: () => adding = false }">
+<div class="mx-auto max-w-2xl px-4 pt-3 pb-6 sm:px-6" x-data="{ adding: @js(trim($search) !== '') }" x-on:eos-friends-changed.window="$wire.$refresh()" x-back-close="{ open: adding, close: () => adding = false }">
     <div x-show="! adding" class="stagger-children space-y-4">
         <header class="flex items-center gap-2">
             <h1 class="flex-1 font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>

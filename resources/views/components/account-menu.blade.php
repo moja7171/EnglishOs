@@ -11,5 +11,6 @@
     aria-label="Profile"
     class="inline-flex h-9 w-9 items-center justify-center rounded-full transition-opacity hover:opacity-80"
 >
-    <x-user-avatar :user="auth()->user()" class="h-8 w-8 text-xs" />
+    {{-- Follows the live store, so a new photo shows here at once. --}}
+    <span data-shell-avatar class="inline-flex" x-data x-effect="$store.shell.avatar && $el.innerHTML !== $store.shell.avatar && ($el.innerHTML = $store.shell.avatar)">{!! app(App\Services\AppShell::class)->avatar(auth()->user()) !!}</span>
 </a>

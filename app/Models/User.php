@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Notifications\DirectMessageReceived;
 use App\Notifications\FollowRequestAccepted;
 use App\Notifications\FollowRequestReceived;
+use App\Services\AppShell;
 use App\Services\StreakRing;
 use App\Services\Usernames;
 use Database\Factories\UserFactory;
@@ -48,6 +49,12 @@ class User extends Authenticatable
 
             $user->username ??= $usernames->forName($user->name);
             $user->invite_code ??= $usernames->newInviteCode();
+        });
+
+        static::updated(function (User $user) {
+            if ($user->wasChanged(['name', 'avatar_path', 'avatar_style', 'avatar_color'])) {
+                AppShell::changed();
+            }
         });
     }
 
@@ -1791,6 +1798,8 @@ class User extends Authenticatable
         $reverse->save();
 
         $follower->notify(new FollowRequestAccepted($this));
+
+        $this->forgetFollowRequestFrom($follower);
     }
 
     /**
@@ -1804,6 +1813,22 @@ class User extends Authenticatable
             ->where('followed_id', $this->id)
             ->where('status', Follow::STATUS_PENDING)
             ->delete();
+
+        $this->forgetFollowRequestFrom($follower);
+    }
+
+    /**
+     * An answered request is over wherever it was answered: its bell row
+     * goes, and the Friends tab count and open pages follow.
+     */
+    private function forgetFollowRequestFrom(User $follower): void
+    {
+        $this->notifications()
+            ->where('type', FollowRequestReceived::class)
+            ->where('data->follower_id', $follower->id)
+            ->delete();
+
+        AppShell::changed();
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Models\Mission;
 use App\Models\NotebookEntry;
 use App\Models\User;
 use App\Models\VocabularyWord;
+use App\Services\AppShell;
 use App\Services\FeedbackNotebook;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
@@ -549,19 +550,19 @@ class NotebookTest extends TestCase
         $this->record($learner, [$this->fix('She go home.', 'She goes home.', 'third_person_s')]);
         $this->actingAs($learner);
 
-        $this->get(route('home'))->assertSee('data-dot', false);
+        $this->assertTrue(app(AppShell::class)->state($learner)['notebook']);
 
         Livewire::test('notebook.index')
             ->call('startPractice', NotebookEntry::KIND_MISTAKE)
             ->call('drillTap', 1)
             ->call('drillNext');
 
-        $this->get(route('home'))->assertDontSee('data-dot', false);
+        $this->assertFalse(app(AppShell::class)->state($learner)['notebook']);
 
         $this->travel(1)->minute();
         $this->record($learner, [$this->fix('He go to work.', 'He goes to work.', 'third_person_s')]);
 
-        $this->get(route('home'))->assertSee('data-dot', false);
+        $this->assertTrue(app(AppShell::class)->state($learner)['notebook']);
     }
 
     public function test_practice_takes_new_lines_before_more_repeated_ones_and_then_offers_practice_again(): void

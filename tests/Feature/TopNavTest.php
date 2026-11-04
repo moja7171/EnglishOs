@@ -6,6 +6,7 @@ use App\Models\DirectMessage;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\AppShell;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -141,6 +142,7 @@ class TopNavTest extends TestCase
 
         $this->actingAs($learner);
 
+        $this->assertSame(1, app(AppShell::class)->state($learner)['friends']);
         $this->get(route('home'))->assertSee('new in Friends');
     }
 
@@ -157,14 +159,15 @@ class TopNavTest extends TestCase
 
         $this->actingAs($learner);
 
-        $this->get(route('home'))->assertDontSee('new in Friends');
+        $this->assertSame(0, app(AppShell::class)->state($learner)['friends']);
     }
 
     public function test_the_friends_tab_has_no_count_when_friends_is_quiet(): void
     {
-        $this->actingAs(User::factory()->create());
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
 
-        $this->get(route('home'))->assertDontSee('new in Friends');
+        $this->assertSame(0, app(AppShell::class)->state($learner)['friends']);
     }
 
     public function test_a_lesson_of_the_mission_home_shows_lights_home_and_another_mission_lights_missions(): void

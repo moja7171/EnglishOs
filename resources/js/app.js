@@ -152,6 +152,22 @@ document.addEventListener('alpine:init', () => {
             restorePageState();
         });
 
+        /**
+         * Leaving for another page with an overlay still open (a tab tapped on
+         * a Profile screen or mid-step, a person picked in a sheet). The usual
+         * history.back() would land after Livewire has pushed the new page and
+         * undo that push, leaving the new page under the old address. So the
+         * placeholder simply becomes the page's entry again, and Livewire's
+         * Back copy is stored on it as on any other page.
+         */
+        document.addEventListener('livewire:navigating', () => {
+            if (!history.state?.[placeholder]) return;
+
+            open.length = 0;
+            history.replaceState(pageState, '');
+            showStepBack();
+        });
+
         return {
             sync,
             forget(overlay) {
@@ -1173,6 +1189,158 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
 })();
 
 /**
+ * The frame around every page stays current. The tab numbers and the header
+ * avatar read the Alpine "shell" store: <body data-shell> seeds it on every
+ * page the server drew, and the bell's "shell-state" events update it
+ * (App\Services\AppShell). When the friend lists' fingerprint moves, the open
+ * list redraws (eos-friends-changed).
+ *
+ * Back shows Livewire's copy of the page as it was left, which is instant but
+ * old. So the store is NOT seeded from that copy, and right after it lands the
+ * page is drawn again from the server. Livewire has one way to do that without
+ * adding a history entry: a Back to a page it has no copy of. refreshPage()
+ * reports exactly that with a popstate carrying an unknown snapshot id. Pages
+ * mid-task ([data-step-header]) or that poll by themselves ([data-stay]) are
+ * left alone, so nothing typed or recorded is lost. The same redraw runs when
+ * a page comes out of the browser's own back cache, and after a while away
+ * from the app on the overview pages ([data-refresh-on-return]).
+ */
+(() => {
+    const redrawAfterAway = 60000;
+    const checkAfterAway = 5000;
+    const longestBellWait = 1500;
+
+    let cameFromSnapshot = false;
+    let refreshing = false;
+    let refreshAfterBell = null;
+    let scrollToKeep = null;
+    let hiddenAt = null;
+
+    const seedShell = () => {
+        const seed = document.body.dataset.shell;
+
+        if (!seed) return;
+
+        Object.assign(Alpine.store('shell'), JSON.parse(seed), {
+            avatar: document.querySelector('[data-shell-avatar]')?.innerHTML ?? null,
+        });
+    };
+
+    const isMidTask = () => document.body.hasAttribute('data-stay') || document.querySelector('[data-step-header]') !== null;
+
+    const overlayIsOpen = () => history.state?.eosBackClose || history.state?.eosBackCloseParked;
+
+    const hasTypedSomething = () =>
+        [...document.querySelectorAll('input, textarea')].some(
+            (field) => field.value && !['hidden', 'checkbox', 'radio', 'range', 'file', 'submit', 'button'].includes(field.type),
+        );
+
+    const refreshPage = () => {
+        if (overlayIsOpen()) return;
+
+        window.dispatchEvent(new PopStateEvent('popstate', { state: { alpine: { snapshotIdx: 'eos-refresh', url: location.href } } }));
+        refreshing = true;
+    };
+
+    const stopWaitingForBell = () => {
+        clearTimeout(refreshAfterBell);
+        refreshAfterBell = null;
+    };
+
+    /**
+     * The restored copy's bell asks the server as it wakes up. Swapping the
+     * page under that request would land its answer on a removed component,
+     * so the redraw waits for the answer; pages without a bell don't wait long.
+     */
+    const refreshOnceBellAnswers = () => {
+        refreshAfterBell = setTimeout(() => {
+            stopWaitingForBell();
+            refreshPage();
+        }, longestBellWait);
+    };
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('shell', { review: 0, notebook: false, friends: 0, live: null, avatar: null });
+        seedShell();
+    });
+
+    window.addEventListener('shell-state', ({ detail }) => {
+        const shell = Alpine.store('shell');
+        const listsMoved = detail.live !== shell.live;
+
+        Object.assign(shell, detail);
+
+        if (refreshAfterBell !== null) {
+            stopWaitingForBell();
+            refreshPage();
+        } else if (listsMoved) {
+            window.dispatchEvent(new CustomEvent('eos-friends-changed'));
+        }
+    });
+
+    document.addEventListener('livewire:navigate', ({ detail }) => {
+        stopWaitingForBell();
+        refreshing = false;
+        cameFromSnapshot = detail.history && detail.cached;
+    });
+
+    document.addEventListener('livewire:navigating', ({ detail }) => {
+        if (refreshing) scrollToKeep = window.scrollY;
+
+        detail.onSwap(() => {
+            if (!cameFromSnapshot) seedShell();
+        });
+    });
+
+    document.addEventListener('livewire:navigated', () => {
+        refreshing = false;
+
+        if (scrollToKeep !== null) {
+            const top = scrollToKeep;
+
+            scrollToKeep = null;
+            requestAnimationFrame(() => window.scrollTo({ top, behavior: 'instant' }));
+        }
+
+        if (!cameFromSnapshot) return;
+
+        cameFromSnapshot = false;
+
+        if (!isMidTask()) refreshOnceBellAnswers();
+    });
+
+    window.addEventListener('pageshow', ({ persisted }) => {
+        if (!persisted) return;
+
+        if (isMidTask()) {
+            Livewire.dispatch('shell-changed');
+        } else {
+            refreshPage();
+        }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            hiddenAt = Date.now();
+
+            return;
+        }
+
+        const away = hiddenAt === null ? 0 : Date.now() - hiddenAt;
+
+        hiddenAt = null;
+
+        if (away < checkAfterAway) return;
+
+        if (away >= redrawAfterAway && document.body.hasAttribute('data-refresh-on-return') && !isMidTask() && !overlayIsOpen() && !hasTypedSomething()) {
+            refreshPage();
+        } else {
+            Livewire.dispatch('shell-changed');
+        }
+    });
+})();
+
+/**
  * Haptics: a short buzz when an answer is marked right or wrong, wherever the
  * app draws one (.choice carries data-state — see app.css), and a longer one
  * for a finished mission. Android only in practice (iOS Safari has no
@@ -1688,6 +1856,8 @@ document.addEventListener('alpine:init', () => {
                 if (!response.ok) throw new Error(`store ${response.status}`);
 
                 this.saved = true;
+                window.dispatchEvent(new CustomEvent('eos-word-saved'));
+                Livewire.dispatch('shell-changed');
             } catch (error) {
                 this.addFailed = true;
             } finally {

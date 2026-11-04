@@ -360,6 +360,7 @@ new class extends Component
 @else
 <div
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
+    x-on:eos-word-saved.window="$wire.$refresh()"
     x-data="{
         notebookTab: @js($practiceKind === NotebookEntry::KIND_TIP && $roundDone ? 'tips' : (in_array(request()->query('tab'), ['tips', 'words'], true) ? request()->query('tab') : 'mistakes')),
         sheet: false,
