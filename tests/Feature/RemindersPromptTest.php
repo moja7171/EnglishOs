@@ -63,16 +63,16 @@ class RemindersPromptTest extends TestCase
             ->assertSee("write('eosAlertsCardDismissedUntil', Date.now() + 3 * DAY);", false);
     }
 
-    public function test_the_install_banner_waits_for_the_day_after_the_first_lesson(): void
+    public function test_the_install_banner_waits_only_for_the_ai_keys(): void
     {
         $user = User::factory()->create();
-        DayActivity::factory()->create(['learner_id' => $user->id, 'created_at' => now()]);
+        $user->forceFill(['ai_keys_required' => true])->save();
 
-        $this->actingAs($user)->get(route('home'))->assertSee('x-show="false && deferredPrompt', false);
+        $this->actingAs($user)->get(route('ai-keys.setup'))->assertSee('x-show="false && deferredPrompt', false);
 
-        DayActivity::factory()->create(['learner_id' => $user->id, 'on_date' => today()->subDay(), 'created_at' => now()->subDay()]);
+        $user->forceFill(array_fill_keys(array_values(User::AI_KEY_COLUMNS), 'saved-key'))->save();
 
-        $this->actingAs($user)->get(route('home'))->assertSee('x-show="true && deferredPrompt', false);
+        $this->actingAs($user->fresh())->get(route('onboarding'))->assertSee('x-show="true && deferredPrompt', false);
     }
 
     public function test_the_invitation_sheet_waits_for_the_first_lesson(): void

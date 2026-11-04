@@ -10,10 +10,10 @@
 
 @php
     $showNav = auth()->check() && ! $fill;
-    // The install offer waits for the first real lesson activity — never on
-    // the sign-in / sign-up screens or before the learner has tried the app.
-    // From the day after the first lesson: the first day already asks about reminders.
-    $offerInstall = auth()->check() && \App\Models\DayActivity::where('learner_id', auth()->id())->where('created_at', '<', today())->exists();
+    // The install offer comes right after the AI keys: installing needs a VPN,
+    // and the keys page has just had the learner turn it on. Never on the
+    // sign-in / sign-up screens.
+    $offerInstall = auth()->check() && ! auth()->user()->mustAddAiKeys();
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -35,6 +35,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="English OS">
+    {{-- The browser offers installing once per page load, and wire:navigate
+         never reloads the page, so the offer is kept on window: the banner
+         of every later page picks it up (see the install prompt below). --}}
+    <script>
+        window.addEventListener('beforeinstallprompt', function (event) {
+            event.preventDefault();
+            window.eosInstallPrompt = event;
+            window.dispatchEvent(new Event('eos-install-ready'));
+        });
+    </script>
     {{-- Vazirmatn: the only Persian-script font in the app, scoped to the
          two steps (AI Feedback #1, Error Log) that render real Persian
          feedback text via the .font-fa utility below — everything else
@@ -141,30 +151,23 @@
          The month matters too: when Chrome can only make a plain shortcut
          (no WebAPK) it keeps firing beforeinstallprompt, which would
          otherwise bring the banner straight back in the browser tab. It only
-         shows once the learner has done something in a lesson ($offerInstall);
-         it stays mounted so the browser's one-off event is still caught. --}}
+         shows once the learner's AI keys are saved ($offerInstall). --}}
     <div
         x-data="{
-            deferredPrompt: null,
+            deferredPrompt: window.eosInstallPrompt ?? null,
             dismissed: false,
             init() {
                 try {
                     this.dismissed = Number(localStorage.getItem('eosInstallPromptDismissedUntil')) > Date.now();
                     localStorage.removeItem('eosInstallPromptDismissed');
                 } catch (e) {}
-
-                window.addEventListener('beforeinstallprompt', (event) => {
-                    event.preventDefault();
-                    this.deferredPrompt = event;
-                });
-
-                window.addEventListener('appinstalled', () => { this.deferredPrompt = null; this.hideFor(30) });
             },
             async install() {
-                if (! this.deferredPrompt) { return }
-                this.deferredPrompt.prompt();
-                const choice = await this.deferredPrompt.userChoice;
-                this.deferredPrompt = null;
+                const installPrompt = this.deferredPrompt;
+                if (! installPrompt) { return }
+                this.deferredPrompt = window.eosInstallPrompt = null;
+                installPrompt.prompt();
+                const choice = await installPrompt.userChoice;
                 if (choice.outcome === 'accepted') { this.hideFor(30) }
             },
             dismiss() {
@@ -175,6 +178,8 @@
                 try { localStorage.setItem('eosInstallPromptDismissedUntil', Date.now() + days * 24 * 60 * 60 * 1000) } catch (e) {}
             },
         }"
+        x-on:eos-install-ready.window="deferredPrompt = window.eosInstallPrompt"
+        x-on:appinstalled.window="deferredPrompt = window.eosInstallPrompt = null; hideFor(30)"
         x-show="{{ $offerInstall ? 'true' : 'false' }} && deferredPrompt && !dismissed"
         x-cloak
         x-transition
