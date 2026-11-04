@@ -111,7 +111,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body @if ($focus) data-no-interrupt @endif @if ($fill || $stay) data-stay @endif @if ($refreshOnReturn) data-refresh-on-return @endif @if ($shell) data-shell="{{ json_encode(Illuminate\Support\Arr::except($shell, 'avatar')) }}" @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
+<body @if ($focus) data-no-interrupt @endif @if ($fill || $stay) data-stay @endif @if ($refreshOnReturn) data-refresh-on-return @endif @if ($shell) data-shell="{{ json_encode(Illuminate\Support\Arr::except($shell, 'avatar')) }}" data-left-app-url="{{ route('app.hidden') }}" @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
     {{-- Deliberately bare: the logo mark on the left; notifications and the
          avatar (which opens <x-account-menu>) on the right. Navigation
          lives in <x-bottom-nav> and everything secondary in the avatar's

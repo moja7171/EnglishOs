@@ -32,6 +32,10 @@ Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [AiUsageLog::
 Schedule::call(fn () => Artisan::call('model:prune', ['--model' => [VoiceFeedback::class]]))
     ->name('voice-feedback:prune')
     ->daily();
+Schedule::call(fn () => Artisan::call('chat:send-held-alerts'))
+    ->name('chat:send-held-alerts')
+    ->everyMinute()
+    ->withoutOverlapping();
 Schedule::call(fn () => Artisan::call('review:send-reminders'))
     ->name('review:send-reminders')
     ->everyMinute()

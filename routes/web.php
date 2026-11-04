@@ -311,6 +311,14 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
             : Storage::disk('local')->download($answer->attachment_path, $answer->attachment_name);
     })->name('partner-sessions.attachment');
 
+    // The app just went to the background (see app.js): from now on alerts
+    // buzz the phone, without waiting for the in-app check to run out.
+    Route::post('/app-hidden', function () {
+        auth()->user()->markLeftApp();
+
+        return response()->noContent();
+    })->withoutMiddleware('ai_keys.saved')->middleware('throttle:60,1')->name('app.hidden');
+
     Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();
