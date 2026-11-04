@@ -5,11 +5,17 @@
      @param bool $focus Marks a full-attention screen (a mission, the
      placement test, a partner session): new-alert banners wait until the
      learner leaves it, see <x-notification-banner>. The bottom nav stays,
-     so the other tabs are always one tap away. --}}
-@props(['focus' => false, 'fill' => false])
+     so the other tabs are always one tap away.
+     @param bool $stay Back keeps the page as it was left, for a screen that
+     polls by itself; a page mid-task (data-step-header) is kept anyway.
+     Every other page redraws from the server after Back, see app.js.
+     @param bool $refreshOnReturn Redraws when the learner comes back to the
+     app after a while: overview pages, with nothing in progress to lose. --}}
+@props(['focus' => false, 'fill' => false, 'stay' => false, 'refreshOnReturn' => false])
 
 @php
     $showNav = auth()->check() && ! $fill;
+    $shell = auth()->check() ? app(App\Services\AppShell::class)->state(auth()->user()) : null;
     // The install offer comes right after the AI keys: installing needs a VPN,
     // and the keys page has just had the learner turn it on. Never on the
     // sign-in / sign-up screens.
@@ -105,7 +111,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body @if ($focus) data-no-interrupt @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
+<body @if ($focus) data-no-interrupt @endif @if ($fill || $stay) data-stay @endif @if ($refreshOnReturn) data-refresh-on-return @endif @if ($shell) data-shell="{{ json_encode(Illuminate\Support\Arr::except($shell, 'avatar')) }}" @endif class="bg-ground text-ink antialiased dark:bg-ground-dark dark:text-ink-dark {{ $showNav ? 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]' : '' }} {{ $fill ? 'flex h-dvh flex-col overflow-hidden' : '' }}">
     {{-- Deliberately bare: the logo mark on the left; notifications and the
          avatar (which opens <x-account-menu>) on the right. Navigation
          lives in <x-bottom-nav> and everything secondary in the avatar's
@@ -132,7 +138,7 @@
     {{ $slot }}
 
     @if ($showNav)
-        <x-bottom-nav />
+        <x-bottom-nav :shell="$shell" />
     @endif
 
     @auth

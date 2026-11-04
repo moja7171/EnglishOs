@@ -231,6 +231,7 @@ class NotificationBellTest extends TestCase
         $alice = User::factory()->create();
         $alice->follow($me);
         $me->acceptFollowRequest($alice);
+        $me->notify(new FollowRequestReceived($alice));
 
         $this->actingAs($me);
 

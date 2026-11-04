@@ -14,19 +14,19 @@
     <x-account-menu>. Review counts due cards, Friends counts unread
     conversations plus follow requests (the same unit the bell uses), and
     Notebook gets a dot while feedback has saved lines not practised yet
-    (they already count in Review's number once due).
+    (they already count in Review's number once due). The numbers come in
+    $shell and stay live through the Alpine "shell" store, so they follow
+    without a page change (see App\Services\AppShell).
 
     It steps aside while the learner is typing (the on-screen keyboard
     would otherwise leave it floating above the keys, eating room) and
     while the mic is recording (a stray tap mid-take would lose it) — see
     the x-show below and the eos-recording event in <x-voice-recorder>.
 --}}
+@props(['shell'])
+
 @php
     $user = auth()->user();
-
-    $dueReviewCount = $user->dailyReviewCount();
-    $hasUnpractisedNotes = $user->notebookEntries()->unpractised()->exists();
-    $friendsBadge = $user->friendsBadgeCount();
 
     // The mission Home shows (and its lessons) lights Home, not Missions:
     // the learner got there from Home.
@@ -38,9 +38,9 @@
     $tabs = [
         ['label' => 'Home', 'route' => 'home', 'active' => request()->routeIs('home') || $isHomeMission, 'icon' => 'home'],
         ['label' => 'Missions', 'route' => 'missions.index', 'active' => ! $isHomeMission && request()->routeIs('missions.*', 'listening.*', 'pi.practice'), 'icon' => 'squares-2x2'],
-        ['label' => 'Review', 'route' => 'review.index', 'active' => request()->routeIs('review.*'), 'icon' => 'bolt', 'badge' => $dueReviewCount],
-        ['label' => 'Notebook', 'route' => 'notebook.index', 'active' => request()->routeIs('notebook.*'), 'icon' => 'book-open', 'dot' => $hasUnpractisedNotes],
-        ['label' => 'Friends', 'route' => 'friends.index', 'active' => request()->routeIs('friends.*', 'pair-practice.*'), 'icon' => 'user-group', 'badge' => $friendsBadge, 'badgeLabel' => 'new in Friends'],
+        ['label' => 'Review', 'route' => 'review.index', 'active' => request()->routeIs('review.*'), 'icon' => 'bolt', 'badge' => 'review'],
+        ['label' => 'Notebook', 'route' => 'notebook.index', 'active' => request()->routeIs('notebook.*'), 'icon' => 'book-open', 'dot' => 'notebook'],
+        ['label' => 'Friends', 'route' => 'friends.index', 'active' => request()->routeIs('friends.*', 'pair-practice.*'), 'icon' => 'user-group', 'badge' => 'friends', 'badgeLabel' => 'new in Friends'],
     ];
 
     // -1 on pages that belong to none of the tabs (Progress, Profile...).
@@ -108,11 +108,12 @@
             >
                 <span class="relative" @if ($tab['active']) x-ref="activeIcon" @endif>
                     @svg('heroicon-'.($tab['active'] ? 's' : 'o').'-'.$tab['icon'], 'h-6 w-6')
-                    @if (! empty($tab['badge']))
-                        <span class="absolute -top-1 -right-2.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark">{{ $tab['badge'] }}@isset($tab['badgeLabel'])<span class="sr-only"> {{ $tab['badgeLabel'] }}</span>@endisset</span>
-                    @elseif (! empty($tab['dot']))
-                        <span data-dot class="absolute -top-0.5 -right-1 h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-surface dark:bg-accent-dark dark:ring-surface-dark"><span class="sr-only">New lines to practise</span></span>
-                    @endif
+                    @isset($tab['badge'])
+                        <span x-show="$store.shell.{{ $tab['badge'] }} > 0" @style(['display: none' => ! $shell[$tab['badge']]]) class="absolute -top-1 -right-2.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white dark:bg-accent-dark"><span x-text="$store.shell.{{ $tab['badge'] }}">{{ $shell[$tab['badge']] }}</span>@isset($tab['badgeLabel'])<span class="sr-only"> {{ $tab['badgeLabel'] }}</span>@endisset</span>
+                    @endisset
+                    @isset($tab['dot'])
+                        <span x-show="$store.shell.{{ $tab['dot'] }}" @style(['display: none' => ! $shell[$tab['dot']]]) data-dot class="absolute -top-0.5 -right-1 h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-surface dark:bg-accent-dark dark:ring-surface-dark"><span class="sr-only">New lines to practise</span></span>
+                    @endisset
                 </span>
                 {{ $tab['label'] }}
             </a>

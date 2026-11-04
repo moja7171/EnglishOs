@@ -1,4 +1,4 @@
-<x-layouts.app>
+<x-layouts.app :refresh-on-return="true">
     {{-- The first-time invitation and the quiet cards live on the home page
          only, so they never interrupt a lesson in progress. --}}
     <livewire:notifications.reminders-prompt variant="sheet" />

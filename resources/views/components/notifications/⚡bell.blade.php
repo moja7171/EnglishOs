@@ -5,6 +5,7 @@ use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\PairGameInvite;
 use App\Notifications\PairPracticeInvite;
+use App\Services\AppShell;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Blade;
@@ -33,9 +34,30 @@ new class extends Component
      * back each one it showed (markShown()). Until then they stay unread.
      * A live Pair Practice invite is the exception: it stays unread (and
      * its banner up) until the round is joined, called off or expires —
-     * then it is read and no longer pops up.
+     * then it is read and no longer pops up. The poll also brings the
+     * Friends tab count (see App\Services\AppShell).
      */
     public function checkNew(): void
+    {
+        $this->deliverBanners();
+
+        $this->dispatch('shell-state', ...app(AppShell::class)->pulse(auth()->user()));
+    }
+
+    /**
+     * The page has just opened, the learner came back to the app, or an
+     * action changed what the frame shows (AppShell::changed()): the tabs
+     * and the header avatar get everything fresh, and this bell re-renders.
+     */
+    #[On('shell-changed')]
+    public function refreshShell(): void
+    {
+        $this->deliverBanners();
+
+        $this->dispatch('shell-state', ...app(AppShell::class)->state(auth()->user()));
+    }
+
+    private function deliverBanners(): void
     {
         $user = auth()->user();
         $user->markInApp();
@@ -247,7 +269,7 @@ new class extends Component
 };
 ?>
 
-<div class="relative" x-data="{ open: false }" x-on:click.outside="open = false" wire:init="checkNew" wire:poll.30s.visible="checkNew">
+<div class="relative" x-data="{ open: false }" x-on:click.outside="open = false" wire:init="refreshShell" wire:poll.30s="checkNew">
     {{-- The app icon's number on the home screen follows the bell. --}}
     <span wire:key="app-badge-{{ $this->unreadCount }}" x-data x-init="'setAppBadge' in navigator && ({{ $this->unreadCount }} ? navigator.setAppBadge({{ $this->unreadCount }}) : navigator.clearAppBadge()).catch(() => {})" hidden></span>
 

@@ -2,7 +2,9 @@
 
 namespace App\Models\Concerns;
 
+use App\Services\AppShell;
 use App\Services\StreakRing;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * The SM-2 spaced-repetition algorithm (SuperMemo, 1987) — first built
@@ -26,6 +28,21 @@ use App\Services\StreakRing;
  */
 trait HasSpacedRepetition
 {
+    /**
+     * Every review item counts toward the Review tab, and a notebook line
+     * toward the Notebook dot too, so the tabs follow as they change.
+     */
+    public static function bootHasSpacedRepetition(): void
+    {
+        static::saved(function (Model $item): void {
+            if ($item->wasRecentlyCreated || $item->wasChanged()) {
+                AppShell::changed();
+            }
+        });
+
+        static::deleted(fn () => AppShell::changed());
+    }
+
     public function isDue(): bool
     {
         return $this->next_review_at <= now();

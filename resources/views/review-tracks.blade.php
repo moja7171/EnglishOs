@@ -11,7 +11,7 @@
      for a bus) and everything spoken or about grammar (needs a quiet spot
      and the mic). A path nobody has touched today but has something waiting
      gets the accent border. --}}
-<x-layouts.app>
+<x-layouts.app :refresh-on-return="true">
     <div class="mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6">
         <div class="flex items-center justify-between gap-2">
             <h1 class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">Review</h1>

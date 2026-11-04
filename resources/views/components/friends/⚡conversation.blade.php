@@ -5,6 +5,7 @@ use App\Models\DirectMessage;
 use App\Models\FriendReport;
 use App\Models\User;
 use App\Notifications\DirectMessageReceived;
+use App\Services\AppShell;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\PairPractice;
@@ -581,16 +582,20 @@ new class extends Component
 
         // One UPDATE for everything unread in the pair — including anything
         // above the loaded window — and only when there is something to mark.
-        DirectMessage::query()
+        $readMessages = DirectMessage::query()
             ->where('sender_id', $this->other->id)
             ->where('recipient_id', auth()->id())
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        auth()->user()->unreadNotifications()
+        $readAlerts = auth()->user()->unreadNotifications()
             ->where('type', DirectMessageReceived::class)
             ->where('data->sender_id', $this->other->id)
             ->update(['read_at' => now()]);
+
+        if ($readMessages + $readAlerts > 0) {
+            AppShell::changed();
+        }
 
         return $messages;
     }

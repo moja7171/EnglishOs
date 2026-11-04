@@ -37,7 +37,7 @@ new class extends Component
 @endphp
 
 {{-- Photo tiles, one per game (a game not built yet is shown as Soon), then my badges. --}}
-<div class="mx-auto max-w-2xl space-y-4 px-4 pt-3 pb-6 sm:px-6">
+<div class="mx-auto max-w-2xl space-y-4 px-4 pt-3 pb-6 sm:px-6" x-data x-on:eos-friends-changed.window="$wire.$refresh()">
     <header class="flex items-center gap-2">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ms-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
         <div class="min-w-0">
