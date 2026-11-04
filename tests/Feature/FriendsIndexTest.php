@@ -14,6 +14,7 @@ use App\Notifications\PairPracticeNudge;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class FriendsIndexTest extends TestCase
@@ -277,5 +278,154 @@ class FriendsIndexTest extends TestCase
             ->assertSee('Follow back')
             ->call('follow', $kian->id)
             ->assertDontSee('Follow back');
+    }
+
+    private function friendOf(User $me, array $attributes = []): User
+    {
+        $friend = User::factory()->create($attributes);
+        $me->follow($friend);
+        $friend->acceptFollowRequest($me);
+
+        return $friend;
+    }
+
+    public function test_two_people_with_one_name_show_different_usernames(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $first = User::factory()->create(['name' => 'Ali Rezaei']);
+        $second = User::factory()->create(['name' => 'Ali Rezaei']);
+
+        Livewire::test('friends.index')
+            ->set('search', 'ali')
+            ->assertSee($first->handle())
+            ->assertSee($second->handle());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function waysToFindSomeone(): array
+    {
+        return [
+            'username with the @' => ['@ali_tehran'],
+            'part of the username' => ['tehran'],
+            'name in another case' => ['SEYED'],
+            'name with spaces like the username' => ['ali tehran'],
+            'Arabic letters for a Persian name' => ['علي'],
+        ];
+    }
+
+    #[DataProvider('waysToFindSomeone')]
+    public function test_a_person_is_found_by_name_or_username_however_it_is_typed(string $term): void
+    {
+        $this->actingAs(User::factory()->create());
+        User::factory()->create(['name' => 'Seyed علی', 'username' => 'ali_tehran']);
+
+        Livewire::test('friends.index')
+            ->set('search', $term)
+            ->assertSee('@ali_tehran');
+    }
+
+    public function test_an_underscore_in_the_search_is_not_a_wildcard(): void
+    {
+        $this->actingAs(User::factory()->create());
+        User::factory()->create(['name' => 'Xena', 'username' => 'alixtehran']);
+
+        Livewire::test('friends.index')
+            ->set('search', 'ali_tehran')
+            ->assertDontSee('Xena');
+    }
+
+    public function test_someone_hidden_from_search_stays_hidden_even_by_exact_username(): void
+    {
+        $this->actingAs(User::factory()->create());
+        User::factory()->create(['name' => 'Private Person', 'username' => 'private_person', 'discoverable' => false]);
+
+        Livewire::test('friends.index')
+            ->set('search', '@private_person')
+            ->assertDontSee('Private Person');
+    }
+
+    public function test_my_friends_come_first_and_open_the_chat_instead_of_a_follow_button(): void
+    {
+        $me = User::factory()->create();
+        $friend = $this->friendOf($me, ['name' => 'Sara Friend', 'discoverable' => false]);
+        User::factory()->create(['name' => 'Sara Stranger']);
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->set('search', 'sara')
+            ->assertSeeInOrder(['Your friends', 'Sara Friend', 'Add new', 'Sara Stranger'])
+            ->assertSeeHtml(route('friends.conversation', $friend));
+    }
+
+    public function test_new_people_are_ranked_by_exact_username_then_shared_friends_then_name(): void
+    {
+        $me = User::factory()->create();
+        $friend = $this->friendOf($me);
+        User::factory()->create(['name' => 'Aaa Reza']);
+        $shared = User::factory()->create(['name' => 'Zzz Reza']);
+        $shared->follow($friend);
+        $friend->acceptFollowRequest($shared);
+        User::factory()->create(['name' => 'Zzzz Other', 'username' => 'reza']);
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->set('search', 'reza')
+            ->assertSeeInOrder(['Zzzz Other', 'Zzz Reza', '1 mutual friend', 'Aaa Reza']);
+    }
+
+    public function test_search_results_grow_with_show_more_and_start_over_on_a_new_search(): void
+    {
+        $this->actingAs(User::factory()->create());
+        User::factory()->count(21)->sequence(fn ($sequence) => ['name' => sprintf('Reza %02d', $sequence->index)])->create();
+
+        Livewire::test('friends.index')
+            ->set('search', 'reza')
+            ->assertSee('Reza 19')
+            ->assertDontSee('Reza 20')
+            ->call('showMoreResults')
+            ->assertSee('Reza 20')
+            ->assertDontSee('Show more')
+            ->set('search', 'rez')
+            ->assertSet('searchLimit', 20);
+    }
+
+    public function test_a_long_friend_list_starts_short_but_never_hides_an_unread_chat(): void
+    {
+        $me = User::factory()->create();
+        $friends = collect(range(1, 22))->map(fn (int $number) => $this->friendOf($me, ['name' => sprintf('Friend %02d', $number)]));
+        $this->actingAs($me);
+
+        DirectMessage::create(['sender_id' => $friends[21]->id, 'recipient_id' => $me->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Still waiting']);
+        $friends->take(21)->each(fn (User $friend) => DirectMessage::create(['sender_id' => $me->id, 'recipient_id' => $friend->id, 'type' => DirectMessage::TYPE_MESSAGE, 'body' => 'Hello']));
+
+        Livewire::test('friends.index')
+            ->assertSee('Friend 22')
+            ->assertDontSee('Friend 01')
+            ->assertSee('Show more (1)')
+            ->call('showMoreFriends')
+            ->assertSee('Friend 01');
+    }
+
+    public function test_the_today_strip_shows_only_friends_who_practised(): void
+    {
+        $me = User::factory()->create();
+        $this->friendOf($me);
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')->assertDontSee('aria-label="Today"', false);
+    }
+
+    public function test_the_lesson_friend_picker_lists_the_latest_partner_first_with_usernames(): void
+    {
+        $me = User::factory()->create();
+        $this->friendOf($me, ['name' => 'Aaa Never']);
+        $partner = $this->friendOf($me, ['name' => 'Zzz Partner']);
+        PairPracticeSession::factory()->create(['user_a_id' => $me->id, 'user_b_id' => $partner->id]);
+        $this->actingAs($me);
+
+        $this->blade('<x-friend-picker label="Practice" :href-for="fn ($friend) => \'/friend\'" />')
+            ->assertSeeInOrder(['Zzz Partner', $partner->handle(), 'Aaa Never']);
     }
 }

@@ -1206,4 +1206,27 @@ class PairPracticeTest extends TestCase
         $this->assertSame('What time do you wake up?', VoiceFeedback::existingFor($speaker, $session)->clips[0]['label']);
         $this->assertNull(VoiceFeedback::existingFor($listener, $session));
     }
+
+    public function test_many_friends_show_a_few_cards_and_any_friend_can_be_picked_from_all_friends(): void
+    {
+        $me = User::factory()->create();
+        collect(range(1, 7))->each(fn () => $this->makeMutualFriend($me));
+        $farDown = $me->friendsForPicking()->last();
+        $this->actingAs($me);
+
+        $page = Livewire::test('pair-practice.index')->assertSee('All friends (7)');
+        $this->assertCount(5, $page->instance()->pairs);
+
+        $page->call('pickFriend', $farDown->id);
+        $this->assertSame($farDown->id, $page->instance()->pairs[0]['friend']->id);
+        $this->assertCount(5, $page->instance()->pairs);
+    }
+
+    public function test_only_a_friend_can_be_picked_from_all_friends(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $stranger = User::factory()->create();
+
+        Livewire::test('pair-practice.index')->call('pickFriend', $stranger->id)->assertForbidden();
+    }
 }

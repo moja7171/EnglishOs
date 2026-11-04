@@ -9,6 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -409,13 +410,56 @@ class ProfileTest extends TestCase
         $this->assertFalse($learner->fresh()->friend_alerts);
     }
 
-    public function test_profile_and_friends_offer_the_apps_link_to_share(): void
+    public function test_profile_and_friends_offer_my_invite_link_to_share(): void
     {
-        $this->actingAs(User::factory()->create());
-        $appLink = str_replace('/', '\\/', route('welcome'));
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $inviteLink = str_replace('/', '\\/', $learner->inviteUrl());
 
-        $this->get(route('profile'))->assertOk()->assertSee('Invite friends')->assertSeeHtml($appLink);
-        $this->get(route('friends.index'))->assertOk()->assertSee('Invite friends')->assertSeeHtml($appLink);
+        $this->get(route('profile'))->assertOk()->assertSee('Invite friends')->assertSeeHtml($inviteLink);
+        $this->get(route('friends.index'))->assertOk()->assertSee('Send my invite link')->assertSeeHtml($inviteLink);
+    }
+
+    public function test_a_learner_can_change_their_username(): void
+    {
+        $learner = User::factory()->create(['name' => 'Ali Rezaei']);
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->set('username', '@Ali Tehran')
+            ->call('updateBasicInfo')
+            ->assertHasNoErrors()
+            ->assertSet('username', 'ali_tehran');
+
+        $this->assertSame('ali_tehran', $learner->fresh()->username);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function refusedUsernames(): array
+    {
+        return [
+            'someone else holds it' => ['taken_name'],
+            'it would look like the app' => ['Support'],
+            'nothing usable is left' => ['😀😀'],
+            'it is too short' => ['a'],
+        ];
+    }
+
+    #[DataProvider('refusedUsernames')]
+    public function test_a_username_can_not_be_taken_reserved_or_empty(string $username): void
+    {
+        User::factory()->create(['username' => 'taken_name']);
+        $learner = User::factory()->create(['username' => 'my_name']);
+        $this->actingAs($learner);
+
+        Livewire::test('profile')
+            ->set('username', $username)
+            ->call('updateBasicInfo')
+            ->assertHasErrors('username');
+
+        $this->assertSame('my_name', $learner->fresh()->username);
     }
 
     public function test_the_ai_keys_row_shows_no_raw_blade_code(): void

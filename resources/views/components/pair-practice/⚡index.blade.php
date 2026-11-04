@@ -4,6 +4,7 @@ use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\PairPracticeInvite;
 use App\Services\PairPractice;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -17,6 +18,44 @@ new class extends Component
      */
     #[Url]
     public ?string $day = null;
+
+    /** The friend picked from All friends, whose card comes first. */
+    public ?int $pickedFriendId = null;
+
+    public const CARDS_SHOWN = 5;
+
+    public function pickFriend(int $friendId): void
+    {
+        abort_unless($this->allFriends->contains('id', $friendId), 403);
+
+        $this->pickedFriendId = $friendId;
+        unset($this->pairs);
+    }
+
+    /**
+     * Every mutual friend, latest partner first.
+     *
+     * @return Collection<int, User>
+     */
+    #[Computed]
+    public function allFriends(): Collection
+    {
+        return auth()->user()->friendsForPicking();
+    }
+
+    /**
+     * The friends with a card on the page: a card is heavy, so only the
+     * picked one and the latest partners get one.
+     *
+     * @return Collection<int, User>
+     */
+    private function friendsWithCards(): Collection
+    {
+        return $this->allFriends
+            ->sortBy(fn (User $friend) => $friend->id === $this->pickedFriendId ? 0 : 1)
+            ->take(self::CARDS_SHOWN)
+            ->values();
+    }
 
     /**
      * One row per friend: what a round would practise, every day either
@@ -32,7 +71,7 @@ new class extends Component
         $pairPractice = app(PairPractice::class);
         $mine = $pairPractice->learnedDays($me);
 
-        return $me->mutualFriends()->sortBy('name')->map(function (User $friend) use ($me, $pairPractice, $mine) {
+        return $this->friendsWithCards()->map(function (User $friend) use ($me, $pairPractice, $mine) {
             $theirs = $pairPractice->learnedDays($friend);
             $shared = $mine->intersectByKeys($theirs);
             $latest = $shared->keys()->last();
@@ -269,4 +308,11 @@ new class extends Component
             <a href="{{ route('friends.index') }}" wire:navigate class="mt-3 inline-block text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Find friends ›</a>
         </div>
     @endforelse
+
+    @if ($this->allFriends->count() > self::CARDS_SHOWN)
+        <div x-data="{ allFriends: false }">
+            <button type="button" x-on:click="allFriends = true" class="w-full cursor-pointer rounded-2xl bg-surface py-3 text-center text-sm font-bold text-accent-ink shadow-sm dark:bg-surface-dark dark:text-accent-ink-dark">All friends ({{ $this->allFriends->count() }})</button>
+            <x-friend-sheet show="allFriends" label="All friends" :friends="$this->allFriends" :action-for="fn ($friend) => 'pickFriend('.$friend->id.')'" />
+        </div>
+    @endif
 </div>

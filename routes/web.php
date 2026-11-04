@@ -35,6 +35,20 @@ Route::get('/_diag/health', ServiceHealthController::class)->middleware('throttl
 // normal way to do this; this route is the fallback if that's unreachable.
 Route::get('/_diag/ai-relay-use', AiRelayUseController::class)->middleware('throttle:6,1');
 
+// A learner's invite link. A visitor signs up (or logs in) first and the
+// request to that friend follows; someone signed in sees them on Friends.
+Route::get('/i/{code}', function (string $code) {
+    abort_unless(User::where('invite_code', $code)->exists(), 404);
+
+    if (auth()->check()) {
+        return redirect()->route('friends.index', ['invite' => $code]);
+    }
+
+    session()->put('friend_invite_code', $code);
+
+    return redirect()->route('register');
+})->middleware('throttle:30,1')->name('invite');
+
 Route::middleware('guest')->group(function () {
     Route::get('/welcome', fn () => view('welcome'))->name('welcome');
     Route::get('/login', fn () => view('auth.login'))->name('login');

@@ -80,6 +80,7 @@ new class extends Component
         <x-user-avatar :user="$user" class="h-16 w-16 text-xl" />
         <div class="min-w-0 flex-1">
             <h1 class="truncate font-display text-2xl font-extrabold text-ink dark:text-ink-dark">{{ $isMe ? 'You' : $user->name }}</h1>
+            <p class="truncate text-xs font-semibold text-ink-faint dark:text-ink-faint-dark"><bdi>{{ $user->handle() }}</bdi></p>
             <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">
                 @if ($run)
                     {{ $run->mission->code }} {{ $run->mission->title }}{{ $currentDay !== false ? ' · Day '.($currentDay + 1).' of '.count($missionDays) : '' }}

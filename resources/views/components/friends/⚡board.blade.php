@@ -136,11 +136,14 @@ new class extends Component
         @endunless
     </div>
 
+    {{-- My row stays above the tabs until the list reaches it. A sticky
+         element traps z-index, so the sheet has to live outside the list. --}}
+    <div x-data="{ open: false }">
     <ol class="mt-2 space-y-1.5">
         @foreach ($this->ranked as $row)
-            <li wire:key="rank-{{ $row['user']->id }}" x-data="{ open: false }">
+            <li wire:key="rank-{{ $row['user']->id }}" @class(['sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-10' => $row['me']])>
                 @php
-                    $rowClass = 'flex w-full cursor-pointer items-center gap-2.5 rounded-2xl px-3 py-2.5 text-left '.($row['me'] ? 'bg-accent-soft dark:bg-accent-soft-dark' : 'bg-surface shadow-sm dark:bg-surface-dark');
+                    $rowClass = 'flex w-full cursor-pointer items-center gap-2.5 rounded-2xl px-3 py-2.5 text-left '.($row['me'] ? 'bg-accent-soft shadow-md dark:bg-accent-soft-dark' : 'bg-surface shadow-sm dark:bg-surface-dark');
                 @endphp
                 @if ($row['me'])
                     <button type="button" x-on:click="open = true" class="{{ $rowClass }}">
@@ -177,21 +180,23 @@ new class extends Component
                     </span>
                 @if ($row['me'])
                     </button>
-                    <x-bottom-sheet show="open" label="Your highlight">
-                        <x-slot:title>Your highlight</x-slot:title>
-                        <form wire:submit="savePinnedHighlight" x-on:submit="open = false" class="space-y-3">
-                            <input type="text" wire:model="pinnedHighlight" maxlength="80" placeholder="e.g. Practicing every morning before work ☕" aria-label="Your highlight" class="w-full rounded-2xl border-2 border-accent bg-transparent px-3 py-2.5 text-sm text-ink dark:border-accent-dark dark:text-ink-dark">
-                            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Friends see this on your page.</p>
-                            <button type="submit" class="w-full cursor-pointer rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white dark:bg-accent-dark">Save</button>
-                        </form>
-                        <a href="{{ route('friends.profile', $me) }}" wire:navigate class="block text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">See your page ›</a>
-                    </x-bottom-sheet>
                 @else
                     </a>
                 @endif
             </li>
         @endforeach
     </ol>
+
+        <x-bottom-sheet show="open" label="Your highlight">
+            <x-slot:title>Your highlight</x-slot:title>
+            <form wire:submit="savePinnedHighlight" x-on:submit="open = false" class="space-y-3">
+                <input type="text" wire:model="pinnedHighlight" maxlength="80" placeholder="e.g. Practicing every morning before work ☕" aria-label="Your highlight" class="w-full rounded-2xl border-2 border-accent bg-transparent px-3 py-2.5 text-sm text-ink dark:border-accent-dark dark:text-ink-dark">
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Friends see this on your page.</p>
+                <button type="submit" class="w-full cursor-pointer rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white dark:bg-accent-dark">Save</button>
+            </form>
+            <a href="{{ route('friends.profile', $me) }}" wire:navigate class="block text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">See your page ›</a>
+        </x-bottom-sheet>
+    </div>
 
     <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl bg-surface px-4 py-2.5 text-xs font-bold text-ink-soft shadow-sm dark:bg-surface-dark dark:text-ink-soft-dark">
         <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full bg-accent dark:bg-accent-dark"></span>Practised</span>
