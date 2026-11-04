@@ -568,6 +568,16 @@ a[aria-busy='true'] {
     animation: mic-breathe 1.6s ease-in-out infinite;
 }
 
+/* Coming back through history isn't an arrival: no entrance, and the redraw
+   that may follow (see app.js) doesn't announce itself. */
+body[data-quiet] .stagger-children > * {
+    animation: none;
+}
+
+html[data-refreshing] #nprogress {
+    display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .animate-mic-breathe,
     .animate-lesson-screen-in,
