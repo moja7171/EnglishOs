@@ -114,7 +114,7 @@ class PersonalAiKeyTest extends TestCase
     public function test_saving_a_working_key_stores_it_encrypted_and_shows_only_its_ending(): void
     {
         Http::preventStrayRequests();
-        Http::fake(['generativelanguage.googleapis.com/v1beta/models?pageSize=1' => Http::response(['models' => []])]);
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->geminiReply('Hi'))]);
         $me = User::factory()->create();
         $this->actingAs($me);
 
@@ -141,13 +141,12 @@ class PersonalAiKeyTest extends TestCase
         Livewire::test('profile')
             ->set('aiKeyInput.groq', 'gsk_wrong')
             ->call('saveAiKey', 'groq')
-            ->assertHasErrors('aiKeyInput.groq')
-            ->assertSet('aiKeyStatus.groq', 'rejected');
+            ->assertHasErrors('aiKeyInput.groq');
 
         $this->assertNull($me->fresh()->groq_api_key);
     }
 
-    public function test_a_key_that_cannot_be_checked_right_now_is_still_saved(): void
+    public function test_a_key_that_cannot_be_checked_right_now_is_not_saved(): void
     {
         Http::preventStrayRequests();
         Http::fake(['api.groq.com/openai/v1/models' => Http::response('Bad gateway', 502)]);
@@ -157,22 +156,125 @@ class PersonalAiKeyTest extends TestCase
         Livewire::test('profile')
             ->set('aiKeyInput.groq', 'gsk_maybe')
             ->call('saveAiKey', 'groq')
-            ->assertHasNoErrors()
-            ->assertSet('aiKeyStatus.groq', 'unknown');
+            ->assertHasErrors('aiKeyInput.groq');
 
-        $this->assertSame('gsk_maybe', $me->fresh()->groq_api_key);
+        $this->assertNull($me->fresh()->groq_api_key);
     }
 
-    public function test_removing_a_key_clears_it(): void
+    public function test_a_learner_cannot_remove_a_saved_key(): void
     {
         $me = User::factory()->create();
         $me->forceFill(['gemini_api_key' => 'AIzaOld9999'])->save();
         $this->actingAs($me);
 
         Livewire::test('profile')
+            ->assertDontSee('Remove your Gemini key?')
+            ->call('removeAiKey', 'gemini')
+            ->assertForbidden();
+
+        $this->assertSame('AIzaOld9999', $me->fresh()->gemini_api_key);
+    }
+
+    public function test_an_admin_can_remove_a_saved_key(): void
+    {
+        $admin = User::factory()->create();
+        $admin->forceFill(['is_admin' => true, 'gemini_api_key' => 'AIzaOld9999'])->save();
+        $this->actingAs($admin);
+
+        Livewire::test('profile')
             ->call('removeAiKey', 'gemini')
             ->assertDontSee('•••• 9999');
 
-        $this->assertNull($me->fresh()->gemini_api_key);
+        $this->assertNull($admin->fresh()->gemini_api_key);
+    }
+
+    public function test_a_working_key_replaces_the_saved_one(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->geminiReply('Hi'))]);
+        $me = User::factory()->create();
+        $me->forceFill(['gemini_api_key' => 'AIzaOld9999'])->save();
+        $this->actingAs($me);
+
+        Livewire::test('profile')
+            ->set('aiKeyInput.gemini', 'AIzaNew1111')
+            ->call('saveAiKey', 'gemini')
+            ->assertHasNoErrors()
+            ->assertSee('•••• 1111');
+
+        $this->assertSame('AIzaNew1111', $me->fresh()->gemini_api_key);
+    }
+
+    /**
+     * @return array<string, array{int}>
+     */
+    public static function keysThatFailToReplace(): array
+    {
+        return [
+            'rejected by Google' => [400],
+            'cannot be checked now' => [503],
+        ];
+    }
+
+    #[DataProvider('keysThatFailToReplace')]
+    public function test_a_replacement_that_fails_keeps_the_saved_key(int $status): void
+    {
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response(['error' => ['message' => 'No.']], $status)]);
+        $me = User::factory()->create();
+        $me->forceFill(['gemini_api_key' => 'AIzaOld9999'])->save();
+        $this->actingAs($me);
+
+        Livewire::test('profile')
+            ->set('aiKeyInput.gemini', 'AIzaBad0000')
+            ->call('saveAiKey', 'gemini')
+            ->assertHasErrors('aiKeyInput.gemini');
+
+        $this->assertSame('AIzaOld9999', $me->fresh()->gemini_api_key);
+    }
+
+    public function test_a_gemini_key_with_every_model_busy_is_not_called_working(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response(['error' => ['message' => 'Quota.']], 429)]);
+
+        $this->assertNull(GeminiClient::keyWorks('AIzaBusy'));
+    }
+
+    public function test_a_gemini_key_works_when_a_later_model_answers(): void
+    {
+        config(['services.gemini.chat_models' => ['model-a', 'model-b']]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models/model-a:generateContent' => Http::response(['error' => ['message' => 'Gone.']], 404),
+            'generativelanguage.googleapis.com/v1beta/models/model-b:generateContent' => Http::response($this->geminiReply('Hi')),
+        ]);
+
+        $this->assertTrue(GeminiClient::keyWorks('AIzaGood'));
+    }
+
+    /**
+     * @return array<string, array{int, ?bool}>
+     */
+    public static function groqChatCheckOutcomes(): array
+    {
+        return [
+            'answers' => [200, true],
+            'blocked account' => [403, false],
+            'out of quota' => [429, null],
+        ];
+    }
+
+    #[DataProvider('groqChatCheckOutcomes')]
+    public function test_a_groq_key_that_lists_models_must_also_answer_a_real_request(int $status, ?bool $expected): void
+    {
+        config(['services.groq.judge_models' => ['chat-model']]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'api.groq.com/openai/v1/models' => Http::response(['data' => []]),
+            'api.groq.com/openai/v1/chat/completions' => Http::response(['choices' => []], $status),
+        ]);
+
+        $this->assertSame($expected, GroqClient::keyWorks('gsk_key'));
     }
 }

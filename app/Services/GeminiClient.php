@@ -212,29 +212,40 @@ class GeminiClient
     }
 
     /**
-     * Whether Google accepts this key: true when it can list models,
-     * false when Google rejects the key itself (400/401/403), null when
-     * the check couldn't tell (network, relay, 5xx). Costs no quota.
+     * Whether this key really answers: true after one tiny real request
+     * succeeds, false when Google rejects the key itself (400/401/403),
+     * null when the check couldn't tell (network, relay, every model
+     * tried busy or out of quota). Costs one request of the key's quota.
      */
     public static function keyWorks(string $key): ?bool
     {
         $client = new self(apiKey: $key);
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models?pageSize=1';
 
-        try {
-            $response = $client->withOutboundProxy(
-                Http::withHeaders(['x-goog-api-key' => $key])->timeout(10),
-                $url,
-            )->get($client->outboundUrl($url));
-        } catch (Throwable) {
-            return null;
+        foreach (array_slice($client->configuredChain(self::PROFILE_CHAT), 0, 3) as $entry) {
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$entry['model']}:generateContent";
+
+            try {
+                $response = $client->withOutboundProxy(
+                    Http::withHeaders(['x-goog-api-key' => $key])->timeout(8),
+                    $url,
+                )->post($client->outboundUrl($url), [
+                    'contents' => [['role' => 'user', 'parts' => [['text' => 'Hi']]]],
+                    'generationConfig' => ['maxOutputTokens' => 1],
+                ]);
+            } catch (Throwable) {
+                return null;
+            }
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            if (in_array($response->status(), [400, 401, 403], true)) {
+                return false;
+            }
         }
 
-        return match (true) {
-            $response->successful() => true,
-            in_array($response->status(), [400, 401, 403], true) => false,
-            default => null,
-        };
+        return null;
     }
 
     /**

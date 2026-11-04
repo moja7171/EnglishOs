@@ -44,7 +44,7 @@ class AuthTest extends TestCase
             ->set('email', 'ada@example.com')
             ->set('password', 'super-secret')
             ->call('register')
-            ->assertRedirect(route('onboarding'));
+            ->assertRedirect(route('ai-keys.setup'));
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'ada@example.com', 'name' => 'Ada Lovelace']);
@@ -57,7 +57,7 @@ class AuthTest extends TestCase
             ->set('email', 'ada@example.com')
             ->set('password', 'super-secret')
             ->call('register')
-            ->assertRedirect(route('onboarding'));
+            ->assertRedirect(route('ai-keys.setup'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'ada@example.com',

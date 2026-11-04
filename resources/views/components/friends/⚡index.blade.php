@@ -271,6 +271,7 @@ new class extends Component
     <div x-show="! adding" class="stagger-children space-y-4">
         <header class="flex items-center gap-2">
             <h1 class="flex-1 font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Friends</h1>
+            <x-share-app aria-label="Invite friends" class="{{ $iconButton }} bg-surface text-ink-soft shadow-sm hover:text-ink dark:bg-surface-dark dark:text-ink-soft-dark"><span x-show="! copied">@svg('heroicon-o-share', 'h-5 w-5')</span><span x-show="copied" x-cloak>@svg('heroicon-o-check', 'h-5 w-5')</span></x-share-app>
             <a href="{{ route('friends.board') }}" wire:navigate aria-label="Friends Board" class="{{ $iconButton }} bg-surface text-ink-soft shadow-sm hover:text-ink dark:bg-surface-dark dark:text-ink-soft-dark">@svg('heroicon-o-trophy', 'h-5 w-5')</a>
             <button type="button" x-on:click="adding = true; $nextTick(() => $refs.search.focus())" aria-label="Add friends" class="{{ $iconButton }} bg-accent text-white hover:opacity-90 dark:bg-accent-dark">@svg('heroicon-o-plus', 'h-5 w-5')</button>
         </header>

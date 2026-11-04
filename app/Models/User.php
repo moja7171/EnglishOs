@@ -30,6 +30,9 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasPushSubscriptions, Notifiable;
 
+    /** The provider of each personal AI key, and the column that holds it. */
+    public const AI_KEY_COLUMNS = ['gemini' => 'gemini_api_key', 'groq' => 'groq_api_key'];
+
     /**
      * Explicit, not left to the migration's DB column default — Eloquent
      * doesn't re-fetch a Postgres row's own defaults after insert(), so a
@@ -41,6 +44,7 @@ class User extends Authenticatable
     protected $attributes = [
         'celebrated_streak_milestone' => 0,
         'is_admin' => false,
+        'ai_keys_required' => false,
         'review_reminder_enabled' => true,
     ];
 
@@ -58,6 +62,7 @@ class User extends Authenticatable
             'friend_alerts' => 'boolean',
             'game_voice_feedback' => 'boolean',
             'is_admin' => 'boolean',
+            'ai_keys_required' => 'boolean',
             'program_started_at' => 'datetime',
             'pi_onboarded_at' => 'datetime',
             'review_reminder_enabled' => 'boolean',
@@ -73,6 +78,31 @@ class User extends Authenticatable
             'ai_daily_limit' => 'integer',
             'read_guides' => 'array',
         ];
+    }
+
+    /**
+     * The learner's own key for this provider. A key that no longer
+     * decrypts (APP_KEY rotated) counts as none.
+     */
+    public function savedAiKey(string $provider): ?string
+    {
+        $key = rescue(fn () => $this->{self::AI_KEY_COLUMNS[$provider]}, report: false);
+
+        return filled($key) ? $key : null;
+    }
+
+    /**
+     * A learner who signed up after keys became required stays on the
+     * keys page until both are saved. Earlier accounts and admins never do.
+     */
+    public function mustAddAiKeys(): bool
+    {
+        if (! $this->ai_keys_required || $this->is_admin) {
+            return false;
+        }
+
+        return collect(array_keys(self::AI_KEY_COLUMNS))
+            ->contains(fn (string $provider) => $this->savedAiKey($provider) === null);
     }
 
     /** Has this learner confirmed this usage guide with «خواندم»? */
