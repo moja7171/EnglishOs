@@ -1955,6 +1955,11 @@ class User extends Authenticatable
         Cache::put('in-app:'.$this->id, true, self::IN_APP_SECONDS);
     }
 
+    public function markLeftApp(): void
+    {
+        Cache::forget('in-app:'.$this->id);
+    }
+
     /**
      * The app is open on screen — an alert shows as a banner there (see
      * <livewire:notifications.bell>) instead of buzzing the phone too.

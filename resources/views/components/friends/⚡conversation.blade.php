@@ -6,6 +6,7 @@ use App\Models\FriendReport;
 use App\Models\User;
 use App\Notifications\DirectMessageReceived;
 use App\Services\AppShell;
+use App\Services\ChatAlerts;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\PairPractice;
@@ -165,35 +166,11 @@ new class extends Component
     }
 
     /**
-     * Shared by every send*() method below — a friend only ever needs to
-     * hear about a burst of messages once. While an unread notification
-     * from this sender already exists, the new message just bumps it to the
-     * top of the bell instead of stacking another row; it's marked read the
-     * moment the recipient opens (or is sitting in) the conversation, which
-     * starts a fresh notification for whatever comes next. Nudges keep
-     * their own notification since they read and look different.
+     * Shared by every send*() method below.
      */
     private function notifyRecipient(DirectMessage $message): void
     {
-        if ($this->other->hasMuted(auth()->user())) {
-            return;
-        }
-
-        $kind = $message->type === DirectMessage::TYPE_NUDGE ? DirectMessage::TYPE_NUDGE : DirectMessage::TYPE_MESSAGE;
-
-        $existing = $this->other->unreadNotifications()
-            ->where('type', DirectMessageReceived::class)
-            ->where('data->sender_id', auth()->id())
-            ->where('data->kind', $kind)
-            ->first();
-
-        if ($existing) {
-            $existing->forceFill(['created_at' => now()])->save();
-
-            return;
-        }
-
-        $this->other->notify(new DirectMessageReceived($message));
+        app(ChatAlerts::class)->deliver($message, $this->other);
     }
 
     /**

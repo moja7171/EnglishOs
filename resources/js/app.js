@@ -1215,7 +1215,6 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
  */
 (() => {
     const redrawAfterAway = 60000;
-    const checkAfterAway = 5000;
     const longestBellWait = 1500;
 
     /** Their requests only keep the page current, so they aren't a change. */
@@ -1264,6 +1263,21 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
 
     const isOutOfDate = (left) => !left || left.version !== dataVersion || Date.now() - left.at >= redrawAfterAway;
 
+    /**
+     * The server stops counting the learner as in the app the moment it goes
+     * to the background, so a message arriving now buzzes the phone.
+     */
+    const reportLeftApp = () => {
+        const url = document.body.dataset.leftAppUrl;
+
+        if (!url) return;
+
+        const form = new FormData();
+
+        form.append('_token', document.querySelector('meta[name=csrf-token]')?.content ?? '');
+        navigator.sendBeacon(url, form);
+    };
+
     const stopCheckingCopy = () => {
         clearTimeout(copyToCheck?.timer);
         copyToCheck = null;
@@ -1290,6 +1304,13 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
 
     document.addEventListener('livewire:init', () => {
         Livewire.interceptAction(({ action }) => {
+            // A hidden app isn't in the app: the bell's check would say it is.
+            if (document.hidden && action.metadata.type === 'poll' && action.component.name === 'notifications.bell') {
+                action.cancel();
+
+                return;
+            }
+
             const isBackground = action.metadata.type === 'poll' || action.name === '$refresh' || backgroundComponents.includes(action.component.name);
 
             if (!isBackground) dataVersion++;
@@ -1363,15 +1384,16 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             hiddenAt = Date.now();
+            reportLeftApp();
 
             return;
         }
 
-        const away = hiddenAt === null ? 0 : Date.now() - hiddenAt;
+        if (hiddenAt === null) return;
+
+        const away = Date.now() - hiddenAt;
 
         hiddenAt = null;
-
-        if (away < checkAfterAway) return;
 
         if (away >= redrawAfterAway && document.body.hasAttribute('data-refresh-on-return') && !isMidTask() && !overlayIsOpen() && !hasTypedSomething()) {
             refreshPage();
