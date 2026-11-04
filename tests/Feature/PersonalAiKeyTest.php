@@ -233,40 +233,63 @@ class PersonalAiKeyTest extends TestCase
         $this->assertSame('AIzaOld9999', $me->fresh()->gemini_api_key);
     }
 
-    public function test_a_gemini_key_with_every_model_busy_is_not_called_working(): void
+    /**
+     * @return array<string, array{int}>
+     */
+    public static function busyModelStatuses(): array
     {
-        Http::preventStrayRequests();
-        Http::fake(['generativelanguage.googleapis.com/*' => Http::response(['error' => ['message' => 'Quota.']], 429)]);
-
-        $this->assertNull(GeminiClient::keyWorks('AIzaBusy'));
+        return [
+            'high demand' => [503],
+            'out of quota' => [429],
+        ];
     }
 
-    public function test_a_gemini_key_works_when_a_later_model_answers(): void
+    #[DataProvider('busyModelStatuses')]
+    public function test_a_gemini_key_is_good_when_google_knows_it_but_the_models_are_busy(int $status): void
     {
-        config(['services.gemini.chat_models' => ['model-a', 'model-b']]);
         Http::preventStrayRequests();
         Http::fake([
-            'generativelanguage.googleapis.com/v1beta/models/model-a:generateContent' => Http::response(['error' => ['message' => 'Gone.']], 404),
-            'generativelanguage.googleapis.com/v1beta/models/model-b:generateContent' => Http::response($this->geminiReply('Hi')),
+            'generativelanguage.googleapis.com/v1beta/models?pageSize=1' => Http::response(['models' => []]),
+            'generativelanguage.googleapis.com/*' => Http::response(['error' => ['message' => 'Busy.']], $status),
         ]);
 
         $this->assertTrue(GeminiClient::keyWorks('AIzaGood'));
     }
 
+    public function test_a_gemini_key_that_may_not_generate_is_rejected(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models?pageSize=1' => Http::response(['models' => []]),
+            'generativelanguage.googleapis.com/*' => Http::response(['error' => ['message' => 'Denied.']], 403),
+        ]);
+
+        $this->assertFalse(GeminiClient::keyWorks('AIzaBlocked'));
+    }
+
+    public function test_a_gemini_key_that_cannot_reach_google_at_all_stays_unknown(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response('Bad gateway', 502)]);
+
+        $this->assertNull(GeminiClient::keyWorks('AIzaUnknown'));
+    }
+
     /**
-     * @return array<string, array{int, ?bool}>
+     * @return array<string, array{int, bool}>
      */
     public static function groqChatCheckOutcomes(): array
     {
         return [
             'answers' => [200, true],
             'blocked account' => [403, false],
-            'out of quota' => [429, null],
+            'out of quota' => [429, true],
+            'busy' => [503, true],
         ];
     }
 
     #[DataProvider('groqChatCheckOutcomes')]
-    public function test_a_groq_key_that_lists_models_must_also_answer_a_real_request(int $status, ?bool $expected): void
+    public function test_a_groq_key_the_list_knows_is_judged_by_a_real_request(int $status, bool $expected): void
     {
         config(['services.groq.judge_models' => ['chat-model']]);
         Http::preventStrayRequests();

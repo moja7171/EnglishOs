@@ -423,11 +423,11 @@ class GroqClient
     }
 
     /**
-     * Whether this key really answers: true when it lists models and one
-     * tiny real chat request succeeds (the list alone when the chat
-     * fallback is turned off), false when Groq rejects the key itself,
-     * null when the check couldn't tell (network, relay, every model tried
-     * busy or out of quota). Costs one request of the key's quota.
+     * Whether this key is good: listing models proves Groq knows it, and
+     * one tiny real request catches a blocked account. false when Groq
+     * rejects the key itself, null when the list could not be reached at
+     * all. A model that is busy or out of quota says nothing against the
+     * key. Costs up to two requests.
      */
     public static function keyWorks(string $key): ?bool
     {
@@ -435,7 +435,7 @@ class GroqClient
         $url = 'https://api.groq.com/openai/v1/models';
 
         try {
-            $response = $client->withOutboundProxy(Http::withToken($key)->timeout(8), $url)
+            $response = $client->withOutboundProxy(Http::withToken($key)->timeout(10), $url)
                 ->get($client->outboundUrl($url));
         } catch (Throwable) {
             return null;
@@ -449,27 +449,21 @@ class GroqClient
             return null;
         }
 
-        $chain = array_slice($client->judgeChain(), 0, 2);
-
-        if ($chain === []) {
-            return true;
-        }
-
         $url = 'https://api.groq.com/openai/v1/chat/completions';
 
-        foreach ($chain as $entry) {
+        foreach (array_slice($client->judgeChain(), 0, 2) as $entry) {
             try {
-                $response = $client->withOutboundProxy(Http::withToken($key)->timeout(8), $url)
+                $response = $client->withOutboundProxy(Http::withToken($key)->timeout(6), $url)
                     ->post($client->outboundUrl($url), [
                         'model' => $entry['model'],
                         'messages' => [['role' => 'user', 'content' => 'Hi']],
                         'max_completion_tokens' => 20,
                     ]);
             } catch (Throwable) {
-                return null;
+                continue;
             }
 
-            if ($response->successful()) {
+            if ($response->successful() || $response->status() === 429) {
                 return true;
             }
 
@@ -478,7 +472,7 @@ class GroqClient
             }
         }
 
-        return null;
+        return true;
     }
 
     /**

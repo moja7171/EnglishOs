@@ -212,31 +212,51 @@ class GeminiClient
     }
 
     /**
-     * Whether this key really answers: true after one tiny real request
-     * succeeds, false when Google rejects the key itself (400/401/403),
-     * null when the check couldn't tell (network, relay, every model
-     * tried busy or out of quota). Costs one request of the key's quota.
+     * Whether this key is good: listing models proves Google knows it, and
+     * one tiny real request catches a key that may not generate. false when
+     * Google rejects the key itself (400/401/403), null when the list could
+     * not be reached at all. A model that is busy or out of quota says
+     * nothing against the key (Google answers 503 under high demand), so
+     * the learner is not held back by it. Costs up to two requests.
      */
     public static function keyWorks(string $key): ?bool
     {
         $client = new self(apiKey: $key);
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models?pageSize=1';
 
-        foreach (array_slice($client->configuredChain(self::PROFILE_CHAT), 0, 3) as $entry) {
+        try {
+            $response = $client->withOutboundProxy(
+                Http::withHeaders(['x-goog-api-key' => $key])->timeout(10),
+                $url,
+            )->get($client->outboundUrl($url));
+        } catch (Throwable) {
+            return null;
+        }
+
+        if (in_array($response->status(), [400, 401, 403], true)) {
+            return false;
+        }
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        foreach (array_slice($client->configuredChain(self::PROFILE_CHAT), 0, 2) as $entry) {
             $url = "https://generativelanguage.googleapis.com/v1beta/models/{$entry['model']}:generateContent";
 
             try {
                 $response = $client->withOutboundProxy(
-                    Http::withHeaders(['x-goog-api-key' => $key])->timeout(8),
+                    Http::withHeaders(['x-goog-api-key' => $key])->timeout(6),
                     $url,
                 )->post($client->outboundUrl($url), [
                     'contents' => [['role' => 'user', 'parts' => [['text' => 'Hi']]]],
                     'generationConfig' => ['maxOutputTokens' => 1],
                 ]);
             } catch (Throwable) {
-                return null;
+                continue;
             }
 
-            if ($response->successful()) {
+            if ($response->successful() || $response->status() === 429) {
                 return true;
             }
 
@@ -245,7 +265,7 @@ class GeminiClient
             }
         }
 
-        return null;
+        return true;
     }
 
     /**
