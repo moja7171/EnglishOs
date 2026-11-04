@@ -417,4 +417,11 @@ class ProfileTest extends TestCase
         $this->get(route('profile'))->assertOk()->assertSee('Invite friends')->assertSeeHtml($appLink);
         $this->get(route('friends.index'))->assertOk()->assertSee('Invite friends')->assertSeeHtml($appLink);
     }
+
+    public function test_the_ai_keys_row_shows_no_raw_blade_code(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('profile'))->assertOk()->assertSee('My AI keys')->assertDontSee('@svg(', false);
+    }
 }

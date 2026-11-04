@@ -19,9 +19,15 @@ new class extends Component
     {
         $this->saveAiKey($provider);
 
-        if (! auth()->user()->mustAddAiKeys()) {
-            $this->redirect(route('onboarding'), navigate: true);
+        $learner = auth()->user();
+
+        if ($learner->mustAddAiKeys()) {
+            return;
         }
+
+        $hasBegun = $learner->program_started_at !== null || $learner->latestPlacementTest() !== null;
+
+        $this->redirect(route($hasBegun ? 'home' : 'onboarding'), navigate: true);
     }
 };
 ?>

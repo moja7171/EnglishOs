@@ -92,8 +92,8 @@ class User extends Authenticatable
     }
 
     /**
-     * A learner who signed up after keys became required stays on the
-     * keys page until both are saved. Earlier accounts and admins never do.
+     * Every learner stays on the keys page until both keys are saved.
+     * Admins never do.
      */
     public function mustAddAiKeys(): bool
     {
