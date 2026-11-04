@@ -408,4 +408,13 @@ class ProfileTest extends TestCase
 
         $this->assertFalse($learner->fresh()->friend_alerts);
     }
+
+    public function test_profile_and_friends_offer_the_apps_link_to_share(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $appLink = str_replace('/', '\\/', route('welcome'));
+
+        $this->get(route('profile'))->assertOk()->assertSee('Invite friends')->assertSeeHtml($appLink);
+        $this->get(route('friends.index'))->assertOk()->assertSee('Invite friends')->assertSeeHtml($appLink);
+    }
 }

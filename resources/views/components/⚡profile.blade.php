@@ -431,6 +431,7 @@ new class extends Component
 
         <p class="{{ $groupTitle }}">Friends</p>
         <div class="{{ $group }}">
+            <x-share-app class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-share', 'h-4 w-4')</span><span class="flex-1">Invite friends</span><span x-show="copied" x-cloak class="{{ $hint }}">Copied</span></x-share-app>
             <div class="{{ $row }} cursor-default">
                 <span class="{{ $rowIcon }}">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</span>
                 <span class="flex-1">Show me in search</span>
