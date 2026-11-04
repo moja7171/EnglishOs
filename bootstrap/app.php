@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAiKeysSaved;
 use App\Http\Middleware\EnsureSessionNotExpired;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\MarkNotificationRead;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'session.absolute_timeout' => EnsureSessionNotExpired::class,
             'admin' => EnsureUserIsAdmin::class,
+            'ai_keys.saved' => EnsureAiKeysSaved::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

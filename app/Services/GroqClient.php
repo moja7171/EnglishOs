@@ -423,9 +423,11 @@ class GroqClient
     }
 
     /**
-     * Whether Groq accepts this key: true when it can list models, false
-     * when Groq rejects the key itself (401/403), null when the check
-     * couldn't tell (network, relay, 5xx). Costs no quota.
+     * Whether this key really answers: true when it lists models and one
+     * tiny real chat request succeeds (the list alone when the chat
+     * fallback is turned off), false when Groq rejects the key itself,
+     * null when the check couldn't tell (network, relay, every model tried
+     * busy or out of quota). Costs one request of the key's quota.
      */
     public static function keyWorks(string $key): ?bool
     {
@@ -433,17 +435,50 @@ class GroqClient
         $url = 'https://api.groq.com/openai/v1/models';
 
         try {
-            $response = $client->withOutboundProxy(Http::withToken($key)->timeout(10), $url)
+            $response = $client->withOutboundProxy(Http::withToken($key)->timeout(8), $url)
                 ->get($client->outboundUrl($url));
         } catch (Throwable) {
             return null;
         }
 
-        return match (true) {
-            $response->successful() => true,
-            in_array($response->status(), [400, 401, 403], true) => false,
-            default => null,
-        };
+        if (in_array($response->status(), [400, 401, 403], true)) {
+            return false;
+        }
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $chain = array_slice($client->judgeChain(), 0, 2);
+
+        if ($chain === []) {
+            return true;
+        }
+
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
+
+        foreach ($chain as $entry) {
+            try {
+                $response = $client->withOutboundProxy(Http::withToken($key)->timeout(8), $url)
+                    ->post($client->outboundUrl($url), [
+                        'model' => $entry['model'],
+                        'messages' => [['role' => 'user', 'content' => 'Hi']],
+                        'max_completion_tokens' => 20,
+                    ]);
+            } catch (Throwable) {
+                return null;
+            }
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            if (in_array($response->status(), [401, 403], true)) {
+                return false;
+            }
+        }
+
+        return null;
     }
 
     /**

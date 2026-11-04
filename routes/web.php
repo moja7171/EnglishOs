@@ -41,7 +41,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', fn () => view('auth.register'))->name('register');
 });
 
-Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
+Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
@@ -109,7 +109,13 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('pi-practice', compact('missionCode', 'day'));
     })->where(['missionCode' => 'M(0[1-9]|1[0-9]|2[0-4])', 'day' => '[1-4]'])->name('pi.practice');
 
-    // Right after sign-up: the three guide cards once, then the placement test.
+    // Right after sign-up: both AI keys before anything else (see
+    // EnsureAiKeysSaved). Nothing left to add = nothing to see here.
+    Route::get('/ai-keys', function () {
+        return auth()->user()->mustAddAiKeys() ? view('ai-keys-setup') : redirect()->route('home');
+    })->withoutMiddleware('ai_keys.saved')->name('ai-keys.setup');
+
+    // After the keys: the three guide cards once, then the placement test.
     Route::get('/onboarding', fn () => view('onboarding'))->name('onboarding');
 
     Route::get('/placement', function () {
@@ -297,5 +303,5 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         request()->session()->regenerateToken();
 
         return redirect('/login');
-    })->name('logout');
+    })->withoutMiddleware('ai_keys.saved')->name('logout');
 });

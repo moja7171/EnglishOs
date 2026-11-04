@@ -22,11 +22,12 @@ new class extends Component
 
         // Level comes from the placement test (A2+ until then); IELTS
         // target and gender live in Profile.
-        $user = User::create([
+        $user = User::forceCreate([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
             'cefr_level' => 'A2+',
+            'ai_keys_required' => true,
         ]);
 
         Auth::login($user);
@@ -36,8 +37,8 @@ new class extends Component
             request()->session()->put('auth_login_at', now()->timestamp);
         }
 
-        // The three guide cards, then the placement test, then Home.
-        $this->redirect(route('onboarding'), navigate: true);
+        // Both AI keys, the three guide cards, the placement test, then Home.
+        $this->redirect(route('ai-keys.setup'), navigate: true);
     }
 };
 ?>
