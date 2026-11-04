@@ -71,7 +71,21 @@ class User extends Authenticatable
             'groq_api_key' => 'encrypted',
             'last_seen_at' => 'datetime',
             'ai_daily_limit' => 'integer',
+            'read_guides' => 'array',
         ];
+    }
+
+    /** Has this learner confirmed this usage guide with «خواندم»? */
+    public function hasReadGuide(string $guide): bool
+    {
+        return in_array($guide, $this->read_guides ?? [], true);
+    }
+
+    public function markGuideRead(string $guide): void
+    {
+        if (! $this->hasReadGuide($guide)) {
+            $this->forceFill(['read_guides' => [...($this->read_guides ?? []), $guide]])->save();
+        }
     }
 
     /**

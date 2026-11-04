@@ -191,7 +191,9 @@ new class extends Component
         </section>
     @else
         <div x-data="{ recorded: false }">
-            <x-lesson-header :close="route('home')" :progress="0.4" />
+            <x-lesson-header :close="route('home')" :progress="0.4">
+                <x-usage-guide-button />
+            </x-lesson-header>
 
             <section class="flex min-h-[calc(100dvh-10rem)] flex-col gap-4 pt-6">
                 <span class="self-start rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Your voice, {{ $missionsIn }} missions in · ~60s</span>

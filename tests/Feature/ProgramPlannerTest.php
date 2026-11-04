@@ -252,7 +252,7 @@ class ProgramPlannerTest extends TestCase
         // Mission Brief 5 + Vocabulary Builder 15 + Pi 10.
         Livewire::test('missions.overview')
             ->assertSee('~30 min')
-            ->assertDontSee('left');
+            ->assertDontSee('min left');
 
         $this->record($run, 'mission_brief');
 

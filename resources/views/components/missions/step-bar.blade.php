@@ -1,8 +1,8 @@
 {{--
     The header of a mission step, pinned to the top while the step scrolls,
     in the shape of a lesson in a learning app: <x-lesson-header> (✕ back
-    to the day overview, a progress bar, and the ask-instructor icon when
-    given). Under them one
+    to the day overview, a progress bar, the step's ⓘ guide, and the
+    ask-instructor icon when given). Under them one
     small line, "Day N · Step name · 4/5 ▾", opens the day's step list as a
     sheet (<x-menu-panel>), headed by the mission's code and title.
 
@@ -38,6 +38,7 @@
     data-step-header
 >
     <x-lesson-header :close="$backUrl" :progress="$doneShare / 100" progress-expr="stepShare">
+        <x-usage-guide-button />
         @if ($askInstructor)
             <button
                 type="button"

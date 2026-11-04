@@ -13,7 +13,11 @@
      gets the accent border. --}}
 <x-layouts.app>
     <div class="mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6">
-        <h1 class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">Review</h1>
+        <div class="flex items-center justify-between gap-2">
+            <h1 class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">Review</h1>
+            <x-usage-guide-button />
+        </div>
+        <livewire:usage-guide guide="review" />
 
         <div class="grid gap-3">
             @foreach ($tracks as $track => $card)

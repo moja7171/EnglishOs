@@ -701,12 +701,12 @@ class PairGameTest extends TestCase
 
         $this->actingAs(User::factory()->create());
         $this->get(route('games.setup', PairGame::GAME_WHO))
-            ->assertSee('چطور بازی کنیم؟')
+            ->assertSeeHtml('aria-label="How to play"')
             ->assertSee(PairGame::guide(PairGame::GAME_WHO)[0]);
 
         $pairGame = $this->playingGame();
         $this->actingAs($pairGame->startedBy);
-        Livewire::test('games.play', ['pairGame' => $pairGame])
+        $this->get(route('games.play', $pairGame))
             ->assertSeeHtml('aria-label="How to play"')
             ->assertSee(PairGame::guide(PairGame::GAME_TABOO)[0]);
     }

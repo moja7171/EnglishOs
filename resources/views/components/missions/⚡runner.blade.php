@@ -6,6 +6,7 @@ use App\Models\PreviewMissionRun;
 use App\Services\ListeningPicks;
 use App\Services\PexelsClient;
 use App\Services\ProgramPlanner;
+use App\Services\UsageGuides;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -498,6 +499,9 @@ new class extends Component
             back-label="Missions"
             :done-label="$this->isFinished ? 'Done' : null"
         >
+            <x-slot:actions>
+                <x-usage-guide-button on-photo />
+            </x-slot:actions>
             @if ($videoUrl = $this->heroVideoUrl())
                 <x-slot:media>
                     <x-ambient-video :url="$videoUrl" />
@@ -508,6 +512,11 @@ new class extends Component
     @endunless
 
     @if ($this->showOverview)
+        {{-- On Home the mission's guide belongs to the overview around this. --}}
+        @unless ($embedded)
+            <livewire:usage-guide guide="mission" />
+        @endunless
+
         @if ($this->missionLocked)
             <x-missions.locked-notice :gating-mission="$this->gatingMission" />
         @endif
@@ -736,6 +745,8 @@ new class extends Component
                 class="block w-full cursor-pointer rounded-2xl bg-ink py-3.5 text-center text-base font-bold text-ground transition-opacity hover:opacity-90 dark:bg-ink-dark dark:text-ground-dark"
             >{{ $this->nextStepKey ? 'Next step' : 'Back to all days' }}</a>
         @endif
+
+        @livewire('usage-guide', ['guide' => UsageGuides::keyForStep($this->activeStepKey), 'auto' => ! $this->isReviewing && ! $this->isPreviewing], key('usage-guide-'.$this->activeStepKey))
 
         @unless ($this->isPreviewing)
             <div>

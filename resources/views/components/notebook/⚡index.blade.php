@@ -380,9 +380,12 @@ new class extends Component
 >
     <div class="flex items-center justify-between">
         <h1 class="font-display text-3xl font-semibold text-ink dark:text-ink-dark">Notebook</h1>
-        @if ($this->entries->isNotEmpty() || $this->words->isNotEmpty())
-            <button type="button" x-on:click="edit = ! edit" x-text="edit ? 'Done' : 'Edit'" class="cursor-pointer px-1 py-1.5 text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Edit</button>
-        @endif
+        <div class="flex items-center gap-1">
+            @if ($this->entries->isNotEmpty() || $this->words->isNotEmpty())
+                <button type="button" x-on:click="edit = ! edit" x-text="edit ? 'Done' : 'Edit'" class="cursor-pointer px-1 py-1.5 text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Edit</button>
+            @endif
+            <x-usage-guide-button />
+        </div>
     </div>
 
     {{-- The practice card (or, after a round, today's score) for the open tab. --}}
