@@ -666,6 +666,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\AiLimitReached' => __DIR__ . '/../..' . '/app/Services/AiLimitReached.php',
         'App\\Services\\AiModelChain' => __DIR__ . '/../..' . '/app/Services/AiModelChain.php',
         'App\\Services\\AiUsage' => __DIR__ . '/../..' . '/app/Services/AiUsage.php',
+        'App\\Services\\AppShell' => __DIR__ . '/../..' . '/app/Services/AppShell.php',
         'App\\Services\\Concerns\\UsesOutboundProxy' => __DIR__ . '/../..' . '/app/Services/Concerns/UsesOutboundProxy.php',
         'App\\Services\\DayFinishedAlerts' => __DIR__ . '/../..' . '/app/Services/DayFinishedAlerts.php',
         'App\\Services\\FeedbackNotebook' => __DIR__ . '/../..' . '/app/Services/FeedbackNotebook.php',

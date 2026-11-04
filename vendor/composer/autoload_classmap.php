@@ -124,6 +124,7 @@ return array(
     'App\\Services\\AiLimitReached' => $baseDir . '/app/Services/AiLimitReached.php',
     'App\\Services\\AiModelChain' => $baseDir . '/app/Services/AiModelChain.php',
     'App\\Services\\AiUsage' => $baseDir . '/app/Services/AiUsage.php',
+    'App\\Services\\AppShell' => $baseDir . '/app/Services/AppShell.php',
     'App\\Services\\Concerns\\UsesOutboundProxy' => $baseDir . '/app/Services/Concerns/UsesOutboundProxy.php',
     'App\\Services\\DayFinishedAlerts' => $baseDir . '/app/Services/DayFinishedAlerts.php',
     'App\\Services\\FeedbackNotebook' => $baseDir . '/app/Services/FeedbackNotebook.php',
