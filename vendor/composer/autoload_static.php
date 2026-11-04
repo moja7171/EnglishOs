@@ -703,6 +703,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\StreakRing' => __DIR__ . '/../..' . '/app/Services/StreakRing.php',
         'App\\Services\\TabooDeck' => __DIR__ . '/../..' . '/app/Services/TabooDeck.php',
         'App\\Services\\TwoTruthsDeck' => __DIR__ . '/../..' . '/app/Services/TwoTruthsDeck.php',
+        'App\\Services\\UsageGuides' => __DIR__ . '/../..' . '/app/Services/UsageGuides.php',
         'App\\Services\\WebVttParser' => __DIR__ . '/../..' . '/app/Services/WebVttParser.php',
         'App\\Services\\WhoAmIDeck' => __DIR__ . '/../..' . '/app/Services/WhoAmIDeck.php',
         'App\\Services\\WiktionaryClient' => __DIR__ . '/../..' . '/app/Services/WiktionaryClient.php',
