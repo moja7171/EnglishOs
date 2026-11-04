@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\GeminiClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -109,7 +110,7 @@ class RequiredAiKeysTest extends TestCase
         $this->fakeWorkingProviders();
         $this->actingAs($this->learnerOwingKeys());
 
-        $this->get(route('ai-keys.setup'))->assertOk()->assertSee('aistudio.google.com/apikey');
+        $this->get(route('ai-keys.setup'))->assertOk()->assertSee(GeminiClient::KEY_PAGE_URL, false);
 
         Livewire::test('ai-keys-setup')
             ->set('aiKeyInput.gemini', 'AIzaNewKey')
@@ -161,7 +162,7 @@ class RequiredAiKeysTest extends TestCase
             ->call('saveKey', 'gemini')
             ->assertHasErrors('aiKeyInput.gemini')
             ->assertNoRedirect()
-            ->assertSee('aistudio.google.com/apikey');
+            ->assertSee(GeminiClient::KEY_PAGE_URL, false);
 
         $this->assertNull($learner->fresh()->gemini_api_key);
     }

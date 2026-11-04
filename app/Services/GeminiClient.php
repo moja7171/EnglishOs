@@ -25,6 +25,12 @@ class GeminiClient
 
     private const PROVIDER = 'gemini';
 
+    /**
+     * Google's own sign-in, then the API keys page. The keys page alone can
+     * land a signed-out visitor on Google's docs instead.
+     */
+    public const KEY_PAGE_URL = 'https://accounts.google.com/ServiceLogin?continue=https://aistudio.google.com/apikey';
+
     private readonly string $apiKey;
 
     /**

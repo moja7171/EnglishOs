@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Concerns\SavesAiKeys;
+use App\Services\GeminiClient;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -37,7 +38,7 @@ new class extends Component
         'gemini' => [
             'number' => '۱',
             'name' => 'Gemini',
-            'url' => 'https://aistudio.google.com/apikey',
+            'url' => GeminiClient::KEY_PAGE_URL,
             'steps' => [
                 'VPN رو روشن کن.',
                 'دکمه‌ی پایین رو بزن و با حساب گوگلت وارد شو.',
@@ -65,7 +66,7 @@ new class extends Component
     <header class="space-y-1">
         <p class="text-sm font-bold text-accent dark:text-accent-dark">کلید {{ $guide['number'] }} از ۲</p>
         <h1 class="text-2xl font-extrabold text-ink dark:text-ink-dark">ساخت کلید <span dir="ltr">{{ $guide['name'] }}</span></h1>
-        <p class="text-sm leading-6 text-ink-soft dark:text-ink-soft-dark">برای شروع، دو کلید رایگان لازم داری.</p>
+        <p class="text-sm leading-6 text-ink-soft dark:text-ink-soft-dark">برای استفاده از قابلیت‌های هوش مصنوعی اپ، باید این دو کلید رایگان رو بسازی.</p>
     </header>
 
     <div class="flex gap-2.5 rounded-2xl bg-surface-sunken px-3.5 py-3 text-sm leading-6 text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">
