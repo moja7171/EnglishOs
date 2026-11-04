@@ -858,56 +858,26 @@ new class extends Component
         </div>
     @endif
 
-    {{-- Avatar --}}
+    {{-- Avatar: two steps, one job each. Choose (upload, or a style and
+         color that save on tap), then adjust the picked photo. --}}
     <x-bottom-sheet show="avatarSheet" label="Your avatar">
-        <div class="space-y-4">
-        <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">Your avatar</p>
-
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Style</p>
-            <div class="mt-2 flex flex-wrap gap-2">
-                @foreach (User::avatarStyleOptions() as $key => $label)
-                    @php $selected = ! auth()->user()->avatar_path && auth()->user()->avatar_style === $key; @endphp
-                    <button
-                        type="button"
-                        wire:click="selectAvatarStyle('{{ $key }}')"
-                        title="{{ $label }}"
-                        class="rounded-full p-0.5 transition-colors {{ $selected ? 'ring-2 ring-accent dark:ring-accent-dark' : 'ring-2 ring-transparent' }}"
-                    >
-                        @if ($key === 'initial')
-                            <x-avatar-initial :name="auth()->user()->name" :color="auth()->user()->avatar_color" class="h-9 w-9 cursor-pointer text-xs" />
-                        @else
-                            <x-illustrated-avatar :style="$key" :color="auth()->user()->avatar_color" class="h-9 w-9 cursor-pointer" />
-                        @endif
-                    </button>
-                @endforeach
-            </div>
-        </div>
-
-        <div>
-            <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Colors</p>
-            <div class="mt-2 flex flex-wrap gap-2">
-                @foreach (User::avatarColorPalette() as $key => $classes)
-                    @php $selected = ! auth()->user()->avatar_path && auth()->user()->avatar_color === $key; @endphp
-                    <button
-                        type="button"
-                        wire:click="selectColor('{{ $key }}')"
-                        title="{{ ucfirst($key) }}"
-                        class="rounded-full p-0.5 transition-colors {{ $selected ? 'ring-2 ring-accent dark:ring-accent-dark' : 'ring-2 ring-transparent' }}"
-                    >
-                        <x-avatar-initial :name="auth()->user()->name" :color="$key" class="h-9 w-9 text-xs cursor-pointer" />
-                    </button>
-                @endforeach
-            </div>
-        </div>
-
         <div
+            class="space-y-4"
             x-data="{
                 cropping: false,
                 objectUrl: null,
                 zoom: 0,
                 saving: false,
                 cropper: null,
+                uploadFailed: false,
+
+                init() {
+                    this.$watch('avatarSheet', (open) => {
+                        if (! open) {
+                            this.cancelCrop();
+                        }
+                    });
+                },
 
                 pickFile(event) {
                     const file = event.target.files[0];
@@ -915,6 +885,7 @@ new class extends Component
                     if (! file) return;
 
                     this.objectUrl = URL.createObjectURL(file);
+                    this.uploadFailed = false;
                     this.zoom = 0;
                     this.cropping = true;
                     this.$nextTick(() => {
@@ -938,6 +909,7 @@ new class extends Component
                 async saveCrop() {
                     if (! this.cropper || this.saving) return;
                     this.saving = true;
+                    this.uploadFailed = false;
 
                     try {
                         const blob = await this.cropper.crop(512);
@@ -945,38 +917,98 @@ new class extends Component
                         this.$wire.upload(
                             'newAvatar',
                             file,
-                            () => this.$wire.call('saveAvatar').then(() => this.cancelCrop()),
-                            () => { this.saving = false; },
+                            () => this.$wire.call('saveAvatar').then(() => {
+                                this.cancelCrop();
+
+                                if (! this.$wire.$errors.has('newAvatar')) {
+                                    avatarSheet = false;
+                                }
+                            }),
+                            () => {
+                                this.saving = false;
+                                this.uploadFailed = true;
+                            },
                         );
                     } catch (e) {
                         this.saving = false;
+                        this.uploadFailed = true;
                     }
                 },
             }"
         >
-            <div x-show="! cropping" class="flex flex-wrap items-center gap-2">
-                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">
-                    @svg('heroicon-o-photo', 'h-3.5 w-3.5')
-                    <span>Use a photo</span>
-                    <input type="file" x-on:change="pickFile" accept="image/png,image/jpeg,image/webp" class="hidden">
-                </label>
+            <div x-show="! cropping" class="space-y-4">
+                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">Your avatar</p>
 
-                @if (auth()->user()->avatar_path)
-                    <button
-                        type="button"
-                        wire:click="removeAvatar"
-                        wire:loading.attr="disabled"
-                        wire:target="removeAvatar"
-                        wire:confirm="Remove your photo and go back to a color avatar?"
-                        class="cursor-pointer text-xs text-ink-faint underline decoration-dotted underline-offset-2 hover:text-danger-ink dark:text-ink-faint-dark disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        <span wire:loading.remove wire:target="removeAvatar">Remove photo</span>
-                        <span wire:loading wire:target="removeAvatar">Removing…</span>
-                    </button>
-                @endif
+                <div class="flex justify-center">
+                    <x-user-avatar :user="auth()->user()" class="h-20 w-20 text-2xl" />
+                </div>
+
+                <div class="space-y-2">
+                    <label class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent py-3 text-base font-extrabold text-white dark:bg-accent-dark">
+                        @svg('heroicon-o-photo', 'h-5 w-5')
+                        <span>{{ auth()->user()->avatar_path ? 'Change photo' : 'Upload photo' }}</span>
+                        <input type="file" x-on:change="pickFile" accept="image/png,image/jpeg,image/webp" class="hidden">
+                    </label>
+
+                    @error('newAvatar')
+                        <p class="text-center text-xs text-danger-ink">{{ $message }}</p>
+                    @enderror
+
+                    @if (auth()->user()->avatar_path)
+                        <button
+                            type="button"
+                            wire:click="removeAvatar"
+                            wire:loading.attr="disabled"
+                            wire:target="removeAvatar"
+                            wire:confirm="Remove your photo and go back to a color avatar?"
+                            class="block w-full cursor-pointer py-1 text-center text-sm font-bold text-ink-faint hover:text-danger-ink disabled:pointer-events-none disabled:opacity-50 dark:text-ink-faint-dark"
+                        >
+                            <span wire:loading.remove wire:target="removeAvatar">Remove photo</span>
+                            <span wire:loading wire:target="removeAvatar">Removing…</span>
+                        </button>
+                    @endif
+                </div>
+
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Or choose an avatar</p>
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach (User::avatarStyleOptions() as $key => $label)
+                        @php $selected = ! auth()->user()->avatar_path && auth()->user()->avatar_style === $key; @endphp
+                        <button
+                            type="button"
+                            wire:click="selectAvatarStyle('{{ $key }}')"
+                            title="{{ $label }}"
+                            class="rounded-full p-0.5 transition-colors {{ $selected ? 'ring-2 ring-accent dark:ring-accent-dark' : 'ring-2 ring-transparent' }}"
+                        >
+                            @if ($key === 'initial')
+                                <x-avatar-initial :name="auth()->user()->name" :color="auth()->user()->avatar_color" class="h-9 w-9 cursor-pointer text-xs" />
+                            @else
+                                <x-illustrated-avatar :style="$key" :color="auth()->user()->avatar_color" class="h-9 w-9 cursor-pointer" />
+                            @endif
+                        </button>
+                    @endforeach
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach (User::avatarColorPalette() as $key => $classes)
+                        @php $selected = ! auth()->user()->avatar_path && auth()->user()->avatar_color === $key; @endphp
+                        <button
+                            type="button"
+                            wire:click="selectColor('{{ $key }}')"
+                            title="{{ ucfirst($key) }}"
+                            class="rounded-full p-0.5 transition-colors {{ $selected ? 'ring-2 ring-accent dark:ring-accent-dark' : 'ring-2 ring-transparent' }}"
+                        >
+                            <x-avatar-initial :name="auth()->user()->name" :color="$key" class="h-9 w-9 cursor-pointer text-xs" />
+                        </button>
+                    @endforeach
+                </div>
+
+                <button type="button" x-on:click="avatarSheet = false" class="block w-full cursor-pointer py-2 text-center text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Done</button>
             </div>
 
-            <div x-show="cropping" x-cloak class="mt-2 space-y-2.5">
+            {{-- Dragging the photo must not pull the sheet shut. --}}
+            <div x-show="cropping" x-cloak data-no-swipe-close class="space-y-3">
+                <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">Adjust your photo</p>
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Drag and zoom.</p>
 
                 <div x-ref="cropViewport" class="relative mx-auto h-64 w-64 touch-none overflow-hidden rounded-2xl bg-surface-sunken select-none dark:bg-surface-sunken-dark">
@@ -990,31 +1022,26 @@ new class extends Component
                     @svg('heroicon-o-magnifying-glass-plus', 'h-3.5 w-3.5 shrink-0 text-ink-faint dark:text-ink-faint-dark')
                 </div>
 
-                <div class="flex items-center justify-center gap-2">
-                    <button
-                        type="button"
-                        x-on:click="cancelCrop"
-                        :disabled="saving"
-                        class="cursor-pointer rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:bg-surface-sunken disabled:pointer-events-none disabled:opacity-50 dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark"
-                    >Cancel</button>
-                    <button
-                        type="button"
-                        x-on:click="saveCrop"
-                        :disabled="saving"
-                        class="cursor-pointer rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
-                    >
-                        <span x-show="! saving">Save photo</span>
-                        <span x-show="saving" x-cloak>Saving…</span>
-                    </button>
-                </div>
-            </div>
+                <p x-show="uploadFailed" x-cloak class="text-center text-xs text-danger-ink">Couldn't upload. Check your connection and try again.</p>
 
-            @error('newAvatar')
-                <p class="mt-1.5 text-xs text-danger-ink">{{ $message }}</p>
-            @enderror
+                <button
+                    type="button"
+                    x-on:click="saveCrop"
+                    :disabled="saving"
+                    class="block w-full cursor-pointer rounded-2xl bg-accent py-3 text-base font-extrabold text-white disabled:pointer-events-none disabled:opacity-50 dark:bg-accent-dark"
+                >
+                    <span x-show="! saving">Save photo</span>
+                    <span x-show="saving" x-cloak>Saving…</span>
+                </button>
+
+                <button
+                    type="button"
+                    x-on:click="cancelCrop"
+                    :disabled="saving"
+                    class="block w-full cursor-pointer py-1 text-center text-sm font-bold text-ink-soft disabled:pointer-events-none disabled:opacity-50 dark:text-ink-soft-dark"
+                >Cancel</button>
+            </div>
         </div>
-    </div>
-        <button type="button" x-on:click="avatarSheet = false" class="block w-full cursor-pointer rounded-2xl bg-accent py-3 text-base font-extrabold text-white dark:bg-accent-dark">Done</button>
     </x-bottom-sheet>
 
 </div>

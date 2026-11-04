@@ -26,7 +26,8 @@ document.addEventListener('alpine:init', () => {
      * dismiss it. The sheet follows the finger, and past a short distance it
      * closes; let go early and it springs back. Only on phone-width screens
      * (where <x-menu-panel> is a sheet), and only when the sheet is scrolled
-     * to its top so it never fights its own scrolling. Moves `transform`, not
+     * to its top so it never fights its own scrolling, and never from inside
+     * [data-no-swipe-close] (a photo being dragged). Moves `transform`, not
      * `translate`, so it composes with the open/close transition's own.
      */
     Alpine.directive('swipe-close', (el, { expression }, { evaluate, cleanup }) => {
@@ -35,7 +36,7 @@ document.addEventListener('alpine:init', () => {
         let pull = 0;
 
         const start = (event) => {
-            if (!phone.matches || el.scrollTop > 0) return;
+            if (!phone.matches || el.scrollTop > 0 || event.target.closest('[data-no-swipe-close]')) return;
 
             startY = event.touches[0].clientY;
             pull = 0;

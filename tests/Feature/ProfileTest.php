@@ -468,4 +468,23 @@ class ProfileTest extends TestCase
 
         $this->get(route('profile'))->assertOk()->assertSee('My AI keys')->assertDontSee('@svg(', false);
     }
+
+    public function test_the_avatar_sheet_leads_with_the_upload_button(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('profile')
+            ->assertSeeInOrder(['Upload photo', 'Or choose an avatar', 'Done', 'Adjust your photo', 'Save photo'])
+            ->assertDontSee('Remove photo');
+    }
+
+    public function test_a_learner_with_a_photo_can_change_or_remove_it(): void
+    {
+        $this->actingAs(User::factory()->create(['avatar_path' => 'avatars/existing.jpg']));
+
+        Livewire::test('profile')
+            ->assertSee('Change photo')
+            ->assertSee('Remove photo')
+            ->assertDontSee('Upload photo');
+    }
 }
