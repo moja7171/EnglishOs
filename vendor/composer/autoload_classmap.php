@@ -164,6 +164,7 @@ return array(
     'App\\Services\\TabooDeck' => $baseDir . '/app/Services/TabooDeck.php',
     'App\\Services\\TwoTruthsDeck' => $baseDir . '/app/Services/TwoTruthsDeck.php',
     'App\\Services\\UsageGuides' => $baseDir . '/app/Services/UsageGuides.php',
+    'App\\Services\\Usernames' => $baseDir . '/app/Services/Usernames.php',
     'App\\Services\\WebVttParser' => $baseDir . '/app/Services/WebVttParser.php',
     'App\\Services\\WhoAmIDeck' => $baseDir . '/app/Services/WhoAmIDeck.php',
     'App\\Services\\WiktionaryClient' => $baseDir . '/app/Services/WiktionaryClient.php',
