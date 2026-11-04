@@ -1,12 +1,15 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use App\Services\FriendActivity;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
 {
+    /** "Last week" tab instead of this week. */
+    public bool $lastWeek = false;
+
     public string $pinnedHighlight = '';
 
     public bool $pinnedHighlightSaved = false;
@@ -18,7 +21,7 @@ new class extends Component
 
     /**
      * A short, entirely self-authored blurb — the one piece of "content"
-     * a friend can ever see here, opt-in and never derived from AI-graded
+     * a friend can ever see, opt-in and never derived from AI-graded
      * Evidence. See the pinned_highlight migration's docblock.
      */
     public function savePinnedHighlight(): void
@@ -30,67 +33,44 @@ new class extends Component
         auth()->user()->update(['pinned_highlight' => $text !== '' ? $text : null]);
 
         $this->pinnedHighlightSaved = true;
-        unset($this->myCard, $this->ranked);
+    }
+
+    public function showWeek(bool $lastWeek): void
+    {
+        $this->lastWeek = $lastWeek;
+        unset($this->ranked);
     }
 
     /**
-     * Every number here is a count, percentage, or date — never the
-     * content of an actual answer. dayProgress()'s day labels ("Day 1 ·
-     * Foundation") and progressPercent() reveal only structure/pace, the
-     * same information a mutual friend could already infer from the
-     * existing "Following" list's streak/mission badges.
+     * Everyone on one table, me included: most practice days this week
+     * (Saturday to Friday) first, then the most done, then the longer
+     * streak. Counts and dates only, never an answer.
      *
-     * @return array{user: User, streak: int, longestStreak: int, missionsCompleted: int, missionsThisWeek: int, calendar: array, progressPercent: ?int, overallPercent: int, missionCode: ?string, missionTitle: ?string, dayProgress: array, lastActive: ?Carbon}
-     */
-    private function cardData(User $user): array
-    {
-        $run = $user->currentInProgressMissionRun();
-
-        return [
-            'user' => $user,
-            'streak' => $user->currentStreak(),
-            'longestStreak' => $user->longestStreak(),
-            'missionsCompleted' => $user->missionsFinishedCount(),
-            'missionsThisWeek' => $user->missionsCompletedThisWeekCount(),
-            'calendar' => $user->activityCalendar(),
-            'progressPercent' => $run?->progressPercent(),
-            'overallPercent' => (int) round(($user->missionsFinishedCount() * 100 + ($run?->progressPercent() ?? 0)) / 24),
-            'missionCode' => $run?->mission->code,
-            'missionTitle' => $run?->mission->title,
-            'dayProgress' => $run?->dayProgress() ?? [],
-            'lastActive' => $user->activeDates()->first(),
-        ];
-    }
-
-    #[Computed]
-    public function myCard(): array
-    {
-        return $this->cardData(auth()->user());
-    }
-
-    /**
-     * @return list<array{user: User, streak: int, longestStreak: int, missionsCompleted: int, missionsThisWeek: int, calendar: array, progressPercent: ?int, missionTitle: ?string, dayProgress: array, lastActive: ?Carbon}>
-     */
-    #[Computed]
-    public function friendCards(): array
-    {
-        return auth()->user()->mutualFriends()
-            ->map(fn (User $friend) => $this->cardData($friend))
-            ->all();
-    }
-
-    /**
-     * Everyone on one league table, me included: longest current streak
-     * first, then overall progress.
-     *
-     * @return list<array<string, mixed>>
+     * @return list<array{user: User, me: bool, days: int, amount: int, week: list<array<string, mixed>>, streak: int, mission: ?string}>
      */
     #[Computed]
     public function ranked(): array
     {
-        return collect($this->friendCards)
-            ->push($this->myCard)
-            ->sortBy([['streak', 'desc'], ['overallPercent', 'desc']])
+        $me = auth()->user();
+        $activity = app(FriendActivity::class);
+        $start = $activity->weekStart($me, $this->lastWeek ? 1 : 0);
+        $today = $me->localToday();
+
+        return $me->mutualFriends()
+            ->push($me)
+            ->map(function (User $user) use ($me, $activity, $start, $today) {
+                $run = $user->currentInProgressMissionRun();
+                $currentDay = $run ? collect($run->dayProgress())->search(fn (array $day) => ! $day['done']) : false;
+
+                return [
+                    'user' => $user,
+                    'me' => $user->is($me),
+                    ...$activity->weekRow($user, $start, $today),
+                    'streak' => $user->currentStreak(),
+                    'mission' => $run ? $run->mission->code.($currentDay !== false ? ' · D'.($currentDay + 1) : '') : null,
+                ];
+            })
+            ->sortBy([['days', 'desc'], ['amount', 'desc'], ['streak', 'desc']])
             ->values()
             ->all();
     }
@@ -98,20 +78,23 @@ new class extends Component
 ?>
 
 @php
+    $me = auth()->user();
+    $activity = app(App\Services\FriendActivity::class);
+    $start = $activity->weekStart($me, $lastWeek ? 1 : 0);
+    $daysToNewWeek = (int) $me->localToday()->diffInDays($activity->weekStart($me)->addWeek());
     $rankColors = ['text-[#d4a017]', 'text-[#8f8cb0]', 'text-[#b06a3b]'];
+    $hasFriends = count($this->ranked) > 1;
 @endphp
 
-{{-- One league table by streak, me in it; a tap opens that person's
-     sheet (their activity, mission days, badges, Message) — or, on my own
-     row, the highlight I pin for friends. Counts and dates only, never an
-     answer. --}}
+{{-- One table of this week's practice days (Saturday to Friday), me in it;
+     a friend's row opens their page, mine the highlight I pin for friends. --}}
 <div class="mx-auto max-w-2xl px-4 pt-3 pb-6 sm:px-6">
     <header class="flex items-center gap-2">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ml-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
         <h1 class="flex-1 font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Board</h1>
     </header>
 
-    @if (count($this->friendCards) === 0)
+    @if (! $hasFriends)
         <div class="mt-6 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line py-8 text-center dark:border-line-dark">
             {{-- Two not-yet-connected busts with a dashed line and a "+"
                  between them — plain primitives only. --}}
@@ -136,80 +119,83 @@ new class extends Component
         </div>
     @endif
 
-    <ol class="mt-3 -mx-2 space-y-1">
-        @foreach ($this->ranked as $card)
-            @php
-                $isMe = $card['user']->id === auth()->id();
-                $highlight = $card['user']->pinned_highlight;
-            @endphp
-            <li wire:key="rank-{{ $card['user']->id }}" x-data="{ open: false }">
-                <button
-                    type="button"
-                    x-on:click="open = true"
-                    @class([
-                        'flex w-full cursor-pointer items-center gap-3 rounded-2xl px-2 py-2.5 text-left',
-                        'bg-accent-soft dark:bg-accent-soft-dark' => $isMe,
-                        'hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark' => ! $isMe,
-                    ])
-                >
-                    <span class="w-6 shrink-0 text-center text-sm font-extrabold {{ $rankColors[$loop->index] ?? 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $loop->iteration }}</span>
-                    <x-user-avatar :user="$card['user']" class="h-10 w-10 text-xs" />
-                    <span class="min-w-0 flex-1">
-                        <span class="block truncate text-sm font-extrabold text-ink dark:text-ink-dark">{{ $isMe ? 'You' : $card['user']->name }}</span>
-                        <span class="block truncate text-xs text-ink-faint italic dark:text-ink-faint-dark">{{ $highlight ? '"'.$highlight.'"' : ($isMe ? 'Tap to pin a highlight' : '') }}</span>
-                    </span>
-                    <span @class(['shrink-0 text-sm font-extrabold', 'text-accent-ink dark:text-accent-ink-dark' => $card['streak'] > 0, 'text-ink-faint dark:text-ink-faint-dark' => $card['streak'] === 0])>{{ $card['streak'] > 0 ? '🔥 '.$card['streak'] : '—' }}</span>
-                    <x-progress-ring :percent="$card['overallPercent']" :size="38" />
-                </button>
+    <div class="mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-surface-sunken p-1 dark:bg-surface-sunken-dark" role="tablist">
+        @foreach ([false => 'This week', true => 'Last week'] as $isLast => $tab)
+            <button type="button" role="tab" aria-selected="{{ $lastWeek === (bool) $isLast ? 'true' : 'false' }}" wire:key="tab-{{ (int) $isLast }}" wire:click="showWeek({{ $isLast ? 'true' : 'false' }})" @class([
+                'h-10 cursor-pointer rounded-xl text-[15px]',
+                'bg-surface font-extrabold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark' => $lastWeek === (bool) $isLast,
+                'font-bold text-ink-soft dark:text-ink-soft-dark' => $lastWeek !== (bool) $isLast,
+            ])>{{ $tab }}</button>
+        @endforeach
+    </div>
 
-                @if ($isMe)
+    <div class="mt-3 flex items-baseline justify-between text-sm font-bold text-ink-soft dark:text-ink-soft-dark">
+        <span>{{ $start->format('D j M') }} – {{ $start->copy()->addDays(6)->format('D j M') }}</span>
+        @unless ($lastWeek)
+            <span class="text-xs">New week in {{ $daysToNewWeek }} {{ Str::plural('day', $daysToNewWeek) }}</span>
+        @endunless
+    </div>
+
+    <ol class="mt-2 space-y-1.5">
+        @foreach ($this->ranked as $row)
+            <li wire:key="rank-{{ $row['user']->id }}" x-data="{ open: false }">
+                @php
+                    $rowClass = 'flex w-full cursor-pointer items-center gap-2.5 rounded-2xl px-3 py-2.5 text-left '.($row['me'] ? 'bg-accent-soft dark:bg-accent-soft-dark' : 'bg-surface shadow-sm dark:bg-surface-dark');
+                @endphp
+                @if ($row['me'])
+                    <button type="button" x-on:click="open = true" class="{{ $rowClass }}">
+                @else
+                    <a href="{{ route('friends.profile', $row['user']) }}" wire:navigate class="{{ $rowClass }}">
+                @endif
+                    <span class="w-5 shrink-0 text-center text-base font-extrabold {{ $rankColors[$loop->index] ?? 'text-ink-faint dark:text-ink-faint-dark' }}">{{ $loop->iteration }}</span>
+                    <x-user-avatar :user="$row['user']" class="h-10 w-10 text-xs" />
+                    <span class="min-w-0 flex-1 space-y-1.5">
+                        <span class="flex items-baseline gap-1.5">
+                            <span class="truncate text-[15px] font-extrabold text-ink dark:text-ink-dark">{{ $row['me'] ? 'You' : $row['user']->name }}</span>
+                            @if ($row['mission'])
+                                <span class="shrink-0 text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $row['mission'] }}</span>
+                            @endif
+                        </span>
+                        <span class="flex gap-1" aria-label="{{ $row['days'] }} {{ Str::plural('day', $row['days']) }} practised">
+                            @foreach ($row['week'] as $day)
+                                <span wire:key="dot-{{ $row['user']->id }}-{{ $day['date'] }}" class="flex w-5 flex-col items-center gap-0.5" aria-hidden="true">
+                                    <span @class([
+                                        'h-3.5 w-3.5 rounded-full',
+                                        'bg-accent dark:bg-accent-dark' => $day['practised'],
+                                        'border-2 border-dashed border-line dark:border-line-dark' => ! $day['practised'] && $day['future'],
+                                        'bg-surface-sunken dark:bg-surface-sunken-dark' => ! $day['practised'] && ! $day['future'],
+                                        'ring-2 ring-ink ring-offset-1 ring-offset-surface dark:ring-ink-dark dark:ring-offset-surface-dark' => $day['today'],
+                                    ])></span>
+                                    <span @class(['text-[10px] font-bold', 'text-ink dark:text-ink-dark' => $day['today'], 'text-ink-faint dark:text-ink-faint-dark' => ! $day['today']])>{{ $day['label'] }}</span>
+                                </span>
+                            @endforeach
+                        </span>
+                    </span>
+                    <span class="flex shrink-0 flex-col items-end gap-0.5">
+                        <span class="text-xl font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ $row['days'] }}<span class="text-sm text-ink-faint dark:text-ink-faint-dark">/7</span></span>
+                        <span @class(['flex items-center gap-0.5 text-xs font-extrabold', 'text-accent-ink dark:text-accent-ink-dark' => $row['streak'] > 0, 'text-ink-faint dark:text-ink-faint-dark' => $row['streak'] === 0])>@svg('heroicon-s-fire', 'h-3.5 w-3.5'){{ $row['streak'] }}</span>
+                    </span>
+                @if ($row['me'])
+                    </button>
                     <x-bottom-sheet show="open" label="Your highlight">
                         <x-slot:title>Your highlight</x-slot:title>
                         <form wire:submit="savePinnedHighlight" x-on:submit="open = false" class="space-y-3">
                             <input type="text" wire:model="pinnedHighlight" maxlength="80" placeholder="e.g. Practicing every morning before work ☕" aria-label="Your highlight" class="w-full rounded-2xl border-2 border-accent bg-transparent px-3 py-2.5 text-sm text-ink dark:border-accent-dark dark:text-ink-dark">
-                            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Friends see this on the board.</p>
+                            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Friends see this on your page.</p>
                             <button type="submit" class="w-full cursor-pointer rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white dark:bg-accent-dark">Save</button>
                         </form>
+                        <a href="{{ route('friends.profile', $me) }}" wire:navigate class="block text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">See your page ›</a>
                     </x-bottom-sheet>
                 @else
-                    <x-bottom-sheet show="open" :label="$card['user']->name">
-                        <div class="flex items-center gap-3">
-                            <x-user-avatar :user="$card['user']" class="h-12 w-12 text-sm" />
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $card['user']->name }}</p>
-                                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                                    @if ($card['missionCode'])
-                                        On {{ $card['missionCode'] }} · {{ $card['missionTitle'] }}
-                                    @else
-                                        Not currently in a mission.
-                                    @endif
-                                </p>
-                            </div>
-                            @if ($card['streak'] > 0)
-                                <span class="text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">🔥 {{ $card['streak'] }}</span>
-                            @endif
-                        </div>
-                        @if (count($card['dayProgress']))
-                            <div class="flex gap-1.5" aria-label="Mission days">
-                                @foreach ($card['dayProgress'] as $missionDay)
-                                    <span title="{{ $missionDay['label'] }}" @class([
-                                        'h-2 flex-1 rounded-full',
-                                        'bg-success dark:bg-success-dark' => $missionDay['done'],
-                                        'bg-linear-to-r from-success from-50% to-line to-50% dark:from-success-dark dark:to-line-dark' => $missionDay['current'],
-                                        'bg-line dark:bg-line-dark' => ! $missionDay['done'] && ! $missionDay['current'],
-                                    ])></span>
-                                @endforeach
-                            </div>
-                        @endif
-                        <x-activity-heatmap :calendar="$card['calendar']" />
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-extrabold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">✓ {{ $card['missionsCompleted'] }} {{ Str::plural('mission', $card['missionsCompleted']) }}</span>
-                            <x-streak-badges :longest-streak="$card['longestStreak']" />
-                        </div>
-                        <a href="{{ route('friends.conversation', $card['user']) }}" wire:navigate class="block w-full rounded-2xl bg-accent px-5 py-3.5 text-center text-base font-extrabold text-white dark:bg-accent-dark">Message</a>
-                    </x-bottom-sheet>
+                    </a>
                 @endif
             </li>
         @endforeach
     </ol>
+
+    <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl bg-surface px-4 py-2.5 text-xs font-bold text-ink-soft shadow-sm dark:bg-surface-dark dark:text-ink-soft-dark">
+        <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full bg-accent dark:bg-accent-dark"></span>Practised</span>
+        <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full ring-2 ring-ink dark:ring-ink-dark"></span>Today</span>
+        <span class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full bg-surface-sunken dark:bg-surface-sunken-dark"></span>Not yet</span>
+    </div>
 </div>

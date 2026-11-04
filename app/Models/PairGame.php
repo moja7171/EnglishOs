@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\StreakRing;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -1129,6 +1130,11 @@ class PairGame extends Model
         }
 
         $this->forceFill(['stage' => self::STAGE_DONE, 'finished_at' => now()])->save();
+
+        // A finished game is a slice of both players' day, like a pair practice.
+        foreach ([$this->userA, $this->userB] as $player) {
+            app(StreakRing::class)->record($player, 'game');
+        }
     }
 
     /**

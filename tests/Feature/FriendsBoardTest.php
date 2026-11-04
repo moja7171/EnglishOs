@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\DayActivity;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
+use App\Models\PairGame;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -62,7 +65,7 @@ class FriendsBoardTest extends TestCase
             ->assertDontSee('One Way Wendy');
     }
 
-    public function test_a_friends_overall_progress_and_current_mission_are_shown(): void
+    public function test_a_friends_page_shows_their_mission_day_and_overall_progress_never_an_answer(): void
     {
         $me = User::factory()->create();
         $this->actingAs($me);
@@ -77,11 +80,26 @@ class FriendsBoardTest extends TestCase
             'content_ref' => 'a very private real answer',
         ]);
 
-        // 1 of 3 steps of one mission out of 24 = 1% of the whole course.
-        Livewire::test('friends.board')
+        $this->get(route('friends.profile', $friend))
+            ->assertOk()
+            ->assertSee('M01 My Daily Life · Day 1 of 2')
             ->assertSee('1%')
-            ->assertSee('On '.$mission->code)
+            ->assertSeeHtml('aria-label="Mission days"')
+            ->assertSee('Message')
             ->assertDontSee('a very private real answer');
+
+        Livewire::test('friends.board')->assertSee('M01 · D1')->assertSeeHtml(route('friends.profile', $friend));
+    }
+
+    public function test_only_mutual_friends_and_i_can_open_a_friends_page(): void
+    {
+        $me = User::factory()->create();
+        $this->actingAs($me);
+        $stranger = User::factory()->create();
+        $me->follow($stranger);
+
+        $this->get(route('friends.profile', $stranger))->assertForbidden();
+        $this->get(route('friends.profile', $me))->assertOk()->assertDontSee('Message');
     }
 
     public function test_a_friend_who_moved_on_with_a_note_still_counts_the_mission_as_finished(): void
@@ -97,62 +115,101 @@ class FriendsBoardTest extends TestCase
         $this->assertSame(1, $friend->missionsFinishedCount());
         $this->assertSame(0, $friend->missionsCompletedCount());
 
-        Livewire::test('friends.board')->assertSee('1 mission');
+        // 1 of 24 missions.
+        $this->get(route('friends.profile', $friend))->assertSee('4%')->assertSee('Not in a mission right now');
     }
 
     public function test_a_friend_with_no_active_mission_run_renders_without_error(): void
     {
         $me = User::factory()->create();
         $this->actingAs($me);
-        $this->makeMutualFriend($me);
+        $friend = $this->makeMutualFriend($me);
 
         Livewire::test('friends.board')->assertOk();
+        $this->get(route('friends.profile', $friend))->assertOk();
     }
 
-    public function test_missions_completed_is_shown_for_a_friend(): void
+    public function test_the_board_ranks_everyone_by_practice_days_this_week_with_me_in_the_list(): void
     {
-        $me = User::factory()->create();
-        $this->actingAs($me);
-        $friend = $this->makeMutualFriend($me);
-
-        $mission = $this->makeMission();
-        MissionRun::create([
-            'learner_id' => $friend->id,
-            'mission_id' => $mission->id,
-            'status' => MissionRun::STATUS_COMPLETE,
-            'started_at' => now(),
-            'completed_at' => now(),
-        ]);
-
-        Livewire::test('friends.board')->assertSee('1 mission');
-    }
-
-    public function test_a_friends_sheet_holds_the_heatmap_and_mission_days(): void
-    {
-        $me = User::factory()->create();
-        $this->actingAs($me);
-        $friend = $this->makeMutualFriend($me);
-
-        $mission = $this->makeMission();
-        MissionRun::findOrStart($friend, $mission);
-
-        Livewire::test('friends.board')
-            ->assertSee('Last 12 weeks')
-            ->assertSeeHtml('aria-label="Mission days"')
-            ->assertSee('Message');
-    }
-
-    public function test_the_board_ranks_everyone_by_streak_with_me_in_the_list(): void
-    {
+        $this->travelTo(Carbon::parse('2026-11-04 12:00', 'Asia/Tehran'));
         $me = User::factory()->create();
         $this->actingAs($me);
         $friend = $this->makeMutualFriend($me);
         $friend->update(['name' => 'Zed Friend']);
 
-        Livewire::test('friends.board')
+        // Sat 31 Oct and Mon 2 Nov for the friend, only today for me; a day of last week doesn't count.
+        foreach (['2026-10-31', '2026-11-02', '2026-10-29'] as $date) {
+            DayActivity::create(['learner_id' => $friend->id, 'on_date' => $date, 'activity' => 'listening']);
+        }
+        DayActivity::create(['learner_id' => $me->id, 'on_date' => '2026-11-04', 'activity' => 'pi']);
+
+        $ranked = Livewire::test('friends.board')
+            ->assertSee('Sat 31 Oct – Fri 6 Nov')
+            ->assertSee('New week in 3 days')
             ->assertSee('You')
-            ->assertSee('Tap to pin a highlight')
-            ->assertSee('Zed Friend');
+            ->assertSee('Zed Friend')
+            ->get('ranked');
+
+        $this->assertSame([$friend->id, $me->id], collect($ranked)->pluck('user.id')->all());
+        $this->assertSame([2, 1], collect($ranked)->pluck('days')->all());
+
+        $lastWeek = Livewire::test('friends.board')->call('showWeek', true)->assertSee('Sat 24 Oct – Fri 30 Oct')->get('ranked');
+        $this->assertSame(1, collect($lastWeek)->firstWhere('user.id', $friend->id)['days']);
+    }
+
+    public function test_a_day_shows_what_was_done_with_mission_day_tags_and_games_with_me(): void
+    {
+        $this->travelTo(Carbon::parse('2026-11-04 12:00', 'Asia/Tehran'));
+        $me = User::factory()->create();
+        $this->actingAs($me);
+        $friend = $this->makeMutualFriend($me);
+        $mission = $this->makeMission();
+        $run = MissionRun::findOrStart($friend, $mission);
+
+        foreach (['mission_brief', 'listening'] as $step) {
+            DayActivity::create(['learner_id' => $friend->id, 'on_date' => '2026-11-02', 'activity' => 'step:'.$run->id.':'.$step]);
+        }
+        DayActivity::create(['learner_id' => $friend->id, 'on_date' => '2026-11-02', 'activity' => 'listening']);
+        DayActivity::create(['learner_id' => $friend->id, 'on_date' => '2026-11-03', 'activity' => 'pi']);
+        PairGame::factory()->create([
+            'user_a_id' => min($me->id, $friend->id), 'user_b_id' => max($me->id, $friend->id), 'started_by_id' => $me->id,
+            'stage' => PairGame::STAGE_DONE, 'score' => 14, 'finished_at' => Carbon::parse('2026-11-02 18:00', 'Asia/Tehran'),
+        ]);
+
+        $page = Livewire::test('friends.profile', ['user' => $friend])->assertSee('D1')->assertSee('2 of 7 days');
+
+        $page->call('pickDay', '2026-11-02')
+            ->assertSee('M01 · Day 1 finished')
+            ->assertSee('Listening')
+            ->assertSee('Game with you')
+            ->assertSee('Taboo · team 7')
+            ->assertDontSee('Daily talk');
+
+        $page->call('pickDay', '2026-11-03')->assertSee('Daily talk')->assertDontSee('M01 · Day 1');
+    }
+
+    public function test_a_finished_game_counts_as_a_slice_of_both_players_day(): void
+    {
+        $pairGame = PairGame::factory()->create(['stage' => PairGame::STAGE_PLAYING]);
+        $pairGame->finish();
+
+        $this->assertSame(2, DayActivity::where('activity', 'game')->count());
+    }
+
+    public function test_a_friends_page_holds_what_we_played_together_and_their_badges(): void
+    {
+        $me = User::factory()->create();
+        $this->actingAs($me);
+        $friend = $this->makeMutualFriend($me);
+        PairGame::factory()->create([
+            'user_a_id' => min($me->id, $friend->id), 'user_b_id' => max($me->id, $friend->id), 'started_by_id' => $me->id,
+            'stage' => PairGame::STAGE_DONE, 'score' => 16, 'finished_at' => now(),
+        ]);
+
+        $this->get(route('friends.profile', $friend))
+            ->assertSee('You and '.$friend->name)
+            ->assertSee('best Taboo')
+            ->assertSee('First game');
     }
 
     public function test_a_pinned_highlight_can_be_saved_and_is_shown_on_my_own_card(): void
@@ -163,20 +220,19 @@ class FriendsBoardTest extends TestCase
         Livewire::test('friends.board')
             ->set('pinnedHighlight', 'Loving the daily routine unit!')
             ->call('savePinnedHighlight')
-            ->assertSet('pinnedHighlightSaved', true)
-            ->assertSee('Loving the daily routine unit!');
+            ->assertSet('pinnedHighlightSaved', true);
 
         $this->assertSame('Loving the daily routine unit!', $me->fresh()->pinned_highlight);
     }
 
-    public function test_a_friends_pinned_highlight_is_shown_only_if_they_set_one(): void
+    public function test_a_friends_pinned_highlight_is_shown_on_their_page(): void
     {
         $me = User::factory()->create();
         $this->actingAs($me);
         $friend = $this->makeMutualFriend($me);
         $friend->update(['pinned_highlight' => 'Almost at a 30-day streak!']);
 
-        Livewire::test('friends.board')->assertSee('Almost at a 30-day streak!');
+        $this->get(route('friends.profile', $friend))->assertSee('Almost at a 30-day streak!');
     }
 
     public function test_no_highlight_shown_when_a_friend_never_pinned_one(): void

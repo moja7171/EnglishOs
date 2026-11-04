@@ -172,6 +172,15 @@ Route::middleware(['auth', 'session.absolute_timeout'])->group(function () {
         return view('friends-board');
     })->name('friends.board');
 
+    // A friend's page (or my own): their week, mission days and month,
+    // what each day held, and what the two of us played. Mutual friends
+    // only; counts and dates, never an answer.
+    Route::get('/friends/{user}/page', function (User $user) {
+        abort_unless($user->is(auth()->user()) || auth()->user()->canMessageWith($user), 403);
+
+        return view('friends-profile', compact('user'));
+    })->name('friends.profile');
+
     // Pair Practice: two friends, each on their own phone, side by side or
     // on a video call. The list of friends (today's progress, nudge, pair
     // streak) and one round's page; a round belongs to both friends,
