@@ -9,8 +9,8 @@ use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
- * A learner who signs up now holds both AI keys before anything else in
- * the app opens. Earlier accounts and admins are never held.
+ * Every learner holds both AI keys before anything else in the app opens.
+ * Admins are never held.
  */
 class RequiredAiKeysTest extends TestCase
 {
@@ -80,7 +80,7 @@ class RequiredAiKeysTest extends TestCase
         $this->get(route('ai-keys.setup'))->assertRedirect(route('home'));
     }
 
-    public function test_an_earlier_account_without_keys_is_not_held(): void
+    public function test_a_learner_not_asked_for_keys_is_not_held(): void
     {
         $this->actingAs(User::factory()->create());
 
@@ -123,6 +123,30 @@ class RequiredAiKeysTest extends TestCase
             ->assertRedirect(route('onboarding'));
 
         $this->assertFalse(auth()->user()->fresh()->mustAddAiKeys());
+    }
+
+    public function test_a_learner_who_has_already_begun_goes_home_after_the_keys(): void
+    {
+        $this->fakeWorkingProviders();
+        $this->actingAs($this->learnerOwingKeys(['program_started_at' => now()->subWeek(), 'gemini_api_key' => 'AIzaSaved']));
+
+        Livewire::test('ai-keys-setup')
+            ->set('aiKeyInput.groq', 'gsk_newkey')
+            ->call('saveKey', 'groq')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('home'));
+    }
+
+    public function test_the_migration_asks_every_existing_learner_for_keys_except_admins(): void
+    {
+        $learner = User::factory()->create();
+        $admin = User::factory()->create();
+        $admin->forceFill(['is_admin' => true])->save();
+
+        (require database_path('migrations/2026_11_04_065646_require_ai_keys_for_existing_learners.php'))->up();
+
+        $this->assertTrue($learner->fresh()->ai_keys_required);
+        $this->assertFalse($admin->fresh()->ai_keys_required);
     }
 
     public function test_a_rejected_key_keeps_the_learner_on_the_same_key(): void
