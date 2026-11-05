@@ -145,7 +145,7 @@ new class extends Component
     }
 
     /**
-     * The same game with the AI as a classmate, no friend needed.
+     * The same game with Tara, no friend needed.
      */
     public function playWithAi(): void
     {
@@ -201,7 +201,15 @@ new class extends Component
     </header>
 
     <div class="space-y-4">
+        @php $taraPlays = in_array($game, AiPractice::GAMES, true); @endphp
         @if ($this->friends === [])
+            @if ($taraPlays)
+                <div class="card space-y-2 p-4">
+                    <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Play with</p>
+                    @include('components.games.partials.tara-tile')
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With Tara your voice is recorded.</p>
+                </div>
+            @endif
             <div class="rounded-2xl border border-dashed border-line p-5 text-center dark:border-line-dark">
                 <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Add a friend first — you both need to follow each other.</p>
                 <a href="{{ route('friends.index') }}" wire:navigate class="mt-2 inline-block text-sm font-bold text-accent-ink dark:text-accent-ink-dark">Find friends ›</a>
@@ -210,6 +218,9 @@ new class extends Component
             <div class="card space-y-2 p-4" x-data="{ allFriends: false }">
                 <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Play with</p>
                 <div class="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1">
+                    @if ($taraPlays)
+                        @include('components.games.partials.tara-tile')
+                    @endif
                     @foreach ($this->friends as $row)
                         @php $isPicked = $row['user']->id === $friend; @endphp
                         <button
@@ -239,6 +250,9 @@ new class extends Component
                     @endif
                 </div>
                 <x-friend-sheet show="allFriends" label="All friends" :friends="$this->allFriends" :action-for="fn ($friend) => '$set(\'friend\', '.$friend->id.')'" />
+                @if ($taraPlays)
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With Tara your voice is recorded.</p>
+                @endif
             </div>
 
             <div class="card space-y-2 p-4">
@@ -295,11 +309,6 @@ new class extends Component
                 wire:target="play"
                 class="block w-full cursor-pointer rounded-full bg-accent px-5 py-4 text-base font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
             >Invite {{ $picked['user']->name ?? '' }} · Play</button>
-        @endif
-
-        @if (in_array($game, AiPractice::GAMES, true))
-            <button type="button" wire:click="playWithAi" wire:loading.attr="disabled" wire:target="playWithAi" class="block w-full cursor-pointer rounded-full border-2 border-accent px-5 py-3.5 text-base font-extrabold text-accent-ink disabled:opacity-50 dark:border-accent-dark dark:text-accent-ink-dark">Play with AI</button>
-            <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With AI your voice is recorded.</p>
         @endif
     </div>
 </div>

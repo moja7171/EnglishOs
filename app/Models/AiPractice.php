@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One practice with the AI as a classmate at the learner's level: a Pair
+ * One practice with Tara, the AI classmate at the learner's level: a Pair
  * Practice round's cards and game, or just one game. Turn about, with no
- * judging: the learner answers a card and the AI checks it, the next card
- * the AI answers and the learner listens. It is the learner's own practice:
- * it counts for their day, never for a pair's streak, the board, badges or
+ * judging: the learner answers a card and she checks it, the next card she
+ * answers and the learner listens. It is the learner's own practice: it
+ * counts for their day, never for a pair's streak, the board, badges or
  * records.
  */
 #[Fillable(['learner_id', 'kind', 'days', 'deck', 'stage', 'position', 'current', 'answered', 'score', 'finished_at'])]
@@ -40,11 +40,17 @@ class AiPractice extends Model
     /** @var list<string> */
     public const CARD_STAGES = [self::STAGE_VOCABULARY, self::STAGE_GRAMMAR, self::STAGE_SPEAKING];
 
-    /** The games the AI can play so far. */
-    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER];
+    /** The games Tara can play so far. */
+    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY, PairGame::GAME_TRUTHS, PairGame::GAME_TABOO];
 
     /** Questions about one secret: fewer than with a friend, each one is an AI call. */
     public const MAX_QUESTIONS = 8;
+
+    /** Two Truths: questions the learner may ask Tara before picking her lie. */
+    public const TRUTHS_QUESTIONS = 2;
+
+    /** Taboo: tries at one word, for whichever of the two is guessing. */
+    public const TABOO_TRIES = 3;
 
     /** A practice ended with fewer answers than this doesn't count for the day. */
     public const MIN_COUNTED_ANSWERS = 3;
@@ -153,6 +159,42 @@ class AiPractice extends Model
     public function aiHoldsSecret(): bool
     {
         return $this->position % 2 === 0;
+    }
+
+    /**
+     * In the games played turn about the learner goes first, on even cards.
+     */
+    public function isLearnersGameTurn(): bool
+    {
+        return $this->position % 2 === 0;
+    }
+
+    /**
+     * Which of the words are in the text, by plain matching with no AI
+     * call: a word also counts with a common ending (cooks, cooked,
+     * cooking), and speech-to-text capitals and commas don't matter.
+     *
+     * @param  list<string>  $words
+     * @return list<string>
+     */
+    public static function wordsIn(string $text, array $words): array
+    {
+        $plainText = ' '.self::plain($text).' ';
+
+        return array_values(array_filter($words, function (string $word) use ($plainText) {
+            $plainWord = self::plain($word);
+
+            return $plainWord !== '' && preg_match('/ '.preg_quote($plainWord, '/').'(s|es|d|ed|ing)? /u', $plainText) === 1;
+        }));
+    }
+
+    /**
+     * Whether the text names the word, with no AI call: said exactly, with
+     * a common ending, or close enough for speech-to-text.
+     */
+    public static function namesWord(string $text, string $word): bool
+    {
+        return self::wordsIn($text, [$word]) !== [] || self::saidCorrectly($text, $word);
     }
 
     /**

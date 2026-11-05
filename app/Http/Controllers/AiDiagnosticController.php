@@ -14,7 +14,7 @@ use Throwable;
 /**
  * Temporary, token-gated "why can't this server reach Gemini?" report for a
  * host with no terminal (see /_diag/ai in routes/web.php). Runs the exact
- * GeminiClient path Sage and the Check button use, plus the raw relay and
+ * GeminiClient path Miss Rose and the Check button use, plus the raw relay and
  * direct-to-Google probes around it, and prints what each one actually
  * returned — the app itself swallows all of this behind "Couldn't reach
  * the AI service". Remove the route once the cause is found.
@@ -43,7 +43,7 @@ class AiDiagnosticController extends Controller
             '== 1. Relay reachable? (GET without auth; 401 "bad auth" = healthy) ==',
             ...$this->probeRelay(),
             '',
-            '== 2. Exact app path: GeminiClient::chat() — what Sage and Check run (first model of each chain; ?probe=all tries every model and spends one request on each) ==',
+            '== 2. Exact app path: GeminiClient::chat() — what Miss Rose and Check run (first model of each chain; ?probe=all tries every model and spends one request on each) ==',
             ...$this->probeGeminiClient($request->query('probe') === 'all'),
             '',
             '== 2b. Model chains: does each model still exist, is it in rotation, today\'s counts (no generation quota spent) ==',
@@ -61,7 +61,7 @@ class AiDiagnosticController extends Controller
             '== 2f. Relay upload sweep: big POSTs with NO auth (a healthy relay answers 401 "bad auth" fast; a timeout = this host drops uploads that big — voice recordings are tens of KB) ==',
             ...$this->probeRelayUploadSweep(),
             '',
-            '== 2g. Real transcription: GroqClient::transcribe() of a generated 2 s WAV — what a Sage voice question runs ==',
+            '== 2g. Real transcription: GroqClient::transcribe() of a generated 2 s WAV — what a Miss Rose voice question runs ==',
             ...$this->probeGroqTranscription(),
             '',
             '== 3. Direct to Google, no relay (informational — expected to fail on a filtered host) ==',

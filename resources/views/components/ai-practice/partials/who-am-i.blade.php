@@ -1,7 +1,7 @@
 {{--
-    Who am I with the AI. On even turns the AI holds a secret and the learner
-    asks aloud; on odd turns the learner holds it, the AI asks and they tap
-    the answer. Needs $practice, $card, $current.
+    Who am I with Tara. On even turns she holds a secret and the learner asks
+    aloud; on odd turns the learner holds it, she asks and they tap the
+    answer. Needs $practice, $card, $current.
 --}}
 @php
     $aiHolds = $practice->aiHoldsSecret();
@@ -50,8 +50,8 @@
                 {{ match (true) {
                     $aiHolds && $current['won'] => 'You got it!',
                     $aiHolds => 'Not this time',
-                    $current['won'] => 'The AI got it!',
-                    default => 'The AI couldn’t guess it',
+                    $current['won'] => 'Tara got it!',
+                    default => 'Tara couldn’t guess it',
                 } }}
             </p>
             <p class="text-base font-semibold text-ink-soft dark:text-ink-soft-dark">The secret: {{ $card['word'] }}</p>
@@ -81,6 +81,6 @@
                 <button type="button" wire:key="answer-{{ $answer }}" wire:click="answerAi('{{ $answer }}')" wire:loading.attr="disabled" wire:target="answerAi,aiGotIt" class="min-h-14 cursor-pointer rounded-2xl border border-line bg-surface font-extrabold text-ink capitalize disabled:opacity-50 dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark">{{ $answer }}</button>
             @endforeach
         </div>
-        <button type="button" wire:click="aiGotIt" wire:loading.attr="disabled" wire:target="answerAi,aiGotIt" class="block min-h-14 w-full cursor-pointer rounded-full bg-success font-extrabold text-white disabled:opacity-50 dark:bg-success-dark dark:text-ground-dark">The AI got it</button>
+        <button type="button" wire:click="aiGotIt" wire:loading.attr="disabled" wire:target="answerAi,aiGotIt" class="block min-h-14 w-full cursor-pointer rounded-full bg-success font-extrabold text-white disabled:opacity-50 dark:bg-success-dark dark:text-ground-dark">Tara got it</button>
     </div>
 @endif

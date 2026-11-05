@@ -17,7 +17,7 @@ class GeminiClient
 {
     use UsesOutboundProxy;
 
-    /** Sage and conversation replies: short, high volume, cheap models first. */
+    /** Miss Rose and conversation replies: short, high volume, cheap models first. */
     public const PROFILE_CHAT = 'chat';
 
     /** Anything that grades the learner: quality first, lower volume. */
@@ -75,7 +75,7 @@ class GeminiClient
      *
      * @param  array<int, array{role: string, text: string}>  $messages  Chat history, oldest first. role is 'user' or 'model'.
      * @param  int|null  $maxOutputTokens  A hard cap on reply length, e.g. for a chat persona that
-     *                                     must stay short (see ⚡ask-instructor's Sage prompt). Omit for callers that
+     *                                     must stay short (see ⚡ask-instructor's Miss Rose prompt). Omit for callers that
      *                                     need their full, uncapped answer (grading feedback, mission recaps, ...).
      * @param  string  $profile  PROFILE_CHAT (default) or PROFILE_JUDGE — which model chain to walk.
      */
@@ -125,7 +125,7 @@ class GeminiClient
      *
      * @param  array<int, array{role: string, text: string}>  $messages  Chat history, oldest first. role is 'user' or 'model'.
      * @param  int|null  $maxOutputTokens  A hard cap on reply length, e.g. for a chat persona that
-     *                                     must stay short (see ⚡ask-instructor's Sage prompt) — prompt wording alone doesn't
+     *                                     must stay short (see ⚡ask-instructor's Miss Rose prompt) — prompt wording alone doesn't
      *                                     reliably stop the model from drifting long. Omit for callers that need their full,
      *                                     uncapped answer (grading feedback, mission recaps, ...).
      * @param  string  $profile  PROFILE_CHAT (default) or PROFILE_JUDGE — which model chain to walk.

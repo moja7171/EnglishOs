@@ -92,7 +92,7 @@ new class extends Component
     }
 
     /**
-     * A round with the AI, for when no friend is around: the learner's
+     * A round with Tara, for when no friend is around: the learner's
      * open one, or a new one from the days they finished.
      *
      * @param  list<string>|null  $days
@@ -108,7 +108,7 @@ new class extends Component
     }
 
     /**
-     * Every day the learner finished, to pick from for the AI.
+     * Every day the learner finished, to pick from for Tara.
      *
      * @return list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>
      */
@@ -195,10 +195,10 @@ new class extends Component
         class="card space-y-2.5 rounded-3xl p-4"
     >
         <div class="flex items-center gap-3">
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-sparkles', 'h-6 w-6')</span>
+            <x-tara-avatar class="h-11 w-11" />
             <div class="min-w-0 flex-1">
-                <p class="font-semibold text-ink dark:text-ink-dark">Practice with AI</p>
-                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">No friend around? Your voice is recorded.</p>
+                <p class="font-semibold text-ink dark:text-ink-dark">Tara</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Your AI classmate. Your voice is recorded.</p>
             </div>
         </div>
 
@@ -207,10 +207,10 @@ new class extends Component
         @elseif ($this->myDays === [])
             <p class="rounded-full border border-dashed border-line px-4 py-2.5 text-center text-xs font-semibold text-ink-faint dark:border-line-dark dark:text-ink-faint-dark">Finish a day first</p>
         @else
-            <button type="button" x-on:click="sheet = true" class="block w-full cursor-pointer rounded-2xl border-2 border-accent px-4 py-3 text-base font-extrabold text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark">Start with AI</button>
+            <button type="button" x-on:click="sheet = true" class="block w-full cursor-pointer rounded-2xl border-2 border-accent px-4 py-3 text-base font-extrabold text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark">Practice with Tara</button>
 
-            <x-bottom-sheet show="sheet" label="Practice with AI">
-                <x-slot:title>Practice with AI</x-slot:title>
+            <x-bottom-sheet show="sheet" label="Practice with Tara">
+                <x-slot:title>Practice with Tara</x-slot:title>
                 @include('components.pair-practice.partials.day-picker', ['autoLine' => 'Your latest days', 'missions' => $this->myDays, 'keyPrefix' => 'ai'])
                 <button type="button" x-bind:disabled="mode === 'choose' && days.length === 0" x-on:click="$wire.startWithAi(mode === 'auto' ? null : days); sheet = false" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-40 dark:bg-accent-dark">Start</button>
             </x-bottom-sheet>

@@ -7,17 +7,28 @@ use App\Models\PairGame;
 use App\Models\User;
 
 /**
- * Starting a practice with the AI: the learner's open one is picked up,
+ * Starting a practice with Tara: the learner's open one is picked up,
  * otherwise a new one is drawn from the days they finished.
  */
 class AiPractices
 {
-    /** Would You Rather questions: inside a round, and as a game of its own. */
-    private const RATHER_QUESTIONS_IN_ROUND = 2;
+    /** Turns in a game that sets its own length: inside a round, and as a game of its own. */
+    private const TURNS_IN_ROUND = 2;
 
-    private const RATHER_QUESTIONS = 4;
+    private const TURNS_ALONE = 4;
 
-    public function __construct(private readonly PairPractice $pairPractice, private readonly WhoAmIDeck $whoAmI, private readonly WouldYouRatherDeck $wouldYouRather) {}
+    /** Story Chain counts both tellers' turns: inside a round, a shorter story. */
+    private const STORY_TURNS_IN_ROUND = 4;
+
+    public function __construct(
+        private readonly PairPractice $pairPractice,
+        private readonly WhoAmIDeck $whoAmI,
+        private readonly WouldYouRatherDeck $wouldYouRather,
+        private readonly JustAMinuteDeck $justAMinute,
+        private readonly StoryChainDeck $storyChain,
+        private readonly TwoTruthsDeck $twoTruths,
+        private readonly TabooDeck $taboo,
+    ) {}
 
     /**
      * @param  string  $kind  AiPractice::KIND_PRACTICE or one of AiPractice::GAMES
@@ -43,10 +54,7 @@ class AiPractices
             return null;
         }
 
-        $practice = new AiPractice(['deck' => [
-            ...$deck['cards'],
-            'game' => $this->gameDeck($learner, $this->nextGame($learner), $deck['days'], inRound: true),
-        ]]);
+        $practice = new AiPractice(['deck' => [...$deck['cards'], 'game' => $this->roundGame($learner, $deck['days'])]]);
 
         return $practice->stages() === [] ? null : $this->create($learner, $kind, $deck['days'], $practice->deck, $practice->stages()[0]);
     }
@@ -61,13 +69,28 @@ class AiPractices
     }
 
     /**
-     * The game a round ends with: not the one the last round ended with.
+     * The game a round ends with: the one after the last round's, skipping
+     * any the chosen days have no cards for.
+     *
+     * @param  list<string>|null  $days
+     * @return array{game: string, cards: list<array<string, mixed>>}
      */
-    private function nextGame(User $learner): string
+    private function roundGame(User $learner, ?array $days): array
     {
         $last = AiPractice::where('learner_id', $learner->id)->where('kind', AiPractice::KIND_PRACTICE)->latest('id')->first()?->game();
+        $after = array_search($last, AiPractice::GAMES, true);
+        $games = collect(AiPractice::GAMES);
+        $inTurn = $after === false ? $games : $games->slice($after + 1)->concat($games->take($after + 1));
 
-        return collect(AiPractice::GAMES)->first(fn (string $game) => $game !== $last);
+        foreach ($inTurn as $game) {
+            $deck = $this->gameDeck($learner, $game, $days, inRound: true);
+
+            if ($deck['cards'] !== []) {
+                return $deck;
+            }
+        }
+
+        return ['game' => AiPractice::GAMES[0], 'cards' => []];
     }
 
     /**
@@ -76,13 +99,27 @@ class AiPractices
      */
     private function gameDeck(User $learner, string $game, ?array $days, bool $inRound): array
     {
-        $deckMaker = $game === PairGame::GAME_WHO ? $this->whoAmI : $this->wouldYouRather;
+        $deckMaker = match ($game) {
+            PairGame::GAME_WHO => $this->whoAmI,
+            PairGame::GAME_MINUTE => $this->justAMinute,
+            PairGame::GAME_STORY => $this->storyChain,
+            PairGame::GAME_TRUTHS => $this->twoTruths,
+            PairGame::GAME_TABOO => $this->taboo,
+            default => $this->wouldYouRather,
+        };
         $rules = [...$deckMaker->rulesFor($learner, $learner, PairGames::PRACTICE_MINUTES), 'days' => $days];
 
-        if ($game === PairGame::GAME_RATHER) {
-            $rules['turns'] = $inRound ? self::RATHER_QUESTIONS_IN_ROUND : self::RATHER_QUESTIONS;
+        if ($game === PairGame::GAME_WHO) {
+            return ['game' => $game, 'cards' => $deckMaker->cardsFor($learner, $learner, $rules)];
         }
 
-        return ['game' => $game, 'cards' => $deckMaker->cardsFor($learner, $learner, $rules)];
+        if ($game === PairGame::GAME_STORY) {
+            return ['game' => $game, 'cards' => array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $inRound ? self::STORY_TURNS_IN_ROUND : StoryChainDeck::STORY_TURNS)];
+        }
+
+        $rules['turns'] = $inRound ? self::TURNS_IN_ROUND : self::TURNS_ALONE;
+        $rules['bonus'] = false;
+
+        return ['game' => $game, 'cards' => array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $rules['turns'])];
     }
 }

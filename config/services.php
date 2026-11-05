@@ -47,7 +47,7 @@ return [
         // model, so it has its own allowance, and the lite tier's is the
         // generous one — the free tier capped gemini-3.6-flash at 20
         // requests a day. Not a thinking "-flash" model: those spend the
-        // whole 220-token budget Sage's replies are capped at on thinking
+        // whole 220-token budget Miss Rose's replies are capped at on thinking
         // and answer with a cut-off sentence (and take ~35 s). Not a moving
         // "-latest" alias either, which can resolve to the primary model
         // and share its quota.
@@ -58,7 +58,7 @@ return [
         // separated; an entry may carry a thinking level after a colon
         // ("gemini-3.5-flash:minimal") for the "thinking" flash models, which
         // would otherwise spend a capped reply's whole token budget on
-        // thinking. "chat" = Sage and conversation (high volume, cheap
+        // thinking. "chat" = Miss Rose and conversation (high volume, cheap
         // models first); "judge" = anything that grades the learner (quality
         // first). Quota is counted per model, so keep the top of the two
         // lists different: chat traffic must not drain the judge's allowance.
