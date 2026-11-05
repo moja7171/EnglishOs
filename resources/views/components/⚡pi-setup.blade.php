@@ -61,8 +61,8 @@ new class extends Component
 
         <section wire:key="pi-card-2" class="flex min-h-[26rem] w-full shrink-0 snap-center flex-col gap-3 rounded-3xl bg-linear-160 from-[#8b7ce0] via-[#5b4fa8] to-[#3a3466] p-6 text-white">
             <span class="mt-2 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">@svg('heroicon-o-chat-bubble-left-right', 'h-7 w-7')</span>
-            <h2 class="text-xl font-extrabold">Talk, then fix</h2>
-            <p class="text-base leading-7 font-semibold opacity-90">About 10 minutes, then 2-3 short fixes. Say one of these on its own, any time:</p>
+            <h2 class="text-xl font-extrabold">Just talk</h2>
+            <p class="text-base leading-7 font-semibold opacity-90">A free chat for about 10 minutes, like two friends. Then tap "I did it" here. Say one of these on its own, any time:</p>
             <div class="grid grid-cols-2 gap-2">
                 @foreach (PiPrompts::CONTROL_WORDS as $word => $meaning)
                     <span class="rounded-2xl bg-white/15 px-3 py-2 text-sm leading-5"><b class="block text-base">{{ $word }}</b><span class="opacity-80">{{ $meaning }}</span></span>

@@ -2,8 +2,8 @@
 
 {{-- The daily voice practice with Pi as the last line of the Today box's
      checklist (<x-today-row>), opening /pi: the last 10 minutes of the day.
-     The prompt and links live on that page, and only the feedback on the
-     pasted chat there ticks it — so the circle here is never a button. --}}
+     The prompt, links and the "I did it" tick live on that page, so the
+     circle here is never a button. --}}
 <x-today-row
     :href="route('pi.practice')"
     :title="'Daily talk · '.$practice['title']"

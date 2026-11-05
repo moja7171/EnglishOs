@@ -763,17 +763,28 @@ class User extends Authenticatable
     }
 
     /**
-     * The "I practiced" tick for today's outside-the-app voice practice
-     * with Pi. Idempotent in the same way as recordListeningToday().
+     * The "I did it" tick for outside-the-app voice practice, on the
+     * learner's word. The daily log keeps one row per date, so a second
+     * mission day done on the same date is kept as that day's own tick
+     * (see piPracticedDaysByMission()).
      */
     public function recordPiPracticeToday(string $missionCode, int $dayNumber): PiPracticeLog
     {
         app(StreakRing::class)->record($this, 'pi');
 
-        return $this->piPracticeLogs()->firstOrCreate(
+        $log = $this->piPracticeLogs()->firstOrCreate(
             ['practiced_on' => today()->toDateString()],
             ['mission_code' => $missionCode, 'day_number' => $dayNumber],
         );
+
+        if ($log->mission_code !== $missionCode || (int) $log->day_number !== $dayNumber) {
+            $this->piChatFeedback()->updateOrCreate(
+                ['mission_code' => $missionCode, 'day_number' => $dayNumber],
+                ['chat' => '', 'feedback' => ['practice_done' => true]],
+            );
+        }
+
+        return $log;
     }
 
     /**
@@ -811,8 +822,8 @@ class User extends Authenticatable
     /**
      * The days of one mission whose voice practice the learner has done,
      * for the ticks on its day buttons. The daily tick (pi_practice_logs)
-     * keeps only one day per calendar date, so a saved chat whose feedback
-     * saw the practice done counts too.
+     * keeps only one day per calendar date, so a pi_chat_feedback row
+     * marked done counts too.
      *
      * @return list<int>
      */
