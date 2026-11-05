@@ -104,7 +104,8 @@
                 ->flatMap(fn ($voice) => collect($voice->clips)->mapWithKeys(fn (array $clip) => [$clip['part'] => $clip['transcript'] ?? null]));
             $stories = collect($pairGame->turns ?? [])->map(fn (array $turn, int $index) => ['index' => $index, 'turn' => $turn])->groupBy(fn (array $entry) => intdiv($entry['index'], $pairGame->storyTurns()));
         @endphp
-        @foreach ($stories as $storyIndex => $storyTurns)
+        {{-- With the recorders off there is no text of the story to show. --}}
+        @foreach ($tellings->filter()->isEmpty() ? [] : $stories as $storyIndex => $storyTurns)
             @php $first = $pairGame->deck[$storyTurns->first()['turn']['cards'][0]['card'] ?? $storyIndex * $pairGame->storyTurns()] ?? null; @endphp
             <section wire:key="story-{{ $storyIndex }}" class="overflow-hidden rounded-2xl bg-surface shadow-sm dark:bg-surface-dark">
                 @if (filled($first['image'] ?? null))

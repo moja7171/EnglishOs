@@ -398,15 +398,38 @@ class PairGameTest extends TestCase
             ->assertSee('Not enough was recorded to check this time.');
     }
 
-    public function test_the_feedback_switch_is_on_by_default_and_remembered(): void
+    public function test_voice_feedback_is_off_by_default_in_games_and_stays_on_in_pair_practice(): void
     {
         $me = User::factory()->create();
-        $this->assertTrue($me->refresh()->game_voice_feedback);
 
+        $this->assertFalse($me->refresh()->games_voice_feedback);
+        $this->assertTrue($me->game_voice_feedback);
+    }
+
+    public function test_turning_voice_feedback_on_in_games_is_remembered_and_leaves_pair_practice_alone(): void
+    {
+        $pairGame = $this->playingGame();
+        $me = $pairGame->startedBy;
+        $me->update(['game_voice_feedback' => false]);
         $this->actingAs($me);
-        Livewire::test('games.setup', ['game' => 'taboo'])->call('setVoiceFeedback', false);
 
+        Livewire::test('games.setup', ['game' => 'taboo'])->call('setVoiceFeedback', true);
+        $this->assertTrue($me->refresh()->games_voice_feedback);
+
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('setVoiceFeedback', false);
+        $this->assertFalse($me->refresh()->games_voice_feedback);
+
+        $me->update(['games_voice_feedback' => true]);
         $this->assertFalse($me->refresh()->game_voice_feedback);
+    }
+
+    public function test_a_story_nobody_recorded_shows_no_story_text(): void
+    {
+        $pairGame = $this->storyGame();
+        $pairGame->finish();
+        $this->actingAs($pairGame->startedBy);
+
+        Livewire::test('games.play', ['pairGame' => $pairGame])->assertDontSee('Your story');
     }
 
     /**

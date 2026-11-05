@@ -35,6 +35,11 @@ new class extends Component
         $this->pairGame = $pairGame;
     }
 
+    protected function voiceSetting(): string
+    {
+        return 'games_voice_feedback';
+    }
+
     public function join(): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->join(auth()->user()));
@@ -367,7 +372,7 @@ new class extends Component
 <div class="mx-auto max-w-xl" @if ($poll) wire:poll.{{ $poll }} @endif>
     {{-- Tells this phone's recorder whether its owner is explaining right now. --}}
     @php
-        $voiceOn = (bool) $me->game_voice_feedback;
+        $voiceOn = (bool) $me->{$this->voiceSetting()};
         $voicePart = $pairGame->isPlaying() && $this->speaksIn($pairGame->currentTurn()) ? 'turn-'.$pairGame->currentTurnIndex() : '';
     @endphp
     <span hidden wire:key="voice-{{ $voicePart }}-{{ (int) $voiceOn }}" x-data x-init="window.eosGameVoice?.sync($wire, @js($voiceOn), @js($voicePart), null); @js($voiceOn && ($pairGame->isWaiting() || $pairGame->stage === PairGame::STAGE_READY)) && window.eosGameVoice?.warmUp()"></span>

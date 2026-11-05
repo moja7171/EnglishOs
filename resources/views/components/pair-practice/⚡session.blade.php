@@ -38,6 +38,11 @@ new class extends Component
         $this->session = $session;
     }
 
+    protected function voiceSetting(): string
+    {
+        return 'game_voice_feedback';
+    }
+
     public function join(): void
     {
         $this->authorizePlayer();

@@ -101,7 +101,7 @@ new class extends Component
      */
     public function setVoiceFeedback(bool $on): void
     {
-        auth()->user()->update(['game_voice_feedback' => $on]);
+        auth()->user()->update(['games_voice_feedback' => $on]);
     }
 
     public function updatedMinutes(): void
@@ -228,7 +228,7 @@ new class extends Component
                 </div>
             </div>
 
-            @include('components.games.partials.voice-switch', ['me' => auth()->user()])
+            @include('components.games.partials.voice-switch', ['voiceOn' => auth()->user()->games_voice_feedback])
 
             <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
                 PairGame::GAME_WHO => 'Secrets: jobs, food, places… from your missions',
