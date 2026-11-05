@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
+use App\Services\PairGames;
 use App\Services\StreakRing;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
  * One Pair Practice round: two friends, each on their own phone (side by
- * side or on a video call), ~12 minutes of vocabulary, grammar, speaking and a game
- * cards. It waits until the invited friend joins. Roles swap on every card
+ * side or on a video call), ~12 minutes of vocabulary, grammar and speaking
+ * cards and a game. It waits until the invited friend joins. Roles swap on every card
  * — the speaker sees only the prompt and answers out loud, the judge sees
  * the answer and scores it.
  */
@@ -32,8 +34,8 @@ class PairPracticeSession extends Model
     public const STAGE_SPEAKING = 'speaking';
 
     /**
-     * The finale: one short game per round (see GAMES), played with the
-     * same speaker / judge turns as the other stages.
+     * The finale: one short game from the Games page (a PairGame of this
+     * round), picked when the round starts and played on the game's page.
      */
     public const STAGE_GAME = 'game';
 
@@ -54,20 +56,6 @@ class PairPracticeSession extends Model
         self::STAGE_SPEAKING => 180,
         self::STAGE_GAME => 180,
     ];
-
-    /**
-     * The games, in the order they take turns. Each game's cards have this
-     * as their 'type'.
-     */
-    public const GAME_TABOO = 'taboo';
-
-    public const GAME_MINIMAL = 'minimal';
-
-    public const GAME_ROLE = 'role';
-
-    public const GAME_TRUTHS = 'truths';
-
-    public const GAMES = [self::GAME_TABOO, self::GAME_MINIMAL, self::GAME_ROLE, self::GAME_TRUTHS];
 
     /**
      * How long the invited friend has to join before the invite expires.
@@ -350,7 +338,17 @@ class PairPracticeSession extends Model
      */
     public function game(): ?string
     {
-        return $this->deck[self::STAGE_GAME][0]['type'] ?? null;
+        return $this->deck['game_pick'] ?? null;
+    }
+
+    /**
+     * The game being played as this round's last part.
+     *
+     * @return HasOne<PairGame, $this>
+     */
+    public function pairGame(): HasOne
+    {
+        return $this->hasOne(PairGame::class);
     }
 
     /**
@@ -401,8 +399,8 @@ class PairPracticeSession extends Model
     }
 
     /**
-     * Opens the next stage that has cards (with a fresh time box), or ends
-     * the round after the game.
+     * Opens the next stage that has cards (with a fresh time box), then
+     * the game, whose own turns keep the time, and ends the round after it.
      */
     public function advanceStage(): void
     {
@@ -415,7 +413,11 @@ class PairPracticeSession extends Model
         $leadSeconds = self::INTRO_SECONDS + ($revealStillOn ? (int) ceil(self::REVEAL_MILLISECONDS / 1000) : 0);
 
         foreach (array_slice($stages, $next) as $stage) {
-            if (($this->deck[$stage] ?? []) !== []) {
+            if ($stage === self::STAGE_GAME && $this->openGame()) {
+                return;
+            }
+
+            if ($stage !== self::STAGE_GAME && ($this->deck[$stage] ?? []) !== []) {
                 $this->stage = $stage;
                 $this->stage_ends_at = now()->addSeconds(self::STAGE_SECONDS[$stage] + $leadSeconds);
                 $this->save();
@@ -424,6 +426,43 @@ class PairPracticeSession extends Model
             }
         }
 
+        $this->finish();
+    }
+
+    /**
+     * The round moves on to its game; false when there is none to play.
+     */
+    private function openGame(): bool
+    {
+        if ($this->game() === null) {
+            return false;
+        }
+
+        $this->stage = self::STAGE_GAME;
+        $this->stage_ends_at = null;
+        $this->save();
+
+        return app(PairGames::class)->startForPractice($this) !== null;
+    }
+
+    /**
+     * A round that reached its last part before games moved to the Games
+     * page has no game to go to: it ends where it is.
+     */
+    public function finishIfGameIsGone(): void
+    {
+        if ($this->stage === self::STAGE_GAME && ! $this->pairGame()->exists()) {
+            $this->finish();
+        }
+    }
+
+    /**
+     * The round's game ended, played out or by one of the two: so does the
+     * round.
+     */
+    public function gameOver(?int $endedById): void
+    {
+        $this->ended_by_id = $endedById;
         $this->finish();
     }
 
@@ -535,11 +574,12 @@ class PairPracticeSession extends Model
     }
 
     /**
-     * The round is played as a team: both players' points together.
+     * The round is played as a team: both players' points together, with
+     * the game's whole points.
      */
     public function teamScore(): int
     {
-        return $this->score_a + $this->score_b;
+        return $this->score_a + $this->score_b + intdiv($this->pairGame?->score ?? 0, 2);
     }
 
     /**
@@ -558,25 +598,20 @@ class PairPracticeSession extends Model
     }
 
     /**
-     * How the round's game went, for the result screen: the cards played
-     * and how many were won (a word guessed, a word heard right, a goal
-     * reached, a lie found). Null when no game card was played.
+     * How the round's game went, for the result screen. Null when the
+     * round ended before it was played.
      *
-     * @return array{game: string, played: int, won: int}|null
+     * @return array{name: string, points: string}|null
      */
     public function gameSummary(): ?array
     {
-        $results = collect($this->results ?? [])->where('stage', self::STAGE_GAME);
+        $game = $this->pairGame;
 
-        if ($this->game() === null || $results->isEmpty()) {
+        if ($game === null || ! $game->isFinished()) {
             return null;
         }
 
-        return [
-            'game' => $this->game(),
-            'played' => $results->count(),
-            'won' => $results->where('correct', true)->count(),
-        ];
+        return ['name' => PairGame::info($game->game)['name'], 'points' => PairGame::formatPoints($game->score)];
     }
 
     /**

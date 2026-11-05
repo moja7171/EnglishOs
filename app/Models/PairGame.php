@@ -16,9 +16,11 @@ use Illuminate\Support\Facades\DB;
  * 5 or 10 minutes, one team score. Taboo is played in timed turns — one
  * explains (the only one who sees the card) while the other guesses —
  * and the two swap after every turn. The explainer taps what happened to
- * each card, so the guesser's phone never shows the word.
+ * each card, so the guesser's phone never shows the word. A game with a
+ * practice session is that round's part 4: it counts for the round, not as
+ * a game of its own (see isPractice()).
  */
-#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'ended_by_id', 'game', 'minutes', 'rules', 'deck', 'turns', 'stage', 'score', 'joined_at', 'finished_at'])]
+#[Fillable(['pair_practice_session_id', 'user_a_id', 'user_b_id', 'started_by_id', 'ended_by_id', 'game', 'minutes', 'rules', 'deck', 'turns', 'stage', 'score', 'joined_at', 'finished_at'])]
 class PairGame extends Model
 {
     use HasFactory;
@@ -300,6 +302,21 @@ class PairGame extends Model
     }
 
     /**
+     * The Pair Practice round this game is the last part of.
+     *
+     * @return BelongsTo<PairPracticeSession, $this>
+     */
+    public function practiceSession(): BelongsTo
+    {
+        return $this->belongsTo(PairPracticeSession::class, 'pair_practice_session_id');
+    }
+
+    public function isPractice(): bool
+    {
+        return $this->pair_practice_session_id !== null;
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function userA(): BelongsTo
@@ -352,14 +369,27 @@ class PairGame extends Model
     }
 
     /**
+     * Games from the Games page, without the ones played inside a Pair
+     * Practice round.
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeStandalone(Builder $query): void
+    {
+        $query->whereNull('pair_practice_session_id');
+    }
+
+    /**
      * Games that can still be picked up: unfinished, recent, and not an
-     * invite that expired before the friend joined.
+     * invite that expired before the friend joined. A round's game is
+     * picked up from its round.
      *
      * @param  Builder<self>  $query
      */
     public function scopeOpen(Builder $query): void
     {
-        $query->whereNull('finished_at')
+        $query->standalone()
+            ->whereNull('finished_at')
             ->where('stage', '!=', self::STAGE_CANCELLED)
             ->where('created_at', '>=', now()->subHours(self::RESUME_HOURS))
             ->where(fn (Builder $query) => $query
@@ -1194,6 +1224,12 @@ class PairGame extends Model
 
         $this->forceFill(['stage' => self::STAGE_DONE, 'finished_at' => now()])->save();
 
+        if ($this->isPractice()) {
+            $this->practiceSession->gameOver($this->ended_by_id);
+
+            return;
+        }
+
         // A finished game is a slice of both players' day, like a pair practice.
         foreach ([$this->userA, $this->userB] as $player) {
             app(StreakRing::class)->record($player, 'game');
@@ -1232,6 +1268,7 @@ class PairGame extends Model
 
         if (collect($this->turns ?? [])->sum(fn (array $turn) => count($turn['cards'])) === 0) {
             $this->forceFill(['stage' => self::STAGE_CANCELLED])->save();
+            $this->practiceSession?->gameOver($by->id);
 
             return;
         }

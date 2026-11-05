@@ -36,9 +36,12 @@ new class extends Component
         $this->pairGame = $pairGame;
     }
 
+    /**
+     * A round's game follows the round's one switch.
+     */
     protected function voiceSetting(): string
     {
-        return 'games_voice_feedback';
+        return $this->pairGame->isPractice() ? 'game_voice_feedback' : 'games_voice_feedback';
     }
 
     public function join(): void
@@ -258,7 +261,7 @@ new class extends Component
             default => 'Turn '.($index + 1).' · you explained: '.$words,
         };
 
-        $this->keepVoiceClip($this->pairGame, $part, $label);
+        $this->keepVoiceClip($this->pairGame->practiceSession ?? $this->pairGame, $part, $label);
     }
 
     /**
@@ -267,7 +270,8 @@ new class extends Component
      */
     public function checkMyVoice(): void
     {
-        if (! $this->pairGame->refresh()->isFinished()) {
+        // A round's game is checked with the round, on its result screen.
+        if (! $this->pairGame->refresh()->isFinished() || $this->pairGame->isPractice()) {
             return;
         }
 
@@ -383,7 +387,16 @@ new class extends Component
     @endphp
     <span hidden wire:key="voice-{{ $voicePart }}-{{ (int) $voiceOn }}" x-data x-init="window.eosGameVoice?.sync($wire, @js($voiceOn), @js($voicePart), null); @js($voiceOn && ($pairGame->isWaiting() || $pairGame->stage === PairGame::STAGE_READY)) && window.eosGameVoice?.warmUp()"></span>
 
-    @if ($pairGame->isCancelled())
+    @if ($pairGame->isPractice() && ($pairGame->isFinished() || $pairGame->isCancelled()))
+        {{-- A round's game ends on the round's result, once every recorded piece is sent. --}}
+        <div
+            x-data
+            x-init="window.eosGameVoice ? window.eosGameVoice.whenIdle(() => Livewire.navigate(@js(route('pair-practice.show', $pairGame->pair_practice_session_id)))) : Livewire.navigate(@js(route('pair-practice.show', $pairGame->pair_practice_session_id)))"
+            class="flex min-h-[60vh] items-center justify-center p-6"
+        >
+            <span class="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent dark:border-accent-dark dark:border-t-transparent"></span>
+        </div>
+    @elseif ($pairGame->isCancelled())
         <div class="space-y-2 p-6 text-center">
             @php $endedBy = $pairGame->endedBy; @endphp
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $endedBy?->is($me) ? 'You' : ($endedBy->name ?? 'Your friend') }} {{ $pairGame->joined_at ? 'ended the game.' : 'cancelled the invite.' }}</p>
