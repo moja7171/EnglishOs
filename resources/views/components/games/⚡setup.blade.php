@@ -3,6 +3,7 @@
 use App\Models\PairGame;
 use App\Models\User;
 use App\Services\PairGames;
+use App\Services\PairPractice;
 use App\Services\TabooDeck;
 use App\Services\JustAMinuteDeck;
 use App\Services\RolePlayDeck;
@@ -28,6 +29,12 @@ new class extends Component
 
     #[Url]
     public int $minutes = 5;
+
+    /** "auto" = every day both finished, "choose" = the days picked below. */
+    public string $dayMode = 'auto';
+
+    /** @var list<string> */
+    public array $days = [];
 
     public function mount(string $game): void
     {
@@ -101,7 +108,7 @@ new class extends Component
      */
     public function setVoiceFeedback(bool $on): void
     {
-        auth()->user()->update(['game_voice_feedback' => $on]);
+        auth()->user()->update(['games_voice_feedback' => $on]);
     }
 
     public function updatedMinutes(): void
@@ -112,7 +119,27 @@ new class extends Component
 
     public function updatedFriend(): void
     {
-        unset($this->friends);
+        $this->dayMode = 'auto';
+        $this->days = [];
+        unset($this->friends, $this->dayChoices);
+    }
+
+    /**
+     * The days to pick from with the friend on screen.
+     *
+     * @return list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>
+     */
+    #[Computed]
+    public function dayChoices(): array
+    {
+        $friend = $this->allFriends->firstWhere('id', $this->friend);
+
+        return $friend ? app(PairPractice::class)->dayChoices(auth()->user(), $friend) : [];
+    }
+
+    public function usesDays(): bool
+    {
+        return in_array($this->game, PairGame::DAY_BASED, true) && collect($this->dayChoices)->flatMap(fn (array $mission) => $mission['days'])->contains('shared', true);
     }
 
     /**
@@ -125,7 +152,9 @@ new class extends Component
 
         abort_unless(auth()->user()->canMessageWith($friend), 403);
 
-        $pairGame = app(PairGames::class)->start(auth()->user(), $friend, $this->game, $this->minutes);
+        $days = $this->dayMode === 'choose' && $this->usesDays() ? array_values(array_filter($this->days, 'is_string')) : null;
+
+        $pairGame = app(PairGames::class)->start(auth()->user(), $friend, $this->game, $this->minutes, $days);
 
         if ($pairGame) {
             $this->redirectRoute('games.play', $pairGame, navigate: true);
@@ -139,15 +168,10 @@ new class extends Component
     $picked = collect($this->friends)->first(fn (array $row) => $row['user']->id === $friend);
 @endphp
 
-<div class="mx-auto max-w-2xl pb-6">
-    <div class="relative h-44 overflow-hidden bg-surface-sunken sm:rounded-b-3xl dark:bg-surface-sunken-dark">
-        <img src="{{ $info['image'] }}" alt="" class="h-full w-full object-cover">
-        <a href="{{ route('games.index') }}" wire:navigate aria-label="Back to Games" class="absolute top-3 left-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
-    </div>
-
-    <div class="relative -mt-6 space-y-5 rounded-t-3xl bg-ground px-4 pt-5 sm:px-6 dark:bg-ground-dark">
-        <div class="relative pe-10">
-            <x-usage-guide-button label="How to play" class="absolute end-0 top-0" />
+<div class="mx-auto max-w-2xl space-y-4 px-4 pt-3 pb-6 sm:px-6">
+    <header class="flex items-center gap-2">
+        <a href="{{ route('games.index') }}" wire:navigate aria-label="Back to Games" class="-ms-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
+        <div class="min-w-0 flex-1">
             <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">{{ $info['name'] }}</h1>
             <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
                 PairGame::GAME_WHO => 'Ask yes/no questions. Guess the secret.',
@@ -159,31 +183,19 @@ new class extends Component
                 default => 'Explain the word. Don’t say it.',
             } }}</p>
         </div>
+        <x-usage-guide-button label="How to play" />
+    </header>
 
-        <div class="grid grid-cols-3 gap-2 text-center text-xs font-bold text-ink dark:text-ink-dark">
-            <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-surface p-3 shadow-sm dark:bg-surface-dark">
-                <span class="text-accent dark:text-accent-dark">@svg('heroicon-o-clock', 'h-6 w-6')</span>
-                {{ $picked['turnSeconds'] ?? TabooDeck::TURN_SECONDS }} s each
-            </div>
-            <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-surface p-3 shadow-sm dark:bg-surface-dark">
-                <span class="text-accent dark:text-accent-dark">@svg('heroicon-o-arrows-right-left', 'h-6 w-6')</span>
-                Then swap
-            </div>
-            <div class="flex flex-col items-center gap-1.5 rounded-2xl bg-surface p-3 shadow-sm dark:bg-surface-dark">
-                <span class="text-accent dark:text-accent-dark">@svg('heroicon-o-trophy', 'h-6 w-6')</span>
-                Beat your record
-            </div>
-        </div>
-
+    <div class="space-y-4">
         @if ($this->friends === [])
             <div class="rounded-2xl border border-dashed border-line p-5 text-center dark:border-line-dark">
                 <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Add a friend first — you both need to follow each other.</p>
                 <a href="{{ route('friends.index') }}" wire:navigate class="mt-2 inline-block text-sm font-bold text-accent-ink dark:text-accent-ink-dark">Find friends ›</a>
             </div>
         @else
-            <div class="space-y-2" x-data="{ allFriends: false }">
+            <div class="card space-y-2 p-4" x-data="{ allFriends: false }">
                 <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Play with</p>
-                <div class="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
+                <div class="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1">
                     @foreach ($this->friends as $row)
                         @php $isPicked = $row['user']->id === $friend; @endphp
                         <button
@@ -193,7 +205,7 @@ new class extends Component
                             @class([
                                 'flex w-24 shrink-0 cursor-pointer flex-col items-center gap-1.5 rounded-2xl border-2 px-2 py-2.5',
                                 'border-accent bg-accent-soft dark:border-accent-dark dark:bg-accent-soft-dark' => $isPicked,
-                                'border-transparent bg-surface shadow-sm dark:bg-surface-dark' => ! $isPicked,
+                                'border-line dark:border-line-dark' => ! $isPicked,
                             ])
                         >
                             <x-user-avatar :user="$row['user']" class="h-11 w-11 text-sm" />
@@ -215,7 +227,7 @@ new class extends Component
                 <x-friend-sheet show="allFriends" label="All friends" :friends="$this->allFriends" :action-for="fn ($friend) => '$set(\'friend\', '.$friend->id.')'" />
             </div>
 
-            <div class="space-y-2">
+            <div class="card space-y-2 p-4">
                 <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Time</p>
                 <div class="grid grid-cols-2 gap-1.5 rounded-2xl bg-surface-sunken p-1 dark:bg-surface-sunken-dark">
                     @foreach (PairGame::LENGTHS as $length)
@@ -228,7 +240,29 @@ new class extends Component
                 </div>
             </div>
 
-            @include('components.games.partials.voice-switch', ['me' => auth()->user()])
+            @if ($this->usesDays())
+                <div
+                    wire:key="days-{{ $friend }}"
+                    x-data="{
+                        mode: $wire.entangle('dayMode'),
+                        days: $wire.entangle('days'),
+                        toggle(key) {
+                            this.days = this.days.includes(key) ? this.days.filter((day) => day !== key) : [...this.days, key];
+                        },
+                        toggleAll(keys) {
+                            this.days = keys.every((key) => this.days.includes(key))
+                                ? this.days.filter((day) => ! keys.includes(day))
+                                : [...new Set([...this.days, ...keys])];
+                        },
+                    }"
+                    class="card space-y-2 p-4"
+                >
+                    <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Days</p>
+                    @include('components.pair-practice.partials.day-picker', ['autoLine' => 'All the days you both finished', 'missions' => $this->dayChoices, 'keyPrefix' => $friend])
+                </div>
+            @endif
+
+            @include('components.games.partials.voice-switch', ['voiceOn' => auth()->user()->games_voice_feedback])
 
             <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
                 PairGame::GAME_WHO => 'Secrets: jobs, food, places… from your missions',
@@ -245,7 +279,7 @@ new class extends Component
                 wire:click="play"
                 wire:loading.attr="disabled"
                 wire:target="play"
-                class="block w-full cursor-pointer rounded-2xl bg-accent px-5 py-4 text-lg font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
+                class="block w-full cursor-pointer rounded-full bg-accent px-5 py-4 text-base font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
             >Invite {{ $picked['user']->name ?? '' }} · Play</button>
         @endif
     </div>

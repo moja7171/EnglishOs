@@ -40,10 +40,11 @@ new class extends Component
 <div class="mx-auto max-w-2xl space-y-4 px-4 pt-3 pb-6 sm:px-6" x-data x-on:eos-friends-changed.window="$wire.$refresh()">
     <header class="flex items-center gap-2">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ms-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
-        <div class="min-w-0">
+        <div class="min-w-0 flex-1">
             <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">Games</h1>
             <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">Play with a friend. Speak English.</p>
         </div>
+        <x-usage-guide-button />
     </header>
 
     @if ($open = $this->openGame)

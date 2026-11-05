@@ -80,6 +80,7 @@ class GameBadges
     private function finishedGames(User $user, ?PairGame $upTo): Collection
     {
         return PairGame::involving($user)
+            ->standalone()
             ->where('stage', PairGame::STAGE_DONE)
             ->when($upTo?->finished_at, fn ($query) => $query->where('finished_at', '<=', $upTo->finished_at))
             ->orderBy('finished_at')

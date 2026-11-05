@@ -30,8 +30,14 @@ trait ChecksGameVoice
      */
     public function setVoiceFeedback(bool $on): void
     {
-        auth()->user()->update(['game_voice_feedback' => $on]);
+        auth()->user()->update([$this->voiceSetting() => $on]);
     }
+
+    /**
+     * The User column of this page's switch: Pair Practice and the Games
+     * page each keep their own.
+     */
+    abstract protected function voiceSetting(): string;
 
     protected function keepVoiceClip(Model $subject, string $part, string $label): void
     {

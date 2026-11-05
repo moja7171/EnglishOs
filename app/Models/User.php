@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-#[Fillable(['name', 'username', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'friend_alerts', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight', 'game_voice_feedback'])]
+#[Fillable(['name', 'username', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'friend_alerts', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight', 'game_voice_feedback', 'games_voice_feedback'])]
 #[Hidden(['password', 'remember_token', 'gemini_api_key', 'groq_api_key', 'invite_code'])]
 class User extends Authenticatable
 {
@@ -86,6 +86,7 @@ class User extends Authenticatable
             'discoverable' => 'boolean',
             'friend_alerts' => 'boolean',
             'game_voice_feedback' => 'boolean',
+            'games_voice_feedback' => 'boolean',
             'is_admin' => 'boolean',
             'ai_keys_required' => 'boolean',
             'program_started_at' => 'datetime',
@@ -763,17 +764,28 @@ class User extends Authenticatable
     }
 
     /**
-     * The "I practiced" tick for today's outside-the-app voice practice
-     * with Pi. Idempotent in the same way as recordListeningToday().
+     * The "I did it" tick for outside-the-app voice practice, on the
+     * learner's word. The daily log keeps one row per date, so a second
+     * mission day done on the same date is kept as that day's own tick
+     * (see piPracticedDaysByMission()).
      */
     public function recordPiPracticeToday(string $missionCode, int $dayNumber): PiPracticeLog
     {
         app(StreakRing::class)->record($this, 'pi');
 
-        return $this->piPracticeLogs()->firstOrCreate(
+        $log = $this->piPracticeLogs()->firstOrCreate(
             ['practiced_on' => today()->toDateString()],
             ['mission_code' => $missionCode, 'day_number' => $dayNumber],
         );
+
+        if ($log->mission_code !== $missionCode || (int) $log->day_number !== $dayNumber) {
+            $this->piChatFeedback()->updateOrCreate(
+                ['mission_code' => $missionCode, 'day_number' => $dayNumber],
+                ['chat' => '', 'feedback' => ['practice_done' => true]],
+            );
+        }
+
+        return $log;
     }
 
     /**
@@ -811,8 +823,8 @@ class User extends Authenticatable
     /**
      * The days of one mission whose voice practice the learner has done,
      * for the ticks on its day buttons. The daily tick (pi_practice_logs)
-     * keeps only one day per calendar date, so a saved chat whose feedback
-     * saw the practice done counts too.
+     * keeps only one day per calendar date, so a pi_chat_feedback row
+     * marked done counts too.
      *
      * @return list<int>
      */

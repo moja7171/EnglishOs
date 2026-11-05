@@ -155,7 +155,7 @@ class FriendActivity
             }
         }
 
-        $games = PairGame::forPair($user, $viewer)->where('stage', PairGame::STAGE_DONE)->get()
+        $games = PairGame::forPair($user, $viewer)->standalone()->where('stage', PairGame::STAGE_DONE)->get()
             ->filter(fn (PairGame $game) => $game->finished_at->copy()->setTimezone($viewer->reminderTimezone())->toDateString() === $date);
 
         foreach ($games as $game) {
@@ -240,7 +240,7 @@ class FriendActivity
             return collect();
         }
 
-        return PairGame::forPair($user, $viewer)->where('stage', PairGame::STAGE_DONE)->pluck('finished_at')
+        return PairGame::forPair($user, $viewer)->standalone()->where('stage', PairGame::STAGE_DONE)->pluck('finished_at')
             ->mapWithKeys(fn ($finishedAt) => [Carbon::parse($finishedAt)->setTimezone($viewer->reminderTimezone())->toDateString() => true]);
     }
 
@@ -252,7 +252,7 @@ class FriendActivity
      */
     public function together(User $viewer, User $friend): array
     {
-        $games = PairGame::forPair($viewer, $friend)->where('stage', PairGame::STAGE_DONE)->get();
+        $games = PairGame::forPair($viewer, $friend)->standalone()->where('stage', PairGame::STAGE_DONE)->get();
         $days = $this->gameDaysWith($friend, $viewer);
         $run = 0;
         $day = $viewer->localToday();

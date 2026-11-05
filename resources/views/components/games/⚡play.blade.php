@@ -4,6 +4,7 @@ use App\Livewire\Concerns\ChecksGameVoice;
 use App\Models\PairGame;
 use App\Notifications\PairGameInvite;
 use App\Services\PairGames;
+use App\Services\UsageGuides;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -35,9 +36,22 @@ new class extends Component
         $this->pairGame = $pairGame;
     }
 
+    /**
+     * A round's game follows the round's one switch.
+     */
+    protected function voiceSetting(): string
+    {
+        return $this->pairGame->isPractice() ? 'game_voice_feedback' : 'games_voice_feedback';
+    }
+
     public function join(): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->join(auth()->user()));
+    }
+
+    public function readRoleGuide(): void
+    {
+        auth()->user()->markGuideRead(UsageGuides::keyForGame($this->pairGame->game));
     }
 
     public function startTurn(): void
@@ -197,7 +211,7 @@ new class extends Component
 
         abort_unless($me->canMessageWith($friend), 403);
 
-        $next = app(PairGames::class)->start($me, $friend, $this->pairGame->game, $this->pairGame->minutes);
+        $next = app(PairGames::class)->start($me, $friend, $this->pairGame->game, $this->pairGame->minutes, $this->pairGame->rules['days'] ?? null);
 
         if ($next) {
             $this->redirectRoute('games.play', $next, navigate: true);
@@ -247,7 +261,7 @@ new class extends Component
             default => 'Turn '.($index + 1).' · you explained: '.$words,
         };
 
-        $this->keepVoiceClip($this->pairGame, $part, $label);
+        $this->keepVoiceClip($this->pairGame->practiceSession ?? $this->pairGame, $part, $label);
     }
 
     /**
@@ -256,7 +270,8 @@ new class extends Component
      */
     public function checkMyVoice(): void
     {
-        if (! $this->pairGame->refresh()->isFinished()) {
+        // A round's game is checked with the round, on its result screen.
+        if (! $this->pairGame->refresh()->isFinished() || $this->pairGame->isPractice()) {
             return;
         }
 
@@ -367,12 +382,21 @@ new class extends Component
 <div class="mx-auto max-w-xl" @if ($poll) wire:poll.{{ $poll }} @endif>
     {{-- Tells this phone's recorder whether its owner is explaining right now. --}}
     @php
-        $voiceOn = (bool) $me->game_voice_feedback;
+        $voiceOn = (bool) $me->{$this->voiceSetting()};
         $voicePart = $pairGame->isPlaying() && $this->speaksIn($pairGame->currentTurn()) ? 'turn-'.$pairGame->currentTurnIndex() : '';
     @endphp
     <span hidden wire:key="voice-{{ $voicePart }}-{{ (int) $voiceOn }}" x-data x-init="window.eosGameVoice?.sync($wire, @js($voiceOn), @js($voicePart), null); @js($voiceOn && ($pairGame->isWaiting() || $pairGame->stage === PairGame::STAGE_READY)) && window.eosGameVoice?.warmUp()"></span>
 
-    @if ($pairGame->isCancelled())
+    @if ($pairGame->isPractice() && ($pairGame->isFinished() || $pairGame->isCancelled()))
+        {{-- A round's game ends on the round's result, once every recorded piece is sent. --}}
+        <div
+            x-data
+            x-init="window.eosGameVoice ? window.eosGameVoice.whenIdle(() => Livewire.navigate(@js(route('pair-practice.show', $pairGame->pair_practice_session_id)))) : Livewire.navigate(@js(route('pair-practice.show', $pairGame->pair_practice_session_id)))"
+            class="flex min-h-[60vh] items-center justify-center p-6"
+        >
+            <span class="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent dark:border-accent-dark dark:border-t-transparent"></span>
+        </div>
+    @elseif ($pairGame->isCancelled())
         <div class="space-y-2 p-6 text-center">
             @php $endedBy = $pairGame->endedBy; @endphp
             <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $endedBy?->is($me) ? 'You' : ($endedBy->name ?? 'Your friend') }} {{ $pairGame->joined_at ? 'ended the game.' : 'cancelled the invite.' }}</p>
@@ -389,21 +413,19 @@ new class extends Component
                     <a href="{{ route('games.setup', ['game' => $pairGame->game, 'friend' => $friend->id, 'minutes' => $pairGame->minutes]) }}" wire:navigate class="mt-3 inline-block text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Invite again ›</a>
                 </div>
             @else
-                <div class="card space-y-4 overflow-hidden p-0 text-center">
-                    <img src="{{ $info['image'] }}" alt="" class="h-36 w-full object-cover">
-                    <div class="space-y-4 px-6 pb-6">
-                        <x-user-avatar :user="$friend" class="mx-auto -mt-12 h-16 w-16 text-lg ring-4 ring-surface dark:ring-surface-dark" />
-                        <div>
-                            <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $isStarter ? 'Waiting for '.$friend->name.'…' : $friend->name.' wants to play' }}</p>
-                            <p class="mt-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $info['name'] }} · {{ $pairGame->minutes }} min{{ $best !== null ? ' · Best '.PairGame::formatPoints($best) : '' }}</p>
-                        </div>
-                        @unless ($isStarter)
-                            <button type="button" wire:click="join" wire:loading.attr="disabled" wire:target="join" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3.5 text-base font-extrabold text-white disabled:opacity-50 dark:bg-accent-dark">Join</button>
-                        @endunless
-                        @include('components.games.partials.voice-switch')
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
+                <div class="card space-y-4 p-6 text-center">
+                    <x-user-avatar :user="$friend" class="mx-auto h-16 w-16 text-lg" />
+                    <div>
+                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $isStarter ? 'Waiting for '.$friend->name.'…' : $friend->name.' wants to play' }}</p>
+                        <p class="mt-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $info['name'] }}{{ ($pairGame->rules['days'] ?? null) ? ' · '.App\Models\PairPracticeSession::describeDays($pairGame->rules['days']) : '' }} · {{ $pairGame->minutes }} min{{ $best !== null ? ' · Best '.PairGame::formatPoints($best) : '' }}</p>
                     </div>
+                    @unless ($isStarter)
+                        <button type="button" wire:click="join" wire:loading.attr="disabled" wire:target="join" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">Join</button>
+                    @endunless
                 </div>
+                @include('components.games.partials.role-guide')
+                @include('components.games.partials.voice-switch')
+                <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
                 <button type="button" wire:click="end" class="mx-auto block cursor-pointer text-xs font-semibold text-ink-faint hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark">Cancel</button>
             @endif
         </div>

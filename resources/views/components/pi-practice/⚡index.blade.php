@@ -1,8 +1,6 @@
 <?php
 
-use App\Livewire\Concerns\GivesConversationFeedback;
 use App\Models\Mission;
-use App\Models\PiChatFeedback;
 use App\Services\ListeningPicks;
 use App\Services\PiPractice;
 use App\Services\PiPrompts;
@@ -13,8 +11,6 @@ use Livewire\Component;
 
 new class extends Component
 {
-    use GivesConversationFeedback;
-
     /**
      * Locked: these decide which day's practice is shown AND which day the
      * practice tick is filed under, so the browser must never be able
@@ -34,9 +30,6 @@ new class extends Component
     #[Locked]
     public int $promptSeed = 0;
 
-    /** The voice-AI chat the learner copied and pasted back in, for feedback. */
-    public string $pastedChat = '';
-
     /**
      * No arguments = the day the learner is pointed at (see PiPractice:
      * the day they just finished, or their current day). Any other day
@@ -52,93 +45,23 @@ new class extends Component
         $this->missionCode = $target['missionCode'];
         $this->day = $target['dayNumber'];
         $this->promptSeed = random_int(1, PHP_INT_MAX);
-
-        $saved = $this->savedChatFeedback();
-
-        if ($saved !== null && ! $saved->isClosed()) {
-            $this->pastedChat = $saved->chat;
-            $this->feedback = $saved->feedback;
-        }
     }
 
     /**
-     * Pi sends the learner's own words in one "My words:" message (see
-     * PiPrompts), which the learner copies and pastes here; a whole copied
-     * chat still works. Speaker names may or may not come along, so the
-     * AI is told how to tell the two sides apart, and it judges against
-     * the day's own goal (see PiPrompts::dayTask()). A good result is
-     * kept for the day on screen (see PiChatFeedback).
-     *
-     * This is also the only way the practice gets ticked: there is no
-     * "I practiced" button, the AI says whether the chat really did the
-     * day's plan, and only then is today counted toward the streak (see
-     * User::activeDates()), filed under the day on screen. The day is
-     * re-checked here, not trusted from mount(): a day ahead is refused
-     * before any AI is asked or anything is kept.
+     * "I did it": the learner's word is the tick, filed under the day on
+     * screen and counted toward the streak (see User::activeDates()). The
+     * day is re-checked here, not trusted from mount(): a day ahead is
+     * refused.
      */
-    public function checkPastedChat(): void
+    public function markPracticed(): void
     {
         if ($this->isAhead) {
             return;
         }
 
-        $this->validate(['pastedChat' => ['required', 'string', 'min:40', 'max:12000']], attributes: ['pastedChat' => 'chat']);
-
-        $this->requestConversationFeedback(
-            $this->pastedChat,
-            situation: 'a voice conversation the learner had with an AI speaking partner (such as Pi), copied from '
-                .'the app and pasted in. It may be a "My words:" list where each "Me:" line is the learner\'s exact '
-                .'words and "Q:" is the AI\'s question, or a whole chat. Speaker names may be missing — the AI\'s turns are usually longer and '
-                .'ask questions or give corrections; judge ONLY the learner\'s own turns. Ignore filler words.',
-            source: 'pi',
-            spoken: true,
-            extraGuidance: $this->task['feedback'],
-            practiceTask: implode('; ', $this->task['plan']),
-        );
-
-        if ($this->feedback === null) {
-            return;
-        }
-
-        // A day once done stays done, even if a later paste isn't the practice.
-        $wasDone = $this->savedChatFeedback()?->isPracticeDone() ?? false;
-
-        auth()->user()->piChatFeedback()->updateOrCreate(
-            ['mission_code' => $this->missionCode, 'day_number' => $this->day],
-            ['chat' => $this->pastedChat, 'feedback' => $wasDone ? [...$this->feedback, 'practice_done' => true] : $this->feedback],
-        );
-
-        if (($this->feedback['practice_done'] ?? false) === true) {
-            auth()->user()->recordPiPracticeToday($this->missionCode, $this->day);
-
-            unset($this->practicedToday);
-        }
+        auth()->user()->recordPiPracticeToday($this->missionCode, $this->day);
 
         unset($this->practicedDaysByMission, $this->practicedDays, $this->isPracticed, $this->missionDays);
-    }
-
-    /**
-     * Closing the card forgets the saved chat and feedback of this day,
-     * but a done practice keeps its tick (see PiChatFeedback::close()).
-     */
-    public function dismissFeedback(): void
-    {
-        $this->savedChatFeedback()?->close();
-
-        $this->pastedChat = '';
-        $this->feedback = null;
-        $this->feedbackError = null;
-    }
-
-    /**
-     * The last chat pasted for the day on screen, with its feedback.
-     */
-    private function savedChatFeedback(): ?PiChatFeedback
-    {
-        return auth()->user()->piChatFeedback()
-            ->where('mission_code', $this->missionCode)
-            ->where('day_number', $this->day)
-            ->first();
     }
 
     #[Computed]
@@ -191,7 +114,7 @@ new class extends Component
     }
 
     /**
-     * @return array{title: string, goal: string, plan: list<string>, prompt: string, feedback: string}
+     * @return array{title: string, goal: string, plan: list<string>, prompt: string}
      */
     #[Computed]
     public function task(): array
@@ -203,12 +126,6 @@ new class extends Component
     public function missionTitle(): string
     {
         return Mission::roadmapCatalog()[$this->missionCode]['title'];
-    }
-
-    #[Computed]
-    public function practicedToday(): bool
-    {
-        return auth()->user()->hasPracticedWithPiToday();
     }
 
     /**
@@ -234,13 +151,12 @@ new class extends Component
     }
 
     /**
-     * The tick on the banner: today's own (it is what the streak counts),
-     * or, on another day, that day's.
+     * The tick on the banner and on this day's "I did it".
      */
     #[Computed]
     public function isPracticed(): bool
     {
-        return $this->isToday ? $this->practicedToday : in_array($this->day, $this->practicedDays, true);
+        return in_array($this->day, $this->practicedDays, true);
     }
 
     /**
@@ -282,9 +198,7 @@ new class extends Component
     {{-- The mission's photo banner, the same as /listening: the way back
          to this day on the mission's page (where Daily talk sits beside
          the day's Lesson and Listening), the four days, and whether
-         this day's practice is done — never a button: the feedback below
-         ticks it once the AI sees the day's plan really done (see
-         checkPastedChat()). --}}
+         this day's practice is done. --}}
     <x-mission-banner
         :mission-code="$missionCode"
         title="Daily talk"
@@ -313,24 +227,16 @@ new class extends Component
     @php
         $copiedKey = 'eos-pi-copied:'.$missionCode.':'.$day;
         $openPi = 'if (/Android/i.test(navigator.userAgent)) { window.location.href = '.App\Services\PiPrompts::piAndroidIntentJs().' }';
-        $notCounted = ($feedback['practice_done'] ?? null) === false && ! $this->isPracticed;
-        $normalized = $feedback ? App\Services\LearnerFeedback::normalize($feedback) : null;
-        $firstIssue = $normalized ? collect($normalized['sentences'])->first(fn ($sentence) => $sentence['status'] !== 'ok') : null;
-        $stepLabels = ['Talk', 'Paste', 'Feedback'];
     @endphp
 
-    {{-- One card that changes with the learner's step: 1 copy the prompt
-         and talk in Pi, 2 back from Pi: paste Pi's "transcript" answer, 3
-         the feedback — the only way the day gets its tick (see
-         checkPastedChat()). The page remembers the copy tap, so coming
-         back from Pi lands on step 2 even after a reload. --}}
+    {{-- One card: copy the prompt and talk in Pi, then "I did it" ticks the
+         day. The page remembers the copy tap, so coming back from Pi finds
+         the tick button even after a reload. --}}
     <div
         x-data="{
             copied: false,
-            manual: false,
             fullPrompt: false,
             showPrompt: false,
-            showAll: false,
             init() {
                 try { this.copied = localStorage.getItem({{ Illuminate\Support\Js::from($copiedKey) }}) === '1' } catch (e) {}
             },
@@ -340,137 +246,29 @@ new class extends Component
                 try { localStorage.setItem({{ Illuminate\Support\Js::from($copiedKey) }}, '1') } catch (e) {}
                 {{ $openPi }}
             },
-            async pasteAndCheck() {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    if (text && text.trim().length >= 40) {
-                        $wire.pastedChat = text;
-                        await $wire.checkPastedChat();
-                        return;
-                    }
-                } catch (e) {}
-                this.manual = true;
-            },
-            get step() { return $wire.feedback ? 3 : (this.copied ? 2 : 1) },
         }"
         class="space-y-4"
     >
         <textarea x-ref="prompt" readonly hidden aria-hidden="true">{{ $this->task['prompt'] }}</textarea>
 
-        @unless ($this->isAhead)
-            <ol class="flex items-center gap-1.5 px-1 text-xs font-extrabold text-ink-faint dark:text-ink-faint-dark" aria-label="Steps">
-                @foreach ($stepLabels as $index => $label)
-                    @php $number = $index + 1; @endphp
-                    <li
-                        class="flex items-center gap-1.5"
-                        :class="step > {{ $number }} ? 'text-success dark:text-success-dark' : (step === {{ $number }} ? 'text-accent-ink dark:text-accent-ink-dark' : '')"
-                        x-bind:aria-current="step === {{ $number }} ? 'step' : null"
-                    >
-                        <span
-                            class="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-line text-[10px] dark:border-line-dark"
-                            :class="step > {{ $number }} ? 'border-success bg-success text-white dark:border-success-dark dark:bg-success-dark' : (step === {{ $number }} ? 'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' : '')"
-                            x-text="step > {{ $number }} ? '✓' : '{{ $number }}'"
-                        >{{ $number }}</span>
-                        {{ $label }}
-                    </li>
-                    @if (! $loop->last)
-                        <li aria-hidden="true" class="h-0.5 flex-1 rounded-full bg-line dark:bg-line-dark" :class="step > {{ $number }} ? 'bg-success dark:bg-success-dark' : ''"></li>
-                    @endif
-                @endforeach
-            </ol>
-        @endunless
-
-        {{-- 1. Talk --}}
-        <section wire:key="pi-step-talk" x-show="step === 1" @unless ($this->isAhead) x-cloak @endunless class="card flex flex-col items-center gap-3 p-5 text-center" aria-label="Talk with Pi">
+        <section class="card flex flex-col items-center gap-3 p-5 text-center" aria-label="Talk with Pi">
             <span class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-linear-to-br from-[#1fa98a] to-[#0e5c4b] text-xl font-extrabold text-white" aria-hidden="true">Pi</span>
             <h2 class="text-lg font-extrabold text-ink dark:text-ink-dark">Talk with Pi · {{ App\Services\PiPractice::MINUTES }} min</h2>
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Pi asks, you answer. Then you ask Pi.</p>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">A free chat, like two friends. Say "stop" when you're done.</p>
             @unless ($this->isAhead)
                 <button type="button" x-on:click="copyAndOpen()" class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-sm transition-colors hover:opacity-90 dark:bg-accent-dark">
                     @svg('heroicon-s-microphone', 'h-5 w-5') Copy &amp; open Pi
                 </button>
+                @if ($this->isPracticed)
+                    <p class="text-sm font-extrabold text-success dark:text-success-dark">✓ Done for this day</p>
+                @else
+                    <button type="button" x-show="copied" x-cloak wire:click="markPracticed" wire:loading.attr="disabled" wire:target="markPracticed" class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-success px-5 py-3 text-base font-extrabold text-success disabled:opacity-60 dark:border-success-dark dark:text-success-dark">
+                        @svg('heroicon-s-check', 'h-5 w-5') I did it
+                    </button>
+                @endif
             @endunless
             <button type="button" x-on:click="showPrompt = true" class="cursor-pointer text-sm font-extrabold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">See prompt</button>
         </section>
-
-        @unless ($this->isAhead)
-            {{-- 2. Back from Pi: one button reads Pi's answer from the
-                 clipboard; the box only shows when the phone won't allow it. --}}
-            <section wire:key="pi-step-paste" x-show="step === 2" x-cloak class="card flex flex-col items-center gap-3 p-5 text-center" aria-label="Paste">
-                <span class="text-4xl" aria-hidden="true">📋</span>
-                <h2 class="text-lg font-extrabold text-ink dark:text-ink-dark">Back from Pi?</h2>
-                <p class="w-full rounded-2xl bg-surface-sunken px-3 py-2.5 text-sm font-bold text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">In Pi, type <span class="text-accent-ink dark:text-accent-ink-dark">transcript</span><br>then copy Pi's answer</p>
-
-                <div x-show="manual" x-cloak class="w-full text-left">
-                    <label for="pasted-chat" class="sr-only">Pi's answer</label>
-                    <textarea id="pasted-chat" wire:model="pastedChat" rows="4" placeholder="Paste Pi's answer here" class="w-full rounded-2xl border border-line bg-transparent p-3 text-sm text-ink dark:border-line-dark dark:text-ink-dark"></textarea>
-                </div>
-                @error('pastedChat')
-                    <p class="text-xs text-danger-ink" x-init="manual = true">{{ $message }}</p>
-                @enderror
-                @if ($feedbackError && ! $feedback)
-                    <p class="text-sm text-danger-ink">{{ $feedbackError }}</p>
-                @endif
-
-                <button
-                    type="button"
-                    x-on:click="manual ? $wire.checkPastedChat() : pasteAndCheck()"
-                    wire:loading.attr="disabled"
-                    wire:target="checkPastedChat"
-                    class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-sm transition-colors hover:opacity-90 disabled:pointer-events-none disabled:opacity-60 dark:bg-accent-dark"
-                >
-                    <span wire:loading.remove wire:target="checkPastedChat" x-text="manual ? 'Check' : 'Paste & check'">Paste &amp; check</span>
-                    <span wire:loading wire:target="checkPastedChat">Checking…</span>
-                </button>
-                <button type="button" x-on:click="copyAndOpen()" class="cursor-pointer text-sm font-extrabold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Open Pi again</button>
-            </section>
-
-            {{-- 3. Feedback: the summary and the first thing to fix, the
-                 whole feedback one tap away. --}}
-            @if ($normalized)
-                <section wire:key="pi-step-feedback" class="space-y-3" aria-label="Feedback">
-                    <div class="card space-y-3 p-4" dir="rtl">
-                        <div class="flex items-center justify-between gap-2" dir="ltr">
-                            <h2 class="text-base font-extrabold text-ink dark:text-ink-dark">Your feedback</h2>
-                            <button type="button" x-on:click="showAll = true" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">See all ›</button>
-                        </div>
-                        @if ($normalized['summary'])
-                            <p class="font-fa text-sm font-semibold text-ink dark:text-ink-dark">{{ $normalized['summary'] }}</p>
-                        @endif
-                        @if ($firstIssue)
-                            <div class="rounded-2xl border border-line p-3 dark:border-line-dark">
-                                <x-learner-feedback-sentence :sentence="$firstIssue" />
-                            </div>
-                        @endif
-                    </div>
-                    @if ($notCounted)
-                        <p class="text-center text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">{{ $this->isToday ? "Not counted — this doesn't look like today's practice." : "Not counted — this doesn't look like this day's practice." }}</p>
-                    @endif
-                    <div class="flex items-center justify-center gap-4 text-xs font-extrabold text-ink-faint dark:text-ink-faint-dark">
-                        <span>Saved to your Notebook</span>
-                        <button type="button" wire:click="dismissFeedback" class="cursor-pointer underline hover:text-ink dark:hover:text-ink-dark">Paste again</button>
-                    </div>
-
-                    {{-- The whole feedback, full screen like a lesson's. --}}
-                    <div
-                        x-show="showAll"
-                        x-cloak
-                        x-back-close="{ open: showAll, close: () => showAll = false }"
-                        x-on:keydown.escape.window="showAll = false"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label="Your feedback"
-                        class="fixed inset-0 z-50 overflow-y-auto bg-ground dark:bg-ground-dark"
-                    >
-                        <div class="mx-auto flex max-w-lg flex-col gap-4 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-10">
-                            <x-lesson-header close-click="showAll = false" :progress="1" />
-                            <x-step-intro kind="Feedback" />
-                            <x-learner-feedback :feedback="$feedback" fold-techniques />
-                        </div>
-                    </div>
-                </section>
-            @endif
-        @endunless
 
         {{-- What Pi will do: the day's plan, the full prompt one tap further. --}}
         <x-bottom-sheet show="showPrompt" label="What Pi will do">

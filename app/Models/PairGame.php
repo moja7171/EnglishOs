@@ -16,9 +16,11 @@ use Illuminate\Support\Facades\DB;
  * 5 or 10 minutes, one team score. Taboo is played in timed turns — one
  * explains (the only one who sees the card) while the other guesses —
  * and the two swap after every turn. The explainer taps what happened to
- * each card, so the guesser's phone never shows the word.
+ * each card, so the guesser's phone never shows the word. A game with a
+ * practice session is that round's part 4: it counts for the round, not as
+ * a game of its own (see isPractice()).
  */
-#[Fillable(['user_a_id', 'user_b_id', 'started_by_id', 'ended_by_id', 'game', 'minutes', 'rules', 'deck', 'turns', 'stage', 'score', 'joined_at', 'finished_at'])]
+#[Fillable(['pair_practice_session_id', 'user_a_id', 'user_b_id', 'started_by_id', 'ended_by_id', 'game', 'minutes', 'rules', 'deck', 'turns', 'stage', 'score', 'joined_at', 'finished_at'])]
 class PairGame extends Model
 {
     use HasFactory;
@@ -109,6 +111,14 @@ class PairGame extends Model
     public const LENGTHS = [5, 10];
 
     /**
+     * Games whose cards come from mission days, so the two can choose
+     * them; Who am I and Two Truths draw on general topics instead.
+     *
+     * @var list<string>
+     */
+    public const DAY_BASED = [self::GAME_TABOO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_RATHER];
+
+    /**
      * A game's tile on the Games page: its name, one line, what it trains
      * and its photo (public/images/games/<slug>.jpg, from Pexels).
      *
@@ -184,6 +194,61 @@ class PairGame extends Model
         };
     }
 
+    /**
+     * What each phone shows before a game, the first time: this player's
+     * part, the friend's part, one example and how points work. 'first' is
+     * for whoever starts, 'second' for the friend; a game where both do
+     * the same has one 'both' part.
+     *
+     * @return array{first?: array{title: string, you: string, friend: string}, second?: array{title: string, you: string, friend: string}, both?: array{title: string, you: string, friend: string}, example: array{label: string, line: string}, points: string}|null
+     */
+    public static function roleGuide(string $game): ?array
+    {
+        return match ($game) {
+            self::GAME_TABOO => [
+                'first' => ['title' => 'نوبت اول، تو توضیح می‌دی', 'you' => 'کلمه رو می‌بینی و بدون گفتن خودِ کلمه و بدون فارسی توضیحش می‌دی.', 'friend' => 'گوش می‌ده و حدسش رو بلند می‌گه.'],
+                'second' => ['title' => 'نوبت اول، تو حدس می‌زنی', 'you' => 'گوش می‌دی و حدست رو بلند می‌گی.', 'friend' => 'کلمه رو می‌بینه و بدون گفتن خودِ کلمه توضیحش می‌ده.'],
+                'example' => ['label' => 'breakfast', 'line' => '"You eat it in the morning."'],
+                'points' => 'هر کلمه‌ی درست ۱+. توضیح‌دهنده Got it رو می‌زنه، بعد جاها عوض می‌شه.',
+            ],
+            self::GAME_WHO => [
+                'first' => ['title' => 'نوبت اول، راز دست توئه', 'you' => 'راز رو می‌بینی و فقط Yes، No یا Sometimes رو می‌زنی.', 'friend' => 'با سؤال بله/خیر راز رو حدس می‌زنه.'],
+                'second' => ['title' => 'نوبت اول، تو حدس می‌زنی', 'you' => 'با سؤال بله/خیر راز رو حدس می‌زنی.', 'friend' => 'راز رو می‌بینه و Yes، No یا Sometimes جواب می‌ده.'],
+                'example' => ['label' => 'a teacher', 'line' => '"Do I work in a school?" Yes'],
+                'points' => 'حدس درست ۱+، با ۵ سؤال یا کمتر ۱+ جایزه. دارنده‌ی راز Got it رو می‌زنه.',
+            ],
+            self::GAME_MINUTE => [
+                'first' => ['title' => 'نوبت اول، تو حرف می‌زنی', 'you' => 'درباره‌ی موضوع حرف می‌زنی و سعی می‌کنی ۴ کلمه‌ی کارت رو بگی.', 'friend' => 'هر کلمه رو که شنید می‌زنه و آخر یه سؤال می‌پرسه.'],
+                'second' => ['title' => 'نوبت اول، تو گوش می‌دی', 'you' => 'هر کلمه رو که شنیدی می‌زنی و آخر یه سؤال می‌پرسی.', 'friend' => 'درباره‌ی موضوع حرف می‌زنه و سعی می‌کنه ۴ کلمه رو بگه.'],
+                'example' => ['label' => 'My weekend · early, coffee, park, friends', 'line' => '"I get up early and drink coffee…"'],
+                'points' => 'هر کلمه‌ی شنیده‌شده ۱+، سؤال آخر هم ۱+. بعد جاها عوض می‌شه.',
+            ],
+            self::GAME_STORY => [
+                'first' => ['title' => 'تو داستان رو شروع می‌کنی', 'you' => '۱ یا ۲ جمله می‌گی و کلمه‌ی نوبتت رو میاری، بعد Done.', 'friend' => 'گوش می‌ده، اگه کلمه رو گفتی می‌زنه و داستان رو ادامه می‌ده.'],
+                'second' => ['title' => 'دوستت داستان رو شروع می‌کنه', 'you' => 'گوش می‌دی و اگه کلمه رو گفت می‌زنی، بعد ۱ یا ۲ جمله ادامه می‌دی.', 'friend' => '۱ یا ۲ جمله می‌گه و کلمه‌ی نوبتش رو میاره.'],
+                'example' => ['label' => 'rain', 'line' => '"Then it started to rain, so we ran home."'],
+                'points' => 'هر کلمه‌ی استفاده‌شده ۱+. نوبت آخر، داستان رو تموم کنید.',
+            ],
+            self::GAME_ROLE => [
+                'both' => ['title' => 'هر کدوم یه نقش و یه هدف مخفی دارید', 'you' => 'با نقشت حرف می‌زنی تا به هدفت برسی. صفحه‌ت رو نشون نده.', 'friend' => 'با نقش خودش حرف می‌زنه و دنبال هدف خودشه.'],
+                'example' => ['label' => 'A customer and a shop assistant', 'line' => '"Can I change this for a smaller one?"'],
+                'points' => 'آخر، هدف دوستت رو حدس بزن (۱+) و صادقانه بگو به هدفت رسیدی یا نه (۱+).',
+            ],
+            self::GAME_TRUTHS => [
+                'first' => ['title' => 'نوبت اول، تو می‌گی', 'you' => '۳ جمله می‌گی: ۲ راست، ۱ دروغ. شماره‌ی دروغ رو روی گوشیت می‌زنی.', 'friend' => '۲ سؤال می‌پرسه و دروغ رو پیدا می‌کنه.'],
+                'second' => ['title' => 'نوبت اول، تو دروغ رو پیدا می‌کنی', 'you' => '۲ سؤال می‌پرسی و شماره‌ی دروغ رو می‌زنی.', 'friend' => '۳ جمله می‌گه: ۲ راست، ۱ دروغ.'],
+                'example' => ['label' => 'My family', 'line' => '"I have two brothers. My mum is a nurse. I live alone."'],
+                'points' => 'دروغ پیدا شد ۱+. بعد جاها عوض می‌شه.',
+            ],
+            self::GAME_RATHER => [
+                'both' => ['title' => 'هر دو مخفیانه انتخاب می‌کنید', 'you' => 'برای خودت A یا B رو می‌زنی و حدس می‌زنی دوستت چی انتخاب می‌کنه.', 'friend' => 'همین کار رو می‌کنه. بعد هر کدوم دلیلش رو می‌گه.'],
+                'example' => ['label' => 'Tea or coffee?', 'line' => '"I\'d rather have tea because I don\'t like coffee."'],
+                'points' => 'هر حدس درست ۱+.',
+            ],
+            default => null,
+        };
+    }
+
     public const STAGE_WAITING = 'waiting';
 
     /** Between turns: the next explainer starts their turn when ready. */
@@ -234,6 +299,21 @@ class PairGame extends Model
             'joined_at' => 'datetime',
             'finished_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The Pair Practice round this game is the last part of.
+     *
+     * @return BelongsTo<PairPracticeSession, $this>
+     */
+    public function practiceSession(): BelongsTo
+    {
+        return $this->belongsTo(PairPracticeSession::class, 'pair_practice_session_id');
+    }
+
+    public function isPractice(): bool
+    {
+        return $this->pair_practice_session_id !== null;
     }
 
     /**
@@ -289,14 +369,27 @@ class PairGame extends Model
     }
 
     /**
+     * Games from the Games page, without the ones played inside a Pair
+     * Practice round.
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeStandalone(Builder $query): void
+    {
+        $query->whereNull('pair_practice_session_id');
+    }
+
+    /**
      * Games that can still be picked up: unfinished, recent, and not an
-     * invite that expired before the friend joined.
+     * invite that expired before the friend joined. A round's game is
+     * picked up from its round.
      *
      * @param  Builder<self>  $query
      */
     public function scopeOpen(Builder $query): void
     {
-        $query->whereNull('finished_at')
+        $query->standalone()
+            ->whereNull('finished_at')
             ->where('stage', '!=', self::STAGE_CANCELLED)
             ->where('created_at', '>=', now()->subHours(self::RESUME_HOURS))
             ->where(fn (Builder $query) => $query
@@ -1131,6 +1224,12 @@ class PairGame extends Model
 
         $this->forceFill(['stage' => self::STAGE_DONE, 'finished_at' => now()])->save();
 
+        if ($this->isPractice()) {
+            $this->practiceSession->gameOver($this->ended_by_id);
+
+            return;
+        }
+
         // A finished game is a slice of both players' day, like a pair practice.
         foreach ([$this->userA, $this->userB] as $player) {
             app(StreakRing::class)->record($player, 'game');
@@ -1169,6 +1268,7 @@ class PairGame extends Model
 
         if (collect($this->turns ?? [])->sum(fn (array $turn) => count($turn['cards'])) === 0) {
             $this->forceFill(['stage' => self::STAGE_CANCELLED])->save();
+            $this->practiceSession?->gameOver($by->id);
 
             return;
         }
