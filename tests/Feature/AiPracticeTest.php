@@ -401,6 +401,101 @@ class AiPracticeTest extends TestCase
         $this->assertSame('I love the park.', $practice->refresh()->current['talk']);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function storyCards(): array
+    {
+        return collect(['river', 'boat', 'rain', 'home'])
+            ->map(fn (string $word) => ['word' => $word, 'story' => 0, 'line' => 'Sara found an old map.', 'image' => null, 'source' => 'M01 · Daily life'])
+            ->all();
+    }
+
+    public function test_story_chain_is_one_long_story_alone_and_a_short_one_at_the_end_of_a_round(): void
+    {
+        $learner = $this->learnerWithAFinishedDay();
+        $this->assertCount(8, app(AiPractices::class)->start($learner, PairGame::GAME_STORY)->cards(AiPractice::STAGE_GAME));
+
+        $lastRound = AiPractice::factory()->create(['learner_id' => $learner->id, 'deck' => ['game' => ['game' => PairGame::GAME_MINUTE, 'cards' => $this->minuteCards()]]]);
+        $lastRound->finish();
+
+        $round = app(AiPractices::class)->start($learner, AiPractice::KIND_PRACTICE);
+
+        $this->assertSame(PairGame::GAME_STORY, $round->game());
+        $this->assertCount(4, $round->cards(AiPractice::STAGE_GAME));
+    }
+
+    public function test_story_chain_my_line_scores_my_word_and_tara_goes_on_with_hers(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards());
+        $this->heard('She walked to the river.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
+            ->withArgs(fn (array $messages) => str_contains($messages[0]['text'], 'She walked to the river.') && str_contains($messages[0]['text'], 'Your word: boat'))
+            ->andReturn('She saw a small boat.'));
+
+        $this->say($practice)->assertSee('She walked to the river.')->assertSee('She saw a small boat.')->assertSee('rain');
+
+        $practice->refresh();
+        $this->assertSame(1, $practice->score);
+        $this->assertSame(1, $practice->answered);
+        $this->assertSame(2, $practice->position);
+    }
+
+    public function test_story_chain_a_line_without_my_word_still_goes_on_with_no_point(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards());
+        $this->heard('She went out.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('A boat came.'));
+
+        $this->say($practice);
+
+        $practice->refresh();
+        $this->assertSame(0, $practice->score);
+        $this->assertSame(1, $practice->answered);
+    }
+
+    public function test_story_chain_tara_ends_the_story_on_the_last_turn_and_next_finishes(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards(), position: 2);
+        $practice->update(['current' => ['lines' => [['who' => 'you', 'text' => 'A.'], ['who' => 'tara', 'text' => 'B.']]]]);
+        $this->heard('It began to rain.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
+            ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains((string) $systemPrompt, 'ending'))
+            ->andReturn('They went home happy.'));
+
+        $component = $this->say($practice->refresh())->assertSee('YOUR STORY')->assertSee('They went home happy.')->assertDontSee('Use this word');
+
+        $this->assertCount(4, $practice->refresh()->current['lines']);
+
+        $component->call('next')->assertSee('Well done!');
+    }
+
+    public function test_story_chain_skip_lets_tara_go_on_alone(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards());
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('She took a boat.'));
+
+        Livewire::test('ai-practice.session', ['practice' => $practice])->call('next')->assertSee('She took a boat.');
+
+        $practice->refresh();
+        $this->assertSame(0, $practice->answered);
+        $this->assertSame(2, $practice->position);
+    }
+
+    public function test_story_chain_goes_on_with_a_plain_line_when_the_ai_is_down_and_nothing_heard_keeps_my_turn(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards());
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new RuntimeException('down')));
+
+        $this->heard('');
+        $this->say($practice)->assertSee('I couldn’t hear you');
+        $this->assertSame(0, $practice->refresh()->position);
+
+        $this->heard('She saw the river.');
+        $this->say($practice->refresh())->assertSee('Then something surprising happened.');
+        $this->assertSame(2, $practice->refresh()->position);
+    }
+
     public function test_a_finished_practice_counts_for_my_day_and_never_as_a_game_with_a_friend(): void
     {
         $practice = AiPractice::factory()->create(['answered' => AiPractice::MIN_COUNTED_ANSWERS]);

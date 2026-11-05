@@ -123,6 +123,21 @@ class AiPartner
     }
 
     /**
+     * Story Chain: Tara's next line of the story told so far, with her
+     * word in it. Her last line ends the story.
+     */
+    public function continueStory(string $story, string $word, bool $endsTheStory, string $learnerDescription): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "The story so far:\n{$story}\n\nYour word: {$word}"]],
+            systemPrompt: $this->classmate($learnerDescription).' You and your classmate are telling a made-up story, taking turns. '
+                .'Their lines are automatic transcripts of speech, so be kind to small mishearings. Reply with ONLY the next one or two short sentences of the story, using your word naturally, '
+                .($endsTheStory ? 'and give the story a happy or funny ending.' : 'and leave the story open for your classmate.').' Plain text only.',
+            profile: GeminiClient::PROFILE_CHAT,
+        ));
+    }
+
+    /**
      * Would You Rather: one sentence saying why the AI took its side.
      */
     public function reasonFor(string $question, string $side, string $learnerDescription): string

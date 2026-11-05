@@ -17,11 +17,15 @@ class AiPractices
 
     private const TURNS_ALONE = 4;
 
+    /** Story Chain counts both tellers' turns: inside a round, a shorter story. */
+    private const STORY_TURNS_IN_ROUND = 4;
+
     public function __construct(
         private readonly PairPractice $pairPractice,
         private readonly WhoAmIDeck $whoAmI,
         private readonly WouldYouRatherDeck $wouldYouRather,
         private readonly JustAMinuteDeck $justAMinute,
+        private readonly StoryChainDeck $storyChain,
     ) {}
 
     /**
@@ -96,12 +100,17 @@ class AiPractices
         $deckMaker = match ($game) {
             PairGame::GAME_WHO => $this->whoAmI,
             PairGame::GAME_MINUTE => $this->justAMinute,
+            PairGame::GAME_STORY => $this->storyChain,
             default => $this->wouldYouRather,
         };
         $rules = [...$deckMaker->rulesFor($learner, $learner, PairGames::PRACTICE_MINUTES), 'days' => $days];
 
         if ($game === PairGame::GAME_WHO) {
             return ['game' => $game, 'cards' => $deckMaker->cardsFor($learner, $learner, $rules)];
+        }
+
+        if ($game === PairGame::GAME_STORY) {
+            return ['game' => $game, 'cards' => array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $inRound ? self::STORY_TURNS_IN_ROUND : StoryChainDeck::STORY_TURNS)];
         }
 
         $rules['turns'] = $inRound ? self::TURNS_IN_ROUND : self::TURNS_ALONE;

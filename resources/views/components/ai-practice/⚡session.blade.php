@@ -70,6 +70,7 @@ new class extends Component
             ! $this->practice->isGameStage() => $this->answerCard(),
             $this->practice->game() === PairGame::GAME_WHO => $this->askAboutSecret(),
             $this->practice->game() === PairGame::GAME_MINUTE => $this->speakInMinute(),
+            $this->practice->game() === PairGame::GAME_STORY => $this->tellStory(),
             default => $this->sayWhy(),
         };
     }
@@ -193,6 +194,48 @@ new class extends Component
             'current' => [...$current, 'ticked' => $ticked ? array_values(array_diff($current['ticked'], [$word])) : [...$current['ticked'], $word]],
             'score' => $this->practice->score + $points,
         ]);
+    }
+
+    /**
+     * Story Chain, the learner's turn: their line, a point when their word
+     * is in it (no AI call), and Tara goes on straight away.
+     */
+    private function tellStory(): void
+    {
+        $current = $this->practice->current ?? ['lines' => []];
+
+        if (isset($current['ended']) || ($heard = $this->hear()) === null) {
+            return;
+        }
+
+        $card = $this->practice->currentCard();
+        $this->practice->answered++;
+        $this->practice->score += AiPractice::wordsIn($heard, [$card['word']]) === [] ? 0 : 1;
+        $this->taraGoesOn([...$current['lines'], ['who' => 'you', 'text' => $heard]]);
+    }
+
+    /**
+     * Story Chain, Tara's turn: her line with the next card's word, on the
+     * last turn the ending. A plain line stands in when the AI can't answer.
+     *
+     * @param  list<array{who: string, text: string}>  $lines
+     */
+    private function taraGoesOn(array $lines): void
+    {
+        $card = $this->practice->cards()[$this->practice->position + 1];
+        $endsTheStory = $this->practice->position + 2 >= count($this->practice->cards());
+        $story = collect([$card['line'], ...array_column($lines, 'text')])->join("\n");
+        $line = $this->taraSays(
+            fn (AiPartner $tara) => $tara->continueStory($story, $card['word'], $endsTheStory, auth()->user()->levelDescription()),
+            $endsTheStory ? 'And in the end, everybody was happy.' : 'Then something surprising happened.',
+        );
+
+        $this->practice->current = [
+            'lines' => [...$lines, ['who' => 'tara', 'text' => $line]],
+            ...($endsTheStory ? ['ended' => true] : []),
+        ];
+        $this->practice->position += $endsTheStory ? 1 : 2;
+        $this->practice->save();
     }
 
     /**
@@ -329,6 +372,13 @@ new class extends Component
     {
         $this->error = null;
         $this->audioFile = null;
+
+        if ($this->practice->isGameStage() && $this->practice->game() === PairGame::GAME_STORY && ! isset($this->practice->current['ended'])) {
+            $this->taraGoesOn($this->practice->current['lines'] ?? []);
+
+            return;
+        }
+
         $this->practice->next();
 
         if ($this->practice->isFinished() || ! $this->practice->isGameStage()) {
@@ -417,6 +467,8 @@ new class extends Component
             @include('components.ai-practice.partials.who-am-i')
         @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_MINUTE)
             @include('components.ai-practice.partials.just-a-minute')
+        @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_STORY)
+            @include('components.ai-practice.partials.story-chain')
         @elseif ($stage === AiPractice::STAGE_GAME)
             @include('components.ai-practice.partials.would-you-rather')
         @else
